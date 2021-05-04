@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 # setup_package_name_and_create_files : this macro which is called from other modules which use iceoryx_utils
 # sets the variables for package version file,config file used for configuration

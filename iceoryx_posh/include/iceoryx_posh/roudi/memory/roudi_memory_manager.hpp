@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_MANAGER_HPP
 #define IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_MANAGER_HPP
 
@@ -34,6 +37,7 @@ class MemoryProvider;
 
 enum class RouDiMemoryManagerError
 {
+    INVALID_STATE,
     /// attempt to add more memory provider than the capacity allows
     MEMORY_PROVIDER_EXHAUSTED,
     /// an action was performed which requires memory provider

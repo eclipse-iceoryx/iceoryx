@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
 #define IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
@@ -48,7 +50,7 @@ class Buffer
   private:
     using byte_t = uint8_t;
 
-    alignas(alignof(ElementType)) byte_t m_buffer[Capacity * sizeof(ElementType)];
+    alignas(ElementType) byte_t m_buffer[Capacity * sizeof(ElementType)];
 
     ElementType* toPtr(index_t index) const noexcept;
 };

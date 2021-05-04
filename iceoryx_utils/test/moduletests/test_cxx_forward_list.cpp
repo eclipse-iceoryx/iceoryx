@@ -11,7 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/cxx/attributes.hpp"
 #include "iceoryx_utils/cxx/forward_list.hpp"
 #include "test.hpp"
 
@@ -908,7 +911,7 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     }
     sut.insert_after(iter, a);
 
-    for (auto& x [[gnu::unused]] : sut)
+    for (auto& x IOX_MAYBE_UNUSED : sut)
     {
         ++loopCounter;
     }
@@ -1927,7 +1930,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 {
     uint64_t i = 0U;
     using TestFwdList = forward_list<TestListElement, TESTLISTCAPACITY>;
-    alignas(alignof(TestFwdList)) uint8_t otherSutBuffer[sizeof(TestFwdList)];
+    alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
     uint8_t* otherSutPtr = otherSutBuffer;
 
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 #define IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "port_queue_policies.hpp"
 
 #include <cstdint>
 
@@ -32,6 +35,15 @@ struct SubscriberOptions
 
     /// @brief The max number of chunks received after subscription if chunks are available
     uint64_t historyRequest{0U};
+
+    /// @brief The name of the node where the subscriber should belong to
+    iox::NodeName_t nodeName{""};
+
+    /// @brief The option whether the subscriber shall try to subscribe when creating it
+    bool subscribeOnCreate{true};
+
+    /// @brief The option whether the publisher should block when the subscriber queue is full
+    QueueFullPolicy queueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo

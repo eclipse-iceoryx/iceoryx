@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_EXAMPLES_ICEPERF_MQ_HPP
 #define IOX_EXAMPLES_ICEPERF_MQ_HPP
 
@@ -29,8 +31,8 @@
 class MQ : public IcePerfBase
 {
   public:
-    static constexpr size_t MAX_MESSAGE_SIZE = 4 * IcePerfBase::ONE_KILOBYTE;
-    static constexpr size_t MAX_MESSAGES = 8;
+    static constexpr uint32_t MAX_MESSAGE_SIZE = 4 * IcePerfBase::ONE_KILOBYTE;
+    static constexpr uint32_t MAX_MESSAGES = 8;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr mqd_t INVALID_DESCRIPTOR = -1;
 

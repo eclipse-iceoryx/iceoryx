@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_INL
 
@@ -29,9 +32,10 @@ constexpr T min(const T left, const T right)
 
 template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 inline ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
-    const uint64_t historyCapacity) noexcept
+    const SubscriberTooSlowPolicy policy, const uint64_t historyCapacity) noexcept
     : LockingPolicy()
     , m_historyCapacity(min(historyCapacity, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY))
+    , m_subscriberTooSlowPolicy(policy)
 {
     if (m_historyCapacity != historyCapacity)
     {

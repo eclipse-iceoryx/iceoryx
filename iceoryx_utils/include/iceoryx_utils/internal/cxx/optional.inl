@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_OPTIONAL_INL
 #define IOX_UTILS_CXX_OPTIONAL_INL
 
@@ -33,6 +36,12 @@ template <typename T>
 inline optional<T>::optional(T&& value) noexcept
 {
     construct_value(std::forward<T>(value));
+}
+
+template <typename T>
+inline optional<T>::optional(const T& value) noexcept
+{
+    construct_value(value);
 }
 
 template <typename T>
@@ -220,10 +229,10 @@ inline void optional<T>::reset() noexcept
 }
 
 template <typename T>
-    inline T& optional<T>::value() & noexcept
+inline T& optional<T>::value() & noexcept
 {
-    auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
-    return *data;
+    Expects(has_value());
+    return *static_cast<T*>(static_cast<void*>(m_data));
 }
 
 template <typename T>
@@ -234,10 +243,10 @@ inline const T& optional<T>::value() const& noexcept
 }
 
 template <typename T>
-    inline T&& optional<T>::value() && noexcept
+inline T&& optional<T>::value() && noexcept
 {
-    auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
-    return std::move(*data);
+    Expects(has_value());
+    return std::move(*static_cast<T*>(static_cast<void*>(m_data)));
 }
 
 template <typename T>

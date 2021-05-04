@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 # Build icedelivery example
 cmake_minimum_required(VERSION 3.5)
@@ -20,51 +22,37 @@ project(example_icedelivery)
 include(GNUInstallDirs)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ()
+include(IceoryxPlatform)
 
-add_executable(iox-ex-publisher-typed ./iox_publisher_typed.cpp)
-target_link_libraries(iox-ex-publisher-typed
+add_executable(iox-cpp-publisher ./iox_publisher.cpp)
+target_link_libraries(iox-cpp-publisher
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
-target_link_libraries(iox-ex-publisher-with-history
+add_executable(iox-cpp-publisher-untyped ./iox_publisher_untyped.cpp)
+target_link_libraries(iox-cpp-publisher-untyped
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-publisher-untyped ./iox_publisher_untyped.cpp)
-target_link_libraries(iox-ex-publisher-untyped
+add_executable(iox-cpp-subscriber ./iox_subscriber.cpp)
+target_link_libraries(iox-cpp-subscriber
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-typed ./iox_subscriber_typed.cpp)
-target_link_libraries(iox-ex-subscriber-typed
+add_executable(iox-cpp-subscriber-untyped ./iox_subscriber_untyped.cpp)
+target_link_libraries(iox-cpp-subscriber-untyped
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
-target_link_libraries(iox-ex-subscriber-with-history
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-ex-subscriber-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-ex-subscriber-untyped ./iox_subscriber_untyped.cpp)
-target_link_libraries(iox-ex-subscriber-untyped
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
-                      iox-ex-publisher-with-history iox-ex-subscriber-with-history
-                      iox-ex-publisher-typed iox-ex-publisher-untyped
+set_target_properties(iox-cpp-subscriber iox-cpp-subscriber-untyped
+                      iox-cpp-publisher iox-cpp-publisher-untyped
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -73,7 +61,6 @@ set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher-untyped iox-ex-publisher-typed
-                iox-ex-publisher-with-history iox-ex-subscriber-with-history
-                iox-ex-subscriber-untyped iox-ex-subscriber-typed
+install(TARGETS iox-cpp-publisher-untyped iox-cpp-publisher
+                iox-cpp-subscriber-untyped iox-cpp-subscriber
         RUNTIME DESTINATION bin)

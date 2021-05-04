@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 
@@ -33,6 +36,7 @@ namespace mepoo
 {
 enum class TypedMemPoolError
 {
+    INVALID_STATE,
     OutOfChunks,
     FatalErrorReachedInconsistentState
 };
@@ -41,9 +45,9 @@ template <typename T>
 class TypedMemPool
 {
   public:
-    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                 posix::Allocator* f_managementAllocator,
-                 posix::Allocator* f_payloadAllocator) noexcept;
+    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+                 posix::Allocator& managementAllocator,
+                 posix::Allocator& chunkMemoryAllocator) noexcept;
 
     TypedMemPool(const TypedMemPool&) = delete;
     TypedMemPool(TypedMemPool&&) = delete;
@@ -61,9 +65,9 @@ class TypedMemPool
     static uint64_t requiredManagementMemorySize(const uint64_t f_numberOfChunks) noexcept;
     static uint64_t requiredChunkMemorySize(const uint64_t f_numberOfChunks) noexcept;
     static uint64_t requiredFullMemorySize(const uint64_t f_numberOfChunks) noexcept;
-    static uint64_t getAdjustedPayloadSize() noexcept;
 
   private:
+    static uint64_t requiredChunkSize() noexcept;
     cxx::expected<ChunkManagement*, TypedMemPoolError> acquireChunkManagementPointer() noexcept;
 
   private:

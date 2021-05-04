@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/concurrent/sofi.hpp"
 
 #include <gtest/gtest.h>
 #include <stdlib.h>
 
-
-namespace gtest_daddy_container_sofi_unittest
+namespace
 {
 class CUnitTestContainerSoFi : public ::testing::Test
 {
@@ -463,4 +465,4 @@ TEST_F(CUnitTestContainerSoFi, PopIfInvalidNotEmptyAfter)
 }
 
 /// @todo popif empty test
-} // namespace gtest_daddy_container_sofi_unittest
+} // namespace

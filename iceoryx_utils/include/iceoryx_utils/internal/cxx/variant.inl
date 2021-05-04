@@ -1,4 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Perforce All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +13,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_VARIANT_INL
 #define IOX_UTILS_CXX_VARIANT_INL
 
@@ -81,7 +85,6 @@ variant<Types...>::variant(variant&& f_rhs) noexcept
     {
         internal::call_at_index<0, Types...>::moveConstructor(m_type_index, f_rhs.m_storage, m_storage);
     }
-    f_rhs.m_type_index = INVALID_VARIANT_INDEX;
 }
 
 template <typename... Types>
@@ -97,7 +100,6 @@ variant<Types...>& variant<Types...>::operator=(variant&& f_rhs) noexcept
             {
                 internal::call_at_index<0, Types...>::moveConstructor(m_type_index, f_rhs.m_storage, m_storage);
             }
-            f_rhs.m_type_index = INVALID_VARIANT_INDEX;
         }
         else
         {
@@ -106,8 +108,6 @@ variant<Types...>& variant<Types...>::operator=(variant&& f_rhs) noexcept
                 internal::call_at_index<0, Types...>::move(m_type_index, f_rhs.m_storage, m_storage);
             }
         }
-
-        f_rhs.m_type_index = INVALID_VARIANT_INDEX;
     }
     return *this;
 }
@@ -206,11 +206,11 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
 template <typename... Types>
 template <uint64_t TypeIndex>
-inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type* variant<Types...>::get_at_index() const
-    noexcept
+inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
+variant<Types...>::get_at_index() const noexcept
 {
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
-    return const_cast<const T*>(const_cast<variant*>(this)->get_at_index<TypeIndex>());
+    return const_cast<const T*>(const_cast<variant*>(this)->template get_at_index<TypeIndex>());
 }
 
 template <typename... Types>
@@ -254,7 +254,7 @@ inline const T* variant<Types...>::get_if(const T* f_default_value) const noexce
 }
 
 template <typename... Types>
-constexpr size_t variant<Types...>::index() const noexcept
+constexpr uint64_t variant<Types...>::index() const noexcept
 {
     return m_type_index;
 }

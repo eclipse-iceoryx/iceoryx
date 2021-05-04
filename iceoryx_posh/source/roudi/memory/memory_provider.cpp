@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
@@ -18,7 +21,7 @@
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 
 /// @todo this should probably be moved to iceoryx_utils/allocator/bump_allocator.hpp
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -83,7 +86,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    m_segmentId = RelativePointer::registerPtr(m_memory, m_size);
+    m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
 
     LogDebug() << "Registered memory segment " << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
                << " with size " << m_size << " to id " << m_segmentId;
@@ -114,7 +117,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        RelativePointer::unregisterPtr(m_segmentId);
+        rp::BaseRelativePointer::unregisterPtr(m_segmentId);
         m_memory = nullptr;
         m_size = 0u;
     }
@@ -165,6 +168,8 @@ const char* MemoryProvider::getErrorString(const MemoryProviderError error)
 {
     switch (error)
     {
+    case MemoryProviderError::INVALID_STATE:
+        return "MEMORY_BLOCKS_INVALID_STATE";
     case MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED:
         return "MEMORY_BLOCKS_EXHAUSTED";
     case MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT:

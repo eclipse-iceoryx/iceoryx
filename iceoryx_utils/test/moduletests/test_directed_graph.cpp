@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/graphs/directed_acyclic_graph.hpp"
 #include "iceoryx_utils/internal/graphs/directed_graph.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 constexpr size_t MAX_VERTICES = 4;
@@ -283,3 +288,4 @@ TEST_F(DirectedAcyclicGraph_test, addEdges)
     EXPECT_FALSE(m_graph.addEdge(&node5, &node5)); // selfloop
     EXPECT_FALSE(m_graph.addEdge(&node3, &node2)); // cycle
 }
+} // namespace

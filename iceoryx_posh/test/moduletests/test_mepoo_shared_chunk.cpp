@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2021 by  Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,18 +38,27 @@ class SharedChunk_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader();
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
+
         new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }
 
     static constexpr uint32_t CHUNK_SIZE{64U};
     static constexpr uint32_t NUMBER_OF_CHUNKS{10U};
-    char memory[4096];
-    iox::posix::Allocator allocator{memory, 4096U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{64U};
 
-    MemPool mempool{CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator};
-    MemPool chunkMgmtPool{CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator};
+    char memory[4096U];
+    iox::posix::Allocator allocator{memory, 4096U};
+    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 10U, allocator, allocator};
+    MemPool chunkMgmtPool{64U, 10U, allocator, allocator};
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
     SharedChunk sut{chunkManagement};
@@ -146,7 +156,7 @@ TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithD
     SharedChunk sut1{chunkManagement};
     SharedChunk sut2{nullptr};
 
-    EXPECT_FALSE(sut1 == sut2.getPayload());
+    EXPECT_FALSE(sut1 == sut2.getUserPayload());
 }
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithSameChunkManagementsReturnTrue)
@@ -154,7 +164,7 @@ TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithS
     SharedChunk sut1{chunkManagement};
     SharedChunk sut2{chunkManagement};
 
-    EXPECT_TRUE(sut1 == sut2.getPayload());
+    EXPECT_TRUE(sut1 == sut2.getUserPayload());
 }
 
 TEST_F(SharedChunk_Test, BoolOperatorOnValidSharedChunkReturnsTrue)
@@ -169,43 +179,34 @@ TEST_F(SharedChunk_Test, BoolOperatorOnSharedChunkWithChunkManagementAsNullPoint
     EXPECT_FALSE(sut);
 }
 
-TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodWithChunkManagementEqualNullPointerReturnTrue)
+TEST_F(SharedChunk_Test, getUserPayloadWhenInvalidResultsInNullptr)
 {
-    SharedChunk sut(nullptr);
-
-    EXPECT_TRUE(sut.hasNoOtherOwners());
-}
-
-TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodForSingleOwnerWhen_m_chunkmanagementisValidReturnsTrue)
-{
-    EXPECT_TRUE(sut.hasNoOtherOwners());
-}
-
-TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodForMultipleOwnerWhen_m_chunkmanagementisValidReturnsFalse)
-{
-    SharedChunk sut1{chunkManagement};
-
-    SharedChunk sut2(sut1);
-
-    EXPECT_FALSE(sut1.hasNoOtherOwners());
+    SharedChunk sut2(nullptr);
+    EXPECT_THAT(sut2.getUserPayload(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, GetPayloadMethodReturnsNullPointerWhen_m_chunkmanagmentIsInvalid)
 {
     SharedChunk sut1(nullptr);
 
-    EXPECT_THAT(sut1.getPayload(), Eq(nullptr));
+    EXPECT_THAT(sut1.getUserPayload(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, GetPayloadMethodReturnsValidPointerWhen_m_chunkmanagmentIsValid)
 {
+    using DATA_TYPE = uint32_t;
+    constexpr DATA_TYPE USER_DATA{7337U};
     ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
-    new (newChunk) ChunkHeader();
-    new (static_cast<int*>(newChunk->payload())) int{1337};
 
-    SharedChunk sut1(GetChunkManagement(newChunk));
+    auto chunkSettingsResult = ChunkSettings::create(sizeof(DATA_TYPE), alignof(DATA_TYPE));
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
 
-    EXPECT_THAT(*static_cast<int*>(sut1.getPayload()), Eq(1337));
+    new (newChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
+    new (static_cast<DATA_TYPE*>(newChunk->userPayload())) DATA_TYPE{USER_DATA};
+
+    iox::mepoo::SharedChunk sut1(GetChunkManagement(newChunk));
+    EXPECT_THAT(*static_cast<DATA_TYPE*>(sut1.getUserPayload()), Eq(USER_DATA));
 }
 
 TEST_F(SharedChunk_Test, MultipleSharedChunksCleanup)
@@ -297,7 +298,7 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWi
     SharedChunk sut1{chunkManagement};
     SharedChunk sut2(nullptr);
 
-    EXPECT_TRUE(sut1 != sut2.getPayload());
+    EXPECT_TRUE(sut1 != sut2.getUserPayload());
 }
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWithSameChunkManagementsReturnFalse)
@@ -305,7 +306,7 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWi
     SharedChunk sut1{chunkManagement};
     SharedChunk sut2(chunkManagement);
 
-    EXPECT_FALSE(sut1 != sut2.getPayload());
+    EXPECT_FALSE(sut1 != sut2.getUserPayload());
 }
 
 TEST_F(SharedChunk_Test,
@@ -313,17 +314,7 @@ TEST_F(SharedChunk_Test,
 {
     ChunkManagement* returnValue = sut.release();
 
-    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), CHUNK_SIZE);
-    EXPECT_THAT(returnValue->m_mempool->getChunkCount(), NUMBER_OF_CHUNKS);
-    EXPECT_FALSE(sut);
-}
-
-TEST_F(SharedChunk_Test,
-       ReleaseMethodReturnsRelativeChunkManagementPointerOfSharedChunkObjectSetsTheChunkManagementRelativePointerToNull)
-{
-    auto returnValue = sut.releaseWithRelativePtr();
-
-    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), CHUNK_SIZE);
+    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), sizeof(ChunkHeader) + USER_PAYLOAD_SIZE);
     EXPECT_THAT(returnValue->m_mempool->getChunkCount(), NUMBER_OF_CHUNKS);
     EXPECT_FALSE(sut);
 }

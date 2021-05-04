@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_UTILS_CXX_FORWARD_LIST_INL
 #define IOX_UTILS_CXX_FORWARD_LIST_INL
@@ -322,7 +325,7 @@ template <typename T, uint64_t Capacity>
 inline T& forward_list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
-    handleInvalidElement(iter.m_iterListNodeIdx);
+    cxx::Expects(isValidElementIdx(iter.m_iterListNodeIdx) && "Invalid list element");
     return *iter;
 }
 
@@ -330,7 +333,7 @@ template <typename T, uint64_t Capacity>
 inline const T& forward_list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
-    handleInvalidElement(citer.m_iterListNodeIdx);
+    cxx::Expects(isValidElementIdx(citer.m_iterListNodeIdx) && "Invalid list element");
     return *citer;
 }
 
@@ -426,7 +429,7 @@ template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>&
 forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator++() noexcept
 {
-    if (!m_list->handleInvalidIterator(*this))
+    if (!m_list->isInvalidIterator(*this))
     {
         m_iterListNodeIdx = m_list->getNextIdx(m_iterListNodeIdx);
     }
@@ -440,7 +443,7 @@ template <bool IsConstIteratorOther>
 inline bool forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator==(
     const forward_list<T, Capacity>::IteratorBase<IsConstIteratorOther>& rhs) const noexcept
 {
-    if (m_list->isInvalidIterOrDifferentLists(rhs) || m_list->handleInvalidIterator(*this))
+    if (m_list->isInvalidIterOrDifferentLists(rhs) || m_list->isInvalidIterator(*this))
     {
         return false;
     }
@@ -543,11 +546,7 @@ inline void forward_list<T, Capacity>::setNextIdx(const size_type idx, const siz
 template <typename T, uint64_t Capacity>
 inline const T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const noexcept
 {
-    if (handleInvalidElement(idx))
-    {
-        // error handling in call to handleInvalidElement()
-        return nullptr;
-    }
+    cxx::Expects(isValidElementIdx(idx) && "Invalid list element");
 
     return &(reinterpret_cast<const T*>(&m_data)[idx]);
 }
@@ -580,54 +579,19 @@ inline bool forward_list<T, Capacity>::isValidElementIdx(const size_type idx) co
 }
 
 template <typename T, uint64_t Capacity>
-inline bool forward_list<T, Capacity>::handleInvalidElement(const size_type idx) const noexcept
-{
-    // freeList / invalid elements will have the 'invalidElement' flag set to true
-    if (isValidElementIdx(idx))
-    {
-        return false;
-    }
-    else
-    {
-        errorMessage(__PRETTY_FUNCTION__, " invalid list element ");
-        std::terminate();
-
-        return true;
-    }
-}
-
-template <typename T, uint64_t Capacity>
-inline bool forward_list<T, Capacity>::handleInvalidIterator(const const_iterator& iter) const noexcept
+inline bool forward_list<T, Capacity>::isInvalidIterator(const const_iterator& iter) const noexcept
 {
     // iterator's member m_iterListNodeIdx and nextIndex are not checked here to be <= END_INDEX as this
     // should (can) never happen though normal list operations.
-    if (!isInvalidElement(iter.m_iterListNodeIdx))
-    {
-        return false;
-    }
-    else
-    {
-        errorMessage(__PRETTY_FUNCTION__, " invalidated iterator ");
-        std::terminate();
-
-        return true;
-    }
+    cxx::Expects(!isInvalidElement(iter.m_iterListNodeIdx) && "invalidated iterator");
+    return false;
 }
 
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    if (this != iter.m_list)
-    {
-        errorMessage(__PRETTY_FUNCTION__, " iterator of other list can't be used ");
-        std::terminate();
-
-        return true;
-    }
-    else
-    {
-        return handleInvalidIterator(iter);
-    }
+    cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
+    return isInvalidIterator(iter);
 }
 
 template <typename T, uint64_t Capacity>

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_VARIANT_HPP
 #define IOX_UTILS_CXX_VARIANT_HPP
 
@@ -229,7 +231,7 @@ class variant
     /// @brief returns the index of the stored type in the variant. if the variant does
     ///         not contain any type it returns INVALID_VARIANT_INDEX
     /// @return index of the stored type
-    constexpr size_t index() const noexcept;
+    constexpr uint64_t index() const noexcept;
 
   private:
     alignas(algorithm::max(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0u};

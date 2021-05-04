@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "mq.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
@@ -193,7 +195,7 @@ void MQ::send(const char* buffer, uint32_t length) noexcept
                                        m_mqDescriptorPublisher,
                                        buffer,
                                        length,
-                                       1);
+                                       1U);
 
     if (mqCall.hasErrors())
     {

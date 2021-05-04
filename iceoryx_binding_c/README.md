@@ -1,13 +1,13 @@
 # Iceoryx C Language binding
 
 If you are looking for an example take a look at the
-[icedelivery on c example](../iceoryx_examples/icedelivery_on_c).
+[icedelivery on c example](../iceoryx_examples/icedelivery_in_c).
 
 ## C API structure
 
 The idea of the C API is to be as close to the C++ API as possible. The idea is
 that the C API looks and feels the same like the C++ API so that you do not have
-to learn Ice0ryx from scratch if you would like to use the C API.
+to learn Iceoryx from scratch if you would like to use the C API.
 
 Therefore, we have the following coding conventions exclusively in the C API.
 

@@ -89,7 +89,7 @@ RouDi may continue but applications may be compromised or the functionality redu
 A message queue is overflowing and messages are lost. RouDi can continue but lost data may affect applications.
 
 #### FATAL
-RouDi cannot continue and will shut down. Leads to an error log entry (``LogFatal``), assert and calls ``std::terminate``, terminating execution in debug and release mode. 
+RouDi cannot continue and will shut down. Leads to an error log entry (``LogFatal``), assert and calls ``std::terminate``, terminating execution in debug and release mode.
 Before calling terminate, a callback is invoked (if configured), which can execute specific error handling code (e.g. call a 3rd party error handler).
 The handler is not required to return here (since this may not be always possible or reasonable). The reporting code should still try to proceed to a safe state if possible in order to improve testability in case of such errors.
 
@@ -135,11 +135,13 @@ All the methods presented (``cxx::expected``, ``Expects`` and ``Ensures`` and th
 
 Error logging is currently done by calls to ``std::cerr``. In the future those might be redirected to the logger.
 
-The error handler cannot be used in utils. 
+The error handler cannot be used in utils.
 
 Whether it is appropriate to use ``cxx::expected`` even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart ``cxx::expected`` can be used freely to communicate potential failure to the caller.
 
-It should be noted that since currently Expects and Ensures are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
+It should be noted that since currently `Expects` and `Ensures` are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
+
+Do not use `std::terminate` directly but use assert-like constructs such as ``Expects`` or ``Ensures``.
 
 ### Interface for 3rd Party Code
 
@@ -292,9 +294,6 @@ We need to further clarify behavior in release and debug mode of the error handl
 Do we want an Assert in addition to ``Expects`` and ``Ensures``? If so, shall it possibly be active in release mode or only debug mode?
 
 In principle with a sufficiently powerful Assert or ``Expects`` (resp. ``Ensures``), this should not be needed (they are equivalent in their functionality).
-
-### Errors in utils
-Currently there are a few occurrences in utils where terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as ``Expects``, ``Ensures`` or ``assert`` or something else.
 
 ## Future improvements
 In this section we briefly describe ways to potentially improve or extend functionality of existing error handling components. This list is by no means exhaustive and all suggestions are up for discussion and may be refined further.

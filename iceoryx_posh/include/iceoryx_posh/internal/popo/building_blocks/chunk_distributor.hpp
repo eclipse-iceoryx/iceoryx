@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
@@ -19,12 +22,15 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
+#include <thread>
+
 namespace iox
 {
 namespace popo
 {
 enum class ChunkDistributorError
 {
+    INVALID_STATE,
     QUEUE_CONTAINER_OVERFLOW,
     QUEUE_NOT_IN_CONTAINER
 };
@@ -98,7 +104,8 @@ class ChunkDistributor
     /// history
     /// @param[in] chunk queue to which this chunk shall be delivered
     /// @param[in] shared chunk to be delivered
-    void deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
+    /// @return false if a queue overflow occured, otherwise true
+    bool deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara

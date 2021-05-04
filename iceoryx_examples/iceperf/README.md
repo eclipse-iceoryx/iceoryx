@@ -16,10 +16,11 @@ At the end of the benchmark, the average latency for each payload size is printe
 ## Run iceperf
 
 Create three terminals and run one command in each of them.
-The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup
-and then iceperf-hardy for doing the ping pong measurements with iceperf-laurel. 
-You can set the number of measurement iterations (number of roundtrips) with a command line paramter
+The order is first the RouDi daemon, then iceperf-laurel that is the leader in this setup
+and then iceperf-hardy for doing the ping pong measurements with iceperf-laurel.
+You can set the number of measurement iterations (number of roundtrips) with a command-line parameter
 of iceperf-laurel (e.g. `./iceperf-laurel 100000`)
+
 ```sh
     # If installed and available in PATH environment variable
     iox-roudi
@@ -31,15 +32,16 @@ of iceperf-laurel (e.g. `./iceperf-laurel 100000`)
     build/iceoryx_examples/iceperf/iceperf-hardy
 ```
 
-If you would like to test only the C++ API or the C API you can start iceperf-laurel and 
+If you would like to test only the C++ API or the C API you can start iceperf-laurel and
 iceperf-hardy with the parameter `cpp-api` or `c-api`.
+
 ```sh
     build/iceoryx_examples/iceperf/iceperf-laurel 100000 cpp-api
 
     build/iceoryx_examples/iceperf/iceperf-hardy cpp-api
 ```
 
-## Expected output
+## Expected Output
 
 The numbers will differ depending on parameters and the performance of the hardware.
 Which technologies are measured depends on the operating system (e.g. no message queue on MacOS).
@@ -180,7 +182,7 @@ unix domain socket). Our focus here is on the abstraction layer on top which all
 
 ### iceperf-laurel application
 
-Besides includes for the different IPC technologies, the topic_data.hpp file is included which contains the PerTopic struct that is used to transfer some information between the applications. Independent of the real payload size, this struct is used as some kind of header in each transferred sample. 
+Besides includes for the different IPC technologies, the topic_data.hpp file is included that contains the PerTopic struct that is used to transfer some information between the applications. Independent of the real payload size, this struct is used as some kind of header in each transferred sample.
 
 ```cpp
     struct PerfTopic
@@ -194,6 +196,7 @@ Besides includes for the different IPC technologies, the topic_data.hpp file is 
 With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided into several sub-packets. This is indicated with `subPackets`. The `run` flag is used to shutdown iceperf-hardy at the end of the benchmark.
 
 Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used.
+
 ```cpp
     constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
     constexpr char APP_NAME[] = "laurel";
@@ -299,3 +302,7 @@ The `main()` for iceperf-hardy is similar to iceperf-laurel, only the SUBSCRIBER
         ipcTechnology.shutdown();
     }
 ```
+
+<center>
+[Check out iceperf on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceperf){ .md-button }
+</center>

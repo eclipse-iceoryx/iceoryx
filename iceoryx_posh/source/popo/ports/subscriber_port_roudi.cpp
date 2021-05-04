@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_roudi.hpp"
 
@@ -22,6 +25,11 @@ SubscriberPortRouDi::SubscriberPortRouDi(cxx::not_null<MemberType_t* const> subs
     : BasePort(subscriberPortDataPtr)
     , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 {
+}
+
+QueueFullPolicy SubscriberPortRouDi::getQueueFullPolicy() const noexcept
+{
+    return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
 }
 
 const SubscriberPortRouDi::MemberType_t* SubscriberPortRouDi::getMembers() const noexcept

@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +12,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "test.hpp"
 
 
 #include <cstdint>
-
+namespace
+{
 using namespace ::testing;
 
 using NumberType = iox::cxx::convert::NumberType;
@@ -349,3 +353,4 @@ TEST_F(convert_test, fromString_MinMaxUNSIGNED_Int)
     source = "-1";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
+} // namespace

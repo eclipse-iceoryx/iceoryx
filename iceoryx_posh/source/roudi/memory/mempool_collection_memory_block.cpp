@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 
@@ -36,14 +39,14 @@ MemPoolCollectionMemoryBlock::~MemPoolCollectionMemoryBlock() noexcept
 
 uint64_t MemPoolCollectionMemoryBlock::size() const noexcept
 {
-    return cxx::align(static_cast<uint64_t>(sizeof(mepoo::MemoryManager)), mepoo::MemPool::MEMORY_ALIGNMENT)
+    return cxx::align(static_cast<uint64_t>(sizeof(mepoo::MemoryManager)), mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::MemoryManager::requiredFullMemorySize(m_memPoolConfig);
 }
 
 uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 {
     // algorithm::align doesn't like constexpr values
-    auto memPoolAlignment = mepoo::MemPool::MEMORY_ALIGNMENT;
+    auto memPoolAlignment = mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT;
     return algorithm::max(static_cast<uint64_t>(alignof(mepoo::MemoryManager)), memPoolAlignment);
 }
 
@@ -53,7 +56,7 @@ void MemPoolCollectionMemoryBlock::memoryAvailable(void* memory) noexcept
     auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 
-    m_memoryManager->configureMemoryManager(m_memPoolConfig, &allocator, &allocator);
+    m_memoryManager->configureMemoryManager(m_memPoolConfig, allocator, allocator);
 }
 
 void MemPoolCollectionMemoryBlock::destroy() noexcept

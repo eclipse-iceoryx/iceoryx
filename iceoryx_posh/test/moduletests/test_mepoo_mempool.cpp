@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by  Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,29 +22,32 @@
 #include "test.hpp"
 
 using namespace ::testing;
+using namespace iox::mepoo;
 
-class alignas(32) MemPool_test : public Test
+class MemPool_test : public Test
 {
   public:
     static constexpr uint32_t NUMBER_OF_CHUNKS{100U};
     static constexpr uint32_t CHUNK_SIZE{64U};
 
-    static constexpr uint32_t LOFFLI_MEMORY_REQUIREMENT{
-        iox::mepoo::MemPool::freeList_t::requiredMemorySize(NUMBER_OF_CHUNKS) + 10000U};
+    using FreeListIndex_t = iox::mepoo::MemPool::freeList_t::Index_t;
+    static constexpr FreeListIndex_t LOFFLI_MEMORY_REQUIREMENT{
+        iox::mepoo::MemPool::freeList_t::requiredIndexMemorySize(NUMBER_OF_CHUNKS) + 10000U};
 
     MemPool_test()
         : allocator(m_rawMemory, NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT)
-        , sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator)
+        , sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator)
     {
     }
 
     void SetUp(){};
     void TearDown(){};
 
-    alignas(32) uint8_t m_rawMemory[NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT];
+    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t
+        m_rawMemory[NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT];
     iox::posix::Allocator allocator;
 
-    iox::mepoo::MemPool sut;
+    MemPool sut;
 };
 
 TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
@@ -51,7 +55,7 @@ TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
     char memory[8192];
     iox::posix::Allocator allocator{memory, 8192U};
 
-    iox::mepoo::MemPool sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator);
+    iox::mepoo::MemPool sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator);
 
     EXPECT_THAT(sut.getChunkSize(), Eq(CHUNK_SIZE));
     EXPECT_THAT(sut.getChunkCount(), Eq(NUMBER_OF_CHUNKS));
@@ -71,23 +75,19 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
 
-    iox::mepoo::MemPool sut(NOT_ALLIGNED_CHUNKED_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator);
+    iox::mepoo::MemPool sut(NOT_ALLIGNED_CHUNKED_SIZE, NUMBER_OF_CHUNKS, allocator, allocator);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(
-        detectedError.value(),
-        Eq(iox::Error::
-               kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT));
+    EXPECT_THAT(detectedError.value(),
+                Eq(iox::Error::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT));
 }
 
 TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThanChunkMemoryAlignmentGetsTerminated)
 {
-    constexpr uint32_t CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT = iox::mepoo::MemPool::MEMORY_ALIGNMENT - 1U;
+    constexpr uint32_t CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT = iox::mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT - 1U;
 
     EXPECT_DEATH(
-        {
-            iox::mepoo::MemPool sut(CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT, NUMBER_OF_CHUNKS, &allocator, &allocator);
-        },
+        { iox::mepoo::MemPool sut(CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT, NUMBER_OF_CHUNKS, allocator, allocator); },
         ".*");
 }
 

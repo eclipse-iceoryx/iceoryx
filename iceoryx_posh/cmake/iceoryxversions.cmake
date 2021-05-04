@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 # Find GIT revisions
 execute_process(COMMAND
@@ -21,6 +22,13 @@ execute_process(COMMAND
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 string(TIMESTAMP ICEORYX_BUILDDATE UTC)
+
+set(IOX_VERSION_TWEAK "0")
+
+
+if(DEFINED ${PROJECT_VERSION_TWEAK})
+  set(IOX_VERSION_TWEAK ${PROJECT_VERSION_TWEAK})
+endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_versions.hpp.in"
   "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_versions.hpp" @ONLY)

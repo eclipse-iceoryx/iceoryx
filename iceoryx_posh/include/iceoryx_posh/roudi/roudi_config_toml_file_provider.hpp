@@ -11,10 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
 #define IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
 
-#include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
+#include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
 
 namespace iox
@@ -26,7 +28,7 @@ static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/roudi_config.toml"
 class TomlRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
 {
   public:
-    TomlRouDiConfigFileProvider(CmdLineParserConfigFileOption& cmdLineParserValue);
+    TomlRouDiConfigFileProvider(iox::config::CmdLineArgs_t& cmdLineArgs);
 
     iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> parse() override;
 };

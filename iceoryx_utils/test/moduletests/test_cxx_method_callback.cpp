@@ -11,15 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "test.hpp"
 
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::cxx;
-
 
 class MethodCallback_test : public Test
 {
@@ -371,3 +374,4 @@ TEST_F(MethodCallback_test, MoveAssignemtnDestinationCanCallCallbackForMethod)
     ASSERT_FALSE(result.has_error());
     EXPECT_EQ(*result, 22);
 }
+} // namespace

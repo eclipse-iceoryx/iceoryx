@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POPO_SUBSCRIBER_PORT_ROUDI_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_ROUDI_HPP_
@@ -41,6 +44,10 @@ class SubscriberPortRouDi : public BasePort
     SubscriberPortRouDi(SubscriberPortRouDi&& rhs) = default;
     SubscriberPortRouDi& operator=(SubscriberPortRouDi&& rhs) = default;
     virtual ~SubscriberPortRouDi() = default;
+
+    /// @brief Returns behaviour in case of a full delivery queue
+    /// @return QueueFullPolicy What happens if the delivery queue is full
+    QueueFullPolicy getQueueFullPolicy() const noexcept;
 
     /// @brief get an optional CaPro message that requests changes to the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change

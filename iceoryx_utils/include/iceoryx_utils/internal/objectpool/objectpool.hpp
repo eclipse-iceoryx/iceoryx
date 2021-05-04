@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,10 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_OBJECTPOOL_OBJECTPOOL_HPP
 #define IOX_UTILS_OBJECTPOOL_OBJECTPOOL_HPP
 
 #include <cstddef> //for size_t
+#include <cstdint>
 #include <utility> //for std::forward
 
 namespace iox
@@ -54,7 +58,7 @@ class ObjectPool
         T* data{nullptr};
     };
 
-    alignas(alignof(T)) Container m_values;
+    alignas(T) Container m_values;
     CellInfo m_cellInfo[CAPACITY];
     char* m_first;
     char* m_last;

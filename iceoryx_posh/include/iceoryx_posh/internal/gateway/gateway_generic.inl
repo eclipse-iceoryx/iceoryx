@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_INL
 #define IOX_POSH_GW_GATEWAY_GENERIC_INL
@@ -108,7 +110,7 @@ template <typename channel_t, typename gateway_t>
 inline cxx::optional<channel_t>
 GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const noexcept
 {
-    auto guardedVector = this->m_channels.GetScopeGuard();
+    auto guardedVector = this->m_channels.getScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
         return channel.getServiceDescription() == service;
     });
@@ -126,7 +128,7 @@ template <typename channel_t, typename gateway_t>
 inline void
 GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept
 {
-    auto guardedVector = m_channels.GetScopeGuard();
+    auto guardedVector = m_channels.getScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
     {
         f(*channel);
@@ -137,7 +139,7 @@ template <typename channel_t, typename gateway_t>
 inline cxx::expected<GatewayError>
 GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescription& service) noexcept
 {
-    auto guardedVector = this->m_channels.GetScopeGuard();
+    auto guardedVector = this->m_channels.getScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
         return channel.getServiceDescription() == service;
     });
@@ -165,7 +167,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noexcept
         {
             discover(msg);
         }
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.toMilliseconds()));
     }
 }
 
@@ -176,8 +178,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
     {
         auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(startTime
-                                      + std::chrono::milliseconds(m_forwardingPeriod.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_forwardingPeriod.toMilliseconds()));
     };
 }
 

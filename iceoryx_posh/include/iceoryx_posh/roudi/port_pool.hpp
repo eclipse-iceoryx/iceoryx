@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_PORT_POOL_HPP
 #define IOX_POSH_ROUDI_PORT_POOL_HPP
 
@@ -26,6 +29,7 @@
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
@@ -36,6 +40,7 @@ struct PortPoolDataBase;
 
 enum class PortPoolError : uint8_t
 {
+    INVALID_STATE,
     UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS,
     PUBLISHER_PORT_LIST_FULL,
     SUBSCRIBER_PORT_LIST_FULL,
@@ -43,6 +48,7 @@ enum class PortPoolError : uint8_t
     APPLICATION_PORT_LIST_FULL,
     NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
+    EVENT_VARIABLE_LIST_FULL,
 };
 
 class PortPool
@@ -66,39 +72,40 @@ class PortPool
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
                      mepoo::MemoryManager* const memoryManager,
-                     const ProcessName_t& applicationName,
+                     const RuntimeName_t& runtimeName,
                      const popo::PublisherOptions& publisherOptions,
                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                      const ProcessName_t& applicationName,
+                      const RuntimeName_t& runtimeName,
                       const popo::SubscriberOptions& subscriberOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                       const ProcessName_t& applicationName,
+                                                       const RuntimeName_t& runtimeName,
                                                        const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                       const ProcessName_t& applicationName,
+                                                       const RuntimeName_t& runtimeName,
                                                        const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const ProcessName_t& applicationName,
+    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
                                                                             const capro::Interfaces interface) noexcept;
 
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
-    addApplicationPort(const ProcessName_t& applicationName) noexcept;
+    addApplicationPort(const RuntimeName_t& runtimeName) noexcept;
 
-    cxx::expected<runtime::NodeData*, PortPoolError>
-    addNodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;
+    cxx::expected<runtime::NodeData*, PortPoolError> addNodeData(const RuntimeName_t& runtimeName,
+                                                                 const NodeName_t& nodeName,
+                                                                 const uint64_t nodeDeviceIdentifier) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    addConditionVariableData(const ProcessName_t& process) noexcept;
+    addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;

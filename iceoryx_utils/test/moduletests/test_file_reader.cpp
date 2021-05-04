@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 #include "test.hpp"
@@ -21,7 +24,8 @@
 #include <fstream>
 #include <string>
 
-
+namespace
+{
 using namespace ::testing;
 
 const std::string TestFile = "FileReader_test.tmp";
@@ -47,7 +51,14 @@ class FileReader_test : public Test
         internal::CaptureStdout();
 
         std::fstream fs(TestFilePath, std::fstream::out | std::fstream::trunc);
-        fs << TestFileContent;
+        if (fs.std::fstream::is_open())
+        {
+            fs << TestFileContent;
+        }
+        else
+        {
+            ASSERT_STREQ("expected open fstream", "fstream not open");
+        }
         fs.close();
     }
     void TearDown()
@@ -145,3 +156,4 @@ TEST_F(FileReader_test, errorTerminateMode)
         },
         ".*");
 }
+} // namespace

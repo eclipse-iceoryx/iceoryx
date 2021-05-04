@@ -11,14 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#include "iceoryx_utils/cxx/attributes.hpp"
 
 namespace iox
 {
 namespace roudi
 {
-void MemoryBlock::memoryAvailable(void* memory [[gnu::unused]]) noexcept
+void MemoryBlock::memoryAvailable(void* memory IOX_MAYBE_UNUSED) noexcept
 {
     // nothing to do in the default implementation
 }

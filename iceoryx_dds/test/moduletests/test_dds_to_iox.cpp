@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,27 +12,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "helpers/fixture_dds_gateway.hpp"
 
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 
-#include "mocks/chunk_mock_dds.hpp"
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"
-#include "testutils/roudi_gtest.hpp"
 
 using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
-using TestChannel = iox::gw::Channel<MockPublisher<void>, MockDataReader>;
+using TestChannel = iox::gw::Channel<MockPublisher, MockDataReader>;
 using TestGateway =
     iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericGateway<TestChannel, iox::popo::PublisherOptions>>;
 
 // ======================================== Fixture ======================================== //
-class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher<void>, MockDataReader>
+class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher, MockDataReader>
 {
 };
 

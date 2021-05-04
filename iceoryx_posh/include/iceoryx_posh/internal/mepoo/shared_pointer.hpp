@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_SHARED_POINTER_HPP
 #define IOX_POSH_MEPOO_SHARED_POINTER_HPP
 
@@ -24,6 +27,7 @@ namespace mepoo
 {
 enum class SharedPointerError
 {
+    INVALID_STATE,
     SharedChunkIsEmpty
 };
 
@@ -42,6 +46,8 @@ template <typename T>
 class SharedPointer : public DesignPattern::Creation<SharedPointer<T>, SharedPointerError>
 {
   public:
+    using CreationPattern_t = DesignPattern::Creation<SharedPointer<T>, SharedPointerError>;
+
     SharedPointer() = default;
     SharedPointer(const SharedPointer&) = default;
     SharedPointer(SharedPointer&&) = default;

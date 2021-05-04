@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,23 +12,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/publisher_mock.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 using namespace ::testing;
 using ::testing::Return;
 
-#define private public
-#define protected public
-
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
-
-#undef private
-#undef protected
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -101,6 +98,9 @@ class MemPoolIntrospectionAccess
     {
         return this->m_publisherPort;
     }
+
+    using iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>::
+        send;
 };
 
 class MemPoolIntrospection_test : public Test
@@ -210,7 +210,7 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
     MemPoolInfoContainer memPoolInfoContainer;
     initMemPoolInfoContainer(memPoolInfoContainer);
 
-    EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_)).Times(0);
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_, _, _, _)).Times(0);
 
     introspectionAccess.send();
 }
@@ -265,12 +265,12 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     using namespace iox::units::duration_literals;
     iox::units::Duration snapshotInterval(100_ms);
 
-    introspectionAccess.setSnapshotInterval(snapshotInterval.milliSeconds<uint64_t>());
-    introspectionAccess.start();
+    introspectionAccess.setSendInterval(snapshotInterval);
+    introspectionAccess.run();
     std::this_thread::sleep_for(std::chrono::milliseconds(
-        6 * snapshotInterval.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
-    introspectionAccess.wait();
+        6 * snapshotInterval.toMilliseconds())); // within this time, the thread should have run 6 times
+    introspectionAccess.run();
     std::this_thread::sleep_for(std::chrono::milliseconds(
-        6 * snapshotInterval.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
-    introspectionAccess.terminate();
+        6 * snapshotInterval.toMilliseconds())); // the thread should sleep, if not, we have 12 runs
+    introspectionAccess.stop();
 });

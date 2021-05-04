@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_DDS_TO_IOX_INL
 #define IOX_DDS_DDS_TO_IOX_INL
@@ -42,13 +45,13 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription, popo::PublisherOptions());
+            IOX_DISCARD_RESULT(setupChannel(serviceDescription, popo::PublisherOptions()));
         }
     }
 }
 
 template <typename channel_t, typename gateway_t>
-inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover([[gnu::unused]] const capro::CaproMessage& msg) noexcept
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover(IOX_MAYBE_UNUSED const capro::CaproMessage& msg) noexcept
 {
     /// @note not implemented - requires dds discovery which is currently not implemented in the used dds stack.
 }
@@ -61,15 +64,34 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 
     while (reader->hasSamples())
     {
-        reader->peekNextSize().and_then([&](auto size) {
-            publisher->loan(size).and_then([&](auto& sample) {
-                reader->takeNext(static_cast<uint8_t*>(sample.get()), size)
-                    .and_then([&]() { sample.publish(); })
-                    .or_else([&](DataReaderError err) {
-                        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                                  << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
-                    });
-            });
+        reader->peekNextIoxChunkDatagramHeader().and_then([&](auto datagramHeader) {
+            // this is safe, it is just used to check if the alignment doesn't exceed the
+            // alignment of the ChunkHeader but since this is data from a previously valid
+            // chunk, we can assume that the alignment was correct and use this value
+            constexpr uint32_t USER_HEADER_ALIGNMENT{1U};
+            publisher
+                ->loan(datagramHeader.userPayloadSize,
+                       datagramHeader.userPayloadAlignment,
+                       datagramHeader.userHeaderSize,
+                       USER_HEADER_ALIGNMENT)
+                .and_then([&](auto userPayload) {
+                    auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+                    reader
+                        ->takeNext(datagramHeader,
+                                   static_cast<uint8_t*>(chunkHeader->userHeader()),
+                                   static_cast<uint8_t*>(chunkHeader->userPayload()))
+                        .and_then([&]() { publisher->publish(userPayload); })
+                        .or_else([&](DataReaderError err) {
+                            publisher->release(userPayload);
+                            LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
+                                      << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+                        });
+                })
+                .or_else([](auto& error) {
+                    LogError() << "[DDS2IceoryxGateway] Could not loan chunk! Error code: "
+                               << static_cast<uint64_t>(error);
+                });
+            ;
         });
     }
 }

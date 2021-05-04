@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "test.hpp"
 
@@ -20,10 +23,10 @@
 // We test the common functionality of LockFreeQueue and ResizableLockFreeQueue here
 // in typed tests to reduce code duplication.
 
-using namespace ::testing;
-
 namespace
 {
+using namespace ::testing;
+
 // use a non-POD type for testing (just a boxed version of int).
 // We use implicit conversions of int to Integer to be able use the same test structure
 // for Integer and int (primarily for tryPush).

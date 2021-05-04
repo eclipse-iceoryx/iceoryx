@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
 #include "test.hpp"
@@ -19,8 +22,9 @@
 #include <random>
 #include <vector>
 
+namespace
+{
 using namespace ::testing;
-
 
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
@@ -43,7 +47,8 @@ class LoFFLi_test : public Test
     {
     }
 
-    uint32_t m_memoryLoFFLi[LoFFLiType::requiredMemorySize(Size)];
+    using LoFFLiIndex_t = typename LoFFLiType::Index_t;
+    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)];
     LoFFLiType m_loffli;
 };
 
@@ -194,3 +199,4 @@ TYPED_TEST(LoFFLi_test, PushToUninitializedLoFFLi)
     decltype(this->m_loffli) loFFLi;
     EXPECT_THAT(loFFLi.push(0), Eq(false));
 }
+} // namespace
