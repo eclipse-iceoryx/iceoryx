@@ -27,8 +27,8 @@
 
 //! [use constants instead of magic values]
 constexpr const char APP_NAME[]{"iceperf-bench-follower"};
-constexpr const char PUBLISHER[]{"Laurel"};
-constexpr const char SUBSCRIBER[]{"Hardy"};
+constexpr const char PUBLISHER[]{"Follower"};
+constexpr const char SUBSCRIBER[]{"Leader"};
 //! [use constants instead of magic values]
 
 //! [do the measurement for a single technology]
@@ -76,7 +76,7 @@ int IcePerfFollower::run() noexcept
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     //! [get settings from leader]
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Generic"};
     iox::popo::SubscriberOptions options;
     options.historyRequest = 1U;
     iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};

@@ -31,8 +31,8 @@
 
 //! [use constants instead of magic values]
 constexpr const char APP_NAME[]{"iceperf-bench-leader"};
-constexpr const char PUBLISHER[]{"Hardy"};
-constexpr const char SUBSCRIBER[]{"Laurel"};
+constexpr const char PUBLISHER[]{"Leader"};
+constexpr const char SUBSCRIBER[]{"Follower"};
 //! [use constants instead of magic values]
 
 IcePerfLeader::IcePerfLeader(const PerfSettings settings) noexcept
@@ -98,7 +98,7 @@ int IcePerfLeader::run() noexcept
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     //! [send setting to follower application]
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Generic"};
     iox::popo::PublisherOptions options;
     options.historyCapacity = 1U;
     iox::popo::Publisher<PerfSettings> settingsPublisher{serviceDescription, options};

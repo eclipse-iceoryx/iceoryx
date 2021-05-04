@@ -45,6 +45,8 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         case 'm':
         {
+            constexpr decltype(EXIT_SUCCESS) MOO{EXIT_SUCCESS};
+
             uint64_t intensity{0U};
             if (!iox::cxx::convert::fromString(optarg, intensity))
             {
@@ -64,7 +66,7 @@ int main(int argc, char* argv[])
             }
             std::cout << "!" << std::endl;
 
-            return EXIT_SUCCESS;
+            return MOO;
         }
         default:
             return EXIT_FAILURE;

@@ -21,8 +21,8 @@
 #include <thread>
 
 Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
-    : m_publisher({"Comedians", publisherName, "Duo-C++"}, iox::popo::PublisherOptions{1U})
-    , m_subscriber({"Comedians", subscriberName, "Duo-C++"}, iox::popo::SubscriberOptions{1U, 1U})
+    : m_publisher({"IcePerf", publisherName, "C++-API"}, iox::popo::PublisherOptions{1U})
+    , m_subscriber({"IcePerf", subscriberName, "C++-API"}, iox::popo::SubscriberOptions{1U, 1U})
 {
 }
 

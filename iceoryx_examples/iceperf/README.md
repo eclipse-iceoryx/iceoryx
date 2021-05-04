@@ -208,8 +208,8 @@ Let's use some constants to prevent magic values and set and names for the commu
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [use constants instead of magic values] -->
 ```c++
 constexpr const char APP_NAME[]{"iceperf-bench-leader"};
-constexpr const char PUBLISHER[]{"Hardy"};
-constexpr const char SUBSCRIBER[]{"Laurel"};
+constexpr const char PUBLISHER[]{"Leader"};
+constexpr const char SUBSCRIBER[]{"Follower"};
 ```
 
 The `IcePerfLeader` c'tor does a cleanup of potentially outdated resources of technologies
@@ -291,7 +291,7 @@ int IcePerfLeader::run() noexcept
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Generic"};
     iox::popo::PublisherOptions options;
     options.historyCapacity = 1U;
     iox::popo::Publisher<PerfSettings> settingsPublisher{serviceDescription, options};
@@ -358,8 +358,8 @@ The `iceperf-bench-follower` application is similar to `iceperf-bench-leader`. T
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [use constants instead of magic values] -->
 ```c++
 constexpr const char APP_NAME[]{"iceperf-bench-follower"};
-constexpr const char PUBLISHER[]{"Laurel"};
-constexpr const char SUBSCRIBER[]{"Hardy"};
+constexpr const char PUBLISHER[]{"Follower"};
+constexpr const char SUBSCRIBER[]{"Leader"};
 ```
 
 While the `run()` method of the leader publishes the `PerfSettings`, the follower is subscribed to those settings
@@ -370,7 +370,7 @@ int IcePerfFollower::run() noexcept
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Generic"};
     iox::popo::SubscriberOptions options;
     options.historyRequest = 1U;
     iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};
