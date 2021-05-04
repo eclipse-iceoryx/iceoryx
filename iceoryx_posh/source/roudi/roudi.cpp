@@ -250,7 +250,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             options.offerOnCreate = (0U == offerOnCreate) ? false : true;
 
-            uint16_t subscriberTooSlowPolicy{};
+            uint8_t subscriberTooSlowPolicy{};
             if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
             {
                 LogError() << message.getElementAtIndex(6).c_str() << "cannot be extracted from string\n";
@@ -297,7 +297,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
 
-            uint16_t queueFullPolicy{};
+            uint8_t queueFullPolicy{};
             if (!cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
             {
                 LogError() << message.getElementAtIndex(7).c_str() << "cannot be extracted from string\n";

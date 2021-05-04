@@ -20,6 +20,21 @@ namespace iox
 {
 namespace cxx
 {
+template <>
+inline typename std::enable_if<!std::is_convertible<uint8_t, std::string>::value, std::string>::type
+convert::toString(const uint8_t& t)
+{
+    return toString(static_cast<uint16_t>(t));
+}
+
+template <>
+inline typename std::enable_if<!std::is_convertible<int8_t, std::string>::value, std::string>::type
+convert::toString(const int8_t& t)
+{
+    return toString(static_cast<int16_t>(t));
+}
+
+
 template <typename Source>
 inline typename std::enable_if<!std::is_convertible<Source, std::string>::value, std::string>::type
 convert::toString(const Source& t)
