@@ -58,7 +58,7 @@ class UDS : public IcePerfBase
     void receive(char* buffer) noexcept;
     void waitForLeader() noexcept;
     void waitForFollower() noexcept;
-    void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept override;
+    void sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept override;
     PerfTopic receivePerfTopic() noexcept override;
 
     static void initSocketAddress(sockaddr_un& sockAddr, const std::string& socketName);

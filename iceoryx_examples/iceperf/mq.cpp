@@ -118,7 +118,7 @@ void MQ::shutdown() noexcept
     }
 }
 
-void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept
+void MQ::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
 {
     char* buffer = new char[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);

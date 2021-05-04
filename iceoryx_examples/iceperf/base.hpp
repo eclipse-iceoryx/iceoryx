@@ -33,14 +33,14 @@ class IcePerfBase
     virtual void initFollower() noexcept = 0;
     virtual void shutdown() noexcept = 0;
 
-    void preLatencyPerfTestLeader(uint32_t payloadSizeInBytes) noexcept;
+    void preLatencyPerfTestLeader(const uint32_t payloadSizeInBytes) noexcept;
     void postLatencyPerfTestLeader() noexcept;
     void releaseFollower() noexcept;
-    double latencyPerfTestLeader(uint64_t numRoundTrips) noexcept;
+    double latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept;
     void latencyPerfTestFollower() noexcept;
 
   private:
-    virtual void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept = 0;
+    virtual void sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept = 0;
     virtual PerfTopic receivePerfTopic() noexcept = 0;
 };
 

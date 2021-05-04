@@ -32,7 +32,7 @@ class Iceoryx : public IcePerfBase
 
   private:
     void init() noexcept;
-    void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept override;
+    void sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept override;
     PerfTopic receivePerfTopic() noexcept override;
 
     iox::popo::UntypedPublisher m_publisher;

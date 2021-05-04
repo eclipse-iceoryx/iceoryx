@@ -17,7 +17,7 @@
 #include "base.hpp"
 
 
-void IcePerfBase::preLatencyPerfTestLeader(uint32_t payloadSizeInBytes) noexcept
+void IcePerfBase::preLatencyPerfTestLeader(const uint32_t payloadSizeInBytes) noexcept
 {
     sendPerfTopic(payloadSizeInBytes, RunFlag::RUN);
 }
@@ -33,7 +33,7 @@ void IcePerfBase::releaseFollower() noexcept
     sendPerfTopic(sizeof(PerfTopic), RunFlag::STOP);
 }
 
-double IcePerfBase::latencyPerfTestLeader(uint64_t numRoundTrips) noexcept
+double IcePerfBase::latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept
 {
     auto start = std::chrono::high_resolution_clock::now();
 

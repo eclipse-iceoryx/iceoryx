@@ -83,7 +83,7 @@ void IceoryxC::shutdown() noexcept
     std::cout << " [ finished ]" << std::endl;
 }
 
-void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept
+void IceoryxC::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
 {
     void* userPayload = nullptr;
     if (iox_pub_loan_chunk(m_publisher, &userPayload, payloadSizeInBytes) == AllocationResult_SUCCESS)

@@ -67,7 +67,7 @@ void Iceoryx::shutdown() noexcept
     std::cout << " [ finished ]" << std::endl;
 }
 
-void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept
+void Iceoryx::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
 {
     m_publisher.loan(payloadSizeInBytes).and_then([&](auto& userPayload) {
         auto sendSample = static_cast<PerfTopic*>(userPayload);

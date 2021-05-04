@@ -52,7 +52,7 @@ class MQ : public IcePerfBase
     void open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept;
     void send(const char* buffer, uint32_t length) noexcept;
     void receive(char* buffer) noexcept;
-    void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept override;
+    void sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept override;
     PerfTopic receivePerfTopic() noexcept override;
 
     const std::string m_publisherMqName;
