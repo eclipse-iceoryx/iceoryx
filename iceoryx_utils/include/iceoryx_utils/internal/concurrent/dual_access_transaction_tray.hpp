@@ -57,11 +57,12 @@ class DualAccessTransactionTray
         AccessToken m_accessToken{AccessToken::NONE};
     };
 
-    /// @brief Clean up a potential locking when LEFT or RIGHT terminated abnormally.
-    /// @param[in] tokenToCleanup is the DualAccessTransactionTray::LEFT or DualAccessTransactionTray::RIGHT token
-    /// @attention this should only be called if the thread with `tokenToCleanup` is not running anymore else the
+    /// @brief Revokes the lock from an absent participant when LEFT or RIGHT terminated abnormally.
+    /// @param[in] absentPaticipantToken is the DualAccessTransactionTray::LEFT or DualAccessTransactionTray::RIGHT
+    /// token
+    /// @attention this should only be called if the thread with `absentPaticipantToken` is not running anymore else the
     /// invariants are broken and you might observe pink elephants and dragons
-    void cleanupAndSyncMemory(const AccessToken tokenToCleanup);
+    void revokeLockFromAbsentParticipant(const AccessToken absentPaticipantToken);
 
   private:
     void acquireExclusiveAccess(const AccessToken tokenToAcquireAccess);

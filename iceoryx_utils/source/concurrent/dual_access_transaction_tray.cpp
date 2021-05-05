@@ -33,17 +33,14 @@ DualAccessTransactionTray::AccessGuard::~AccessGuard()
     m_transactionTray.releaseExclusiveAccess(m_accessToken);
 }
 
-void DualAccessTransactionTray::cleanupAndSyncMemory(const AccessToken tokenToCleanup)
+void DualAccessTransactionTray::revokeLockFromAbsentParticipant(const AccessToken absentPaticipantToken)
 {
-    releaseExclusiveAccess(tokenToCleanup);
-    // just to be sure the memory is synchronized
-    AccessToken expected = tokenToCleanup;
-    m_accessToken.compare_exchange_strong(expected, AccessToken::NONE, std::memory_order_acq_rel);
+    releaseExclusiveAccess(absentPaticipantToken);
 }
 
 void DualAccessTransactionTray::acquireExclusiveAccess(const AccessToken tokenToAcquireAccess)
 {
-    auto existingToken = m_accessToken.exchange(tokenToAcquireAccess, std::memory_order_acquire);
+    auto existingToken = m_accessToken.exchange(tokenToAcquireAccess, std::memory_order_relaxed);
     if (existingToken == tokenToAcquireAccess)
     {
         // TODO return expected DOUBLE_ACQUIRE_BROKEN_INVARIANT
@@ -71,7 +68,7 @@ void DualAccessTransactionTray::acquireExclusiveAccess(const AccessToken tokenTo
 void DualAccessTransactionTray::releaseExclusiveAccess(const AccessToken tokenToBeReleased)
 {
     AccessToken expected = tokenToBeReleased;
-    auto casSuccessful = m_accessToken.compare_exchange_strong(expected, AccessToken::NONE, std::memory_order_release);
+    auto casSuccessful = m_accessToken.compare_exchange_strong(expected, AccessToken::NONE, std::memory_order_relaxed);
     if (!casSuccessful)
     {
         if (expected == AccessToken::NONE)
