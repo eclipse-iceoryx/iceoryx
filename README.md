@@ -80,7 +80,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ### Targeted quality levels & platforms
 
-> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1, where 1 is highest level.
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 0, where 0 is highest level.
 
 |CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|

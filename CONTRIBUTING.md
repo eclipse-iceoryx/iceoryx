@@ -293,8 +293,8 @@ Example:
 
 The CMake targets are developed according to the
 [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
-Despite developing some of our targets according to automotive standards like ISO26262, the code base standalone
-does NOT legitimize the usage in a safety critical system. All requirements of a lower quality level are included in
+Despite developing some of the targets according to automotive standards like ISO26262, the code base standalone
+does NOT legitimize the usage in a safety-critical system. All requirements of a lower quality level are included in
 higher quality levels e.g. quality level 4 is included in quality level 3.
 
 ### Quality level 5
