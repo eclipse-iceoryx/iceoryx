@@ -44,6 +44,18 @@ class convert_test : public Test
 };
 
 
+TEST_F(convert_test, toString_uint8_t)
+{
+    uint8_t data = 123U;
+    EXPECT_THAT(iox::cxx::convert::toString(data), Eq("123"));
+}
+
+TEST_F(convert_test, toString_int8_t)
+{
+    int8_t data = 123;
+    EXPECT_THAT(iox::cxx::convert::toString(data), Eq("123"));
+}
+
 TEST_F(convert_test, toString_Integer)
 {
     EXPECT_THAT(iox::cxx::convert::toString(123), Eq("123"));
