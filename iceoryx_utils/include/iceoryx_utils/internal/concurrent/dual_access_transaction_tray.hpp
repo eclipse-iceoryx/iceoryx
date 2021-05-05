@@ -43,7 +43,7 @@ class DualAccessTransactionTray
     class AccessGuard
     {
       public:
-        AccessGuard(DualAccessTransactionTray& transactionTray, AccessToken accessToken);
+        AccessGuard(DualAccessTransactionTray& transactionTray, const AccessToken accessToken) noexcept;
         ~AccessGuard();
 
         AccessGuard(const AccessGuard&) = delete;
@@ -61,11 +61,11 @@ class DualAccessTransactionTray
     /// @param[in] tokenToCleanup is the DualAccessTransactionTray::LEFT or DualAccessTransactionTray::RIGHT token
     /// @attention this should only be called if the thread with `tokenToCleanup` is not running anymore else the
     /// invariants are broken and you might observe pink elephants and dragons
-    void cleanupAndSyncMemory(AccessToken tokenToCleanup);
+    void cleanupAndSyncMemory(const AccessToken tokenToCleanup);
 
   private:
-    void acquireExclusiveAccess(AccessToken tokenToAcquireAccess);
-    void releaseExclusiveAccess(AccessToken tokenToBeReleased);
+    void acquireExclusiveAccess(const AccessToken tokenToAcquireAccess);
+    void releaseExclusiveAccess(const AccessToken tokenToBeReleased);
 
     std::atomic<AccessToken> m_accessToken{AccessToken::NONE};
     posix::Semaphore m_waitingLineLeft{posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U).value()};

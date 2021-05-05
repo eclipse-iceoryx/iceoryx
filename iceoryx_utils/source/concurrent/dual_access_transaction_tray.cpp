@@ -20,7 +20,8 @@ namespace iox
 {
 namespace concurrent
 {
-DualAccessTransactionTray::AccessGuard::AccessGuard(DualAccessTransactionTray& transactionTray, AccessToken accessToken)
+DualAccessTransactionTray::AccessGuard::AccessGuard(DualAccessTransactionTray& transactionTray,
+                                                    const AccessToken accessToken) noexcept
     : m_transactionTray(transactionTray)
     , m_accessToken(accessToken)
 {
@@ -40,7 +41,7 @@ void DualAccessTransactionTray::cleanupAndSyncMemory(const AccessToken tokenToCl
     m_accessToken.compare_exchange_strong(expected, AccessToken::NONE, std::memory_order_acq_rel);
 }
 
-void DualAccessTransactionTray::acquireExclusiveAccess(AccessToken tokenToAcquireAccess)
+void DualAccessTransactionTray::acquireExclusiveAccess(const AccessToken tokenToAcquireAccess)
 {
     auto existingToken = m_accessToken.exchange(tokenToAcquireAccess, std::memory_order_acquire);
     if (existingToken == tokenToAcquireAccess)
@@ -67,7 +68,7 @@ void DualAccessTransactionTray::acquireExclusiveAccess(AccessToken tokenToAcquir
     }
 }
 
-void DualAccessTransactionTray::releaseExclusiveAccess(AccessToken tokenToBeReleased)
+void DualAccessTransactionTray::releaseExclusiveAccess(const AccessToken tokenToBeReleased)
 {
     AccessToken expected = tokenToBeReleased;
     auto casSuccessful = m_accessToken.compare_exchange_strong(expected, AccessToken::NONE, std::memory_order_release);
