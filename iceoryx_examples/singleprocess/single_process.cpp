@@ -46,12 +46,12 @@ struct TransmissionData_t
     uint64_t counter;
 };
 
-void consoleOutput(const std::string& output)
+void consoleOutput(const char* source, const char* arrow, const uint64_t counter)
 {
     static std::mutex consoleOutputMutex;
 
     std::lock_guard<std::mutex> lock(consoleOutputMutex);
-    std::cout << output << std::endl;
+    std::cout << source << arrow << counter << std::endl;
 }
 
 void publisher()
@@ -61,12 +61,12 @@ void publisher()
     iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
 
     uint64_t counter{0};
-    std::string greenRightArrow("\033[32m->\033[m ");
+    constexpr const char greenRightArrow[] = "\033[32m->\033[m ";
     while (keepRunning.load())
     {
         publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
-            consoleOutput(std::string("Sending   " + greenRightArrow + iox::cxx::convert::toString(sample->counter)));
+            consoleOutput("Sending ", greenRightArrow, sample->counter);
             sample.publish();
         });
 
@@ -81,7 +81,7 @@ void subscriber()
     options.historyRequest = 5U;
     iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
-    std::string orangeLeftArrow("\033[33m<-\033[m ");
+    constexpr const char orangeLeftArrow[] = "\033[33m<-\033[m ";
     while (keepRunning.load())
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
@@ -91,10 +91,7 @@ void subscriber()
             do
             {
                 subscriber.take()
-                    .and_then([&](auto& sample) {
-                        consoleOutput(
-                            std::string("Receiving " + orangeLeftArrow + iox::cxx::convert::toString(sample->counter)));
-                    })
+                    .and_then([&](auto& sample) { consoleOutput("Receiving ", orangeLeftArrow, sample->counter); })
                     .or_else([&](auto& result) {
                         hasMoreSamples = false;
                         if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
