@@ -76,6 +76,7 @@ TEST_F(SharedChunk_Test, VerifyCopyConstructorOfSharedChunk)
     SharedChunk sut1(sut);
 
     EXPECT_EQ((sut1.getChunkHeader())->chunkSize(), (sut.getChunkHeader())->chunkSize());
+    EXPECT_EQ(sut.release(), sut1.release());
 }
 
 TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
@@ -97,6 +98,7 @@ TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
     sut1 = sut;
 
     EXPECT_EQ((sut1.getChunkHeader())->chunkSize(), (sut.getChunkHeader())->chunkSize());
+    EXPECT_EQ(sut.release(), sut1.release());
 }
 
 TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
@@ -119,7 +121,7 @@ TEST_F(SharedChunk_Test, CompareWithSameMemoryChunkComparesToUserPayload)
 
 TEST_F(SharedChunk_Test, GetChunkHeaderMethodReturnsNullPointerWhenSharedChunkObjectIsInitialisedWithNullPointer)
 {
-    SharedChunk sut(nullptr);
+    SharedChunk sut;
 
     EXPECT_THAT(sut.getChunkHeader(), Eq(nullptr));
 }
@@ -141,14 +143,14 @@ TEST_F(SharedChunk_Test, EqualityOperatorOnTwoSharedChunkWithTheSameContentRetur
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnTwoSharedChunkWithDifferentContentReturnsFalse)
 {
-    SharedChunk sut1(nullptr);
+    SharedChunk sut1;
 
     EXPECT_FALSE(sut == sut1);
 }
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithDifferentChunkManagementsReturnFalse)
 {
-    SharedChunk sut1{nullptr};
+    SharedChunk sut1;
 
     EXPECT_FALSE(sut1 == sut.getUserPayload());
 }
@@ -167,7 +169,7 @@ TEST_F(SharedChunk_Test, BoolOperatorOnValidSharedChunkReturnsTrue)
 
 TEST_F(SharedChunk_Test, BoolOperatorOnSharedChunkWithChunkManagementAsNullPointerReturnsFalse)
 {
-    SharedChunk sut(nullptr);
+    SharedChunk sut;
 
     EXPECT_FALSE(sut);
 }
@@ -175,7 +177,7 @@ TEST_F(SharedChunk_Test, BoolOperatorOnSharedChunkWithChunkManagementAsNullPoint
 
 TEST_F(SharedChunk_Test, GetUserPayloadMethodReturnsNullPointerWhen_m_chunkmanagmentIsInvalid)
 {
-    SharedChunk sut1(nullptr);
+    SharedChunk sut1;
 
     EXPECT_THAT(sut1.getUserPayload(), Eq(nullptr));
 }
@@ -200,10 +202,10 @@ TEST_F(SharedChunk_Test, GetUserPayloadMethodReturnsValidPointerWhen_m_chunkmana
 TEST_F(SharedChunk_Test, MultipleSharedChunksCleanup)
 {
     {
-        SharedChunk sut3{nullptr}, sut4{nullptr}, sut5{nullptr};
+        SharedChunk sut3, sut4, sut5;
         {
             {
-                SharedChunk sut6{nullptr}, sut7{nullptr}, sut8{nullptr};
+                SharedChunk sut6, sut7, sut8;
                 {
                     iox::mepoo::SharedChunk sut2(GetChunkManagement(mempool.getChunk()));
 
@@ -214,20 +216,20 @@ TEST_F(SharedChunk_Test, MultipleSharedChunksCleanup)
                     sut7 = sut4;
                     sut8 = sut2;
 
-                    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2));
-                    EXPECT_THAT(mempool.getUsedChunks(), Eq(2));
+                    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2U));
+                    EXPECT_THAT(mempool.getUsedChunks(), Eq(2U));
                 }
-                EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2));
-                EXPECT_THAT(mempool.getUsedChunks(), Eq(2));
+                EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2U));
+                EXPECT_THAT(mempool.getUsedChunks(), Eq(2U));
             }
-            EXPECT_THAT(mempool.getUsedChunks(), Eq(2));
-            EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2));
+            EXPECT_THAT(mempool.getUsedChunks(), Eq(2U));
+            EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2U));
         }
-        EXPECT_THAT(mempool.getUsedChunks(), Eq(2));
-        EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2));
+        EXPECT_THAT(mempool.getUsedChunks(), Eq(2U));
+        EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2U));
     }
-    EXPECT_THAT(mempool.getUsedChunks(), Eq(1));
-    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(1));
+    EXPECT_THAT(mempool.getUsedChunks(), Eq(1U));
+    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(1U));
 }
 
 
@@ -246,23 +248,23 @@ TEST_F(SharedChunk_Test, MultipleChunksCleanup)
                     {
                         iox::mepoo::SharedChunk sut2(GetChunkManagement(mempool.getChunk()));
                         iox::mepoo::SharedChunk sut4(GetChunkManagement(mempool.getChunk()));
-                        EXPECT_THAT(mempool.getUsedChunks(), Eq(9));
-                        EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(9));
+                        EXPECT_THAT(mempool.getUsedChunks(), Eq(9U));
+                        EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(9U));
                     }
-                    EXPECT_THAT(mempool.getUsedChunks(), Eq(7));
-                    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(7));
+                    EXPECT_THAT(mempool.getUsedChunks(), Eq(7U));
+                    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(7U));
                 }
-                EXPECT_THAT(mempool.getUsedChunks(), Eq(5));
-                EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(5));
+                EXPECT_THAT(mempool.getUsedChunks(), Eq(5U));
+                EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(5U));
             }
-            EXPECT_THAT(mempool.getUsedChunks(), Eq(3));
-            EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(3));
+            EXPECT_THAT(mempool.getUsedChunks(), Eq(3U));
+            EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(3U));
         }
-        EXPECT_THAT(mempool.getUsedChunks(), Eq(2));
-        EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2));
+        EXPECT_THAT(mempool.getUsedChunks(), Eq(2U));
+        EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(2U));
     }
-    EXPECT_THAT(mempool.getUsedChunks(), Eq(1));
-    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(1));
+    EXPECT_THAT(mempool.getUsedChunks(), Eq(1U));
+    EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(1U));
 }
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnTwoSharedChunkWithDifferentContentReturnsTrue)
@@ -281,7 +283,7 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnTwoSharedChunkWithSameContentRetur
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWithDifferentChunkManagementsReturnTrue)
 {
-    SharedChunk sut1(nullptr);
+    SharedChunk sut1;
 
     EXPECT_TRUE(sut != sut1.getUserPayload());
 }

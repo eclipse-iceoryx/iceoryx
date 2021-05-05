@@ -86,7 +86,7 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
     EXPECT_EQ(detectedError.value(), iox::Error::kMEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
 }
 
-TEST_F(MemoryManager_test, AddingMempoolAfterGeneratingChunkManagementPoolReturnsError)
+TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
 {
     constexpr uint32_t CHUNK_COUNT{10U};
     mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
@@ -98,9 +98,6 @@ TEST_F(MemoryManager_test, AddingMempoolAfterGeneratingChunkManagementPoolReturn
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::FATAL);
         });
-
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
 
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
@@ -122,16 +119,6 @@ TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexRetur
     EXPECT_EQ(poolInfo.m_minFreeChunks, 0U);
     EXPECT_EQ(poolInfo.m_numChunks, 0U);
     EXPECT_EQ(poolInfo.m_usedChunks, 0U);
-}
-
-TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerResultsInTermination)
-{
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-    EXPECT_EQ(sut->getNumberOfMemPools(), 1U);
-
-    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, ".*");
 }
 
 TEST_F(MemoryManager_test, GetNumberOfMemPoolsMethodReturnsTheNumberOfMemPools)
