@@ -27,6 +27,17 @@ int testFunction(int a, int b)
     return a + b;
 }
 
+int32_t eintrRepetition = 0;
+int testEintr()
+{
+    if (0 < --eintrRepetition)
+    {
+        errno = EINTR;
+        return 1;
+    }
+    return 0;
+}
+
 class PosixCall_test : public Test
 {
   public:
@@ -196,4 +207,43 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWorks)
         .or_else([](auto&) { EXPECT_TRUE(false); });
 
     EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, RecallingFunctionWithEintrWorks)
+{
+    internal::CaptureStderr();
+
+    eintrRepetition = iox::posix::POSIX_CALL_EINTR_REPETITIONS;
+    iox::posix::posixCall(testEintr)
+        .call()
+        .successReturnValue(0)
+        .evaluate()
+        .and_then([](auto& r) {
+            EXPECT_THAT(r.value, Eq(0));
+            EXPECT_THAT(r.errnum, Eq(0));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_THAT(eintrRepetition, Eq(0));
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+
+TEST_F(PosixCall_test, FunctionReturnsEINTRTooOftenResultsInFailure)
+{
+    internal::CaptureStderr();
+
+    eintrRepetition = iox::posix::POSIX_CALL_EINTR_REPETITIONS + 1;
+    iox::posix::posixCall(testEintr)
+        .call()
+        .successReturnValue(0)
+        .evaluate()
+        .and_then([](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(1));
+            EXPECT_THAT(r.errnum, Eq(EINTR));
+        });
+
+    EXPECT_THAT(eintrRepetition, Eq(1));
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
 }

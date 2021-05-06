@@ -30,6 +30,7 @@ namespace posix
 template <typename ReturnType, typename... FunctionArguments>
 class PosixCallBuilder;
 
+/// @brief result of a posix call
 template <typename T>
 struct PosixCallResult
 {
@@ -38,15 +39,19 @@ struct PosixCallResult
 
     PosixCallResult() noexcept = default;
 
+    /// @brief returns the result of std::strerror(errnum) which acquires a
+    ///        human readable error string
     cxx::string<ERROR_STRING_SIZE> getHumanReadableErrnum() const noexcept;
 
+    /// @brief the return value of the posix function call
     T value;
+
+    /// @brief the errno value which was set by the posix function call
     int32_t errnum = -1;
 };
 
 template <typename T>
 PosixCallResult<T> const PosixCallResult<T>::INVALID_STATE{{}, -1};
-
 
 namespace internal
 {
@@ -70,38 +75,100 @@ struct PosixCallDetails
 };
 } // namespace internal
 
+/// @brief Calling a posix function with automated error handling. If the posix function returns
+///        void you do not need to use posixCall since it cannot fail, (see: man errno).
+///        We use a builder pattern to create a design which sets the usage contract so that it
+///        cannot be used in the wrong way.
+/// @code
+///        iox::posix::posixCall(sem_timedwait)
+///             .call(handle, timeout)
+///             .successReturnValue(0)
+///             .evaluateWithIgnoredErrnos(ETIMEDOUT) // can be a comma separated list of errnos
+///             .and_then([](auto & result){
+///                 std::cout << result.value << std::endl; // return value of sem_timedwait
+///                 std::cout << result.errno << std::endl; // errno which was set by sem_timedwait
+///                 std::cout << result.getHumanReadableErrnum() << std::endl; // get string returned by strerror(errno)
+///             })
+///             .or_else([](auto & result){
+///                 std::cout << result.value << std::endl; // return value of sem_timedwait
+///                 std::cout << result.errno << std::endl; // errno which was set by sem_timedwait
+///                 std::cout << result.getHumanReadableErrnum() << std::endl; // get string returned by strerror(errno)
+///             })
+///
+///        // when your posix call signals failure with one specific return value use
+///        // .failureReturnValue(_) instead of .successReturnValue(_)
+///
+///        // if you do not want to ignore errnos use
+///        // .evaluate() instead of .evaluateWithIgnoredErrnos(_)
+/// @endcode
+#define posixCall(f) internal::createPosixCallBuilder(f, #f, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+
+/// @brief class which is created by the verificator to evaluate the result of a posix call
 template <typename ReturnType>
 class IOX_NO_DISCARD PosixCallEvaluator
 {
   public:
-    explicit PosixCallEvaluator(internal::PosixCallDetails<ReturnType>& details) noexcept;
+    /// @brief evaluate the result of a posix call and ignore specified errnos
+    /// @tparam IgnoredErrnos a list of int32_t variables
+    /// @param[in] ignoredErrnos the int32_t values of the errnos which should be ignored
+    /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
+    /// (.value) and the errno value (.errnum) of the function call
     template <typename... IgnoredErrnos>
     cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
     evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
+
+    /// @brief evaluate the result of a posix call
+    /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
+    /// (.value) and the errno value (.errnum) of the function call
     cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>> evaluate() const&& noexcept;
+
+  private:
+    template <typename>
+    friend class PosixCallVerificator;
+
+    explicit PosixCallEvaluator(internal::PosixCallDetails<ReturnType>& details) noexcept;
 
   private:
     internal::PosixCallDetails<ReturnType>& m_details;
 };
 
+/// @brief class which verifies the return value of a posix function call
 template <typename ReturnType>
 class IOX_NO_DISCARD PosixCallVerificator
 {
   public:
-    explicit PosixCallVerificator(internal::PosixCallDetails<ReturnType>& details) noexcept;
+    /// @brief the posix function call defines success through a single value
+    /// @param[in] value the value which defines success
+    /// @return the PosixCallEvaluator which evaluates the errno values
     PosixCallEvaluator<ReturnType> successReturnValue(const ReturnType value) && noexcept;
+
+    /// @brief the posix function call defines failure through a single value
+    /// @param[in] value the value which defines failure
+    /// @return the PosixCallEvaluator which evaluates the errno values
     PosixCallEvaluator<ReturnType> failureReturnValue(const ReturnType value) && noexcept;
+
+  private:
+    template <typename, typename...>
+    friend class PosixCallBuilder;
+
+    explicit PosixCallVerificator(internal::PosixCallDetails<ReturnType>& details) noexcept;
 
   private:
     internal::PosixCallDetails<ReturnType>& m_details;
 };
 
+static constexpr uint64_t POSIX_CALL_EINTR_REPETITIONS = 5U;
 template <typename ReturnType, typename... FunctionArguments>
 class IOX_NO_DISCARD PosixCallBuilder
 {
   public:
+    /// @brief input function type
     using FunctionType_t = ReturnType (*)(FunctionArguments...);
 
+    /// @brief Call the underlying function with the provided arguments. If the underlying function fails and sets the
+    /// errno to EINTR the call is repeated at most POSIX_CALL_EINTR_REPETITIONS times
+    /// @param[in] arguments arguments which will be provided to the posix function
+    /// @return the PosixCallVerificator to verify the return value
     PosixCallVerificator<ReturnType> call(FunctionArguments... arguments) && noexcept;
 
   private:
@@ -120,14 +187,9 @@ class IOX_NO_DISCARD PosixCallBuilder
                      const char* callingFunction) noexcept;
 
   private:
-    static constexpr uint64_t EINTR_REPETITIONS = 5U;
-
     FunctionType_t m_posixCall;
     internal::PosixCallDetails<ReturnType> m_details;
 };
-
-#define posixCall(f) internal::createPosixCallBuilder(f, #f, __FILE__, __LINE__, __PRETTY_FUNCTION__)
-
 } // namespace posix
 } // namespace iox
 

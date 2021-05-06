@@ -33,6 +33,23 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
     return PosixCallBuilder<ReturnType, FunctionArguments...>(
         posixCall, posixFunctionName, file, line, callingFunction);
 }
+
+inline bool isErrnumIgnored(const int32_t)
+{
+    return false;
+}
+
+template <typename... IgnoredErrnos>
+inline bool
+isErrnumIgnored(const int32_t errnum, const int32_t firstErrno, const IgnoredErrnos... remainingErrnos) noexcept
+{
+    if (errnum == firstErrno)
+    {
+        return true;
+    }
+
+    return isErrnumIgnored(errnum, remainingErrnos...);
+}
 } // namespace internal
 
 template <typename T>
@@ -56,9 +73,9 @@ template <typename ReturnType, typename... FunctionArguments>
 inline PosixCallVerificator<ReturnType>
 PosixCallBuilder<ReturnType, FunctionArguments...>::call(FunctionArguments... arguments) && noexcept
 {
-    errno = 0;
-    for (uint64_t i = 0U; i < EINTR_REPETITIONS; ++i)
+    for (uint64_t i = 0U; i < POSIX_CALL_EINTR_REPETITIONS; ++i)
     {
+        errno = 0;
         m_details.result.value = m_posixCall(arguments...);
         m_details.result.errnum = errno;
 
@@ -99,28 +116,12 @@ inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(internal::PosixCallDet
 {
 }
 
-inline bool IsErrnumIgnored(const int32_t)
-{
-    return false;
-}
-
-template <typename T1, typename... IgnoredErrnos>
-inline bool IsErrnumIgnored(const int32_t errnum, const T1 firstErrno, const IgnoredErrnos... remainingErrnos) noexcept
-{
-    if (errnum == firstErrno)
-    {
-        return true;
-    }
-
-    return IsErrnumIgnored(errnum, remainingErrnos...);
-}
-
 template <typename ReturnType>
 template <typename... IgnoredErrnos>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
 {
-    if (m_details.hasSuccess || IsErrnumIgnored(m_details.result.errnum, ignoredErrnos...))
+    if (m_details.hasSuccess || internal::isErrnumIgnored(m_details.result.errnum, ignoredErrnos...))
     {
         return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
     }
