@@ -61,12 +61,12 @@ void publisher()
     iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
 
     uint64_t counter{0};
-    constexpr const char greenRightArrow[] = "\033[32m->\033[m ";
+    constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
     while (keepRunning.load())
     {
         publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
-            consoleOutput("Sending ", greenRightArrow, sample->counter);
+            consoleOutput("Sending ", GREEN_RIGHT_ARROW, sample->counter);
             sample.publish();
         });
 
@@ -81,7 +81,7 @@ void subscriber()
     options.historyRequest = 5U;
     iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
-    constexpr const char orangeLeftArrow[] = "\033[33m<-\033[m ";
+    constexpr const char ORANGE_LEFT_ARROW[] = "\033[33m<-\033[m ";
     while (keepRunning.load())
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
@@ -91,7 +91,7 @@ void subscriber()
             do
             {
                 subscriber.take()
-                    .and_then([&](auto& sample) { consoleOutput("Receiving ", orangeLeftArrow, sample->counter); })
+                    .and_then([&](auto& sample) { consoleOutput("Receiving ", ORANGE_LEFT_ARROW, sample->counter); })
                     .or_else([&](auto& result) {
                         hasMoreSamples = false;
                         if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
