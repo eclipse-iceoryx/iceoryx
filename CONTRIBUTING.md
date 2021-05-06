@@ -75,9 +75,13 @@ As depicted below, after the release branch has been created the stabilisation p
 ```
 o---o---o---o---o  master
      \
-      o---o---o---o---o  release_1.0 / v1.0 tag
-                       \
-                        o---o---o  release_1.1
+      \      v1.0.0      v1.0.1
+       \        |           |
+        o---o---o---o---o---o---o  release_1.0
+                         \
+                          \      v1.1.0
+                           \        |
+                            o---o---o  release_1.1
 ```
 
 ## Coding style
