@@ -56,6 +56,30 @@ Please make sure you have:
 6. You open your pull request towards the base branch `master`
 7. Link the pull request to the according Github issue and set the label accordingly
 
+## Branching strategy
+
+`master`
+
+* Main development branch
+* Open for external contributions
+
+`release_x.y`
+
+* Branch for stablising a certain release
+* Write access limited to maintainers
+* Fine-tuning of external contribution e.g. running Axivion SCA
+* Finish any missing implementations regarding the quality levels
+
+As depicted below, after the release branch has been created the stabilisation phase will begin. After finishing the release, a git tag will be created to point to `HEAD` of the release branch. Follow-up releases will be branched off from the git tag.
+
+```
+o---o---o---o---o  master
+     \
+      o---o---o---o---o  release_1.0 / v1.0 tag
+                       \
+                        o---o---o  release_1.1
+```
+
 ## Coding style
 
 We love the [C++ core guidelines](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines). If in doubt please try
@@ -338,7 +362,7 @@ This quality level is meant for all targets that need tier 1 support in ROS 2.
   * Enforcing the code style is required
   * Unit tests have full statement and branch coverage
 
-### Quality level 0
+### Quality level 1+
 
 This quality level goes beyond the ROS quality levels and contains extensions.
 

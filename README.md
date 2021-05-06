@@ -80,7 +80,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ### Targeted quality levels & platforms
 
-> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 0, where 0 is highest level.
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1+, where 1+ is highest level.
 
 |CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|
@@ -88,8 +88,8 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 | iceoryx_binding_c                       | 2    | 2                     |                                     |
 | iceoryx_dds                             | 4    | 4                     |                                     |
 | iceoryx_meta                            | 5    | 5                     |                                     |
-| iceoryx_posh                            | 0, 2 | 2                     | Will be split into separate targets |
-| iceoryx_utils                           | 0    | 2                     |                                     |
+| iceoryx_posh                            | 1+, 2| 2                     | Will be split into separate targets |
+| iceoryx_utils                           | 1+   | 2                     |                                     |
 | iceoryx_introspection                   | 5    | 5                     |                                     |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
