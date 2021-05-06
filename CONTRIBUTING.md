@@ -53,8 +53,36 @@ Please make sure you have:
 3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
 4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
 5. All commits have been signed with `git commit -s`
-6. You open your pull request towards the base branch `staging`
+6. You open your pull request towards the base branch `master`
 7. Link the pull request to the according Github issue and set the label accordingly
+
+## Branching strategy
+
+`master`
+
+* Main development branch
+* Open for external contributions
+
+`release_x.y`
+
+* Branch for stablising a certain release
+* Write access limited to maintainers
+* Fine-tuning of external contribution e.g. running Axivion SCA
+* Finish any missing implementations regarding the quality levels
+
+As depicted below, after the release branch has been created the stabilisation phase will begin. After finishing the release, a git tag will be created to point to `HEAD` of the release branch. Follow-up releases will be branched off from the git tag.
+
+```
+o---o---o---o---o  master
+     \
+      \      v1.0.0      v1.0.1
+       \        |           |
+        o---o---o---o---o---o---o  release_1.0
+                         \
+                          \      v1.1.0
+                           \        |
+                            o---o---o  release_1.1
+```
 
 ## Coding style
 
@@ -291,43 +319,57 @@ Example:
 
 ## Quality levels
 
-CMake targets can be developed according to different quality levels. Despite developing some of our targets according
-to automotive standards like ISO26262, the code base standalone does NOT legitimize the usage in a safety critical
-system. All requirements of a lower quality level are included in higher quality levels e.g. quality level 4 is
-included in quality level 3.
-
-Also see [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
+The CMake targets are developed according to the
+[ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
+Despite developing some of the targets according to automotive standards like ISO26262, the code base standalone
+does NOT legitimize the usage in a safety-critical system. All requirements of a lower quality level are included in
+higher quality levels e.g. quality level 4 is included in quality level 3.
 
 ### Quality level 5
 
 This quality level is the default quality level. It is meant for examples and helper tools.
 
-* Reviewed by two approver
-* License and copyright statement available
-* No version policy required
-* No unit tests required
+* Derived from [ROS quality level 5](https://www.ros.org/reps/rep-2004.html#quality-level-5)
+  * Reviewed by two approver
+  * No compiler warnings
+  * License and copyright statement available
+  * No version policy required
+  * No unit tests required
 
 ### Quality level 4
 
-This quality level is meant for all targets that need tier 1 support in ROS 2.
-
-* Basic unit tests are available
+* Derived from [ROS quality level 4](https://www.ros.org/reps/rep-2004.html#quality-level-4)
+  * Basic unit tests are required
+  * Builds and runs on Windows, MacOS, Linux and QNX
 
 ### Quality level 3
 
-* No compiler warnings
-* Doxygen and documentation available
-* Test specification available
-* Version policy required
-* Level 8 and 9 warnings in Helix QAC addressed
+* Derived from [ROS quality level 3](https://www.ros.org/reps/rep-2004.html#quality-level-3)
+  * Doxygen and documentation required
+  * Test specification required
+  * Version policy required
 
 ### Quality level 2
 
-* Unit tests have full statement and branch coverage
+This quality level is meant for all targets that need tier 1 support in ROS 2.
+
+* Derived from [ROS quality level 2](https://www.ros.org/reps/rep-2004.html#quality-level-2)
+  * Must have a [quality declaration document](https://www.ros.org/reps/rep-2004.html#quality-declaration-template)
 
 ### Quality level 1
 
-* Warnings in Helix QAC addressed
+* Derived from [ROS quality level 1](https://www.ros.org/reps/rep-2004.html#quality-level-1)
+  * Version policy for stable API and ABI required
+  * [ASPICE](https://beza1e1.tuxen.de/aspice.html) SWE.6 tests available
+  * Performance tests and regression policy required
+  * Static code analysis warnings in Axivion addressed
+  * Enforcing the code style is required
+  * Unit tests have full statement and branch coverage
+
+### Quality level 1+
+
+This quality level goes beyond the ROS quality levels and contains extensions.
+
 * Code coverage according to [MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) available
 
 ## Training material recommended for contributors
