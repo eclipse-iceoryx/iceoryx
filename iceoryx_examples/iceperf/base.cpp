@@ -33,7 +33,7 @@ void IcePerfBase::releaseFollower() noexcept
     sendPerfTopic(sizeof(PerfTopic), RunFlag::STOP);
 }
 
-double IcePerfBase::latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept
+iox::units::Duration IcePerfBase::latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept
 {
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -50,8 +50,7 @@ double IcePerfBase::latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
     auto latencyInNanoSeconds =
         (static_cast<uint64_t>(duration.count()) / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000.0;
-    return latencyInMicroSeconds;
+    return iox::units::Duration::fromNanoseconds(latencyInNanoSeconds);
 }
 
 void IcePerfBase::latencyPerfTestFollower() noexcept

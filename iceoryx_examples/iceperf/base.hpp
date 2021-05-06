@@ -19,6 +19,9 @@
 
 #include "example_common.hpp"
 #include "topic_data.hpp"
+
+#include "iceoryx_utils/internal/units/duration.hpp"
+
 #include <chrono>
 #include <iostream>
 
@@ -36,7 +39,7 @@ class IcePerfBase
     void preLatencyPerfTestLeader(const uint32_t payloadSizeInBytes) noexcept;
     void postLatencyPerfTestLeader() noexcept;
     void releaseFollower() noexcept;
-    double latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept;
+    iox::units::Duration latencyPerfTestLeader(const uint64_t numRoundTrips) noexcept;
     void latencyPerfTestFollower() noexcept;
 
   private:

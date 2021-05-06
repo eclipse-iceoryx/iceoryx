@@ -232,7 +232,7 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 {
     ipcTechnology.initLeader();
 
-    std::vector<double> latencyInMicroSeconds;
+    std::vector<std::tuple<uint32_t, iox::units::Duration>> latencyMeasurements;
     const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
     std::cout << "Measurement for:";
     const char* separator = " ";
@@ -246,7 +246,7 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 
         auto latency = ipcTechnology.latencyPerfTestLeader(m_settings.numberOfSamples);
 
-        latencyInMicroSeconds.push_back(latency);
+        latencyMeasurements.push_back(std::make_tuple(payloadSizeInKB, latency));
 
         ipcTechnology.postLatencyPerfTestLeader();
     }
@@ -262,10 +262,12 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     std::cout << std::endl;
     std::cout << "| Payload Size [kB] | Average Latency [µs] |" << std::endl;
     std::cout << "|------------------:|---------------------:|" << std::endl;
-    for (size_t i = 0U; i < latencyInMicroSeconds.size(); ++i)
+    for (const auto& latencyMeasuement : latencyMeasurements)
     {
-        std::cout << "| " << std::setw(17) << payloadSizesInKB.at(i) << " | " << std::setw(20) << std::setprecision(2)
-                  << latencyInMicroSeconds.at(i) << " |" << std::endl;
+        auto payloadSizeInKB = std::get<0>(latencyMeasuement);
+        auto latencyInMicroseconds = static_cast<double>(std::get<1>(latencyMeasuement).toNanoseconds()) / 1000.0;
+        std::cout << "| " << std::setw(17) << payloadSizeInKB << " | " << std::setw(20) << std::setprecision(2)
+                  << latencyInMicroseconds << " |" << std::endl;
     }
 
     std::cout << std::endl;
