@@ -53,9 +53,9 @@ isErrnumIgnored(const int32_t errnum, const int32_t firstErrno, const IgnoredErr
 } // namespace internal
 
 template <typename T>
-inline cxx::string<PosixCallResult<T>::ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
+inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
-    return cxx::string<ERROR_STRING_SIZE>(cxx::TruncateToCapacity, std::strerror(errnum));
+    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, std::strerror(errnum));
 }
 
 template <typename ReturnType, typename... FunctionArguments>

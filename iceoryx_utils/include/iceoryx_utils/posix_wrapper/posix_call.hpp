@@ -27,6 +27,10 @@ namespace iox
 {
 namespace posix
 {
+static constexpr uint32_t POSIX_CALL_ERROR_STRING_SIZE = 128u;
+static constexpr uint64_t POSIX_CALL_EINTR_REPETITIONS = 5U;
+static constexpr int32_t POSIX_CALL_INVALID_ERRNO = -1;
+
 template <typename ReturnType, typename... FunctionArguments>
 class PosixCallBuilder;
 
@@ -34,24 +38,23 @@ class PosixCallBuilder;
 template <typename T>
 struct PosixCallResult
 {
-    static constexpr uint32_t ERROR_STRING_SIZE = 128u;
     static const PosixCallResult INVALID_STATE;
 
     PosixCallResult() noexcept = default;
 
     /// @brief returns the result of std::strerror(errnum) which acquires a
     ///        human readable error string
-    cxx::string<ERROR_STRING_SIZE> getHumanReadableErrnum() const noexcept;
+    cxx::string<POSIX_CALL_ERROR_STRING_SIZE> getHumanReadableErrnum() const noexcept;
 
     /// @brief the return value of the posix function call
     T value;
 
     /// @brief the errno value which was set by the posix function call
-    int32_t errnum = -1;
+    int32_t errnum = POSIX_CALL_INVALID_ERRNO;
 };
 
 template <typename T>
-PosixCallResult<T> const PosixCallResult<T>::INVALID_STATE{{}, -1};
+PosixCallResult<T> const PosixCallResult<T>::INVALID_STATE{{}, POSIX_CALL_INVALID_ERRNO};
 
 namespace internal
 {
@@ -157,7 +160,6 @@ class IOX_NO_DISCARD PosixCallVerificator
     internal::PosixCallDetails<ReturnType>& m_details;
 };
 
-static constexpr uint64_t POSIX_CALL_EINTR_REPETITIONS = 5U;
 template <typename ReturnType, typename... FunctionArguments>
 class IOX_NO_DISCARD PosixCallBuilder
 {
@@ -187,7 +189,7 @@ class IOX_NO_DISCARD PosixCallBuilder
                      const char* callingFunction) noexcept;
 
   private:
-    FunctionType_t m_posixCall;
+    FunctionType_t m_posixCall = nullptr;
     internal::PosixCallDetails<ReturnType> m_details;
 };
 } // namespace posix
