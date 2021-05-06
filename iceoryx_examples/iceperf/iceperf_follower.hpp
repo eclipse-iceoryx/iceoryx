@@ -1,4 +1,3 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +13,29 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP
 
+#ifndef IOX_EXAMPLES_ICEPERF_FOLLOWER_HPP
+#define IOX_EXAMPLES_ICEPERF_FOLLOWER_HPP
+
+#include "base.hpp"
 #include "example_common.hpp"
 
-#include <cstdint>
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 
-//! [topic data definitions]
-struct PerfSettings
+class IcePerfFollower
 {
-    Benchmark benchmark{Benchmark::ALL};
-    Technology technology{Technology::ALL};
-    uint64_t numberOfSamples{10000U};
+  public:
+    IcePerfFollower() noexcept = default;
+
+    int run() noexcept;
+
+  private:
+    PerfSettings getSettings(iox::popo::Subscriber<PerfSettings>& subscriber) noexcept;
+    void doMeasurement(IcePerfBase& ipcTechnology) noexcept;
+
+  private:
+    PerfSettings m_settings;
 };
 
-struct PerfTopic
-{
-    uint32_t payloadSize{0};
-    uint32_t subPackets{0};
-    RunFlag runFlag{RunFlag::RUN};
-};
-//! [topic data definitions]
-
-#endif // IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP
+#endif // IOX_EXAMPLES_ICEPERF_FOLLOWER_HPP

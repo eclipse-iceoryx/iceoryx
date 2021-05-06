@@ -23,16 +23,14 @@ IceoryxC::IceoryxC(const iox::capro::IdString_t& publisherName, const iox::capro
 {
     iox_pub_options_t publisherOptions;
     iox_pub_options_init(&publisherOptions);
-    publisherOptions.historyCapacity = 0U;
-    publisherOptions.nodeName = "SlapStick";
-    m_publisher = iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", &publisherOptions);
+    publisherOptions.historyCapacity = 1U;
+    m_publisher = iox_pub_init(&m_publisherStorage, "IcePerf", publisherName.c_str(), "C-API", &publisherOptions);
 
     iox_sub_options_t subscriberOptions;
     iox_sub_options_init(&subscriberOptions);
-    subscriberOptions.queueCapacity = 10U;
-    subscriberOptions.historyRequest = 0U;
-    subscriberOptions.nodeName = "Slapstick";
-    m_subscriber = iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", &subscriberOptions);
+    subscriberOptions.queueCapacity = 1U;
+    subscriberOptions.historyRequest = 1U;
+    m_subscriber = iox_sub_init(&m_subscriberStorage, "IcePerf", subscriberName.c_str(), "C-API", &subscriberOptions);
 }
 
 IceoryxC::~IceoryxC()
@@ -85,14 +83,14 @@ void IceoryxC::shutdown() noexcept
     std::cout << " [ finished ]" << std::endl;
 }
 
-void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
+void IceoryxC::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
 {
     void* userPayload = nullptr;
     if (iox_pub_loan_chunk(m_publisher, &userPayload, payloadSizeInBytes) == AllocationResult_SUCCESS)
     {
         auto sendSample = static_cast<PerfTopic*>(userPayload);
         sendSample->payloadSize = payloadSizeInBytes;
-        sendSample->run = runFlag;
+        sendSample->runFlag = runFlag;
         sendSample->subPackets = 1;
         iox_pub_publish_chunk(m_publisher, userPayload);
     }
