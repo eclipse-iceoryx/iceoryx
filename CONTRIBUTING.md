@@ -101,11 +101,13 @@ information about logging and error handling.
 Please use [doxygen](http://www.doxygen.nl/) to document your code.
 
 The following doxygen comments are required for public API headers:
+
 ```cpp
     /// @brief short description
     /// @param[in] / [out] / [in,out] name description
     /// @return description
 ```
+
 A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure
@@ -153,6 +155,7 @@ Integration tests are composition of more than one class and test their interact
 
 To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
 You will need to install the following packages:
+
 ```bash
 sudo apt install lcov
 ```
@@ -162,15 +165,19 @@ The coverage scan applies to Quality level 3 and partly level 2 with branch cove
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
 You can do this with one command in iceroyx folder like this:
+
 ```bash
 ./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
 ```
+
 Optionally you can use build-all option to get coverage for extensions like DDS or C-Binding.
 The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
 example:
+
 ```bash
 ./tools/iceoryx_build_test.sh debug build-all -c unit
 ```
+
 **NOTE**
 Iceoryx needs to be built as static library for working with gcov flags. The script does it automatically.
 
@@ -179,6 +186,7 @@ The flag `-c unit` is for having only reports for unit-tests. In the script `too
 All reports are stored locally in build/lcov as html report (index.html). In Github, we are using [codecov](https://about.codecov.io) for a general reporting of the code coverage.
 Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
 If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
+
 1. Open the "Checks" view in the PR
 2. Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`
 3. On the right side you find a menu button `Artifacts` which shows `lcov-report` as download link
@@ -187,43 +195,52 @@ If you want to download the detailed html reports from the Pull-Requests or mast
 
 ### Safety & security
 
-We aim for [ASIL-D](https://en.wikipedia.org/wiki/Automotive_Safety_Integrity_Level#ASIL_D) compliance. The
-[ISO26262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more about automotive
-safety. A nice introduction [video](https://www.youtube.com/watch?v=F4GzsA00s5I) was presented on CppCon 2019.
+The iceoryx maintainers aim for [ASIL-D](https://en.wikipedia.org/wiki/Automotive_Safety_Integrity_Level#ASIL_D)
+compliance. The [ISO26262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more
+about automotive safety. A nice introduction [video](https://www.youtube.com/watch?v=F4GzsA00s5I) was presented on
+CppCon 2019.
 
 If you want to report a vulnerability, please use the [Eclipse process](https://www.eclipse.org/security/).
 
-We have a [partnership](https://www.perforce.com/blog/qac/why-eclipse-iceoryx-uses-helix-qac) with [Perforce](https://www.perforce.com) and use
-[Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
+#### Static code analysis
+
+The iceoryx maintainers have a partnership with [Axivion](https://www.axivion.com/en/) and use their
+[Axivion Suite](https://www.axivion.com/en/products/static-code-analysis/) to run a static-code analysis.
 
 Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
-| Ruleset name | Github issue label |
-|---|---|
-| [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA |
-| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR |
-| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT |
+| Ruleset name | Github issue label | Priority |
+|---|---|---|
+| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
+| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT | :star::star: |
+| [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA | :star: |
+
+The enabled rules can be found [here](./tools/axivion/axivion_config.json). It is possible that not the whole codebase
+follows these rules, things are work in progress. But this is where we want to go.
 
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
+
 ```cpp
     *mynullptr = foo; // PRQA S 4242 # Short description why
 ```
+
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
+
 ```cpp
     // PRQA S 4242 1 # Short description why
     *mynullptr = foo;
 ```
-Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
-please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
 
-Results will be available on this [Helix QAC dashboard](https://qaverify.programmingresearch.com/). Please contact one
-of the maintainers, if you're interested in getting access.
+Scan results of the `master` branch are available on a [Axivion dashboard](https://iceoryx-axivion.apex.ai/). Please
+contact one of the maintainers, if you're interested in getting access.
 
-It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
-go. As of now we don't have any continuos integration checks implemented but will rely on reviews during the pull
-requests. We're planning to introduce continuos integration checks in the near future.
+Don't be afraid if you don't have Axivion available. As we want to make it easy for developers to contribute,
+please raise a pull request and one of the maintainers will provided you access to the [dashboard](https://iceoryx-axivion.apex.ai/).
+
+As an alternative it is also possible to use Perforce's
+[Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
 ### Header
 
@@ -246,6 +263,7 @@ Each source file needs to have this header:
     //
     // SPDX-License-Identifier: Apache-2.0
 ```
+
 Note: The date is either a year or a range of years with the first and last years of the range separated by a dash. For example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The years of contribution should be ordered in chronological order, thus the last date in the list should be the year of the most recent contribution. If there is a gap between contributions of one or more calendar years, use a comma to separate the disconnected contribution periods (e.g. "2000 - 2004, 2006").
 
 Example:
@@ -268,7 +286,9 @@ Example:
     //
     // SPDX-License-Identifier: Apache-2.0
 ```
+
 **_NOTE:_**  For scripts or CMake files you can use the respective comment syntax like `#` for the header.
+
 ## Quality levels
 
 CMake targets can be developed according to different quality levels. Despite developing some of our targets according
