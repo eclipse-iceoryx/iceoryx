@@ -18,7 +18,6 @@
 #include "test.hpp"
 
 using namespace ::testing;
-using namespace iox::posix;
 
 namespace
 {
@@ -31,19 +30,170 @@ int testFunction(int a, int b)
 class PosixCall_test : public Test
 {
   public:
-    void SetUp()
-    {
-    }
-
-    void TearDown()
-    {
-    }
 };
 } // namespace
 
-TEST_F(PosixCall_test, callTest)
+TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_GoodCase)
 {
-    posixCall(testFunction).call(1, 2).successReturnValue(4).evaluate().and_then([](auto& r) {}).or_else([](auto& r) {
-    });
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(1, 2)
+        .successReturnValue(3)
+        .evaluate()
+        .and_then([](auto& r) {
+            EXPECT_THAT(r.value, Eq(3));
+            EXPECT_THAT(r.errnum, Eq(2));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
 }
 
+TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_BadCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(2, 3)
+        .successReturnValue(4)
+        .evaluate()
+        .and_then([](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(5));
+            EXPECT_THAT(r.errnum, Eq(6));
+        });
+
+    // we expect an error message via stderr to the console, details are not
+    // verified since it depends on the target and where the source code is
+    // stored
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_GoodCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(3, 4)
+        .failureReturnValue(1)
+        .evaluate()
+        .and_then([](auto& r) {
+            EXPECT_THAT(r.value, Eq(7));
+            EXPECT_THAT(r.errnum, Eq(12));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_BadCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(5, 6)
+        .failureReturnValue(11)
+        .evaluate()
+        .and_then([](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(11));
+            EXPECT_THAT(r.errnum, Eq(30));
+        });
+
+    // we expect an error message via stderr to the console, details are not
+    // verified since it depends on the target and where the source code is
+    // stored
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_GoodCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(7, 8)
+        .successReturnValue(1)
+        .evaluateWithIgnoredErrnos(56)
+        .and_then([](auto& r) {
+            EXPECT_THAT(r.value, Eq(15));
+            EXPECT_THAT(r.errnum, Eq(56));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_BadCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(9, 10)
+        .successReturnValue(1)
+        .evaluateWithIgnoredErrnos(99)
+        .and_then([](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(19));
+            EXPECT_THAT(r.errnum, Eq(90));
+        });
+
+    // we expect an error message via stderr to the console, details are not
+    // verified since it depends on the target and where the source code is
+    // stored
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_GoodCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(11, 12)
+        .failureReturnValue(23)
+        .evaluateWithIgnoredErrnos(132)
+        .and_then([](auto& r) {
+            EXPECT_THAT(r.value, Eq(23));
+            EXPECT_THAT(r.errnum, Eq(132));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_BadCase)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(13, 14)
+        .failureReturnValue(27)
+        .evaluateWithIgnoredErrnos(1337)
+        .and_then([](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(27));
+            EXPECT_THAT(r.errnum, Eq(182));
+        });
+
+    // we expect an error message via stderr to the console, details are not
+    // verified since it depends on the target and where the source code is
+    // stored
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, IgnoringMultipleErrnosWorks)
+{
+    internal::CaptureStderr();
+
+    iox::posix::posixCall(testFunction)
+        .call(15, 16)
+        .successReturnValue(1)
+        .evaluateWithIgnoredErrnos(5, 240, 17)
+        .and_then([](auto& r) {
+            EXPECT_THAT(r.value, Eq(31));
+            EXPECT_THAT(r.errnum, Eq(240));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
