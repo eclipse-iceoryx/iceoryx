@@ -31,6 +31,7 @@ struct InterfacePortData : public BasePortData
     InterfacePortData() = default;
     InterfacePortData(const RuntimeName_t& runtimeName, const capro::Interfaces interface) noexcept;
 
+    /// @todo put condition variable data here
     concurrent::FiFo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
     bool m_doInitialOfferForward{true};
 };
