@@ -183,11 +183,12 @@ The service model of iceoryx is derived from AUTOSAR and is still used in the AP
 
 The following table gives an overview of the different terminologies and the current mapping:
 
-|         | Group   | Instance         | Topic                  |
-|---------|---------|------------------|------------------------|
-| ROS2    | Type    | Namespace::Topic | -                      |
-| AUTOSAR | Service | Instance         | Event                  |
-| DDS     | -       | -                | /Group/Instance/Topic  |
+|                                                                                   | Group   | Instance         | Topic                  |
+|-----------------------------------------------------------------------------------|---------|------------------|------------------------|
+| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace::Topic | -                      |
+| AUTOSAR                                                                           | Service | Instance         | Event                  |
+| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
+| [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds/pull/303/files)              | -       | Type Name        | Topic Name             |
 
 Service is related to instance like classes are related to objects in C++. Service describes an abstract topic and an
 instance is one instantiation of that abstraction. Like an object is an instantiated class. Events are in this context
