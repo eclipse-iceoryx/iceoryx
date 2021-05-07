@@ -27,7 +27,7 @@ namespace iox
 {
 namespace posix
 {
-static constexpr uint32_t POSIX_CALL_ERROR_STRING_SIZE = 128u;
+static constexpr uint32_t POSIX_CALL_ERROR_STRING_SIZE = 128U;
 static constexpr uint64_t POSIX_CALL_EINTR_REPETITIONS = 5U;
 static constexpr int32_t POSIX_CALL_INVALID_ERRNO = -1;
 
@@ -171,7 +171,7 @@ class IOX_NO_DISCARD PosixCallBuilder
     /// errno to EINTR the call is repeated at most POSIX_CALL_EINTR_REPETITIONS times
     /// @param[in] arguments arguments which will be provided to the posix function
     /// @return the PosixCallVerificator to verify the return value
-    PosixCallVerificator<ReturnType> call(FunctionArguments... arguments) && noexcept;
+    PosixCallVerificator<ReturnType> operator()(FunctionArguments... arguments) && noexcept;
 
   private:
     template <typename ReturnType_, typename... FunctionArguments_>

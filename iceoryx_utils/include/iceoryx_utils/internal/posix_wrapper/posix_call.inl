@@ -71,7 +71,7 @@ inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(Func
 
 template <typename ReturnType, typename... FunctionArguments>
 inline PosixCallVerificator<ReturnType>
-PosixCallBuilder<ReturnType, FunctionArguments...>::call(FunctionArguments... arguments) && noexcept
+PosixCallBuilder<ReturnType, FunctionArguments...>::operator()(FunctionArguments... arguments) && noexcept
 {
     for (uint64_t i = 0U; i < POSIX_CALL_EINTR_REPETITIONS; ++i)
     {

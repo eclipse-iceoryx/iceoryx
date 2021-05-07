@@ -48,8 +48,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_GoodCase)
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(1, 2)
+    iox::posix::posixCall(testFunction)(1, 2)
         .successReturnValue(3)
         .evaluate()
         .and_then([](auto& r) {
@@ -65,8 +64,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_BadCase)
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(2, 3)
+    iox::posix::posixCall(testFunction)(2, 3)
         .successReturnValue(4)
         .evaluate()
         .and_then([](auto&) { EXPECT_TRUE(false); })
@@ -85,8 +83,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_GoodCase)
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(3, 4)
+    iox::posix::posixCall(testFunction)(3, 4)
         .failureReturnValue(1)
         .evaluate()
         .and_then([](auto& r) {
@@ -102,8 +99,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_BadCase)
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(5, 6)
+    iox::posix::posixCall(testFunction)(5, 6)
         .failureReturnValue(11)
         .evaluate()
         .and_then([](auto&) { EXPECT_TRUE(false); })
@@ -122,8 +118,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_Good
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(7, 8)
+    iox::posix::posixCall(testFunction)(7, 8)
         .successReturnValue(1)
         .evaluateWithIgnoredErrnos(56)
         .and_then([](auto& r) {
@@ -139,8 +134,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_BadC
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(9, 10)
+    iox::posix::posixCall(testFunction)(9, 10)
         .successReturnValue(1)
         .evaluateWithIgnoredErrnos(99)
         .and_then([](auto&) { EXPECT_TRUE(false); })
@@ -159,8 +153,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_Good
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(11, 12)
+    iox::posix::posixCall(testFunction)(11, 12)
         .failureReturnValue(23)
         .evaluateWithIgnoredErrnos(132)
         .and_then([](auto& r) {
@@ -176,8 +169,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_BadC
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(13, 14)
+    iox::posix::posixCall(testFunction)(13, 14)
         .failureReturnValue(27)
         .evaluateWithIgnoredErrnos(1337)
         .and_then([](auto&) { EXPECT_TRUE(false); })
@@ -196,8 +188,7 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWorks)
 {
     internal::CaptureStderr();
 
-    iox::posix::posixCall(testFunction)
-        .call(15, 16)
+    iox::posix::posixCall(testFunction)(15, 16)
         .successReturnValue(1)
         .evaluateWithIgnoredErrnos(5, 240, 17)
         .and_then([](auto& r) {
@@ -214,8 +205,7 @@ TEST_F(PosixCall_test, RecallingFunctionWithEintrWorks)
     internal::CaptureStderr();
 
     eintrRepetition = iox::posix::POSIX_CALL_EINTR_REPETITIONS;
-    iox::posix::posixCall(testEintr)
-        .call()
+    iox::posix::posixCall(testEintr)()
         .successReturnValue(0)
         .evaluate()
         .and_then([](auto& r) {
@@ -234,8 +224,7 @@ TEST_F(PosixCall_test, FunctionReturnsEINTRTooOftenResultsInFailure)
     internal::CaptureStderr();
 
     eintrRepetition = iox::posix::POSIX_CALL_EINTR_REPETITIONS + 1;
-    iox::posix::posixCall(testEintr)
-        .call()
+    iox::posix::posixCall(testEintr)()
         .successReturnValue(0)
         .evaluate()
         .and_then([](auto&) { EXPECT_TRUE(false); })
