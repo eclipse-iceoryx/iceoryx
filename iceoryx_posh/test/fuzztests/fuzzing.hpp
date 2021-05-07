@@ -25,8 +25,6 @@
 class Fuzzing
 {
   public:
-    Fuzzing() noexcept;
-
     /// @brief fuzzingRouDiCom is a method to test the processMessage method of RouDi. It shall be independent from
     /// the underlying protocol such as uds. It should also be slightly faster since some functions are not invoked
     /// compared to uds fuzzing. However, a RouDi thread is also started with this approach because otherwise it was not

@@ -40,8 +40,6 @@ enum class InputMode
 class CmdLineParserFuzzing
 {
   public:
-    CmdLineParserFuzzing() noexcept;
-
     /// @brief Parses the command line parameters which are entered by starting the fuzz wrappers
     /// @param[in] amount of arguments given to the method
     /// @param[in] containing the command line parameters
@@ -78,13 +76,13 @@ class CmdLineParserFuzzing
     std::string getTomlFile() noexcept;
 
   private:
-    bool m_errorFlag;
-    bool m_cmdLineFlag;
-    bool m_helpFlag;
-    bool m_tomlFileFlag;
-    InputMode m_inputMode;
-    FuzzingApi m_fuzzingAPI;
-    std::string m_tomlFile;
+    bool m_errorFlag{true};
+    bool m_cmdLineFlag{false};
+    bool m_helpFlag{false};
+    bool m_tomlFileFlag{false};
+    InputMode m_inputMode{InputMode::NONE};
+    FuzzingApi m_fuzzingAPI{FuzzingApi::NONE};
+    std::string m_tomlFile{""};
     std::vector<std::string> m_allMessages;
 };
 #endif // IOX_POSH_FUZZTESTS_CMDLINEPARSERFUZZING_HPP

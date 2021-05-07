@@ -24,16 +24,6 @@
 #include <string>
 
 iox::log::LogLevel m_logLevel{iox::log::LogLevel::kOff};
-CmdLineParserFuzzing::CmdLineParserFuzzing() noexcept
-{
-    m_fuzzingAPI = FuzzingApi::NONE;
-    m_inputMode = InputMode::NONE;
-    m_errorFlag = true;
-    m_cmdLineFlag = false;
-    m_helpFlag = false;
-    m_tomlFileFlag = false;
-    m_tomlFile = "";
-}
 
 bool CmdLineParserFuzzing::getHelpFlag() noexcept
 {

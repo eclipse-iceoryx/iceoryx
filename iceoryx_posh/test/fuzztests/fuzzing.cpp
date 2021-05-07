@@ -23,10 +23,6 @@
 
 std::string const UDS_NAME = "/tmp/";
 
-Fuzzing::Fuzzing() noexcept
-{
-}
-
 void Fuzzing::fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage) noexcept
 {
     if (aRouDi != nullptr)
