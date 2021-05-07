@@ -29,7 +29,7 @@ class FuzzHelper
     /// @param[out] std::vector containing std::strings of the messages from stdin. Each std::string in the vector
     /// is one line of stdin. This means that if there is one newline in stdin, there will be two std::strings, with two
     /// newlines, there will be three messages,...
-    std::vector<std::string> getStdInMessages() noexcept;
+    std::vector<std::string> getStdInMessages() const noexcept;
 
     /// @brief a shared Ptr to a RouDi thread which will be used to keep the thread alive until the message is
     /// processed by RouDi
@@ -40,12 +40,12 @@ class FuzzHelper
     /// example because one message can contain newlines
     /// @param[in] std::vector containing several std::string messages which shall be sent to an interface
     /// @param[out] std::vector containing one std::string message
-    std::vector<std::string> combineString(std::vector<std::string> allMessages) noexcept;
+    std::vector<std::string> combineString(std::vector<std::string>& allMessages) noexcept;
 
     /// @brief A method to check if RouDi is alive. It checks if the UDS is available and then sends a default message
     /// to RouDi
     /// @param[out] Boolean value indicating if RouDi is available
-    bool checkIsRouDiRunning() noexcept;
+    bool checkIsRouDiRunning() const noexcept;
 };
 
 #endif /*IOX_POSH_FUZZTESTS_FUZZHELPER_HPP*/

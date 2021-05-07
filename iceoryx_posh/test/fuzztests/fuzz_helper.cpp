@@ -19,7 +19,7 @@
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 
 
-std::vector<std::string> FuzzHelper::getStdInMessages() noexcept
+std::vector<std::string> FuzzHelper::getStdInMessages() const noexcept
 {
     std::vector<std::string> stdInMessages;
     for (std::string line; std::getline(std::cin, line);)
@@ -38,21 +38,12 @@ std::shared_ptr<RouDiFuzz> FuzzHelper::startRouDiThread() noexcept
     return aRouDi;
 }
 
-bool FuzzHelper::checkIsRouDiRunning() noexcept
+bool FuzzHelper::checkIsRouDiRunning() const noexcept
 {
-    Fuzzing aFuzzer;
-    int udsStatus = aFuzzer.fuzzingRouDiUDS("Hello Roudi!");
-    if (udsStatus == -1)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return Fuzzing().fuzzingRouDiUDS("Hello Roudi!") != -1;
 }
 
-std::vector<std::string> FuzzHelper::combineString(std::vector<std::string> allMessages) noexcept
+std::vector<std::string> FuzzHelper::combineString(std::vector<std::string>& allMessages) noexcept
 {
     std::string tempString = "";
     for (std::string aMessage : allMessages)
