@@ -38,7 +38,7 @@ class PosixCallBuilder;
 template <typename T>
 struct PosixCallResult
 {
-    static const PosixCallResult INVALID_STATE;
+    static constexpr PosixCallResult INVALID_STATE{};
 
     PosixCallResult() noexcept = default;
 
@@ -52,9 +52,6 @@ struct PosixCallResult
     /// @brief the errno value which was set by the posix function call
     int32_t errnum = POSIX_CALL_INVALID_ERRNO;
 };
-
-template <typename T>
-PosixCallResult<T> const PosixCallResult<T>::INVALID_STATE{{}, POSIX_CALL_INVALID_ERRNO};
 
 namespace internal
 {
@@ -83,8 +80,7 @@ struct PosixCallDetails
 ///        We use a builder pattern to create a design which sets the usage contract so that it
 ///        cannot be used in the wrong way.
 /// @code
-///        iox::posix::posixCall(sem_timedwait)
-///             .call(handle, timeout)
+///        iox::posix::posixCall(sem_timedwait)(handle, timeout)
 ///             .successReturnValue(0)
 ///             .evaluateWithIgnoredErrnos(ETIMEDOUT) // can be a comma separated list of errnos
 ///             .and_then([](auto & result){
