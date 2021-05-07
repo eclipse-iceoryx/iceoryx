@@ -38,7 +38,7 @@ class PosixCallBuilder;
 template <typename T>
 struct PosixCallResult
 {
-    static constexpr PosixCallResult INVALID_STATE{};
+    static const PosixCallResult INVALID_STATE;
 
     PosixCallResult() noexcept = default;
 
@@ -52,6 +52,9 @@ struct PosixCallResult
     /// @brief the errno value which was set by the posix function call
     int32_t errnum = POSIX_CALL_INVALID_ERRNO;
 };
+
+template <typename T>
+PosixCallResult<T> const PosixCallResult<T>::INVALID_STATE{{}, POSIX_CALL_INVALID_ERRNO};
 
 namespace internal
 {
