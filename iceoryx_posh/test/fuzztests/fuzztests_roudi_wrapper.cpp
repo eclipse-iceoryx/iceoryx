@@ -39,29 +39,29 @@ int main(int argc, char* argv[]) noexcept
 
     if (cmd.getErrorFlag())
     {
-        std::cout << "No or wrong command lines were specified. Please use --help!" << std::endl;
+        iox::LogError() << "No or wrong command lines were specified. Please use --help!";
         return EXIT_FAILURE;
     }
 
     if (allMessages.empty())
     {
-        std::cout << "Please use -m [cl, stdin] to enter the input you want to send to the executable. If you use -m "
-                     "cl, then you also need use -i [INPUT_MESSAGE] or -c [PATH_To_File] to specify the message."
-                  << std::endl;
+        iox::LogError()
+            << "Please use -m [cl, stdin] to enter the input you want to send to the executable. If you use -m "
+               "cl, then you also need use -i [INPUT_MESSAGE] or -c [PATH_To_File] to specify the message.";
         return EXIT_FAILURE;
     }
 
     if (cmd.getInputMode() == InputMode::NONE)
     {
-        std::cout << "Please use -m to specify the input. Please use --help to get more information." << std::endl;
+        iox::LogError() << "Please use -m to specify the input. Please use --help to get more information.";
         return EXIT_FAILURE;
     }
 
     if ((cmd.getInputMode() == InputMode::CL) && (!cmd.getCmdLineFlag()))
     {
-        std::cout << "Please use -i [INPUT_MESSAGE] or -c [PATH_To_File] to enter a String which you want to send to "
-                     "the interface. It is also possible to use -m stdin instead."
-                  << std::endl;
+        iox::LogError()
+            << "Please use -i [INPUT_MESSAGE] or -c [PATH_To_File] to enter a String which you want to send to "
+               "the interface. It is also possible to use -m stdin instead.";
         return EXIT_FAILURE;
     }
 
@@ -72,9 +72,9 @@ int main(int argc, char* argv[]) noexcept
     {
         if (!cmd.getTomlFileFlag())
         {
-            std::cout << "Please use -t [PATH_To_File] to specify a file where the messages are written to which are "
-                         "sent to the TOML configuration parser."
-                      << std::endl;
+            iox::LogError()
+                << "Please use -t [PATH_To_File] to specify a file where the messages are written to which are "
+                   "sent to the TOML configuration parser.";
             return EXIT_FAILURE;
         }
         else
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) noexcept
         {
             if (retryCounter >= MAX_RETRIES)
             {
-                std::cout << "RouDi could not be started, program terminates!" << std::endl;
+                iox::LogError() << "RouDi could not be started, program terminates!";
                 return EXIT_FAILURE;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_RETRY_IN_MS));
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) noexcept
 
             default:
             {
-                std::cout << "Error: Unkown Fuzzing API parameter" << std::endl;
+                iox::LogError() << "Error: Unkown Fuzzing API parameter";
                 return EXIT_FAILURE;
             }
             };
@@ -138,9 +138,9 @@ int main(int argc, char* argv[]) noexcept
     }
     else
     {
-        std::cout << "Error: Only stdin and command line are allowed to enter an input. Please use --help to get more "
-                     "information."
-                  << std::endl;
+        iox::LogError()
+            << "Error: Only stdin and command line are allowed to enter an input. Please use --help to get more "
+               "information.";
         return EXIT_FAILURE;
     }
 }
