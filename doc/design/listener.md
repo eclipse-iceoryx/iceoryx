@@ -96,8 +96,8 @@ which event is attached, like in the _WaitSet_.
         | 1                                         | TriggerHandle                  |
 +-------------------------------------------------+ |   bool isValid()               |
 | Listener                                        | |   bool wasTriggered()          |
-|   attachEvent(EventOrigin, EventType, Callback) | |   void trigger()               |
-|   detachEvent(EventOrigin, EventType)           | |   void reset()                 |
+|   attachEvent(Triggerable, EventType, Callback) | |   void trigger()               |
+|   detachEvent(Triggerable, EventType)           | |   void reset()                 |
 |                                                 | |   void invalidate()            |
 |   - m_events : Event_t[]                        | |   void getUniqueId()           |
 |   - m_thread : std::thread                      | |                                |
@@ -178,7 +178,7 @@ Triggerable        TriggerHandle         Listener         Event_t
 ```
 
 - **Listener goes out of scope:** The d'tor of the `Event_t` invalidates the 
-    Trigger inside the Triggarable via the `invalidationCallback`
+    Trigger inside the Triggerable via the `invalidationCallback`
 
 ```
 Listener       Event_t                  Triggerable
@@ -217,11 +217,98 @@ wait on events. So the contract is reflected in the design.
     the Listener knows which Triggerable notified him.
 
 #### Event_t
-- thread safe - smart_lock 
-- cleanup
-- callback
+
+##### Concurrency
+
+The Listener must be able to attach, detach events concurrently. Additionally,
+it supports that a callback can attach or detach further events or detach its
+corresponding event concurrently. Furthermore, the Listener supports that a
+callback is called concurrently while events are being attached/detached.
+
+To realize this we created the `Event_t` abstraction which is stored in an
+array called `m_events`. If we would like to attach or detach an event we either
+initialize `Event_t::init()` or reset `Event_t::reset()` the corresponding entry
+in the `m_events` array. The array has the advantage that the data structure
+itself never changes during runtime therefore it does not have to be thread-safe.
+
+The thread-safety must then be ensured by the `Event_t` class itself. Since
+every concurrent action is contained in `Event_t` we can use
+`concurrent::smart_lock` in combination with a `std::recursive_mutex` to
+guarantee the thread-safe access.
+
+1. Concurrent attach/detach event and callback execution, ensured by
+   thread-safe `Event_t`.
+2. Detaching itself from within a callback is ensured via the
+   `std::recursive_mutex`.
+3. Attaching/detaching arbitrary events from within a callback is ensured by
+   securing every `Event_t` object in `m_events` with a `concurrent::smart_lock`.
+   This would not be possible if the data structure itself had to be thread-safe.
+
+##### Lifetime
+
+Since the event contains everything which is required to handle events it has
+the responsibility to ensure the life-time of the TriggerHandle. This is done
+by the `m_invalidationCallback` which is called in `Event_t::reset()` to
+invalidate the TriggerHandle in the corresponding Triggerable. This is either
+done when an event is detached or the Listener goes out of scope.
+
+#### Triggerable (e.g. Subscriber)
+
+The Triggerable is a set of classes of which events can be attached to the Listener.
+
+It is possible to either attach a specific event of a class to the Listener or
+attach the class without providing an event.
+
+The basic idea is that the Listener creates a TriggerHandle whenever an event
+is attached and provides that TriggerHandle to the corresponding Triggerable.
+The Triggerable uses then the TriggerHandle to notify the Listener about events.
+
+##### Multiple Events
+
+Every Triggerable requires:
+
+1. An `enum class` which uses `iox::popo::EventEnumIdentifier` as underlying type.
+
+```cpp
+enum class TriggerableEnum : iox::popo::EventEnumIdentifier {
+  EVENT_IDENTIFIER,
+  ANOTHER_EVENT_IDENTIFIER,
+};
+```
+
+2. The private methods:
+
+```cpp
+void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const TriggerableEnum event) noexcept;
+void disableEvent(const MyTriggerClassEvents event) noexcept;
+void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+```
+
+Used by the Listener to provide the ownership of the TriggerHandle to the
+Triggerable. The should have one TriggerHandle member for every event.
+The TriggerHandle is then used to notify the Listener by the Triggerable that
+a certain event has occurred.
+
+3. It must be friend with `iox::popo::NotificationAttorney`. It is possible the
+   give public access to the previous methods but then the user has the ability
+   to call methods which should only used by the Listener.
+
+##### Triggerable With Single Event
+
+Every Triggerable requires:
+
+1. The private methods:
+
+```cpp
+void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
+void disableEvent() noexcept;
+void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+```
+
+2. It must be friend with `iox::popo::NotificationAttorney`.
 
 #### Listener
+
 ```cpp
 enum class ReactALErrors {
   CALLBACK_CAPACITY_EXCEEDED
@@ -230,14 +317,14 @@ enum class ReactALErrors {
 template<uint64_t CallbackCapacity>
 class ReactAL {
   public:
-    template<typename EventOrigin, typename EventType>
+    template<typename Triggerable, typename EventType>
     cxx::expected<ReactALErrors> attachEvent(
-      EventOrigin & origin, const EventType & eventType,
-      const cxx::function_ref<void(EventOrigin&)> & callback
+      Triggerable & origin, const EventType & eventType,
+      const cxx::function_ref<void(Triggerable&)> & callback
     ) noexcept;
 
-    template<typename EventOrigin, typename EventType>
-    void detachEvent( EventOrigin & origin, const EventType & eventType );
+    template<typename Triggerable, typename EventType>
+    void detachEvent( Triggerable & origin, const EventType & eventType );
 };
 
 ```
@@ -245,37 +332,3 @@ class ReactAL {
   - Contains a thread which will wake up and iterate through ConditionVariable
     bool array. If an entry is true, set it to false and then call the 
     corresponding callback.
-
-#### Class which is attachable to ReactAL 
-
-```cpp
-class SomeSubscriber {
-  //...
-  // index is the index to the bool inside of the condition variable, maybe it 
-  // is later hidden inside of some abstraction
-  //
-  // OutOfScopeCallback_t - callback which should be called when SomeSubscriber
-  //                        goes out of scope and has to deregister itself from 
-  //                        the reactal
-  friend class ReactAL;
-  private:
-    void enableEvent(SubscriberEvent event, ConditionVariable & cv, ConditionVariable::index_t & index
-                        const OutOfScopeCallback_t & callback);
-
-    void disableEvent(SubscriberEvent event);
-  //...
-};
-```
-
-The `ReactAL` will call the methods above to enable or disable a specific event by 
-providing a condition variable. The methods should be private and the `ReactAL` must then 
-be declared as a friend.
-
-## Open Points
-
- - Maybe introduce some abstraction Condition Variable tracing handling. 
-    One thought is to introduce a `SignalVector` where you can acquire a 
-    `Notifier` which then signals the `ConditionVariable` and with the 
-    correct id.
-
-
