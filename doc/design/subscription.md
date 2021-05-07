@@ -124,7 +124,46 @@ The subscriber cache contains two samples.
 The sample K will not be delivered by the publisher since it is already
 present in the cache.
 
+### Subscribing After Publisher Stops Offering
+
+In this case we assume that publisher P1 has stopped offering the service
+before the subscription was requested.
+
+#### Subscription with _HistorySize_ 4
+
+The subscriber cache contains the four samples ordered after _DeliveryTime_.
+
+| Publisher | Timepoint | Sample |
+|:---------:|:---------:|:------:|
+| P2        | 42        | J      |
+| P1        | 41        | E      |
+| P2        | 40        | I      |
+| P1        | 31        | D      |
+
 ## Design
+
+### Idea 1: One Ring Buffer Which Contains The Samples
+
+- All publishers are sharing one random access lock-free ring-buffer.
+- The ring-buffer is filled with shared-chunks which can be copied in a threadsafe
+    and lock-free manner.
+- A publisher delivers a sample by writing that sample into the shared ring-buffer.
+- Every subscriber owns an index to their own read position of the ring-buffer.
+- On subscription the subscriber will acquire a const reference to the ring-buffer.
+- When subscriber acquires a sample with take, the shared-chunk is copied from
+    the index position and the index is incremented.
+- When the publisher delivers a sample it will verify all subscriber indices.
+   If a subscriber `index > ring-buffer-head - subscriberHistorySize` the index
+   is incremented.
+
+#### Open Points
+
+- Many chunks will not be released even when no susbcriber is using them.
+- ring-buffer size? Since the ring-buffer is shared between multiple publishers
+  the size has to be defined via some service subscription options.
+- Who owns the ring-buffer? Since it is shared between multiple publishers and
+  a subscriber should be able to read samples after all publisher have stopped
+  offering the service, the ring-buffer should be owned by the service?
 
 ### Considerations
 
