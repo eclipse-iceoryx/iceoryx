@@ -112,6 +112,8 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     // operation with the underlying (erased) type
     // this means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
     /// when we store a storable_function in shared memory
+    
+    //TODO: rename operations
     struct vtable
     {
         // function pointers defining copy, move and destruction semantics
@@ -137,6 +139,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     StorageType m_storage;
     void* m_storedCallable{nullptr};
     function_ref<signature<ReturnType, Args...>> m_function;
+    ReturnType (*m_invocation)(void*, Args...){nullptr};
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
@@ -145,18 +148,30 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     void storeFunctor(const Functor& functor) noexcept;
 
     // we need these templates to preserve the actual type T for the underlying copy/move call
-    template <typename T>
+    template <typename CallableType>
     static void copy(const storable_function& src, storable_function& dest) noexcept;
 
-    template <typename T>
+    template <typename CallableType>
     static void move(storable_function& src, storable_function& dest) noexcept;
 
-    template <typename T>
+    template <typename CallableType>
     static void destroy(storable_function& f) noexcept;
 
     static void copyFreeFunction(const storable_function& src, storable_function& dest) noexcept;
 
     static void moveFreeFunction(storable_function& src, storable_function& dest) noexcept;
+
+    // TODO: perfect forwarding
+    template<typename CallableType, typename... ArgTypes>
+    static ReturnType invoke(void* callable, Args... args) {
+      //return (*static_cast<CallableType*>(callable))(std::forward<ArgTypes>(args)...);
+      return (*static_cast<CallableType*>(callable))(args...); 
+    }
+
+    template<typename... ArgTypes>
+    static ReturnType invokeFreeFunction(void* callable, Args... args) {      
+      return reinterpret_cast<ReturnType (*)(ArgTypes...)>(callable) (args...); 
+    }
 };
 
 } // namespace cxx

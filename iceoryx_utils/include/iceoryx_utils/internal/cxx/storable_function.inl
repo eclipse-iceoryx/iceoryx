@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//TODO: SPX
+
 #ifndef IOX_UTILS_STORABLE_FUNCTION_INL
 #define IOX_UTILS_STORABLE_FUNCTION_INL
 
@@ -33,7 +35,8 @@ template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::storable_function(ReturnType (*function)(Args...)) noexcept
 {
     m_function = function;
-    m_storedCallable = nullptr;
+    m_invocation = invokeFreeFunction<Args...>;
+    m_storedCallable = reinterpret_cast<void*>(function); //TODO: we can avoid this cast by introducing a function pointer variable
     m_vtable.copyFunction = copyFreeFunction;
     m_vtable.moveFunction = moveFreeFunction;
     // destroy is not needed for free functions
@@ -117,7 +120,8 @@ template <typename... ArgTypes>
 ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(ArgTypes&&... args)
 {
     cxx::Expects(operator bool());
-    return m_function(std::forward<ArgTypes>(args)...);
+    return m_invocation(m_storedCallable, std::forward<ArgTypes>(args)...);
+    //return m_function(std::forward<ArgTypes>(args)...);
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -157,6 +161,7 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
         // erase the functor type and store as reference to the call in storage
         m_function = *ptr;
         m_storedCallable = ptr;
+        m_invocation = invoke<StoredType, Args...>;
         m_vtable.copyFunction = copy<StoredType>;
         m_vtable.moveFunction = move<StoredType>;
         m_vtable.destroyFunction = destroy<StoredType>;
@@ -178,6 +183,7 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
     {
         dest.m_storedCallable = nullptr;
         dest.m_function = src.m_function;
+        dest.m_invocation = nullptr;
         return;
     }
 
@@ -189,6 +195,7 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
         ptr = new (ptr) T(*obj);
         dest.m_function = *ptr;
         dest.m_storedCallable = ptr;
+        dest.m_invocation = src.m_invocation;
     }
 }
 
@@ -201,6 +208,7 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
     {
         dest.m_storedCallable = nullptr;
         dest.m_function = src.m_function;
+        dest.m_invocation = nullptr;
         src.m_function = nullptr;
         return;
     }
@@ -212,9 +220,11 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
         ptr = new (ptr) T(std::move(*obj));
         dest.m_function = *ptr;
         dest.m_storedCallable = ptr;
+        dest.m_invocation = src.m_invocation;
         src.m_vtable.destroy(src);
         src.m_function = nullptr;
         src.m_storedCallable = nullptr;
+        src.m_invocation = nullptr;
     }
 }
 
@@ -230,11 +240,14 @@ void storable_function<S, signature<ReturnType, Args...>>::destroy(storable_func
     }
 }
 
+// distnuishing between free function and functor is not needed anymore
 template <typename S, typename ReturnType, typename... Args>
 void storable_function<S, signature<ReturnType, Args...>>::copyFreeFunction(const storable_function& src,
                                                                             storable_function& dest) noexcept
 {
     dest.m_function = src.m_function;
+    dest.m_invocation = src.m_invocation;
+    dest.m_storedCallable = src.m_storedCallable;   
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -242,9 +255,14 @@ void storable_function<S, signature<ReturnType, Args...>>::moveFreeFunction(stor
                                                                             storable_function& dest) noexcept
 {
     dest.m_function = src.m_function;
+    dest.m_invocation = src.m_invocation;
+    dest.m_storedCallable = src.m_storedCallable;  
     src.m_function = nullptr;
+    src.m_invocation = nullptr;
+    src.m_storedCallable = nullptr;
 }
 
+//TODO: snake case -> camel case
 template <typename S, typename ReturnType, typename... Args>
 template <typename T>
 constexpr uint64_t storable_function<S, signature<ReturnType, Args...>>::storage_bytes_required() noexcept
