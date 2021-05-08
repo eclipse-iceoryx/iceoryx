@@ -162,9 +162,9 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
         m_vtable.destroyFunction = destroy<StoredType>;
     }
 
-    // We detect the problem at compile time or store nothing when memory is exhausted
-    // note that we have no other choice, it is used in the ctor and we cannot throw
-    // the object will be valid but not callable (operator bool returns false)
+    // We detect the problem at compile time or store nothing when memory is exhausted.
+    // Note that we have no other choice, it is used in the ctor and we cannot throw
+    // the object will be valid but not callable (operator bool returns false).
 
     // If used with StorageType = static_storage we always detect this at compile time.
 }

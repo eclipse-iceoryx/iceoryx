@@ -80,8 +80,8 @@ class function_ref<ReturnType(ArgTypes...)>
 
     /// @brief Creates a function_ref from a function pointer
     /// @param[in] function function pointer to function we want to reference
-    /// @note this overload is needed, the general implementation is
-    /// using std::adressof and will not work properly for function pointers
+    /// @note this overload is needed, as the general implementation 
+    /// will not work properly for function pointers
     function_ref(ReturnType (*function)(ArgTypes...));
 
     function_ref(function_ref&& rhs) noexcept;

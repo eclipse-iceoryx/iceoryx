@@ -39,15 +39,14 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
 template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function)(ArgTypes...))
 {
-    ///@note the cast is not portable but works and is legal on POSIX
-    ///      (i.e. it is required to work on any POSIX system)
+    /// @note the cast is required to work on POSIX systems
     m_pointerToCallable = reinterpret_cast<void*>(function);
 
-    ///@note the lambda does not capture and is convertible to a function pointer
-    ///      as required by the C++ standard
+    /// @note the lambda does not capture and is thus convertible to a function pointer
+    ///       (required by the C++ standard)
     m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
         auto f = reinterpret_cast<ReturnType (*)(ArgTypes...)>(target);
-        return f(args...); // can we do some perfect forwarding here? (we cannot use std::forward due to non-movable types)
+        return f(args...);
     };
 }
 
