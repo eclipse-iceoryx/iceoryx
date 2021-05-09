@@ -22,13 +22,14 @@ namespace iox
 namespace cxx
 {
 template <uint64_t Capacity, uint64_t Align>
-constexpr uint64_t static_storage<Capacity, Align>::align_delta(uint64_t align, uint64_t alignTarget) noexcept
+constexpr uint64_t static_storage<Capacity, Align>::align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept
 {
-    auto r = align % alignTarget;
+    auto r = align % requiredAlign;
 
     // if r != 0 we are not aligned and need to add this amount to an align
     // aligned address to be aligned with alignTarget
-    return r != 0 ? alignTarget - r : 0;
+    // in the worst case this is requiredAlign - 1
+    return r != 0 ? requiredAlign - r : 0;
 }
 
 template <uint64_t Capacity, uint64_t Align>
@@ -39,16 +40,18 @@ static_storage<Capacity, Align>::~static_storage() noexcept
 
 template <uint64_t Capacity, uint64_t Align>
 template <typename T>
-constexpr bool static_storage<Capacity, Align>::fits_statically() noexcept
+constexpr bool static_storage<Capacity, Align>::is_allocatable() noexcept
 {
-    return sizeof(T) + align_delta(alignof(m_bytes), alignof(T)) <= Capacity;
+    // note that we can guarantee it to be allocatable if we have
+    // Capacity >= sizeof(T) + alignof(T) - 1 
+    return sizeof(T) + align_mismatch(alignof(m_bytes), alignof(T)) <= Capacity;
 }
 
 template <uint64_t Capacity, uint64_t Align>
 template <typename T>
 T* static_storage<Capacity, Align>::allocate() noexcept
 {
-    static_assert(fits_statically<T>(), "type does not fit into static storage");
+    static_assert(is_allocatable<T>(), "type does not fit into static storage");
     return reinterpret_cast<T*>(allocate(alignof(T), sizeof(T)));
 }
 

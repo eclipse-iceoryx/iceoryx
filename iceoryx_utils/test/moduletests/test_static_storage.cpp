@@ -65,45 +65,45 @@ class static_storage_test : public Test
     }
 };
 
-TEST(static_storage_test, FitsStaticallyWithoutAlignment)
+TEST(static_storage_test, IsAllocatableWithoutAlignmentRestriction)
 {
     using Data = Bytes<16, 1>;
     EXPECT_EQ(sizeof(Data), 16);
     EXPECT_EQ(alignof(Data), 1);
-    EXPECT_TRUE(static_storage<16>::fits_statically<Data>());
+    EXPECT_TRUE(static_storage<16>::is_allocatable<Data>());
 }
 
-TEST(static_storage_test, DoesNotFitStaticallyWithoutAlignment)
+TEST(static_storage_test, IsNotAllocatableWithoutAlignmentRestriction)
 {
     using Data = Bytes<16, 1>;
-    EXPECT_FALSE(static_storage<15>::fits_statically<Data>());
+    EXPECT_FALSE(static_storage<15>::is_allocatable<Data>());
 }
 
-TEST(static_storage_test, FitsStaticallyWithAlignment)
+TEST(static_storage_test, IsAllocatableWithAlignmentRestriction)
 {
     using Data = Bytes<16, 4>;
     EXPECT_EQ(sizeof(Data), 16);
     EXPECT_EQ(alignof(Data), 4);
-    EXPECT_TRUE(static_storage<19>::fits_statically<Data>());
+    EXPECT_TRUE(static_storage<19>::is_allocatable<Data>());
 }
 
-TEST(static_storage_test, DoesNotFitStaticallyWithAlignment)
+TEST(static_storage_test, IsNotAllocatableWithAlignmentRestriction)
 {
     using Data = Bytes<16, 4>;
-    EXPECT_FALSE(static_storage<18>::fits_statically<Data>());
+    EXPECT_FALSE(static_storage<18>::is_allocatable<Data>());
 }
 
-TEST(static_storage_test, FitsStaticallyWithDifferentAlignment)
+TEST(static_storage_test, IsAllocatableWithDifferentAlignment)
 {
     using Data = Bytes<16, 4>;
-    const bool result = static_storage<18, 2>::fits_statically<Data>();
+    const bool result = static_storage<18, 2>::is_allocatable<Data>();
     EXPECT_TRUE(result);
 }
 
-TEST(static_storage_test, DoesNotFitStaticallyWithDifferentAlignment)
+TEST(static_storage_test, IsNotAllocatableWithDifferentAlignment)
 {
     using Data = Bytes<16, 4>;
-    const bool result = static_storage<17, 2>::fits_statically<Data>();
+    const bool result = static_storage<17, 2>::is_allocatable<Data>();
     EXPECT_FALSE(result);
 }
 

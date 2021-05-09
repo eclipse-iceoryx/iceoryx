@@ -28,14 +28,14 @@ namespace cxx
 ///        It can be used where abstract static memory for some object is required.
 ///        Currently this memory is allocated on the stack but it could be implemented
 ///        to use memory from the static memory segment.
-/// @tparam Capacity Number of bytes the static_storage will allocate statically.
-/// @tparam Align Alignment of the allocated memory.
+/// @tparam Capacity number of bytes the static_storage will allocate statically.
+/// @tparam Align alignment of the allocated memory.
 
 /// @note We can define optimized_storage (or dynamic_storage) with a similar interface
 ///       but other allocation policies and use them where we need to store objects
 ///       with some interchangable storage policy (e.g. in storable_function)
 ///       optimized_storage would have a dynamic memory fallback when static memory is
-///       insufficent
+///       insufficent.
 template <uint64_t Capacity, uint64_t Align = 1>
 class static_storage
 {
@@ -54,16 +54,22 @@ class static_storage
     static_storage(static_storage&&) = delete;
     static_storage& operator=(static_storage&&) = delete;
 
-    /// @brief check whether the type T will fit in the buffer statically at compile time
+    /// @brief check whether the type T will fit in the buffer 
+    /// @return true if the type fits in the buffer, false otherwise
+    /// @note can be checked at compile time
     template <typename T>
-    static constexpr bool fits_statically() noexcept;
+    static constexpr bool is_allocatable() noexcept;
 
     /// @brief provide static memory for an object of type T
+    /// @return pointer to memory where a T can be constructed if memory is available, nullptr otherwise
     /// @note  compilation fails if storage is insufficient for objects of type T
     template <typename T>
     T* allocate() noexcept;
 
-    /// @brief provide align aligned memory with a specific size
+    /// @brief request aligned memory with a specific size in bytes
+    /// @param align alignment of the memory requested
+    /// @param size number of bytes of the memory requested
+    /// @return pointer to aligned memory of the requested size if available, nullptr otherwise
     void* allocate(const uint64_t align, const uint64_t size) noexcept;
 
     /// @brief mark the static memory as unused
@@ -75,13 +81,15 @@ class static_storage
     void clear() noexcept;
 
     /// @brief get the storage capacity in bytes
+    /// @return maximum number of bytes available in the static storage
+    /// @note this is an upper bound for the object size it can store
     static constexpr uint64_t capacity() noexcept;
 
   private:
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
 
-    static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget) noexcept;
+    static constexpr uint64_t align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept;
 };
 
 } // namespace cxx
