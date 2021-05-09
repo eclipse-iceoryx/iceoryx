@@ -15,7 +15,6 @@
 #ifndef IOX_UTILS_STORABLE_FUNCTION_HPP
 #define IOX_UTILS_STORABLE_FUNCTION_HPP
 
-#include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/internal/cxx/static_storage.hpp"
 
@@ -81,8 +80,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief invoke the stored function
     /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
     ///        is leads to terminate
-    template <typename... ArgTypes>
-    ReturnType operator()(ArgTypes&&... args);
+    ReturnType operator()(Args... args);
 
     /// @brief indicates whether a function was stored
     operator bool() noexcept;
@@ -138,8 +136,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     vtable m_vtable;
     StorageType m_storage;
     void* m_storedCallable{nullptr};
-    function_ref<signature<ReturnType, Args...>> m_function;
-    ReturnType (*m_invocation)(void*, Args...){nullptr};
+    ReturnType (*m_invoker)(void*, Args&&...){nullptr};
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
@@ -147,7 +144,9 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept;
 
-    // we need these templates to preserve the actual type T for the underlying copy/move call
+    bool empty();
+
+    // we need these templates to preserve the actual CallableType for the underlying call
     template <typename CallableType>
     static void copy(const storable_function& src, storable_function& dest) noexcept;
 
@@ -161,17 +160,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     static void moveFreeFunction(storable_function& src, storable_function& dest) noexcept;
 
-    // TODO: perfect forwarding
-    template<typename CallableType, typename... ArgTypes>
-    static ReturnType invoke(void* callable, Args... args) {
-      //return (*static_cast<CallableType*>(callable))(std::forward<ArgTypes>(args)...);
-      return (*static_cast<CallableType*>(callable))(args...); 
-    }
+    template<typename CallableType>
+    static ReturnType invoke(void* callable, Args&&... args);
 
-    template<typename... ArgTypes>
-    static ReturnType invokeFreeFunction(void* callable, Args... args) {      
-      return reinterpret_cast<ReturnType (*)(ArgTypes...)>(callable) (args...); 
-    }
+    static ReturnType invokeFreeFunction(void* callable, Args&&... args);
+
 };
 
 } // namespace cxx

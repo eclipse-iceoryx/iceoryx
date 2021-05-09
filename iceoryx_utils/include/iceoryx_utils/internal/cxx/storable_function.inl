@@ -34,8 +34,7 @@ storable_function<S, signature<ReturnType, Args...>>::storable_function(const Fu
 template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::storable_function(ReturnType (*function)(Args...)) noexcept
 {
-    m_function = function;
-    m_invocation = invokeFreeFunction<Args...>;
+    m_invoker = invokeFreeFunction;
     m_storedCallable = reinterpret_cast<void*>(function); //TODO: we can avoid this cast by introducing a function pointer variable
     m_vtable.copyFunction = copyFreeFunction;
     m_vtable.moveFunction = moveFreeFunction;
@@ -84,7 +83,6 @@ storable_function<S, signature<ReturnType, Args...>>::operator=(const storable_f
     {
         // this vtable is needed for destroy, then changed to src vtable
         m_vtable.destroy(*this);
-        m_function = nullptr; // only needed when the src has no object
         m_vtable = rhs.m_vtable;
         m_vtable.copy(rhs, *this);
     }
@@ -100,7 +98,6 @@ storable_function<S, signature<ReturnType, Args...>>::operator=(storable_functio
     {
         // this vtable is needed for destroy, then changed to source (rhs) vtable
         m_vtable.destroy(*this);
-        m_function = nullptr; // only needed when the source has no object
         m_vtable = rhs.m_vtable;
         m_vtable.move(rhs, *this);
     }
@@ -114,20 +111,18 @@ storable_function<S, signature<ReturnType, Args...>>::~storable_function() noexc
     m_vtable.destroy(*this);
 }
 
-
+//Todo: perfect forwarding
 template <typename S, typename ReturnType, typename... Args>
-template <typename... ArgTypes>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(ArgTypes&&... args)
+ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args)
 {
-    cxx::Expects(operator bool());
-    return m_invocation(m_storedCallable, std::forward<ArgTypes>(args)...);
-    //return m_function(std::forward<ArgTypes>(args)...);
+    cxx::Expects(!empty());
+    return m_invoker(m_storedCallable, std::forward<Args>(args)...);
 }
 
 template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::operator bool() noexcept
 {
-    return m_function.operator bool();
+    return !empty();
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -147,6 +142,11 @@ void storable_function<S, signature<ReturnType, Args...>>::swap(storable_functio
 }
 
 template <typename S, typename ReturnType, typename... Args>
+bool storable_function<S, signature<ReturnType, Args...>>::empty() {
+    return m_invoker == nullptr;
+}
+
+template <typename S, typename ReturnType, typename... Args>
 template <typename Functor, typename>
 void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Functor& functor) noexcept
 {
@@ -159,9 +159,8 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
         ptr = new (ptr) StoredType(functor);
 
         // erase the functor type and store as reference to the call in storage
-        m_function = *ptr;
         m_storedCallable = ptr;
-        m_invocation = invoke<StoredType, Args...>;
+        m_invoker = invoke<StoredType>;
         m_vtable.copyFunction = copy<StoredType>;
         m_vtable.moveFunction = move<StoredType>;
         m_vtable.destroyFunction = destroy<StoredType>;
@@ -182,8 +181,7 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
     if (!src.m_storedCallable)
     {
         dest.m_storedCallable = nullptr;
-        dest.m_function = src.m_function;
-        dest.m_invocation = nullptr;
+        dest.m_invoker = nullptr;
         return;
     }
 
@@ -193,9 +191,8 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
     {
         auto obj = reinterpret_cast<T*>(src.m_storedCallable);
         ptr = new (ptr) T(*obj);
-        dest.m_function = *ptr;
         dest.m_storedCallable = ptr;
-        dest.m_invocation = src.m_invocation;
+        dest.m_invoker = src.m_invoker;
     }
 }
 
@@ -207,9 +204,7 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
     if (!src.m_storedCallable)
     {
         dest.m_storedCallable = nullptr;
-        dest.m_function = src.m_function;
-        dest.m_invocation = nullptr;
-        src.m_function = nullptr;
+        dest.m_invoker = nullptr;
         return;
     }
 
@@ -218,13 +213,11 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
     {
         auto obj = reinterpret_cast<T*>(src.m_storedCallable);
         ptr = new (ptr) T(std::move(*obj));
-        dest.m_function = *ptr;
         dest.m_storedCallable = ptr;
-        dest.m_invocation = src.m_invocation;
+        dest.m_invoker = src.m_invoker;
         src.m_vtable.destroy(src);
-        src.m_function = nullptr;
         src.m_storedCallable = nullptr;
-        src.m_invocation = nullptr;
+        src.m_invoker = nullptr;
     }
 }
 
@@ -232,7 +225,7 @@ template <typename S, typename ReturnType, typename... Args>
 template <typename T>
 void storable_function<S, signature<ReturnType, Args...>>::destroy(storable_function& f) noexcept
 {
-    if (f.m_storedCallable)
+    if (f.m_storedCallable) // TODO: cannot use this for deallocation in the fptr case
     {
         auto ptr = static_cast<T*>(f.m_storedCallable);
         ptr->~T();
@@ -240,13 +233,11 @@ void storable_function<S, signature<ReturnType, Args...>>::destroy(storable_func
     }
 }
 
-// distnuishing between free function and functor is not needed anymore
 template <typename S, typename ReturnType, typename... Args>
 void storable_function<S, signature<ReturnType, Args...>>::copyFreeFunction(const storable_function& src,
                                                                             storable_function& dest) noexcept
 {
-    dest.m_function = src.m_function;
-    dest.m_invocation = src.m_invocation;
+    dest.m_invoker = src.m_invoker;
     dest.m_storedCallable = src.m_storedCallable;   
 }
 
@@ -254,15 +245,23 @@ template <typename S, typename ReturnType, typename... Args>
 void storable_function<S, signature<ReturnType, Args...>>::moveFreeFunction(storable_function& src,
                                                                             storable_function& dest) noexcept
 {
-    dest.m_function = src.m_function;
-    dest.m_invocation = src.m_invocation;
+    dest.m_invoker = src.m_invoker;
     dest.m_storedCallable = src.m_storedCallable;  
-    src.m_function = nullptr;
-    src.m_invocation = nullptr;
+    src.m_invoker = nullptr;
     src.m_storedCallable = nullptr;
 }
 
-//TODO: snake case -> camel case
+template <typename S, typename ReturnType, typename... Args>
+template<typename CallableType>
+ReturnType storable_function<S, signature<ReturnType, Args...>>::invoke(void* callable, Args&&... args) {
+    return (*static_cast<CallableType*>(callable))(std::forward<Args>(args)...); 
+}
+
+template <typename S, typename ReturnType, typename... Args>
+ReturnType storable_function<S, signature<ReturnType, Args...>>::invokeFreeFunction(void* callable, Args&&... args) {      
+    return (reinterpret_cast<ReturnType (*)(Args...)>(callable)) (std::forward<Args>(args)...); 
+}
+
 template <typename S, typename ReturnType, typename... Args>
 template <typename T>
 constexpr uint64_t storable_function<S, signature<ReturnType, Args...>>::storage_bytes_required() noexcept
