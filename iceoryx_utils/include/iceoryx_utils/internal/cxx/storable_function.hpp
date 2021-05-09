@@ -79,51 +79,49 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     /// @brief invoke the stored function
     /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
-    ///        is leads to terminate
+    ///        leads to terminate being called
     ReturnType operator()(Args... args);
 
-    /// @brief indicates whether a function was stored
+    /// @brief indicates whether a function is currently stored
+    /// @return true if a function is stored, false otherwise
     operator bool() noexcept;
 
-    /// @brief swap this with another function
+    /// @brief swap this with another storable function
     void swap(storable_function& f) noexcept;
 
-    /// @brief swap two functions
+    /// @brief swap two storable functions
     static void swap(storable_function& f, storable_function& g) noexcept;
 
-    /// @brief size in bytes required to store a type T in a storable_function
-    /// @return number of bytes StorageType must be able to allocate to store T
-    /// @note this is not exact due to alignment, it may work with a smaller size but
-    ///       is not guaranteed
-    template <typename T>
+    /// @brief size in bytes required to store a CallableType in a storable_function
+    /// @return number of bytes StorageType must be able to allocate to store CallableType
+    /// @note this is not smallest possible due to alignment, it may work with a smaller size but
+    ///       is not guaranteed (but it is guaranteed to work with the number of bytes returned)
+    template <typename CallableType>
     static constexpr uint64_t storage_bytes_required() noexcept;
 
-    /// @brief checks whether T is storable
+    /// @brief checks whether CallableType is storable
     /// @return true if it can be stored, false if it is not guaranteed that it can be stored
     /// @note it might be storable for some alignments of T even if it returns false,
     ///       in this case it is advised to increase the size of storage via the StorageType
-    template <typename T>
+    template <typename CallableType>
     static constexpr bool is_storable() noexcept;
 
   private:
-    // note that this vtable or a similar approach with virtual is needed to ensure we perform the correct
-    // operation with the underlying (erased) type
+    // required to perform the correct operations with the underlying erased type
     // this means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
-    /// when we store a storable_function in shared memory
-    
-    //TODO: rename operations
-    struct vtable
+    // when we store a storable_function in shared memory
+    struct operations
     {
-        // function pointers defining copy, move and destruction semantics
+        // function pointers defining copy, move and destroy semantics
         void (*copyFunction)(const storable_function& src, storable_function& dest){nullptr};
         void (*moveFunction)(storable_function& src, storable_function& dest){nullptr};
         void (*destroyFunction)(storable_function& f){nullptr};
 
-        vtable() = default;
-        vtable(const vtable& other) = default;
-        vtable& operator=(const vtable& other) = default;
-        vtable(vtable&& other) = default;
-        vtable& operator=(vtable&& other) = default;
+        operations() = default;
+        operations(const operations& other) = default;
+        operations& operator=(const operations& other) = default;
+        operations(operations&& other) = default;
+        operations& operator=(operations&& other) = default;
 
         void copy(const storable_function& src, storable_function& dest) noexcept;
 
@@ -133,10 +131,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     };
 
   private:
-    vtable m_vtable;
-    StorageType m_storage;
-    void* m_storedCallable{nullptr};
-    ReturnType (*m_invoker)(void*, Args&&...){nullptr};
+    operations m_operations;                            // operations depending on type-erased callable (copy, move, destroy)
+    StorageType m_storage;                              // storage for the callable
+    void* m_callable{nullptr};                          // pointer to stored type-erased callable
+    ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable, 
+                                                        // nullptr if no callable is stored
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
@@ -144,7 +143,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept;
 
-    bool empty();
+    bool empty() const noexcept;
 
     // we need these templates to preserve the actual CallableType for the underlying call
     template <typename CallableType>
@@ -156,12 +155,12 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     template <typename CallableType>
     static void destroy(storable_function& f) noexcept;
 
+    template<typename CallableType>
+    static ReturnType invoke(void* callable, Args&&... args);
+
     static void copyFreeFunction(const storable_function& src, storable_function& dest) noexcept;
 
     static void moveFreeFunction(storable_function& src, storable_function& dest) noexcept;
-
-    template<typename CallableType>
-    static ReturnType invoke(void* callable, Args&&... args);
 
     static ReturnType invokeFreeFunction(void* callable, Args&&... args);
 
