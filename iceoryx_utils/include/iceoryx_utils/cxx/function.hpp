@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,31 +33,11 @@ namespace cxx
 ///        Similarly to std::function, they cannot be stored in Shared Memory
 ///        to be invoked in a different process.
 ///
-///        For the API see storable_function
+///        For the API see storable_function.
 template <typename Signature, uint64_t Bytes = 128U>
 using function = storable_function<static_storage<Bytes>, Signature>;
 
-/// @note This alias is needed to improve usability (reordering of template arguments)
-/// We reorder template arguments for the user API since
-/// the storage type must precede the (required) variadic arguments in the internal one
-/// if the static storage is insufficient to store the callable we get a compile time error
-
-/// @note the following would essentially be a complete std::function replacement
-/// which would allocate dynamically if the static storages of Bytes is not sufficient
-/// to store the callable (i.e. we use an optimized_storage)
-/// @code
-/// template <typename Signature, uint64_t Bytes = 128>
-/// using function = detail::storable_function<optimized_storage<Bytes>, Signature>;
-/// @endcode
-/// or alternatively
-/// @code
-/// template <typename Signature>
-/// using function = detail::storable_function<dynamic_storage, Signature>;
-/// @endcode
-///
-/// optimized_storage and dynamic_storage would have to be implemented
-///
-
+/// @note  If the static storage is insufficient to store the callable we get a compile time error.
 
 } // namespace cxx
 } // namespace iox

@@ -22,6 +22,9 @@
 #include <type_traits>
 #include <utility>
 
+//MAJOR TODO: clarfify whether perfect forwarding is even possible in this kind of general wrapper
+//#define USE_PERFECT_FORWARDING
+
 namespace iox
 {
 namespace cxx
@@ -32,11 +35,17 @@ using signature = ReturnType(Args...);
 template <typename StorageType, typename T>
 class storable_function;
 
-/// @brief A storable alternative of std::function which uses memory defined by a StorageType (this can be dynamic, static or anything else adhering to the required allocation interface).
-/// @note This is not achievable with std::function and a custom allocator, as then the memory will still not be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation is required.
+/// @brief A storable alternative of std::function which uses memory defined by a StorageType. 
+///        This can be dynamic storage, static storage or anything else adhering to the allocation interface (cf. static_storage).
+
+/// @note This is not achievable with std::function and a custom allocator, as then the memory will still not 
+///       be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation 
+///       is required.
+///       Furthermore the allocator support of std::function in the STL is deprecated.
+
 /// @tparam StorageType The type of internal storage to store the actual data.
-///                    Needs to provide allocate and deallocate functions.
-///                    See static_storage.hpp for a static memory version.
+///                     Needs to provide allocate and deallocate functions.
+///                     See static_storage.hpp for a static memory version.
 /// @tparam ReturnType  The return type of the stored callable.
 /// @tparam Args        The arguments of the stored callable.
 template <typename StorageType, typename ReturnType, typename... Args>
@@ -47,7 +56,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     storable_function() noexcept = default;
 
-    /// @brief construct from functor (including lambda)
+    /// @brief construct from functor (including lambdas)
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
@@ -77,10 +86,20 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     ~storable_function() noexcept;
 
+    //TODO: noexcept? (the function stored can in principle throw, we would just not allow the exception to be propagated further by marking it noexcept)
+
+#ifndef USE_PERFECT_FORWARDING
     /// @brief invoke the stored function
+    /// @param args arguments to invoke the stored function with
+    /// @return return value of the stored function
     /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
     ///        leads to terminate being called
-    ReturnType operator()(Args... args);
+    ReturnType operator()(Args... args) noexcept;
+#else
+    template<typename... ForwardedArgs>
+    ReturnType operator()(ForwardedArgs&&... args);
+#endif
+
 
     /// @brief indicates whether a function is currently stored
     /// @return true if a function is stored, false otherwise
@@ -100,16 +119,17 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     static constexpr uint64_t storage_bytes_required() noexcept;
 
     /// @brief checks whether CallableType is storable
-    /// @return true if it can be stored, false if it is not guaranteed that it can be stored
-    /// @note it might be storable for some alignments of T even if it returns false,
+    /// @return true if CallableType can be stored, false if it is not guaranteed that it can be stored
+    /// @note it might be storable for some alignments of CallableType even if it returns false,
     ///       in this case it is advised to increase the size of storage via the StorageType
     template <typename CallableType>
     static constexpr bool is_storable() noexcept;
 
   private:
-    // required to perform the correct operations with the underlying erased type
-    // this means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
-    // when we store a storable_function in shared memory
+    // Required to perform the correct operations with the underlying erased type
+    // This means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
+    // Therefore we cannot store a storable_function in shared memory (the same holds for std::function).
+    // This is inherent to the type erasure technique we (have to) use.
     struct operations
     {
         // function pointers defining copy, move and destroy semantics
