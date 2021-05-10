@@ -18,6 +18,7 @@
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 namespace iox
 {
@@ -88,11 +89,10 @@ void Semaphore::closeHandle() noexcept
 cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 {
     int value;
-    auto call =
-        cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value);
-    if (call.hasErrors())
+    auto call = posixCall(iox_sem_getvalue)(m_handlePtr, &value).failureReturnValue(-1).evaluate();
+    if (call.has_error())
     {
-        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+        return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
 
     return cxx::success<int>(value);
@@ -100,78 +100,54 @@ cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 
 cxx::expected<SemaphoreError> Semaphore::post() noexcept
 {
-    auto call = cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr);
-    if (call.hasErrors())
+    auto call = posixCall(iox_sem_post)(m_handlePtr).failureReturnValue(-1).evaluate();
+    if (call.has_error())
     {
-        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+        return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
 
     return cxx::success<>();
 }
 
-cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout,
-                                                                       const bool doContinueOnInterrupt) const noexcept
+cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) const noexcept
 {
     const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
-    if (doContinueOnInterrupt)
+    auto call =
+        posixCall(iox_sem_timedwait)(m_handlePtr, &timeout).failureReturnValue(-1).evaluateWithIgnoredErrnos(ETIMEDOUT);
+
+    if (call.has_error())
     {
-        // we wait so long until iox_sem_timedwait returns without an
-        // interruption error
-        while (true)
-        {
-            auto cCall = cxx::makeSmartC(
-                iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, &timeout);
-            if (cCall.hasErrors())
-            {
-                return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
-            }
-            else if (cCall.getErrNum() == ETIMEDOUT)
-            {
-                return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
-            }
-            else
-            {
-                return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
-            }
-        }
+        return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
+    }
+    else if (call->errnum == ETIMEDOUT)
+    {
+        return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
     }
     else
     {
-        auto cCall = cxx::makeSmartC(
-            iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, &timeout);
-        if (cCall.hasErrors() || cCall.getErrNum() == ETIMEDOUT)
-        {
-            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
-        }
-        else
-        {
-            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
-        }
+        return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
     }
 }
 
 cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
 {
-    auto cCall = cxx::makeSmartC(iox_sem_trywait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {EAGAIN}, m_handlePtr);
+    auto call = posixCall(iox_sem_trywait)(m_handlePtr).failureReturnValue(-1).evaluateWithIgnoredErrnos(EAGAIN);
 
-    if (cCall.hasErrors() && cCall.getErrNum() != EAGAIN)
+    if (call.has_error())
     {
-        return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
-    }
-    else if (cCall.getErrNum() == EAGAIN)
-    {
-        return cxx::success<bool>(false);
+        return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
 
-    return cxx::success<bool>(true);
+    return cxx::success<bool>(call->errnum != EAGAIN);
 }
 
 cxx::expected<SemaphoreError> Semaphore::wait() const noexcept
 {
-    auto call = cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr);
-    if (call.hasErrors())
+    auto call = posixCall(iox_sem_wait)(m_handlePtr).failureReturnValue(-1).evaluate();
+
+    if (call.has_error())
     {
-        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+        return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
 
     return cxx::success<>();
@@ -269,56 +245,43 @@ Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode
 
 bool Semaphore::close() noexcept
 {
-    return !cxx::makeSmartC(iox_sem_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr).hasErrors();
+    return !posixCall(iox_sem_close)(m_handlePtr).failureReturnValue(-1).evaluate().has_error();
 }
 
 bool Semaphore::destroy() noexcept
 {
-    return !cxx::makeSmartC(iox_sem_destroy, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, &m_handle).hasErrors();
+    return !posixCall(iox_sem_destroy)(m_handlePtr).failureReturnValue(-1).evaluate().has_error();
 }
 
 bool Semaphore::init(iox_sem_t* handle, const int pshared, const unsigned int value) noexcept
 {
-    return !cxx::makeSmartC(iox_sem_init, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, handle, pshared, value)
-                .hasErrors();
+    return !posixCall(iox_sem_init)(handle, pshared, value).failureReturnValue(-1).evaluate().has_error();
 }
 
 bool Semaphore::open(const int oflag) noexcept
 {
-    bool success = setHandleFromCall(cxx::makeSmartC(iox_sem_open<>,
-                                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                                     {reinterpret_cast<iox_sem_t*>(SEM_FAILED)},
-                                                     {},
-                                                     m_name.c_str(),
-                                                     oflag));
-
-    if (!success)
-    {
-        m_errorValue = SemaphoreError::CREATION_FAILED;
-    }
-    return success;
+    return !posixCall(iox_sem_open<>)(m_name.c_str(), oflag)
+                .failureReturnValue(SEM_FAILED)
+                .evaluate()
+                .and_then([this](auto& r) { m_handlePtr = r.value; })
+                .or_else([this](auto&) { m_errorValue = SemaphoreError::CREATION_FAILED; })
+                .has_error();
 }
 
 bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int value) noexcept
 {
-    bool success = setHandleFromCall(cxx::makeSmartC(iox_sem_open<mode_t, unsigned int>,
-                                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                                     {reinterpret_cast<iox_sem_t*>(SEM_FAILED)},
-                                                     {},
-                                                     m_name.c_str(),
-                                                     oflag,
-                                                     mode,
-                                                     value));
-    if (!success)
-    {
-        m_errorValue = SemaphoreError::CREATION_FAILED;
-    }
-    return success;
+    auto iox_sem_open_call = iox_sem_open<mode_t, unsigned int>;
+    return !posixCall(iox_sem_open_call)(m_name.c_str(), oflag, mode, value)
+                .failureReturnValue(SEM_FAILED)
+                .evaluate()
+                .and_then([this](auto& r) { m_handlePtr = r.value; })
+                .or_else([this](auto&) { m_errorValue = SemaphoreError::CREATION_FAILED; })
+                .has_error();
 }
 
 bool Semaphore::unlink(const char* name) noexcept
 {
-    return !cxx::makeSmartC(iox_sem_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, name).hasErrors();
+    return !posixCall(iox_sem_unlink)(name).failureReturnValue(-1).evaluate().has_error();
 }
 
 bool Semaphore::isNamedSemaphore() noexcept

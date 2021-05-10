@@ -19,7 +19,6 @@
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
@@ -133,16 +132,9 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
     /// @brief see wait()
     /// @param[in] abs_timeout timeout of the wait
-    /// @param[in] doContinueOnInterrupt implements the feature described in the
-    ///                sem_wait manpage:
-    ///      while ((s = iox_sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
-    ///      continue; /* Restart if interrupted by handler */
-    ///             true = restart till we aren't interrupted anymore
-    ///             false = return on any error
     /// @return when successful the SemaphoreWaitState states if a timeout happened
     ///         or not otherwise the SemaphoreError contains the error
-    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration abs_timeout,
-                                                                const bool doContinueOnInterrupt) const noexcept;
+    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration abs_timeout) const noexcept;
 
     /// @brief see wait()
     /// @return if the semaphore was decremented the expected contains the value true
