@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,28 +14,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_EXAMPLES_ICEPERF_LEADER_HPP
+#define IOX_EXAMPLES_ICEPERF_LEADER_HPP
 
+#include "base.hpp"
 #include "example_common.hpp"
-#include <cstring>
-#include <iostream>
 
-Benchmarks getBenchmarkFromString(const char* argv) noexcept
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+
+class IcePerfLeader
 {
-    if (strcmp(argv, "all") == 0)
-    {
-        return Benchmarks::ALL;
-    }
-    else if (strcmp(argv, "cpp-api") == 0)
-    {
-        return Benchmarks::CPP_API;
-    }
-    else if (strcmp(argv, "c-api") == 0)
-    {
-        return Benchmarks::C_API;
-    }
-    else
-    {
-        std::cout << "parameter must be either 'all', 'cpp-api', 'c-api' or empty" << std::endl;
-        exit(1);
-    }
-}
+  public:
+    IcePerfLeader(const PerfSettings settings) noexcept;
+
+    int run() noexcept;
+
+  private:
+    void doMeasurement(IcePerfBase& ipcTechnology) noexcept;
+
+  private:
+    const PerfSettings m_settings;
+};
+
+#endif // IOX_EXAMPLES_ICEPERF_LEADER_HPP

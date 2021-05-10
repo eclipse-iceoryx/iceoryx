@@ -21,8 +21,8 @@
 #include <thread>
 
 Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
-    : m_publisher({"Comedians", publisherName, "Duo"})
-    , m_subscriber({"Comedians", subscriberName, "Duo"})
+    : m_publisher({"IcePerf", publisherName, "C++-API"}, iox::popo::PublisherOptions{1U})
+    , m_subscriber({"IcePerf", subscriberName, "C++-API"}, iox::popo::SubscriberOptions{1U, 1U})
 {
 }
 
@@ -67,12 +67,12 @@ void Iceoryx::shutdown() noexcept
     std::cout << " [ finished ]" << std::endl;
 }
 
-void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
+void Iceoryx::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
 {
     m_publisher.loan(payloadSizeInBytes).and_then([&](auto& userPayload) {
         auto sendSample = static_cast<PerfTopic*>(userPayload);
         sendSample->payloadSize = payloadSizeInBytes;
-        sendSample->run = runFlag;
+        sendSample->runFlag = runFlag;
         sendSample->subPackets = 1;
 
         m_publisher.publish(userPayload);
