@@ -60,11 +60,11 @@ int main()
         double sampleValue3 = ct + 233;
         double sampleValue4 = ct + 377;
 
+        //! [usage1]
         // API Usage #1
         //  * Retrieve a typed sample from shared memory.
         //  * Sample can be held until ready to publish.
         //  * Data is default constructed during loan
-        //! [usage1]
         publisher.loan()
             .and_then([&](auto& sample) {
                 sample->x = sampleValue1;
@@ -79,11 +79,11 @@ int main()
         //! [usage1]
 
 
+        //! [usage2]
         // API Usage #2
         //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
         //  * Data is constructed with the arguments provided.
-        //! [usage2]
         publisher.loan(sampleValue2, sampleValue2, sampleValue2)
             .and_then([](auto& sample) { sample.publish(); })
             .or_else([](auto& error) {
@@ -92,10 +92,10 @@ int main()
             });
         //! [usage2]
 
+        //! [usage3]
         // API Usage #3
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
-        //! [usage3]
         auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
         publisher.publishCopyOf(object).or_else([](auto& error) {
             // Do something with error.
@@ -103,12 +103,12 @@ int main()
         });
         //! [usage3]
 
+        //! [usage4]
         // API Usage #4
         //  * Provide a callable that will be used to populate the loaned sample.
         //  * The first argument of the callable must be T* and is the location that the callable should
         //      write its result to.
         //
-        //! [usage4]
         publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {
             // Do something with error.
             std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;

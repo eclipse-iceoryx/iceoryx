@@ -39,16 +39,14 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    // initialize runtime
-    //! [runtime initialization]
+    //! [initialize runtime]
     constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
-    //! [runtime initialization]
+    //! [initialize runtime]
 
-    // initialized subscriber
-    //! [create subscriber untyped]
+    //! [create untyped subscriber]
     iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
-    //! [create subscriber untyped]
+    //! [create untyped subscriber]
 
     // run until interrupted by Ctrl-C
     //! [loop]
@@ -58,18 +56,16 @@ int main()
             .take()
             //! [chunk happy path]
             .and_then([&](const void* userPayload) {
-                //! [and_then]
                 //! [chunk received]
                 auto object = static_cast<const RadarObject*>(userPayload);
                 std::cout << APP_NAME << " got value: " << object->x << std::endl;
                 //! [chunk received]
 
+                //! [release]
                 // note that we explicitly have to release the sample
                 // and afterwards the pointer access is undefined behavior
-                //! [release]
                 subscriber.release(userPayload);
                 //! [release]
-                //! [and_then]
             })
             //! [chunk happy path]
             .or_else([](auto& result) {

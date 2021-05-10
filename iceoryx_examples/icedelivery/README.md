@@ -78,7 +78,7 @@ iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
 which fits our RadarObject struct.
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][[loan]]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][[Loan chunk]]-->
 ```cpp
 publisher.loan(sizeof(RadarObject))
     .and_then([&](auto& userPayload) {
@@ -139,7 +139,7 @@ Similar to the publisher, we include the topic data, the subscriber, the runtime
 
 To make RouDi aware of the subscriber a runtime object is created, once again with a unique identifier string:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][runtime initialization]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][initialize runtime]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -148,7 +148,7 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
 offered:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][create subscriber untyped]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][create untyped subscriber]-->
 ```cpp
 iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
 ```
@@ -199,6 +199,8 @@ After accessing the value, the chunk of memory needs to be explicitly released b
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][release]-->
 ```cpp
+// note that we explicitly have to release the sample
+// and afterwards the pointer access is undefined behavior
 subscriber.release(userPayload);
 ```
 
@@ -233,6 +235,10 @@ Usage #1 default constructs the data type in-place:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage1]-->
 ```cpp
+// API Usage #1
+//  * Retrieve a typed sample from shared memory.
+//  * Sample can be held until ready to publish.
+//  * Data is default constructed during loan
 publisher.loan()
     .and_then([&](auto& sample) {
         sample->x = sampleValue1;
@@ -252,6 +258,10 @@ Usage #2 constructs the data type with the values provided in loan:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage2]-->
 ```cpp
+// API Usage #2
+//  * Retrieve a typed sample from shared memory and construct data in-place
+//  * Sample can be held until ready to publish.
+//  * Data is constructed with the arguments provided.
 publisher.loan(sampleValue2, sampleValue2, sampleValue2)
     .and_then([](auto& sample) { sample.publish(); })
     .or_else([](auto& error) {
@@ -271,6 +281,9 @@ lead to a larger runtime.
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage3]-->
 ```cpp
+// API Usage #3
+//  * Basic copy-and-publish. Useful for smaller data types.
+//
 auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
 publisher.publishCopyOf(object).or_else([](auto& error) {
     // Do something with error.
@@ -288,6 +301,11 @@ argument. If loaning was unsuccessful, the callable is not called, but instead t
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage4]-->
 ```cpp
+// API Usage #4
+//  * Provide a callable that will be used to populate the loaned sample.
+//  * The first argument of the callable must be T* and is the location that the callable should
+//      write its result to.
+//
 publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {
     // Do something with error.
     std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
