@@ -1,0 +1,42 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class Client {
+  void connect()
+  void disconnect()
+  ConnectionState getConnectionState()
+  expected<Request, Error> loan()
+  void send(Request)
+  bool hasResponse()
+  expected<Response, Error> take()
+  bool hasMissedResponses()
+}
+
+class Server {
+   void offer()
+   void stopOffer()
+   bool isOffered()
+   bool hasClients()
+   bool hasRequests()
+   expected<Request, Error> takeRequest()
+   bool hasMissedRequests()
+   expected<Response, Error> loan()
+   void send(Response)
+}
+
+class ClientPortUser {
+}
+
+class ServerPortUser {
+}
+
+Client o-- ClientPortUser
+Server o-- ServerPortUser
+
+ClientPortUser o-- ChunkSender
+ClientPortUser o-- ChunkReceiver
+
+ServerPortUser o-- ChunkSender
+ServerPortUser o-- ChunkReceiver
+
+@enduml
