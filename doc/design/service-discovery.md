@@ -23,7 +23,7 @@ Service discovery over IPC channel e.g. message queue or UNIX domain socket is n
 
 * Polling and event notification approach shall both be possible
 
-### Considerations
+### Considerations and use-cases
 
 #### AUTOSAR Adaptive
 
@@ -37,7 +37,7 @@ Service discovery over IPC channel e.g. message queue or UNIX domain socket is n
 #### SOME/IP-SD
 
 * Very similar to AUTOSAR Adaptive
-* @todo ask Marika about the details
+* @todo check with Marika about the details
 
 #### Cyclone DDS and ROS 2
 
@@ -60,12 +60,48 @@ Service discovery over IPC channel e.g. message queue or UNIX domain socket is n
     * All the topics listed
     * Wiring pub/sub information
   * During init phase pub/sub are connected
+* Create abstract interface for `ServiceRegistry`
+  * Add new class to `StaticServiceRegistry::StaticServiceRegistry(std::map<CaproIdString_t, instance_t> map)`
+    * No notification-based callback possibilty
+    * Just static, polling with `FindService()` possible
 
-### Alternative A
+#### Sychronous, one-shot RPC (Polling)
 
-* Id's + ABA counter over IPC channel
+##### Alternative A: Request/ response feature usage
+
+* Re-use [request/ response feature](https://github.com/eclipse-iceoryx/iceoryx/issues/27)
+
+Pro:
+
+* Re-use building blocks to avoid code duplication
+* Dogfooding
+* Fast due to shared memory
+
+Con:
+
+* Shared memory approach might have overhead compared for a simple RPC call
+
+##### Alternative B: IPC channel usage
+
+Stick with IPC channel
+
+Pro:
+
+* No code changes needed
+
+Con:
+
+* No userspace solution
+  * IPC channel uses OS functions
+* Upper frame limit may lead to segregation into several frames
+
+#### Event-based notification
+
+##### Alternative A: Shared memory + IPC channel
+
+* Id's + ABA-counter/ServiceDiscoveryChangeCounter over IPC channel
 * Data transfer over shared memory
-  * Put Service Registry to shared memory so everyone can access it?
+  * Basically putting Service Registry to shared memory so everyone can access it
 
 Pro:
 
@@ -74,35 +110,58 @@ Pro:
 Contra:
 
 * More complex than todays solution
+  * ABA counter needed
 
-### Alternative B
+##### Alternative B: Built-in topic
 
-* Built-in topic
-  * What should be contained inside the topic? This needs to be specified
-  * What will RouDi do if he runs out of memory in B?
+* Built-in topic approach based on `InterfacePort`'s
+  * Sniff and intercept `CaproMessage`
+* Also see
+  * [overview diagram](diagrams/service-discovery-sequence-diagram.puml)
+  * [sequence diagram](diagrams/service-discovery-overview.puml)
 
 Pro:
 
 * Close to DDS mechanism
+* `InterfacePort` already available
+* Synergies with gateway mechanisms
+* Gateways can benefit from event notification mechanism
+  * No need for a polling-loop anymore
 
 Con:
 
-* Dimensioning according to max values is not optimal
-* Presumably lots of memory needed, e.g. during startup phase when lots of apps will do discovery
+* Overhead, `Listner` will wake up on every `CaproMessage`
+* What will RouDi do if he runs out of memory?
+  * Dimensioning according to max values is not optimal (MAX_INTERFACE_CAPRO_FIFO_SIZE)
+  * Presumably lots of memory needed, e.g. during startup phase when lots of apps will do discovery
 
-### Alternative C
+Remark:
 
-* Combination of A & B?
+* Need to filter out your own `CaproMessageType::FIND` requests
+* Extend `dispatchCaproMessage()` with condition variable and notification mechanism
 
-### Alternative D
+##### Alternative C: Custom thread
 
-* Create a thread in `PoshRuntime`, which polls for specific discovery information
+* Create a custom thread in `PoshRuntime`, which polls for specific discovery information using request/response
 
-### Solution
+Pro:
+
+* More flexible
+* Re-use building blocks
+
+Con:
+
+* Not needed by all users per default
+* Polling leads to overhead
+
+### Decision
+
+* Sychronous, one-shot RPC (Polling): Alternative A
+* Event-based notification: Alternative B
 
 ### Code example
 
-Possible bindings with built-in topic:
+Possible bindings with alternative B:
 
 #### Event-based notification
 
@@ -130,7 +189,7 @@ void onDiscoveryUpdateCallback(InterfacePort* subscriber)
 myListner.attachEvent(caproSubscriber, DATA_RECEIVED, createNotificationCallback(onDiscoveryUpdateCallback));
 ```
 
-#### Polling
+#### Sychronous, one-shot RPC (Polling)
 
 ```cpp
 // Binding code
@@ -161,5 +220,5 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
 * [x] What to do with `getServiceRegistryChangeCounter()` remove? Depends could be useful as ABA counter
 * [x] How does the ara::com service discovery API look like?
 * [x] How does the DDS service discovery API look like?
-* [ ] How does the SOME/IP-SD service discovery API look like?
+* [x] How does the SOME/IP-SD service discovery API look like?
 * [ ] Try out a `ros topic list`
