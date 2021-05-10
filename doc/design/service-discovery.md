@@ -2,7 +2,11 @@
 
 ## Summary and problem description
 
-Service discovery over IPC channel e.g. message queue or UNIX domain socket is not performant since larger data is transferred, which can lead to transmission of several frames. If lots of services are discovered at high-frequency e.g. at startup the IPC channel can become a bottleneck.
+Service discovery over IPC channel e.g. message queue or UNIX domain socket is not performant since larger data is
+transferred, which can lead to transmission of several frames. If lots of services are discovered at high-frequency
+e.g. at startup the IPC channel can become a bottleneck. Furthermore, a lession learned from the iceoryx development
+so far is, that the IPC channel should just be used for the earliest communication during startup and not for the
+creation of objects inside the shared memory (see [this issue](https://github.com/eclipse-iceoryx/iceoryx/issues/611)).
 
 ### Status quo in iceoryx Almond
 
@@ -98,7 +102,7 @@ Con:
 
 ##### Alternative A: Shared memory + IPC channel
 
-* Id's + ABA-counter/ServiceDiscoveryChangeCounter over IPC channel
+* Send ID's + ABA-counter/ServiceDiscoveryChangeCounter over IPC channel
 * Data transfer over shared memory
   * Basically putting Service Registry to shared memory so everyone can access it
 
