@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -57,15 +57,15 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
     {
         if (channelSide == IpcChannelSide::SERVER)
         {
-            auto mqCall = cxx::makeSmartC(
-                mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, m_name.c_str());
-            if (!mqCall.hasErrors())
-            {
-                if (mqCall.getErrNum() != ENOENT)
-                {
-                    std::cout << "MQ still there, doing an unlink of " << m_name << std::endl;
-                }
-            }
+            posixCall(mq_unlink)(m_name.c_str())
+                .failureReturnValue(ERROR_CODE)
+                .evaluateWithIgnoredErrnos(ENOENT)
+                .and_then([this](auto& r) {
+                    if (r.errnum != ENOENT)
+                    {
+                        std::cout << "MQ still there, doing an unlink of " << m_name << std::endl;
+                    }
+                });
         }
         // fields have a different order in QNX,
         // so we need to initialize by name
@@ -134,18 +134,14 @@ cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChann
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    auto mqCall =
-        cxx::makeSmartC(mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, l_name.c_str());
 
-    if (!mqCall.hasErrors())
+    auto mqCall = posixCall(mq_unlink)(l_name.c_str()).failureReturnValue(ERROR_CODE).evaluateWithIgnoredErrnos(ENOENT);
+
+    if (mqCall.has_error())
     {
-        // ENOENT is set if the message queue could not be unlinked
-        return cxx::success<bool>(mqCall.getErrNum() != ENOENT);
+        return createErrorFromErrnum(l_name, mqCall.get_error().errnum);
     }
-    else
-    {
-        return createErrorFromErrnum(l_name, mqCall.getErrNum());
-    }
+    return cxx::success<bool>(mqCall->errnum != ENOENT);
 }
 
 cxx::expected<IpcChannelError> MessageQueue::destroy()
@@ -179,18 +175,12 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    auto mqCall = cxx::makeSmartC(mq_send,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {ERROR_CODE},
-                                  {},
-                                  m_mqDescriptor,
-                                  msg.c_str(),
-                                  messageSize,
-                                  1U);
+    auto mqCall =
+        posixCall(mq_send)(m_mqDescriptor, msg.c_str(), messageSize, 1U).failureReturnValue(ERROR_CODE).evaluate();
 
-    if (mqCall.hasErrors())
+    if (mqCall.has_error())
     {
-        return createErrorFromErrnum(mqCall.getErrNum());
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
 
     return cxx::success<void>();
@@ -199,18 +189,14 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
 cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 {
     char message[MAX_MESSAGE_SIZE];
-    auto mqCall = cxx::makeSmartC(mq_receive,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {static_cast<ssize_t>(ERROR_CODE)},
-                                  {},
-                                  m_mqDescriptor,
-                                  message,
-                                  MAX_MESSAGE_SIZE,
-                                  nullptr);
 
-    if (mqCall.hasErrors())
+    auto mqCall = posixCall(mq_receive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr)
+                      .failureReturnValue(ERROR_CODE)
+                      .evaluate();
+
+    if (mqCall.has_error())
     {
-        return createErrorFromErrnum(mqCall.getErrNum());
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
 
     return cxx::success<std::string>(std::string(&(message[0])));
@@ -236,45 +222,40 @@ MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, cons
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0);
 
-    auto mqCall = cxx::makeSmartC(mq_open,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {ERROR_CODE},
-                                  {ENOENT},
-                                  l_name.c_str(),
-                                  openFlags,
-                                  m_filemode,
-                                  &m_attributes);
+    // mq_open uses c variadic arguments therefore we have to use a lambda
+    auto mq_open_lambda = [](const char* name, int oflag, mode_t mode, struct mq_attr* attr) -> mqd_t {
+        return mq_open(name, oflag, mode, attr);
+    };
+    mqd_t (*mq_open_call)(const char*, int, mode_t, struct mq_attr*) = mq_open_lambda;
+
+    auto mqCall = posixCall(mq_open_call)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
+                      .failureReturnValue(ERROR_CODE)
+                      .evaluateWithIgnoredErrnos(ENOENT);
 
     umask(umaskSaved);
 
-    if (!mqCall.hasErrors())
+    if (!mqCall.has_error())
     {
-        if (mqCall.getErrNum() == 0)
+        if (mqCall->errnum == 0)
         {
-            return cxx::success<int32_t>(mqCall.getReturnValue());
+            return cxx::success<int32_t>(mqCall->value);
         }
-        else if (mqCall.getErrNum() == ENOENT)
+        else if (mqCall->errnum == ENOENT)
         {
             return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
         }
-        else
-        {
-            return createErrorFromErrnum(mqCall.getErrNum());
-        }
     }
-    else
-    {
-        return createErrorFromErrnum(mqCall.getErrNum());
-    }
+
+    return createErrorFromErrnum(mqCall.get_error().errnum);
 }
 
 cxx::expected<IpcChannelError> MessageQueue::close()
 {
-    auto mqCall = cxx::makeSmartC(mq_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_mqDescriptor);
+    auto mqCall = posixCall(mq_close)(m_mqDescriptor).failureReturnValue(ERROR_CODE).evaluate();
 
-    if (mqCall.hasErrors())
+    if (mqCall.has_error())
     {
-        return createErrorFromErrnum(mqCall.getErrNum());
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
 
     return cxx::success<void>();
@@ -288,11 +269,10 @@ cxx::expected<IpcChannelError> MessageQueue::unlink()
     }
     else
     {
-        auto mqCall =
-            cxx::makeSmartC(mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_name.c_str());
-        if (mqCall.hasErrors())
+        auto mqCall = posixCall(mq_unlink)(m_name.c_str()).failureReturnValue(ERROR_CODE).evaluate();
+        if (mqCall.has_error())
         {
-            return createErrorFromErrnum(mqCall.getErrNum());
+            return createErrorFromErrnum(mqCall.get_error().errnum);
         }
 
         return cxx::success<void>();
@@ -304,21 +284,15 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
     char message[MAX_MESSAGE_SIZE];
 
-    auto mqCall = cxx::makeSmartC(mq_timedreceive,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {static_cast<ssize_t>(ERROR_CODE)},
-                                  {TIMEOUT_ERRNO},
-                                  m_mqDescriptor,
-                                  message,
-                                  MAX_MESSAGE_SIZE,
-                                  nullptr,
-                                  &timeOut);
+    auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr, &timeOut)
+                      .failureReturnValue(ERROR_CODE)
+                      .evaluateWithIgnoredErrnos(TIMEOUT_ERRNO);
 
-    if (mqCall.hasErrors())
+    if (mqCall.has_error())
     {
-        return createErrorFromErrnum(mqCall.getErrNum());
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
-    else if (mqCall.getErrNum() == TIMEOUT_ERRNO)
+    else if (mqCall->errnum == TIMEOUT_ERRNO)
     {
         return createErrorFromErrnum(ETIMEDOUT);
     }
@@ -338,21 +312,15 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
 
-    auto mqCall = cxx::makeSmartC(mq_timedsend,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {ERROR_CODE},
-                                  {TIMEOUT_ERRNO},
-                                  m_mqDescriptor,
-                                  msg.c_str(),
-                                  messageSize,
-                                  1U,
-                                  &timeOut);
+    auto mqCall = posixCall(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
+                      .failureReturnValue(ERROR_CODE)
+                      .evaluateWithIgnoredErrnos(TIMEOUT_ERRNO);
 
-    if (mqCall.hasErrors())
+    if (mqCall.has_error())
     {
-        return createErrorFromErrnum(mqCall.getErrNum());
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
-    else if (mqCall.getErrNum() == TIMEOUT_ERRNO)
+    else if (mqCall->errnum == TIMEOUT_ERRNO)
     {
         return createErrorFromErrnum(ETIMEDOUT);
     }
@@ -363,10 +331,10 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated()
 {
     struct stat sb;
-    auto fstatCall = cxx::makeSmartC(fstat, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_mqDescriptor, &sb);
-    if (fstatCall.hasErrors())
+    auto fstatCall = posixCall(fstat)(m_mqDescriptor, &sb).failureReturnValue(-1).evaluate();
+    if (fstatCall.has_error())
     {
-        return createErrorFromErrnum(fstatCall.getErrNum());
+        return createErrorFromErrnum(fstatCall.get_error().errnum);
     }
     return cxx::success<bool>(sb.st_nlink == 0);
 }
