@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <cassert>
 #include <utility>
@@ -30,47 +30,29 @@ mutex::mutex(bool f_isRecursive)
 {
     pthread_mutexattr_t attr;
     bool isInitialized{true};
+    isInitialized &= posixCall(pthread_mutexattr_init)(&attr).successReturnValue(0).evaluate().has_error();
+    isInitialized &= posixCall(pthread_mutexattr_setpshared)(&attr, PTHREAD_PROCESS_SHARED)
+                         .successReturnValue(0)
+                         .evaluate()
+                         .has_error();
     isInitialized &=
-        !cxx::makeSmartC(pthread_mutexattr_init, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &attr).hasErrors();
-    isInitialized &= !cxx::makeSmartC(pthread_mutexattr_setpshared,
-                                      cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                      {0},
-                                      {},
-                                      &attr,
-                                      PTHREAD_PROCESS_SHARED)
-                          .hasErrors();
-    isInitialized &= !cxx::makeSmartC(pthread_mutexattr_settype,
-                                      cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                      {0},
-                                      {},
-                                      &attr,
-                                      f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
-                          .hasErrors();
-    isInitialized &= !cxx::makeSmartC(pthread_mutexattr_setprotocol,
-                                      cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                      {0},
-                                      {},
-                                      &attr,
-                                      PTHREAD_PRIO_NONE)
-                          .hasErrors();
-
+        posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
+            .successReturnValue(0)
+            .evaluate()
+            .has_error();
     isInitialized &=
-        !cxx::makeSmartC(pthread_mutex_init, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle, &attr)
-             .hasErrors();
-
-    isInitialized &=
-        !cxx::makeSmartC(pthread_mutexattr_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &attr)
-             .hasErrors();
+        posixCall(pthread_mutexattr_setprotocol)(&attr, PTHREAD_PRIO_NONE).successReturnValue(0).evaluate().has_error();
+    isInitialized &= posixCall(pthread_mutex_init)(&m_handle, &attr).successReturnValue(0).evaluate().has_error();
+    isInitialized &= posixCall(pthread_mutexattr_destroy)(&attr).successReturnValue(0).evaluate().has_error();
 
     cxx::Ensures(isInitialized && "Unable to create mutex");
 }
 
 mutex::~mutex()
 {
-    auto destroyCall =
-        cxx::makeSmartC(pthread_mutex_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle);
+    auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).successReturnValue(0).evaluate();
 
-    cxx::Ensures(!destroyCall.hasErrors() && "Could not destroy mutex");
+    cxx::Ensures(!destroyCall.has_error() && "Could not destroy mutex");
 }
 
 pthread_mutex_t mutex::get_native_handle() const noexcept
@@ -80,20 +62,17 @@ pthread_mutex_t mutex::get_native_handle() const noexcept
 
 bool mutex::lock()
 {
-    return !cxx::makeSmartC(pthread_mutex_lock, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle)
-                .hasErrors();
+    return !posixCall(pthread_mutex_lock)(&m_handle).successReturnValue(0).evaluate().has_error();
 }
 
 bool mutex::unlock()
 {
-    return !cxx::makeSmartC(pthread_mutex_unlock, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle)
-                .hasErrors();
+    return !posixCall(pthread_mutex_unlock)(&m_handle).successReturnValue(0).evaluate().has_error();
 }
 
 bool mutex::try_lock()
 {
-    return !cxx::makeSmartC(pthread_mutex_trylock, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle)
-                .hasErrors();
+    return !posixCall(pthread_mutex_trylock)(&m_handle).successReturnValue(0).evaluate().has_error();
 }
 } // namespace posix
 } // namespace iox
