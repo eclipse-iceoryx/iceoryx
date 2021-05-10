@@ -15,12 +15,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/posix_wrapper/file_lock.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/errno.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
@@ -47,42 +47,37 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
     constexpr int createFileForReadWrite = O_CREAT | O_RDWR;
     mode_t userReadWriteAccess = S_IRUSR | S_IWUSR;
 
-    auto openCall = cxx::makeSmartC(iox_open,
-                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                    {ERROR_CODE},
-                                    {},
-                                    fullPath.c_str(),
-                                    createFileForReadWrite,
-                                    userReadWriteAccess);
+    auto openCall = posixCall(iox_open)(fullPath.c_str(), createFileForReadWrite, userReadWriteAccess)
+                        .failureReturnValue(ERROR_CODE)
+                        .evaluate()
+                        .and_then([this](auto& r) { m_fd = r.value; });
 
-    if (openCall.hasErrors())
+    if (openCall.has_error())
     {
-        return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.getErrNum()));
+        return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.get_error().errnum));
     }
-    else
+
+    auto lockCall = posixCall(iox_flock)(m_fd, LOCK_EX | LOCK_NB)
+                        .failureReturnValue(ERROR_CODE)
+                        .evaluateWithIgnoredErrnos(EWOULDBLOCK);
+
+    if (lockCall.has_error())
     {
-        m_fd = openCall.getReturnValue();
-
-        auto lockCall = cxx::makeSmartC(
-            iox_flock, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {EWOULDBLOCK}, m_fd, LOCK_EX | LOCK_NB);
-
-        if (lockCall.hasErrors())
-        {
-            closeFileDescriptor().or_else([](auto) {
-                std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
-            });
-            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-            return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.getErrNum()));
-        }
-        else if (lockCall.getErrNum() == EWOULDBLOCK)
-        {
-            closeFileDescriptor().or_else([](auto) {
-                std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
-            });
-            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-            return cxx::error<FileLockError>(FileLockError::LOCKED_BY_OTHER_PROCESS);
-        }
+        closeFileDescriptor().or_else([](auto) {
+            std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
+        });
+        // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
+        return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.get_error().errnum));
     }
+    else if (lockCall->errnum == EWOULDBLOCK)
+    {
+        closeFileDescriptor().or_else([](auto) {
+            std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
+        });
+        // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
+        return cxx::error<FileLockError>(FileLockError::LOCKED_BY_OTHER_PROCESS);
+    }
+
     return cxx::success<>();
 }
 
@@ -125,18 +120,18 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 {
     if (isInitialized() && (m_fd != INVALID_FD))
     {
-        auto closeCall = cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_fd);
+        auto closeCall = posixCall(iox_close)(m_fd).failureReturnValue(ERROR_CODE).evaluate();
 
         m_fd = INVALID_FD;
         m_isInitialized = false;
 
-        if (!closeCall.hasErrors())
+        if (!closeCall.has_error())
         {
             return cxx::success<void>();
         }
         else
         {
-            return cxx::error<FileLockError>(convertErrnoToFileLockError(closeCall.getErrNum()));
+            return cxx::error<FileLockError>(convertErrnoToFileLockError(closeCall.get_error().errnum));
         }
     }
     return cxx::success<>();
