@@ -17,9 +17,9 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <bitset>
