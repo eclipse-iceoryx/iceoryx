@@ -304,31 +304,3 @@ void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
 void disableEvent() noexcept;
 void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 ```
-
-2. It must be friend with `iox::popo::NotificationAttorney`.
-
-#### Listener
-
-```cpp
-enum class ReactALErrors {
-  CALLBACK_CAPACITY_EXCEEDED
-};
-
-template<uint64_t CallbackCapacity>
-class ReactAL {
-  public:
-    template<typename Triggerable, typename EventType>
-    cxx::expected<ReactALErrors> attachEvent(
-      Triggerable & origin, const EventType & eventType,
-      const cxx::function_ref<void(Triggerable&)> & callback
-    ) noexcept;
-
-    template<typename Triggerable, typename EventType>
-    void detachEvent( Triggerable & origin, const EventType & eventType );
-};
-
-```
- 
-  - Contains a thread which will wake up and iterate through ConditionVariable
-    bool array. If an entry is true, set it to false and then call the 
-    corresponding callback.
