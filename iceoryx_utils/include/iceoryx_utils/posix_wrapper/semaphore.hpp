@@ -330,6 +330,4 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 } // namespace posix
 } // namespace iox
 
-#include "iceoryx_utils/internal/posix_wrapper/semaphore.inl"
-
 #endif // IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
