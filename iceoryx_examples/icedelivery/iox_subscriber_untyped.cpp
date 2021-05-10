@@ -15,11 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include subscriber untyped]
 #include "topic_data.hpp"
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
+//! [include subscriber untyped]
 
 #include <iostream>
 
@@ -42,19 +44,28 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
+    //! [create subscriber untyped]
     iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
+    //! [create subscriber untyped]
 
     // run until interrupted by Ctrl-C
+    //! [take]
     while (!killswitch)
     {
         subscriber.take()
             .and_then([&](const void* userPayload) {
+                //! [and_then]
+                //! [print content]
                 auto object = static_cast<const RadarObject*>(userPayload);
                 std::cout << APP_NAME << " got value: " << object->x << std::endl;
+                //! [print content]
 
                 // note that we explicitly have to release the sample
                 // and afterwards the pointer access is undefined behavior
+                //! [release]
                 subscriber.release(userPayload);
+                //! [release]
+                //! [and_then]
             })
             .or_else([](auto& result) {
                 if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
@@ -65,6 +76,7 @@ int main()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    //! [take]
 
     return (EXIT_SUCCESS);
 }

@@ -15,17 +15,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include topic data]
 #include "topic_data.hpp"
+//! [include topic data]
 
+//! [include publisher untyped]
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
+//! [include publisher untyped]
 
 #include <iostream>
 
 bool killswitch = false;
 constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
-
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
@@ -40,7 +43,9 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
+    //! [create untyped publisher]
     iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    //! [create untyped publisher]
 
     double ct = 0.0;
     while (!killswitch)
@@ -48,20 +53,32 @@ int main()
         ++ct;
 
         // Loan chunk and provide logic to populate it via a lambda
+        //! [loan]
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& userPayload) {
+                //! [and_then]
+                //! [RadarObject]
                 RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
+                //! [RadarObject]
                 iox::cxx::Expects(userPayload == data);
 
+                //! [write data]
                 data->x = ct;
                 data->y = ct;
                 data->z = ct;
+                //! [write data]
+                //! [publish]
                 publisher.publish(userPayload);
+                //! [publish]
+                //! [and_then]
             })
             .or_else([&](auto& error) {
+                //! [or_else]
                 // Do something with the error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+                //! [or_else]
             });
+        //! [loan]
 
         std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
 

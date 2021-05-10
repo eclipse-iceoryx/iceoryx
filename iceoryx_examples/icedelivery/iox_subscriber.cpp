@@ -17,7 +17,9 @@
 
 #include "topic_data.hpp"
 
+//! [include subscriber]
 #include "iceoryx_posh/popo/subscriber.hpp"
+//! [include subscriber]
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
@@ -42,7 +44,9 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
+    //! [create subscriber]
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    //! [create subscriber]
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
