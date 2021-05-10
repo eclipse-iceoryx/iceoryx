@@ -37,7 +37,6 @@ Service discovery over IPC channel e.g. message queue or UNIX domain socket is n
 #### SOME/IP-SD
 
 * Very similar to AUTOSAR Adaptive
-* @todo check with Marika about the details
 
 #### Cyclone DDS and ROS 2
 
@@ -134,7 +133,7 @@ Con:
 * What will RouDi do if he runs out of memory?
   * Dimensioning according to max values is not optimal (MAX_INTERFACE_CAPRO_FIFO_SIZE)
   * Presumably lots of memory needed, e.g. during startup phase when lots of apps will do discovery
-
+  * A safety-certified middleware based on iceoryx would not use the dynamic discovery feature
 Remark:
 
 * Need to filter out your own `CaproMessageType::FIND` requests
@@ -166,8 +165,6 @@ Possible bindings with alternative B:
 #### Event-based notification
 
 ```cpp
-//Subscriber<DiscoveryTopic> discoverySubscriber;
-
 auto& runtime = PoshRuntime::initRuntime("myApp");
 auto* interfacePortData = runtime.getMiddlewareInterface(capro::Interfaces::INTERNAL);
 
@@ -176,7 +173,6 @@ Listener myListner;
 
 void onDiscoveryUpdateCallback(InterfacePort* subscriber)
 {
-    //subscriber->take().and_then([](){
     subscriber->tryGetCaProMessage().and_then([](auto& caproMessage){
         // Has any service that is relevant for me changed?
         if(caproMessage.m_serviceDescription == myRelevantServiceDescription && someOtherCondition())
@@ -221,4 +217,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
 * [x] How does the ara::com service discovery API look like?
 * [x] How does the DDS service discovery API look like?
 * [x] How does the SOME/IP-SD service discovery API look like?
-* [ ] Try out a `ros topic list`
+* [ ] What does a `ros topic list` do in rmw_iceoryx?
+* [ ] Filter for `ServiceDescription::EventString` needed by AUTOSAR? Not supported by `ServiceRegistry::find()` as of today
+* [ ] Decision on mapping table between iceory and DDS (see [overview.md](../website/getting-started/overview.md))
+  * [ ] Current mapping table between iceoryx and DDS does not work with service discovery

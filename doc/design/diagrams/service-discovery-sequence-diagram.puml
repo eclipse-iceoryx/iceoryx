@@ -18,11 +18,14 @@ note right: Only react on CaproMessageSubType::SERVICE
 PoshRuntimeB->RouDi: offer()
 loop every 100ms
     RouDi->RouDi: doDiscovery()
+
+    activate RouDi
+    RouDi->RouDi: doDiscoveryForPublisherPorts()
+    alt CaproMessage received
+        RouDi->RouDi: sendToAllMatchingInterfaces()
+        RouDi->PoshRuntimeA: dispatchCaProMessage()
+    end
 end
-activate RouDi
-RouDi->RouDi: doDiscoveryForPublisherPorts()
-RouDi->RouDi: sendToAllMatchingInterfaces()
-RouDi->PoshRuntimeA: dispatchCaProMessage()
 deactivate RouDi
 PoshRuntimeA->PoshRuntimeA: wake up from wait()
 deactivate PoshRuntimeA
