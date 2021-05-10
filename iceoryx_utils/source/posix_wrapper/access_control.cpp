@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <iostream>
 
@@ -60,19 +60,17 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     }
 
     // check if acl is valid
-    auto aclCheckCall =
-        cxx::makeSmartC(acl_valid, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, workingACL.get());
+    auto aclCheckCall = posixCall(acl_valid)(workingACL.get()).successReturnValue(0).evaluate();
 
-    if (aclCheckCall.hasErrors())
+    if (aclCheckCall.has_error())
     {
         std::cerr << "Error: Invalid ACL, cannot write to file." << std::endl;
         return false;
     }
 
     // set acl in the file given by descriptor
-    auto aclSetFdCall = cxx::makeSmartC(
-        acl_set_fd, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, f_fileDescriptor, workingACL.get());
-    if (aclSetFdCall.hasErrors())
+    auto aclSetFdCall = posixCall(acl_set_fd)(f_fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
+    if (aclSetFdCall.has_error())
     {
         std::cerr << "Error: Could not set file ACL." << std::endl;
         return false;
@@ -85,22 +83,21 @@ cxx::expected<AccessController::smartAclPointer_t, AccessController::AccessContr
 AccessController::createACL(const int32_t f_numEntries) const
 {
     // allocate memory for a new ACL
-    auto aclInitCall = cxx::makeSmartC(
-        acl_init, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<acl_t>(nullptr)}, {}, f_numEntries);
+    auto aclInitCall = posixCall(acl_init)(f_numEntries).failureReturnValue(nullptr).evaluate();
 
-    if (aclInitCall.hasErrors())
+    if (aclInitCall.has_error())
     {
         return cxx::error<AccessControllerError>(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
     std::function<void(acl_t)> freeACL = [&](acl_t acl) {
-        auto aclFreeCall = cxx::makeSmartC(acl_free, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, acl);
+        auto aclFreeCall = posixCall(acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
-        cxx::Ensures(!aclFreeCall.hasErrors() && "Could not free ACL memory");
+        cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
     };
 
-    return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall.getReturnValue()), freeACL);
+    return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall->value), freeACL);
 }
 
 bool AccessController::addPermissionEntry(const Category f_category,
@@ -204,10 +201,9 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     acl_entry_t newEntry;
     acl_t l_ACL{f_ACL};
 
-    auto aclCreateEntryCall =
-        cxx::makeSmartC(acl_create_entry, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &l_ACL, &newEntry);
+    auto aclCreateEntryCall = posixCall(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
 
-    if (aclCreateEntryCall.hasErrors())
+    if (aclCreateEntryCall.has_error())
     {
         std::cerr << "Error: Could not create new ACL entry." << std::endl;
         return false;
@@ -215,10 +211,9 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
 
     // set tag type for new entry (user, group, ...)
     acl_tag_t tagType = static_cast<acl_tag_t>(f_entry.m_category);
-    auto aclSetTagTypeCall =
-        cxx::makeSmartC(acl_set_tag_type, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, newEntry, tagType);
+    auto aclSetTagTypeCall = posixCall(acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
 
-    if (aclSetTagTypeCall.hasErrors())
+    if (aclSetTagTypeCall.has_error())
     {
         std::cerr << "Error: Could not add tag type to ACL entry." << std::endl;
         return false;
@@ -229,10 +224,10 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     {
     case ACL_USER:
     {
-        auto aclSetQualifierCall = cxx::makeSmartC(
-            acl_set_qualifier, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, newEntry, &(f_entry.m_id));
+        auto aclSetQualifierCall =
+            posixCall(acl_set_qualifier)(newEntry, &(f_entry.m_id)).successReturnValue(0).evaluate();
 
-        if (aclSetQualifierCall.hasErrors())
+        if (aclSetQualifierCall.has_error())
         {
             std::cerr << "Error: Could not set ACL qualifier of user " << f_entry.m_id << std::endl;
             return false;
@@ -242,10 +237,10 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
     case ACL_GROUP:
     {
-        auto aclSetQualifierCall = cxx::makeSmartC(
-            acl_set_qualifier, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, newEntry, &(f_entry.m_id));
+        auto aclSetQualifierCall =
+            posixCall(acl_set_qualifier)(newEntry, &(f_entry.m_id)).successReturnValue(0).evaluate();
 
-        if (aclSetQualifierCall.hasErrors())
+        if (aclSetQualifierCall.has_error())
         {
             std::cerr << "Error: Could not set ACL qualifier of group " << f_entry.m_id << std::endl;
             return false;
@@ -260,10 +255,9 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     // get reference to permission set in new entry
     acl_permset_t entryPermissionSet;
 
-    auto aclGetPermsetCall = cxx::makeSmartC(
-        acl_get_permset, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, newEntry, &entryPermissionSet);
+    auto aclGetPermsetCall = posixCall(acl_get_permset)(newEntry, &entryPermissionSet).successReturnValue(0).evaluate();
 
-    if (aclGetPermsetCall.hasErrors())
+    if (aclGetPermsetCall.has_error())
     {
         std::cerr << "Error: Could not obtain ACL permission set of new ACL entry." << std::endl;
         return false;
@@ -300,10 +294,9 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
 
 bool AccessController::addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm) const
 {
-    auto aclAddPermCall =
-        cxx::makeSmartC(acl_add_perm, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, f_permset, f_perm);
+    auto aclAddPermCall = posixCall(acl_add_perm)(f_permset, f_perm).successReturnValue(0).evaluate();
 
-    if (aclAddPermCall.hasErrors())
+    if (aclAddPermCall.has_error())
     {
         std::cerr << "Error: Could not add permission to ACL permission set." << std::endl;
         return false;
