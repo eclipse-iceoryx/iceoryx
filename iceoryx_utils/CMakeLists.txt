@@ -149,7 +149,6 @@ add_library(iceoryx_utils
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
     source/cxx/deadline_timer.cpp
-    source/cxx/timer.cpp
     source/cxx/helplets.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
@@ -163,6 +162,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/access_control.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/file_lock.cpp
+    source/posix_wrapper/periodic_timer.cpp
     source/posix_wrapper/semaphore.cpp
     source/posix_wrapper/timer.cpp
     source/posix_wrapper/timespec.cpp
