@@ -23,7 +23,7 @@ example. The typed API provides type safety combined with [RAII](https://en.cppr
 
 First off, let's include the publisher, the runtime and the signal handler:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][include publisher untyped]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][includes]-->
 ```cpp
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -61,6 +61,7 @@ It is included by:
 For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
 unique string identifier for this publisher.
 
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][runtime initialization]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -97,7 +98,7 @@ Remember, the untyped API will always be bare-metal!
 
 Hence, the `RadarObject` needs to be constructed with a placement new:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][RadarObject]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][construct RadarObject]-->
 ```cpp
 RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
 ```
@@ -127,7 +128,7 @@ How can the subscriber application receive the data the publisher application ju
 
 Similar to the publisher, we include the topic data, the subscriber, the runtime as well as the signal handler header:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][include subscriber untyped]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][includes]-->
 ```cpp
 #include "topic_data.hpp"
 
@@ -138,6 +139,7 @@ Similar to the publisher, we include the topic data, the subscriber, the runtime
 
 To make RouDi aware of the subscriber a runtime object is created, once again with a unique identifier string:
 
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][runtime initialization]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -156,11 +158,12 @@ However, when restricting iceoryx to the 1:n communication philosophy before bei
 
 Again in a while-loop we do the following:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][[take]]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][[loop] [chunk happy path]]-->
 ```cpp
 while (!killswitch)
 {
-    subscriber.take()
+    subscriber
+        .take()
         .and_then([&](const void* userPayload) {
             // ...
         })
@@ -183,7 +186,7 @@ take care of all cases, but we advise doing so.
 
 In the `and_then` case the content of the sample is printed to the command line:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][print content]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][chunk received]-->
 ```cpp
 auto object = static_cast<const RadarObject*>(userPayload);
 std::cout << APP_NAME << " got value: " << object->x << std::endl;
@@ -319,18 +322,18 @@ Everything else is nearly the same. However, there is one crucial difference whi
 
 Compare this line from the `UntypedSubscriber`
 
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][[chunk happy path]]-->
 ```cpp
-.and_then([](const void* userPayload)
-{
+.and_then([&](const void* userPayload) {
     // ...
 })
 ```
 
 with
 
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber.cpp][[sample happy path]]-->
 ```cpp
-.and_then([](auto& sample)
-{
+.and_then([](auto& sample) {
     // ...
 })
 ```

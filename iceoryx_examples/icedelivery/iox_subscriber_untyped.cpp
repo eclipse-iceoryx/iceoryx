@@ -15,18 +15,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-//! [include subscriber untyped]
+//! [includes]
 #include "topic_data.hpp"
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
-//! [include subscriber untyped]
+//! [includes]
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
@@ -41,7 +40,10 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
+    //! [runtime initialization]
+    constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    //! [runtime initialization]
 
     // initialized subscriber
     //! [create subscriber untyped]
@@ -49,16 +51,18 @@ int main()
     //! [create subscriber untyped]
 
     // run until interrupted by Ctrl-C
-    //! [take]
+    //! [loop]
     while (!killswitch)
     {
-        subscriber.take()
+        subscriber
+            .take()
+            //! [chunk happy path]
             .and_then([&](const void* userPayload) {
                 //! [and_then]
-                //! [print content]
+                //! [chunk received]
                 auto object = static_cast<const RadarObject*>(userPayload);
                 std::cout << APP_NAME << " got value: " << object->x << std::endl;
-                //! [print content]
+                //! [chunk received]
 
                 // note that we explicitly have to release the sample
                 // and afterwards the pointer access is undefined behavior
@@ -67,6 +71,7 @@ int main()
                 //! [release]
                 //! [and_then]
             })
+            //! [chunk happy path]
             .or_else([](auto& result) {
                 if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                 {
@@ -76,7 +81,7 @@ int main()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    //! [take]
+    //! [loop]
 
     return (EXIT_SUCCESS);
 }

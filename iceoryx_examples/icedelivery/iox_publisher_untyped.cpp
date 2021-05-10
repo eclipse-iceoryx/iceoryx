@@ -19,16 +19,15 @@
 #include "topic_data.hpp"
 //! [include topic data]
 
-//! [include publisher untyped]
+//! [includes]
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
-//! [include publisher untyped]
+//! [includes]
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
@@ -41,7 +40,10 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
+    //! [runtime initialization]
+    constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    //! [runtime initialization]
 
     //! [create untyped publisher]
     iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
@@ -56,27 +58,25 @@ int main()
         //! [loan]
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& userPayload) {
-                //! [and_then]
-                //! [RadarObject]
+                //! [construct RadarObject]
                 RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
-                //! [RadarObject]
-                iox::cxx::Expects(userPayload == data);
+                //! [construct RadarObject]
 
                 //! [write data]
                 data->x = ct;
                 data->y = ct;
                 data->z = ct;
                 //! [write data]
+
                 //! [publish]
                 publisher.publish(userPayload);
                 //! [publish]
-                //! [and_then]
             })
             .or_else([&](auto& error) {
-                //! [or_else]
+                //! [print error]
                 // Do something with the error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-                //! [or_else]
+                //! [print error]
             });
         //! [loan]
 
