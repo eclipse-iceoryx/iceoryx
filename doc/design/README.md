@@ -6,3 +6,26 @@ moment those design documents are neither complete nor final.
 In [draft](./draft/) are design drafts of current features contained which are under 
 implementation. The goal is to provide other developers a first idea on how 
 the feature can be used and how it will be implemented.
+
+## Add diagrams using plantuml
+
+Diagrams in the design documentation can be done with [plantuml](https://plantuml.com/).
+
+```bash
+sudo apt install graphviz plantuml
+```
+
+A good online-editor with cheat-sheet can be found at [https://plantuml-editor.kkeisuke.com](https://plantuml-editor.kkeisuke.com).
+Alternatively you can use extensions in your IDE.
+
+The integration of the generated plantuml into your design documents is done via *.svg files.
+You need to create a .puml file and export it to .svg afterwards for linking it with the markdown. In the tools folder is a helper script for that provided which downloads a defined version of plantuml to export the vector graphics.
+These steps are necessary due to the current support of plantuml in [Github](https://github.community/t/support-uml-diagrams-in-markdown-with-plantuml-syntax/626).
+
+**NOTE:** Please set in plantuml `skinparam backgroundColor #EEEBDC` to make all texts visible to users with dark-mode enabled in the Github-UI.
+
+This is an example how to render PlantUML in Github:
+
+workflow using svg file:
+
+![plantuml github workflow](puml/puml_github_workflow.svg)
