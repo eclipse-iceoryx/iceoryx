@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -162,6 +163,7 @@ inline bool convert::fromString<float>(const char* v, float& dest)
                 .has_error();
 }
 
+
 template <>
 inline bool convert::fromString<double>(const char* v, double& dest)
 {
@@ -177,6 +179,7 @@ inline bool convert::fromString<double>(const char* v, double& dest)
                 .has_error();
 }
 
+
 template <>
 inline bool convert::fromString<long double>(const char* v, long double& dest)
 {
@@ -191,6 +194,7 @@ inline bool convert::fromString<long double>(const char* v, long double& dest)
                 .and_then([&](auto& r) { dest = r.value; })
                 .has_error();
 }
+
 
 template <>
 inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
@@ -321,6 +325,7 @@ inline bool convert::fromString<int64_t>(const char* v, int64_t& dest)
     }
 
     if (call->value > std::numeric_limits<int64_t>::max() || call->value < std::numeric_limits<int64_t>::min())
+
     {
         std::cerr << call->value << " is out of range, int64_t overflow" << std::endl;
         return false;
@@ -346,6 +351,7 @@ inline bool convert::fromString<int32_t>(const char* v, int32_t& dest)
     }
 
     if (call->value > std::numeric_limits<int32_t>::max() || call->value < std::numeric_limits<int32_t>::min())
+
     {
         std::cerr << call->value << " is out of range, int32_t overflow" << std::endl;
         return false;
@@ -370,6 +376,7 @@ inline bool convert::fromString<int16_t>(const char* v, int16_t& dest)
     }
 
     if (call->value > std::numeric_limits<int16_t>::max() || call->value < std::numeric_limits<int16_t>::min())
+
     {
         std::cerr << call->value << " is out of range, int16_t overflow" << std::endl;
         return false;
@@ -394,6 +401,7 @@ inline bool convert::fromString<int8_t>(const char* v, int8_t& dest)
     }
 
     if (call->value > std::numeric_limits<int8_t>::max() || call->value < std::numeric_limits<int8_t>::min())
+
     {
         std::cerr << call->value << " is out of range, int8_t overflow" << std::endl;
         return false;
@@ -416,6 +424,7 @@ inline bool convert::fromString<bool>(const char* v, bool& dest)
                 .evaluate()
                 .and_then([&](auto& r) { dest = static_cast<bool>(r.value); })
                 .has_error();
+
 }
 
 } // namespace cxx

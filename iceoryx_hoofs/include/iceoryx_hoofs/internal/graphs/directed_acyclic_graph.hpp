@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +23,6 @@
 
 #include <cstdint>
 
-///@todo: refine and move to hoofs
 /// same functionality as its parent class DirectedGraph, except that adding edges that close a cycle
 /// is impossible now (this incurs a checking overhead of course)
 template <typename VertexType, int32_t VERTEX_LIMIT, int32_t DEGREE_LIMIT>

@@ -20,7 +20,7 @@
 
 namespace iox
 {
-namespace hoofs
+namespace utils
 {
 namespace testing
 {
@@ -61,5 +61,5 @@ std::string verifyTimingTestResult(const char* file,
     return errorMessage;
 }
 } // namespace testing
-} // namespace hoofs
+} // namespace utils
 } // namespace iox

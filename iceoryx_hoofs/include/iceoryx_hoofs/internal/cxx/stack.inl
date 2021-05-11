@@ -60,5 +60,4 @@ inline constexpr uint64_t stack<T, Capacity>::capacity() noexcept
 } // namespace cxx
 } // namespace iox
 
-#endif
-
+#endif // IOX_HOOFS_CXX_STACK_INL

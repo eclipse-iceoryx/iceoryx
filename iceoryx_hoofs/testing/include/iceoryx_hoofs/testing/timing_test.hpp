@@ -70,7 +70,7 @@
     {                                                                                                                  \
         std::atomic_bool timingTestResult{true};                                                                       \
         std::string errorMessages;                                                                                     \
-        bool testResult = iox::hoofs::testing::performingTimingTest(Test, Repetitions, timingTestResult);              \
+        bool testResult = iox::utils::testing::performingTimingTest(Test, Repetitions, timingTestResult);              \
         EXPECT_TRUE(testResult);                                                                                       \
         if (!testResult)                                                                                               \
         {                                                                                                              \
@@ -85,10 +85,10 @@
 #define TIMING_TEST_EXPECT_ALWAYS_FALSE(value) EXPECT_FALSE(value)
 #define TIMING_TEST_EXPECT_TRUE(value)                                                                                 \
     errorMessages +=                                                                                                   \
-        iox::hoofs::testing::verifyTimingTestResult(__FILE__, __LINE__, #value, value, true, timingTestResult)
+        iox::utils::testing::verifyTimingTestResult(__FILE__, __LINE__, #value, value, true, timingTestResult)
 #define TIMING_TEST_EXPECT_FALSE(value)                                                                                \
     errorMessages +=                                                                                                   \
-        iox::hoofs::testing::verifyTimingTestResult(__FILE__, __LINE__, #value, value, false, timingTestResult)
+        iox::utils::testing::verifyTimingTestResult(__FILE__, __LINE__, #value, value, false, timingTestResult)
 #define TIMING_TEST_ASSERT_TRUE(value)                                                                                 \
     TIMING_TEST_EXPECT_TRUE(value);                                                                                    \
     if (!timingTestResult.load())                                                                                      \
@@ -106,7 +106,7 @@
 
 namespace iox
 {
-namespace hoofs
+namespace utils
 {
 namespace testing
 {
@@ -123,7 +123,7 @@ std::string verifyTimingTestResult(const char* file,
                                    std::atomic_bool& result) noexcept;
 
 } // namespace testing
-} // namespace hoofs
+} // namespace utils
 } // namespace iox
 
 #endif // IOX_HOOFS_TESTUTILS_TIMING_TEST_HPP

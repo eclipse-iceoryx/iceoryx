@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,7 +81,7 @@ struct TruncateToCapacity_t
 constexpr TruncateToCapacity_t TruncateToCapacity{};
 
 /// @brief string implementation with some adjustments in the API, because we are not allowed to throw exceptions or use
-/// heap. Please see iceoryx/iceoryx_hoofs/doc/fixedString.adoc for further information.
+/// heap.
 template <uint64_t Capacity>
 class string
 {

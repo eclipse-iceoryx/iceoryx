@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +22,6 @@
 #include <cstdint>
 #include <limits>
 
-///@todo: refine and move to hoofs
 // remark: only supports adding but no removal of vertices or edges
 // and this graph is not necessarily acyclic
 template <typename VertexType, int32_t VERTEX_LIMIT, int32_t DEGREE_LIMIT>
