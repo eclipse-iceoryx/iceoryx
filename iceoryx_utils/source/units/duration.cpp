@@ -17,6 +17,8 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
+
 #include <utility>
 
 namespace iox
@@ -45,13 +47,12 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
     else
     {
         struct timespec referenceTime;
-        auto result = cxx::makeSmartC(clock_gettime,
-                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                      {-1},
-                                      {},
-                                      (reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
-                                      &referenceTime);
-        if (result.hasErrors())
+
+        if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
+                                            &referenceTime)
+                .failureReturnValue(-1)
+                .evaluate()
+                .has_error())
         {
             return {0, 0};
         }

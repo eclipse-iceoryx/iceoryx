@@ -103,6 +103,28 @@ PosixCallVerificator<ReturnType>::successReturnValue(const ReturnType value) && 
 }
 
 template <typename ReturnType>
+template <typename... SuccessReturnValues>
+inline PosixCallEvaluator<ReturnType>
+PosixCallVerificator<ReturnType>::successReturnValue(const ReturnType value,
+                                                     const SuccessReturnValues... remainingValues) && noexcept
+{
+    m_details.hasSuccess = (m_details.result.value == value);
+    // we require an rvalue of our object
+    return std::move(*this).successReturnValue(remainingValues...);
+}
+
+template <typename ReturnType>
+template <typename... FailureReturnValues>
+inline PosixCallEvaluator<ReturnType>
+PosixCallVerificator<ReturnType>::failureReturnValue(const ReturnType value,
+                                                     const FailureReturnValues... remainingValues) && noexcept
+{
+    m_details.hasSuccess = (m_details.result.value != value);
+    // we require an rvalue of our object
+    return std::move(*this).failureReturnValue(remainingValues...);
+}
+
+template <typename ReturnType>
 inline PosixCallEvaluator<ReturnType>
 PosixCallVerificator<ReturnType>::failureReturnValue(const ReturnType value) && noexcept
 {

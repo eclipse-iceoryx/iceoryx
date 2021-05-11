@@ -16,12 +16,14 @@
 #ifndef IOX_UTILS_CXX_CONVERT_HPP
 #define IOX_UTILS_CXX_CONVERT_HPP
 
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <climits>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <limits>
 #include <sstream>
 #include <string>
