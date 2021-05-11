@@ -2,4 +2,4 @@
 title: Configuring pub/sub settings like history cache size or startup behaviour
 ---
 
-{! ./../iceoryx_examples/iceoptions/README.md !}
+{! ../iceoryx/iceoryx_examples/iceoptions/README.md !}

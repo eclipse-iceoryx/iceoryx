@@ -58,8 +58,8 @@ class SubscriberImpl : public BaseSubscriber_t
     SubscriberSampleDeleter m_sampleDeleter{port()};
 };
 
-template <typename T>
-using Subscriber = SubscriberImpl<T>;
+template <typename T, typename H = mepoo::NoUserHeader>
+using Subscriber = SubscriberImpl<T, H>;
 
 } // namespace popo
 } // namespace iox

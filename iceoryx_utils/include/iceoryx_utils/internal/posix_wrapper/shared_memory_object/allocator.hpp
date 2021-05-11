@@ -45,7 +45,7 @@ class Allocator
     /// @brief allocates on the memory supplied with the ctor
     /// @param[in] size of the memory to allocate
     /// @param[in] alignment of the memory to allocate
-    /// @note terminates if out of memory of finalizeAllocation was called before
+    /// @note May terminate if out of memory or finalizeAllocation() was called before
     void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
   protected:

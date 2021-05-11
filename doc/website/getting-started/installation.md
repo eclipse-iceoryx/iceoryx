@@ -79,6 +79,20 @@ X86_64:
 !!! attention
     Please ensure that the folder `/var/lock` exist and the filesystem supports file locking.
 
+### :fontawesome-brands-windows: Windows
+
+In case you do not have a Windows installation, Microsoft provides free developer images from [here](https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/).
+
+Additionally, [CMake](https://cmake.org/download/) and [git](https://gitforwindows.org/) are required. The option to add CMake to the system PATH for all users should be set when it is installed.
+
+If the developer image from Microsoft is used, Visual Studio Community 2019 is already installed, else it can be found [here](https://visualstudio.microsoft.com/de/downloads/).
+
+To be able to compile iceoryx, the `Desktop development with C++` Workload must be installed. This is done by running `VisualStudioInstaller` and selecting the `Modify` button on `Visual Studio Community 2019`.
+
+Either `VS Code` or `Developer Command Prompt` can be used to build iceoryx with CMake. Maybe one or two restarts are required to let CMake find the compiler.
+
+Alternatively, `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat` can be executed in any shell to setup all the paths for compilation.
+
 ## :material-triangle: Build with CMake
 
 !!! note
@@ -104,7 +118,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```
 
     !!! tip
-        To build all iceoryx components add `-DBUILD_ALL` to the CMake command
+        To build all iceoryx components add `-DBUILD_ALL` to the CMake command. For Windows it is currently recommended to use the `cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON` instead
 
 3. Compile the source code
 
@@ -174,10 +188,10 @@ You can use the `help` argument for getting an overview of the available options
 
 ## :material-robot: Build with colcon
 
-Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html#using-debian-packages) to provide a smooth integration for ROS2 developers.
-To build the iceoryx_integrationtest package one requires a minimal [ROS2 installation](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
+Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html#using-debian-packages) to provide a smooth integration for ROS 2 developers.
+To build the iceoryx_integrationtest package one requires a minimal [ROS 2 installation](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
 
-Install required ROS2 packages:
+Install required ROS 2 packages:
 
 ```bash
 sudo apt install ros-foxy-ros-testing ros-foxy-ros-base
@@ -195,7 +209,7 @@ colcon build
 ```
 
 !!! note
-    If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
+    If you don't want to install ROS 2, you can skip the iceoryx_integrationtest package by calling:
 
     ```bash
     colcon build --packages-skip iceoryx_integrationtest

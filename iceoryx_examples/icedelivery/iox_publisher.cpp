@@ -58,9 +58,9 @@ int main()
         //  * Data is default constructed during loan
         publisher.loan()
             .and_then([&](auto& sample) {
-                sample->x = ct;
-                sample->y = ct;
-                sample->z = ct;
+                sample->x = ct + 89;
+                sample->y = ct + 89;
+                sample->z = ct + 89;
                 sample.publish();
             })
             .or_else([](auto& error) {
@@ -73,7 +73,7 @@ int main()
         //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
         //  * Data is constructed with the aruments provided.
-        publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); }).or_else([](auto& error) {
+        publisher.loan(ct + 144, ct + 144, ct + 144).and_then([](auto& sample) { sample.publish(); }).or_else([](auto& error) {
             // Do something with error
             std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
         });
@@ -81,7 +81,7 @@ int main()
         // API Usage #3
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
-        auto object = RadarObject(ct, ct, ct);
+        auto object = RadarObject(ct + 233, ct + 233, ct + 233);
         publisher.publishCopyOf(object).or_else([](auto& error) {
             // Do something with error.
             std::cerr << "Unable to publishCopyOf, error code: " << static_cast<uint64_t>(error) << std::endl;
@@ -96,7 +96,7 @@ int main()
             // Do something with error.
             std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
         });
-        publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); })
+        publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct + 377, ct + 377, ct + 377); })
             .or_else([](auto& error) {
                 // Do something with error.
                 std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
