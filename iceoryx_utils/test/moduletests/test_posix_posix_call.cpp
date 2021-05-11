@@ -321,3 +321,156 @@ TEST_F(PosixCall_test, FunctionReturnsEINTRTooOftenResultsInFailure)
     EXPECT_THAT(eintrRepetition, Eq(1));
     EXPECT_FALSE(internal::GetCapturedStderr().empty());
 }
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsFirst)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 25;
+    constexpr int ERRNO_VALUE = 26;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(RETURN_VALUE, RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsCenter)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 27;
+    constexpr int ERRNO_VALUE = 28;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE, RETURN_VALUE + 2)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsLast)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 29;
+    constexpr int ERRNO_VALUE = 30;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2, RETURN_VALUE)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsNotPresent)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 31;
+    constexpr int ERRNO_VALUE = 32;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsFirst)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 33;
+    constexpr int ERRNO_VALUE = 34;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .failureReturnValue(RETURN_VALUE, RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsCenter)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 35;
+    constexpr int ERRNO_VALUE = 36;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .failureReturnValue(RETURN_VALUE - 1, RETURN_VALUE, RETURN_VALUE + 1, RETURN_VALUE + 2)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsLast)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 37;
+    constexpr int ERRNO_VALUE = 38;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .failureReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2, RETURN_VALUE)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsNotPresent)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 39;
+    constexpr int ERRNO_VALUE = 40;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .failureReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
