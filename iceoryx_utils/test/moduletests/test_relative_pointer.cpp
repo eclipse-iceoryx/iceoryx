@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include "test.hpp"
 
@@ -68,40 +68,31 @@ class base_relative_ptr_test : public Test
   public:
     void SetUp() override
     {
-        auto shmOpenC = iox::cxx::makeSmartC(
-            shm_open, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, "TestShm", OFlags, ShmMode);
+        iox::posix::posixCall(shm_open)("TestShm", OFlags, ShmMode)
+            .failureReturnValue(-1)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cerr << "shm_open failed with error: " << r.getHumanReadableErrnum();
+                exit(EXIT_FAILURE);
+            });
 
-        if (shmOpenC.hasErrors())
-        {
-            std::cerr << "ftruncate failed with error: " << shmOpenC.getErrorString();
-            exit(EXIT_FAILURE);
-        }
-
-        m_fileDescriptor = shmOpenC.getReturnValue();
-
-        auto trunC = iox::cxx::makeSmartC(
-            ftruncate, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_fileDescriptor, ShmSize);
-
-        if (trunC.hasErrors())
-        {
-            std::cerr << "ftruncate failed with error: " << trunC.getErrorString();
-            exit(EXIT_FAILURE);
-        }
-
+        iox::posix::posixCall(ftruncate)(m_fileDescriptor, ShmSize)
+            .failureReturnValue(-1)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cerr << "ftruncate failed with error: " << r.getHumanReadableErrnum();
+                exit(EXIT_FAILURE);
+            });
 
         internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        auto shmUnlinkC =
-            iox::cxx::makeSmartC(shm_unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, "TestShm");
-
-        if (shmUnlinkC.hasErrors())
-        {
-            std::cerr << "ftruncate failed with error: " << shmUnlinkC.getErrorString();
+        iox::posix::posixCall(shm_unlink)("TestShm").failureReturnValue(-1).evaluate().or_else([](auto& r) {
+            std::cerr << "shm_unlink failed with error: " << r.getHumanReadableErrnum();
             exit(EXIT_FAILURE);
-        }
+        });
 
         BaseRelativePointer::unregisterAll();
         std::string output = internal::GetCapturedStderr();
