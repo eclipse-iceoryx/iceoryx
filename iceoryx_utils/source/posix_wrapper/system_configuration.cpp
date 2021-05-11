@@ -16,21 +16,27 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
 
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 namespace iox
 {
 namespace posix
 {
-cxx::optional<uint64_t> pageSize()
+uint64_t pageSize() noexcept
 {
-    auto size = makeSmartC(sysconf, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<long>(-1)}, {}, _SC_PAGESIZE);
-    if (size.hasErrors())
-    {
-        return cxx::nullopt_t();
-    }
-
-    return cxx::make_optional<uint64_t>(static_cast<uint64_t>(size.getReturnValue()));
+    // sysconf fails when one provides an invalid name parameter. _SC_PAGESIZE
+    // is a valid name parameter therefore it should never fail.
+    return static_cast<uint64_t>(posixCall(sysconf)(_SC_PAGESIZE)
+                                     .failureReturnValue(-1)
+                                     .evaluate()
+                                     .or_else([](auto& r) {
+                                         std::cerr << "This should never happen: " << r.getHumanReadableErrnum()
+                                                   << std::endl;
+                                         cxx::Ensures(false && "Internal logic error");
+                                     })
+                                     .value()
+                                     .value);
 }
 } // namespace posix
 } // namespace iox

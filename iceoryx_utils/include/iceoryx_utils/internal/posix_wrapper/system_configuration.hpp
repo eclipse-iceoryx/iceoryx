@@ -27,7 +27,8 @@ namespace posix
 {
 constexpr uint64_t MaxPageSize = 1024u * 512u;
 
-cxx::optional<uint64_t> pageSize();
+/// @brief returns the page size of the system
+uint64_t pageSize() noexcept;
 
 } // namespace posix
 } // namespace iox
