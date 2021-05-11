@@ -20,6 +20,8 @@ namespace iox
 {
 namespace cxx
 {
+///@brief specialization for  uint8_t and int8_t is required  since uint8_t is unsigned char and int8_t is signed char
+/// and stringstream will not convert these to string as it is already a character.
 template <>
 inline typename std::enable_if<!std::is_convertible<uint8_t, std::string>::value, std::string>::type
 convert::toString(const uint8_t& t)
