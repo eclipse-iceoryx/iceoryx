@@ -17,15 +17,15 @@ skinparam frame {
 ' PlantUML package: CMake package
 ' PlantUML frame: CMake library
 
-' @todo
+' @todo #590
 ' RouDi split, separate files and namespaces for static/dynamic discovery
-' Rework exported libraries (add_library in CMakeLists.txt)
-' RouDiEnvironment shall not be in roudi namespace
+' Implement exported libraries (add_library in iceoryx_posh/CMakeLists.txt)
+' RouDiEnvironment shall not be in roudi namespace, but in testing
 
 header Eclipse iceoryx component overview
 
 ' POSH: POSIX SHared memory
-' Publsh/subscribe IPC communication infrastructure
+' Publish/subscribe IPC communication infrastructure
 package iceoryx_posh {
    frame "core library" {
       component popo <<namespace>>
@@ -51,6 +51,7 @@ package iceoryx_posh {
       component config <<namespace>>
       component helper <<namespace>>
    }
+   component errors <<namespace>>
 }
 
 ' HOOFS: Helpful Objects Optimised For Safety
@@ -64,7 +65,7 @@ package iceoryx_hoofs  {
          component algorithm <<namespace>>
       }
       component DesignPattern <<namespace>>
-      component error_handling <<namespace>>
+      component errors <<namespace>>
       component log <<namespace>> {
          component ffbb <<namespace>>
       }
