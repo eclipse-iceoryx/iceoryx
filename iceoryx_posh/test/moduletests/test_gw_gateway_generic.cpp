@@ -25,6 +25,8 @@
 
 #include "stubs/stub_gateway_generic.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 using ::testing::_;
@@ -262,3 +264,5 @@ TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChanne
 
     EXPECT_EQ(3U, count);
 }
+
+} // namespace

@@ -20,6 +20,8 @@
 #include "test.hpp"
 #include <thread>
 
+namespace
+{
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
@@ -767,3 +769,5 @@ TEST_F(Trigger_test, EventBasedMovedAssignedWithInvalidTrigger)
     EXPECT_THAT(trigger.getTriggerType(), Eq(TriggerType::INVALID));
     EXPECT_FALSE(trigger.isLogicalEqualTo(&m_triggerClass, anotherOriginType, anotherOriginTypeHash));
 }
+
+} // namespace

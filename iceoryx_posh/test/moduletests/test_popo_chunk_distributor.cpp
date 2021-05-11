@@ -28,6 +28,8 @@
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 using namespace iox::popo;
@@ -645,3 +647,5 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
         EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(1152U));
     }
 }
+
+} // namespace

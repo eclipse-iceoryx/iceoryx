@@ -21,18 +21,15 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-// anonymous namespace to prevent linker issues or sanitizer false positives
-// if a struct with the same name is used in other tests
-namespace
-{
 struct DummyData
 {
     uint64_t val = 42;
 };
-} // namespace
 
 template <typename T, typename H, typename BaseSubscriber>
 class StubbedSubscriber : public iox::popo::SubscriberImpl<T, H, BaseSubscriber>
@@ -181,3 +178,5 @@ TEST_F(SubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+} // namespace

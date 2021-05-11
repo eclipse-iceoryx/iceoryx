@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +22,8 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::capro;
 
@@ -58,3 +61,5 @@ TEST_F(CaproMessage_test, DefaultArgsOfCtor)
     EXPECT_EQ(CaproMessageSubType::NOSUBTYPE, testObj.m_subType);
     EXPECT_EQ(nullptr, testObj.m_chunkQueueData);
 }
+
+} // namespace

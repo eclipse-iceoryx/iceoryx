@@ -28,6 +28,8 @@
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::popo;
@@ -175,3 +177,5 @@ TYPED_TEST(BasePort_test, CallingGetRuntimeNameWorks)
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getRuntimeName(), Eq(expectedProcessName<PortData_t>()));
 }
+
+} // namespace

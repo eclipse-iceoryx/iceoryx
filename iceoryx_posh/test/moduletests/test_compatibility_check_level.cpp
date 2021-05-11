@@ -25,6 +25,8 @@
 #include <cstdint>
 #include <limits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::version;
 
@@ -122,3 +124,5 @@ TEST_F(CompatibilityCheckLevel_test, BuildDateLeadsToCorrectString)
     EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::BUILD_DATE"));
     EXPECT_THAT(m_loggerMock.m_logs[0].level, Eq(iox::log::LogLevel::kWarn));
 }
+
+} // namespace

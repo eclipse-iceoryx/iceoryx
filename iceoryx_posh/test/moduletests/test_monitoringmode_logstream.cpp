@@ -21,6 +21,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::roudi;
 
@@ -62,3 +64,5 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
     EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("MonitoringMode::ON"));
     EXPECT_THAT(m_loggerMock.m_logs[0].level, Eq(iox::log::LogLevel::kWarn));
 }
+
+} // namespace

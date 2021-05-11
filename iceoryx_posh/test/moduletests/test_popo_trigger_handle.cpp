@@ -22,6 +22,8 @@
 #include "test.hpp"
 #include <thread>
 
+namespace
+{
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
@@ -149,3 +151,4 @@ TEST_F(TriggerHandle_test, wasTriggeredReturnsFalseAfterItWasTriggeredAndTheList
     EXPECT_FALSE(m_sut.wasTriggered());
 }
 
+} // namespace

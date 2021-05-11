@@ -32,6 +32,8 @@
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 
 class SubscriberPortSingleProducer_test : public Test
@@ -521,3 +523,5 @@ TEST_F(SubscriberPortMultiProducer_test, InvalidMessageResultsInError)
     EXPECT_TRUE(errorHandlerCalled);
     ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
 }
+
+} // namespace

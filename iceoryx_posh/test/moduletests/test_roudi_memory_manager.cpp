@@ -23,6 +23,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -151,3 +153,5 @@ TEST_F(RouDiMemoryManager_Test, OperatorTest)
         EXPECT_THAT(loggerMock.m_logs[i].message, Eq(m_testResultOperatorMethod[i]));
     }
 }
+
+} // namespace

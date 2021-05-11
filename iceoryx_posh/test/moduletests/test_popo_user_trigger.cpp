@@ -21,12 +21,12 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::popo;
 
-namespace
-{
 class WaitSetTest : public iox::popo::WaitSet<>
 {
   public:
@@ -56,7 +56,6 @@ class UserTrigger_test : public Test
         m_callbackOrigin = origin;
     }
 };
-} // namespace
 
 UserTrigger* UserTrigger_test::m_callbackOrigin = nullptr;
 
@@ -189,3 +188,5 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
     (*triggerInfoVector[0U])();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
+
+} // namespace

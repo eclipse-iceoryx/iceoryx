@@ -19,16 +19,17 @@
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 #include "iceoryx_utils/testing/timing_test.hpp"
-#include "test.hpp"
-
-using namespace ::testing;
-using ::testing::Return;
-
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
-
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+
+#include "test.hpp"
+
+namespace
+{
+using ::testing::Return;
+using namespace ::testing;
 
 class CallChecker
 {
@@ -274,3 +275,5 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
         6 * snapshotInterval.toMilliseconds())); // the thread should sleep, if not, we have 12 runs
     introspectionAccess.stop();
 });
+
+} // namespace

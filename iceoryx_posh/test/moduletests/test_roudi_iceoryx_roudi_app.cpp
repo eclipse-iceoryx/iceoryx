@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,16 +25,15 @@
 
 #include <regex>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 
 using iox::roudi::IceOryxRouDiApp;
 using namespace iox::config;
+using namespace iox;
 
-namespace iox
-{
-namespace test
-{
 class OutputBuffer
 {
   public:
@@ -271,5 +271,4 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     EXPECT_NE(output.find(expected), std::string::npos);
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

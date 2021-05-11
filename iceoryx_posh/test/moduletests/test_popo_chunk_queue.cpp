@@ -28,6 +28,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 
@@ -381,3 +383,5 @@ TYPED_TEST(ChunkQueueSoFi_test, LostChunkInfoIsResetAfterRead)
 
     EXPECT_FALSE(this->m_popper.hasLostChunks());
 }
+
+} // namespace

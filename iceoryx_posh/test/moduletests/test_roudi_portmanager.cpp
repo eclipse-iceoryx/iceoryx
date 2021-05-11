@@ -15,12 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
-
-#include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
@@ -28,12 +25,15 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
-
 #include "iceoryx_utils/testing/watch_dog.hpp"
+
+#include "test.hpp"
 
 #include <cstdint>
 #include <limits> // std::numeric_limits
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 
@@ -84,7 +84,8 @@ class PortManager_test : public Test
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
         auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-        auto segmentInfo = m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
+        auto segmentInfo =
+            m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
         ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());
 
         m_payloadDataSegmentMemoryManager = &segmentInfo.m_memoryManager.value().get();
@@ -1034,3 +1035,5 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
 
     EXPECT_EQ(serviceCounter->load(), initialCount + 1);
 }
+
+} // namespace

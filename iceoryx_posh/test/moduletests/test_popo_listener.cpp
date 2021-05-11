@@ -32,6 +32,8 @@
 #include <memory>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 using namespace iox::popo;
@@ -1160,3 +1162,4 @@ TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
 // END
 //////////////////////////////////
 
+} // namespace

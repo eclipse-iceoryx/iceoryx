@@ -27,6 +27,8 @@
 #include "test.hpp"
 
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::mepoo;
 using namespace iox::posix;
@@ -196,3 +198,5 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMaximumNumberOfS
     SegmentConfig segmentConfig = getSegmentConfigWithMaximumNumberOfSegements();
     SegmentManager<MePooSegmentMock> sut{segmentConfig, &allocator};
 }
+
+} // namespace

@@ -26,6 +26,8 @@
 
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
@@ -53,15 +55,12 @@ class PoshRuntimeTestAccess : public PoshRuntime
     }
 };
 
-namespace
-{
 bool callbackWasCalled = false;
 PoshRuntime& testFactory(iox::cxx::optional<const iox::RuntimeName_t*> name)
 {
     callbackWasCalled = true;
     return PoshRuntimeTestAccess::getDefaultRuntime(name);
 }
-} // namespace
 
 class PoshRuntime_test : public Test
 {
@@ -740,3 +739,5 @@ TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
     // just in case the previous test doesn't die and breaks the following tests
     PoshRuntimeTestAccess::resetRuntimeFactory();
 }
+
+} // namespace

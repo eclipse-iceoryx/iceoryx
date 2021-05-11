@@ -23,16 +23,14 @@
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 
 using namespace iox::cxx;
 using namespace iox::config;
 
-namespace iox
-{
-namespace test
-{
 class CmdLineParserConfigFileOption_test : public Test
 {
   public:
@@ -178,7 +176,6 @@ TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnl
     EXPECT_THAT(res.value().configFilePath.c_str(), StrEq(path));
 }
 
-} // namespace test
-} // namespace iox
+} // namespace
 
 #endif

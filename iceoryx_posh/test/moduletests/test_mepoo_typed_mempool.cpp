@@ -22,6 +22,24 @@
 
 #include "test.hpp"
 
+namespace iox
+{
+namespace cxx
+{
+template <>
+struct ErrorTypeAdapter<cxx::variant<mepoo::TypedMemPoolError, posix::SemaphoreError>>
+{
+    static variant<mepoo::TypedMemPoolError, posix::SemaphoreError> getInvalidState()
+    {
+        return variant<mepoo::TypedMemPoolError, posix::SemaphoreError>(iox::cxx::in_place_index<0>(),
+                                                                        mepoo::TypedMemPoolError::INVALID_STATE);
+    };
+};
+} // namespace cxx
+} // namespace iox
+
+namespace
+{
 using namespace ::testing;
 using namespace iox::mepoo;
 class TypedMemPool_test : public Test
@@ -60,22 +78,6 @@ class TypedMemPool_test : public Test
 
     TypedMemPool<TestClass> sut;
 };
-
-namespace iox
-{
-namespace cxx
-{
-template <>
-struct ErrorTypeAdapter<cxx::variant<mepoo::TypedMemPoolError, posix::SemaphoreError>>
-{
-    static variant<mepoo::TypedMemPoolError, posix::SemaphoreError> getInvalidState()
-    {
-        return variant<mepoo::TypedMemPoolError, posix::SemaphoreError>(iox::cxx::in_place_index<0>(),
-                                                                        mepoo::TypedMemPoolError::INVALID_STATE);
-    };
-};
-} // namespace cxx
-} // namespace iox
 
 TEST_F(TypedMemPool_test, GetOneObject)
 {
@@ -148,3 +150,5 @@ TEST_F(TypedMemPool_Semaphore_test, CreateInvalidSemaphore)
         iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphorePtr.has_error(), Eq(true));
 }
+
+} // namespace

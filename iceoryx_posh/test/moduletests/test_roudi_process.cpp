@@ -24,6 +24,8 @@
 #include "iceoryx_utils/platform/types.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::roudi;
 using namespace iox::popo;
@@ -110,3 +112,5 @@ TEST_F(Process_test, TimeStamp)
     roudiproc.setTimestamp(timestmp);
     EXPECT_THAT(roudiproc.getTimestamp(), Eq(timestmp));
 }
+
+} // namespace

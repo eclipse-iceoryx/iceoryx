@@ -27,6 +27,8 @@
 #include <thread>
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 using namespace iox::popo;
@@ -466,3 +468,5 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInReverseO
     waitReturnsSortedListWhenTriggeredInReverseOrder(
         *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }
+
+} // namespace
