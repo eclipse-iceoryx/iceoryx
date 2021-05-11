@@ -23,7 +23,14 @@ The integration of the generated plantuml into your design documents is done via
 You need to create a .puml file and export it to .svg afterwards for linking it with the markdown. In the tools folder is a helper script for that provided which downloads a defined version of plantuml to export the vector graphics.
 These steps are necessary due to the current support of plantuml in [Github](https://github.community/t/support-uml-diagrams-in-markdown-with-plantuml-syntax/626).
 
-**NOTE:** Please set in plantuml `skinparam backgroundColor #EEEBDC` to make all texts visible to users with dark-mode enabled in the Github-UI.
+**NOTE:** Please set in the plantuml code the background manually to make all textboxes visible to users with dark-mode enabled in the Github-UI.
+
+```plantuml
+@startuml
+skinparam backgroundColor #EEEBDC
+...
+@enduml
+```
 
 This is an example how to render PlantUML in Github:
 
