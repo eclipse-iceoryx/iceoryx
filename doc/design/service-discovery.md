@@ -113,9 +113,9 @@ Pro:
 Contra:
 
 * More complex than todays solution
-  * ABA counter needed
+* In an optimal case IPC channel communication shall only be used for startup
 
-##### Alternative B: Built-in topic
+##### Alternative B: Built-in topic based on `InterfacePort`'s
 
 * Built-in topic approach based on `InterfacePort`'s
   * Sniff and intercept `CaproMessage`
@@ -138,6 +138,7 @@ Con:
   * Dimensioning according to max values is not optimal (MAX_INTERFACE_CAPRO_FIFO_SIZE)
   * Presumably lots of memory needed, e.g. during startup phase when lots of apps will do discovery
   * A safety-certified middleware based on iceoryx would not use the dynamic discovery feature
+
 Remark:
 
 * Need to filter out your own `CaproMessageType::FIND` requests
