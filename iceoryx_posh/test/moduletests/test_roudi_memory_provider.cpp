@@ -79,7 +79,7 @@ class MemoryProvider_Test : public Test
         return sut.create();
     }
 
-    static const int32_t nTestCase = 13;
+    static const int32_t nTestCase = 12;
 
     iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] = {
         iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,

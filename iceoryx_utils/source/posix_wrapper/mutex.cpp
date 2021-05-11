@@ -30,20 +30,22 @@ mutex::mutex(bool f_isRecursive)
 {
     pthread_mutexattr_t attr;
     bool isInitialized{true};
-    isInitialized &= posixCall(pthread_mutexattr_init)(&attr).successReturnValue(0).evaluate().has_error();
-    isInitialized &= posixCall(pthread_mutexattr_setpshared)(&attr, PTHREAD_PROCESS_SHARED)
-                         .successReturnValue(0)
-                         .evaluate()
-                         .has_error();
+    isInitialized &= !posixCall(pthread_mutexattr_init)(&attr).successReturnValue(0).evaluate().has_error();
+    isInitialized &= !posixCall(pthread_mutexattr_setpshared)(&attr, PTHREAD_PROCESS_SHARED)
+                          .successReturnValue(0)
+                          .evaluate()
+                          .has_error();
     isInitialized &=
-        posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
-            .successReturnValue(0)
-            .evaluate()
-            .has_error();
-    isInitialized &=
-        posixCall(pthread_mutexattr_setprotocol)(&attr, PTHREAD_PRIO_NONE).successReturnValue(0).evaluate().has_error();
-    isInitialized &= posixCall(pthread_mutex_init)(&m_handle, &attr).successReturnValue(0).evaluate().has_error();
-    isInitialized &= posixCall(pthread_mutexattr_destroy)(&attr).successReturnValue(0).evaluate().has_error();
+        !posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
+             .successReturnValue(0)
+             .evaluate()
+             .has_error();
+    isInitialized &= !posixCall(pthread_mutexattr_setprotocol)(&attr, PTHREAD_PRIO_NONE)
+                          .successReturnValue(0)
+                          .evaluate()
+                          .has_error();
+    isInitialized &= !posixCall(pthread_mutex_init)(&m_handle, &attr).successReturnValue(0).evaluate().has_error();
+    isInitialized &= !posixCall(pthread_mutexattr_destroy)(&attr).successReturnValue(0).evaluate().has_error();
 
     cxx::Ensures(isInitialized && "Unable to create mutex");
 }

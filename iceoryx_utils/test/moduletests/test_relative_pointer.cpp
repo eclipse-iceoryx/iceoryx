@@ -71,8 +71,9 @@ class base_relative_ptr_test : public Test
         iox::posix::posixCall(shm_open)("TestShm", OFlags, ShmMode)
             .failureReturnValue(-1)
             .evaluate()
+            .and_then([this](auto& r) { m_fileDescriptor = r.value; })
             .or_else([](auto& r) {
-                std::cerr << "shm_open failed with error: " << r.getHumanReadableErrnum();
+                std::cerr << "shm_open failed with error: " << r.getHumanReadableErrnum() << std::endl;
                 exit(EXIT_FAILURE);
             });
 
@@ -80,7 +81,7 @@ class base_relative_ptr_test : public Test
             .failureReturnValue(-1)
             .evaluate()
             .or_else([](auto& r) {
-                std::cerr << "ftruncate failed with error: " << r.getHumanReadableErrnum();
+                std::cerr << "ftruncate failed with error: " << r.getHumanReadableErrnum() << std::endl;
                 exit(EXIT_FAILURE);
             });
 
@@ -90,7 +91,7 @@ class base_relative_ptr_test : public Test
     void TearDown() override
     {
         iox::posix::posixCall(shm_unlink)("TestShm").failureReturnValue(-1).evaluate().or_else([](auto& r) {
-            std::cerr << "shm_unlink failed with error: " << r.getHumanReadableErrnum();
+            std::cerr << "shm_unlink failed with error: " << r.getHumanReadableErrnum() << std::endl;
             exit(EXIT_FAILURE);
         });
 
