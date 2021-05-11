@@ -435,6 +435,6 @@ TEST_F(IpcMessage_test, setMessage)
     message1.setMessage("1,2,3,4");
     EXPECT_THAT(message1.isValid(), Eq(false));
 }
-#endif
 
 } // namespace
+#endif
