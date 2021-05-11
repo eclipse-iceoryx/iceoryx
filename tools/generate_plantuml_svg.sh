@@ -22,7 +22,7 @@
 set -e
 
 WORKSPACE="$(git rev-parse --show-toplevel)"
-PUML_DIR="$WORKSPACE/doc/design/puml"
+PUML_DIR="$WORKSPACE/doc/design/diagrams"
 EXPORT_DIR=${1:-$PUML_DIR}
 PLANTUML_DIR="/tmp/plantuml-jar-mit-1.2021.5"
 

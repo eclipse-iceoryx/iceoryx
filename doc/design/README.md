@@ -1,10 +1,10 @@
 # Design Documents
 
-In here you can find design documents to all constructs of iceoryx. At the 
+In here you can find design documents to all constructs of iceoryx. At the
 moment those design documents are neither complete nor final.
 
-In [draft](./draft/) are design drafts of current features contained which are under 
-implementation. The goal is to provide other developers a first idea on how 
+In [draft](./draft/) are design drafts of current features contained which are under
+implementation. The goal is to provide other developers a first idea on how
 the feature can be used and how it will be implemented.
 
 ## Add diagrams using plantuml
@@ -29,4 +29,4 @@ This is an example how to render PlantUML in Github:
 
 workflow using svg file:
 
-![plantuml github workflow](puml/puml_github_workflow.svg)
+![plantuml github workflow](diagrams/puml_github_workflow.svg)
