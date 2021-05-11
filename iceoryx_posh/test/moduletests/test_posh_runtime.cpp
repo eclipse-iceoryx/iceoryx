@@ -100,11 +100,7 @@ class PoshRuntime_test : public Test
     IpcMessage m_receiveBuffer;
     const iox::NodeName_t m_nodeName{"testNode"};
     const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
-    static bool m_errorHandlerCalled;
 };
-
-bool PoshRuntime_test::m_errorHandlerCalled{false};
-
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
