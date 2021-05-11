@@ -18,11 +18,11 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <assert.h>
 #include <bitset>
@@ -137,32 +137,36 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
         // if we create the shm, cleanup old resources
         if (oflags & O_CREAT)
         {
-            auto shmUnlinkCall =
-                cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name.c_str());
-            if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
-            {
-                std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
-            }
+            posixCall(shm_unlink)(m_name.c_str())
+                .failureReturnValue(-1)
+                .evaluateWithIgnoredErrnos(ENOENT)
+                .and_then([this](auto& r) {
+                    if (r.errnum != ENOENT)
+                    {
+                        std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
+                    }
+                });
         }
 
-        auto shmOpenCall = cxx::makeSmartC(
-            shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str(), oflags, permissions);
-        if (shmOpenCall.hasErrors())
+        if (posixCall(shm_open)(m_name.c_str(), oflags, permissions)
+                .failureReturnValue(-1)
+                .evaluate()
+                .and_then([this](auto& r) { m_handle = r.value; })
+                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
+                .has_error())
         {
-            m_errorValue = errnoToEnum(shmOpenCall.getErrNum());
             return false;
         }
-
-        m_handle = shmOpenCall.getReturnValue();
     }
 
     if (m_ownerShip == OwnerShip::MINE)
     {
-        auto l_truncateCall = cxx::makeSmartC(
-            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int64_t>(size));
-        if (l_truncateCall.hasErrors())
+        if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
+                .failureReturnValue(-1)
+                .evaluate()
+                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
+                .has_error())
         {
-            m_errorValue = errnoToEnum(l_truncateCall.getErrNum());
             return false;
         }
     }
@@ -174,12 +178,15 @@ bool SharedMemory::unlink() noexcept
 {
     if (m_isInitialized && m_ownerShip == OwnerShip::MINE)
     {
-        auto unlinkCall =
-            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str());
-        if (unlinkCall.hasErrors())
+        if (posixCall(shm_unlink)(m_name.c_str())
+                .failureReturnValue(-1)
+                .evaluate()
+                .or_else([](auto& r) {
+                    std::cerr << "Unable to unlink SharedMemory (shm_unlink failed) : " << r.getHumanReadableErrnum()
+                              << std::endl;
+                })
+                .has_error())
         {
-            std::cerr << "Unable to unlink SharedMemory (shm_unlink failed) : " << unlinkCall.getErrorString()
-                      << std::endl;
             return false;
         }
     }
@@ -190,13 +197,15 @@ bool SharedMemory::close() noexcept
 {
     if (m_isInitialized)
     {
-        auto closeCall =
-            cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
-        m_handle = -1;
-        if (closeCall.hasErrors())
+        if (posixCall(iox_close)(m_handle)
+                .failureReturnValue(-1)
+                .evaluate()
+                .or_else([](auto& r) {
+                    std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : "
+                              << r.getHumanReadableErrnum() << std::endl;
+                })
+                .has_error())
         {
-            std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()
-                      << std::endl;
             return false;
         }
     }
