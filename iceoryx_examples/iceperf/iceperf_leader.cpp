@@ -21,7 +21,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "mq.hpp"
 #include "topic_data.hpp"
 #include "uds.hpp"

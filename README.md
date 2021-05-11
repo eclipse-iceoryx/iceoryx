@@ -76,7 +76,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 * [Getting Started](doc/website/getting-started/overview.md)
 * [Installation Guide](doc/website/getting-started/installation.md)
 * [Concepts](doc/conceptual-guide.md)
-* [Iceoryx Utils Hacker Guide](iceoryx_utils/README.md)
+* [Iceoryx Hoofs Hacker Guide](iceoryx_hoofs/README.md)
 
 ### Targeted quality levels & platforms
 
@@ -89,7 +89,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 | iceoryx_dds                             | 4    | 4                     |                                     |
 | iceoryx_meta                            | 5    | 5                     |                                     |
 | iceoryx_posh                            | 1+, 2| 2                     | Will be split into separate targets |
-| iceoryx_utils                           | 1+   | 2                     |                                     |
+| iceoryx_hoofs                           | 1+   | 2                     |                                     |
 | iceoryx_introspection                   | 5    | 5                     |                                     |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/log/logmanager.hpp"
+#include "iceoryx_hoofs/log/logmanager.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"

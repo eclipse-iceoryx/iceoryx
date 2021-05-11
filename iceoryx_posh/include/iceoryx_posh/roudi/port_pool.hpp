@@ -30,7 +30,7 @@
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 namespace iox
 {

@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/segment_config.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {

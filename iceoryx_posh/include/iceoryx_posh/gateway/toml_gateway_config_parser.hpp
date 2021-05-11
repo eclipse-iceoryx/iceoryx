@@ -20,7 +20,7 @@
 
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
 
 #include <cpptoml.h>
 

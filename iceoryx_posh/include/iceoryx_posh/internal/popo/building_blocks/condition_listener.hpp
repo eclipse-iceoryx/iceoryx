@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 
 namespace iox
 {

@@ -20,7 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 using namespace iox;

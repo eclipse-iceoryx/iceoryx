@@ -26,11 +26,11 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/platform/file.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
 #include <cstdio>

@@ -19,10 +19,10 @@
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 
 #include <cstdint>
 

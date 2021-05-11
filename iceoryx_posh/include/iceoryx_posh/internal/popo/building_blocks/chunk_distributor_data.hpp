@@ -22,11 +22,11 @@
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
-#include "iceoryx_utils/cxx/algorithm.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <cstdint>
 #include <mutex>

@@ -19,8 +19,8 @@
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
-#include "iceoryx_utils/cxx/function_ref.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 #include <cstdint>
 #include <limits>

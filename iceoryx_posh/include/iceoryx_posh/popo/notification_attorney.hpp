@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_NOTIFICATION_ATTORNEY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
 
 #include <cstdint>
 

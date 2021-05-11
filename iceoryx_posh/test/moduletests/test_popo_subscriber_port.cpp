@@ -26,8 +26,8 @@
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
 #include <memory>

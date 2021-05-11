@@ -20,7 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 namespace iox
 {

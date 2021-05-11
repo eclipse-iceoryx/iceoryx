@@ -19,8 +19,8 @@
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
@@ -28,6 +28,8 @@
 
 namespace
 {
+using namespace ::testing;
+
 class CallChecker
 {
   public:

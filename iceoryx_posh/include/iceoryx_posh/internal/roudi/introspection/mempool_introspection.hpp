@@ -21,8 +21,8 @@
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
-#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 
 #include <cstdint>
 

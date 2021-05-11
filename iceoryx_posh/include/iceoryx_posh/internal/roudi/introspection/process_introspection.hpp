@@ -20,9 +20,9 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_utils/cxx/list.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
-#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
+#include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 
 #include <mutex>
 

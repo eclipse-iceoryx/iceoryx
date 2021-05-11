@@ -21,11 +21,11 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 
 #include "test.hpp"
 

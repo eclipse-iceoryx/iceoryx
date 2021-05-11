@@ -28,9 +28,9 @@
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/function_ref.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "test.hpp"
 
 using namespace ::testing;

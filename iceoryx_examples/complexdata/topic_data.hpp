@@ -17,13 +17,13 @@
 #ifndef IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
 
-#include "iceoryx_utils/cxx/forward_list.hpp"
-#include "iceoryx_utils/cxx/list.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/stack.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/variant.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_hoofs/cxx/forward_list.hpp"
+#include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/stack.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/cxx/variant.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 
 using namespace iox::cxx;
 

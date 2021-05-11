@@ -23,7 +23,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 
 #include <atomic>
 

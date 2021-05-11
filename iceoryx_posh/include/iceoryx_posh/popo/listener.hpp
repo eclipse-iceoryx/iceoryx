@@ -22,11 +22,11 @@
 #include "iceoryx_posh/popo/notification_attorney.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
-#include "iceoryx_utils/cxx/type_traits.hpp"
-#include "iceoryx_utils/internal/concurrent/loffli.hpp"
-#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 
 #include <thread>
 

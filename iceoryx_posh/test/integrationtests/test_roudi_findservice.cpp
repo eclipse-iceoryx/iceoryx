@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
 
 namespace
 {

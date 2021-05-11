@@ -18,7 +18,7 @@
 
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
 {

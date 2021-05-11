@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "test.hpp"
 
 namespace

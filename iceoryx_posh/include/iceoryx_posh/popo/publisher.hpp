@@ -20,7 +20,7 @@
 
 #include "iceoryx_posh/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_utils/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 namespace iox
 {

@@ -17,7 +17,7 @@
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "iceoryx_utils/testing/mocks/time_mock.hpp"
+#include "iceoryx_hoofs/testing/mocks/time_mock.hpp"
 #include "test.hpp"
 
 namespace

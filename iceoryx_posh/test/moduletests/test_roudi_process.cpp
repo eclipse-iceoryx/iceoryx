@@ -20,8 +20,8 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
 #include "test.hpp"
 
 namespace

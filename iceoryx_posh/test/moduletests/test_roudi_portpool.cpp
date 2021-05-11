@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "test.hpp"
 
 namespace

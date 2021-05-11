@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 

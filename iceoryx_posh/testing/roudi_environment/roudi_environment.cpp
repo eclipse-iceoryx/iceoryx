@@ -19,9 +19,9 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
-#include "iceoryx_utils/log/logmanager.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
+#include "iceoryx_hoofs/log/logmanager.hpp"
 
 namespace iox
 {

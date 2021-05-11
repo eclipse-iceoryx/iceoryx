@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 
 #include "test.hpp"
 

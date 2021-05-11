@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 
 namespace iox
 {

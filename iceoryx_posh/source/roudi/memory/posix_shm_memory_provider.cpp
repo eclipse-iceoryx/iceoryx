@@ -18,11 +18,11 @@
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/platform/signal.hpp"
-#include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_hoofs/platform/unistd.hpp"
 
 namespace iox
 {

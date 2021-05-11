@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/design_pattern/creation.hpp"
+#include "iceoryx_hoofs/design_pattern/creation.hpp"
 
 namespace iox
 {

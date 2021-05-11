@@ -22,9 +22,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 namespace iox
 {

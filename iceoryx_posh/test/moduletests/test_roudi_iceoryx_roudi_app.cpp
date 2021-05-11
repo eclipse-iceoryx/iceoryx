@@ -19,7 +19,7 @@
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
-#include "iceoryx_utils/platform/getopt.hpp"
+#include "iceoryx_hoofs/platform/getopt.hpp"
 
 #include "test.hpp"
 

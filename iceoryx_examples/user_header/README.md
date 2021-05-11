@@ -58,9 +58,9 @@ and the iceoryx includes for publisher, runtime and signal handling.
 ```cpp
 #include "user_header_and_payload_types.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 ```
 
 The `main` function contains a loop which periodically sends a Fibonacci number.

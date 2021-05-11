@@ -21,9 +21,9 @@
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "test.hpp"
 
 namespace

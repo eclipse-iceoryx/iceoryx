@@ -17,7 +17,7 @@
 #define IOX_POSH_RUNTIME_PORT_CONFIG_INFO_HPP
 
 #include "iceoryx_posh/mepoo/memory_info.hpp"
-#include "iceoryx_utils/cxx/serialization.hpp"
+#include "iceoryx_hoofs/cxx/serialization.hpp"
 
 #include <cstdint>
 

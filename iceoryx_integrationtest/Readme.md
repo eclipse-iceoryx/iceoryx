@@ -51,7 +51,7 @@ iceoryx_workspace
         ├── iceoryx_meta
         ├── iceoryx_posh
         ├── iceoryx_integrationtest
-        ├── iceoryx_utils
+        ├── iceoryx_hoofs
         └── tools
 ```
 

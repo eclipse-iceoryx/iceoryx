@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 
 namespace iox
 {

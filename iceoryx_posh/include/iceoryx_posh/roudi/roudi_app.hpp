@@ -19,8 +19,8 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
-#include "iceoryx_utils/log/logcommon.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/log/logcommon.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 #include <cstdint>
 #include <cstdio>

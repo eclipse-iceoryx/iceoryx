@@ -22,7 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 
 namespace iox
 {
