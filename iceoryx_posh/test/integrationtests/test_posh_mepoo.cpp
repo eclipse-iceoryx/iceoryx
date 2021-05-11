@@ -40,6 +40,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 using iox::mepoo::MePooConfig;
@@ -445,3 +447,5 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
 });
+
+} // namespace

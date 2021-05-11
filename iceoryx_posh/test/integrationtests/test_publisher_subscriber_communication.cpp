@@ -30,6 +30,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 
@@ -37,8 +39,6 @@ using namespace iox;
 using namespace iox::popo;
 using namespace iox::cxx;
 
-namespace
-{
 template <typename T>
 struct ComplexDataType
 {
@@ -81,7 +81,6 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
     capro::ServiceDescription m_serviceDescription{
         "PublisherSubscriberCommunication", "IntegrationTest", "AllHailHypnotoad"};
 };
-} // namespace
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_list)
 {
@@ -464,3 +463,5 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
 
 }
+
+} // namespace

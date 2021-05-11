@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
@@ -252,3 +254,5 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
     ASSERT_FALSE(m_chunkReceiver.hasLostChunks());
     EXPECT_EQ(m_sendCounter, m_receiveCounter);
 }
+
+} // namespace

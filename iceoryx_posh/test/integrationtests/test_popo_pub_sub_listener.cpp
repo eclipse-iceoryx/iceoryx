@@ -22,6 +22,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::Return;
 
@@ -29,8 +31,6 @@ using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::runtime;
 
-namespace
-{
 void onSampleReceivedCallback(Subscriber<int>* subscriber IOX_MAYBE_UNUSED)
 {
 }
@@ -58,7 +58,6 @@ class PubSubListener_IntegrationTest : public RouDi_GTest
     std::unique_ptr<Subscriber<int>> m_subscriber;
     std::unique_ptr<UntypedSubscriber> m_untypedSubscriber;
 };
-} // namespace
 
 /// @note Here we test that the trigger reset methods are called correctly in the d'tor of SubscriberImpl. They must not
 /// be called in the BaseSubscriber d'tor since the SubscriberImpl was attached to the Listener. When it goes out of
@@ -90,3 +89,4 @@ TEST_F(PubSubListener_IntegrationTest, UntypedSubscriberGoesOutOfScopeAndDetachi
     m_untypedSubscriber.reset();
 }
 
+} // namespace

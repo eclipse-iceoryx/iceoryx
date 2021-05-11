@@ -32,6 +32,8 @@
 #include <sstream>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
@@ -383,3 +385,5 @@ TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(m_sendCounter.load(std::memory_order_relaxed) == m_receiveCounter);
     TIMING_TEST_EXPECT_FALSE(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall());
 });
+
+} // namespace

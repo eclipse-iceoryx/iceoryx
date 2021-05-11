@@ -19,6 +19,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::roudi;
 using ::testing::Return;
@@ -35,3 +37,5 @@ TEST_F(RouDiEnvironment_test, StartingRouDiTwiceLeadsToError)
     RouDiEnvironment m_sut{iox::RouDiConfig_t().setDefaults()};
     EXPECT_DEATH({ RouDiEnvironment m_sut2{iox::RouDiConfig_t().setDefaults()}; }, ".*");
 }
+
+} // namespace
