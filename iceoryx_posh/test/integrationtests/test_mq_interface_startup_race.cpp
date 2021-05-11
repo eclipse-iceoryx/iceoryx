@@ -20,9 +20,9 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 
 #include <chrono>
@@ -135,14 +135,10 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
         checkRegRequest(msg);
 
         // simulate the restart of RouDi with the mqueue cleanup
-        auto sysC = iox::cxx::makeSmartC(
-            system, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, DeleteRouDiMessageQueue);
-
-        if (sysC.hasErrors())
-        {
-            std::cerr << "system call failed with error: " << sysC.getErrorString();
+        posix::posixCall(system)(DeleteRouDiMessageQueue).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+            std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
             exit(EXIT_FAILURE);
-        }
+        });
 
         auto m_roudiQueue2 =
             IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
@@ -186,14 +182,11 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         // simulate the restart of RouDi with the mqueue cleanup
-        auto sysC = iox::cxx::makeSmartC(
-            system, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, DeleteRouDiMessageQueue);
-
-        if (sysC.hasErrors())
-        {
-            std::cerr << "system call failed with error: " << sysC.getErrorString();
+        posix::posixCall(system)(DeleteRouDiMessageQueue).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+            std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
             exit(EXIT_FAILURE);
-        }
+        });
+
         auto newRoudi =
             IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
