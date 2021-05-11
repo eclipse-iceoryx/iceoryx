@@ -16,12 +16,12 @@
 
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/grp.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 #include "iceoryx_utils/platform/pwd.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <limits>
 
@@ -68,30 +68,28 @@ PosixGroup PosixGroup::getGroupOfCurrentProcess()
 
 cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::string_t& f_name)
 {
-    auto getgrnamCall = cxx::makeSmartC(
-        getgrnam, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<struct group*>(nullptr)}, {}, f_name.c_str());
+    auto getgrnamCall = posixCall(getgrnam)(f_name.c_str()).failureReturnValue(nullptr).evaluate();
 
-    if (getgrnamCall.hasErrors())
+    if (getgrnamCall.has_error())
     {
         std::cerr << "Error: Could not find group '" << f_name << "'." << std::endl;
         return cxx::nullopt_t();
     }
 
-    return cxx::make_optional<gid_t>(getgrnamCall.getReturnValue()->gr_gid);
+    return cxx::make_optional<gid_t>(getgrnamCall->value->gr_gid);
 }
 
 cxx::optional<PosixGroup::string_t> PosixGroup::getGroupName(gid_t f_id)
 {
-    auto getgrgidCall = cxx::makeSmartC(
-        getgrgid, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<struct group*>(nullptr)}, {}, f_id);
+    auto getgrgidCall = posixCall(getgrgid)(f_id).failureReturnValue(nullptr).evaluate();
 
-    if (getgrgidCall.hasErrors())
+    if (getgrgidCall.has_error())
     {
         std::cerr << "Error: Could not find group with id '" << f_id << "'." << std::endl;
         return cxx::nullopt_t();
     }
 
-    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getgrgidCall.getReturnValue()->gr_name));
+    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getgrgidCall->value->gr_name));
 }
 
 PosixGroup::string_t PosixGroup::getName() const
@@ -119,28 +117,26 @@ bool PosixGroup::doesExist() const
 
 cxx::optional<uid_t> PosixUser::getUserID(const PosixGroup::string_t& f_name)
 {
-    auto getpwnamCall = cxx::makeSmartC(
-        getpwnam, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<struct passwd*>(nullptr)}, {}, f_name.c_str());
+    auto getpwnamCall = posixCall(getpwnam)(f_name.c_str()).failureReturnValue(nullptr).evaluate();
 
-    if (getpwnamCall.hasErrors())
+    if (getpwnamCall.has_error())
     {
         std::cerr << "Error: Could not find user '" << f_name << "'." << std::endl;
         return cxx::nullopt_t();
     }
-    return cxx::make_optional<uid_t>(getpwnamCall.getReturnValue()->pw_uid);
+    return cxx::make_optional<uid_t>(getpwnamCall->value->pw_uid);
 }
 
 cxx::optional<PosixUser::string_t> PosixUser::getUserName(uid_t f_id)
 {
-    auto getpwnamCall = cxx::makeSmartC(
-        getpwuid, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<struct passwd*>(nullptr)}, {}, f_id);
+    auto getpwuidCall = posixCall(getpwuid)(f_id).failureReturnValue(nullptr).evaluate();
 
-    if (getpwnamCall.hasErrors())
+    if (getpwuidCall.has_error())
     {
         std::cerr << "Error: Could not find user with id'" << f_id << "'." << std::endl;
         return cxx::nullopt_t();
     }
-    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getpwnamCall.getReturnValue()->pw_name));
+    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
 }
 
 PosixUser::groupVector_t PosixUser::getGroups() const
@@ -151,33 +147,22 @@ PosixUser::groupVector_t PosixUser::getGroups() const
         return groupVector_t();
     }
 
-    auto getpwnamCall = cxx::makeSmartC(getpwnam,
-                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                        {static_cast<struct passwd*>(nullptr)},
-                                        {},
-                                        userName->c_str());
-
-    if (getpwnamCall.hasErrors())
+    auto getpwnamCall = posixCall(getpwnam)(userName->c_str()).failureReturnValue(nullptr).evaluate();
+    if (getpwnamCall.has_error())
     {
         std::cerr << "Error: getpwnam call failed" << std::endl;
         return groupVector_t();
     }
 
-    gid_t userDefaultGroup = getpwnamCall.getReturnValue()->pw_gid;
+    gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
 
     gid_t groups[MaxNumberOfGroups];
     int32_t numGroups = MaxNumberOfGroups;
 
-    auto getgrouplistCall = cxx::makeSmartC(static_cast<int (*)(const char*, gid_t, gid_t*, int*)>(getgrouplist),
-                                            cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                            {-1},
-                                            {},
-                                            userName->c_str(),
-                                            userDefaultGroup,
-                                            groups,
-                                            &numGroups);
-
-    if (getgrouplistCall.hasErrors())
+    auto getgrouplistCall = posixCall(getgrouplist)(userName->c_str(), userDefaultGroup, groups, &numGroups)
+                                .failureReturnValue(-1)
+                                .evaluate();
+    if (getgrouplistCall.has_error())
     {
         std::cerr << "Error: Could not obtain group list" << std::endl;
         return groupVector_t();
