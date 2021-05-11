@@ -10,9 +10,10 @@ the feature can be used and how it will be implemented.
 ## Add diagrams using plantuml
 
 Diagrams in the design documentation can be done with [plantuml](https://plantuml.com/).
+For using plantuml we recommend to use the latest version with the following required packages:
 
 ```bash
-sudo apt install graphviz plantuml
+sudo apt install default-jre-headless graphviz
 ```
 
 A good online-editor with cheat-sheet can be found at [https://plantuml-editor.kkeisuke.com](https://plantuml-editor.kkeisuke.com).
