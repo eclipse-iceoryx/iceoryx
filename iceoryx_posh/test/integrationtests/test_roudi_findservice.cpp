@@ -35,15 +35,6 @@ class RoudiFindService_test : public RouDi_GTest
     {
     }
 
-    void InitContainer(InstanceContainer& dest, std::vector<std::string> src)
-    {
-        dest.clear();
-        for (size_t i = 0; i < src.size(); i++)
-        {
-            dest.push_back(IdString_t(iox::cxx::TruncateToCapacity, src[i]));
-        }
-    }
-
     iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::initRuntime("sender")};
     iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("receiver")};
 };
@@ -210,7 +201,9 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     senderRuntime->offerService({"service1", "instance3"});
     this->InterOpWait();
     InstanceContainer instanceContainerExp;
-    InitContainer(instanceContainerExp, {"instance1", "instance2", "instance3"});
+    instanceContainerExp.push_back("instance1");
+    instanceContainerExp.push_back("instance2");
+    instanceContainerExp.push_back("instance3");
 
     auto instanceContainer = receiverRuntime->findService({"service1", iox::capro::AnyServiceString});
 
