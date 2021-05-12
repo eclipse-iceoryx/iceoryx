@@ -97,4 +97,3 @@ inline RelocatablePointer<T>::operator T*() const noexcept
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_RELOCATABLE_POINTER_INL
-

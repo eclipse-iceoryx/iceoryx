@@ -154,4 +154,3 @@ inline void PointerRepository<id_t, ptr_t, CAPACITY>::print() const noexcept
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
-

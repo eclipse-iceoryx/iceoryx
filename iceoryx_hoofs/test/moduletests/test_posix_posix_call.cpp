@@ -473,4 +473,3 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
 
     EXPECT_TRUE(internal::GetCapturedStderr().empty());
 }
-

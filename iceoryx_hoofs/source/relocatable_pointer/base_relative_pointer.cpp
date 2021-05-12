@@ -179,4 +179,3 @@ BaseRelativePointer::ptr_t BaseRelativePointer::computeRawPtr() const noexcept
 }
 } // namespace rp
 } // namespace iox
-

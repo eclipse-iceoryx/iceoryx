@@ -19,4 +19,4 @@
 
 #include <sys/wait.h>
 
-#endif  // IOX_HOOFS_LINUX_PLATFORM_WAIT_HPP
+#endif // IOX_HOOFS_LINUX_PLATFORM_WAIT_HPP

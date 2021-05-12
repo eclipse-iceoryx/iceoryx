@@ -25,4 +25,3 @@ mqd_t iox_mq_open4(const char* name, int oflag, mode_t mode, struct mq_attr* att
 {
     return mq_open(name, oflag, mode, attr);
 }
-

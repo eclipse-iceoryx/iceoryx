@@ -20,4 +20,3 @@ int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
 {
     return getgrouplist(user, static_cast<int>(group), reinterpret_cast<int*>(groups), ngroups);
 }
-

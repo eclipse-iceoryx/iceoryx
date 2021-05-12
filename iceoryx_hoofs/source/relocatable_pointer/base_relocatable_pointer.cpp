@@ -112,4 +112,3 @@ void* BaseRelocatablePointer::computeRawPtr() const noexcept
 }
 } // namespace rp
 } // namespace iox
-

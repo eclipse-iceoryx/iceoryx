@@ -19,7 +19,7 @@
 
 #include <signal.h>
 
-inline void psignal(int sig, const char *s)
+inline void psignal(int sig, const char* s)
 {
     psignal(static_cast<unsigned int>(sig), s);
 }

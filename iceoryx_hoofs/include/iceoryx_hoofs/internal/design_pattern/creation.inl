@@ -82,4 +82,3 @@ inline iox::cxx::expected<ErrorType> Creation<DerivedClass, ErrorType>::placemen
 
 } // namespace DesignPattern
 #endif
-

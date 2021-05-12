@@ -91,7 +91,6 @@ cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
     int value;
     auto call = posixCall(iox_sem_getvalue)(m_handlePtr, &value).failureReturnValue(-1).evaluate();
     if (call.has_error())
-
     {
         return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
@@ -111,19 +110,16 @@ cxx::expected<SemaphoreError> Semaphore::post() noexcept
 }
 
 cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) const noexcept
-
 {
     const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
     auto call =
         posixCall(iox_sem_timedwait)(m_handlePtr, &timeout).failureReturnValue(-1).evaluateWithIgnoredErrnos(ETIMEDOUT);
 
     if (call.has_error())
-
     {
         return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
     else if (call->errnum == ETIMEDOUT)
-
     {
         return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
     }
@@ -133,7 +129,6 @@ cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const uni
     }
 }
 
-
 cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
 {
     auto call = posixCall(iox_sem_trywait)(m_handlePtr).failureReturnValue(-1).evaluateWithIgnoredErrnos(EAGAIN);
@@ -142,7 +137,6 @@ cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
     {
         return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
     }
-
 
     return cxx::success<bool>(call->errnum != EAGAIN);
 }
@@ -262,7 +256,6 @@ bool Semaphore::destroy() noexcept
 bool Semaphore::init(iox_sem_t* handle, const int pshared, const unsigned int value) noexcept
 {
     return !posixCall(iox_sem_init)(handle, pshared, value).failureReturnValue(-1).evaluate().has_error();
-
 }
 
 bool Semaphore::open(const int oflag) noexcept
@@ -273,7 +266,6 @@ bool Semaphore::open(const int oflag) noexcept
                 .and_then([this](auto& r) { this->m_handlePtr = r.value; })
                 .or_else([this](auto&) { this->m_errorValue = SemaphoreError::CREATION_FAILED; })
                 .has_error();
-
 }
 
 bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int value) noexcept
@@ -285,7 +277,6 @@ bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int valu
                 .and_then([this](auto& r) { this->m_handlePtr = r.value; })
                 .or_else([this](auto&) { this->m_errorValue = SemaphoreError::CREATION_FAILED; })
                 .has_error();
-
 }
 
 bool Semaphore::unlink(const char* name) noexcept

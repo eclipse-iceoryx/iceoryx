@@ -119,4 +119,3 @@ inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
-

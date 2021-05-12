@@ -31,7 +31,6 @@ namespace iox
 {
 namespace posix
 {
-
 /// @brief Wrapper class for posix message queue
 ///
 /// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from

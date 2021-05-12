@@ -181,4 +181,3 @@ class BaseRelativePointer
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_BASE_RELATIVE_POINTER_HPP
-

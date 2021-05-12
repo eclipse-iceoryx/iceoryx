@@ -106,4 +106,3 @@ class RelativePointer : public BaseRelativePointer
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.inl"
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
-

@@ -529,7 +529,7 @@ inline bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator!=(
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
-    list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
+list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
 {
     return *operator->();
 }
@@ -538,7 +538,7 @@ inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>::refer
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>::pointer
-    list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
+list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
 
 {
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
@@ -599,8 +599,8 @@ inline typename list<T, Capacity>::size_type& list<T, Capacity>::getNextIdx(cons
 }
 
 template <typename T, uint64_t Capacity>
-inline const typename list<T, Capacity>::size_type& list<T, Capacity>::getPrevIdx(const const_iterator& iter) const
-    noexcept
+inline const typename list<T, Capacity>::size_type&
+list<T, Capacity>::getPrevIdx(const const_iterator& iter) const noexcept
 {
     return getPrevIdx(iter.m_iterListNodeIdx);
 }
@@ -611,8 +611,8 @@ inline typename list<T, Capacity>::size_type& list<T, Capacity>::getPrevIdx(cons
 }
 
 template <typename T, uint64_t Capacity>
-inline const typename list<T, Capacity>::size_type& list<T, Capacity>::getNextIdx(const const_iterator& iter) const
-    noexcept
+inline const typename list<T, Capacity>::size_type&
+list<T, Capacity>::getNextIdx(const const_iterator& iter) const noexcept
 {
     return getNextIdx(iter.m_iterListNodeIdx);
 }

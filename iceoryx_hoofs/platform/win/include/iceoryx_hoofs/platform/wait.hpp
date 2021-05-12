@@ -22,4 +22,4 @@ inline int WEXITSTATUS(int)
     return 0;
 }
 
-#endif  // IOX_HOOFS_WIN_PLATFORM_WAIT_HPP
+#endif // IOX_HOOFS_WIN_PLATFORM_WAIT_HPP

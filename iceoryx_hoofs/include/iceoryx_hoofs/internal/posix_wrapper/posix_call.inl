@@ -175,4 +175,4 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 } // namespace posix
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL

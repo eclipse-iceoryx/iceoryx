@@ -53,7 +53,6 @@ constexpr char PATH_PREFIX[] = "/tmp/";
 #endif
 
 
-
 /// @brief Posix file lock C++ wrapping class
 ///        Following RAII, the lock is acquired on creation and released on destruction. Releasing the locks works even
 ///        if the process crashes with a segfault or using SIGKILL. 'lslocks' can be used to display all system-wide

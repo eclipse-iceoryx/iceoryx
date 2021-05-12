@@ -112,4 +112,3 @@ class BaseRelocatablePointer
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_BASE_RELOCATABLE_POINTER_HPP
-
