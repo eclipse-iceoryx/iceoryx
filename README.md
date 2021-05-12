@@ -84,13 +84,13 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 |CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|
-| iceoryx_examples                        | 5    | 5                     | All example code in this folder     |
-| iceoryx_binding_c                       | 2    | 2                     |                                     |
-| iceoryx_dds                             | 4    | 4                     |                                     |
-| iceoryx_meta                            | 5    | 5                     |                                     |
-| iceoryx_posh                            | 1+, 2| 2                     | Will be split into separate targets |
 | iceoryx_hoofs                           | 1+   | 2                     |                                     |
+| iceoryx_posh                            | 1+, 2| 2                     | Will be split into separate targets |
+| iceoryx_binding_c                       | 2    | 2                     |                                     |
+| iceoryx_examples                        | 5    | 5                     | All example code in this folder     |
+| iceoryx_dds                             | 4    | 4                     |                                     |
 | iceoryx_introspection                   | 5    | 5                     |                                     |
+| iceoryx_meta                            | 5    | 5                     |                                     |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
 
