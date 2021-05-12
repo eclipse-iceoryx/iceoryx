@@ -113,6 +113,8 @@ class MemoryProvider_Test : public Test
     // instantiate and test non-virtual member functions
     MemoryProviderMock sut;
 };
+constexpr iox::roudi::MemoryProviderError MemoryProvider_Test::m_testCombinationMemoryProviderError[];
+constexpr const char* MemoryProvider_Test::m_testResultGetErrorString[];
 
 TEST_F(MemoryProvider_Test, InitiallyMemoryIsNotAvailable)
 {
