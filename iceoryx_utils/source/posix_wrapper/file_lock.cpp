@@ -50,7 +50,7 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
     auto openCall = posixCall(iox_open)(fullPath.c_str(), createFileForReadWrite, userReadWriteAccess)
                         .failureReturnValue(ERROR_CODE)
                         .evaluate()
-                        .and_then([this](auto& r) { m_fd = r.value; });
+                        .and_then([this](auto& r) { this->m_fd = r.value; });
 
     if (openCall.has_error())
     {

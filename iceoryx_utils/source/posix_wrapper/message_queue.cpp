@@ -42,7 +42,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
     : m_channelSide(channelSide)
 {
     sanitizeIpcChannelName(name)
-        .and_then([this](IpcChannelName_t& name) { m_name = std::move(name); })
+        .and_then([this](IpcChannelName_t& name) { this->m_name = std::move(name); })
         .or_else([this](IpcChannelError) {
             this->m_isInitialized = false;
             this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;

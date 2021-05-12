@@ -203,8 +203,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
                                                            const units::Duration& timeout) const noexcept
 {
-    constexpr uint64_t NULL_TERMINATOR = 1U;
-    if (msg.size() > m_maxMessageSize + NULL_TERMINATOR)
+    constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
+    if (msg.size() > m_maxMessageSize + NULL_TERMINATOR_SIZE)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -236,7 +236,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
     else
     {
-        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR, 0, nullptr, 0)
+        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
                             .failureReturnValue(ERROR_CODE)
                             .evaluate();
 

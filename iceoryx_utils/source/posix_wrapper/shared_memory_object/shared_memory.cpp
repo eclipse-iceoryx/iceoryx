@@ -153,7 +153,7 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
                 .failureReturnValue(-1)
                 .evaluate()
                 .and_then([this](auto& r) { m_handle = r.value; })
-                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
+                .or_else([this](auto& r) { m_errorValue = this->errnoToEnum(r.errnum); })
                 .has_error())
         {
             return false;
@@ -165,7 +165,7 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
         if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
                 .failureReturnValue(-1)
                 .evaluate()
-                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
+                .or_else([this](auto& r) { m_errorValue = this->errnoToEnum(r.errnum); })
                 .has_error())
         {
             return false;

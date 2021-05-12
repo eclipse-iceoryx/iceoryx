@@ -263,8 +263,8 @@ bool Semaphore::open(const int oflag) noexcept
     return !posixCall(iox_sem_open<>)(m_name.c_str(), oflag)
                 .failureReturnValue(reinterpret_cast<iox_sem_t*>(SEM_FAILED))
                 .evaluate()
-                .and_then([this](auto& r) { m_handlePtr = r.value; })
-                .or_else([this](auto&) { m_errorValue = SemaphoreError::CREATION_FAILED; })
+                .and_then([this](auto& r) { this->m_handlePtr = r.value; })
+                .or_else([this](auto&) { this->m_errorValue = SemaphoreError::CREATION_FAILED; })
                 .has_error();
 }
 
@@ -274,8 +274,8 @@ bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int valu
     return !posixCall(iox_sem_open_call)(m_name.c_str(), oflag, mode, value)
                 .failureReturnValue(reinterpret_cast<iox_sem_t*>(SEM_FAILED))
                 .evaluate()
-                .and_then([this](auto& r) { m_handlePtr = r.value; })
-                .or_else([this](auto&) { m_errorValue = SemaphoreError::CREATION_FAILED; })
+                .and_then([this](auto& r) { this->m_handlePtr = r.value; })
+                .or_else([this](auto&) { this->m_errorValue = SemaphoreError::CREATION_FAILED; })
                 .has_error();
 }
 

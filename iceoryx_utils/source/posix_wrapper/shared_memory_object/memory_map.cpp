@@ -48,8 +48,8 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
         .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
         .evaluate()
         .and_then([this](auto& r) {
-            m_isInitialized = true;
-            m_baseAddress = r.value;
+            this->m_isInitialized = true;
+            this->m_baseAddress = r.value;
         })
         .or_else([&](auto& r) {
             constexpr uint64_t FLAGS_BIT_SIZE = 32U;
@@ -59,10 +59,10 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
                       << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
                       << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags))
                       << ", offset = " << std::hex << offset << std::dec << " ]" << std::endl;
-            m_errorValue = errnoToEnum(r.errnum);
-            m_isInitialized = false;
-            m_baseAddress = nullptr;
-            m_length = 0U;
+            this->m_errorValue = errnoToEnum(r.errnum);
+            this->m_isInitialized = false;
+            this->m_baseAddress = nullptr;
+            this->m_length = 0U;
         });
 }
 

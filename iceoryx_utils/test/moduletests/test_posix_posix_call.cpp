@@ -390,7 +390,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodVa
         .successReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
-        .or_else([](auto& r) {
+        .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
         });
@@ -409,7 +409,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
         .failureReturnValue(RETURN_VALUE, RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
-        .or_else([](auto& r) {
+        .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
         });
@@ -428,7 +428,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
         .failureReturnValue(RETURN_VALUE - 1, RETURN_VALUE, RETURN_VALUE + 1, RETURN_VALUE + 2)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
-        .or_else([](auto& r) {
+        .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
         });
@@ -447,7 +447,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
         .failureReturnValue(RETURN_VALUE - 1, RETURN_VALUE + 1, RETURN_VALUE + 2, RETURN_VALUE)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
-        .or_else([](auto& r) {
+        .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
         });
