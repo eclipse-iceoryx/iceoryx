@@ -146,7 +146,7 @@ bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy s
                 .failureReturnValue(ERROR_CODE)
                 .evaluate()
                 .or_else([&](auto& r) {
-                    evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), shutdownPolicy);
+                    this->evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), shutdownPolicy);
                 })
                 .has_error();
 }
@@ -154,13 +154,13 @@ bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy s
 bool ProcessManager::isProcessAlive(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto checkCommand =
-        posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
-            .failureReturnValue(ERROR_CODE)
-            .evaluateWithIgnoredErrnos(ESRCH)
-            .or_else([&](auto& r) {
-                evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), ShutdownPolicy::SIG_TERM);
-            });
+    auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluateWithIgnoredErrnos(ESRCH)
+                            .or_else([&](auto& r) {
+                                this->evaluateKillError(
+                                    process, r.errnum, r.getHumanReadableErrnum().c_str(), ShutdownPolicy::SIG_TERM);
+                            });
 
     return !(checkCommand && checkCommand->errnum == ESRCH);
 }
