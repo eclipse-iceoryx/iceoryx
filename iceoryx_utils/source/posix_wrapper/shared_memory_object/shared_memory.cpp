@@ -19,6 +19,7 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
+#include "iceoryx_utils/platform/mman.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
@@ -148,7 +149,7 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
                 });
         }
 
-        if (posixCall(shm_open)(m_name.c_str(), oflags, permissions)
+        if (posixCall(iox_shm_open)(m_name.c_str(), oflags, permissions)
                 .failureReturnValue(-1)
                 .evaluate()
                 .and_then([this](auto& r) { m_handle = r.value; })

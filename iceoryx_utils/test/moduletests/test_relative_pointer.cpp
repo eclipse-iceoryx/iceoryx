@@ -68,12 +68,12 @@ class base_relative_ptr_test : public Test
   public:
     void SetUp() override
     {
-        iox::posix::posixCall(shm_open)("TestShm", OFlags, ShmMode)
+        iox::posix::posixCall(iox_shm_open)("TestShm", OFlags, ShmMode)
             .failureReturnValue(-1)
             .evaluate()
             .and_then([this](auto& r) { m_fileDescriptor = r.value; })
             .or_else([](auto& r) {
-                std::cerr << "shm_open failed with error: " << r.getHumanReadableErrnum() << std::endl;
+                std::cerr << "iox_shm_open failed with error: " << r.getHumanReadableErrnum() << std::endl;
                 exit(EXIT_FAILURE);
             });
 
