@@ -16,10 +16,10 @@
 
 #include "iceoryx_hoofs/cxx/vector.hpp"
 
-#include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-subscriber-vector";
@@ -76,4 +76,3 @@ int main()
 
     return (EXIT_SUCCESS);
 }
-

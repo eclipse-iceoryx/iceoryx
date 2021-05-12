@@ -17,10 +17,10 @@
 #include "example_common.hpp"
 #include "iceperf_leader.hpp"
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/platform/getopt.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <cstring>
 #include <iostream>

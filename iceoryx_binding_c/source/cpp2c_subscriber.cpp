@@ -101,4 +101,3 @@ bool cpp2c_Subscriber::hasSamples() const noexcept
 {
     return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }
-

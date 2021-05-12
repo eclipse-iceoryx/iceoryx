@@ -24,4 +24,3 @@ iox_service_description_t
 TranslateServiceDescription(const iox::capro::ServiceDescription& serviceDescription) noexcept;
 
 #endif
-

@@ -41,4 +41,3 @@ struct ComplexDataType
 //! [complexdata type]
 
 #endif // IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
-
