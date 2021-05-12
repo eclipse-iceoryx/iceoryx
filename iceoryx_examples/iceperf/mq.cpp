@@ -100,7 +100,7 @@ void MQ::shutdown() noexcept
 
     iox::posix::posixCall(mq_unlink)(m_subscriberMqName.c_str())
         .failureReturnValue(ERROR_CODE)
-        .evaluate()
+        .evaluateWithIgnoredErrnos(ENOENT)
         .or_else([&](auto& r) {
             std::cout << "mq_unlink error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum()
                       << std::endl;
@@ -185,6 +185,7 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
                                         << std::endl;
                               exit(1);
                           });
+        umask(umaskSaved);
 
         if (mqCall->errnum == ENOENT)
         {
@@ -192,7 +193,6 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
             std::this_thread::sleep_for(RETRY_INTERVAL);
             continue;
         }
-        umask(umaskSaved);
 
         if (channelSide == iox::posix::IpcChannelSide::SERVER)
         {

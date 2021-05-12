@@ -203,7 +203,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
                                                            const units::Duration& timeout) const noexcept
 {
-    if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
+    constexpr uint64_t NULL_TERMINATOR = 1U;
+    if (msg.size() > m_maxMessageSize + NULL_TERMINATOR)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -235,7 +236,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
     else
     {
-        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + 1, 0, nullptr, 0)
+        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR, 0, nullptr, 0)
                             .failureReturnValue(ERROR_CODE)
                             .evaluate();
 
@@ -284,7 +285,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         char message[MAX_MESSAGE_SIZE + 1];
 
-        auto recvCall = posixCall(recvfrom)(m_sockfd, &(message[0]), MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+        auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
                             .evaluateWithIgnoredErrnos(EAGAIN);
         message[MAX_MESSAGE_SIZE] = 0;

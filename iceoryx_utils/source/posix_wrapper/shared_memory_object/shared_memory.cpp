@@ -197,17 +197,13 @@ bool SharedMemory::close() noexcept
 {
     if (m_isInitialized)
     {
-        if (posixCall(iox_close)(m_handle)
-                .failureReturnValue(-1)
-                .evaluate()
-                .or_else([](auto& r) {
-                    std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : "
-                              << r.getHumanReadableErrnum() << std::endl;
-                })
-                .has_error())
-        {
-            return false;
-        }
+        auto call = posixCall(iox_close)(m_handle).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+            std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum()
+                      << std::endl;
+        });
+
+        m_handle = -1;
+        return !call.has_error();
     }
     return true;
 }

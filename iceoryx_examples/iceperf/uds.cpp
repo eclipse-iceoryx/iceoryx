@@ -248,7 +248,6 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
                ->errnum
            != ENOBUFS)
     {
-        break;
     }
 }
 

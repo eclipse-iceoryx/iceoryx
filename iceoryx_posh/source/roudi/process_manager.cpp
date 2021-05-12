@@ -27,6 +27,7 @@
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/wait.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <csignal>

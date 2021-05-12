@@ -79,9 +79,7 @@ class MemoryProvider_Test : public Test
         return sut.create();
     }
 
-    static const int32_t nTestCase = 12;
-
-    iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] = {
+    static constexpr iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[] = {
         iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,
         iox::roudi::MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT,
         iox::roudi::MemoryProviderError::MEMORY_ALREADY_CREATED,
@@ -95,18 +93,18 @@ class MemoryProvider_Test : public Test
         iox::roudi::MemoryProviderError::MEMORY_UNMAPPING_FAILED,
         iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED};
 
-    const char* m_testResultGetErrorString[nTestCase] = {"MEMORY_BLOCKS_EXHAUSTED",
-                                                         "NO_MEMORY_BLOCKS_PRESENT",
-                                                         "MEMORY_ALREADY_CREATED",
-                                                         "MEMORY_CREATION_FAILED",
-                                                         "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
-                                                         "MEMORY_ALLOCATION_FAILED",
-                                                         "MEMORY_MAPPING_FAILED",
-                                                         "MEMORY_NOT_AVAILABLE",
-                                                         "MEMORY_DESTRUCTION_FAILED",
-                                                         "MEMORY_DEALLOCATION_FAILED",
-                                                         "MEMORY_UNMAPPING_FAILED",
-                                                         "SIGACTION_CALL_FAILED"};
+    static constexpr const char* m_testResultGetErrorString[] = {"MEMORY_BLOCKS_EXHAUSTED",
+                                                                 "NO_MEMORY_BLOCKS_PRESENT",
+                                                                 "MEMORY_ALREADY_CREATED",
+                                                                 "MEMORY_CREATION_FAILED",
+                                                                 "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
+                                                                 "MEMORY_ALLOCATION_FAILED",
+                                                                 "MEMORY_MAPPING_FAILED",
+                                                                 "MEMORY_NOT_AVAILABLE",
+                                                                 "MEMORY_DESTRUCTION_FAILED",
+                                                                 "MEMORY_DEALLOCATION_FAILED",
+                                                                 "MEMORY_UNMAPPING_FAILED",
+                                                                 "SIGACTION_CALL_FAILED"};
 
     MemoryBlockMock memoryBlock1;
     MemoryBlockMock memoryBlock2;
@@ -341,7 +339,10 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 
 TEST_F(MemoryProvider_Test, GetErrorString)
 {
-    for (int16_t i = 0; i < nTestCase; i++)
+    constexpr int32_t NUMBER_OF_TEST_CASES =
+        sizeof(m_testCombinationMemoryProviderError) / sizeof(iox::roudi::MemoryProviderError);
+
+    for (int16_t i = 0; i < NUMBER_OF_TEST_CASES; i++)
     {
         const char* result = MemoryProviderFailingCreation::getErrorString(m_testCombinationMemoryProviderError[i]);
         EXPECT_THAT(*result, Eq(*m_testResultGetErrorString[i]));
