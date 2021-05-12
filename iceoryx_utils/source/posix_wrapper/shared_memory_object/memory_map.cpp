@@ -45,7 +45,7 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
     // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
 
     posixCall(mmap)(const_cast<void*>(baseAddressHint), m_length, l_memoryProtection, flags, fileDescriptor, offset)
-        .failureReturnValue(MAP_FAILED)
+        .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
         .evaluate()
         .and_then([this](auto& r) {
             m_isInitialized = true;
