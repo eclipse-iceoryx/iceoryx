@@ -18,4 +18,7 @@
 
 #include <mqueue.h>
 
+mqd_t iox_mq_open2(const char* name, int oflag);
+mqd_t iox_mq_open4(const char* name, int oflag, mode_t mode, struct mq_attr* attr);
+
 #endif // IOX_UTILS_QNX_PLATFORM_MQUEUE_HPP

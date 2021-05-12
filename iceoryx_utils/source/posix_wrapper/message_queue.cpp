@@ -221,14 +221,7 @@ MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, cons
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0);
-
-    // mq_open uses c variadic arguments therefore we have to use a lambda
-    auto mq_open_lambda = [](const char* name, int oflag, mode_t mode, struct mq_attr* attr) -> mqd_t {
-        return mq_open(name, oflag, mode, attr);
-    };
-    mqd_t (*mq_open_call)(const char*, int, mode_t, struct mq_attr*) = mq_open_lambda;
-
-    auto mqCall = posixCall(mq_open_call)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
+    auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
                       .failureReturnValue(ERROR_CODE)
                       .evaluateWithIgnoredErrnos(ENOENT);
 

@@ -171,13 +171,7 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
         // the mask will be applied to the permissions, therefore we need to set it to 0
         mode_t umaskSaved = umask(0);
 
-        // variadic function do not like template function argument deduction
-        auto mqOpenLambda = [](const char* name, int oflag, mode_t mode, struct mq_attr* attr) -> mqd_t {
-            return mq_open(name, oflag, mode, attr);
-        };
-        mqd_t (*mqOpenPtr)(const char*, int, mode_t, struct mq_attr*) = mqOpenLambda;
-
-        auto mqCall = iox::posix::posixCall(mqOpenPtr)(name.c_str(), openFlags, m_filemode, &m_attributes)
+        auto mqCall = iox::posix::posixCall(iox_mq_open4)(name.c_str(), openFlags, m_filemode, &m_attributes)
                           .failureReturnValue(ERROR_CODE)
                           .evaluateWithIgnoredErrnos(ENOENT)
                           .or_else([&](auto& r) {

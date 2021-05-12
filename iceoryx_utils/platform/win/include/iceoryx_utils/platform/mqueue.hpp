@@ -51,11 +51,6 @@ inline int mq_close(mqd_t mqdes)
 //{
 //}
 
-inline mqd_t mq_open(const char* name, int oflag, mode_t mode, struct mq_attr* attr)
-{
-    return 0;
-}
-
 inline ssize_t mq_receive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio)
 {
     return 0;
@@ -68,6 +63,16 @@ mq_timedreceive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_pr
 }
 
 inline int mq_unlink(const char* name)
+{
+    return 0;
+}
+
+inline mqd_t iox_mq_open2(const char*, int)
+{
+    return 0;
+}
+
+inline mqd_t iox_mq_open4(const char*, int, mode_t, struct mq_attr*)
 {
     return 0;
 }
