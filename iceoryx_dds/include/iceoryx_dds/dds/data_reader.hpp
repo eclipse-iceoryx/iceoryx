@@ -19,9 +19,9 @@
 #define IOX_DDS_DDS_DATA_READER_HPP
 
 #include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {
