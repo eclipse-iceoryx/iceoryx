@@ -18,4 +18,6 @@
 
 #include <grp.h>
 
+int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups);
+
 #endif // IOX_UTILS_QNX_PLATFORM_GRP_HPP

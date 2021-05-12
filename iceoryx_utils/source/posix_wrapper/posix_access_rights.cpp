@@ -159,7 +159,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const
     gid_t groups[MaxNumberOfGroups];
     int32_t numGroups = MaxNumberOfGroups;
 
-    auto getgrouplistCall = posixCall(getgrouplist)(userName->c_str(), userDefaultGroup, groups, &numGroups)
+    auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, groups, &numGroups)
                                 .failureReturnValue(-1)
                                 .evaluate();
     if (getgrouplistCall.has_error())

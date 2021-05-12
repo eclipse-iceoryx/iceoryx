@@ -41,7 +41,7 @@ inline struct group* getgrgid(gid_t gid)
     return nullptr;
 }
 
-inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+inline int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
 {
     return 0;
 }
