@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <thread>
@@ -86,9 +87,9 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             IpcMessage sendBuffer;
             int pid = getpid();
             cxx::Expects(pid >= 0);
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << std::to_string(pid)
-                       << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
-                       << std::to_string(transmissionTimestamp)
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << cxx::convert::toString(pid)
+                       << cxx::convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
+                       << cxx::convert::toString(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 
             bool successfullySent = m_RoudiIpcInterface.timedSend(sendBuffer, 100_ms);

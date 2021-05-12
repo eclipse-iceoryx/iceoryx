@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "test_roudi_service_discovery.hpp"
 
 class RoudiFindService_test : public RouDiServiceDiscoveryTest
@@ -367,7 +368,7 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
     {
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
-        std::string instance = "i" + std::to_string(i);
+        std::string instance = "i" + iox::cxx::convert::toString(i);
         senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance)});
         instanceContainerExp.push_back(IdString_t(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();
@@ -386,7 +387,7 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
     InstanceContainer instanceContainerExp;
     for (size_t i = 0; i < noOfInstances; i++)
     {
-        std::string instance = "i" + std::to_string(i);
+        std::string instance = "i" + iox::cxx::convert::toString(i);
         senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance)});
         instanceContainerExp.push_back(IdString_t(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();

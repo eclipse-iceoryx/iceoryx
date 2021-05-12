@@ -44,14 +44,26 @@ class convert_test : public Test
 };
 
 
+TEST_F(convert_test, toString_uint8_t)
+{
+    uint8_t data = 131U;
+    EXPECT_THAT(iox::cxx::convert::toString(data), Eq("131"));
+}
+
+TEST_F(convert_test, toString_int8_t)
+{
+    int8_t data = 31;
+    EXPECT_THAT(iox::cxx::convert::toString(data), Eq("31"));
+}
+
 TEST_F(convert_test, toString_Integer)
 {
-    EXPECT_THAT(iox::cxx::convert::toString(123), Eq("123"));
+    EXPECT_THAT(iox::cxx::convert::toString(33331), Eq("33331"));
 }
 
 TEST_F(convert_test, toString_Float)
 {
-    EXPECT_THAT(iox::cxx::convert::toString(12.3f), Eq("12.3"));
+    EXPECT_THAT(iox::cxx::convert::toString(333.1f), Eq("333.1"));
 }
 
 TEST_F(convert_test, toString_LongLongUnsignedInt)
@@ -122,7 +134,7 @@ TEST_F(convert_test, stringIsNumber_IsZero)
 
 TEST_F(convert_test, stringIsNumber_INTEGERWithSign)
 {
-    EXPECT_THAT(iox::cxx::convert::stringIsNumber("-123", NumberType::INTEGER), Eq(true));
+    EXPECT_THAT(iox::cxx::convert::stringIsNumber("-521", NumberType::INTEGER), Eq(true));
 }
 
 TEST_F(convert_test, stringIsNumber_INTEGERWithSignPlacedWrongly)
@@ -132,17 +144,17 @@ TEST_F(convert_test, stringIsNumber_INTEGERWithSignPlacedWrongly)
 
 TEST_F(convert_test, stringIsNumber_SimpleFLOAT)
 {
-    EXPECT_THAT(iox::cxx::convert::stringIsNumber("123.123", NumberType::FLOAT), Eq(true));
+    EXPECT_THAT(iox::cxx::convert::stringIsNumber("123.456", NumberType::FLOAT), Eq(true));
 }
 
 TEST_F(convert_test, stringIsNumber_MultiDotFLOAT)
 {
-    EXPECT_THAT(iox::cxx::convert::stringIsNumber("12.3.123", NumberType::FLOAT), Eq(false));
+    EXPECT_THAT(iox::cxx::convert::stringIsNumber("11.1.123", NumberType::FLOAT), Eq(false));
 }
 
 TEST_F(convert_test, stringIsNumber_FLOATWithSign)
 {
-    EXPECT_THAT(iox::cxx::convert::stringIsNumber("+123.123", NumberType::FLOAT), Eq(true));
+    EXPECT_THAT(iox::cxx::convert::stringIsNumber("+123.321", NumberType::FLOAT), Eq(true));
 }
 
 TEST_F(convert_test, stringIsNumber_NumberWithLetters)
@@ -182,9 +194,9 @@ TEST_F(convert_test, fromString_Double_Fail)
 
 TEST_F(convert_test, fromString_LongDouble_Success)
 {
-    std::string source = "123.01";
+    std::string source = "121.01";
     long double destination;
-    long double verify = 123.01;
+    long double verify = 121.01;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Ge(verify - 0.00001));
     EXPECT_THAT(destination, Le(verify + 0.00001));
@@ -199,25 +211,25 @@ TEST_F(convert_test, fromString_LongDouble_Fail)
 
 TEST_F(convert_test, fromString_UNSIGNED_Int_Success)
 {
-    std::string source = "123";
+    std::string source = "100";
     unsigned int destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(123u));
+    EXPECT_THAT(destination, Eq(100u));
 }
 
 TEST_F(convert_test, fromString_UNSIGNED_Int_Fail)
 {
-    std::string source = "-123";
+    std::string source = "-331";
     unsigned int destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
 TEST_F(convert_test, fromString_UNSIGNED_LongInt_Success)
 {
-    std::string source = "123";
+    std::string source = "999";
     uint64_t destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(123lu));
+    EXPECT_THAT(destination, Eq(999lu));
 }
 
 TEST_F(convert_test, fromString_UNSIGNED_LongInt_Fail)
@@ -229,30 +241,30 @@ TEST_F(convert_test, fromString_UNSIGNED_LongInt_Fail)
 
 TEST_F(convert_test, fromString_Int_Success)
 {
-    std::string source = "123";
+    std::string source = "3331";
     int destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(123));
+    EXPECT_THAT(destination, Eq(3331));
 }
 
 TEST_F(convert_test, fromString_Int_Fail)
 {
-    std::string source = "-+123";
+    std::string source = "-+321";
     int destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
 TEST_F(convert_test, fromString_ShortInt_Success)
 {
-    std::string source = "123";
+    std::string source = "12345";
     short destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(123));
+    EXPECT_THAT(destination, Eq(12345));
 }
 
 TEST_F(convert_test, fromString_ShortInt_Fail)
 {
-    std::string source = "-+123";
+    std::string source = "-+123321";
     short destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
@@ -267,22 +279,22 @@ TEST_F(convert_test, fromString_Bool_Success)
 
 TEST_F(convert_test, fromString_Bool_Fail)
 {
-    std::string source = "-+123";
+    std::string source = "-+222";
     bool destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
 TEST_F(convert_test, fromString_UShortInt_Success)
 {
-    std::string source = "123";
+    std::string source = "333";
     unsigned short destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(123));
+    EXPECT_THAT(destination, Eq(333));
 }
 
 TEST_F(convert_test, fromString_UShortInt_Fail)
 {
-    std::string source = "-+123";
+    std::string source = "-+111";
     unsigned short destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
@@ -297,7 +309,7 @@ TEST_F(convert_test, fromString_LongInt_Success)
 
 TEST_F(convert_test, fromString_LongInt_Fail)
 {
-    std::string source = "-a123";
+    std::string source = "-a121";
     int64_t destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }

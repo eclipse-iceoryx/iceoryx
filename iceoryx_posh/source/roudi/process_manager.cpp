@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -383,7 +384,7 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new interface for application " << name;
@@ -401,7 +402,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName
                 rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
             runtime::IpcMessage sendBuffer;
-            sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+            sendBuffer << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
         },
         [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
@@ -418,7 +419,7 @@ void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcep
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_APPLICATION_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new ApplicationPort for application " << name;
@@ -437,7 +438,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
-                               << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
 
                     process.sendViaIpcChannel(sendBuffer);
                     m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
@@ -493,7 +494,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
-                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process.sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new SubscriberPort for application " << name;
@@ -541,7 +542,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
-                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process.sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new PublisherPort for application " << name;
@@ -573,7 +574,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(
                         runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
-                               << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                     process.sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ConditionVariable for application " << runtimeName;

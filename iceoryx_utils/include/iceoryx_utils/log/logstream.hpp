@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #ifndef IOX_UTILS_LOG_LOGSTREAM_HPP
 #define IOX_UTILS_LOG_LOGSTREAM_HPP
 
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 
 #include <bitset>
@@ -126,7 +127,7 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        m_logEntry.message.append(std::to_string(val));
+        m_logEntry.message.append(cxx::convert::toString(val));
         m_flushed = false;
         return *this;
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,23 @@ namespace iox
 {
 namespace cxx
 {
+///@brief specialization for  uint8_t and int8_t is required  since uint8_t is unsigned char and int8_t is signed char
+/// and stringstream will not convert these to string as it is already a character.
+template <>
+inline typename std::enable_if<!std::is_convertible<uint8_t, std::string>::value, std::string>::type
+convert::toString(const uint8_t& t)
+{
+    return toString(static_cast<uint16_t>(t));
+}
+
+template <>
+inline typename std::enable_if<!std::is_convertible<int8_t, std::string>::value, std::string>::type
+convert::toString(const int8_t& t)
+{
+    return toString(static_cast<int16_t>(t));
+}
+
+
 template <typename Source>
 inline typename std::enable_if<!std::is_convertible<Source, std::string>::value, std::string>::type
 convert::toString(const Source& t)
