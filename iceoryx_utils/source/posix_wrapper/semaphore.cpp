@@ -261,7 +261,7 @@ bool Semaphore::init(iox_sem_t* handle, const int pshared, const unsigned int va
 bool Semaphore::open(const int oflag) noexcept
 {
     return !posixCall(iox_sem_open<>)(m_name.c_str(), oflag)
-                .failureReturnValue(SEM_FAILED)
+                .failureReturnValue(reinterpret_cast<iox_sem_t*>(SEM_FAILED))
                 .evaluate()
                 .and_then([this](auto& r) { m_handlePtr = r.value; })
                 .or_else([this](auto&) { m_errorValue = SemaphoreError::CREATION_FAILED; })
@@ -272,7 +272,7 @@ bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int valu
 {
     auto iox_sem_open_call = iox_sem_open<mode_t, unsigned int>;
     return !posixCall(iox_sem_open_call)(m_name.c_str(), oflag, mode, value)
-                .failureReturnValue(SEM_FAILED)
+                .failureReturnValue(reinterpret_cast<iox_sem_t*>(SEM_FAILED))
                 .evaluate()
                 .and_then([this](auto& r) { m_handlePtr = r.value; })
                 .or_else([this](auto&) { m_errorValue = SemaphoreError::CREATION_FAILED; })
