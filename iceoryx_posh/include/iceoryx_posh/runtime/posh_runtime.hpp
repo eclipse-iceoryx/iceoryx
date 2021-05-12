@@ -17,6 +17,9 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -29,9 +32,6 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <map>

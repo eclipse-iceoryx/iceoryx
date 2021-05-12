@@ -16,11 +16,11 @@
 #ifndef IOX_POSH_POPO_PORTS_CLIENT_SERVER_PORT_TYPES_HPP
 #define IOX_POSH_POPO_PORTS_CLIENT_SERVER_PORT_TYPES_HPP
 
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <cstdint>
 

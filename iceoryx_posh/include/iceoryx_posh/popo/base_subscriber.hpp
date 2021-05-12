@@ -18,15 +18,15 @@
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 
 namespace iox
 {

@@ -15,15 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "test.hpp"
 
 

@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
+#include "iceoryx_posh/version/compatibility_check_level.hpp"
 
 #include "test.hpp"
 

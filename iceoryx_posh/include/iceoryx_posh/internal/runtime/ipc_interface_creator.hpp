@@ -18,8 +18,8 @@
 #ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_CREATOR_HPP
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_CREATOR_HPP
 
-#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 namespace iox
 {

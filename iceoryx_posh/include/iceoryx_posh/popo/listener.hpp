@@ -17,16 +17,16 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
-#include "iceoryx_posh/popo/enum_trigger_type.hpp"
-#include "iceoryx_posh/popo/notification_attorney.hpp"
-#include "iceoryx_posh/popo/notification_callback.hpp"
-#include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/method_callback.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
+#include "iceoryx_posh/popo/notification_attorney.hpp"
+#include "iceoryx_posh/popo/notification_callback.hpp"
+#include "iceoryx_posh/popo/trigger_handle.hpp"
 
 #include <thread>
 

@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
+#include "iceoryx_posh/internal/runtime/node_property.hpp"
 
 #include "test.hpp"
 
@@ -46,7 +46,7 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithNodeNameIsSucces
     const NodeName_t nodeName{"Node"};
     uint64_t nodeDeviceIdentifier = 1U;
 
-    NodeProperty sut(nodeName,nodeDeviceIdentifier);
+    NodeProperty sut(nodeName, nodeDeviceIdentifier);
 
     EXPECT_EQ(sut.m_name, nodeName);
     EXPECT_EQ(sut.m_nodeDeviceIdentifier, nodeDeviceIdentifier);
@@ -57,7 +57,7 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithSerializationIsS
     const NodeName_t nodeName{"Node"};
     uint64_t nodeDeviceIdentifier = 1U;
 
-    NodeProperty sut(nodeName,nodeDeviceIdentifier);
+    NodeProperty sut(nodeName, nodeDeviceIdentifier);
 
     IpcMessage sendBuffer;
     sendBuffer << static_cast<cxx::Serialization>(sut).toString();

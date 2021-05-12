@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_SETTINGS_HPP
 #define IOX_POSH_MEPOO_CHUNK_SETTINGS_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include <cstdint>
 

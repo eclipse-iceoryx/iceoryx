@@ -16,15 +16,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 
 namespace iox
 {

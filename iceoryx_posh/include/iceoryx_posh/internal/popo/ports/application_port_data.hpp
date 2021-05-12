@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP
 
+#include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-#include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
 
 namespace iox
 {

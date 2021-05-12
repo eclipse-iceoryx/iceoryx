@@ -15,16 +15,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/listener.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "test.hpp"
 
 #include <array>
@@ -35,6 +35,7 @@
 namespace
 {
 using namespace ::testing;
+
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;

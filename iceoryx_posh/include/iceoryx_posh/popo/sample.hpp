@@ -18,9 +18,9 @@
 #ifndef IOX_POSH_POPO_SAMPLE_HPP
 #define IOX_POSH_POPO_SAMPLE_HPP
 
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 namespace iox
 {
