@@ -23,7 +23,6 @@
 #include <time.h>
 
 using namespace ::testing;
-using ::testing::Return;
 
 class time_MOCK
 {

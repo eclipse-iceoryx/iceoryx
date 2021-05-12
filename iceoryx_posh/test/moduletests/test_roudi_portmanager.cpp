@@ -35,7 +35,6 @@
 namespace
 {
 using namespace ::testing;
-using ::testing::Return;
 
 using iox::popo::PublisherOptions;
 using iox::popo::PublisherPortUser;

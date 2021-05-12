@@ -35,7 +35,6 @@
 using namespace ::testing;
 using ::testing::_;
 using ::testing::InSequence;
-using ::testing::Return;
 using ::testing::SetArgPointee;
 
 // ======================================== Helpers ======================================== //

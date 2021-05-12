@@ -23,7 +23,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::roudi;
-using ::testing::Return;
 
 class RouDiEnvironment_test : public Test
 {

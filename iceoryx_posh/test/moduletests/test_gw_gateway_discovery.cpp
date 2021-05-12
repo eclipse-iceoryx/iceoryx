@@ -23,7 +23,6 @@
 namespace
 {
 using namespace ::testing;
-using ::testing::Return;
 
 using CaproMessage = iox::capro::CaproMessage;
 using BasePort = iox::popo::BasePort;

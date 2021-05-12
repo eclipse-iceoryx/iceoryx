@@ -25,7 +25,6 @@
 
 namespace
 {
-using ::testing::Return;
 using namespace ::testing;
 
 class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUser>

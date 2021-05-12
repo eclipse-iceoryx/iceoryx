@@ -23,7 +23,6 @@
 namespace
 {
 using namespace ::testing;
-using ::testing::Return;
 
 /// @req IOX_SWRS_112, IOX_SWRS_200
 /// @brief Test goal: "This test suite verifies that the BaseClass function is verified"

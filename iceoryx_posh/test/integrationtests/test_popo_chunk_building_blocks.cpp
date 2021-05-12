@@ -36,7 +36,6 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 using namespace iox::posix;
-using ::testing::Return;
 
 struct DummySample
 {

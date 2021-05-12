@@ -23,7 +23,6 @@
 namespace
 {
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::roudi;
 

@@ -26,7 +26,6 @@
 namespace
 {
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::cxx;
 using namespace iox::config;

@@ -28,7 +28,6 @@
 namespace
 {
 using namespace ::testing;
-using ::testing::Return;
 
 using iox::roudi::IceOryxRouDiApp;
 using namespace iox::config;

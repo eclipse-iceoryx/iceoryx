@@ -21,7 +21,6 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::roudi;
 using namespace iox::config;

@@ -34,7 +34,6 @@ using namespace iox::popo;
 using namespace iox::runtime;
 using namespace iox::posix;
 using namespace iox::version;
-using ::testing::Return;
 
 class ProcessManager_test : public Test
 {

@@ -28,7 +28,6 @@
 
 namespace
 {
-using ::testing::Return;
 using namespace ::testing;
 
 template <typename PublisherPort, typename SubscriberPort>

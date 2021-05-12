@@ -46,7 +46,6 @@ using namespace ::testing;
 using namespace iox::units::duration_literals;
 using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
-using ::testing::Return;
 
 using iox::posix::Timer;
 
