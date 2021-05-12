@@ -59,7 +59,7 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
                       << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
                       << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags))
                       << ", offset = " << std::hex << offset << std::dec << " ]" << std::endl;
-            this->m_errorValue = errnoToEnum(r.errnum);
+            this->m_errorValue = this->errnoToEnum(r.errnum);
             this->m_isInitialized = false;
             this->m_baseAddress = nullptr;
             this->m_length = 0U;
