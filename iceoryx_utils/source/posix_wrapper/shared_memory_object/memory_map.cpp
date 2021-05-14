@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <bitset>
 
@@ -44,36 +44,26 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
     }
     // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
 
-    auto mmapCall = cxx::makeSmartC(static_cast<void* (*)(void*, size_t, int, int, int, off_t)>(mmap), // PRQA S 3066
-                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                    // we have to perform reinterpret cast since mmap returns MAP_FAILED on error which
-                                    // is defined as (void*) -1; see man mmap for that definition
-                                    {reinterpret_cast<void*>(MAP_FAILED)},
-                                    {},
-                                    const_cast<void*>(baseAddressHint),
-                                    m_length,
-                                    l_memoryProtection,
-                                    flags,
-                                    fileDescriptor,
-                                    offset);
-
-    if (mmapCall.hasErrors())
-    {
-        std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
-                  << baseAddressHint << ", length = " << std::dec << m_length << ", fileDescriptor = " << fileDescriptor
-                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", flags = " << std::bitset<32>(static_cast<uint32_t>(flags)) << ", offset = " << std::hex
-                  << offset << std::dec << " ]" << std::endl;
-        m_errorValue = errnoToEnum(mmapCall.getErrNum());
-        m_isInitialized = false;
-        m_baseAddress = nullptr;
-        m_length = 0U;
-    }
-    else
-    {
-        m_isInitialized = true;
-        m_baseAddress = mmapCall.getReturnValue();
-    }
+    posixCall(mmap)(const_cast<void*>(baseAddressHint), m_length, l_memoryProtection, flags, fileDescriptor, offset)
+        .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
+        .evaluate()
+        .and_then([this](auto& r) {
+            this->m_isInitialized = true;
+            this->m_baseAddress = r.value;
+        })
+        .or_else([&](auto& r) {
+            constexpr uint64_t FLAGS_BIT_SIZE = 32U;
+            std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
+                      << baseAddressHint << ", length = " << std::dec << m_length
+                      << ", fileDescriptor = " << fileDescriptor
+                      << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
+                      << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags))
+                      << ", offset = " << std::hex << offset << std::dec << " ]" << std::endl;
+            this->m_errorValue = this->errnoToEnum(r.errnum);
+            this->m_isInitialized = false;
+            this->m_baseAddress = nullptr;
+            this->m_length = 0U;
+        });
 }
 
 MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) const noexcept
@@ -186,11 +176,11 @@ bool MemoryMap::destroy() noexcept
     if (m_isInitialized)
     {
         m_isInitialized = false;
-        auto unmapResult =
-            cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length);
-        if (unmapResult.hasErrors())
+        auto unmapResult = posixCall(munmap)(m_baseAddress, m_length).failureReturnValue(-1).evaluate();
+
+        if (unmapResult.has_error())
         {
-            m_errorValue = errnoToEnum(unmapResult.getErrNum());
+            m_errorValue = errnoToEnum(unmapResult.get_error().errnum);
             std::cerr << "unable to unmap mapped memory [ address = " << std::hex << m_baseAddress
                       << ", size = " << std::dec << m_length << " ]" << std::endl;
             return false;

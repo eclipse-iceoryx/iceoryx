@@ -225,7 +225,7 @@ TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
 
     for (int i = 0; i < 12; ++i)
     {
-        auto call = sut->timedWait(timeToWait, false);
+        auto call = sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
@@ -240,7 +240,7 @@ TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)
     const iox::units::Duration timeToWait = 2_us;
     for (int i = 0; i < 4; ++i)
     {
-        auto call = sut->timedWait(timeToWait, false);
+        auto call = sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
     }
@@ -323,7 +323,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
         auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
         ASSERT_FALSE(syncSemaphore->post().has_error());
         ASSERT_FALSE(sut->wait().has_error());
-        auto call = sut->timedWait(timeout, false);
+        auto call = sut->timedWait(timeout);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
         timedWaitFinish.store(true);
@@ -349,7 +349,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
         auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
         ASSERT_FALSE(syncSemaphore->post().has_error());
         ASSERT_FALSE(sut->wait().has_error());
-        auto call = sut->timedWait(timeout, false);
+        auto call = sut->timedWait(timeout);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
         timedWaitFinish.store(true);

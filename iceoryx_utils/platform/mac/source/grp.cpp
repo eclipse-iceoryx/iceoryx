@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_MAC_PLATFORM_MMAN_HPP
-#define IOX_UTILS_MAC_PLATFORM_MMAN_HPP
 
-#include <sys/mman.h>
+#include "iceoryx_utils/platform/grp.hpp"
 
-int iox_shm_open(const char* name, int oflag, mode_t mode);
+int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+{
+    return getgrouplist(user, static_cast<int>(group), reinterpret_cast<int*>(groups), ngroups);
+}
 
-#endif // IOX_UTILS_MAC_PLATFORM_MMAN_HPP

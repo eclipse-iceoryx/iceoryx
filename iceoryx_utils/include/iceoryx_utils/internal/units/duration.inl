@@ -16,8 +16,6 @@
 #ifndef IOX_UTILS_UNITS_DURATION_INL
 #define IOX_UTILS_UNITS_DURATION_INL
 
-#include "iceoryx_utils/internal/units/duration.hpp"
-
 namespace iox
 {
 namespace units
@@ -411,8 +409,8 @@ inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPoi
 }
 
 template <typename T>
-inline constexpr Duration Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const
-    noexcept
+inline constexpr Duration
+Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
     // operator*(...) takes care of negative values for rhs
 

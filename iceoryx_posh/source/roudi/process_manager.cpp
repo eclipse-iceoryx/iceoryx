@@ -22,12 +22,12 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/wait.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -140,42 +140,29 @@ void ProcessManager::printWarningForRegisteredProcessesAndClearProcessList() noe
 bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto killC = iox::cxx::makeSmartC(kill,
-                                      iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                      {ERROR_CODE},
-                                      {},
-                                      static_cast<pid_t>(process.getPid()),
-                                      (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
 
-    if (killC.hasErrors())
-    {
-        evaluateKillError(process, killC.getErrNum(), killC.getErrorString(), shutdownPolicy);
-        return false;
-    }
-    return false;
+    return !posix::posixCall(kill)(static_cast<pid_t>(process.getPid()),
+                                   (shutdownPolicy == ShutdownPolicy::SIG_KILL) ? SIGKILL : SIGTERM)
+                .failureReturnValue(ERROR_CODE)
+                .evaluate()
+                .or_else([&](auto& r) {
+                    this->evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), shutdownPolicy);
+                })
+                .has_error();
 }
 
 bool ProcessManager::isProcessAlive(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto checkCommand = iox::cxx::makeSmartC(kill,
-                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                             {ERROR_CODE},
-                                             {ESRCH},
-                                             static_cast<pid_t>(process.getPid()),
-                                             SIGTERM);
+    auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluateWithIgnoredErrnos(ESRCH)
+                            .or_else([&](auto& r) {
+                                this->evaluateKillError(
+                                    process, r.errnum, r.getHumanReadableErrnum().c_str(), ShutdownPolicy::SIG_TERM);
+                            });
 
-    if (checkCommand.getErrNum() == ESRCH)
-    {
-        return false;
-    }
-
-    if (checkCommand.hasErrors())
-    {
-        evaluateKillError(process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
-    }
-
-    return true;
+    return !(checkCommand && checkCommand->errnum == ESRCH);
 }
 
 void ProcessManager::evaluateKillError(const Process& process,

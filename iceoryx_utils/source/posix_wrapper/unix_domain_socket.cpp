@@ -18,9 +18,9 @@
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/socket.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -144,13 +144,12 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    auto unlinkCall =
-        cxx::makeSmartC(unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
+    auto unlinkCall = posixCall(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).evaluateWithIgnoredErrnos(ENOENT);
 
-    if (!unlinkCall.hasErrors())
+    if (!unlinkCall.has_error())
     {
         // ENOENT is set if this socket is not known
-        return cxx::success<bool>(unlinkCall.getErrNum() != ENOENT);
+        return cxx::success<bool>(unlinkCall->errnum != ENOENT);
     }
     else
     {
@@ -162,10 +161,9 @@ cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
-        auto closeCall =
-            cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
+        auto closeCall = posixCall(iox_close)(m_sockfd).failureReturnValue(ERROR_CODE).evaluate();
 
-        if (!closeCall.hasErrors())
+        if (!closeCall.has_error())
         {
             if (IpcChannelSide::SERVER == m_channelSide)
             {
@@ -179,7 +177,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
         }
         else
         {
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(closeCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(closeCall.get_error().errnum));
         }
     }
     return cxx::success<>();
@@ -202,10 +200,11 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
     return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
-    noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                           const units::Duration& timeout) const noexcept
 {
-    if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
+    constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
+    if (msg.size() > m_maxMessageSize + NULL_TERMINATOR_SIZE)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -227,36 +226,23 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 #endif
 
-    auto setsockoptCall = cxx::makeSmartC(setsockopt,
-                                          cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                          {static_cast<ssize_t>(ERROR_CODE)},
-                                          {EWOULDBLOCK},
-                                          m_sockfd,
-                                          SOL_SOCKET,
-                                          SO_SNDTIMEO,
-                                          reinterpret_cast<const char*>(&tv),
-                                          static_cast<socklen_t>(sizeof(tv)));
+    auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
+                              .failureReturnValue(ERROR_CODE)
+                              .evaluateWithIgnoredErrnos(EWOULDBLOCK);
 
-    if (setsockoptCall.hasErrors())
+    if (setsockoptCall.has_error())
     {
-        return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.getErrNum()));
+        return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
     }
     else
     {
-        auto sendCall = cxx::makeSmartC(sendto,
-                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                        {static_cast<ssize_t>(ERROR_CODE)},
-                                        {},
-                                        m_sockfd,
-                                        msg.c_str(),
-                                        static_cast<size_t>(msg.size() + 1), // +1 for the \0 at the end
-                                        static_cast<int>(0),
-                                        nullptr, // socket address not used for a connected SOCK_DGRAM
-                                        static_cast<socklen_t>(0));
+        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluate();
 
-        if (sendCall.hasErrors())
+        if (sendCall.has_error())
         {
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(sendCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(sendCall.get_error().errnum));
         }
         else
         {
@@ -277,8 +263,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 }
 
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) const
-    noexcept
+cxx::expected<std::string, IpcChannelError>
+UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -287,45 +273,32 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
     }
 
     struct timeval tv = timeout;
+    auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
+                              .failureReturnValue(ERROR_CODE)
+                              .evaluateWithIgnoredErrnos(EWOULDBLOCK);
 
-    auto setsockoptCall = cxx::makeSmartC(setsockopt,
-                                          cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                          {static_cast<ssize_t>(ERROR_CODE)},
-                                          {EWOULDBLOCK},
-                                          m_sockfd,
-                                          SOL_SOCKET,
-                                          SO_RCVTIMEO,
-                                          reinterpret_cast<const char*>(&tv),
-                                          static_cast<socklen_t>(sizeof(tv)));
-
-    if (setsockoptCall.hasErrors())
+    if (setsockoptCall.has_error())
     {
-        return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.getErrNum()));
+        return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
     }
     else
     {
         char message[MAX_MESSAGE_SIZE + 1];
-        auto recvCall = cxx::makeSmartC(recvfrom,
-                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                        {static_cast<ssize_t>(ERROR_CODE)},
-                                        {EAGAIN},
-                                        m_sockfd,
-                                        &(message[0]),
-                                        MAX_MESSAGE_SIZE,
-                                        0,
-                                        nullptr,
-                                        nullptr);
+
+        auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluateWithIgnoredErrnos(EAGAIN);
         message[MAX_MESSAGE_SIZE] = 0;
 
-        if (recvCall.hasErrors())
+        if (recvCall.has_error())
         {
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.get_error().errnum));
         }
         /// we have to handle the timeout separately since it is not actual an
         /// error, it is expected behavior. but we have to still inform the user
-        else if (recvCall.getErrNum() == EAGAIN)
+        else if (recvCall->errnum == EAGAIN)
         {
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall->errnum));
         }
         else
         {
@@ -360,28 +333,24 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
     cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
 
     auto socketCall =
-        cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, AF_LOCAL, SOCK_DGRAM, 0);
+        posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0).failureReturnValue(ERROR_CODE).evaluate().and_then([this](auto& r) {
+            m_sockfd = r.value;
+        });
 
-    if (socketCall.hasErrors())
+    if (socketCall.has_error())
     {
-        return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(socketCall.getErrNum()));
+        return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(socketCall.get_error().errnum));
     }
-
-    m_sockfd = socketCall.getReturnValue();
 
     if (IpcChannelSide::SERVER == m_channelSide)
     {
         unlink(m_sockAddr.sun_path);
 
-        auto bindCall = cxx::makeSmartC(bind,
-                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                        {ERROR_CODE},
-                                        {},
-                                        m_sockfd,
-                                        reinterpret_cast<struct sockaddr*>(&m_sockAddr),
-                                        static_cast<socklen_t>(sizeof(m_sockAddr)));
+        auto bindCall = posixCall(bind)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluate();
 
-        if (!bindCall.hasErrors())
+        if (!bindCall.has_error())
         {
             return cxx::success<>();
         }
@@ -392,38 +361,35 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
                           << std::endl;
             });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(bindCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(bindCall.get_error().errnum));
         }
     }
     else
     {
         // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
         // is created and server not present)
-        auto connectCall = cxx::makeSmartC(connect,
-                                           cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                           {ERROR_CODE},
-                                           {ENOENT},
-                                           m_sockfd,
-                                           (struct sockaddr*)&m_sockAddr,
-                                           static_cast<socklen_t>(sizeof(m_sockAddr)));
+        auto connectCall =
+            posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
+                .failureReturnValue(ERROR_CODE)
+                .evaluateWithIgnoredErrnos(ENOENT);
 
-        if (connectCall.hasErrors())
+        if (connectCall.has_error())
         {
             closeFileDescriptor().or_else([](auto) {
                 std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
                           << std::endl;
             });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.get_error().errnum));
         }
-        else if (connectCall.getErrNum() == ENOENT)
+        else if (connectCall->errnum == ENOENT)
         {
             closeFileDescriptor().or_else([](auto) {
                 std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
                           << std::endl;
             });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.getErrNum()));
+            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall->errnum));
         }
         else
         {

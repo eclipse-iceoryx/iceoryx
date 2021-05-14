@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,27 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_INL
-#define IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_INL
 
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/platform/grp.hpp"
 
-namespace iox
+int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
 {
-namespace posix
-{
-template <typename SmartC>
-bool Semaphore::setHandleFromCall(const SmartC& call) noexcept
-{
-    if (call.hasErrors())
-    {
-        return false;
-    }
-
-    m_handlePtr = call.getReturnValue();
-    return true;
+    return getgrouplist(user, group, groups, ngroups);
 }
-} // namespace posix
-} // namespace iox
 
-#endif // IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_INL

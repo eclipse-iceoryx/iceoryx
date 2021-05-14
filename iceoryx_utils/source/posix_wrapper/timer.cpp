@@ -17,9 +17,9 @@
 
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 #include <atomic>
 
 namespace iox
@@ -231,24 +231,15 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
     // Do not set any thread attributes
     asyncCallNotification.sigev_notify_attributes = nullptr;
 
-    auto result = cxx::makeSmartC(timer_create,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {-1},
-                                  {},
-                                  CLOCK_REALTIME,
-                                  &asyncCallNotification,
-                                  &m_timerId);
-
-    if (result.hasErrors())
-    {
-        m_isInitialized = false;
-        m_errorValue = createErrorFromErrno(result.getErrNum()).value;
-        m_timerId = INVALID_TIMER_ID;
-    }
-    else
-    {
-        m_isInitialized = true;
-    }
+    posixCall(timer_create)(CLOCK_REALTIME, &asyncCallNotification, &m_timerId)
+        .failureReturnValue(-1)
+        .evaluate()
+        .and_then([this](auto&) { m_isInitialized = true; })
+        .or_else([this](auto& r) {
+            m_isInitialized = false;
+            m_timerId = INVALID_TIMER_ID;
+            m_errorValue = createErrorFromErrno(r.errnum).value;
+        });
 }
 
 Timer::OsTimer::~OsTimer() noexcept
@@ -261,13 +252,10 @@ Timer::OsTimer::~OsTimer() noexcept
         auto& callbackHandle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
         std::lock_guard<std::mutex> lock(callbackHandle.m_accessMutex);
 
-        auto result = cxx::makeSmartC(timer_delete, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId);
-
-        if (result.hasErrors())
-        {
-            createErrorFromErrno(result.getErrNum());
+        posixCall(timer_delete)(m_timerId).failureReturnValue(-1).evaluate().or_else([this](auto& r) {
+            createErrorFromErrno(r.errnum);
             std::cerr << "Unable to cleanup posix::Timer \"" << m_timerId << "\" in the destructor" << std::endl;
-        }
+        });
 
         m_timerId = INVALID_TIMER_ID;
 
@@ -313,18 +301,16 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Cat
     handle.m_catchUpPolicy = catchUpPolicy;
 
     // Set the timer
-    auto result = cxx::makeSmartC(
-        timer_settime, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId, 0, &interval, nullptr);
+    auto result = posixCall(timer_settime)(m_timerId, 0, &interval, nullptr).failureReturnValue(-1).evaluate();
 
-    if (result.hasErrors())
+    if (result.has_error())
     {
         // undo optimistically setting m_isTimerActive before
         // not entirely safe against concurrent starts, we cannot detect these in this way
         // needs extensive refactoring to achieve this (e.g. start and stop with mutex protection?)
         handle.m_isTimerActive.exchange(wasActive, std::memory_order_relaxed);
-        return createErrorFromErrno(result.getErrNum());
+        return createErrorFromErrno(result.get_error().errnum);
     }
-
 
     return cxx::success<void>();
 }
@@ -349,12 +335,11 @@ cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
 
 
     // Disarm the timer
-    auto result = cxx::makeSmartC(
-        timer_settime, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId, 0, &interval, nullptr);
+    auto result = posixCall(timer_settime)(m_timerId, 0, &interval, nullptr).failureReturnValue(-1).evaluate();
 
-    if (result.hasErrors())
+    if (result.has_error())
     {
-        return createErrorFromErrno(result.getErrNum());
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     return cxx::success<void>();
@@ -400,12 +385,11 @@ cxx::expected<units::Duration, TimerError> Timer::OsTimer::timeUntilExpiration()
 {
     struct itimerspec currentInterval;
 
-    auto result =
-        cxx::makeSmartC(timer_gettime, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId, &currentInterval);
+    auto result = posixCall(timer_gettime)(m_timerId, &currentInterval).failureReturnValue(-1).evaluate();
 
-    if (result.hasErrors())
+    if (result.has_error())
     {
-        return createErrorFromErrno(result.getErrNum());
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     if (currentInterval.it_value.tv_sec == 0 && currentInterval.it_value.tv_nsec == 0)
@@ -418,13 +402,13 @@ cxx::expected<units::Duration, TimerError> Timer::OsTimer::timeUntilExpiration()
 
 cxx::expected<uint64_t, TimerError> Timer::OsTimer::getOverruns() noexcept
 {
-    auto result = cxx::makeSmartC(timer_getoverrun, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId);
+    auto result = posixCall(timer_getoverrun)(m_timerId).failureReturnValue(-1).evaluate();
 
-    if (result.hasErrors())
+    if (result.has_error())
     {
-        return createErrorFromErrno(result.getErrNum());
+        return createErrorFromErrno(result.get_error().errnum);
     }
-    return cxx::success<uint64_t>(static_cast<uint64_t>(result.getReturnValue()));
+    return cxx::success<uint64_t>(static_cast<uint64_t>(result->value));
 }
 
 bool Timer::OsTimer::hasError() const noexcept
@@ -440,12 +424,11 @@ TimerError Timer::OsTimer::getError() const noexcept
 cxx::expected<units::Duration, TimerError> Timer::now() noexcept
 {
     struct timespec value;
-    auto result =
-        cxx::makeSmartC(clock_gettime, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, CLOCK_REALTIME, &value);
+    auto result = posixCall(clock_gettime)(CLOCK_REALTIME, &value).failureReturnValue(-1).evaluate();
 
-    if (result.hasErrors())
+    if (result.has_error())
     {
-        return createErrorFromErrno(result.getErrNum());
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     return cxx::success<units::Duration>(value);

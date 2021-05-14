@@ -47,7 +47,7 @@ class Watchdog
     void watchAndActOnFailure(std::function<void()> f) noexcept
     {
         m_watchdog = std::thread([=] {
-            m_watchdogSemaphore.timedWait(m_timeToWait, false)
+            m_watchdogSemaphore.timedWait(m_timeToWait)
                 .and_then([&](auto& result) {
                     if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
                     {
