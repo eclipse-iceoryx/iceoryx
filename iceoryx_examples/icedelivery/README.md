@@ -5,11 +5,9 @@
 This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
 It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
 
-## Expected Output
-
-Create three terminals and start RouDi, a publisher and a subscriber. You can also mix the typed and untyped versions.
-
-[![asciicast](https://asciinema.org/a/407359.svg)](https://asciinema.org/a/407359)
+<!--## Expected Output-->
+<!-- @todo Add expected output with asciinema recording before v2.0-->
+<!--Create three terminals and start RouDi, a publisher and a subscriber. You can also mix the typed and untyped versions.-->
 
 ## Code walkthrough
 
