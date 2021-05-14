@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
-#define IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
+#ifndef IOX_POSH_TESTUTILS_ROUDI_GTEST_HPP
+#define IOX_POSH_TESTUTILS_ROUDI_GTEST_HPP
 
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
@@ -34,4 +34,4 @@ class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
     }
 };
 
-#endif // IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
+#endif // IOX_POSH_TESTUTILS_ROUDI_GTEST_HPP

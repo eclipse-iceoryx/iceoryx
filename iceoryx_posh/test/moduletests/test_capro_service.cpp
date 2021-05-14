@@ -17,10 +17,10 @@
 
 #include "test.hpp"
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/serialization.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
 
 #include <cstdint>
 

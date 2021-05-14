@@ -61,4 +61,4 @@ thanks to modern C++.
 The tools available for automotive-compliant software development are always one or two releases behind the latest C++
 standard. This fact, combined with our already mentioned constraints, led to a bunch of STL like C++ classes that have
 the goal to combine modern C++ with the reliability needed for the domains iceoryx is used in. They can be found in
-the iceoryx utils which are introduced [here](../../advanced/iceoryx_utils/)
+the iceoryx hoofs which are introduced [here](../../advanced/iceoryx_hoofs/)

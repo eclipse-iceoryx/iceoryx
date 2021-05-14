@@ -17,9 +17,9 @@
 
 #include "topic_data.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -73,10 +73,12 @@ int main()
         //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
         //  * Data is constructed with the aruments provided.
-        publisher.loan(ct + 144, ct + 144, ct + 144).and_then([](auto& sample) { sample.publish(); }).or_else([](auto& error) {
-            // Do something with error
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-        });
+        publisher.loan(ct + 144, ct + 144, ct + 144)
+            .and_then([](auto& sample) { sample.publish(); })
+            .or_else([](auto& error) {
+                // Do something with error
+                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+            });
 
         // API Usage #3
         //  * Basic copy-and-publish. Useful for smaller data types.

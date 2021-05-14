@@ -21,7 +21,7 @@ project(example_user_header)
 include(GNUInstallDirs)
 
 find_package(iceoryx_posh REQUIRED)
-find_package(iceoryx_utils REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
@@ -32,7 +32,7 @@ add_executable(iox-cpp-user-header-publisher
 )
 target_link_libraries(iox-cpp-user-header-publisher
                       PRIVATE
-                      iceoryx_utils::iceoryx_utils
+                      iceoryx_hoofs::iceoryx_hoofs
                       iceoryx_posh::iceoryx_posh
 )
 target_compile_options(iox-cpp-user-header-publisher
@@ -47,7 +47,7 @@ add_executable(iox-cpp-user-header-untyped-publisher
 )
 target_link_libraries(iox-cpp-user-header-untyped-publisher
                       PRIVATE
-                      iceoryx_utils::iceoryx_utils
+                      iceoryx_hoofs::iceoryx_hoofs
                       iceoryx_posh::iceoryx_posh
 )
 target_compile_options(iox-cpp-user-header-untyped-publisher
@@ -62,7 +62,7 @@ add_executable(iox-cpp-user-header-subscriber
 )
 target_link_libraries(iox-cpp-user-header-subscriber
                       PRIVATE
-                      iceoryx_utils::iceoryx_utils
+                      iceoryx_hoofs::iceoryx_hoofs
                       iceoryx_posh::iceoryx_posh
 )
 target_compile_options(iox-cpp-user-header-subscriber
@@ -77,7 +77,7 @@ add_executable(iox-cpp-user-header-untyped-subscriber
 )
 target_link_libraries(iox-cpp-user-header-untyped-subscriber
                       PRIVATE
-                      iceoryx_utils::iceoryx_utils
+                      iceoryx_hoofs::iceoryx_hoofs
                       iceoryx_posh::iceoryx_posh
 )
 target_compile_options(iox-cpp-user-header-untyped-subscriber

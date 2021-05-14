@@ -20,8 +20,8 @@
 
 #include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
 {
