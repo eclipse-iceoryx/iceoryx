@@ -29,14 +29,13 @@
 #include <memory>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
-namespace
-{
 class WaitSetTest : public iox::popo::WaitSet<>
 {
   public:
@@ -396,7 +395,6 @@ SimpleState1 WaitSet_test::SimpleEventClass::m_simpleState1 = SimpleState1::INVA
 SimpleState2 WaitSet_test::SimpleEventClass::m_simpleState2 = SimpleState2::INVALID;
 SimpleState1 WaitSet_test::SimpleEventClass::m_simpleState1TriggerCallback = SimpleState1::INVALID;
 SimpleState2 WaitSet_test::SimpleEventClass::m_simpleState2TriggerCallback = SimpleState2::INVALID;
-} // namespace
 
 ////////////////////////
 // BEGIN attach / detach
@@ -1460,3 +1458,4 @@ TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
     t.join();
 }
 
+} // namespace

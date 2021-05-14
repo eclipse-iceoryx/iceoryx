@@ -31,6 +31,8 @@
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 
 struct DummySample
@@ -550,3 +552,5 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
+
+} // namespace

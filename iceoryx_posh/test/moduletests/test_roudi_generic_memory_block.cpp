@@ -21,6 +21,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -219,3 +221,5 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, RepetitiveDestroyWithEmplace)
 
     EXPECT_THAT(NonTrivialClass::s_destructorCounter, Eq(1u));
 }
+
+} // namespace

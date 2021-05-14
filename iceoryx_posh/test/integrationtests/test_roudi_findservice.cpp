@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +16,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
-#include "test_roudi_service_discovery.hpp"
 
-class RoudiFindService_test : public RouDiServiceDiscoveryTest
+namespace
+{
+using iox::capro::IdString_t;
+using iox::runtime::InstanceContainer;
+
+class RoudiFindService_test : public RouDi_GTest
 {
   public:
     void SetUp()
@@ -195,7 +201,9 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     senderRuntime->offerService({"service1", "instance3"});
     this->InterOpWait();
     InstanceContainer instanceContainerExp;
-    InitContainer(instanceContainerExp, {"instance1", "instance2", "instance3"});
+    instanceContainerExp.push_back("instance1");
+    instanceContainerExp.push_back("instance2");
+    instanceContainerExp.push_back("instance3");
 
     auto instanceContainer = receiverRuntime->findService({"service1", iox::capro::AnyServiceString});
 
@@ -397,3 +405,5 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
 
     ASSERT_THAT(instanceContainer.has_error(), Eq(true));
 }
+
+} // namespace

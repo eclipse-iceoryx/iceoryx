@@ -29,6 +29,8 @@
 #include <mutex>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::units;
@@ -266,3 +268,5 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
     auto response = m_appQueue->timedReceive(10_ms);
     EXPECT_THAT(response.has_error(), Eq(true));
 }
+
+} // namespace

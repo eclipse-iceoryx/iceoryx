@@ -22,14 +22,12 @@
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 using namespace iox::capro;
+using namespace iox;
 
-namespace iox
-{
-namespace test
-{
 static constexpr uint32_t DEFAULT_DEVICE_ID{20U};
 static constexpr uint32_t DEFAULT_MEMORY_TYPE{100U};
 class PortPool_test : public Test
@@ -615,5 +613,5 @@ TEST_F(PortPool_test, GetServiceRegistryChangeCounterIsSuccessful)
 
     ASSERT_EQ(serviceCounter->load(), 1U);
 }
-} // namespace test
-} // namespace iox
+
+} // namespace

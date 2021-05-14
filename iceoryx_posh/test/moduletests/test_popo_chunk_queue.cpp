@@ -28,8 +28,9 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::popo;
 using namespace iox::mepoo;
@@ -381,3 +382,5 @@ TYPED_TEST(ChunkQueueSoFi_test, LostChunkInfoIsResetAfterRead)
 
     EXPECT_FALSE(this->m_popper.hasLostChunks());
 }
+
+} // namespace

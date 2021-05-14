@@ -24,6 +24,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -347,3 +349,5 @@ TEST_F(MemoryProvider_Test, GetErrorString)
         EXPECT_THAT(*result, Eq(*m_testResultGetErrorString[i]));
     }
 }
+
+} // namespace

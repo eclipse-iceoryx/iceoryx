@@ -23,7 +23,6 @@
 #include <gtest/gtest.h>
 
 using namespace ::testing;
-using ::testing::Return;
 
 class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
 {

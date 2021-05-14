@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +20,8 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
@@ -167,3 +169,5 @@ TYPED_TEST(TypedUniqueId_test, InvalidIdIsInvalid)
     typename TestFixture::UniqueIDType a(InvalidId);
     EXPECT_FALSE(a.isValid());
 }
+
+} // namespace

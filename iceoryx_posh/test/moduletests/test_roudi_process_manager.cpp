@@ -26,13 +26,14 @@
 #include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
 using namespace iox::posix;
 using namespace iox::version;
-using ::testing::Return;
 
 class ProcessManager_test : public Test
 {
@@ -147,3 +148,5 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
     // ideally this should be checked by a mock, but since there isn't on for PortManager we just check the side effect
     ASSERT_FALSE(publisher.isOffered());
 }
+
+} // namespace

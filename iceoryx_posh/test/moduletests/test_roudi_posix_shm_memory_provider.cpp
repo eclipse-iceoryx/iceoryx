@@ -23,6 +23,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -110,3 +112,5 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
 
     EXPECT_THAT(shmExists(), Eq(false));
 }
+
+} // namespace

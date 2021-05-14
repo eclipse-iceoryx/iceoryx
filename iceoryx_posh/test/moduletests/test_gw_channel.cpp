@@ -20,6 +20,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
@@ -58,3 +60,5 @@ TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
         {"", "", ""}, StubbedIceoryxTerminal::Options());
     EXPECT_FALSE(channel.has_error());
 }
+
+} // namespace

@@ -19,6 +19,8 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::mepoo;
 
@@ -217,3 +219,5 @@ TEST_F(MemPool_test, dieWhenMempoolChunkSizeIsNotPowerOf32)
 {
     EXPECT_DEATH({ iox::mepoo::MemPool sut(333, 10, allocator, allocator); }, ".*");
 }
+
+} // namespace

@@ -30,10 +30,6 @@
 #include <functional>
 #include <memory>
 
-using namespace ::testing;
-using namespace iox::mepoo;
-using namespace iox::posix;
-
 namespace iox
 {
 namespace cxx
@@ -48,6 +44,13 @@ struct ErrorTypeAdapter<int>
 };
 } // namespace cxx
 } // namespace iox
+
+namespace
+{
+using namespace ::testing;
+using namespace iox::mepoo;
+using namespace iox::posix;
+
 class MePooSegment_test : public Test
 {
   public:
@@ -205,3 +208,5 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     auto chunk = sut.getMemoryManager().getChunk(chunkSettings);
     EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
 }
+
+} // namespace

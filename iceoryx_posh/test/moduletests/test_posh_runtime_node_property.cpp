@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,15 +20,13 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
+using namespace iox;
 
-
-namespace iox
-{
-namespace test
-{
 /// @brief Test goal: This test suit verifies class node
 
 class PoshRuntimeNodeProperty_test : public Test
@@ -77,5 +76,4 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithWrongSerializati
     EXPECT_EQ(sut.m_name, nodeName);
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

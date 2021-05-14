@@ -24,12 +24,13 @@
 #include "iceoryx_utils/platform/types.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
 using namespace iox::posix;
-using ::testing::Return;
 
 class IpcInterfaceUser_Mock : public iox::roudi::Process
 {
@@ -110,3 +111,5 @@ TEST_F(Process_test, TimeStamp)
     roudiproc.setTimestamp(timestmp);
     EXPECT_THAT(roudiproc.getTimestamp(), Eq(timestmp));
 }
+
+} // namespace
