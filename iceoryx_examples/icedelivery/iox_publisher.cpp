@@ -60,8 +60,7 @@ int main()
         double sampleValue3 = ct + 233;
         double sampleValue4 = ct + 377;
 
-        //! [usage1]
-        // API Usage #1
+        //! [API Usage #1]
         //  * Retrieve a typed sample from shared memory.
         //  * Sample can be held until ready to publish.
         //  * Data is default constructed during loan
@@ -76,11 +75,10 @@ int main()
                 // Do something with error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });
-        //! [usage1]
+        //! [API Usage #1]
 
 
-        //! [usage2]
-        // API Usage #2
+        //! [API Usage #2]
         //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
         //  * Data is constructed with the arguments provided.
@@ -90,10 +88,9 @@ int main()
                 // Do something with error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });
-        //! [usage2]
+        //! [API Usage #2]
 
-        //! [usage3]
-        // API Usage #3
+        //! [API Usage #3]
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
         auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
@@ -101,10 +98,9 @@ int main()
             // Do something with error.
             std::cerr << "Unable to publishCopyOf, error code: " << static_cast<uint64_t>(error) << std::endl;
         });
-        //! [usage3]
+        //! [API Usage #3]
 
-        //! [usage4]
-        // API Usage #4
+        //! [API Usage #4]
         //  * Provide a callable that will be used to populate the loaned sample.
         //  * The first argument of the callable must be T* and is the location that the callable should
         //      write its result to.
@@ -121,7 +117,7 @@ int main()
                 // Do something with error.
                 std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
             });
-        //! [usage4]
+        //! [API Usage #4]
 
 
         std::cout << APP_NAME << " sent values: " << sampleValue1 << ", " << sampleValue2 << ", " << sampleValue3

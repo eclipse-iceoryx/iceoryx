@@ -54,7 +54,7 @@ int main()
     {
         ++ct;
 
-        //! [Loan chunk] and provide logic to populate it via a lambda
+        //! [Loan chunk and provide logic to populate it via a lambda]
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& userPayload) {
                 //! [construct RadarObject]
@@ -73,11 +73,10 @@ int main()
             })
             .or_else([&](auto& error) {
                 //! [print error]
-                // Do something with the error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
                 //! [print error]
             });
-        //! [Loan chunk]
+        //! [Loan chunk and provide logic to populate it via a lambda]
 
         std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
 

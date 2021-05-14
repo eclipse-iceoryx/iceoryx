@@ -78,7 +78,7 @@ iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
 which fits our RadarObject struct.
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][[Loan chunk]]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][[Loan chunk and provide logic to populate it via a lambda]]-->
 ```cpp
 publisher.loan(sizeof(RadarObject))
     .and_then([&](auto& userPayload) {
@@ -233,9 +233,8 @@ offers three additional possibilities.
 
 Usage #1 default constructs the data type in-place:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage1]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][API Usage #1]-->
 ```cpp
-// API Usage #1
 //  * Retrieve a typed sample from shared memory.
 //  * Sample can be held until ready to publish.
 //  * Data is default constructed during loan
@@ -256,9 +255,8 @@ publisher.loan()
 
 Usage #2 constructs the data type with the values provided in loan:
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage2]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][API Usage #2]-->
 ```cpp
-// API Usage #2
 //  * Retrieve a typed sample from shared memory and construct data in-place
 //  * Sample can be held until ready to publish.
 //  * Data is constructed with the arguments provided.
@@ -279,9 +277,8 @@ handling is done automatically and memory is freed when going out of scope on su
 Usage #3 does a copy-and-publish in one call. This should only be used for small data types, as otherwise copies can
 lead to a larger runtime.
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage3]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][API Usage #3]-->
 ```cpp
-// API Usage #3
 //  * Basic copy-and-publish. Useful for smaller data types.
 //
 auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
@@ -299,9 +296,8 @@ to have the signature `void(SampleType*)`.  What then happens, is the following:
 shared memory and if loaning was successful the callable is called with a pointer to the `SampleType` as first
 argument. If loaning was unsuccessful, the callable is not called, but instead the `or_else` branch is taken.
 
-<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][usage4]-->
+<!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][API Usage #4]-->
 ```cpp
-// API Usage #4
 //  * Provide a callable that will be used to populate the loaned sample.
 //  * The first argument of the callable must be T* and is the location that the callable should
 //      write its result to.
