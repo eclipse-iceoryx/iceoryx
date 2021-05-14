@@ -15,11 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// !NO PRAGMA ONCE OR INCLUDE GUARD HERE!
+// !NO INCLUDE GUARD HERE!
 // We want that these macros are always executed and
 // not just once, otherwise the windows macros are kicking in and nothing
 // compiles
-//#pragma once
 
 
 // Usage Instructions: This header has to be ALWAYS the last header which

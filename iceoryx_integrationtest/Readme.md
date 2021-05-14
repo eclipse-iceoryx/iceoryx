@@ -48,10 +48,10 @@ iceoryx_workspace
         ├── iceoryx_binding_c
         ├── iceoryx_dds
         ├── iceoryx_examples
+        ├── iceoryx_hoofs
+        ├── iceoryx_integrationtest
         ├── iceoryx_meta
         ├── iceoryx_posh
-        ├── iceoryx_integrationtest
-        ├── iceoryx_hoofs
         └── tools
 ```
 
