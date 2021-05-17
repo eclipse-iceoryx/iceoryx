@@ -16,7 +16,7 @@
 
 #include "fuzzing.hpp"
 #include "cpptoml.h"
-#include "iceoryx_utils/platform/socket.hpp"
+#include "iceoryx_hoofs/platform/socket.hpp"
 
 #include <fstream>
 #include <thread>
