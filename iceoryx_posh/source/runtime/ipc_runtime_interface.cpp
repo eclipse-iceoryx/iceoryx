@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <thread>
 
@@ -25,11 +26,11 @@ namespace iox
 {
 namespace runtime
 {
-IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
-                                         const ProcessName_t& appName,
+IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
+                                         const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
-    : m_appName(appName)
-    , m_AppIpcInterface(appName)
+    : m_runtimeName(runtimeName)
+    , m_AppIpcInterface(runtimeName)
     , m_RoudiIpcInterface(roudiName)
 {
     if (!m_AppIpcInterface.isInitialized())
@@ -84,9 +85,11 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
             // send IpcMessageType::REG to RouDi
 
             IpcMessage sendBuffer;
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(getpid())
-                       << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
-                       << std::to_string(transmissionTimestamp)
+            int pid = getpid();
+            cxx::Expects(pid >= 0);
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << cxx::convert::toString(pid)
+                       << cxx::convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
+                       << cxx::convert::toString(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 
             bool successfullySent = m_RoudiIpcInterface.timedSend(sendBuffer, 100_ms);
@@ -124,6 +127,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
+        LogFatal() << "Timeout registering at RouDi. Is RouDi running?";
         errorHandler(Error::kIPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
@@ -140,10 +144,10 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
 
 bool IpcRuntimeInterface::sendKeepalive() noexcept
 {
-    return m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_appName});
+    return m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_runtimeName});
 }
 
-RelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
+rp::BaseRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
     cxx::Ensures(m_segmentManagerAddressOffset.has_value()
                  && "No segment manager available! Should have been fetched in the c'tor");
@@ -164,16 +168,6 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
         return false;
     }
 
-    return true;
-}
-
-bool IpcRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
-{
-    if (!m_RoudiIpcInterface.send(msg))
-    {
-        LogError() << "Could not send message via RouDi IPC channel interface.\n";
-        return false;
-    }
     return true;
 }
 
@@ -237,7 +231,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
 
                 // read out the shared memory base address and save it
                 iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
-                RelativePointer::offset_t offset{0U};
+                rp::BaseRelativePointer::offset_t offset{0U};
                 iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), offset);
                 m_segmentManagerAddressOffset.emplace(offset);
 

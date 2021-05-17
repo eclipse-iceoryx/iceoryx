@@ -16,29 +16,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-// anonymous namespace to prevent linker issues or sanitizer false positives
-// if a struct with the same name is used in other tests
-namespace
-{
 struct DummyData
 {
     uint64_t val = 42;
 };
-} // namespace
 
-template <typename T, typename BaseSubscriber>
-class StubbedSubscriber : public iox::popo::Subscriber<T, BaseSubscriber>
+template <typename T, typename H, typename BaseSubscriber>
+class StubbedSubscriber : public iox::popo::SubscriberImpl<T, H, BaseSubscriber>
 {
   public:
-    using SubscriberParent = iox::popo::Subscriber<T, BaseSubscriber>;
+    using SubscriberParent = iox::popo::SubscriberImpl<T, H, BaseSubscriber>;
 
     StubbedSubscriber(const iox::capro::ServiceDescription& service,
                       const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
@@ -49,7 +46,7 @@ class StubbedSubscriber : public iox::popo::Subscriber<T, BaseSubscriber>
     using SubscriberParent::port;
 };
 
-using TestSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
+using TestSubscriber = StubbedSubscriber<DummyData, iox::mepoo::NoUserHeader, MockBaseSubscriber<DummyData>>;
 
 class SubscriberTest : public Test
 {
@@ -152,7 +149,7 @@ TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
     auto maybeSample = sut.take();
     // ===== Verify ===== //
     ASSERT_FALSE(maybeSample.has_error());
-    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->payload());
+    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->userPayload());
     // ===== Cleanup ===== //
 }
 
@@ -166,7 +163,7 @@ TEST_F(SubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
     EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
     // ===== Test ===== //
     {
-        sut.take();
+        EXPECT_FALSE(sut.take().has_error());
     }
     // ===== Verify ===== //
     // ===== Cleanup ===== //
@@ -181,3 +178,5 @@ TEST_F(SubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+} // namespace

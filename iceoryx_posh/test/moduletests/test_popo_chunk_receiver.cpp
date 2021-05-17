@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
@@ -21,12 +24,13 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "test.hpp"
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 
 struct DummySample
@@ -40,19 +44,33 @@ class ChunkReceiver_test : public Test
     ChunkReceiver_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~ChunkReceiver_test()
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
     }
 
-    void TearDown()
+    void TearDown() override
     {
+    }
+
+
+    iox::mepoo::SharedChunk getChunkFromMemoryManager()
+    {
+        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        return m_memoryManager.getChunk(chunkSettings);
     }
 
     static constexpr size_t MEGABYTE = 1 << 20;
@@ -71,7 +89,8 @@ class ChunkReceiver_test : public Test
         iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
     using ChunkQueuePopper_t = iox::popo::ChunkQueuePopper<ChunkQueueData_t>;
 
-    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                            iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA};
     iox::popo::ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 
     iox::popo::ChunkQueuePusher<ChunkReceiverData_t> m_chunkQueuePusher{&m_chunkReceiverData};
@@ -80,28 +99,27 @@ class ChunkReceiver_test : public Test
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
 {
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
-    EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_FALSE((*maybeChunkHeader).has_value());
+    ASSERT_TRUE(maybeChunkHeader.has_error());
+    EXPECT_EQ(maybeChunkHeader.get_error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
 TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
 {
     {
         // have a scope her to release the shared chunk we allocate
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
-        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
 
-        EXPECT_TRUE(sharedChunk.getPayload() == (**maybeChunkHeader)->payload());
-        m_chunkReceiver.release(**maybeChunkHeader);
+        EXPECT_TRUE(sharedChunk.getUserPayload() == (*maybeChunkHeader)->userPayload());
+        m_chunkReceiver.release(*maybeChunkHeader);
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
 TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
@@ -110,18 +128,17 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
 
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY; i++)
     {
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
-        auto sample = sharedChunk.getPayload();
+        auto sample = sharedChunk.getUserPayload();
         new (sample) DummySample();
         static_cast<DummySample*>(sample)->dummy = i;
 
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
-        chunks.push_back(**maybeChunkHeader);
+        ASSERT_FALSE(maybeChunkHeader.has_error());
+        chunks.push_back(*maybeChunkHeader);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY));
@@ -130,12 +147,12 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
     {
         const auto chunk = chunks.back();
         chunks.pop_back();
-        auto dummySample = *reinterpret_cast<DummySample*>(chunk->payload());
+        auto dummySample = *reinterpret_cast<const DummySample*>(chunk->userPayload());
         EXPECT_THAT(dummySample.dummy, Eq(iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY - 1 - i));
         m_chunkReceiver.release(chunk);
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
 TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
@@ -144,24 +161,23 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     // therefore MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY+1
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1; i++)
     {
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
 
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
     }
 
     // but now it breaks
-    auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+    auto sharedChunk = getChunkFromMemoryManager();
     EXPECT_TRUE(sharedChunk);
 
     m_chunkQueuePusher.push(sharedChunk);
 
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
-    EXPECT_TRUE(maybeChunkHeader.has_error());
+    ASSERT_TRUE(maybeChunkHeader.has_error());
     EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
 }
 
@@ -169,16 +185,14 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 {
     {
         // have a scope her to release the shared chunk we allocate
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
-        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
-
-        EXPECT_TRUE(sharedChunk.getPayload() == (**maybeChunkHeader)->payload());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
+        EXPECT_TRUE(sharedChunk.getUserPayload() == (*maybeChunkHeader)->userPayload());
     }
 
     auto errorHandlerCalled{false};
@@ -187,11 +201,11 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkReceiver.release(myCrazyChunk.get());
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkReceiver.release(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkReceiver_test, Cleanup)
@@ -199,15 +213,14 @@ TEST_F(ChunkReceiver_test, Cleanup)
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; i++)
     {
         // MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY on user side and MAX_SUBSCRIBER_QUEUE_CAPACITY in the queue
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
         m_chunkQueuePusher.push(sharedChunk);
 
         if (i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY)
         {
             auto maybeChunkHeader = m_chunkReceiver.tryGet();
-            EXPECT_FALSE(maybeChunkHeader.has_error());
-            EXPECT_TRUE((*maybeChunkHeader).has_value());
+            ASSERT_FALSE(maybeChunkHeader.has_error());
         }
     }
 
@@ -216,5 +229,7 @@ TEST_F(ChunkReceiver_test, Cleanup)
 
     m_chunkReceiver.releaseAll();
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
+
+} // namespace

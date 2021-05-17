@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/log/logmanager.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
@@ -22,7 +25,6 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
-#include "iceoryx_utils/log/logmanager.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -33,17 +35,23 @@
 
 std::atomic_bool keepRunning{true};
 
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
+{
+    // caught SIGINT or SIGTERM, now exit gracefully
+    keepRunning = false;
+}
+
 struct TransmissionData_t
 {
     uint64_t counter;
 };
 
-void consoleOutput(const std::string& output)
+void consoleOutput(const char* source, const char* arrow, const uint64_t counter)
 {
     static std::mutex consoleOutputMutex;
 
     std::lock_guard<std::mutex> lock(consoleOutputMutex);
-    std::cout << output << std::endl;
+    std::cout << source << arrow << counter << std::endl;
 }
 
 void publisher()
@@ -51,15 +59,14 @@ void publisher()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
     iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
-    publisher.offer();
 
     uint64_t counter{0};
-    std::string greenRightArrow("\033[32m->\033[m ");
+    constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
     while (keepRunning.load())
     {
         publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
-            consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
+            consoleOutput("Sending   ", GREEN_RIGHT_ARROW, sample->counter);
             sample.publish();
         });
 
@@ -74,9 +81,7 @@ void subscriber()
     options.historyRequest = 5U;
     iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
-    subscriber.subscribe();
-
-    std::string orangeLeftArrow("\033[33m<-\033[m ");
+    constexpr const char ORANGE_LEFT_ARROW[] = "\033[33m<-\033[m ";
     while (keepRunning.load())
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
@@ -86,9 +91,7 @@ void subscriber()
             do
             {
                 subscriber.take()
-                    .and_then([&](auto& sample) {
-                        consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
-                    })
+                    .and_then([&](auto& sample) { consoleOutput("Receiving ", ORANGE_LEFT_ARROW, sample->counter); })
                     .or_else([&](auto& result) {
                         hasMoreSamples = false;
                         if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
@@ -105,14 +108,18 @@ void subscriber()
 
 int main()
 {
+    // Register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+
     // set the log level to error to see the essence of the example
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
 
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-    iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
-                            roudiComponents.m_portManager,
+    iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager,
+                            roudiComponents.portManager,
                             iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
     // create a single process runtime for inter thread communication

@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/timer.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -32,18 +33,19 @@
 #define protected public
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #undef private
 #undef protected
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
-using ::testing::Return;
 
 using iox::posix::Timer;
 
@@ -249,9 +251,10 @@ class Mepoo_IntegrationTest : public Test
     {
         auto currentUser = iox::posix::PosixUser::getUserOfCurrentProcess();
         auto memoryManager = m_roudiEnv->m_roudiApp->m_mempoolIntrospection.m_segmentManager
-                                 ->getSegmentInformationForUser(currentUser.getName())
+                                 ->getSegmentInformationWithWriteAccessForUser(currentUser.getName())
                                  .m_memoryManager;
-        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager, mempoolInfo);
+        ASSERT_TRUE(memoryManager.has_value());
+        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(memoryManager.value().get(), mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
         // this needs to be subtracted to be able to compare to the configured sizes
@@ -286,7 +289,8 @@ class Mepoo_IntegrationTest : public Test
     bool sendreceivesample(const int& times)
     {
         using Topic = MemPoolTestTopic<size>;
-        constexpr auto topicSize = sizeof(Topic);
+        constexpr auto TOPIC_SIZE = sizeof(Topic);
+        constexpr auto TOPIC_ALIGNMENT = alignof(Topic);
 
         if (!(publisherPort->isOffered()))
         {
@@ -302,12 +306,14 @@ class Mepoo_IntegrationTest : public Test
 
         for (int idx = 0; idx < times; ++idx)
         {
-            publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
-                new (sample->payload()) Topic;
-                sample->payloadSize = topicSize;
-                publisherPort->sendChunk(sample);
-                m_roudiEnv->InterOpWait();
-            });
+            publisherPort
+                ->tryAllocateChunk(
+                    TOPIC_SIZE, TOPIC_ALIGNMENT, iox::CHUNK_NO_USER_HEADER_SIZE, iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
+                .and_then([&](auto sample) {
+                    new (sample->userPayload()) Topic;
+                    publisherPort->sendChunk(sample);
+                    m_roudiEnv->InterOpWait();
+                });
         }
 
         return true;
@@ -440,3 +446,5 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
 });
+
+} // namespace

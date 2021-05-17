@@ -18,14 +18,14 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
 #include "fixed_size_container.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
-#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -71,14 +71,14 @@ class PortIntrospection
 
             PublisherInfo(typename PublisherPort::MemberType_t& portData)
                 : portData(&portData)
-                , process(portData.m_processName)
+                , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
                 , node(portData.m_nodeName)
             {
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
-            ProcessName_t process;
+            RuntimeName_t process;
             capro::ServiceDescription service;
             NodeName_t node;
 
@@ -98,14 +98,14 @@ class PortIntrospection
 
             SubscriberInfo(typename SubscriberPort::MemberType_t& portData)
                 : portData(&portData)
-                , process(portData.m_processName)
+                , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
                 , node(portData.m_nodeName)
             {
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
-            ProcessName_t process;
+            RuntimeName_t process;
             capro::ServiceDescription service;
             NodeName_t node;
         };

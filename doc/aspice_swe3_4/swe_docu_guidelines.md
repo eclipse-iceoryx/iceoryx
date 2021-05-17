@@ -15,7 +15,7 @@ To generate the documentation you need to install:
 ```bash
 sudo apt install doxygen graphviz texlive-base texlive-font-utils texlive-latex-extra
 ```
-The documentation we use plantuml for describing dynamic behavior in the code (sequence or activity diagrams).
+The documentation we use PlantUML for describing dynamic behavior in the code (sequence or activity diagrams).
 Needed package:
 ```bash
 sudo apt install plantuml
@@ -61,8 +61,8 @@ Here we provide a list with the most usual tags in iceoryx:
 ### Custom Tags
 In iceoryx are also custom tags used for extended documentation like errors.
  - `/// @concurrent` use this tag if the code is used in multithreading context for comments about it
- - `/// @req` used to set links to a database with requirements, see [iceoryx_component.hpp](example/iceoryx_component/include/iceoryx_component.hpp)
- - `/// @link` used to set general links additional information, see [iceoryx_component.hpp](example/iceoryx_component/include/iceoryx_component.hpp)
+ - `/// @req` used to set links to a database with requirements, see [iceoryx_component.hpp](example/iceoryx_component/include/example_component.hpp)
+ - `/// @link` used to set general links additional information, see [iceoryx_component.hpp](example/iceoryx_component/include/example_component.hpp)
  - `/// @swcomponent` marks the relationship to the component
  - `/// @error` used for describing the error behavior e.g. error-handler is called
  - `/// @generatedcode` for marking code as generated
@@ -103,7 +103,7 @@ See the header files under iceoryx/doc/aspice_swe3_4/example.
 
 ### PlantUML
 
-if you want to make complex aspects of your implementation visible, you can write plantuml directly into the 
+if you want to make complex aspects of your implementation visible, you can write PlantUML directly into the 
 doxygen description of your class. An example can be found at [example_base_class.hpp](example/iceoryx_component/source/example_module/example_base_class.hpp)
 
 Having PlantUML installed is not a must. If you want to use it you need to install it, and the variable `PLANTUML_JAR_PATH` needs to be set.

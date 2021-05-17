@@ -15,11 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_versions.hpp"
 
-#include "iceoryx_utils/platform/getopt.hpp"
+#include "iceoryx_hoofs/platform/getopt.hpp"
 #include <iostream>
 
 namespace iox
@@ -160,8 +160,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             }
             else
             {
-                m_processKillDelay =
-                    units::Duration::fromSeconds(processKillDelayInSeconds);
+                m_processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
             }
             break;
         }
@@ -212,8 +211,13 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             break;
         }
     }
-    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{
-        m_monitoringMode, m_logLevel, m_compatibilityCheckLevel, m_processKillDelay, m_uniqueRouDiId, m_run, ""});
+    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
+                                                     m_logLevel,
+                                                     m_compatibilityCheckLevel,
+                                                     m_processKillDelay,
+                                                     m_uniqueRouDiId,
+                                                     m_run,
+                                                     iox::roudi::ConfigFilePathString_t("")});
 } // namespace roudi
 } // namespace config
 } // namespace iox

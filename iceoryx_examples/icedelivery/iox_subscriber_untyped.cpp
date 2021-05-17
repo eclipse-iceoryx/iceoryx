@@ -15,17 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [includes]
 #include "topic_data.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
+//! [includes]
 
 #include <iostream>
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
@@ -37,45 +39,45 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+    //! [initialize runtime]
+    constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    //! [initialize runtime]
 
-    // initialized subscriber
-    iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = 10U;
-    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-    subscriber.subscribe();
+    //! [create untyped subscriber]
+    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
+    //! [create untyped subscriber]
 
     // run until interrupted by Ctrl-C
+    //! [loop]
     while (!killswitch)
     {
-        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
-        {
-            subscriber.take()
-                .and_then([&](const void* data) {
-                    auto object = static_cast<const RadarObject*>(data);
-                    std::cout << "Got value: " << object->x << std::endl;
+        subscriber
+            .take()
+            //! [chunk happy path]
+            .and_then([&](const void* userPayload) {
+                //! [chunk received]
+                auto object = static_cast<const RadarObject*>(userPayload);
+                std::cout << APP_NAME << " got value: " << object->x << std::endl;
+                //! [chunk received]
 
-                    // note that we explicitly have to release the data
-                    // and afterwards the pointer access is undefined behavior
-                    subscriber.releaseChunk(data);
-                })
-                .or_else([](auto& result) {
-                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                    {
-                        std::cout << "Error receiving chunk." << std::endl;
-                    }
-                });
-        }
-        else
-        {
-            std::cout << "Not subscribed!" << std::endl;
-        }
+                //! [release]
+                // note that we explicitly have to release the sample
+                // and afterwards the pointer access is undefined behavior
+                subscriber.release(userPayload);
+                //! [release]
+            })
+            //! [chunk happy path]
+            .or_else([](auto& result) {
+                if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                {
+                    std::cout << "Error receiving chunk." << std::endl;
+                }
+            });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    subscriber.unsubscribe();
+    //! [loop]
 
     return (EXIT_SUCCESS);
 }

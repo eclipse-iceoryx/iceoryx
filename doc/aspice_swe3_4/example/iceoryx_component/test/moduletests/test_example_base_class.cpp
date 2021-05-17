@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +20,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
-namespace example
-{
-namespace test
-{
 /// @req IOX_SWRS_112, IOX_SWRS_200
 /// @brief Test goal: "This test suite verifies that the BaseClass function is verified"
 /// @pre describe what needs to be done in setup()
@@ -50,5 +48,4 @@ TEST_F(ExampleBaseClass_test, GetMemberVariableFromCtor)
     EXPECT_THAT(sut2.getMemberVariable(), Eq(99U));
 }
 
-} // namespace test
-} // namespace example
+} // namespace

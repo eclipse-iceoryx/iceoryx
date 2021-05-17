@@ -20,11 +20,11 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 
-/// @todo this should probably be moved to iceoryx_utils/allocator/bump_allocator.hpp
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+/// @todo this should probably be moved to iceoryx_hoofs/allocator/bump_allocator.hpp
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
 {
@@ -86,7 +86,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    m_segmentId = RelativePointer::registerPtr(m_memory, m_size);
+    m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
 
     LogDebug() << "Registered memory segment " << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
                << " with size " << m_size << " to id " << m_segmentId;
@@ -117,7 +117,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        RelativePointer::unregisterPtr(m_segmentId);
+        rp::BaseRelativePointer::unregisterPtr(m_segmentId);
         m_memory = nullptr;
         m_size = 0u;
     }
@@ -178,8 +178,6 @@ const char* MemoryProvider::getErrorString(const MemoryProviderError error)
         return "MEMORY_ALREADY_CREATED";
     case MemoryProviderError::MEMORY_CREATION_FAILED:
         return "MEMORY_CREATION_FAILED";
-    case MemoryProviderError::PAGE_SIZE_CHECK_ERROR:
-        return "PAGE_SIZE_CHECK_ERROR";
     case MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE:
         return "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE";
     case MemoryProviderError::MEMORY_ALLOCATION_FAILED:

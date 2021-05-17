@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 
 #include <thread>
 
@@ -42,7 +41,7 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 
 std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
+    return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
 }
 
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
@@ -59,21 +58,21 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
+    return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName,
+IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
                                    const uint64_t maxMessages,
                                    const uint64_t messageSize) noexcept
-    : m_interfaceName(InterfaceName)
+    : m_runtimeName(runtimeName)
 {
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
-    if (m_maxMessageSize > posix::MessageQueue::MAX_MESSAGE_SIZE)
+    if (m_maxMessageSize > IpcChannelType::MAX_MESSAGE_SIZE)
     {
         LogWarn() << "Message size too large, reducing from " << messageSize << " to "
-                  << posix::MessageQueue::MAX_MESSAGE_SIZE;
-        m_maxMessageSize = posix::MessageQueue::MAX_MESSAGE_SIZE;
+                  << IpcChannelType::MAX_MESSAGE_SIZE;
+        m_maxMessageSize = IpcChannelType::MAX_MESSAGE_SIZE;
     }
 }
 
@@ -120,7 +119,7 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
+                static_cast<size_t>(msg.getMessage().size()) + IpcChannelType::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
@@ -140,16 +139,16 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
+                static_cast<size_t>(msg.getMessage().size()) + IpcChannelType::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
     return !m_ipcChannel.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const ProcessName_t& IpcInterfaceBase::getInterfaceName() const noexcept
+const RuntimeName_t& IpcInterfaceBase::getRuntimeName() const noexcept
 {
-    return m_interfaceName;
+    return m_runtimeName;
 }
 
 bool IpcInterfaceBase::isInitialized() const noexcept
@@ -159,11 +158,12 @@ bool IpcInterfaceBase::isInitialized() const noexcept
 
 bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
-    m_ipcChannel.destroy();
+    m_ipcChannel.destroy().or_else(
+        [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_runtimeName; });
 
     m_channelSide = channelSide;
     IpcChannelType::create(
-        m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
+        m_runtimeName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
 
     return m_ipcChannel.isInitialized();
@@ -189,9 +189,9 @@ bool IpcInterfaceBase::hasClosableIpcChannel() const noexcept
     return m_ipcChannel.isInitialized();
 }
 
-void IpcInterfaceBase::cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept
+void IpcInterfaceBase::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept
 {
-    if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
+    if (IpcChannelType::unlinkIfExists(name).value_or(false))
     {
         LogWarn() << "IPC channel still there, doing an unlink of " << name;
     }

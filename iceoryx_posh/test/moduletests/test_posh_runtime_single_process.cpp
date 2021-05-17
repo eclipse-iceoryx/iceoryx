@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,19 +15,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
+using namespace iox;
 
-namespace iox
-{
-namespace test
-{
 /// @brief Test goal: This test suit verifies class posh_runtime_single_process
 
 class PoshRuntimeSingleProcess_test : public Test
@@ -50,11 +50,11 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-    RouDi roudi(roudiComponents.m_rouDiMemoryManager,
-                roudiComponents.m_portManager,
+    RouDi roudi(roudiComponents.rouDiMemoryManager,
+                roudiComponents.portManager,
                 RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
-    const ProcessName_t m_runtimeName{"App"};
+    const RuntimeName_t m_runtimeName{"App"};
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName); });
 }
@@ -63,7 +63,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
 {
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
-    const ProcessName_t m_runtimeName{"App"};
+    const RuntimeName_t m_runtimeName{"App"};
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -78,5 +78,4 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

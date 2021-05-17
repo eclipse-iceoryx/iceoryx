@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 #define IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <cstdint>
 

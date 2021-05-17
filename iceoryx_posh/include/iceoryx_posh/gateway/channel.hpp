@@ -18,11 +18,11 @@
 #ifndef IOX_POSH_GW_CHANNEL_HPP
 #define IOX_POSH_GW_CHANNEL_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/internal/objectpool/objectpool.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/internal/objectpool/objectpool.hpp"
 
 #include <memory>
 

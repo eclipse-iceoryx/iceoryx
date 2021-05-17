@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
+#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 #include "iceoryx_posh/internal/log/posh_config_logging.hpp"
-#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
 #include <regex>
 
@@ -48,8 +48,24 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     }
 
     LogInfo() << "Using gateway config at: " << path;
-    // Load the file
-    auto parsedToml = cpptoml::parse_file(path.c_str());
+
+    std::shared_ptr<cpptoml::table> parsedToml{nullptr};
+    try
+    {
+        // Load the file
+        parsedToml = cpptoml::parse_file(path.c_str());
+    }
+    catch (const std::exception& parserException)
+    {
+        auto parserError = iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER;
+
+        LogWarn() << iox::cxx::convertEnumToString(iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                   parserError)
+                  << ": " << parserException.what();
+
+        return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
+    }
+
     auto result = validate(*parsedToml);
     if (result.has_error())
     {

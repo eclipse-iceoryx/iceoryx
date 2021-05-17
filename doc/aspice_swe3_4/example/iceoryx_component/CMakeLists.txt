@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(iceoryx_component VERSION 0.8.15)
 
-find_package(iceoryx_utils REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 
 include(IceoryxPlatform)
 

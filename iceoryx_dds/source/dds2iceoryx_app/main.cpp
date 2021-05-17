@@ -18,11 +18,11 @@
 #include "iceoryx_dds/dds/data_reader.hpp"
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/platform/signal.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -36,11 +36,17 @@ class ShutdownManager
         char reason;
         psignal(num, &reason);
         s_shutdownRequested.store(true, std::memory_order_relaxed);
-        s_semaphore.post();
+        s_semaphore.post().or_else([](auto) {
+            std::cerr << "failed to call post on shutdown semaphore" << std::endl;
+            std::terminate();
+        });
     }
     static void waitUntilShutdown()
     {
-        s_semaphore.wait();
+        s_semaphore.wait().or_else([](auto) {
+            std::cerr << "failed to call wait on shutdown semaphore" << std::endl;
+            std::terminate();
+        });
     }
     static bool shouldShutdown()
     {
@@ -72,7 +78,7 @@ int main()
         .and_then([&](auto config) { gw.loadConfiguration(config); })
         .or_else([&](auto err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
-                                << iox::config::TomlGatewayConfigParseErrorString[err];
+                                << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";
             iox::config::GatewayConfig defaultConfig;
             defaultConfig.setDefaults();

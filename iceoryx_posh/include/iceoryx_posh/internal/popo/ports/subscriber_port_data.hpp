@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +18,12 @@
 #ifndef IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
 
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
 
 #include <atomic>
 
@@ -35,7 +36,7 @@ struct SubscriberOptions;
 struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
-                       const ProcessName_t& processName,
+                       const RuntimeName_t& runtimeName,
                        cxx::VariantQueueTypes queueType,
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

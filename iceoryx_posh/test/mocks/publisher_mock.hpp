@@ -18,10 +18,10 @@
 #ifndef IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
 #define IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
 
 #include "test.hpp"
 
@@ -38,13 +38,13 @@ class MockPublisherPortUser
     }
     MockPublisherPortUser(MemberType_t*){};
 
-    MockPublisherPortUser(const MockPublisherPortUser& rhs [[gnu::unused]]){};
-    MockPublisherPortUser(MockPublisherPortUser&& rhs [[gnu::unused]]){};
-    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs [[gnu::unused]])
+    MockPublisherPortUser(const MockPublisherPortUser& rhs IOX_MAYBE_UNUSED){};
+    MockPublisherPortUser(MockPublisherPortUser&& rhs IOX_MAYBE_UNUSED){};
+    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs IOX_MAYBE_UNUSED)
     {
         return *this;
     };
-    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs [[gnu::unused]])
+    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs IOX_MAYBE_UNUSED)
     {
         return *this;
     };
@@ -53,8 +53,9 @@ class MockPublisherPortUser
         return getServiceDescription();
     }
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
-    MOCK_METHOD1(tryAllocateChunk,
-                 iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
+    MOCK_METHOD4(tryAllocateChunk,
+                 iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(
+                     const uint32_t, const uint32_t, const uint32_t, const uint32_t));
     MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());

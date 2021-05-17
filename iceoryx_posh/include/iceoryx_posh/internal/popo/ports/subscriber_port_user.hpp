@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +18,15 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -63,9 +64,9 @@ class SubscriberPortUser : public BasePort
 
     /// @brief Tries to get the next chunk from the queue. If there is a new one, the ChunkHeader of the oldest chunk in
     /// the queue is returned (FiFo queue)
-    /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
-    /// ChunkReceiveResult on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveResult> tryGetChunk() noexcept;
+    /// @return New chunk header, ChunkReceiveResult on error
+    /// or if there are no new chunks in the underlying queue
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGetChunk() noexcept;
 
     /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
@@ -83,7 +84,7 @@ class SubscriberPortUser : public BasePort
     bool hasLostChunksSinceLastCall() noexcept;
 
     /// @brief attach a condition variable (via its pointer) to subscriber
-    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(ConditionVariableData& conditionVariableData, const uint64_t notificationIndex) noexcept;
 
     /// @brief detach a condition variable from subscriber
     void unsetConditionVariable() noexcept;

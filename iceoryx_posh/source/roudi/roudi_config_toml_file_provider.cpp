@@ -15,13 +15,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
+#include "iceoryx_hoofs/platform/getopt.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
-#include "iceoryx_utils/platform/getopt.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cpptoml.h>
 #include <string>
@@ -66,7 +66,20 @@ iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> To
     }
     auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
 
-    std::shared_ptr<cpptoml::table> parsedFile = cpptoml::parse_file(m_customConfigFilePath.c_str());
+    std::shared_ptr<cpptoml::table> parsedFile{nullptr};
+    try
+    {
+        parsedFile = cpptoml::parse_file(m_customConfigFilePath.c_str());
+    }
+    catch (const std::exception& parserException)
+    {
+        auto parserError = iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER;
+
+        LogWarn() << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError)
+                  << ": " << parserException.what();
+
+        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
+    }
 
     auto general = parsedFile->get_table("general");
     if (!general)
