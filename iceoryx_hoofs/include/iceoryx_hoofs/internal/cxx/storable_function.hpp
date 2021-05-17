@@ -17,8 +17,8 @@
 #ifndef IOX_UTILS_STORABLE_FUNCTION_HPP
 #define IOX_UTILS_STORABLE_FUNCTION_HPP
 
-#include "iceoryx_utils/cxx/type_traits.hpp"
-#include "iceoryx_utils/internal/cxx/static_storage.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
 #include <iostream>
 #include <type_traits>
@@ -191,6 +191,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/storable_function.inl"
+#include "iceoryx_hoofs/internal/cxx/storable_function.inl"
 
 #endif // IOX_UTILS_STORABLE_FUNCTION_HPP

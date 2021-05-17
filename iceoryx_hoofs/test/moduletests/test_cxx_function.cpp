@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/cxx/function.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "test.hpp"
 
 #include <iostream>

@@ -17,7 +17,7 @@
 #ifndef IOX_UTILS_CXX_STATIC_STORAGE_INL
 #define IOX_UTILS_CXX_STATIC_STORAGE_INL
 
-#include "iceoryx_utils/internal/cxx/static_storage.hpp"
+#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
 namespace iox
 {

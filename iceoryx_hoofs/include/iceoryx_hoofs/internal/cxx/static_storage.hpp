@@ -97,5 +97,5 @@ class static_storage
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/static_storage.inl"
+#include "iceoryx_hoofs/internal/cxx/static_storage.inl"
 #endif // IOX_UTILS_STATIC_STORAGE_HPP

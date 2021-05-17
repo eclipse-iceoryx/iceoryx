@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/internal/cxx/static_storage.hpp"
+#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 #include "test.hpp"
 
 #include <iostream>
