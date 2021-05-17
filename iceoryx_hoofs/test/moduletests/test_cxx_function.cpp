@@ -534,4 +534,91 @@ TEST_F(function_test, callWithCopyConstructibleArgument)
     // note that by using the numCopies counter we can observe that the std::function call also performs 2 copies of arg in this case
 }
 
+TEST_F(function_test, callWithVoidSignatureWorks)
+{
+    const int32_t initial = 73;
+    int value = initial;
+    auto lambda = [&]() { ++value; };
+    iox::cxx::function<void(void), 128> sut(lambda);
+
+    ASSERT_TRUE(sut.operator bool());
+    sut();
+
+    EXPECT_EQ(value, initial + 1);
+}
+
+TEST_F(function_test, callWithReferenceArgumentsWorks)
+{
+    const int32_t initial = 73;
+    Arg arg(initial);
+
+    auto lambda = [](Arg& a) { ++a.value; };
+    iox::cxx::function<void(Arg&), 128> sut(lambda);
+
+    ASSERT_TRUE(sut.operator bool());
+    sut(arg);
+
+    EXPECT_EQ(arg.value, initial + 1);
+}
+
+TEST_F(function_test, callWithConstReferenceArgumentsWorks)
+{
+    const int32_t initial = 73;
+    Arg arg(initial);
+
+    auto lambda = [](const Arg& a) { return a.value + 1; };
+    iox::cxx::function<int32_t(const Arg&), 128> sut(lambda);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = sut(arg);
+
+    EXPECT_EQ(result, initial + 1);
+}
+
+TEST_F(function_test, callWithValueArgumentsWorks)
+{
+    const int32_t initial = 73;
+    Arg arg(initial);
+
+    auto lambda = [](Arg a) { return a.value + 1; };
+    iox::cxx::function<int32_t(Arg&), 128> sut(lambda);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = sut(arg);
+
+    EXPECT_EQ(result, initial + 1);
+}
+
+TEST_F(function_test, callWithRValueReferenceArgumentsWorks)
+{
+    const int32_t initial = 73;
+    Arg arg(initial);
+
+    auto lambda = [](Arg&& a) { return a.value + 1; };
+    iox::cxx::function<int32_t(Arg &&), 128> sut(lambda);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = sut(std::move(arg));
+
+    EXPECT_EQ(result, initial + 1);
+}
+
+TEST_F(function_test, callWithMixedArgumentsWorks)
+{
+    Arg arg1(1);
+    Arg arg2(2);
+    Arg arg3(3);
+    Arg arg4(4);
+
+    constexpr int32_t sum = 10;
+
+    auto lambda = [](Arg& a1, const Arg& a2, Arg&& a3, Arg a4) { return a1.value + a2.value + a3.value + a4.value; };
+    iox::cxx::function<int32_t(Arg&, const Arg&, Arg&&, Arg), 128> sut(lambda);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = sut(arg1, arg2, std::move(arg3), arg4);
+
+    EXPECT_EQ(result, sum);
+}
+
 } // namespace
