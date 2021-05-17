@@ -114,24 +114,17 @@ which event is attached, like in the _WaitSet_.
 | |   - m_invalidationCallback |                  | |   void invalidateTrigger(const uint64_t triggerId)    |
 | |   - m_eventId              |                  | |   void enableEvent(TriggerHandle&&, const EventEnum ) |
 | +----------------------------+                  | |   void enableEvent(TriggerHandle&&)                   |
-+-------------------------------------------------+ |   void enableState(TriggerHandle&&, const StateEnum)  |
-                                                    |   void enableState(TriggerHandle&&)                   |
-                                                    |                                                       |
-                                                    |   void disableEvent(const EventEnum)                  |
++-------------------------------------------------+ |   void disableEvent(const EventEnum)                  |
                                                     |   void disableEvent()                                 |
-                                                    |   void disableState(const StateEnum)                  |
-                                                    |   void disableState()                                 |
                                                     |                                                       |
                                                     |   - m_triggerHandle : TriggerHandle                   |
                                                     +-------------------------------------------------------+
 ```
 
-The Triggerable does not need to implement all `enable{Event,State}`,
-`disable{Event,State}` variations only the ones which are required by the use
-case. If the Triggerable for instance has no triggering states then
-`enableState`/`disableState` can be omitted. When there is only a single state
-or event which can be triggered then the `enable{Event,State}` and
-`disable{Event,State}` without the distincting `{State,Event}Enum` can be used.
+The Triggerable does not need to implement all `enableEvent`,
+`disableEvent` variations only the ones which are required by the use
+case. When there is only a single event which can be triggered then the `enableEvent`
+and `disableEvent` without the distincting `EventEnum` can be used.
 
 #### Class Interactions
 
@@ -286,7 +279,7 @@ Every Triggerable requires:
 1. An `enum class` which uses `iox::popo::EventEnumIdentifier` as underlying type.
 
 ```cpp
-enum class TriggerableEnum : iox::popo::EventEnumIdentifier {
+enum class EventEnum : iox::popo::EventEnumIdentifier {
   EVENT_IDENTIFIER,
   ANOTHER_EVENT_IDENTIFIER,
 };
