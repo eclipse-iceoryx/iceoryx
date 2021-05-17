@@ -98,6 +98,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     ///       itself. This appears to be unavoidable and also happens in std::function.
     ///       The user can always provide a wrapped callable which takes a reference,
     ///       which is generally preferable for large objects anyway.
+    /// @note Arguments of class type cannot have the move constructor explicitly deleted since the arguments
+    ///       must be forwarded internally which is done by move or, if no move is specified, by copy.
+    ///       If the move operation is explcitly deleted the compiler will not fall back to copy but emit an error.
+    ///       Not specifying move or using a default implementation is fine.
+    ///       This is also the case for std::function (for the gcc implementation at least).
     ReturnType operator()(Args... args);
 
 
