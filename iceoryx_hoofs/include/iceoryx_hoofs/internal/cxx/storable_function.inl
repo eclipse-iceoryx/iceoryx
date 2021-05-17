@@ -113,32 +113,12 @@ storable_function<S, signature<ReturnType, Args...>>::~storable_function() noexc
     m_operations.destroy(*this);
 }
 
-
-#ifndef USE_PERFECT_FORWARDING
 template <typename S, typename ReturnType, typename... Args>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args) noexcept
+ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args)
 {
     cxx::Expects(!empty());
     return m_invoker(m_callable, std::forward<Args>(args)...);
 }
-#else
-template <typename S, typename ReturnType, typename... Args>
-template<typename... ForwardedArgs>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(ForwardedArgs&&... args)
-{
-    cxx::Expects(!empty());
-    return m_invoker(m_callable, std::forward<ForwardedArgs>(args)...);
-
-    // TODO: Problem still to be solved
-    // cannot work if the operator is called with an lvalue we pass an lvalue reference
-    // but the invoker requires an rvalue reference 
-    // - the invoker cannot use perfect forwarding itself (the type of reference must be known at compile time on at class instantiation, not at operator call)
-    // - we hould not pass by value (creates an additional copy)
-    // - we cannot use lvalue references & or const&
-    // Note: gcc does no perfect forwading here in std::function, so it might not be possible
-}
-#endif
-
 
 
 template <typename S, typename ReturnType, typename... Args>

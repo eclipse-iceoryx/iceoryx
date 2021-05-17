@@ -24,8 +24,6 @@
 #include <type_traits>
 #include <utility>
 
-//MAJOR TODO: clarfify whether perfect forwarding is even possible in this kind of general wrapper
-//#define USE_PERFECT_FORWARDING
 
 namespace iox
 {
@@ -88,19 +86,19 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     ~storable_function() noexcept;
 
-    //TODO: noexcept? (the function stored can in principle throw, we would just not allow the exception to be propagated further by marking it noexcept)
-
-#ifndef USE_PERFECT_FORWARDING
     /// @brief invoke the stored function
     /// @param args arguments to invoke the stored function with
     /// @return return value of the stored function
-    /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
-    ///        leads to terminate being called
-    ReturnType operator()(Args... args) noexcept;
-#else
-    template<typename... ForwardedArgs>
-    ReturnType operator()(ForwardedArgs&&... args);
-#endif
+    /// @note  Invoking the function if there is no stored function (i.e. operator bool returns false)
+    ///        leads to terminate being called.
+    /// @note Deliberately not noexcept but can only throw if the stored callable can throw an exception (hence
+    ///       will never throw if we use only our own noexcept functions).
+    /// @note If arguments are passed by value, the copy constructor may be invoked twice:
+    ///       once when passing the arguments to operator() and once when they are passed to the stored callable
+    ///       itself. This appears to be unavoidable and also happens in std::function.
+    ///       The user can always provide a wrapped callable which takes a reference,
+    ///       which is generally preferable for large objects anyway.
+    ReturnType operator()(Args... args);
 
 
     /// @brief indicates whether a function is currently stored
