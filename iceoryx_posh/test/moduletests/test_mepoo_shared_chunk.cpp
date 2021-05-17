@@ -75,20 +75,17 @@ TEST_F(SharedChunk_Test, VerifyCopyConstructorOfSharedChunk)
 {
     SharedChunk sut1(sut);
 
-    EXPECT_EQ((sut1.getChunkHeader())->chunkSize(), (sut.getChunkHeader())->chunkSize());
     EXPECT_EQ(sut.release(), sut1.release());
 }
 
 TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
 {
     SharedChunk sut1(chunkManagement);
-    ChunkHeader* header = sut1.getChunkHeader();
 
     SharedChunk sut2(std::move(sut1));
 
-    ASSERT_EQ(sut1.getChunkHeader(), nullptr);
-    ASSERT_EQ(sut2.getChunkHeader(), header);
-    EXPECT_EQ((sut2.getChunkHeader())->chunkSize(), (sizeof(ChunkHeader) + USER_PAYLOAD_SIZE));
+    EXPECT_THAT(sut1, Eq(false));
+    EXPECT_THAT(sut2.release(), Eq(chunkManagement));
 }
 
 TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
@@ -97,7 +94,6 @@ TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
 
     sut1 = sut;
 
-    EXPECT_EQ((sut1.getChunkHeader())->chunkSize(), (sut.getChunkHeader())->chunkSize());
     EXPECT_EQ(sut.release(), sut1.release());
 }
 
@@ -105,13 +101,11 @@ TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
 {
     SharedChunk sut1(chunkManagement);
     SharedChunk sut2;
-    ChunkHeader* header = sut1.getChunkHeader();
 
     sut2 = std::move(sut1);
 
-    ASSERT_EQ(sut1.getChunkHeader(), nullptr);
-    ASSERT_EQ(sut2.getChunkHeader(), header);
-    EXPECT_EQ((sut2.getChunkHeader())->chunkSize(), (sizeof(ChunkHeader) + USER_PAYLOAD_SIZE));
+    EXPECT_THAT(sut1, Eq(false));
+    EXPECT_THAT(sut2.release(), Eq(chunkManagement));
 }
 
 TEST_F(SharedChunk_Test, CompareWithSameMemoryChunkComparesToUserPayload)
