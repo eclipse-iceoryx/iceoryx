@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
@@ -28,13 +31,12 @@
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 
 struct DummySample
@@ -628,3 +630,5 @@ TEST_F(ChunkSender_test, Cleanup)
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
+
+} // namespace

@@ -18,7 +18,8 @@
 #define IOX_BINDING_C_LOG_H
 
 /// @brief available log levels of the iceoryx runtime
-enum iox_LogLevel {
+enum iox_LogLevel
+{
     Iceoryx_LogLevel_Off = 0,
     Iceoryx_LogLevel_Verbose,
     Iceoryx_LogLevel_Debug,

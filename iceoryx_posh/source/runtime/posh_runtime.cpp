@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,15 @@
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/timer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <cstdint>
 
@@ -197,9 +197,9 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << options.nodeName << std::to_string(options.offerOnCreate)
-               << std::to_string(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyCapacity)
+               << options.nodeName << cxx::convert::toString(options.offerOnCreate)
+               << cxx::convert::toString(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -309,9 +309,10 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << options.nodeName << std::to_string(options.subscribeOnCreate)
-               << std::to_string(static_cast<uint8_t>(options.queueFullPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyRequest)
+               << cxx::convert::toString(options.queueCapacity) << options.nodeName
+               << cxx::convert::toString(options.subscribeOnCreate)
+               << cxx::convert::toString(static_cast<uint8_t>(options.queueFullPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
@@ -24,10 +26,10 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::popo;
@@ -175,3 +177,5 @@ TYPED_TEST(BasePort_test, CallingGetRuntimeNameWorks)
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getRuntimeName(), Eq(expectedProcessName<PortData_t>()));
 }
+
+} // namespace

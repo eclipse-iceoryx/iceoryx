@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "uds.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <thread>
@@ -44,26 +44,25 @@ void UDS::cleanupOutdatedResources(const std::string& publisherName, const std::
     auto publisherSocketName = PREFIX + publisherName;
     sockaddr_un sockAddrPublisher;
     initSocketAddress(sockAddrPublisher, publisherSocketName);
-    auto unlinkCallPublisher = iox::cxx::makeSmartC(
-        unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, sockAddrPublisher.sun_path);
-
-    if (unlinkCallPublisher.hasErrors())
-    {
-        std::cout << "unlink error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(unlink)(sockAddrPublisher.sun_path)
+        .failureReturnValue(ERROR_CODE)
+        .evaluateWithIgnoredErrnos(ENOENT)
+        .or_else([](auto& r) {
+            std::cout << "unlink error " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 
     auto subscriberSocketName = PREFIX + subscriberName;
     sockaddr_un sockAddrSubscriber;
     initSocketAddress(sockAddrSubscriber, subscriberSocketName);
-    auto unlinkCallSubscriber = iox::cxx::makeSmartC(
-        unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, sockAddrSubscriber.sun_path);
 
-    if (unlinkCallSubscriber.hasErrors())
-    {
-        std::cout << "unlink error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(unlink)(sockAddrSubscriber.sun_path)
+        .failureReturnValue(ERROR_CODE)
+        .evaluateWithIgnoredErrnos(ENOENT)
+        .or_else([](auto& r) {
+            std::cout << "unlink error " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }
 
 void UDS::initLeader() noexcept
@@ -89,66 +88,56 @@ void UDS::initFollower() noexcept
 void UDS::init() noexcept
 {
     // init subscriber
-    auto socketCallSubscriber = iox::cxx::makeSmartC(
-        socket, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, AF_LOCAL, SOCK_DGRAM, 0);
+    iox::posix::posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .and_then([this](auto& r) { m_sockfdSubscriber = r.value; })
+        .or_else([](auto& r) {
+            std::cout << "socket error " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 
-    if (socketCallSubscriber.hasErrors())
-    {
-        std::cout << "socket error" << std::endl;
-        exit(1);
-    }
-
-    m_sockfdSubscriber = socketCallSubscriber.getReturnValue();
-
-    auto bindCall = iox::cxx::makeSmartC(bind,
-                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {ERROR_CODE},
-                                         {},
-                                         m_sockfdSubscriber,
-                                         reinterpret_cast<struct sockaddr*>(&m_sockAddrSubscriber),
-                                         static_cast<socklen_t>(sizeof(m_sockAddrSubscriber)));
-
-    if (bindCall.hasErrors())
-    {
-        std::cout << "bind error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(bind)(
+        m_sockfdSubscriber, reinterpret_cast<struct sockaddr*>(&m_sockAddrSubscriber), sizeof(m_sockAddrSubscriber))
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .or_else([](auto& r) {
+            std::cout << "bind error " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 
     // init publisher
-    auto socketCallPublisher = iox::cxx::makeSmartC(
-        socket, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, AF_LOCAL, SOCK_DGRAM, 0);
-
-    if (socketCallPublisher.hasErrors())
-    {
-        std::cout << "socket error" << std::endl;
-        exit(1);
-    }
-
-    m_sockfdPublisher = socketCallPublisher.getReturnValue();
+    iox::posix::posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .and_then([this](auto& r) { m_sockfdPublisher = r.value; })
+        .or_else([](auto& r) {
+            std::cout << "socket error " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }
+
 void UDS::waitForLeader() noexcept
 {
     // try to send an empty message
     constexpr bool TRY_TO_SEND{true};
     while (TRY_TO_SEND)
     {
-        auto sendCall = iox::cxx::makeSmartC(sendto,
-                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                             {static_cast<long int>(ERROR_CODE)},
-                                             {ENOENT},
-                                             m_sockfdPublisher,
-                                             nullptr,
-                                             static_cast<size_t>(0),
-                                             static_cast<int>(0),
-                                             reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                             static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
+        auto sendCall = iox::posix::posixCall(sendto)(m_sockfdPublisher,
+                                                      nullptr,
+                                                      0,
+                                                      0,
+                                                      reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                                      sizeof(m_sockAddrPublisher))
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluateWithIgnoredErrnos(ENOENT)
+                            .or_else([](auto& r) {
+                                std::cout << "send error " << r.getHumanReadableErrnum() << std::endl;
+                                exit(1);
+                            })
+                            .value();
 
-        if (sendCall.hasErrors())
-        {
-            std::cout << "send error" << std::endl;
-            exit(1);
-        }
-        else if (sendCall.getErrNum() == ENOENT)
+        if (sendCall.errnum == ENOENT)
         {
             constexpr std::chrono::milliseconds RETRY_INTERVAL{10};
             std::this_thread::sleep_for(RETRY_INTERVAL);
@@ -169,35 +158,32 @@ void UDS::shutdown() noexcept
 {
     if (m_sockfdPublisher != INVALID_FD)
     {
-        auto closeCall = iox::cxx::makeSmartC(
-            iox_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfdPublisher);
-
-        if (closeCall.hasErrors())
-        {
-            std::cout << "close error" << std::endl;
-            exit(1);
-        }
+        iox::posix::posixCall(iox_close)(m_sockfdPublisher)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cout << "close error " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
     }
 
     if (m_sockfdSubscriber != INVALID_FD)
     {
-        auto closeCall = iox::cxx::makeSmartC(
-            iox_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfdSubscriber);
+        iox::posix::posixCall(iox_close)(m_sockfdSubscriber)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cout << "close error " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
 
-        if (closeCall.hasErrors())
-        {
-            std::cout << "close error" << std::endl;
-            exit(1);
-        }
-
-        auto unlinkCall = iox::cxx::makeSmartC(
-            unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockAddrSubscriber.sun_path);
-
-        if (unlinkCall.hasErrors())
-        {
-            std::cout << "unlink error" << std::endl;
-            exit(1);
-        }
+        iox::posix::posixCall(unlink)(m_sockAddrSubscriber.sun_path)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cout << "unlink error " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
     }
 }
 
@@ -244,50 +230,34 @@ PerfTopic UDS::receivePerfTopic() noexcept
 
 void UDS::send(const char* buffer, uint32_t length) noexcept
 {
-    while (true)
+    // only return from this loop when the message could be send successfully
+    // if the OS socket message buffer if full, retry until it is free'd by
+    // the OS and the message could be send
+    while (iox::posix::posixCall(sendto)(m_sockfdPublisher,
+                                         buffer,
+                                         length,
+                                         0,
+                                         reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                         sizeof(m_sockAddrPublisher))
+               .failureReturnValue(ERROR_CODE)
+               .evaluateWithIgnoredErrnos(ENOBUFS)
+               .or_else([](auto& r) {
+                   std::cout << std::endl << "send error " << r.getHumanReadableErrnum() << std::endl;
+                   exit(1);
+               })
+               ->errnum
+           == ENOBUFS)
     {
-        auto sendCall = iox::cxx::makeSmartC(sendto,
-                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                             {static_cast<long int>(ERROR_CODE)},
-                                             {ENOBUFS},
-                                             m_sockfdPublisher,
-                                             buffer,
-                                             static_cast<size_t>(length),
-                                             static_cast<int>(0),
-                                             reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                             static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
-
-        if (sendCall.hasErrors() && sendCall.getErrNum() != ENOBUFS)
-        {
-            std::cout << std::endl << "send error" << std::endl;
-            exit(1);
-        }
-        // only return from this loop when the message could be send successfully
-        // if the OS socket message buffer if full, retry until it is free'd by
-        // the OS and the message could be send
-        else if (!sendCall.hasErrors() && sendCall.getErrNum() != ENOBUFS)
-        {
-            break;
-        }
     }
 }
 
 void UDS::receive(char* buffer) noexcept
 {
-    auto recvCall = iox::cxx::makeSmartC(recvfrom,
-                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {static_cast<long int>(ERROR_CODE)},
-                                         {},
-                                         m_sockfdSubscriber,
-                                         buffer,
-                                         MAX_MESSAGE_SIZE,
-                                         0,
-                                         nullptr,
-                                         nullptr);
-
-    if (recvCall.hasErrors())
-    {
-        std::cout << "receive error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .or_else([](auto& r) {
+            std::cout << "receive error " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }

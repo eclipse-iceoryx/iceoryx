@@ -18,15 +18,15 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {

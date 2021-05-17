@@ -64,7 +64,7 @@ result = iox::cxx::nullopt;
 ```
 
 For a complete list of available functions see
-[`optional.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/optional.hpp).
+[`optional.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/include/iceoryx_hoofs/cxx/optional.hpp).
 The `iox::cxx::optional` behaves like the [`std::optional`](https://en.cppreference.com/w/cpp/utility/optional)
 except that it does not throw exceptions and has no undefined behavior.
 
@@ -74,7 +74,7 @@ except that it does not throw exceptions and has no undefined behavior.
 no value at all, i.e. it contains either a value of type `T` or `E`. In this way, `expected` is a special case of
 the 'either monad'. It is usually used to pass a value of type `T` or an error that may have occurred, i.e. `E` is the
 error type. `E` must contain a static member or an enum value called `INVALID_STATE`. Alternatively an
-[`ErrorTypeAdapter`](https://github.com/eclipse-iceoryx/iceoryx/blob/5b1a0514e72514c2eae8a9d071d82a3905fedf8b/iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp#L46)
+[`ErrorTypeAdapter`](https://github.com/eclipse-iceoryx/iceoryx/blob/5b1a0514e72514c2eae8a9d071d82a3905fedf8b/iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp#L46)
 can be implemented.
 
 For more information on how it is used for error handling see
@@ -119,7 +119,7 @@ result.and_then(handleValue).or_else(handleError);
 
 There are more convenience functions such as `value_or` which provides the value or an alternative specified by the
 user. These can be found in
-[`expected.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
+[`expected.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp).
 
 Note that when we move an `expected`, the origin is set to the error value `E::INVALID_STATE` and `has_error()` will
 always return true:

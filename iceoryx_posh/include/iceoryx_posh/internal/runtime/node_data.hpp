@@ -33,7 +33,9 @@ class NodeData
     /// @param[in] runtimeName name of associated runtime
     /// @param[in] nodeName name of the node
     /// @param[in] nodeDeviceIdentifier identifier of the device on which the node will run
-    NodeData(const RuntimeName_t& runtimeName, const NodeName_t& nodeName, const uint64_t nodeDeviceIdentifier) noexcept;
+    NodeData(const RuntimeName_t& runtimeName,
+             const NodeName_t& nodeName,
+             const uint64_t nodeDeviceIdentifier) noexcept;
 
     NodeData(const NodeData&) = delete;
     NodeData(NodeData&&) = delete;

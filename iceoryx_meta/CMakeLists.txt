@@ -27,7 +27,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
 
 
 # ===== Core
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_hoofs ${CMAKE_BINARY_DIR}/hoofs)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
 
 # ===== Doxygen example

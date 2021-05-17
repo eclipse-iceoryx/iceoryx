@@ -17,19 +17,19 @@
 #ifndef IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
 #define IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
 
 #include <cstdint>
 #include <limits>
 
 // this header must always be the last one, otherwise windows macros
 // are kicking in and nothing compiles
-#include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_hoofs/platform/platform_correction.hpp"
 
 namespace iox
 {

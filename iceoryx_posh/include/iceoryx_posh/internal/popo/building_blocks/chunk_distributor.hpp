@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
 
 #include <thread>
 

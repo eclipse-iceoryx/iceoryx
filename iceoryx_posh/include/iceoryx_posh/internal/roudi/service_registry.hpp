@@ -16,9 +16,9 @@
 #ifndef IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/cxx/set.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/cxx/set.hpp"
 
 #include <cstdint>
 #include <map>

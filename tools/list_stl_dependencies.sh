@@ -22,7 +22,7 @@
 #   ./list_stl_dependencies.sh
 #=====================================================
 
-COMPONENTS=(iceoryx_posh iceoryx_utils)
+COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
 

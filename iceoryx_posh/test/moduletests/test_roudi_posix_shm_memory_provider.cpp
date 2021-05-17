@@ -17,12 +17,14 @@
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -100,7 +102,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
     PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{iox::posix::pageSize().value_or(iox::posix::MaxPageSize) + 8};
+    uint64_t MEMORY_ALIGNMENT{iox::posix::pageSize() + 8U};
     EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 
@@ -110,3 +112,5 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
 
     EXPECT_THAT(shmExists(), Eq(false));
 }
+
+} // namespace

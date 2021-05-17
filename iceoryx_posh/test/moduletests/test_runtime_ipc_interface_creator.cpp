@@ -21,6 +21,8 @@
 
 #include <chrono>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
@@ -65,5 +67,7 @@ TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
     IpcInterfaceCreator m_sut{goodName};
     EXPECT_DEATH({ IpcInterfaceCreator m_sut2{goodName}; }, ".*");
 }
+
+} // namespace
 
 #endif

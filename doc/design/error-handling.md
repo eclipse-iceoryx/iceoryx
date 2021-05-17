@@ -131,11 +131,11 @@ Error logging shall be done by the logger only, no calls to ``std::cerr`` or sim
 
 All the methods presented (``cxx::expected``, ``Expects`` and ``Ensures`` and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
 
-### Error Handling in utils
+### Error Handling in hoofs
 
 Error logging is currently done by calls to ``std::cerr``. In the future those might be redirected to the logger.
 
-The error handler cannot be used in utils.
+The error handler cannot be used in hoofs.
 
 Whether it is appropriate to use ``cxx::expected`` even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart ``cxx::expected`` can be used freely to communicate potential failure to the caller.
 

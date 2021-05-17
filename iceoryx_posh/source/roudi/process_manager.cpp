@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/platform/wait.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/deadline_timer.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/platform/signal.hpp"
-#include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/platform/wait.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -139,42 +140,29 @@ void ProcessManager::printWarningForRegisteredProcessesAndClearProcessList() noe
 bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto killC = iox::cxx::makeSmartC(kill,
-                                      iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                      {ERROR_CODE},
-                                      {},
-                                      static_cast<pid_t>(process.getPid()),
-                                      (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
 
-    if (killC.hasErrors())
-    {
-        evaluateKillError(process, killC.getErrNum(), killC.getErrorString(), shutdownPolicy);
-        return false;
-    }
-    return false;
+    return !posix::posixCall(kill)(static_cast<pid_t>(process.getPid()),
+                                   (shutdownPolicy == ShutdownPolicy::SIG_KILL) ? SIGKILL : SIGTERM)
+                .failureReturnValue(ERROR_CODE)
+                .evaluate()
+                .or_else([&](auto& r) {
+                    this->evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), shutdownPolicy);
+                })
+                .has_error();
 }
 
 bool ProcessManager::isProcessAlive(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto checkCommand = iox::cxx::makeSmartC(kill,
-                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                             {ERROR_CODE},
-                                             {ESRCH},
-                                             static_cast<pid_t>(process.getPid()),
-                                             SIGTERM);
+    auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
+                            .failureReturnValue(ERROR_CODE)
+                            .evaluateWithIgnoredErrnos(ESRCH)
+                            .or_else([&](auto& r) {
+                                this->evaluateKillError(
+                                    process, r.errnum, r.getHumanReadableErrnum().c_str(), ShutdownPolicy::SIG_TERM);
+                            });
 
-    if (checkCommand.getErrNum() == ESRCH)
-    {
-        return false;
-    }
-
-    if (checkCommand.hasErrors())
-    {
-        evaluateKillError(process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
-    }
-
-    return true;
+    return !(checkCommand && checkCommand->errnum == ESRCH);
 }
 
 void ProcessManager::evaluateKillError(const Process& process,
@@ -383,7 +371,7 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new interface for application " << name;
@@ -401,7 +389,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName
                 rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
             runtime::IpcMessage sendBuffer;
-            sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+            sendBuffer << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
         },
         [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
@@ -418,7 +406,7 @@ void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcep
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_APPLICATION_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new ApplicationPort for application " << name;
@@ -437,7 +425,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
-                               << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
 
                     process.sendViaIpcChannel(sendBuffer);
                     m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
@@ -493,7 +481,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
-                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process.sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new SubscriberPort for application " << name;
@@ -541,7 +529,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
-                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process.sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new PublisherPort for application " << name;
@@ -573,7 +561,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(
                         runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
-                               << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                     process.sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ConditionVariable for application " << runtimeName;

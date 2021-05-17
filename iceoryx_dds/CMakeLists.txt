@@ -26,7 +26,7 @@ if(NOT cpptoml_FOUND)
     find_package(cpptoml REQUIRED)
 endif()
 
-find_package(iceoryx_utils REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
@@ -64,7 +64,7 @@ add_library(iceoryx_dds
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
-set_target_properties(iceoryx_utils PROPERTIES
+set_target_properties(iceoryx_hoofs PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -81,7 +81,7 @@ target_link_libraries(iceoryx_dds
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_gateway
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
 )
 
 if(USE_CYCLONE_DDS)

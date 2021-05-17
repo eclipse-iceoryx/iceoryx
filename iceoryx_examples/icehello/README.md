@@ -69,7 +69,7 @@ In iceoryx a publisher and a subscriber are connected only if all the three IDs 
 For exiting on Ctrl-C, we register a `signalHandler`, that flips `bool killswitch`:
 
 ```cpp
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 // snip
 auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
@@ -122,7 +122,7 @@ The subscriber needs to have similar includes, but unlike the publisher `subscri
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 ```
 
 As well as the publisher, also the subscriber needs to register with the daemon RouDi:

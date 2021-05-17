@@ -20,7 +20,7 @@ with the compiler command being a command used to build an iceoryx file. If you 
 
 an example command if you use GCC (command taked from the build log):
 
-    CCT_Generator.sh -c /usr/bin/c++  -Diceoryx_utils_EXPORTS -I/home/perforce/iceoryx/iceoryx_utils/include -I/home/perforce/iceoryx/iceoryx_utils/platform/linux/include  -O3 -DNDEBUG -fPIC   -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion -std=gnu++14 -o CMakeFiles/iceoryx_utils.dir/source/posix_wrapper/unix_domain_socket.cpp.o -c /home/perforce/iceoryx/iceoryx_utils/source/posix_wrapper/unix_domain_socket.cpp
+    CCT_Generator.sh -c /usr/bin/c++  -Diceoryx_hoofs_EXPORTS -I/home/perforce/iceoryx/iceoryx_hoofs/include -I/home/perforce/iceoryx/iceoryx_hoofs/platform/linux/include  -O3 -DNDEBUG -fPIC   -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion -std=gnu++14 -o CMakeFiles/iceoryx_hoofs.dir/source/posix_wrapper/unix_domain_socket.cpp.o -c /home/perforce/iceoryx/iceoryx_hoofs/source/posix_wrapper/unix_domain_socket.cpp
 the command can be simplified to it's necessary items (we can remove all warning-related flags, source file, output, include and defines for example), but the Generator can take care of the cleaning.
 
 If you have issues using the CCT_Generator, please check the PDF manual supplied with it. Some compilers also require some environment being set (for licensing for example) so make sure that the compiler can be invoked in such a way.

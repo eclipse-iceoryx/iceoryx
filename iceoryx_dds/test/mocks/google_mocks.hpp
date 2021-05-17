@@ -21,6 +21,9 @@
 #include "iceoryx_dds/dds/data_reader.hpp"
 #include "iceoryx_dds/dds/data_writer.hpp"
 #include "iceoryx_dds/dds/dds_types.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -28,9 +31,6 @@
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/function_ref.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 #include "test.hpp"
 
 using namespace ::testing;

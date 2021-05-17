@@ -15,13 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
 
 #include "test.hpp"
 
@@ -29,12 +29,13 @@
 #include <stdlib.h>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 using namespace iox::posix;
-using ::testing::Return;
 
 struct DummySample
 {
@@ -252,3 +253,5 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
     ASSERT_FALSE(m_chunkReceiver.hasLostChunks());
     EXPECT_EQ(m_sendCounter, m_receiveCounter);
 }
+
+} // namespace

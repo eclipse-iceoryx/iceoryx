@@ -15,11 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -27,8 +27,9 @@
 #include <thread>
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;
@@ -466,3 +467,5 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInReverseO
     waitReturnsSortedListWhenTriggeredInReverseOrder(
         *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }
+
+} // namespace

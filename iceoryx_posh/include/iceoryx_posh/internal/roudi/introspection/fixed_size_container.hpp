@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP
 
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 
 #include <cstdint>
 

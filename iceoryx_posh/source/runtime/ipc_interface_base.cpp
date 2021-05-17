@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 
 #include <thread>
 
@@ -42,7 +41,7 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 
 std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
+    return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
 }
 
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
@@ -59,7 +58,7 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
+    return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
 IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,

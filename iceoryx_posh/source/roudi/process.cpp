@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_utils/platform/types.hpp"
 
 using namespace iox::units::duration_literals;
 namespace iox
