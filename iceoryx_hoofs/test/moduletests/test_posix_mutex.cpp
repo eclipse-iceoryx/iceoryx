@@ -134,4 +134,39 @@ TEST_F(Mutex_test, TryLockWithRecursiveMutexReturnsFalseWhenMutexLockedInOtherTh
     sutRecursive.unlock();
     lockThread.join();
 }
+
+TEST_F(Mutex_test, LockedMutexBlocks)
+{
+    std::atomic_bool isLockFinished{false};
+    sutNonRecursive.lock();
+
+    std::thread lockThread([&] {
+        sutNonRecursive.lock();
+        isLockFinished.store(true);
+        sutNonRecursive.unlock();
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    EXPECT_THAT(isLockFinished.load(), Eq(false));
+
+    sutNonRecursive.unlock();
+    lockThread.join();
+
+    EXPECT_THAT(isLockFinished.load(), Eq(true));
+}
+
+TEST_F(Mutex_test, TryLockWithRecursiveMutexWhenMutexLocked)
+{
+    std::atomic_bool isTryLockSuccessful{true};
+    sutRecursive.lock();
+
+    std::thread lockThread([&] { isTryLockSuccessful = sutRecursive.try_lock(); });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    EXPECT_THAT(isTryLockSuccessful.load(), Eq(false));
+
+    sutRecursive.unlock();
+    lockThread.join();
+}
 } // namespace

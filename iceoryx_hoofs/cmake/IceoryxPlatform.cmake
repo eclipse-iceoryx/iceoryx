@@ -28,12 +28,13 @@ if(LINUX)
 elseif(QNX)
     set(ICEORYX_CXX_STANDARD 14)
 elseif(WIN32)
-    set(ICEORYX_CXX_STANDARD 14)
+    set(ICEORYX_CXX_STANDARD 17)
 elseif(APPLE)
     set(ICEORYX_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} /W0) # TODO iox-#33 set to /W1
     # todo: '/O2' and '/RTC1' (set by default) options are incompatible,
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")

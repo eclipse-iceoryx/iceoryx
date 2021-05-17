@@ -62,6 +62,10 @@ int iox_sem_wait(iox_sem_t* sem)
 int iox_sem_trywait(iox_sem_t* sem)
 {
     int retVal = Win32Call(WaitForSingleObject(sem->handle, 0));
+    if (retVal != WAIT_OBJECT_0)
+    {
+        errno = EAGAIN;
+    }
     return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
@@ -76,7 +80,8 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     }
 
     time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
-    long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
+    long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + (abs_timeout->tv_nsec / 1000000 - tv.tv_usec / 1000);
+
 
     auto state = Win32Call(WaitForSingleObject(sem->handle, milliseconds));
     if (state == WAIT_TIMEOUT)
