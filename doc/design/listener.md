@@ -53,7 +53,7 @@ which event is attached, like in the _WaitSet_.
   - If the callback is detached from within the event-callback then `detachEvent`
      is non blocking. The event is detached right after the `detachEvent` call.
 - One can attach at most one callback to a specific event of a specific object.
-  - Usually defined with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
+  - Usually defined with an enum by the developer. One example is `SubscriberEvent::DATA_RECEIVED`.
   - Attaching a callback to an event where a callback has been already attached
       results in an error.
 - One can attach the same event to different objects at the same time.
@@ -108,20 +108,34 @@ which event is attached, like in the _WaitSet_.
 | |   void executeCallback()   |                  |      | 1
 | |   bool reset()             |                  |      |
 | |   bool init(...)           |                  |      | n
-| |                            |                  | +----------------------------------------------------+
-| |   - m_origin               |                  | | Triggerable (e.g. Subscriber)                      |
-| |   - m_callback             |                  | |                                                    |
-| |   - m_invalidationCallback |                  | |   void invalidateTrigger(const uint64_t triggerId) |
-| |   - m_eventId              |                  | |   void enableEvent(TriggerHandle&&)                |
-| +----------------------------+                  | |   void disableEvent(const EventEnum event)         |
-+-------------------------------------------------+ |                                                    |
-                                                    |   - m_triggerHandle : TriggerHandle                |
-                                                    +----------------------------------------------------+
+| |                            |                  | +-------------------------------------------------------+
+| |   - m_origin               |                  | | Triggerable (e.g. Subscriber)                         |
+| |   - m_callback             |                  | |                                                       |
+| |   - m_invalidationCallback |                  | |   void invalidateTrigger(const uint64_t triggerId)    |
+| |   - m_eventId              |                  | |   void enableEvent(TriggerHandle&&, const EventEnum ) |
+| +----------------------------+                  | |   void enableEvent(TriggerHandle&&)                   |
++-------------------------------------------------+ |   void enableState(TriggerHandle&&, const StateEnum)  |
+                                                    |   void enableState(TriggerHandle&&)                   |
+                                                    |                                                       |
+                                                    |   void disableEvent(const EventEnum)                  |
+                                                    |   void disableEvent()                                 |
+                                                    |   void disableState(const StateEnum)                  |
+                                                    |   void disableState()                                 |
+                                                    |                                                       |
+                                                    |   - m_triggerHandle : TriggerHandle                   |
+                                                    +-------------------------------------------------------+
 ```
+
+The Triggerable does not need to implement all `enable{Event,State}`,
+`disable{Event,State}` variations only the ones which are required by the use
+case. If the Triggerable for instance has no triggering states then
+`enableState`/`disableState` can be omitted. When there is only a single state
+or event which can be triggered then the `enable{Event,State}` and
+`disable{Event,State}` without the distincting `{State,Event}Enum` can be used.
 
 #### Class Interactions
 
-- **Creating Listener:** an `ConditionVariableData` is created in the shared memory
+- **Creating Listener:** a `ConditionVariableData` is created in the shared memory
     The `Listener` uses the `ConditionListener` to wait for incoming events.
 
 ```
@@ -142,7 +156,7 @@ Listener                                    |
     the Listener.
 
 ```
-User                ReactAL                                             Triggerable 
+User                Listener                                            Triggerable
  |   attachEvent()     |                                                     |
  | ------------------> |      TriggerHandle                                  |
  |                     |   create   |                                        |
@@ -194,8 +208,10 @@ Listener       Event_t                  Triggerable
     without having any knowledge about those class so that circular
     dependencies can be prevented. Furthermore, the Triggerable must be able
     to remove its attached events when it goes out of scope.
-- **Solution:** The TriggerHandle which contains the `ConditionNotifier` to
-    notify the Listener/WaitSet.
+- **Solution:** The dependency inversion principle, create an abstraction which
+    is known by both, the TriggerHandle. Created by the Listener/WaitSet and
+    attached to the Triggerable so that it can notify the Listener/WaitSet via
+    the underlying `ConditionNotifier` with `TriggerHandle::notify()`.
     The cleanup task is performed by the `m_resetCallback` so that the
     Triggerable has no dependencies to any Notifyable.
 
@@ -279,18 +295,19 @@ enum class TriggerableEnum : iox::popo::EventEnumIdentifier {
 2. The private methods:
 
 ```cpp
-void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const TriggerableEnum event) noexcept;
-void disableEvent(const MyTriggerClassEvents event) noexcept;
+void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const EventEnum event) noexcept;
+void disableEvent(const EventEnum event) noexcept;
 void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 ```
 
-Used by the Listener to provide the ownership of the TriggerHandle to the
-Triggerable. The should have one TriggerHandle member for every event.
+The methods above are used by the Listener to transfer the ownership of the TriggerHandle
+to the Triggerable. The Triggerable should have one TriggerHandle member for every
+attachable event/state.
 The TriggerHandle is then used to notify the Listener by the Triggerable that
 a certain event has occurred.
 
-3. It must be friend with `iox::popo::NotificationAttorney`. It is possible the
-   give public access to the previous methods but then the user has the ability
+3. It must be friend with `iox::popo::NotificationAttorney`. It is possible to
+   provide public access to the previous methods but then the user has the ability
    to call methods which should only used by the Listener.
 
 ##### Triggerable With Single Event
