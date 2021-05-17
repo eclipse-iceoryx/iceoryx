@@ -43,4 +43,3 @@ cpp2c_Publisher& cpp2c_Publisher::operator=(cpp2c_Publisher&& rhs) noexcept
     }
     return *this;
 }
-

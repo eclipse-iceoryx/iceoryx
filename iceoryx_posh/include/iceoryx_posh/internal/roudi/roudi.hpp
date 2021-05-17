@@ -17,6 +17,11 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
@@ -26,11 +31,6 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/platform/file.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
 #include <cstdio>
@@ -135,6 +135,7 @@ class RouDi
     std::atomic_bool m_runHandleRuntimeMessageThread;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
+
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that

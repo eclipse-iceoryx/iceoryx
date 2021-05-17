@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
 
 #include "test.hpp"
 #include <thread>
 
+namespace
+{
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
@@ -149,3 +151,4 @@ TEST_F(TriggerHandle_test, wasTriggeredReturnsFalseAfterItWasTriggeredAndTheList
     EXPECT_FALSE(m_sut.wasTriggered());
 }
 
+} // namespace

@@ -15,15 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/timer.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -40,11 +40,12 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
-using ::testing::Return;
 
 using iox::posix::Timer;
 
@@ -445,3 +446,5 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
 });
+
+} // namespace

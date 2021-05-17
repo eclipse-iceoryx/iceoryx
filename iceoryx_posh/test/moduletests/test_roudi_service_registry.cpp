@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_posh/internal/roudi/service_registry.hpp"
+
 #include "test.hpp"
 
-#include "iceoryx_posh/internal/roudi/service_registry.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 class ServiceRegistry_test : public Test
 {
@@ -187,3 +189,5 @@ TEST_F(ServiceRegistry_test, GetServiceMap)
 
     EXPECT_THAT(mapA && mapE, Eq(true));
 }
+
+} // namespace

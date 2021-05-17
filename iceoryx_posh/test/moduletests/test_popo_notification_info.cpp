@@ -20,6 +20,8 @@
 #include "test.hpp"
 #include <thread>
 
+namespace
+{
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
@@ -125,3 +127,5 @@ TEST_F(NotificationInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
     m_sut = NotificationInfo{&m_origin, 9U, NotificationCallback<NotificationOriginTest, int>{}};
     EXPECT_FALSE(m_sut());
 }
+
+} // namespace

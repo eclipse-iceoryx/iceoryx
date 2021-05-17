@@ -1,4 +1,5 @@
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "test.hpp"
 
@@ -276,7 +278,7 @@ void createChunksOnMultipleAddresses(const PayloadParams& userPayloadParams,
     for (auto alignedChunkAddress = alignof(ChunkHeader); alignedChunkAddress <= MAX_USER_PAYLOAD_ALIGNMENT_FOR_TEST;
          alignedChunkAddress += alignof(ChunkHeader))
     {
-        SCOPED_TRACE(std::string("Chunk placed on address ") + std::to_string(alignedChunkAddress));
+        SCOPED_TRACE(std::string("Chunk placed on address ") + iox::cxx::convert::toString(alignedChunkAddress));
 
         auto chunkSettingsResult = ChunkSettings::create(
             userPayloadParams.size, userPayloadParams.alignment, userHeaderSize, userHeaderAlignment);
@@ -408,8 +410,8 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithoutUserHeader, CheckIntegrityOfChunkHe
 {
     const auto userPayloadParams = GetParam();
 
-    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayloadParams.size)
-                 + std::string("; alignment = ") + std::to_string(userPayloadParams.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayloadParams.size)
+                 + std::string("; alignment = ") + iox::cxx::convert::toString(userPayloadParams.alignment));
 
     constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
     constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
@@ -464,8 +466,8 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
 {
     const auto userPayloadParams = GetParam();
 
-    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayloadParams.size)
-                 + std::string("; alignment = ") + std::to_string(userPayloadParams.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayloadParams.size)
+                 + std::string("; alignment = ") + iox::cxx::convert::toString(userPayloadParams.alignment));
 
     constexpr uint32_t SMALL_USER_HEADER{alignof(ChunkHeader)};
     static_assert(SMALL_USER_HEADER < sizeof(ChunkHeader), "For this test the size must be smaller than ChunkHeader");
@@ -474,11 +476,11 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
 
     for (const auto userHeaderAlignment : USER_HEADER_ALIGNMENTS)
     {
-        SCOPED_TRACE(std::string("User-Header alignment = ") + std::to_string(userHeaderAlignment));
+        SCOPED_TRACE(std::string("User-Header alignment = ") + iox::cxx::convert::toString(userHeaderAlignment));
 
         for (const auto userHeaderSize : USER_HEADER_SIZES)
         {
-            SCOPED_TRACE(std::string("User-Header size = ") + std::to_string(userHeaderSize));
+            SCOPED_TRACE(std::string("User-Header size = ") + iox::cxx::convert::toString(userHeaderSize));
 
             if (userHeaderSize < userHeaderAlignment)
             {

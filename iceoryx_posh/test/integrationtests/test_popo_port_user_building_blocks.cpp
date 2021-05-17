@@ -15,6 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -22,23 +26,20 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
 
 #include <chrono>
 #include <sstream>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 using namespace iox::posix;
-using ::testing::Return;
 
 struct DummySample
 {
@@ -383,3 +384,5 @@ TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(m_sendCounter.load(std::memory_order_relaxed) == m_receiveCounter);
     TIMING_TEST_EXPECT_FALSE(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall());
 });
+
+} // namespace

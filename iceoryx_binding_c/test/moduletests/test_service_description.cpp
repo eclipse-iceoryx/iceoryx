@@ -39,4 +39,3 @@ TEST(iox_service_description_test, StringSizesAreCorrect)
     EXPECT_THAT(sizeof(decltype(std::declval<iox_service_description_t>().eventString)),
                 Eq(iox::capro::IdString_t().capacity()));
 }
-

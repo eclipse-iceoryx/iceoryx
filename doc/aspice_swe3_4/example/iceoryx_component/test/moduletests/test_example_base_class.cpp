@@ -20,13 +20,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
-namespace example
-{
-namespace test
-{
 /// @req IOX_SWRS_112, IOX_SWRS_200
 /// @brief Test goal: "This test suite verifies that the BaseClass function is verified"
 /// @pre describe what needs to be done in setup()
@@ -51,5 +48,4 @@ TEST_F(ExampleBaseClass_test, GetMemberVariableFromCtor)
     EXPECT_THAT(sut2.getMemberVariable(), Eq(99U));
 }
 
-} // namespace test
-} // namespace example
+} // namespace

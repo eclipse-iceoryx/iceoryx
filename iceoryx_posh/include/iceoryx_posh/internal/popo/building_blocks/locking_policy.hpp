@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
 
-#include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 
 namespace iox
 {

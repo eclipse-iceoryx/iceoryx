@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,26 +15,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
-#include "iceoryx_utils/platform/getopt.hpp"
 
 #include "test.hpp"
 
 #include <regex>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 using iox::roudi::IceOryxRouDiApp;
 using namespace iox::config;
+using namespace iox;
 
-namespace iox
-{
-namespace test
-{
 class OutputBuffer
 {
   public:
@@ -271,5 +270,4 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     EXPECT_NE(output.find(expected), std::string::npos);
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

@@ -15,16 +15,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
-#include "iceoryx_utils/log/logging.hpp"
-#include "iceoryx_utils/log/logstream.hpp"
-#include "iceoryx_utils/testing/mocks/logger_mock.hpp"
 
 #include "test.hpp"
 
 #include <cstdint>
 #include <limits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::version;
 
@@ -122,3 +124,5 @@ TEST_F(CompatibilityCheckLevel_test, BuildDateLeadsToCorrectString)
     EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::BUILD_DATE"));
     EXPECT_THAT(m_loggerMock.m_logs[0].level, Eq(iox::log::LogLevel::kWarn));
 }
+
+} // namespace

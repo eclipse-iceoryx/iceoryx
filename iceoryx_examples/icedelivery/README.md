@@ -23,9 +23,9 @@ First off, let's include the publisher, the runtime and the signal handler:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][includes]-->
 ```cpp
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 ```
 
 You might be wondering what the publisher application is sending? It's this struct.
@@ -130,9 +130,9 @@ Similar to the publisher, we include the topic data, the subscriber, the runtime
 ```cpp
 #include "topic_data.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 ```
 
 To make RouDi aware of the subscriber a runtime object is created, once again with a unique identifier string:
