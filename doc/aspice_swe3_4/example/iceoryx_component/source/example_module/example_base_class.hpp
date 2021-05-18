@@ -56,7 +56,7 @@ class ExampleBaseClass
     /// @brief Short description
     uint32_t simplerMethod() const noexcept;
 
-    private:
+  private:
     /// @brief Short description
     uint32_t m_memberVariable{0U};
 };
