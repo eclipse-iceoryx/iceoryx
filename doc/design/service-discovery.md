@@ -68,7 +68,7 @@ creation of objects inside the shared memory (see [this issue](https://github.co
 * Create abstract interface for `ServiceRegistry`
   * Add new class to `StaticServiceRegistry::StaticServiceRegistry(std::map<CaproIdString_t, instance_t> map)`
     * Notification-based callback is only called once and and user gets the complete service registry
-    * Just static, polling with `FindService()` possible
+    * Polling with `FindService()` will always return the same result
   * Alternative would be a `finalize()` method after init phase
 
 #### Sychronous, one-shot RPC (Polling)
@@ -164,23 +164,17 @@ Con:
 * Not needed by all users per default
 * Polling leads to overhead
 
-##### Alternative D: Listner + Polling `findService()`
+##### Alternative D: Discovery Class + Listner
 
-Create a new publisher in RouDi which sends a `ServiceRegistryUserApiElement`. This publisher would be used to signal a
-change in the service registry. Once the Listener calls the user-defined callback in the user application, a sychronous
-`findService()` call is triggered. The complete old service registry (saved locally) would be compared to the new
-service registry. To make sure the view on the world didn't change in between check if the change counter was updated.
-
-```
-struct ServiceRegistryUserApiElement
-{
-    uint64_t m_serviceRegistryChangeCounter;
-}
-```
+Create a new publisher in RouDi which sends a `ServiceRegistryTopic`. This publisher would be used both to signal a
+change in the service registry and to transmit the service discovery registry. The complete old service registry
+(saved locally) would be compared to the new service registry in a new class, extending the public user API.
 
 Pro:
 
 * Simple and consistent user API for both event-based and sychronous requests
+  * Filtering for `findService` could be done inside the new class
+* No need for a change counter as ABA problem solved by POSH mechanisms
 * Not just delta of service registry is transmitted, but complete service registry info
 
 Con:
@@ -198,9 +192,7 @@ Con:
 
 ### Code example
 
-Possible bindings with alternative B:
-
-#### Event-based notification
+#### Event-based notification: Alternative B
 
 ```cpp
 auto& runtime = PoshRuntime::initRuntime("myApp");
@@ -223,7 +215,50 @@ void onDiscoveryUpdateCallback(InterfacePort* subscriber)
 myListner.attachEvent(caproSubscriber, DATA_RECEIVED, createNotificationCallback(onDiscoveryUpdateCallback));
 ```
 
-#### Sychronous, one-shot RPC (Polling)
+#### Event-based notification: Alternative D
+
+```cpp
+class DiscoveryInfo
+{
+  public:
+
+   // Move all service-related methods from PoshRuntime to this class
+   cxx::expected<InstanceContainer, FindServiceError>
+   PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
+   {
+       // Update local service registry
+       get();
+
+       return filterFor(serviceDescription);
+   }
+
+    // @todo check if still needed
+    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
+    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
+
+   ServiceRegistryTopic get() noexcept
+   {
+       m_subscriber.take().and_then([](auto& ServiceRegistryTopic){
+           // Update our local copy of the service registry
+           m_lastServiceRegistry = ServiceRegistryTopic;
+       }).or_else([](){
+           // No change in service registry
+       });
+       return m_lastServiceRegistry;
+   }
+
+   filterFor(const capro::ServiceDescription& serviceDescription) noexcept;
+  private:
+    Subscriber<ServiceRegistryTopic> m_subscriber{"ServiceDiscovery", "GlobalInstance", "ServiceRegistryTopic"};
+    ServiceRegistryTopic m_lastServiceRegistry;
+}
+
+// Class should be attachable to listner
+iox::popo::DiscoveryInfo discoveryInfo;
+myListner.attachEvent(discoveryInfo, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
+```
+
+#### Sychronous, one-shot RPC (Polling): Alternative B
 
 ```cpp
 // Binding code
@@ -255,7 +290,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
 * [x] How does the ara::com service discovery API look like?
 * [x] How does the DDS service discovery API look like?
 * [x] How does the SOME/IP-SD service discovery API look like?
-* [ ] What does a `ros topic list` do in rmw_iceoryx?
+* [x] What does a `ros topic list` do in rmw_iceoryx?
 * [ ] Filter for `ServiceDescription::EventString` needed by AUTOSAR? Not supported by `ServiceRegistry::find()` as of today
 * [ ] Decision on mapping table between iceory and DDS (see [overview.md](../website/getting-started/overview.md))
   * [ ] Current mapping table between iceoryx and DDS does not work with service discovery
