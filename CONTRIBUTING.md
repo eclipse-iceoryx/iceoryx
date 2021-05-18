@@ -56,7 +56,7 @@ Please make sure you have:
 6. You open your pull request towards the base branch `master`
 7. Link the pull request to the according Github issue and set the label accordingly
 
-**NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md).
+**NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
 
 ## Branching strategy
 
@@ -112,7 +112,7 @@ codebase follows these rules, things are work in progress.
 8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an
     `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
 
-See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md) for additional
+See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional
 information about logging and error handling.
 
 ### Naming conventions
