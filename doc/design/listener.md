@@ -21,9 +21,6 @@ to the WaitSet where the user has to call the event-callbacks explicitly.
 - **event** is changing the state of an object.
 - **event driven** a one time reaction which is caused directly by an event.
       Example: a new sample has been delivered to a subscriber.
-- [Heisenbug](https://en.wikipedia.org/wiki/Heisenbug)
-- [Reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern)
-  The Listener and WaitSet are both variations of the that pattern.
 - **state** predefined values to which the members of an object are set.
 - **state driven** a repeating reaction which is continued as long as the state
       persists.
@@ -31,7 +28,9 @@ to the WaitSet where the user has to call the event-callbacks explicitly.
 
 ## Design
 
-The usage should be similar to the _WaitSet_ with a key difference - it should
+The Listener is a variation of the
+[reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern) and
+the usage should be similar to the _WaitSet_ with a key difference - it should
 be **event driven** and not a mixture of event and state driven, depending on
 which event is attached, like in the _WaitSet_.
 
@@ -78,7 +77,7 @@ which event is attached, like in the _WaitSet_.
                                    +---------------------------+
                                         | 1               | 1
                                         |                 |
-                                        | n               | n
+                                        | 1               | n
 +-----------------------------------------------+ +--------------------------------------------------+
 | ConditionListener                             | | ConditionNotifier                                |
 |   ConditionListener(ConditionVariableData & ) | |   ConditionNotifier(ConditionVariableData &,     |
@@ -122,9 +121,9 @@ which event is attached, like in the _WaitSet_.
 ```
 
 The Triggerable does not need to implement all `enableEvent`,
-`disableEvent` variations only the ones which are required by the use
-case. When there is only a single event which can be triggered then the `enableEvent`
-and `disableEvent` without the distincting `EventEnum` can be used.
+`disableEvent` variations, only the ones which are required by the use
+case. The `enableEvent` and `disableEvent`, without the distincting `EventEnum`,
+can be used when there is only a single event which can be triggered.
 
 #### Class Interactions
 
@@ -136,7 +135,7 @@ and `disableEvent` without the distincting `EventEnum` can be used.
 Listener                                    |
   |   getMiddlewareConditionVariable : var  |
   | --------------------------------------> |
-  |   ConditionListener(var)                |             EventListener
+  |   ConditionListener(var)                |             ConditionListener
   | ----------------------------------------+-----------------> |
   |   wait() : vector<uint64_t>             |                   |
   | ----------------------------------------+-----------------> |
@@ -272,7 +271,19 @@ The basic idea is that the Listener creates a TriggerHandle whenever an event
 is attached and provides that TriggerHandle to the corresponding Triggerable.
 The Triggerable uses then the TriggerHandle to notify the Listener about events.
 
-##### Multiple Events
+##### Triggerable With Single Event
+
+Every Triggerable requires:
+
+1. The private methods:
+
+```cpp
+void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
+void disableEvent() noexcept;
+void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+```
+
+##### Triggerable With Multiple Events
 
 Every Triggerable requires:
 
@@ -303,14 +314,4 @@ a certain event has occurred.
    provide public access to the previous methods but then the user has the ability
    to call methods which should only used by the Listener.
 
-##### Triggerable With Single Event
 
-Every Triggerable requires:
-
-1. The private methods:
-
-```cpp
-void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
-void disableEvent() noexcept;
-void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
-```
