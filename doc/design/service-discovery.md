@@ -236,9 +236,9 @@ class DiscoveryInfo
        return filterFor(serviceDescription);
    }
 
-    // @todo check if still needed
-    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
-    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
+   // @todo check if still needed
+   bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
+   void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
 
    ServiceRegistryTopic get() noexcept
    {
@@ -251,9 +251,13 @@ class DiscoveryInfo
        return m_lastServiceRegistry;
    }
 
+   // It might be sensible to introduce something like getDelta to avoiding a full blown copy
+   //ServiceRegistryTopic getDelta() noexcept;
+
    filterFor(const capro::ServiceDescription& serviceDescription) noexcept;
   private:
     Subscriber<ServiceRegistryTopic> m_subscriber{"ServiceDiscovery", "GlobalInstance", "ServiceRegistryTopic"};
+    //Subscriber<ServiceRegistryTopic> m_subscriberDelta{"ServiceDiscovery", "GlobalInstance", "ServiceRegistryTopic"};
     ServiceRegistryTopic m_lastServiceRegistry;
 }
 
