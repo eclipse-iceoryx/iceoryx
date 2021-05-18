@@ -4,7 +4,7 @@
 
 Service discovery over IPC channel e.g. message queue or UNIX domain socket is not performant since larger data is
 transferred, which can lead to transmission of several frames. If lots of services are discovered at high-frequency
-e.g. at startup the IPC channel can become a bottleneck. Furthermore, a lession learned from the iceoryx development
+e.g. at startup the IPC channel can become a bottleneck. Furthermore, a lesson learned from the iceoryx development
 so far is, that the IPC channel should just be used for the earliest communication during startup and not for the
 creation of objects inside the shared memory (see [this issue](https://github.com/eclipse-iceoryx/iceoryx/issues/611)).
 
@@ -25,7 +25,7 @@ creation of objects inside the shared memory (see [this issue](https://github.co
 
 ## Requirements
 
-* Polling and event notification approach shall both be possible
+* Polling and event notification approach shall both be possible for service discovery
 
 ### Considerations and use-cases
 
@@ -34,13 +34,13 @@ creation of objects inside the shared memory (see [this issue](https://github.co
 * findService() call as implemented in Almond v1.0
 * ara::com service discovery callbacks
 
-1. `StartFindService()`: Register callback, std::function interface
-1. `StopFindService()`: Unregister callback
-1. `FindService()`: one-shot, polling, synchronous
+1. `StartFindService(std::function<void(ServiceContainer<T>,ServiceHandle)>, InstanceId)`: Register callback, std::function interface
+1. `StopFindService(std::function<void(ServiceContainer<T>,ServiceHandle)>)`: Unregister callback
+1. `FindService(InstanceId)`: one-shot, polling, synchronous
 
 #### SOME/IP-SD
 
-* Very similar to AUTOSAR Adaptive
+* Similar to AUTOSAR Adaptive
 
 #### Cyclone DDS and ROS 2
 
@@ -54,7 +54,8 @@ creation of objects inside the shared memory (see [this issue](https://github.co
   * Type name
   * Topic key
   * QoS settings
-* `dds_find_topic_locally` function is available for users
+* `dds_find_topic_locally` w/o SDEP
+* `dds_find_topic_globally` with SDEP
 
 #### Static discovery
 
@@ -62,15 +63,33 @@ creation of objects inside the shared memory (see [this issue](https://github.co
   * Having RouDi read in a config file, which has
     * All the topics listed
     * Wiring pub/sub information
+  * Static shared memory with static number of pub/subs inside
   * During init phase pub/sub are connected
 * Create abstract interface for `ServiceRegistry`
   * Add new class to `StaticServiceRegistry::StaticServiceRegistry(std::map<CaproIdString_t, instance_t> map)`
-    * No notification-based callback possibilty
+    * Notification-based callback is only called once and and user gets the complete service registry
     * Just static, polling with `FindService()` possible
+  * Alternative would be a `finalize()` method after init phase
 
 #### Sychronous, one-shot RPC (Polling)
 
-##### Alternative A: Request/ response feature usage
+##### Alternative A: IPC channel usage
+
+Stick with IPC channel
+
+Pro:
+
+* No code changes needed
+* More memory efficient
+* No managment overhead on iceoryx-side
+
+Con:
+
+* No userspace solution
+  * IPC channel uses OS functions during runtime (switch between kernel and user space)
+* Upper frame limit may lead to segregation into several frames
+
+##### Alternative B: Request/ response feature usage
 
 * Re-use [request/ response feature](https://github.com/eclipse-iceoryx/iceoryx/issues/27)
 
@@ -82,29 +101,15 @@ Pro:
 
 Con:
 
-* Shared memory approach might have overhead compared for a simple RPC call
-
-##### Alternative B: IPC channel usage
-
-Stick with IPC channel
-
-Pro:
-
-* No code changes needed
-
-Con:
-
-* No userspace solution
-  * IPC channel uses OS functions
-* Upper frame limit may lead to segregation into several frames
+* Shared memory approach might have overhead compared to a simple RPC call
 
 #### Event-based notification
 
 ##### Alternative A: Shared memory + IPC channel
 
-* Send ID's + ABA-counter/ServiceDiscoveryChangeCounter over IPC channel
+* Send ID's over IPC channel and read ABA-counter/ServiceDiscoveryChangeCounter from shared memory
 * Data transfer over shared memory
-  * Basically putting Service Registry to shared memory so everyone can access it
+  * Basically putting Service Registry to shared memory so everyone can access it (read-only)
 
 Pro:
 
@@ -112,7 +117,7 @@ Pro:
 
 Contra:
 
-* More complex than todays solution
+* More complex than todays solution (thread-safety required, lock-free mechanism needed)
 * In an optimal case IPC channel communication shall only be used for startup
 
 ##### Alternative B: Built-in topic based on `InterfacePort`'s
@@ -134,6 +139,7 @@ Pro:
 Con:
 
 * Overhead, `Listner` will wake up on every `CaproMessage`
+* Bookkeeping at user-side, just delta of service registry is transferred
 * What will RouDi do if he runs out of memory?
   * Dimensioning according to max values is not optimal (MAX_INTERFACE_CAPRO_FIFO_SIZE)
   * Presumably lots of memory needed, e.g. during startup phase when lots of apps will do discovery
@@ -146,19 +152,46 @@ Remark:
 
 ##### Alternative C: Custom thread
 
-* Create a custom thread in `PoshRuntime`, which polls for specific discovery information using request/response
+* Implement a custom thread in `PoshRuntime`, which polls for specific discovery information using request/response
 
 Pro:
 
-* More flexible
-* Re-use building blocks
+* More flexible, e.g. thread can be used for other functionality in future
+* Re-use req/resp building blocks
 
 Con:
 
 * Not needed by all users per default
 * Polling leads to overhead
 
+##### Alternative D: Listner + Polling `findService()`
+
+Create a new publisher in RouDi which sends a `ServiceRegistryUserApiElement`. This publisher would be used to signal a
+change in the service registry. Once the Listener calls the user-defined callback in the user application, a sychronous
+`findService()` call is triggered. The complete old service registry (saved locally) would be compared to the new
+service registry. To make sure the view on the world didn't change in between check if the change counter was updated.
+
+```
+struct ServiceRegistryUserApiElement
+{
+    uint64_t m_serviceRegistryChangeCounter;
+}
+```
+
+Pro:
+
+* Simple and consistent user API for both event-based and sychronous requests
+* Not just delta of service registry is transmitted, but complete service registry info
+
+Con:
+
+* New publisher in RouDi needed
+* Partially overlapping features with `InterfacePort`s
+  * Could the `InterfacePort`s be replace by alternative D?
+
 ### Decision
+
+<!-- @todo Add final decision -->
 
 * Sychronous, one-shot RPC (Polling): Alternative A
 * Event-based notification: Alternative B

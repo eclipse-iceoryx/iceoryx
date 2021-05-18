@@ -1,7 +1,7 @@
 @startuml
 title Alternative B: iceoryx-based ECU forwarding CaPro messages to Gateway and PoshRuntime
 
-package "iceoryx ECU" {
+package "iceoryx instance e.g. electronic control unit" {
     component RouDi {
         artifact discoveryLoop [
         PortManager::sendToAllMatchingInterfacePorts()
@@ -26,7 +26,7 @@ package "iceoryx ECU" {
     }
 }
 
-package "DDS ECU" {
+package "DDS instance e.g. electronic control unit" {
     component DCPSTopic
 }
 
