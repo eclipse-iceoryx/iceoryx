@@ -108,10 +108,7 @@ jobs:
       # we have to exclude the tests explicitly until everyone is running
       - name: Run tests, excluding timing_tests
         run: |
-          build\hoofs\test\Debug\hoofs_moduletests.exe \
-            --gtest_filter="-SignalHandler*:relativeptr*:Timer*:base_relative*:DeadlineTimer*:Thread*:Duration*:*TimingTest*"
+          build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-SignalHandler*:relativeptr*:Timer*:base_relative*:DeadlineTimer*:Thread*:Duration*:*TimingTest*"
           build\hoofs\test\Debug\hoofs_integrationtests.exe
-          build\binding_c\test\Debug\binding_c_moduletests.exe \
-            --gtest_filter="-Chunk*:iox_listener*:iox_node*:iox_pub*:BindingC_Runtime*:iox_sub*:iox_ws*:iox_types*:*TimingTest*"
-          build\posh\test\Debug\posh_moduletests.exe \
-            --gtest_filter="-PoshRuntime*:IceoryxRoudiApp*:IceoryxRoudiMemoryManager*:PortManager*:ProcessIntrospection*:ProcessManager*:PosixShmMemoryProvider*:Process_test*:ParseAllMalformedInput*:*TimingTest*"
+          build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-Chunk*:iox_listener*:iox_node*:iox_pub*:BindingC_Runtime*:iox_sub*:iox_ws*:iox_types*:*TimingTest*"
+          build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-PoshRuntime*:IceoryxRoudiApp*:IceoryxRoudiMemoryManager*:PortManager*:ProcessIntrospection*:ProcessManager*:PosixShmMemoryProvider*:Process_test*:ParseAllMalformedInput*:*TimingTest*"
