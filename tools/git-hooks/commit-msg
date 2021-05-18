@@ -323,7 +323,8 @@ while true; do
   fi
 
   # Ask the question (not using "read -p" as it uses stderr not stdout)
-  echo -en "${BLUE}Proceed with commit? [e/y/n/?] ${NC}"
+  echo -en "${BLUE}Proceed with commit?"
+  echo -en "${BLUE}(y)es, (n)o, (e)dit: ${NC}"
 
   # Read the answer
   read REPLY < "$TTY"

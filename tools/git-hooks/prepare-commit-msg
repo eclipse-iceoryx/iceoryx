@@ -24,7 +24,7 @@ branch_name=$(git rev-parse --abbrev-ref HEAD)
 if [[ "$branch_name" =~ ^iox-#[0-9]+ ]]; then
     branch_name="$(echo "$branch_name" | grep -Eo 'iox-#[0-9]+')"
 else
-    echo "Warning: Invalid branch name: ${branch_name}."
+    echo "Warning: The branch name doesn't follow the convention of 'iox-#ISSUE_NUMBER'."
     echo "Commit message won't be autoformatted."
     exit 0
 fi
@@ -33,12 +33,13 @@ commit_msg=$(cat $1)
 if [[ $commit_msg =~ ^iox-#[0-9]+ ]]; then
     commit_msg="$(echo "$commit_msg" | grep -Eo 'iox-#[0-9]+')"
     if [[ "$commit_msg" != "$branch_name" ]]; then
-        echo "Warning: Invalid issue number in commit message: $commit_msg."
+        echo "Warning: Commit message ticket number does not fit to branch ticket number: $commit_msg."
+        echo "Is this on purpose?"
         echo "Commit message will not be autoformatted."
         exit 0
     fi
 else
-    echo "Warning: Invalid commit message format: $commit_msg."
+    echo "Info: Commit message does not start with issue number: $commit_msg."
     echo "Commit message will be autoformatted."
     echo -e "$branch_name $(cat $1)" > $1
 fi

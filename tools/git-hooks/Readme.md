@@ -17,13 +17,14 @@ sudo apt install clang-format-10
 
 ## Installation
 
-The hooks are active when you copy them into the `.git/hooks` folder of your iceoryx project:
+The hooks are active when you add the `git-hooks` directory as hooks folder to your local project git config:
 
 ```bash
 cd iceoryx
-cp -rv ./tools/git-hooks/* .git/hooks/
+git config core.hooksPath tools/git-hooks/
 ```
 
+With that you will also receive the updates of the git hooks in future.
 We recommend to do this in every new clone you did on iceoryx.
 
 ## Seven Rules for a good commit message
@@ -39,5 +40,4 @@ We recommend to do this in every new clone you did on iceoryx.
 ## Open topics
 
 - clang-tidy check
-- check and clean up line endings in files
 - ...
