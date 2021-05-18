@@ -21,10 +21,20 @@ The hooks are active when you copy them into the `.git/hooks` folder of your ice
 
 ```bash
 cd iceoryx
-cp -rv ./tools/git-hooks/pre* .git/hooks/
+cp -rv ./tools/git-hooks/* .git/hooks/
 ```
 
 We recommend to do this in every new clone you did on iceoryx.
+
+## Seven Rules for a good commit message
+
+1. [Separate subject from body with a blank line](https://chris.beams.io/posts/git-commit/#separate)
+2. [Limit the subject line to 50 characters](https://chris.beams.io/posts/git-commit/#limit-50) (excluding GitHub issue number)
+3. [Capitalize the subject line](https://chris.beams.io/posts/git-commit/#capitalize)
+4. [Do not end the subject line with a period](https://chris.beams.io/posts/git-commit/#end)
+5. [Use the imperative mood in the subject line](https://chris.beams.io/posts/git-commit/#imperative)
+6. [Wrap the body at 72 characters](https://chris.beams.io/posts/git-commit/#wrap-72)
+7. Use the body to explain what and why vs. how (not checked in hooks)
 
 ## Open topics
 

@@ -112,7 +112,7 @@ codebase follows these rules, things are work in progress.
 8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an
     `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
 
-See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional
+See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md) for additional
 information about logging and error handling.
 
 ### Naming conventions
