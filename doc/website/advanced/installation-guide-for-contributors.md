@@ -44,6 +44,10 @@ Let's assume you want to execute only `ServiceDescription_test` from posh_module
 ./build/posh/test/posh_moduletests --gtest_filter="ServiceDescription_test*"
 ```
 
+!!! hint
+    While writing code on iceoryx you can use git hooks that automatically ensure that you follow the coding and style guidelines.
+    See [`git-hooks`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
+
 ## :fontawesome-solid-pump-soap: Use Sanitizer Scan
 
 Due to the fact that iceoryx works a lot with system memory, it should be ensured that errors like memory leaks are not introduced.
