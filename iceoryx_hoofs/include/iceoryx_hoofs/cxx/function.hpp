@@ -39,10 +39,12 @@ namespace cxx
 ///
 /// @tparam Signature The signature of the callable to be stored, e.g. int (char, void*).
 /// @tparam Capacity The static storage capacity available to store a callabe in bytes.
+///
+/// @note  If the static storage is insufficient to store the callable we get a compile time error.
+///
 template <typename Signature, uint64_t Capacity = 128U>
 using function = storable_function<static_storage<Capacity>, Signature>;
 
-/// @note  If the static storage is insufficient to store the callable we get a compile time error.
 
 } // namespace cxx
 } // namespace iox

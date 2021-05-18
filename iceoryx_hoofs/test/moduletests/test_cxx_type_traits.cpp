@@ -57,20 +57,6 @@ TEST(TypeTraitsTest, IsInvocableResolvesToFalse)
     EXPECT_FALSE(sut);
 }
 
-TEST(TypeTraitsTest, HasSignatureResolvesToTrue)
-{
-    auto lambda = [](int foo) -> int { return foo++; };
-    auto sut = has_signature<decltype(lambda), int(int)>::value;
-    EXPECT_TRUE(sut);
-}
-
-TEST(TypeTraitsTest, HasSignatureResolvesToFalse)
-{
-    auto lambda = [](float foo) -> float { return foo++; };
-    auto sut = has_signature<decltype(lambda), void(void)>::value;
-    EXPECT_FALSE(sut);
-}
-
 TEST(TypeTraitsTest, NoTypeAsMemberIsFalse)
 {
     struct Sut

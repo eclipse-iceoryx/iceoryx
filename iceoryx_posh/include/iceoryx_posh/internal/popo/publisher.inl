@@ -46,7 +46,7 @@ inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisher_t>::publ
     static_assert(cxx::is_invocable<Callable, T*, ArgTypes...>::value,
                   "Publisher<T>::publishResultOf expects a valid callable with a specific signature as the "
                   "first argument");
-    static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
+    static_assert(cxx::is_invocable_r<void, Callable, T*, ArgTypes...>::value,
                   "callable provided to Publisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
     return loanSample().and_then([&](auto& sample) {

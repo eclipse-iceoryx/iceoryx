@@ -138,13 +138,12 @@ struct Arg : Counter<Arg>
     Arg(const Arg&) = default;
     Arg& operator=(const Arg&) = default;
 
-    // We cannot delete move, the function wrapper requires the arguments to be copy-constructible
-    // according to the standard this means the copy Ctor must exist and move cannot be explicitly deleted
-    // (it does not necessarily have to be defined, in which case the compiler will perform a copy
-    // whenever a move would be possible)
-
-    // Arg &operator=(Arg &&) = delete;
-    // Arg &operator=(Arg &&) = default;
+    // We cannot delete the move ctor, the function wrapper requires the arguments to be copy-constructible.
+    // According to the standard this means the copy Ctor must exist and move cannot be explicitly deleted.
+    // Move does not necessarily have to be defined, in which case the compiler will perform a copy
+    // whenever a move would be possible.
+    // Note that this is mainly an issue if the argument is passed by value.
+    // The std::function also fails to compile in this case (gcc implementation).
 
     int32_t value;
 };
