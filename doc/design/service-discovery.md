@@ -114,10 +114,11 @@ Con:
 Pro:
 
 * Fast data transfer
+* Could replace `InterfacePort`s
 
 Contra:
 
-* More complex than todays solution (thread-safety required, lock-free mechanism needed)
+* Bespoken solution more complex than todays approach (thread-safety required, lock-free mechanism needed)
 * In an optimal case IPC channel communication shall only be used for startup
 
 ##### Alternative B: Built-in topic based on `InterfacePort`'s
@@ -176,6 +177,9 @@ Pro:
   * Filtering for `findService` could be done inside the new class
 * No need for a change counter as ABA problem solved by POSH mechanisms
 * Not just delta of service registry is transmitted, but complete service registry info
+* Fast data transport
+* Close to DDS mechanism
+* Could replace `InterfacePort`s
 
 Con:
 
