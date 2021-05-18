@@ -36,8 +36,11 @@ namespace cxx
 ///        to be invoked in a different process.
 ///
 ///        For the API see storable_function.
-template <typename Signature, uint64_t Bytes = 128U>
-using function = storable_function<static_storage<Bytes>, Signature>;
+///
+/// @tparam Signature The signature of the callable to be stored, e.g. int (char, void*).
+/// @tparam Capacity The static storage capacity available to store a callabe in bytes.
+template <typename Signature, uint64_t Capacity = 128U>
+using function = storable_function<static_storage<Capacity>, Signature>;
 
 /// @note  If the static storage is insufficient to store the callable we get a compile time error.
 

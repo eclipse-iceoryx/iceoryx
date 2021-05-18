@@ -17,8 +17,8 @@
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "test.hpp"
 
-#include <iostream>
 #include <functional>
+#include <iostream>
 
 using namespace ::testing;
 using namespace iox::cxx;
@@ -130,24 +130,27 @@ int32_t freeFunction(int32_t n)
     return n + 1;
 };
 
-struct Arg : Counter<Arg> {
+struct Arg : Counter<Arg>
+{
     Arg() = default;
-    Arg(uint32_t value) : value(value) {};
-    Arg(const Arg &) = default;
-    Arg &operator=(const Arg &) = default;
+    Arg(uint32_t value)
+        : value(value){};
+    Arg(const Arg&) = default;
+    Arg& operator=(const Arg&) = default;
 
     // We cannot delete move, the function wrapper requires the arguments to be copy-constructible
     // according to the standard this means the copy Ctor must exist and move cannot be explicitly deleted
     // (it does not necessarily have to be defined, in which case the compiler will perform a copy
     // whenever a move would be possible)
 
-    //Arg &operator=(Arg &&) = delete;
-    //Arg &operator=(Arg &&) = default;
+    // Arg &operator=(Arg &&) = delete;
+    // Arg &operator=(Arg &&) = default;
 
     int32_t value;
 };
 
-int32_t freeFunctionWithCopyableArg(Arg arg) {
+int32_t freeFunctionWithCopyableArg(Arg arg)
+{
     return arg.value;
 }
 
@@ -201,7 +204,7 @@ TEST_F(function_test, ConstructionFromFreeFunctionIsCallable)
 {
     test_function sut(freeFunction);
 
-    ASSERT_TRUE(sut.operator bool());   
+    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
 }
 
@@ -354,8 +357,8 @@ TEST_F(function_test, CopyCtorCopiesStoredFreeFunction)
     test_function sut(f);
 
     ASSERT_TRUE(sut.operator bool());
-    //EXPECT_EQ(sut(1), f(1));
-     std::cerr << "f(1)" << f(1) << std::endl;
+    // EXPECT_EQ(sut(1), f(1));
+    std::cerr << "f(1)" << f(1) << std::endl;
     std::cerr << "sut(1)" << sut(1) << std::endl;
 }
 
@@ -488,7 +491,7 @@ TEST_F(function_test, StaticSwapWorks)
 TEST_F(function_test, functorOfSizeSmallerThanStorageBytesCanBeStored)
 {
     // it will not compile if the storage is too small,
-    constexpr auto BYTES = test_function::storage_bytes_required<Functor>();
+    constexpr auto BYTES = test_function::required_storage_size<Functor>();
     EXPECT_LE(sizeof(Functor), BYTES);
     Functor f(73);
     iox::cxx::function<signature, BYTES> sut(f);
@@ -497,14 +500,14 @@ TEST_F(function_test, functorOfSizeSmallerThanStorageBytesCanBeStored)
 
 TEST_F(function_test, isStorableIsConsistent)
 {
-    constexpr auto BYTES = test_function::storage_bytes_required<Functor>();
+    constexpr auto BYTES = test_function::required_storage_size<Functor>();
     constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<Functor>();
     EXPECT_TRUE(RESULT);
 }
 
 TEST_F(function_test, isNotStorableDueToSize)
 {
-    constexpr auto BYTES = test_function::storage_bytes_required<Functor>();
+    constexpr auto BYTES = test_function::required_storage_size<Functor>();
     constexpr auto RESULT = iox::cxx::function<signature, BYTES - alignof(Functor)>::is_storable<Functor>();
     EXPECT_FALSE(RESULT);
 }
@@ -513,7 +516,7 @@ TEST_F(function_test, isNotStorableDueToSignature)
 {
     auto nonStorable = []() {};
     using NonStorable = decltype(nonStorable);
-    constexpr auto BYTES = test_function::storage_bytes_required<NonStorable>();
+    constexpr auto BYTES = test_function::required_storage_size<NonStorable>();
     constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<NonStorable>();
     EXPECT_FALSE(RESULT);
 }
@@ -526,12 +529,13 @@ TEST_F(function_test, callWithCopyConstructibleArgument)
     Arg::resetCounts();
 
     Arg arg(73);
-    
+
     auto result = sut(arg);
 
     EXPECT_EQ(result, freeFunctionWithCopyableArg(arg));
     EXPECT_EQ(result, func(arg));
-    // note that by using the numCopies counter we can observe that the std::function call also performs 2 copies of arg in this case
+    // note that by using the numCopies counter we can observe that the std::function call also performs 2 copies of arg
+    // in this case
 }
 
 TEST_F(function_test, callWithVoidSignatureWorks)

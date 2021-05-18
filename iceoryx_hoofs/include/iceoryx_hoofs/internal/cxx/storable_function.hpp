@@ -35,11 +35,12 @@ using signature = ReturnType(Args...);
 template <typename StorageType, typename T>
 class storable_function;
 
-/// @brief A storable alternative of std::function which uses memory defined by a StorageType. 
-///        This can be dynamic storage, static storage or anything else adhering to the allocation interface (cf. static_storage).
+/// @brief A storable alternative of std::function which uses memory defined by a StorageType.
+///        This can be dynamic storage, static storage or anything else adhering to the allocation interface (cf.
+///        static_storage).
 
-/// @note This is not achievable with std::function and a custom allocator, as then the memory will still not 
-///       be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation 
+/// @note This is not achievable with std::function and a custom allocator, as then the memory will still not
+///       be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation
 ///       is required.
 ///       Furthermore the allocator support of std::function in the STL is deprecated.
 
@@ -121,7 +122,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @note this is not smallest possible due to alignment, it may work with a smaller size but
     ///       is not guaranteed (but it is guaranteed to work with the number of bytes returned)
     template <typename CallableType>
-    static constexpr uint64_t storage_bytes_required() noexcept;
+    static constexpr uint64_t required_storage_size() noexcept;
 
     /// @brief checks whether CallableType is storable
     /// @return true if CallableType can be stored, false if it is not guaranteed that it can be stored
@@ -156,10 +157,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     };
 
   private:
-    operations m_operations;                            // operations depending on type-erased callable (copy, move, destroy)
-    StorageType m_storage;                              // storage for the callable
-    void* m_callable{nullptr};                          // pointer to stored type-erased callable
-    ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable, 
+    operations m_operations;   // operations depending on type-erased callable (copy, move, destroy)
+    StorageType m_storage;     // storage for the callable
+    void* m_callable{nullptr}; // pointer to stored type-erased callable
+    ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored
 
     template <typename Functor,
@@ -180,7 +181,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     template <typename CallableType>
     static void destroy(storable_function& f) noexcept;
 
-    template<typename CallableType>
+    template <typename CallableType>
     static ReturnType invoke(void* callable, Args&&... args);
 
     static void copyFreeFunction(const storable_function& src, storable_function& dest) noexcept;
@@ -188,7 +189,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     static void moveFreeFunction(storable_function& src, storable_function& dest) noexcept;
 
     static ReturnType invokeFreeFunction(void* callable, Args&&... args);
-
 };
 
 } // namespace cxx

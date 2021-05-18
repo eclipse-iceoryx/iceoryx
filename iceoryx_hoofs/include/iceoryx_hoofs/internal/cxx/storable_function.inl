@@ -63,14 +63,16 @@ storable_function<S, signature<ReturnType, Args...>>::storable_function(const T&
 
 template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::storable_function(const storable_function& other) noexcept
-    : m_operations(other.m_operations), m_invoker(other.m_invoker)
+    : m_operations(other.m_operations)
+    , m_invoker(other.m_invoker)
 {
     m_operations.copy(other, *this);
 }
 
 template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::storable_function(storable_function&& other) noexcept
-    : m_operations(other.m_operations), m_invoker(other.m_invoker)
+    : m_operations(other.m_operations)
+    , m_invoker(other.m_invoker)
 {
     m_operations.move(other, *this);
 }
@@ -144,7 +146,8 @@ void storable_function<S, signature<ReturnType, Args...>>::swap(storable_functio
 }
 
 template <typename S, typename ReturnType, typename... Args>
-bool storable_function<S, signature<ReturnType, Args...>>::empty() const noexcept{
+bool storable_function<S, signature<ReturnType, Args...>>::empty() const noexcept
+{
     return m_invoker == nullptr;
 }
 
@@ -166,11 +169,14 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
         m_operations.copyFunction = copy<StoredType>;
         m_operations.moveFunction = move<StoredType>;
         m_operations.destroyFunction = destroy<StoredType>;
-    } else {
+    }
+    else
+    {
         std::cerr << "storable_function: no memory to store functor\n";
         // (this cannot happen in the static_storage case)
-        std::terminate();
     }
+
+    cxx::Ensures(!empty());
 
     // We detect the problem at compile time or store nothing when memory is exhausted.
     // Note that we have no other choice, it is used in the ctor and we cannot throw
@@ -199,12 +205,15 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
         ptr = new (ptr) CallableType(*obj);
         dest.m_callable = ptr;
         dest.m_invoker = src.m_invoker;
-    } else {
+    }
+    else
+    {
         std::cerr << "storable_function: no memory to store copy at destination\n";
         // no memory avilable in source, assignment could not be performed
         // (this cannot happen in the static_storage case)
-        std::terminate();
     }
+
+    cxx::Ensures(!dest.empty());
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -229,12 +238,15 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
         src.m_operations.destroy(src);
         src.m_callable = nullptr;
         src.m_invoker = nullptr;
-    } else {
+    }
+    else
+    {
         // no memory in source, assignment could not be performed
         // (this cannot happen in the static_storage case)
         std::cerr << "storable_function: no memory to store moved object at destination\n";
-        std::terminate();
     }
+
+    cxx::Ensures(!dest.empty());
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -255,7 +267,7 @@ void storable_function<S, signature<ReturnType, Args...>>::copyFreeFunction(cons
                                                                             storable_function& dest) noexcept
 {
     dest.m_invoker = src.m_invoker;
-    dest.m_callable = src.m_callable;   
+    dest.m_callable = src.m_callable;
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -263,25 +275,27 @@ void storable_function<S, signature<ReturnType, Args...>>::moveFreeFunction(stor
                                                                             storable_function& dest) noexcept
 {
     dest.m_invoker = src.m_invoker;
-    dest.m_callable = src.m_callable;  
+    dest.m_callable = src.m_callable;
     src.m_invoker = nullptr;
     src.m_callable = nullptr;
 }
 
 template <typename S, typename ReturnType, typename... Args>
-template<typename CallableType>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::invoke(void* callable, Args&&... args) {
-    return (*static_cast<CallableType*>(callable))(std::forward<Args>(args)...); 
+template <typename CallableType>
+ReturnType storable_function<S, signature<ReturnType, Args...>>::invoke(void* callable, Args&&... args)
+{
+    return (*static_cast<CallableType*>(callable))(std::forward<Args>(args)...);
 }
 
 template <typename S, typename ReturnType, typename... Args>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::invokeFreeFunction(void* callable, Args&&... args) {      
-    return (reinterpret_cast<ReturnType (*)(Args...)>(callable)) (std::forward<Args>(args)...); 
+ReturnType storable_function<S, signature<ReturnType, Args...>>::invokeFreeFunction(void* callable, Args&&... args)
+{
+    return (reinterpret_cast<ReturnType (*)(Args...)>(callable))(std::forward<Args>(args)...);
 }
 
 template <typename S, typename ReturnType, typename... Args>
 template <typename T>
-constexpr uint64_t storable_function<S, signature<ReturnType, Args...>>::storage_bytes_required() noexcept
+constexpr uint64_t storable_function<S, signature<ReturnType, Args...>>::required_storage_size() noexcept
 {
     return sizeof(T) + alignof(T);
 }
@@ -290,12 +304,12 @@ template <typename S, typename ReturnType, typename... Args>
 template <typename T>
 constexpr bool storable_function<S, signature<ReturnType, Args...>>::is_storable() noexcept
 {
-    return (storage_bytes_required<T>() <= S::capacity()) && is_invocable_r<ReturnType, T, Args...>::value;
+    return (required_storage_size<T>() <= S::capacity()) && is_invocable_r<ReturnType, T, Args...>::value;
 }
 
 template <typename S, typename ReturnType, typename... Args>
 void storable_function<S, signature<ReturnType, Args...>>::operations::copy(const storable_function& src,
-                                                                        storable_function& dest) noexcept
+                                                                            storable_function& dest) noexcept
 {
     if (copyFunction)
     {
@@ -306,7 +320,7 @@ void storable_function<S, signature<ReturnType, Args...>>::operations::copy(cons
 
 template <typename S, typename ReturnType, typename... Args>
 void storable_function<S, signature<ReturnType, Args...>>::operations::move(storable_function& src,
-                                                                        storable_function& dest) noexcept
+                                                                            storable_function& dest) noexcept
 {
     if (moveFunction)
     {
