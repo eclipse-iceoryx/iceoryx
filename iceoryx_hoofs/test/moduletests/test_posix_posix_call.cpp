@@ -493,7 +493,7 @@ TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInRetur
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(0));
         })
-        .or_else([](auto&) { EXPECT_TRUE(false); });
+        .or_else([&](auto&) { EXPECT_TRUE(false); });
 
     EXPECT_TRUE(internal::GetCapturedStderr().empty());
 }
@@ -508,7 +508,7 @@ TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInRetur
         .failureReturnValue(RETURN_VALUE)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
-        .or_else([](auto& r) {
+        .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(RETURN_VALUE));
         });
@@ -529,7 +529,7 @@ TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInRetur
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(0));
         })
-        .or_else([](auto&) { EXPECT_TRUE(false); });
+        .or_else([&](auto&) { EXPECT_TRUE(false); });
 
     EXPECT_TRUE(internal::GetCapturedStderr().empty());
 }
@@ -544,7 +544,7 @@ TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInRetur
         .successReturnValue(RETURN_VALUE - 1)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
-        .or_else([](auto& r) {
+        .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(RETURN_VALUE));
         });
