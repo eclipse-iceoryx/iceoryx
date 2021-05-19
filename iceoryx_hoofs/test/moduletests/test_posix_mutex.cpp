@@ -28,16 +28,13 @@ namespace
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 
-constexpr int64_t WAIT_IN_MS = 100;
-constexpr int64_t WAIT_IN_NS = WAIT_IN_MS * 1000000;
-
 class Mutex_test : public Test
 {
   public:
     void SetUp() override
     {
         internal::CaptureStderr();
-        m_deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+        deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown() override
@@ -51,13 +48,14 @@ class Mutex_test : public Test
 
     void signalThreadReady()
     {
-        m_waitForThread.store(false);
+        doWaitForThread.store(false, std::memory_order_relaxed);
     }
 
     void waitForThread()
     {
-        while (m_waitForThread.load())
+        while (doWaitForThread.load(std::memory_order_relaxed))
         {
+            std::this_thread::yield();
         }
     }
 
@@ -67,41 +65,41 @@ class Mutex_test : public Test
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
     }
 
-    std::atomic_bool m_waitForThread{true};
-    iox::posix::mutex m_sutNonRecursive{false};
-    iox::posix::mutex m_sutRecursive{true};
-    iox::units::Duration m_watchdogTimeout = 5_s;
-    Watchdog m_deadlockWatchdog{m_watchdogTimeout};
+    std::atomic_bool doWaitForThread{true};
+    iox::posix::mutex sutNonRecursive{false};
+    iox::posix::mutex sutRecursive{true};
+    iox::units::Duration watchdogTimeout = 5_s;
+    Watchdog deadlockWatchdog{watchdogTimeout};
 };
 
 TEST_F(Mutex_test, TryLockAndUnlockWithNonRecursiveMutexReturnTrue)
 {
-    EXPECT_THAT(m_sutNonRecursive.try_lock(), Eq(true));
-    EXPECT_THAT(m_sutNonRecursive.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.try_lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
 
 #ifndef _WIN32
 TEST_F(Mutex_test, TryLockWithNonRecursiveMutexReturnsFalseAfterLock)
 {
-    EXPECT_THAT(m_sutNonRecursive.lock(), Eq(true));
-    EXPECT_THAT(m_sutNonRecursive.try_lock(), Eq(false));
-    EXPECT_THAT(m_sutNonRecursive.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.try_lock(), Eq(false));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 #endif
 
 TEST_F(Mutex_test, LockAndUnlockWithNonRecursiveMutexReturnsTrue)
 {
-    EXPECT_THAT(m_sutNonRecursive.lock(), Eq(true));
-    EXPECT_THAT(m_sutNonRecursive.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
 TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
 {
-    EXPECT_THAT(m_sutNonRecursive.lock(), Eq(true));
-    EXPECT_THAT(m_sutNonRecursive.unlock(), Eq(true));
-    EXPECT_THAT(m_sutNonRecursive.lock(), Eq(true));
-    EXPECT_THAT(m_sutNonRecursive.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
 #if !defined(_WIN32) && !defined(QNX) && !defined(QNX__) && !defined(__QNX__) && !defined(__APPLE__)
@@ -122,45 +120,43 @@ TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
 }
 #endif
 
-void tryLockReturnsFalseWhenMutexLockedInOtherThread(Mutex_test* test, iox::posix::mutex& mutex)
+void tryLockReturnsFalseWhenMutexLockedInOtherThread(iox::posix::mutex& mutex)
 {
     std::atomic_bool isTryLockSuccessful{true};
     mutex.lock();
 
-    std::thread lockThread([&] {
-        isTryLockSuccessful = mutex.try_lock();
-        test->signalThreadReady();
-    });
+    std::thread lockThread([&] { isTryLockSuccessful = mutex.try_lock(); });
 
-    test->waitForThread();
+    lockThread.join();
     EXPECT_THAT(isTryLockSuccessful.load(), Eq(false));
 
     mutex.unlock();
-    lockThread.join();
 }
 
 TEST_F(Mutex_test, TryLockReturnsFalseWhenMutexLockedInOtherThreadNonRecursiveMutex)
 {
-    tryLockReturnsFalseWhenMutexLockedInOtherThread(this, m_sutNonRecursive);
+    tryLockReturnsFalseWhenMutexLockedInOtherThread(sutNonRecursive);
 }
 
 TEST_F(Mutex_test, TryLockReturnsFalseWhenMutexLockedInOtherThreadRecursiveMutex)
 {
-    tryLockReturnsFalseWhenMutexLockedInOtherThread(this, m_sutRecursive);
+    tryLockReturnsFalseWhenMutexLockedInOtherThread(sutRecursive);
 }
 
 void lockedMutexBlocks(Mutex_test* test, iox::posix::mutex& mutex)
 {
+    const std::chrono::milliseconds WAIT_IN_MS(100);
+
     mutex.lock();
 
     std::thread lockThread([&] {
         test->signalThreadReady();
 
-        auto start = std::chrono::high_resolution_clock::now();
-        mutex.lock();
-        mutex.unlock();
-        auto end = std::chrono::high_resolution_clock::now();
-        EXPECT_THAT(test->getDuration(start, end), Gt(WAIT_IN_NS));
+        auto start = std::chrono::steady_clock::now();
+        EXPECT_TRUE(mutex.lock());
+        EXPECT_TRUE(mutex.unlock());
+        auto end = std::chrono::steady_clock::now();
+        EXPECT_THAT(end - start, Gt(WAIT_IN_MS));
     });
 
     test->waitForThread();
@@ -172,12 +168,12 @@ void lockedMutexBlocks(Mutex_test* test, iox::posix::mutex& mutex)
 
 TEST_F(Mutex_test, LockedMutexBlocksNonRecursiveMutex)
 {
-    lockedMutexBlocks(this, m_sutNonRecursive);
+    lockedMutexBlocks(this, sutNonRecursive);
 }
 
 TEST_F(Mutex_test, LockedMutexBlocksRecursiveMutex)
 {
-    lockedMutexBlocks(this, m_sutRecursive);
+    lockedMutexBlocks(this, sutRecursive);
 }
 
 

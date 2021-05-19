@@ -75,7 +75,8 @@ bool mutex::unlock()
 bool mutex::try_lock()
 {
     auto result = posixCall(pthread_mutex_trylock)(&m_handle).successReturnValue(0).evaluateWithIgnoredErrnos(EBUSY);
-    return !(!result.has_error() && result->errnum == EBUSY) && !result.has_error();
+    bool isBusy = !result.has_error() && result->errnum == EBUSY;
+    return !isBusy && !result.has_error();
 }
 } // namespace posix
 } // namespace iox
