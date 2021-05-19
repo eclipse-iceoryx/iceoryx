@@ -507,7 +507,7 @@ TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInRetur
     iox::posix::posixCall(returnValueIsErrno)(RETURN_VALUE)
         .failureReturnValue(RETURN_VALUE)
         .evaluate()
-        .and_then([&](auto& r) { EXPECT_TRUE(false); })
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(RETURN_VALUE));
