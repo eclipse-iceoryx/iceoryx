@@ -187,12 +187,18 @@ Con:
 * Partially overlapping features with `InterfacePort`s
   * Could the `InterfacePort`s be replace by alternative D?
 
+Note:
+
+* To avoid any out of memory issues with custom user-configured mempools or access rights problems, the publisher shall
+write into the `iceoryx_managment` segment (same applies for the introspection publishers)
+
 ### Decision
 
-<!-- @todo Add final decision -->
-
-* Sychronous, one-shot RPC (Polling): Alternative A
-* Event-based notification: Alternative B
+The **event-based notification alternative D** fulfills both requirements for a asychronous, one shot-polling approach as
+well as the event-based one. It can replace the `InterfacePort`s, which broadens the usage e.g. for gateways or even
+introspection 2.0. Furthermore, alternative D does not add any new non-trivial building blocks. The one-shot RPC call
+does not lead to a shared memory transmission compared to the alternative B (request/response feature usage) as the
+complete service registry is stored locally.
 
 ### Code example
 
@@ -226,38 +232,43 @@ class DiscoveryInfo
 {
   public:
 
-   // Move all service-related methods from PoshRuntime to this class
-   cxx::expected<InstanceContainer, FindServiceError>
-   PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
-   {
-       // Update local service registry
-       get();
+    // Move all service-related methods from PoshRuntime to this class
+    cxx::expected<InstanceContainer, FindServiceError>
+    PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
+    {
+        // Update local service registry
+        get();
 
-       return filterFor(serviceDescription);
-   }
+        return filterFor(serviceDescription);
+    }
 
-   // @todo check if still needed
-   bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
-   void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
+    // @todo check if still needed
+    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
+    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
 
-   ServiceRegistryTopic get() noexcept
-   {
-       m_subscriber.take().and_then([](auto& ServiceRegistryTopic){
-           // Update our local copy of the service registry
-           m_lastServiceRegistry = ServiceRegistryTopic;
-       }).or_else([](){
-           // No change in service registry
-       });
-       return m_lastServiceRegistry;
-   }
+    ServiceRegistryTopic get() noexcept
+    {
+        m_subscriber.take().and_then([](auto& ServiceRegistryTopic){
+            // Update our local copy of the service registry
+            m_lastServiceRegistry = ServiceRegistryTopic;
+        }).or_else([](){
+            // No change in service registry
+        });
+        return m_lastServiceRegistry;
+    }
 
-   // It might be sensible to introduce something like getDelta to avoiding a full blown copy
-   //ServiceRegistryTopic getDelta() noexcept;
+    ServiceRegistryTopic getDelta() noexcept
+    {
+        auto old = m_lastServiceRegistry;
+        get();
+        return old - m_lastServiceRegistry;
+    }
+
+    ServiceRegistryTopic getDelta(const capro::ServiceDescription& serviceDescription) noexcept;
 
    filterFor(const capro::ServiceDescription& serviceDescription) noexcept;
   private:
     Subscriber<ServiceRegistryTopic> m_subscriber{"ServiceDiscovery", "GlobalInstance", "ServiceRegistryTopic"};
-    //Subscriber<ServiceRegistryTopic> m_subscriberDelta{"ServiceDiscovery", "GlobalInstance", "ServiceRegistryTopic"};
     ServiceRegistryTopic m_lastServiceRegistry;
 }
 

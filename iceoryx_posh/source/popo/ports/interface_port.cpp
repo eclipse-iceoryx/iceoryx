@@ -38,7 +38,6 @@ void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         // information loss for this interface port
         errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, ErrorLevel::SEVERE);
     }
-    /// @todo notify the condition variable here
 }
 
 const InterfacePortData* InterfacePort::getMembers() const noexcept

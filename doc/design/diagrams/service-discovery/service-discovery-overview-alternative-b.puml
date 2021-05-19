@@ -1,5 +1,5 @@
 @startuml
-title Alternative B: iceoryx-based ECU forwarding CaPro messages to Gateway and PoshRuntime
+title Alternative B: iceoryx-based ECU forwarding CaPro messages to Gateway and User App
 
 package "iceoryx instance e.g. electronic control unit" {
     component RouDi {
@@ -10,7 +10,7 @@ package "iceoryx instance e.g. electronic control unit" {
         m_server : Server
         ]
     }
-    component PoshRuntime {
+    component "User App" {
         component ServiceDiscoveryListner {
             artifact serviceDiscoveryThread [
             m_thread  : Thread
