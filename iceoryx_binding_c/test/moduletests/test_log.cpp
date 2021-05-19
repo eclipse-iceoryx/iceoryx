@@ -22,6 +22,8 @@ extern "C" {
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::log;
 
@@ -50,3 +52,5 @@ TEST(iox_log_test, LogLevelIsSetCorrectly)
     iox_set_loglevel(Iceoryx_LogLevel_Verbose);
     EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kVerbose);
 }
+
+} // namespace
