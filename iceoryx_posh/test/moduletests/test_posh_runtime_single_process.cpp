@@ -20,14 +20,13 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
+using namespace iox;
 
-namespace iox
-{
-namespace test
-{
 /// @brief Test goal: This test suit verifies class posh_runtime_single_process
 
 class PoshRuntimeSingleProcess_test : public Test
@@ -79,5 +78,4 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

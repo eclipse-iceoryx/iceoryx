@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
@@ -23,13 +24,13 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "test.hpp"
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
@@ -645,3 +646,5 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
         EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(1152U));
     }
 }
+
+} // namespace

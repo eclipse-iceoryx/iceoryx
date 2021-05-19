@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-publisher-vector";
@@ -71,4 +71,3 @@ int main()
 
     return (EXIT_SUCCESS);
 }
-

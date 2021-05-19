@@ -17,7 +17,7 @@
 #ifndef IOX_DDS_DDS_IOX_CHUNK_DATAGRAM_HEADER_HPP
 #define IOX_DDS_DDS_IOX_CHUNK_DATAGRAM_HEADER_HPP
 
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 
 #include <cstdint>
 

@@ -15,17 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
@@ -53,15 +55,12 @@ class PoshRuntimeTestAccess : public PoshRuntime
     }
 };
 
-namespace
-{
 bool callbackWasCalled = false;
 PoshRuntime& testFactory(iox::cxx::optional<const iox::RuntimeName_t*> name)
 {
     callbackWasCalled = true;
     return PoshRuntimeTestAccess::getDefaultRuntime(name);
 }
-} // namespace
 
 class PoshRuntime_test : public Test
 {
@@ -101,11 +100,7 @@ class PoshRuntime_test : public Test
     IpcMessage m_receiveBuffer;
     const iox::NodeName_t m_nodeName{"testNode"};
     const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
-    static bool m_errorHandlerCalled;
 };
-
-bool PoshRuntime_test::m_errorHandlerCalled{false};
-
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
@@ -740,3 +735,5 @@ TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
     // just in case the previous test doesn't die and breaks the following tests
     PoshRuntimeTestAccess::resetRuntimeFactory();
 }
+
+} // namespace

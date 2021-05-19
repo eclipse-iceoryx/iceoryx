@@ -21,7 +21,7 @@ set(IOX_VERSION_STRING "1.0.0")
 
 project(iceoryx_introspection VERSION ${IOX_VERSION_STRING})
 
-find_package(iceoryx_utils REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
@@ -77,7 +77,7 @@ target_include_directories(iceoryx_introspection
 )
 
 target_link_libraries(iceoryx_introspection
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
     iceoryx_posh::iceoryx_posh
     ncurses
 )

@@ -78,7 +78,7 @@ void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagra
     std::copy(serializedDatagramHeader.data(),
               serializedDatagramHeader.data() + serializedDatagramHeader.size(),
               std::back_inserter(chunk.payload()));
-    if (datagramHeader.userHeaderSize > 0 && userHeaderBytes != nullptr )
+    if (datagramHeader.userHeaderSize > 0 && userHeaderBytes != nullptr)
     {
         std::copy(
             userHeaderBytes, userHeaderBytes + datagramHeader.userHeaderSize, std::back_inserter(chunk.payload()));

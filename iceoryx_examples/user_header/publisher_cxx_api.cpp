@@ -17,9 +17,9 @@
 //! [iceoryx includes]
 #include "user_header_and_payload_types.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 //! [iceoryx includes]
 
 #include <atomic>

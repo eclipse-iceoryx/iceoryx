@@ -17,9 +17,11 @@
 
 #include "topic_data.hpp"
 
+//! [include subscriber]
 #include "iceoryx_posh/popo/subscriber.hpp"
+//! [include subscriber]
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -41,14 +43,22 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // initialized subscriber
+    //! [create subscriber]
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    //! [create subscriber]
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        subscriber.take()
-            .and_then([](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; })
+        subscriber
+            .take()
+            //! [sample happy path]
+            .and_then([](auto& sample) {
+                //! [print sample info]
+                std::cout << APP_NAME << " got value: " << sample->x << std::endl;
+                //! [print sample info]
+            })
+            //! [sample happy path]
             .or_else([](auto& result) {
                 // only has to be called if the alternative is of interest,
                 // i.e. if nothing has to happen when no data is received and

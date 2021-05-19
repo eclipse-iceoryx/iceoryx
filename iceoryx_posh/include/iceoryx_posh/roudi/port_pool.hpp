@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_ROUDI_PORT_POOL_HPP
 #define IOX_POSH_ROUDI_PORT_POOL_HPP
 
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
@@ -30,7 +31,6 @@
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
 {

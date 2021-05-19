@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "test.hpp"
 
@@ -268,8 +270,8 @@ TEST_P(ChunkSettings_AlteringUserPayloadWithoutUserHeader, RequiredChunkSizeIsCo
 {
     const auto userPayload = GetParam();
 
-    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayload.size) + std::string("; alignment = ")
-                 + std::to_string(userPayload.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayload.size)
+                 + std::string("; alignment = ") + iox::cxx::convert::toString(userPayload.alignment));
 
     const uint32_t expectedSize = [&userPayload] {
         if (userPayload.alignment <= alignof(ChunkHeader))
@@ -359,8 +361,8 @@ TEST_P(ChunkSettings_AlteringUserPayloadWithUserHeader,
 {
     const auto userPayload = GetParam();
 
-    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayload.size) + std::string("; alignment = ")
-                 + std::to_string(userPayload.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayload.size)
+                 + std::string("; alignment = ") + iox::cxx::convert::toString(userPayload.alignment));
 
     constexpr uint32_t SMALL_USER_HEADER{alignof(ChunkHeader)};
     static_assert(SMALL_USER_HEADER < sizeof(ChunkHeader), "For this test the size must be smaller than ChunkHeader");
@@ -369,11 +371,11 @@ TEST_P(ChunkSettings_AlteringUserPayloadWithUserHeader,
 
     for (const auto userHeaderAlignment : USER_HEADER_ALIGNMENTS)
     {
-        SCOPED_TRACE(std::string("User-Header alignment = ") + std::to_string(userHeaderAlignment));
+        SCOPED_TRACE(std::string("User-Header alignment = ") + iox::cxx::convert::toString(userHeaderAlignment));
 
         for (const auto userHeaderSize : USER_HEADER_SIZES)
         {
-            SCOPED_TRACE(std::string("User-Header size = ") + std::to_string(userHeaderSize));
+            SCOPED_TRACE(std::string("User-Header size = ") + iox::cxx::convert::toString(userHeaderSize));
 
             if (userHeaderSize < userHeaderAlignment)
             {

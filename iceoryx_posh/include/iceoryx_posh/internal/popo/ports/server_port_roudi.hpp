@@ -16,12 +16,12 @@
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_ROUDI_HPP
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_ROUDI_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {

@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
 using namespace ::testing;

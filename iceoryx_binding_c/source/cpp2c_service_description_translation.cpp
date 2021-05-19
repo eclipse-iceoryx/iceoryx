@@ -41,4 +41,3 @@ iox_service_description_t TranslateServiceDescription(const iox::capro::ServiceD
 
     return retVal;
 }
-

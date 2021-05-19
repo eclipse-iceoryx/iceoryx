@@ -16,6 +16,7 @@
 #ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
+//! [topic data]
 struct RadarObject
 {
     RadarObject() noexcept
@@ -31,5 +32,6 @@ struct RadarObject
     double y = 0.0;
     double z = 0.0;
 };
+//! [topic data]
 
 #endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP

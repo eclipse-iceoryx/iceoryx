@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.5)
 set(test_iceoryx_posh_VERSION 0)
 project(test_iceoryx_posh VERSION ${test_iceoryx_posh_VERSION})
 
-find_package(iceoryx_utils_testing REQUIRED)
+find_package(iceoryx_hoofs_testing REQUIRED)
 find_package(iceoryx_posh_testing REQUIRED)
 
 if(BUILD_TEST AND NOT GTest_FOUND)
@@ -46,9 +46,9 @@ set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
     GTest::gtest
     GTest::gmock
-    iceoryx_utils::iceoryx_utils
-    iceoryx_utils::iceoryx_platform
-    iceoryx_utils_testing::iceoryx_utils_testing
+    iceoryx_hoofs::iceoryx_hoofs
+    iceoryx_hoofs::iceoryx_platform
+    iceoryx_hoofs_testing::iceoryx_hoofs_testing
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_gateway

@@ -18,21 +18,18 @@
 #if !defined(_WIN32)
 #include "test.hpp"
 
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::cxx;
 using namespace iox::config;
 
-namespace iox
-{
-namespace test
-{
 class CmdLineParserConfigFileOption_test : public Test
 {
   public:
@@ -178,7 +175,6 @@ TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnl
     EXPECT_THAT(res.value().configFilePath.c_str(), StrEq(path));
 }
 
-} // namespace test
-} // namespace iox
+} // namespace
 
 #endif

@@ -22,7 +22,7 @@ set(IOX_VERSION_STRING "1.0.0")
 
 project(iceoryx_binding_c VERSION ${IOX_VERSION_STRING})
 
-find_package(iceoryx_utils REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 
@@ -92,13 +92,13 @@ if(NOT (WIN32 OR QNX))
         pthread
       PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
     )
 else()
     target_link_libraries(${PROJECT_NAME}
       PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
     )
 endif()
 
