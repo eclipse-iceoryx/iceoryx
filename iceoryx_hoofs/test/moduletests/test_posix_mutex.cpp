@@ -28,6 +28,9 @@ namespace
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 
+constexpr int64_t WAIT_IN_MS = 100;
+constexpr int64_t WAIT_IN_NS = WAIT_IN_MS * 1000000;
+
 class Mutex_test : public Test
 {
   public:
@@ -63,9 +66,6 @@ class Mutex_test : public Test
     {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
     }
-
-    static constexpr int64_t WAIT_IN_MS = 100;
-    static constexpr int64_t WAIT_IN_NS = WAIT_IN_MS * 1000000;
 
     std::atomic_bool m_waitForThread{true};
     iox::posix::mutex m_sutNonRecursive{false};
@@ -160,12 +160,12 @@ void lockedMutexBlocks(Mutex_test* test, iox::posix::mutex& mutex)
         mutex.lock();
         mutex.unlock();
         auto end = std::chrono::high_resolution_clock::now();
-        EXPECT_THAT(test->getDuration(start, end), Gt(test->WAIT_IN_NS));
+        EXPECT_THAT(test->getDuration(start, end), Gt(WAIT_IN_NS));
     });
 
     test->waitForThread();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(test->WAIT_IN_MS));
+    std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_IN_MS));
     mutex.unlock();
     lockThread.join();
 }
