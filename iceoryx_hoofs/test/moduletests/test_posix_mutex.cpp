@@ -160,12 +160,12 @@ void lockedMutexBlocks(Mutex_test* test, iox::posix::mutex& mutex)
         mutex.lock();
         mutex.unlock();
         auto end = std::chrono::high_resolution_clock::now();
-        EXPECT_THAT(test->getDuration(start, end), Gt(Mutex_test::WAIT_IN_NS));
+        EXPECT_THAT(test->getDuration(start, end), Gt(test->WAIT_IN_NS));
     });
 
     test->waitForThread();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(Mutex_test::WAIT_IN_MS));
+    std::this_thread::sleep_for(std::chrono::milliseconds(test->WAIT_IN_MS));
     mutex.unlock();
     lockThread.join();
 }
