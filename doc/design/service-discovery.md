@@ -96,7 +96,8 @@ Con:
 Pro:
 
 * Re-use building blocks to avoid code duplication
-* Dogfooding
+* [Dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food) your own features makes you aware of
+potential issues
 * Fast due to shared memory
 
 Con:
