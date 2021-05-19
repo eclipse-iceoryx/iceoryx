@@ -50,6 +50,27 @@ isErrnumIgnored(const int32_t errnum, const int32_t firstErrno, const IgnoredErr
 
     return isErrnumIgnored(errnum, remainingErrnos...);
 }
+
+template <typename ReturnType, bool ConvertableToErrno>
+struct AssignReturnValueIfItsErrno
+{
+    static void call(const ReturnType, int32_t&) noexcept
+    {
+    }
+};
+
+template <typename ReturnType>
+struct AssignReturnValueIfItsErrno<ReturnType, true>
+{
+    static void call(const ReturnType returnValue, int32_t& errnum) noexcept
+    {
+        // only override when failure was signaled but errno == 0 (SUCCESS)
+        if (errnum == 0)
+        {
+            errnum = static_cast<int32_t>(returnValue);
+        }
+    }
+};
 } // namespace internal
 
 template <typename T>
@@ -152,11 +173,16 @@ template <typename... IgnoredErrnos>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
 {
+    if (!m_details.hasSuccess)
+    {
+        internal::AssignReturnValueIfItsErrno<ReturnType, std::is_convertible<ReturnType, int32_t>::value>::call(
+            m_details.result.value, m_details.result.errnum);
+    }
+
     if (m_details.hasSuccess || internal::isErrnumIgnored(m_details.result.errnum, ignoredErrnos...))
     {
         return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
     }
-
 
     std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
               << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "

@@ -20,7 +20,6 @@
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
 
-
 #include <thread>
 #include <type_traits>
 
