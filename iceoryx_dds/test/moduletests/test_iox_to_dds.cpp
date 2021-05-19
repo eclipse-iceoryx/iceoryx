@@ -32,6 +32,8 @@
 
 #include <limits>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 using ::testing::InSequence;
@@ -317,3 +319,5 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     gw.discover(offerMsg);
 }
 #endif
+
+} // namespace

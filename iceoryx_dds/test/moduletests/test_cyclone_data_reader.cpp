@@ -22,13 +22,12 @@
 #include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
+using namespace iox::dds;
 
-namespace iox
-{
-namespace dds
-{
 // ======================================== Helpers ======================================== //
 using TestDataReader = CycloneDataReader;
 
@@ -97,5 +96,4 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD, takeNextResult2.get_error());
 }
 
-} // namespace dds
-} // namespace iox
+} // namespace
