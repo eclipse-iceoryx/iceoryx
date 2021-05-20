@@ -72,6 +72,41 @@ TEST_F(algorithm_test, MinOfManyElements)
     EXPECT_THAT(min(0.0123f, -91.12f, 123.92f, -1021.2f, 0.0f), Eq(-1021.2f));
 }
 
+TEST_F(algorithm_test, DoesContainValue_ValueListOfZeroDoesNotContainValue)
+{
+    EXPECT_FALSE(doesContainValue(42));
+}
+
+TEST_F(algorithm_test, DoesContainValue_ValueListOfOneDoesNotContainValue)
+{
+    EXPECT_FALSE(doesContainValue(37, 13));
+}
+
+TEST_F(algorithm_test, DoesContainValue_ValueListOfOneDoesContainValue)
+{
+    EXPECT_TRUE(doesContainValue(73, 73));
+}
+
+TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesNotContainValue)
+{
+    EXPECT_FALSE(doesContainValue(13, 42, 73, 7337));
+}
+
+TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesContainValueAtFront)
+{
+    EXPECT_TRUE(doesContainValue(37, 37, 3773, 7535));
+}
+
+TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesContainValueInTheMiddle)
+{
+    EXPECT_TRUE(doesContainValue(42, 13, 42, 555));
+}
+
+TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesContainValueAtEnd)
+{
+    EXPECT_TRUE(doesContainValue(7353, 42, 73, 7353));
+}
+
 TEST_F(algorithm_test, MergeTwoDisjunctNonEmptySortedContainers)
 {
     constexpr int64_t OFFSET = 1337;
