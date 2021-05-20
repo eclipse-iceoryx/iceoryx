@@ -298,6 +298,94 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsLastInListSucc
     EXPECT_TRUE(internal::GetCapturedStderr().empty());
 }
 
+TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIsFirst)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 17;
+    constexpr int ERRNO_VALUE = 18;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(1)
+        .ignoreErrnos(ERRNO_VALUE)
+        .ignoreErrnos(ERRNO_VALUE - 10)
+        .ignoreErrnos(ERRNO_VALUE + 17)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIsMiddle)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 17;
+    constexpr int ERRNO_VALUE = 18;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(1)
+        .ignoreErrnos(ERRNO_VALUE - 10)
+        .ignoreErrnos(ERRNO_VALUE)
+        .ignoreErrnos(ERRNO_VALUE + 17)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIsLast)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 17;
+    constexpr int ERRNO_VALUE = 18;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(1)
+        .ignoreErrnos(ERRNO_VALUE - 10)
+        .ignoreErrnos(ERRNO_VALUE + 17)
+        .ignoreErrnos(ERRNO_VALUE)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsFails)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 17;
+    constexpr int ERRNO_VALUE = 18;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(1)
+        .ignoreErrnos(ERRNO_VALUE - 10)
+        .ignoreErrnos(ERRNO_VALUE + 13)
+        .ignoreErrnos(ERRNO_VALUE + 17)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
 TEST_F(PosixCall_test, RecallingFunctionWithEintrWorks)
 {
     internal::CaptureStderr();
