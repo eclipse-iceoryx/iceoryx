@@ -185,29 +185,6 @@ PosixCallEvaluator<ReturnType>::ignoreErrnos(const IgnoredErrnos... ignoredErrno
 }
 
 template <typename ReturnType>
-template <typename... IgnoredErrnos>
-inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
-PosixCallEvaluator<ReturnType>::evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
-{
-    if (!m_details.hasSuccess)
-    {
-        internal::AssignReturnValueIfItsErrno<ReturnType, std::is_convertible<ReturnType, int32_t>::value>::call(
-            m_details.result.value, m_details.result.errnum);
-    }
-
-    if (m_details.hasSuccess || internal::isErrnumIgnored(m_details.result.errnum, ignoredErrnos...))
-    {
-        return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
-    }
-
-    std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
-              << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
-              << m_details.result.getHumanReadableErrnum() << std::endl;
-
-    return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);
-}
-
-template <typename ReturnType>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 {

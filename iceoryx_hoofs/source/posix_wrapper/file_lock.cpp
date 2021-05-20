@@ -59,7 +59,8 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
 
     auto lockCall = posixCall(iox_flock)(m_fd, LOCK_EX | LOCK_NB)
                         .failureReturnValue(ERROR_CODE)
-                        .evaluateWithIgnoredErrnos(EWOULDBLOCK);
+                        .ignoreErrnos(EWOULDBLOCK)
+                        .evaluate();
 
     if (lockCall.has_error())
     {

@@ -60,7 +60,8 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         {
             posixCall(mq_unlink)(m_name.c_str())
                 .failureReturnValue(ERROR_CODE)
-                .evaluateWithIgnoredErrnos(ENOENT)
+                .ignoreErrnos(ENOENT)
+                .evaluate()
                 .and_then([this](auto& r) {
                     if (r.errnum != ENOENT)
                     {
@@ -136,7 +137,7 @@ cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChann
     }
 
 
-    auto mqCall = posixCall(mq_unlink)(l_name.c_str()).failureReturnValue(ERROR_CODE).evaluateWithIgnoredErrnos(ENOENT);
+    auto mqCall = posixCall(mq_unlink)(l_name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
 
     if (mqCall.has_error())
     {
@@ -224,7 +225,8 @@ MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, cons
     mode_t umaskSaved = umask(0);
     auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
                       .failureReturnValue(ERROR_CODE)
-                      .evaluateWithIgnoredErrnos(ENOENT);
+                      .ignoreErrnos(ENOENT)
+                      .evaluate();
 
     umask(umaskSaved);
 
@@ -280,7 +282,8 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
 
     auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .evaluateWithIgnoredErrnos(TIMEOUT_ERRNO);
+                      .ignoreErrnos(TIMEOUT_ERRNO)
+                      .evaluate();
 
     if (mqCall.has_error())
     {
@@ -308,7 +311,8 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 
     auto mqCall = posixCall(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .evaluateWithIgnoredErrnos(TIMEOUT_ERRNO);
+                      .ignoreErrnos(TIMEOUT_ERRNO)
+                      .evaluate();
 
     if (mqCall.has_error())
     {

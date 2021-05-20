@@ -116,15 +116,6 @@ class IOX_NO_DISCARD PosixCallEvaluator
     template <typename... IgnoredErrnos>
     PosixCallEvaluator<ReturnType> ignoreErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
 
-    /// @brief evaluate the result of a posix call and ignore specified errnos
-    /// @tparam IgnoredErrnos a list of int32_t variables
-    /// @param[in] ignoredErrnos the int32_t values of the errnos which should be ignored
-    /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
-    /// (.value) and the errno value (.errnum) of the function call
-    template <typename... IgnoredErrnos>
-    cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
-    evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
-
     /// @brief evaluate the result of a posix call
     /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
     /// (.value) and the errno value (.errnum) of the function call

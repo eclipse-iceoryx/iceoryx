@@ -140,7 +140,8 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
         {
             posixCall(shm_unlink)(m_name.c_str())
                 .failureReturnValue(-1)
-                .evaluateWithIgnoredErrnos(ENOENT)
+                .ignoreErrnos(ENOENT)
+                .evaluate()
                 .and_then([this](auto& r) {
                     if (r.errnum != ENOENT)
                     {

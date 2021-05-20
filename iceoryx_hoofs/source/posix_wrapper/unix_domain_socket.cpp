@@ -144,7 +144,7 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    auto unlinkCall = posixCall(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).evaluateWithIgnoredErrnos(ENOENT);
+    auto unlinkCall = posixCall(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
 
     if (!unlinkCall.has_error())
     {
@@ -228,7 +228,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
 
     auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
-                              .evaluateWithIgnoredErrnos(EWOULDBLOCK);
+                              .ignoreErrnos(EWOULDBLOCK)
+                              .evaluate();
 
     if (setsockoptCall.has_error())
     {
@@ -275,7 +276,8 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     struct timeval tv = timeout;
     auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
-                              .evaluateWithIgnoredErrnos(EWOULDBLOCK);
+                              .ignoreErrnos(EWOULDBLOCK)
+                              .evaluate();
 
     if (setsockoptCall.has_error())
     {
@@ -287,7 +289,8 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 
         auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
-                            .evaluateWithIgnoredErrnos(EAGAIN);
+                            .ignoreErrnos(EAGAIN)
+                            .evaluate();
         message[MAX_MESSAGE_SIZE] = 0;
 
         if (recvCall.has_error())
@@ -371,7 +374,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         auto connectCall =
             posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
                 .failureReturnValue(ERROR_CODE)
-                .evaluateWithIgnoredErrnos(ENOENT, ECONNREFUSED);
+                .ignoreErrnos(ENOENT, ECONNREFUSED)
+                .evaluate();
 
         if (connectCall.has_error())
         {
