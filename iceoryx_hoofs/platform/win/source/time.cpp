@@ -162,12 +162,23 @@ int timer_getoverrun(timer_t)
 
 int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
-    if (clk_id != CLOCK_REALTIME)
+    if (clk_id == CLOCK_MONOTONIC)
     {
-        fprintf(stderr, "Windows Version of clock_gettime supports only CLOCK_REALTIME clockID\n");
+        constexpr double NANO_SECONDS_PER_SECOND = 1000000000.0;
+        LARGE_INTEGER ticksPerSecond, ticks;
+        QueryPerformanceFrequency(&ticksPerSecond);
+        QueryPerformanceCounter(&ticks);
+        double seconds = static_cast<double>(ticks.QuadPart) / static_cast<double>(ticksPerSecond.QuadPart);
+        tp->tv_sec = static_cast<time_t>(seconds);
+        tp->tv_nsec = static_cast<long>((seconds - std::floor(seconds)) * NANO_SECONDS_PER_SECOND);
+        return 0;
     }
-    int retVal = Win32Call(timespec_get(tp, TIME_UTC));
-    return retVal;
+    else if (clk_id == CLOCK_REALTIME)
+    {
+        return Win32Call(timespec_get(tp, TIME_UTC));
+    }
+    errno = EINVAL;
+    return -1;
 }
 
 int gettimeofday(struct timeval* tp, struct timezone* tzp)
