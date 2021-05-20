@@ -28,9 +28,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build
-        env:
-          CC:   clang-10
-          CXX:  clang++-10
         run: |
           sudo $GITHUB_WORKSPACE/tools/add_test_users.sh
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize test-add-user
@@ -58,15 +55,8 @@ jobs:
       - name: Build and install dependencies
       # tinfo library which is required by iceoryx_introspection isn't available in mac
         run: |
-          cd $GITHUB_WORKSPACE
-          mkdir -p build
-          cd build
-          git clone https://github.com/mirror/ncurses.git
-          cd ncurses
-          git checkout v6.2
-          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib
-          make
-          make install
+          brew install bison
+          brew install ncurses
 
       - name: Build
         run: |
