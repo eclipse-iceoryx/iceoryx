@@ -371,7 +371,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         auto connectCall =
             posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
                 .failureReturnValue(ERROR_CODE)
-                .evaluateWithIgnoredErrnos(ENOENT);
+                .evaluateWithIgnoredErrnos(ENOENT, ECONNREFUSED);
 
         if (connectCall.has_error())
         {
@@ -382,8 +382,11 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.get_error().errnum));
         }
-        else if (connectCall->errnum == ENOENT)
+        else if (connectCall->errnum == ENOENT || connectCall->errnum == ECONNREFUSED)
         {
+            // don't remove this case since it prevents to flood the console with error messages due to trying to open a
+            // socket from a server which is not yet available
+
             closeFileDescriptor().or_else([](auto) {
                 std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
                           << std::endl;
@@ -514,7 +517,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     case ECONNREFUSED:
     {
-        std::cerr << "No server for unix domain socket \"" << m_name << "\"" << std::endl;
+        // no error message needed since this is a normal use case
         return IpcChannelError(IpcChannelError::NO_SUCH_CHANNEL);
     }
     case ECONNRESET:
