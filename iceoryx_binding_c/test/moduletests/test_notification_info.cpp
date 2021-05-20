@@ -28,11 +28,6 @@
 
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::capro;
-using namespace iox::mepoo;
-using namespace iox::cxx;
-using namespace iox::posix;
-
 
 extern "C" {
 #include "iceoryx_binding_c/notification_info.h"
@@ -42,7 +37,13 @@ extern "C" {
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
+using namespace iox::capro;
+using namespace iox::cxx;
+using namespace iox::mepoo;
+using namespace iox::posix;
 
 class iox_notification_info_test : public Test
 {
@@ -236,3 +237,5 @@ TEST_F(iox_notification_info_test, callbackCanBeCalledMultipleTimes)
 
     EXPECT_EQ(m_lastNotificationCallbackArgument, &m_userTrigger);
 }
+
+} // namespace

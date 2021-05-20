@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,16 +28,20 @@ namespace iox
 {
 namespace dds
 {
-///
 /// @brief Implementation of the DataReader abstraction using the cyclonedds implementation.
-///
 class CycloneDataReader : public DataReader
 {
   public:
     CycloneDataReader() = delete;
+
+    /// @brief Constructor to set cyclone data reader object from given IDs
+    /// @param[in] serviceId ID of the service
+    /// @param[in] instanceId ID of the instance of the service
+    /// @param[in] eventId ID of the event
     CycloneDataReader(const capro::IdString_t serviceId,
                       const capro::IdString_t instanceId,
                       const capro::IdString_t eventId) noexcept;
+
     virtual ~CycloneDataReader();
 
     CycloneDataReader(const CycloneDataReader&) = delete;
@@ -45,6 +49,7 @@ class CycloneDataReader : public DataReader
     CycloneDataReader(CycloneDataReader&&) = delete;
     CycloneDataReader& operator=(CycloneDataReader&&) = delete;
 
+    /// @brief Connect cylcone data reader to the underlying DDS network
     void connect() noexcept override;
 
     iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() noexcept override;

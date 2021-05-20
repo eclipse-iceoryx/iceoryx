@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,24 +28,22 @@ namespace iox
 {
 namespace dds
 {
-///
 /// @brief DDS Gateway implementation for the DDS to iceoryx direction.
-///
 template <typename channel_t = gw::Channel<popo::UntypedPublisher, dds::data_reader_t>,
           typename gateway_t = gw::GatewayGeneric<channel_t>>
 class DDS2IceoryxGateway : public gateway_t
 {
-    using ChannelFactory = std::function<channel_t(const capro::ServiceDescription)>;
-
   public:
+    /// @brief Creates a gateway with DDS set as interface
     DDS2IceoryxGateway() noexcept;
-    DDS2IceoryxGateway(ChannelFactory channelFactory) noexcept;
+
     void loadConfiguration(const config::GatewayConfig& config) noexcept;
     void discover(const capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 
   private:
     void* m_reservedChunk = nullptr;
+
     cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
                                                             const popo::PublisherOptions& publisherOptions) noexcept;
 };

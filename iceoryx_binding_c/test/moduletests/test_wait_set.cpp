@@ -38,6 +38,8 @@ extern "C" {
 #include <atomic>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 
 namespace
@@ -630,3 +632,5 @@ TEST_F(iox_ws_test, UserTriggerCallbackWithContextDataIsCalled)
     EXPECT_THAT(m_callbackOrigin, Eq(m_userTrigger[0]));
     EXPECT_THAT(m_contextData, Eq(&someContextData));
 }
+
+} // namespace
