@@ -141,7 +141,8 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_Good
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(RETURN_VALUE + 1)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE)
+        .ignoreErrnos(ERRNO_VALUE)
+        .evaluate()
         .and_then([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
@@ -160,7 +161,8 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_BadC
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(RETURN_VALUE + 1)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE + 1)
+        .ignoreErrnos(ERRNO_VALUE + 1)
+        .evaluate()
         .and_then([](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
@@ -182,7 +184,8 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_Good
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .failureReturnValue(RETURN_VALUE)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE)
+        .ignoreErrnos(ERRNO_VALUE)
+        .evaluate()
         .and_then([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
@@ -201,7 +204,8 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_BadC
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .failureReturnValue(RETURN_VALUE)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE + 1)
+        .ignoreErrnos(ERRNO_VALUE + 1)
+        .evaluate()
         .and_then([](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
@@ -223,7 +227,8 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWorks)
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE - 10, ERRNO_VALUE, ERRNO_VALUE + 17)
+        .ignoreErrnos(ERRNO_VALUE - 10, ERRNO_VALUE, ERRNO_VALUE + 17)
+        .evaluate()
         .and_then([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
@@ -242,7 +247,8 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsNotListedFails
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE - 10, ERRNO_VALUE + 17, ERRNO_VALUE + 1337, ERRNO_VALUE - 2)
+        .ignoreErrnos(ERRNO_VALUE - 10, ERRNO_VALUE + 17, ERRNO_VALUE + 1337, ERRNO_VALUE - 2)
+        .evaluate()
         .and_then([](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
@@ -261,7 +267,8 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsFirstInListSuc
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .evaluateWithIgnoredErrnos(ERRNO_VALUE, ERRNO_VALUE - 91, ERRNO_VALUE + 137, ERRNO_VALUE + 17, ERRNO_VALUE - 29)
+        .ignoreErrnos(ERRNO_VALUE, ERRNO_VALUE - 91, ERRNO_VALUE + 137, ERRNO_VALUE + 17, ERRNO_VALUE - 29)
+        .evaluate()
         .and_then([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
@@ -280,8 +287,8 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsLastInListSucc
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .evaluateWithIgnoredErrnos(
-            ERRNO_VALUE - 918, ERRNO_VALUE + 8137, ERRNO_VALUE + 187, ERRNO_VALUE - 289, ERRNO_VALUE)
+        .ignoreErrnos(ERRNO_VALUE - 918, ERRNO_VALUE + 8137, ERRNO_VALUE + 187, ERRNO_VALUE - 289, ERRNO_VALUE)
+        .evaluate()
         .and_then([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
