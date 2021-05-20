@@ -18,14 +18,15 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
-using namespace iox;
-using namespace iox::runtime;
-
 extern "C" {
 #include "iceoryx_binding_c/node.h"
 #include "iceoryx_binding_c/runtime.h"
 }
 
+namespace
+{
+using namespace iox;
+using namespace iox::runtime;
 class iox_node_test : public RouDi_GTest
 {
   public:
@@ -105,3 +106,5 @@ TEST_F(iox_node_test, getNodeRuntimeNameBufferIsLessThanNodeProcessNameLength)
     ASSERT_THAT(nameLength, Eq(m_runtimeName.size()));
     EXPECT_THAT(truncatedProcessName, StrEq(expectedProcessName));
 }
+
+} // namespace
