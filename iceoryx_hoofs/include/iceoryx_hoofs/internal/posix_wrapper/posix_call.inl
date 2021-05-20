@@ -101,49 +101,23 @@ inline PosixCallVerificator<ReturnType>::PosixCallVerificator(internal::PosixCal
 }
 
 template <typename ReturnType>
-inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::successReturnValue(const ReturnType value) && noexcept
-{
-    m_details.hasSuccess = (m_details.result.value == value);
-    return PosixCallEvaluator<ReturnType>(m_details);
-}
-
-template <typename ReturnType>
 template <typename... SuccessReturnValues>
 inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::successReturnValue(const ReturnType value,
-                                                     const SuccessReturnValues... remainingValues) && noexcept
+PosixCallVerificator<ReturnType>::successReturnValue(const SuccessReturnValues... successReturnValues) && noexcept
 {
-    m_details.hasSuccess = (m_details.result.value == value);
-    if (m_details.hasSuccess)
-    {
-        return PosixCallEvaluator<ReturnType>(m_details);
-    }
+    m_details.hasSuccess = algorithm::doesContainValue(m_details.result.value, successReturnValues...);
 
-    // we require an rvalue of our object
-    return std::move(*this).successReturnValue(remainingValues...);
+    return PosixCallEvaluator<ReturnType>(m_details);
 }
 
 template <typename ReturnType>
 template <typename... FailureReturnValues>
 inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::failureReturnValue(const ReturnType value,
-                                                     const FailureReturnValues... remainingValues) && noexcept
+PosixCallVerificator<ReturnType>::failureReturnValue(const FailureReturnValues... failureReturnValues) && noexcept
 {
-    m_details.hasSuccess = (m_details.result.value != value);
-    if (m_details.result.value == value)
-    {
-        return PosixCallEvaluator<ReturnType>(m_details);
-    }
-    // we require an rvalue of our object
-    return std::move(*this).failureReturnValue(remainingValues...);
-}
+    using ValueType = decltype(m_details.result.value);
+    m_details.hasSuccess = !algorithm::doesContainValue(m_details.result.value, static_cast<ValueType>(failureReturnValues)...);
 
-template <typename ReturnType>
-inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::failureReturnValue(const ReturnType value) && noexcept
-{
-    m_details.hasSuccess = (m_details.result.value != value);
     return PosixCallEvaluator<ReturnType>(m_details);
 }
 

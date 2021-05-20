@@ -138,22 +138,16 @@ class IOX_NO_DISCARD PosixCallVerificator
 {
   public:
     /// @brief the posix function call defines success through a single value
-    /// @param[in] value the value which defines success
-    /// @param[in] remainingValues a list of additional values which define success
+    /// @param[in] successReturnValues a list of values which define success
     /// @return the PosixCallEvaluator which evaluates the errno values
     template <typename... SuccessReturnValues>
-    PosixCallEvaluator<ReturnType> successReturnValue(const ReturnType value,
-                                                      const SuccessReturnValues... remainingValues) && noexcept;
-    PosixCallEvaluator<ReturnType> successReturnValue(const ReturnType value) && noexcept;
+    PosixCallEvaluator<ReturnType> successReturnValue(const SuccessReturnValues... successReturnValues) && noexcept;
 
     /// @brief the posix function call defines failure through a single value
-    /// @param[in] value the value which defines failure
-    /// @param[in] remainingValues a list of additional values which define failure
+    /// @param[in] failureReturnValues a list of values which define failure
     /// @return the PosixCallEvaluator which evaluates the errno values
     template <typename... FailureReturnValues>
-    PosixCallEvaluator<ReturnType> failureReturnValue(const ReturnType value,
-                                                      const FailureReturnValues... remainingValues) && noexcept;
-    PosixCallEvaluator<ReturnType> failureReturnValue(const ReturnType value) && noexcept;
+    PosixCallEvaluator<ReturnType> failureReturnValue(const FailureReturnValues... failureReturnValues) && noexcept;
 
   private:
     template <typename, typename...>
