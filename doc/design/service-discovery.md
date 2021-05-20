@@ -140,7 +140,7 @@ Pro:
 
 Con:
 
-* Overhead, `Listner` will wake up on every `CaproMessage`
+* Overhead, `Listener` will wake up on every `CaproMessage`
 * Bookkeeping at user-side, just delta of service registry is transferred
 * What will RouDi do if he runs out of memory?
   * Dimensioning according to max values is not optimal (MAX_INTERFACE_CAPRO_FIFO_SIZE)
@@ -166,7 +166,7 @@ Con:
 * Not needed by all users per default
 * Polling leads to overhead
 
-##### Alternative D: Discovery Class + Listner
+##### Alternative D: Discovery Class + Listener
 
 Create a new publisher in RouDi which sends a `ServiceRegistryTopic`. This publisher would be used both to signal a
 change in the service registry and to transmit the service discovery registry. The complete old service registry
@@ -210,7 +210,7 @@ auto& runtime = PoshRuntime::initRuntime("myApp");
 auto* interfacePortData = runtime.getMiddlewareInterface(capro::Interfaces::INTERNAL);
 
 InterfacePort caproSubscriber(interfacePortData);
-Listener myListner;
+Listener myListener;
 
 void onDiscoveryUpdateCallback(InterfacePort* subscriber)
 {
@@ -223,7 +223,7 @@ void onDiscoveryUpdateCallback(InterfacePort* subscriber)
     });
 }
 
-myListner.attachEvent(caproSubscriber, DATA_RECEIVED, createNotificationCallback(onDiscoveryUpdateCallback));
+myListener.attachEvent(caproSubscriber, DATA_RECEIVED, createNotificationCallback(onDiscoveryUpdateCallback));
 ```
 
 #### Event-based notification: Alternative D
@@ -273,9 +273,9 @@ class DiscoveryInfo
     ServiceRegistryTopic m_lastServiceRegistry;
 }
 
-// Class should be attachable to listner
+// Class should be attachable to Listener
 iox::popo::DiscoveryInfo discoveryInfo;
-myListner.attachEvent(discoveryInfo, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
+myListener.attachEvent(discoveryInfo, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
 ```
 
 #### Sychronous, one-shot RPC (Polling): Alternative B

@@ -17,7 +17,7 @@ package "iceoryx instance e.g. electronic control unit" {
 
         }
 
-        component UserAppListner <<object>>
+        component UserAppListener <<object>>
 
         component UserDefinedCallback <<object>>
     }
@@ -29,7 +29,7 @@ package "iceoryx instance e.g. electronic control unit" {
             -m_lastServiceRegistry : ServiceRegistryTopic
             ]
         }
-        component GatewayListner <<object>>
+        component GatewayListener <<object>>
 
         component GatewayUserDefinedCallback <<object>>
     }
@@ -43,8 +43,8 @@ package "DDS instance e.g. electronic control unit" {
 [discoveryLoop] ..> [DiscoveryInfoNoteA] : publish(ServiceRegistryTopic)
 [discoveryLoop] ..> [DiscoveryInfoNoteB] : publish(ServiceRegistryTopic)
 [DCPSTopic] ..> [DiscoveryInfoNoteB]  : Not yet implemented
-[GatewayListner] ..> [GatewayUserDefinedCallback]  : calls
-[UserAppListner] ..> [UserDefinedCallback]  : calls
-[DiscoveryInfoNoteA] ..> [UserAppListner]  : attached to
-[DiscoveryInfoNoteB] ..> [GatewayListner]  : attached to
+[GatewayListener] ..> [GatewayUserDefinedCallback]  : calls
+[UserAppListener] ..> [UserDefinedCallback]  : calls
+[DiscoveryInfoNoteA] ..> [UserAppListener]  : attached to
+[DiscoveryInfoNoteB] ..> [GatewayListener]  : attached to
 @enduml

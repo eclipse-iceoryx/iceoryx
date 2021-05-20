@@ -11,7 +11,7 @@ package "iceoryx instance e.g. electronic control unit" {
         ]
     }
     component "User App" {
-        component ServiceDiscoveryListner {
+        component ServiceDiscoveryListener {
             artifact serviceDiscoveryThread [
             m_thread  : Thread
             m_interfacePort  : InterfacePort

@@ -13,10 +13,10 @@ UserAppA->RouDi:  getMiddlewareSubscriber() / CREATE_Subscriber
 RouDi->UserAppA: CREATE_INTERFACE_ACK
 deactivate UserAppA
 
-UserAppA->UserAppA: Listner::attachEvent(discoveryInfo)
+UserAppA->UserAppA: Listener::attachEvent(discoveryInfo)
 
 
-UserAppA->UserAppA: Listner::wait()
+UserAppA->UserAppA: Listener::wait()
 activate UserAppA
 note right: Only react on CaproMessageSubType::SERVICE
 
@@ -32,7 +32,7 @@ loop every 100ms
     end
 end
 deactivate RouDi
-UserAppA->UserAppA: wake up from Listner::wait()
+UserAppA->UserAppA: wake up from Listener::wait()
 deactivate UserAppA
 
 @enduml
