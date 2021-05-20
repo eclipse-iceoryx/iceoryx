@@ -47,6 +47,7 @@ if(BUILD_TEST)
 
     # Download and unpack googletest at configure time
     configure_file(googletest.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)
+
     execute_process(COMMAND ${CMAKE_COMMAND} ${ENABLE_STATIC_DEBUG} -G "${CMAKE_GENERATOR}" "${TOOLCHAIN_FILE}" "${DOWNLOAD_CONFIG_DIR}"
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${DOWNLOAD_CONFIG_DIR} )
@@ -62,6 +63,17 @@ if(BUILD_TEST)
     endif()
 
     file(MAKE_DIRECTORY ${BUILD_DIR})
+
+    if(NOT WIN32)
+        execute_process(
+            COMMAND patch -p1
+            INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/internal_utils.cmake.patch"
+            WORKING_DIRECTORY "${SOURCE_DIR}"
+            RESULT_VARIABLE result)
+        if(result)
+            message(FATAL_ERROR "CMake step [patch] for googletest failed: ${result}")
+        endif()
+    endif()
 
     execute_process(COMMAND ${CMAKE_COMMAND} ${ENABLE_STATIC_DEBUG} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${SOURCE_DIR}"
         RESULT_VARIABLE result
