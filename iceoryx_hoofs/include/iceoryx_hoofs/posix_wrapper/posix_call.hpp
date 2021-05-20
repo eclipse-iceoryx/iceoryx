@@ -70,9 +70,10 @@ struct PosixCallDetails
 {
     const char* posixFunctionName = nullptr;
     const char* file = nullptr;
-    int32_t line = 0;
     const char* callingFunction = nullptr;
+    int32_t line = 0;
     bool hasSuccess = true;
+    bool hasIgnoredErrno = false;
 
     PosixCallResult<ReturnType> result;
 };
@@ -85,7 +86,8 @@ struct PosixCallDetails
 /// @code
 ///        iox::posix::posixCall(sem_timedwait)(handle, timeout)
 ///             .successReturnValue(0)
-///             .evaluateWithIgnoredErrnos(ETIMEDOUT) // can be a comma separated list of errnos
+///             .ignoreErrnos(ETIMEDOUT) // can be a comma separated list of errnos
+///             .evaluate()
 ///             .and_then([](auto & result){
 ///                 std::cout << result.value << std::endl; // return value of sem_timedwait
 ///                 std::cout << result.errno << std::endl; // errno which was set by sem_timedwait
@@ -99,9 +101,6 @@ struct PosixCallDetails
 ///
 ///        // when your posix call signals failure with one specific return value use
 ///        // .failureReturnValue(_) instead of .successReturnValue(_)
-///
-///        // if you do not want to ignore errnos use
-///        // .evaluate() instead of .evaluateWithIgnoredErrnos(_)
 /// @endcode
 #define posixCall(f) internal::createPosixCallBuilder(f, #f, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
@@ -110,6 +109,13 @@ template <typename ReturnType>
 class IOX_NO_DISCARD PosixCallEvaluator
 {
   public:
+    /// @brief ignore specified errnos from the evaluation
+    /// @tparam IgnoredErrnos a list of int32_t variables
+    /// @param[in] ignoredErrnos the int32_t values of the errnos which should be ignored
+    /// @return a PosixCallEvaluator for further setup of the evaluation
+    template <typename... IgnoredErrnos>
+    PosixCallEvaluator<ReturnType> ignoreErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
+
     /// @brief evaluate the result of a posix call and ignore specified errnos
     /// @tparam IgnoredErrnos a list of int32_t variables
     /// @param[in] ignoredErrnos the int32_t values of the errnos which should be ignored

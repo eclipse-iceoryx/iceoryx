@@ -86,7 +86,7 @@ inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(Func
                                                                             const int32_t line,
                                                                             const char* callingFunction) noexcept
     : m_posixCall{posixCall}
-    , m_details{posixFunctionName, file, line, callingFunction, true, {}}
+    , m_details{posixFunctionName, file, callingFunction, line, true, false, {}}
 {
 }
 
@@ -170,6 +170,22 @@ inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(internal::PosixCallDet
 
 template <typename ReturnType>
 template <typename... IgnoredErrnos>
+inline PosixCallEvaluator<ReturnType>
+PosixCallEvaluator<ReturnType>::ignoreErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
+{
+    if (!m_details.hasSuccess)
+    {
+        internal::AssignReturnValueIfItsErrno<ReturnType, std::is_convertible<ReturnType, int32_t>::value>::call(
+            m_details.result.value, m_details.result.errnum);
+
+        m_details.hasIgnoredErrno |= internal::isErrnumIgnored(m_details.result.errnum, ignoredErrnos...);
+    }
+
+    return *this;
+}
+
+template <typename ReturnType>
+template <typename... IgnoredErrnos>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
 {
@@ -195,7 +211,22 @@ template <typename ReturnType>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 {
-    return std::move(*this).evaluateWithIgnoredErrnos();
+    if (!m_details.hasSuccess && !m_details.hasIgnoredErrno)
+    {
+        internal::AssignReturnValueIfItsErrno<ReturnType, std::is_convertible<ReturnType, int32_t>::value>::call(
+            m_details.result.value, m_details.result.errnum);
+    }
+
+    if (m_details.hasSuccess || m_details.hasIgnoredErrno)
+    {
+        return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
+    }
+
+    std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
+              << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
+              << m_details.result.getHumanReadableErrnum() << std::endl;
+
+    return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);
 }
 
 } // namespace posix
