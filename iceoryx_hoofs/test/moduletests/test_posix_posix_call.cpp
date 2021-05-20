@@ -38,6 +38,12 @@ int testEintr()
     return 0;
 }
 
+int returnValueIsErrno(int returnValue)
+{
+    errno = 0;
+    return returnValue;
+}
+
 class PosixCall_test : public Test
 {
   public:
@@ -472,4 +478,76 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
         .or_else([](auto&) { EXPECT_TRUE(false); });
 
     EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInReturnValueWithFailureRetVal_GoodCase)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 41;
+
+    iox::posix::posixCall(returnValueIsErrno)(RETURN_VALUE)
+        .failureReturnValue(RETURN_VALUE - 1)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(0));
+        })
+        .or_else([&](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInReturnValueWithFailureRetVal_BadCase)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 42;
+
+    iox::posix::posixCall(returnValueIsErrno)(RETURN_VALUE)
+        .failureReturnValue(RETURN_VALUE)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(RETURN_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInReturnValueWithSuccessRetVal_GoodCase)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 43;
+
+    iox::posix::posixCall(returnValueIsErrno)(RETURN_VALUE)
+        .successReturnValue(RETURN_VALUE)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(0));
+        })
+        .or_else([&](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInReturnValueWithSuccessRetVal_BadCase)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 44;
+
+    iox::posix::posixCall(returnValueIsErrno)(RETURN_VALUE)
+        .successReturnValue(RETURN_VALUE - 1)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(RETURN_VALUE));
+        });
+
+    EXPECT_FALSE(internal::GetCapturedStderr().empty());
 }

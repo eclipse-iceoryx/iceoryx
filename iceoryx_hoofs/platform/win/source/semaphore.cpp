@@ -62,6 +62,10 @@ int iox_sem_wait(iox_sem_t* sem)
 int iox_sem_trywait(iox_sem_t* sem)
 {
     int retVal = Win32Call(WaitForSingleObject(sem->handle, 0));
+    if (retVal != WAIT_OBJECT_0)
+    {
+        errno = EAGAIN;
+    }
     return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
@@ -70,15 +74,23 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     if (abs_timeout->tv_sec < tv.tv_sec
-        || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec < tv.tv_usec * 1000))
+        || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec <= tv.tv_usec * 1000))
     {
         return iox_sem_trywait(sem);
     }
 
-    time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
-    long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
+    constexpr uint64_t NANO_SECOND = 1000000000;
+    constexpr uint64_t HALF_MILLI_SECOND_ROUNDING_CORRECTION_IN_NS = 500000;
+    constexpr uint64_t NANO_SECONDS_PER_MICRO_SECOND = 1000;
+    constexpr uint64_t NANO_SECONDS_PER_MILLI_SECOND = 1000000;
 
-    auto state = Win32Call(WaitForSingleObject(sem->handle, milliseconds));
+    uint64_t epochCurrentTimeDiffInNanoSeconds = (abs_timeout->tv_sec - tv.tv_sec) * NANO_SECOND;
+    long milliseconds =
+        (epochCurrentTimeDiffInNanoSeconds + (abs_timeout->tv_nsec - tv.tv_usec * NANO_SECONDS_PER_MICRO_SECOND)
+         + HALF_MILLI_SECOND_ROUNDING_CORRECTION_IN_NS)
+        / NANO_SECONDS_PER_MILLI_SECOND;
+
+    auto state = Win32Call(WaitForSingleObject(sem->handle, (milliseconds == 0) ? 1 : milliseconds));
     if (state == WAIT_TIMEOUT)
     {
         errno = ETIMEDOUT;
