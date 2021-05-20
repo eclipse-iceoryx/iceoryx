@@ -161,7 +161,7 @@ void lockedMutexBlocks(Mutex_test* test, iox::posix::mutex& mutex)
 
     test->waitForThread();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_IN_MS));
+    std::this_thread::sleep_for(WAIT_IN_MS);
     mutex.unlock();
     lockThread.join();
 }
