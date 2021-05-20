@@ -68,7 +68,7 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
             std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.get_error().errnum));
+        return cxx::error<FileLockError>(convertErrnoToFileLockError(lockCall.get_error().errnum));
     }
 
     return cxx::success<>();
