@@ -225,24 +225,17 @@ MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, cons
     mode_t umaskSaved = umask(0);
     auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
                       .failureReturnValue(ERROR_CODE)
-                      .ignoreErrnos(ENOENT)
+                      .suppressErrorLoggingOfErrnos(ENOENT)
                       .evaluate();
 
     umask(umaskSaved);
 
-    if (!mqCall.has_error())
+    if (mqCall.has_error())
     {
-        if (mqCall->errnum == 0)
-        {
-            return cxx::success<int32_t>(mqCall->value);
-        }
-        else if (mqCall->errnum == ENOENT)
-        {
-            return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
-        }
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
 
-    return createErrorFromErrnum(mqCall.get_error().errnum);
+    return cxx::success<int32_t>(mqCall->value);
 }
 
 cxx::expected<IpcChannelError> MessageQueue::close()
@@ -282,16 +275,12 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
 
     auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .ignoreErrnos(TIMEOUT_ERRNO)
+                      .suppressErrorLoggingOfErrnos(TIMEOUT_ERRNO)
                       .evaluate();
 
     if (mqCall.has_error())
     {
         return createErrorFromErrnum(mqCall.get_error().errnum);
-    }
-    else if (mqCall->errnum == TIMEOUT_ERRNO)
-    {
-        return createErrorFromErrnum(ETIMEDOUT);
     }
 
     return cxx::success<std::string>(std::string(&(message[0])));
@@ -311,16 +300,12 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 
     auto mqCall = posixCall(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .ignoreErrnos(TIMEOUT_ERRNO)
+                      .suppressErrorLoggingOfErrnos(TIMEOUT_ERRNO)
                       .evaluate();
 
     if (mqCall.has_error())
     {
         return createErrorFromErrnum(mqCall.get_error().errnum);
-    }
-    else if (mqCall->errnum == TIMEOUT_ERRNO)
-    {
-        return createErrorFromErrnum(ETIMEDOUT);
     }
 
     return cxx::success<void>();
@@ -373,7 +358,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannel
     }
     case ENOENT:
     {
-        std::cerr << "message queue \"" << name << "\" does not exist" << std::endl;
+        // no error message needed since this is a normal use case
         return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
     }
     case ENAMETOOLONG:

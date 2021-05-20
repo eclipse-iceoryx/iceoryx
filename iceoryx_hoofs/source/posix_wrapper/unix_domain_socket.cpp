@@ -289,7 +289,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 
         auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
-                            .ignoreErrnos(EAGAIN)
+                            .suppressErrorLoggingOfErrnos(EAGAIN)
                             .evaluate();
         message[MAX_MESSAGE_SIZE] = 0;
 
@@ -297,16 +297,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
         {
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.get_error().errnum));
         }
-        /// we have to handle the timeout separately since it is not actual an
-        /// error, it is expected behavior. but we have to still inform the user
-        else if (recvCall->errnum == EAGAIN)
-        {
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall->errnum));
-        }
-        else
-        {
-            return cxx::success<std::string>(std::string(message));
-        }
+        return cxx::success<std::string>(std::string(message));
     }
 }
 
@@ -374,7 +365,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         auto connectCall =
             posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
                 .failureReturnValue(ERROR_CODE)
-                .ignoreErrnos(ENOENT, ECONNREFUSED)
+                .suppressErrorLoggingOfErrnos(ENOENT, ECONNREFUSED)
                 .evaluate();
 
         if (connectCall.has_error())
@@ -385,18 +376,6 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
             });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.get_error().errnum));
-        }
-        else if (connectCall->errnum == ENOENT || connectCall->errnum == ECONNREFUSED)
-        {
-            // don't remove this case since it prevents to flood the console with error messages due to trying to open a
-            // socket from a server which is not yet available
-
-            closeFileDescriptor().or_else([](auto) {
-                std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
-                          << std::endl;
-            });
-            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-            return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall->errnum));
         }
         else
         {
