@@ -60,6 +60,9 @@ jobs:
 
       - name: Build
         run: |
+          export LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/ncurses/lib"
+          export CPPFLAGS="-I/usr/local/opt/ncurses/include"
+          export PATH="/usr/local/opt/bison/bin:$PATH"
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize
 
       - name: Run tests
