@@ -34,22 +34,7 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
         posixCall, posixFunctionName, file, line, callingFunction);
 }
 
-inline bool isErrnumIgnored(const int32_t)
-{
-    return false;
-}
 
-template <typename... IgnoredErrnos>
-inline bool
-isErrnumIgnored(const int32_t errnum, const int32_t firstErrno, const IgnoredErrnos... remainingErrnos) noexcept
-{
-    if (errnum == firstErrno)
-    {
-        return true;
-    }
-
-    return isErrnumIgnored(errnum, remainingErrnos...);
-}
 
 template <typename ReturnType, bool ConvertableToErrno>
 struct AssignReturnValueIfItsErrno
@@ -178,10 +163,11 @@ PosixCallEvaluator<ReturnType>::ignoreErrnos(const IgnoredErrnos... ignoredErrno
         internal::AssignReturnValueIfItsErrno<ReturnType, std::is_convertible<ReturnType, int32_t>::value>::call(
             m_details.result.value, m_details.result.errnum);
 
-        m_details.hasIgnoredErrno |= internal::isErrnumIgnored(m_details.result.errnum, ignoredErrnos...);
+        m_details.hasIgnoredErrno |= algorithm::doesContainValue(m_details.result.errnum, ignoredErrnos...);
     }
 
     return *this;
+
 }
 
 template <typename ReturnType>

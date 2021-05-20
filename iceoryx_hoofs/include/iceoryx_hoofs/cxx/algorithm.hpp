@@ -96,6 +96,22 @@ constexpr bool doesContainType() noexcept;
 template <typename T, typename CompareType, typename Next, typename... Remainder>
 constexpr bool doesContainType() noexcept;
 
+/// @brief Finalizes the recursion of doesContainValue
+/// @param T type of the value to check
+/// @return always false
+template <typename T>
+inline constexpr bool doesContainValue(const T);
+
+/// @brief Returns true if value of T is found in the ValueList, otherwise false
+/// @tparam T type of the value to check
+/// @tparam ValueList is a list of values to check for a specific value
+/// @param[in] value to look for in the ValueList
+/// @param[in] firstValueListEntry is the first variadic argument of ValueList
+/// @param[in] remainingValueListEntries are the remaining variadic arguments of ValueList
+template <typename T, typename... ValueList>
+inline constexpr bool
+doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
+
 /// @brief Merging two sorted containers so that the result is a sorted container
 ///        where every element is contained only once
 /// @tparam Container container type which has to support emplace_back() and size()
