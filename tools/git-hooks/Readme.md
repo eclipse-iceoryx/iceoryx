@@ -1,9 +1,9 @@
 # Git Hooks for iceoryx
 
-When developing on iceoryx, git-hooks are doing some sanity checks and can execute linters/formatter when you commit code to iceoryx.
+When developing on iceoryx, git-hooks are doing some sanity checks and can execute linters/formatters when you commit code to iceoryx.
 In the current state the git hooks do the following job:
 
-- checking if commit messages follows the format `[iox-#<Github issue number>]` and auto-format them if necessary
+- checking if commit messages follow the format `[iox-#<Github issue number>]` and auto-format them if necessary
 - check if commit message subject and body follow six of the [seven rules of a great commit message](https://chris.beams.io/posts/git-commit/)
 - remove trailing whitespace from all modified files
 - run `clang-format` on all modified files

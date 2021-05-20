@@ -43,11 +43,17 @@ fi
 cpp_files=$(git diff --cached --name-only --diff-filter=ACMRT | grep -E "\.(c|cpp|inl|h|hpp)$")
 if [[ -n ${cpp_files} ]]; then
 
-    CLANG_MAJOR_VERSION=$(clang-format --version | sed -n "s/clang-format version \([0-9]*\)\.[0-9]*\.[0-9]*/\1/p")
-    if [[ $CLANG_MAJOR_VERSION -lt "10" ]]; then
-        echo "Warning: clang-format of version 10 or higher is not installed."
-        echo "Code will not be formatted."
-        exit 0
+    CLANG_CMD="clang-format-10"
+    if ! command -v $CLANG_CMD &> /dev/null
+    then
+        CLANG_MAJOR_VERSION=$(clang-format --version | sed -n "s/clang-format version \([0-9]*\)\.[0-9]*\.[0-9]*/\1/p")
+        if [[ $CLANG_MAJOR_VERSION -lt "10" ]]; then
+            echo "Warning: clang-format of version 10 or higher is not installed."
+            echo "Code will not be formatted."
+            exit 0
+        else
+            CLANG_CMD="clang-format"
+        fi
     fi
 
     echo "Running clang-format on the following file(s):"
@@ -57,7 +63,7 @@ if [[ -n ${cpp_files} ]]; then
 
     for file in $cpp_files ; do
         if [ -f $file ]; then
-            clang-format -i -style=file ${file}
+            $CLANG_CMD -i -style=file ${file}
             git add ${file}
         fi
     done
