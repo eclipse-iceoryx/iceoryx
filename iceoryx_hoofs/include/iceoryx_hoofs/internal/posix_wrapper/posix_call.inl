@@ -69,7 +69,7 @@ inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(Func
                                                                             const int32_t line,
                                                                             const char* callingFunction) noexcept
     : m_posixCall{posixCall}
-    , m_details{posixFunctionName, file, callingFunction, line, true, false, {}}
+    , m_details{posixFunctionName, file, callingFunction, line, true, false, false, {}}
 {
 }
 
@@ -149,6 +149,19 @@ PosixCallEvaluator<ReturnType>::ignoreErrnos(const IgnoredErrnos... ignoredErrno
 }
 
 template <typename ReturnType>
+template <typename... SilentErrnos>
+inline PosixCallEvaluator<ReturnType>
+PosixCallEvaluator<ReturnType>::suppressErrorLoggingOfErrnos(const SilentErrnos... silentErrnos) const&& noexcept
+{
+    if (!m_details.hasSuccess)
+    {
+        m_details.hasSilentErrno |= algorithm::doesContainValue(m_details.result.errnum, silentErrnos...);
+    }
+
+    return *this;
+}
+
+template <typename ReturnType>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 {
@@ -156,10 +169,12 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
     {
         return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
     }
-
-    std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
-              << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
-              << m_details.result.getHumanReadableErrnum() << std::endl;
+    else if (!m_details.hasSilentErrno)
+    {
+        std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
+                  << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
+                  << m_details.result.getHumanReadableErrnum() << std::endl;
+    }
 
     return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);
 }

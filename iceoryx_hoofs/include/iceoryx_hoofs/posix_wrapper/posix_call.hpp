@@ -75,6 +75,7 @@ struct PosixCallDetails
     int32_t line = 0;
     bool hasSuccess = true;
     bool hasIgnoredErrno = false;
+    bool hasSilentErrno = false;
 
     PosixCallResult<ReturnType> result;
 };
@@ -118,6 +119,13 @@ class IOX_NO_DISCARD PosixCallEvaluator
     /// @return a PosixCallEvaluator for further setup of the evaluation
     template <typename... IgnoredErrnos>
     PosixCallEvaluator<ReturnType> ignoreErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
+
+    /// @brief silence specified errnos from printing error messages in the evaluation
+    /// @tparam SilentErrnos a list of int32_t variables
+    /// @param[in] silentErrnos the int32_t values of the errnos which should be silent and not cause an error log
+    /// @return a PosixCallEvaluator for further setup of the evaluation
+    template <typename... SilentErrnos>
+    PosixCallEvaluator<ReturnType> suppressErrorLoggingOfErrnos(const SilentErrnos... silentErrnos) const&& noexcept;
 
     /// @brief evaluate the result of a posix call
     /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
