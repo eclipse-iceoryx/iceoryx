@@ -102,6 +102,8 @@ struct PosixCallDetails
 ///
 ///        // when your posix call signals failure with one specific return value use
 ///        // .failureReturnValue(_) instead of .successReturnValue(_)
+///        // when your posix call signals failure by returning the errno value instead of setting the errno use
+///        // .returnValueMatchesErrno() instead of .successReturnValue(_)
 /// @endcode
 #define posixCall(f) internal::createPosixCallBuilder(f, #f, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
@@ -148,6 +150,10 @@ class IOX_NO_DISCARD PosixCallVerificator
     /// @return the PosixCallEvaluator which evaluates the errno values
     template <typename... FailureReturnValues>
     PosixCallEvaluator<ReturnType> failureReturnValue(const FailureReturnValues... failureReturnValues) && noexcept;
+
+    /// @brief the posix function call defines failure through return of the errno value instead of setting the errno
+    /// @return the PosixCallEvaluator which evaluates the errno values
+    PosixCallEvaluator<ReturnType> returnValueMatchesErrno() && noexcept;
 
   private:
     template <typename, typename...>
