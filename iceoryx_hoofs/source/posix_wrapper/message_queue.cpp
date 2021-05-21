@@ -225,7 +225,7 @@ MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, cons
     mode_t umaskSaved = umask(0);
     auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
                       .failureReturnValue(ERROR_CODE)
-                      .suppressErrorLoggingOfErrnos(ENOENT)
+                      .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
 
     umask(umaskSaved);
@@ -275,7 +275,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
 
     auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .suppressErrorLoggingOfErrnos(TIMEOUT_ERRNO)
+                      .suppressErrorMessagesForErrnos(TIMEOUT_ERRNO)
                       .evaluate();
 
     if (mqCall.has_error())
@@ -300,7 +300,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 
     auto mqCall = posixCall(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .suppressErrorLoggingOfErrnos(TIMEOUT_ERRNO)
+                      .suppressErrorMessagesForErrnos(TIMEOUT_ERRNO)
                       .evaluate();
 
     if (mqCall.has_error())

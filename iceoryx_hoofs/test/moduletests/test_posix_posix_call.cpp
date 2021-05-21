@@ -395,7 +395,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingWithNonPresentErrnoPrintsErrorMessage
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE - 10)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE - 10)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
@@ -415,7 +415,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingWithPresentErrnoDoesNotPrintsErrorMes
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
@@ -435,7 +435,7 @@ TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithNoPresentErrnoPrintsError
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE - 10, ERRNO_VALUE + 16, ERRNO_VALUE + 17)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE - 10, ERRNO_VALUE + 16, ERRNO_VALUE + 17)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
@@ -455,7 +455,7 @@ TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithPresentErrnoDoesNotPrints
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE - 10, ERRNO_VALUE, ERRNO_VALUE + 17)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE - 10, ERRNO_VALUE, ERRNO_VALUE + 17)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
@@ -475,9 +475,9 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithNonPresentErrnoPri
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE - 10)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE + 13)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE + 17)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE - 10)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE + 13)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE + 17)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
@@ -497,9 +497,9 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithPresentErrnoDoesNo
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
         .successReturnValue(1)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE - 10)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE)
-        .suppressErrorLoggingOfErrnos(ERRNO_VALUE + 17)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE - 10)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE + 17)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {

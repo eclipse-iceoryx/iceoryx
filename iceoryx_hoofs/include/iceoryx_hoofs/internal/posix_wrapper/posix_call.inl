@@ -130,7 +130,7 @@ PosixCallEvaluator<ReturnType>::ignoreErrnos(const IgnoredErrnos... ignoredErrno
 template <typename ReturnType>
 template <typename... SilentErrnos>
 inline PosixCallEvaluator<ReturnType>
-PosixCallEvaluator<ReturnType>::suppressErrorLoggingOfErrnos(const SilentErrnos... silentErrnos) const&& noexcept
+PosixCallEvaluator<ReturnType>::suppressErrorMessagesForErrnos(const SilentErrnos... silentErrnos) const&& noexcept
 {
     if (!m_details.hasSuccess)
     {

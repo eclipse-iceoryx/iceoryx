@@ -289,7 +289,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 
         auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
-                            .suppressErrorLoggingOfErrnos(EAGAIN)
+                            .suppressErrorMessagesForErrnos(EAGAIN)
                             .evaluate();
         message[MAX_MESSAGE_SIZE] = 0;
 
@@ -365,7 +365,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         auto connectCall =
             posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
                 .failureReturnValue(ERROR_CODE)
-                .suppressErrorLoggingOfErrnos(ENOENT, ECONNREFUSED)
+                .suppressErrorMessagesForErrnos(ENOENT, ECONNREFUSED)
                 .evaluate();
 
         if (connectCall.has_error())

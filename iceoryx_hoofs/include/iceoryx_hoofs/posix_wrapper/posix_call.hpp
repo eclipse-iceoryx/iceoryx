@@ -125,7 +125,7 @@ class IOX_NO_DISCARD PosixCallEvaluator
     /// @param[in] silentErrnos the int32_t values of the errnos which should be silent and not cause an error log
     /// @return a PosixCallEvaluator for further setup of the evaluation
     template <typename... SilentErrnos>
-    PosixCallEvaluator<ReturnType> suppressErrorLoggingOfErrnos(const SilentErrnos... silentErrnos) const&& noexcept;
+    PosixCallEvaluator<ReturnType> suppressErrorMessagesForErrnos(const SilentErrnos... silentErrnos) const&& noexcept;
 
     /// @brief evaluate the result of a posix call
     /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
