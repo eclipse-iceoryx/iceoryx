@@ -275,12 +275,17 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
 
     auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .suppressErrorMessagesForErrnos(TIMEOUT_ERRNO)
+                      // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
+                      .ignoreErrnos(TIMEOUT_ERRNO)
                       .evaluate();
 
     if (mqCall.has_error())
     {
         return createErrorFromErrnum(mqCall.get_error().errnum);
+    }
+    else if (mqCall->errnum == TIMEOUT_ERRNO)
+    {
+        return createErrorFromErrnum(ETIMEDOUT);
     }
 
     return cxx::success<std::string>(std::string(&(message[0])));
@@ -300,12 +305,17 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 
     auto mqCall = posixCall(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
                       .failureReturnValue(ERROR_CODE)
-                      .suppressErrorMessagesForErrnos(TIMEOUT_ERRNO)
+                      // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
+                      .ignoreErrnos(TIMEOUT_ERRNO)
                       .evaluate();
 
     if (mqCall.has_error())
     {
         return createErrorFromErrnum(mqCall.get_error().errnum);
+    }
+    else if (mqCall->errnum == TIMEOUT_ERRNO)
+    {
+        return createErrorFromErrnum(ETIMEDOUT);
     }
 
     return cxx::success<void>();
