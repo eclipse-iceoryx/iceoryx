@@ -164,13 +164,13 @@ int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
     if (clk_id == CLOCK_MONOTONIC)
     {
-        constexpr double NANO_SECONDS_PER_SECOND = 1000000000.0;
-        LARGE_INTEGER ticksPerSecond, ticks;
-        Win32Call(QueryPerformanceFrequency, &ticksPerSecond);
-        Win32Call(QueryPerformanceCounter, &ticks);
-        double seconds = static_cast<double>(ticks.QuadPart) / static_cast<double>(ticksPerSecond.QuadPart);
-        tp->tv_sec = static_cast<time_t>(seconds);
-        tp->tv_nsec = static_cast<long>((seconds - std::floor(seconds)) * NANO_SECONDS_PER_SECOND);
+        constexpr int64_t NANO_SECONDS_PER_SECOND = 1000000000;
+        auto now = std::chrono::steady_clock::now();
+        auto nanoSeconds = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch());
+        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+
+        tp->tv_sec = seconds.count();
+        tp->tv_nsec = nanoSeconds.count() - seconds.count() * NANO_SECONDS_PER_SECOND;
         return 0;
     }
     else if (clk_id == CLOCK_REALTIME)
