@@ -33,6 +33,19 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
     return PosixCallBuilder<ReturnType, FunctionArguments...>(
         posixCall, posixFunctionName, file, line, callingFunction);
 }
+
+template <typename ReturnType>
+inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionName,
+                                                      const char* file,
+                                                      int line,
+                                                      const char* callingFunction) noexcept
+    : posixFunctionName(posixFunctionName)
+    , file(file)
+    , callingFunction(callingFunction)
+    , line(line)
+{
+}
+
 } // namespace internal
 
 template <typename T>
@@ -48,7 +61,7 @@ inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(Func
                                                                             const int32_t line,
                                                                             const char* callingFunction) noexcept
     : m_posixCall{posixCall}
-    , m_details{posixFunctionName, file, callingFunction, line, true, false, false, {}}
+    , m_details{posixFunctionName, file, line, callingFunction}
 {
 }
 

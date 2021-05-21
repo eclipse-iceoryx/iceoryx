@@ -69,6 +69,7 @@ PosixCallBuilder<ReturnType, FunctionArguments...> createPosixCallBuilder(Return
 template <typename ReturnType>
 struct PosixCallDetails
 {
+    PosixCallDetails(const char* posixFunctionName, const char* file, int line, const char* callingFunction) noexcept;
     const char* posixFunctionName = nullptr;
     const char* file = nullptr;
     const char* callingFunction = nullptr;
