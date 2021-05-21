@@ -16,6 +16,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
@@ -68,11 +69,14 @@ PosixCallBuilder<ReturnType, FunctionArguments...> createPosixCallBuilder(Return
 template <typename ReturnType>
 struct PosixCallDetails
 {
+    PosixCallDetails(const char* posixFunctionName, const char* file, int line, const char* callingFunction) noexcept;
     const char* posixFunctionName = nullptr;
     const char* file = nullptr;
-    int32_t line = 0;
     const char* callingFunction = nullptr;
+    int32_t line = 0;
     bool hasSuccess = true;
+    bool hasIgnoredErrno = false;
+    bool hasSilentErrno = false;
 
     PosixCallResult<ReturnType> result;
 };
@@ -85,7 +89,8 @@ struct PosixCallDetails
 /// @code
 ///        iox::posix::posixCall(sem_timedwait)(handle, timeout)
 ///             .successReturnValue(0)
-///             .evaluateWithIgnoredErrnos(ETIMEDOUT) // can be a comma separated list of errnos
+///             .ignoreErrnos(ETIMEDOUT) // can be a comma separated list of errnos
+///             .evaluate()
 ///             .and_then([](auto & result){
 ///                 std::cout << result.value << std::endl; // return value of sem_timedwait
 ///                 std::cout << result.errno << std::endl; // errno which was set by sem_timedwait
@@ -99,9 +104,8 @@ struct PosixCallDetails
 ///
 ///        // when your posix call signals failure with one specific return value use
 ///        // .failureReturnValue(_) instead of .successReturnValue(_)
-///
-///        // if you do not want to ignore errnos use
-///        // .evaluate() instead of .evaluateWithIgnoredErrnos(_)
+///        // when your posix call signals failure by returning the errno value instead of setting the errno use
+///        // .returnValueMatchesErrno() instead of .successReturnValue(_)
 /// @endcode
 #define posixCall(f) internal::createPosixCallBuilder(f, #f, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
@@ -110,14 +114,19 @@ template <typename ReturnType>
 class IOX_NO_DISCARD PosixCallEvaluator
 {
   public:
-    /// @brief evaluate the result of a posix call and ignore specified errnos
+    /// @brief ignore specified errnos from the evaluation
     /// @tparam IgnoredErrnos a list of int32_t variables
     /// @param[in] ignoredErrnos the int32_t values of the errnos which should be ignored
-    /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
-    /// (.value) and the errno value (.errnum) of the function call
+    /// @return a PosixCallEvaluator for further setup of the evaluation
     template <typename... IgnoredErrnos>
-    cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
-    evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
+    PosixCallEvaluator<ReturnType> ignoreErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept;
+
+    /// @brief silence specified errnos from printing error messages in the evaluation
+    /// @tparam SilentErrnos a list of int32_t variables
+    /// @param[in] silentErrnos the int32_t values of the errnos which should be silent and not cause an error log
+    /// @return a PosixCallEvaluator for further setup of the evaluation
+    template <typename... SilentErrnos>
+    PosixCallEvaluator<ReturnType> suppressErrorMessagesForErrnos(const SilentErrnos... silentErrnos) const&& noexcept;
 
     /// @brief evaluate the result of a posix call
     /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
@@ -140,22 +149,20 @@ class IOX_NO_DISCARD PosixCallVerificator
 {
   public:
     /// @brief the posix function call defines success through a single value
-    /// @param[in] value the value which defines success
-    /// @param[in] remainingValues a list of additional values which define success
+    /// @param[in] successReturnValues a list of values which define success
     /// @return the PosixCallEvaluator which evaluates the errno values
     template <typename... SuccessReturnValues>
-    PosixCallEvaluator<ReturnType> successReturnValue(const ReturnType value,
-                                                      const SuccessReturnValues... remainingValues) && noexcept;
-    PosixCallEvaluator<ReturnType> successReturnValue(const ReturnType value) && noexcept;
+    PosixCallEvaluator<ReturnType> successReturnValue(const SuccessReturnValues... successReturnValues) && noexcept;
 
     /// @brief the posix function call defines failure through a single value
-    /// @param[in] value the value which defines failure
-    /// @param[in] remainingValues a list of additional values which define failure
+    /// @param[in] failureReturnValues a list of values which define failure
     /// @return the PosixCallEvaluator which evaluates the errno values
     template <typename... FailureReturnValues>
-    PosixCallEvaluator<ReturnType> failureReturnValue(const ReturnType value,
-                                                      const FailureReturnValues... remainingValues) && noexcept;
-    PosixCallEvaluator<ReturnType> failureReturnValue(const ReturnType value) && noexcept;
+    PosixCallEvaluator<ReturnType> failureReturnValue(const FailureReturnValues... failureReturnValues) && noexcept;
+
+    /// @brief the posix function call defines failure through return of the errno value instead of setting the errno
+    /// @return the PosixCallEvaluator which evaluates the errno values
+    PosixCallEvaluator<ReturnType> returnValueMatchesErrno() && noexcept;
 
   private:
     template <typename, typename...>
