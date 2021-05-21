@@ -406,7 +406,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingWithNonPresentErrnoPrintsErrorMessage
     EXPECT_FALSE(internal::GetCapturedStderr().empty());
 }
 
-TEST_F(PosixCall_test, SuppressErrnoLoggingWithPresentErrnoDoesNotPrintsErrorMessage)
+TEST_F(PosixCall_test, SuppressErrnoLoggingWithPresentErrnoDoesNotPrintErrorMessage)
 {
     internal::CaptureStderr();
 
@@ -446,7 +446,7 @@ TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithNoPresentErrnoPrintsError
     EXPECT_FALSE(internal::GetCapturedStderr().empty());
 }
 
-TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithPresentErrnoDoesNotPrintsErrorMessage)
+TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithPresentErrnoDoesNotPrintErrorMessage)
 {
     internal::CaptureStderr();
 
@@ -488,7 +488,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithNonPresentErrnoPri
     EXPECT_FALSE(internal::GetCapturedStderr().empty());
 }
 
-TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithPresentErrnoDoesNotPrintsErrorMessage)
+TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithPresentErrnoDoesNotPrintErrorMessage)
 {
     internal::CaptureStderr();
 
@@ -500,6 +500,48 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithPresentErrnoDoesNo
         .suppressErrorMessagesForErrnos(ERRNO_VALUE - 10)
         .suppressErrorMessagesForErrnos(ERRNO_VALUE)
         .suppressErrorMessagesForErrnos(ERRNO_VALUE + 17)
+        .evaluate()
+        .and_then([&](auto&) { EXPECT_TRUE(false); })
+        .or_else([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, SuppressErrnoLoggingOfIgnoredErrnoDoesNotPrintErrorMessage)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 123;
+    constexpr int ERRNO_VALUE = 124;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(1)
+        .ignoreErrnos(ERRNO_VALUE)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE)
+        .evaluate()
+        .and_then([&](auto& r) {
+            EXPECT_THAT(r.value, Eq(RETURN_VALUE));
+            EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));
+        })
+        .or_else([&](auto&) { EXPECT_TRUE(false); });
+
+    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+}
+
+TEST_F(PosixCall_test, SuppressErrnoLoggingOfNotIgnoredErrnoDoesNotPrintErrorMessage)
+{
+    internal::CaptureStderr();
+
+    constexpr int RETURN_VALUE = 123;
+    constexpr int ERRNO_VALUE = 124;
+
+    iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
+        .successReturnValue(1)
+        .ignoreErrnos(ERRNO_VALUE + 10)
+        .suppressErrorMessagesForErrnos(ERRNO_VALUE)
         .evaluate()
         .and_then([&](auto&) { EXPECT_TRUE(false); })
         .or_else([&](auto& r) {
