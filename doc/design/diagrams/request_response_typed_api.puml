@@ -1,0 +1,29 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class Client {
+  connect(): void
+  disconnect(): void
+  getConnectionState(): ConnectionState
+  loan(): expected<Request, Error>
+  send(request: Request): void
+  hasResponses(): bool
+  take(): expected<Response, Error>
+  releaseQueuedResponses(): void
+  hasMissedResponses(): bool
+}
+
+class Server {
+  offer(): void
+  stopOffer(): void
+  isOffered(): bool
+  hasClients(): bool
+  hasRequests(): bool
+  take(): expected<Request, Error>
+  releaseQueuedRequests(): void
+  hasMissedRequests(): bool
+  loan(): expected<Response, Error>
+  send(response: Response): void
+}
+
+@enduml
