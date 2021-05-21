@@ -86,7 +86,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
         {
             if (sharedMemoryHandle != nullptr)
             {
-                CloseHandle(sharedMemoryHandle);
+                Win32Call(CloseHandle, sharedMemoryHandle);
             }
             return -1;
         }
