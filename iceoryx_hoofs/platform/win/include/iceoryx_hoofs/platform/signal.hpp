@@ -22,8 +22,8 @@
 #include <signal.h>
 
 #define SIGEV_THREAD 0
-#define SIGBUS 1
-#define SIGHUP 2
+#define SIGBUS SIGSEGV // SIGBUS/SIGSEGV signal serious program erros, SIGSEGV is best alternative
+#define SIGHUP SIGTERM // SIGHUP signaled when controlling terminal is closed, SIGTERM is best alternative
 #define SIGKILL 9
 
 using sigset_t = int;
@@ -56,19 +56,8 @@ struct sigaction
 };
 
 
-inline int sigemptyset(sigset_t* set)
-{
-    return 0;
-}
-
-inline int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact)
-{
-    return 0;
-}
-
-inline int kill(pid_t pid, int sig)
-{
-    return 0;
-}
+int sigemptyset(sigset_t* set);
+int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact);
+int kill(pid_t pid, int sig);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_SIGNAL_HPP
