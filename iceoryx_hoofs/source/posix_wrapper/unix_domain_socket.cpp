@@ -161,7 +161,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
-        auto closeCall = posixCall(iox_close)(m_sockfd).failureReturnValue(ERROR_CODE).evaluate();
+        auto closeCall = posixCall(iox_closesocket)(m_sockfd).failureReturnValue(ERROR_CODE).evaluate();
 
         if (!closeCall.has_error())
         {
@@ -226,7 +226,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 #endif
 
-    auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
+    auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
                               .evaluate();
@@ -237,7 +237,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
     else
     {
-        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
+        auto sendCall = posixCall(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
                             .failureReturnValue(ERROR_CODE)
                             .evaluate();
 
@@ -274,7 +274,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     }
 
     struct timeval tv = timeout;
-    auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
+    auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
                               .evaluate();
@@ -287,7 +287,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         char message[MAX_MESSAGE_SIZE + 1];
 
-        auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+        auto recvCall = posixCall(iox_recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
                             .suppressErrorMessagesForErrnos(EAGAIN)
                             .evaluate();
@@ -326,10 +326,10 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
     // Reset to old umask when going out of scope
     cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
 
-    auto socketCall =
-        posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0).failureReturnValue(ERROR_CODE).evaluate().and_then([this](auto& r) {
-            m_sockfd = r.value;
-        });
+    auto socketCall = posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
+                          .failureReturnValue(ERROR_CODE)
+                          .evaluate()
+                          .and_then([this](auto& r) { m_sockfd = r.value; });
 
     if (socketCall.has_error())
     {
@@ -340,9 +340,10 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
     {
         unlink(m_sockAddr.sun_path);
 
-        auto bindCall = posixCall(bind)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
-                            .failureReturnValue(ERROR_CODE)
-                            .evaluate();
+        auto bindCall =
+            posixCall(iox_bind)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
+                .failureReturnValue(ERROR_CODE)
+                .evaluate();
 
         if (!bindCall.has_error())
         {
@@ -363,7 +364,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
         // is created and server not present)
         auto connectCall =
-            posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
+            posixCall(iox_connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
                 .failureReturnValue(ERROR_CODE)
                 .suppressErrorMessagesForErrnos(ENOENT, ECONNREFUSED)
                 .evaluate();

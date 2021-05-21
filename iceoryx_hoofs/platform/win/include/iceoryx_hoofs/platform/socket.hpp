@@ -19,6 +19,9 @@
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
+
+#include <cstdint>
 
 #define AF_INET 0
 #define SOCK_STREAM 1
@@ -33,63 +36,13 @@ using sa_family_t = int;
 using socklen_t = int;
 using in_addr_t = uint32_t;
 
-struct in_addr
-{
-    uint32_t s_addr;
-};
-
-struct sockaddr_in
-{
-    sa_family_t sin_family;
-    in_port_t sin_port;
-    struct in_addr sin_addr;
-};
-
-struct sockaddr
-{
-    sa_family_t sa_family;
-    char sa_data[14];
-};
-
-inline in_addr_t inet_addr(const char* cp)
-{
-    return {0};
-}
-
-inline uint16_t htons(uint16_t hostshort)
-{
-    return 0;
-}
-
-inline int bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
-{
-    return 0;
-}
-
-inline int socket(int domain, int type, int protocol)
-{
-    return 0;
-}
-
-inline int setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen)
-{
-    return 0;
-}
-
-inline ssize_t
-sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen)
-{
-    return 0;
-}
-
-inline ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
-{
-    return 0;
-}
-
-inline int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
-{
-    return 0;
-}
+int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+int iox_socket(int domain, int type, int protocol);
+int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);
+ssize_t
+iox_sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen);
+ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen);
+int iox_connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+int iox_closesocket(int sockfd);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_SOCKET_HPP
