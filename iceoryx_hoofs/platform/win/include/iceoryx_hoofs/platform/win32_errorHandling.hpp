@@ -17,14 +17,46 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP
 #define IOX_HOOFS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP
 
-#define PrintLastErrorToConsole() __PrintLastErrorToConsole("", __FILE__, __LINE__)
+#include <type_traits>
+
+#include "iceoryx_hoofs/platform/windows.hpp"
+
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept;
 
-#define Win32Call(function)                                                                                            \
-    [&] {                                                                                                              \
-        SetLastError(0);                                                                                               \
-        return function;                                                                                               \
-    }();                                                                                                               \
-    __PrintLastErrorToConsole(#function, __FILE__, __LINE__)
+template <typename ReturnType>
+struct Win32CallReturn
+{
+    template <typename Function, typename... Targs>
+    void assignValue(const Function& f, Targs&&... args)
+    {
+        value = f(std::forward<Targs>(args)...);
+    }
+    ReturnType value;
+    int error;
+};
+
+template <>
+struct Win32CallReturn<void>
+{
+    template <typename Function, typename... Targs>
+    void assignValue(const Function& f, Targs&&... args)
+    {
+        f(std::forward<Targs>(args)...);
+    }
+    int error;
+};
+
+template <typename Function, typename... Targs>
+auto __Win32Call(const char* functionName, const char* file, const int line, const Function& f, Targs&&... args)
+    -> Win32CallReturn<std::result_of_t<decltype(f)&(Targs...)>>
+{
+    Win32CallReturn<std::result_of_t<decltype(f)&(Targs...)>> retVal;
+    SetLastError(0);
+    retVal.assignValue(f, std::forward<Targs>(args)...);
+    retVal.error = __PrintLastErrorToConsole(functionName, file, line);
+    return retVal;
+}
+
+#define Win32Call(function, ...) __Win32Call(#function, __FILE__, __LINE__, function, __VA_ARGS__)
 
 #endif // IOX_HOOFS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP

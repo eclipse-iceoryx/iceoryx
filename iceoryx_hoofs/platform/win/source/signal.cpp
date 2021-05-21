@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
 int sigemptyset(sigset_t* set)
 {
@@ -23,7 +24,7 @@ int sigemptyset(sigset_t* set)
 
 int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact)
 {
-    auto previousSignalHandler = signal(signum, act->sa_handler);
+    auto previousSignalHandler = Win32Call(signal, signum, act->sa_handler).value;
     if (oldact != nullptr)
     {
         oldact->sa_handler = previousSignalHandler;

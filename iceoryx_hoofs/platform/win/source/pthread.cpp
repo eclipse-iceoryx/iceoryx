@@ -48,13 +48,16 @@ int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol)
 
 int pthread_mutex_destroy(pthread_mutex_t* mutex)
 {
-    Win32Call(CloseHandle(mutex->handle));
+    Win32Call(CloseHandle, mutex->handle);
     return 0;
 }
 
 int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 {
-    mutex->handle = Win32Call(CreateMutexA(NULL, FALSE, NULL));
+    mutex->handle =
+        Win32Call(
+            CreateMutexA, static_cast<LPSECURITY_ATTRIBUTES>(NULL), static_cast<BOOL>(FALSE), static_cast<LPCSTR>(NULL))
+            .value;
     if (mutex->handle == NULL)
     {
         return EINVAL;
@@ -64,7 +67,7 @@ int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 
 int pthread_mutex_lock(pthread_mutex_t* mutex)
 {
-    DWORD waitResult = Win32Call(WaitForSingleObject(mutex->handle, INFINITE));
+    DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, INFINITE).value;
 
     switch (waitResult)
     {
@@ -77,7 +80,7 @@ int pthread_mutex_lock(pthread_mutex_t* mutex)
 
 int pthread_mutex_trylock(pthread_mutex_t* mutex)
 {
-    DWORD waitResult = Win32Call(WaitForSingleObject(mutex->handle, 0));
+    DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, 0).value;
 
     switch (waitResult)
     {
@@ -92,7 +95,7 @@ int pthread_mutex_trylock(pthread_mutex_t* mutex)
 
 int pthread_mutex_unlock(pthread_mutex_t* mutex)
 {
-    auto releaseResult = Win32Call(ReleaseMutex(mutex->handle));
+    auto releaseResult = Win32Call(ReleaseMutex, mutex->handle).value;
     if (!releaseResult)
     {
         return EPERM;

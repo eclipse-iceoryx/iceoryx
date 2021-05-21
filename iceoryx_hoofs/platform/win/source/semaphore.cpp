@@ -22,12 +22,12 @@
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     LONG previousValue;
-    auto waitResult = Win32Call(WaitForSingleObject(sem->handle, 0));
+    auto waitResult = Win32Call(WaitForSingleObject, sem->handle, 0).value;
     switch (waitResult)
     {
     case WAIT_OBJECT_0:
     {
-        auto releaseResult = Win32Call(ReleaseSemaphore(sem->handle, 1, &previousValue));
+        auto releaseResult = Win32Call(ReleaseSemaphore, sem->handle, 1, &previousValue).value;
         if (releaseResult)
         {
             *sval = previousValue + 1;
@@ -49,19 +49,19 @@ int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 
 int iox_sem_post(iox_sem_t* sem)
 {
-    int retVal = Win32Call(ReleaseSemaphore(sem->handle, 1, nullptr));
+    int retVal = Win32Call(ReleaseSemaphore, sem->handle, 1, nullptr).value;
     return (retVal != 0) ? 0 : -1;
 }
 
 int iox_sem_wait(iox_sem_t* sem)
 {
-    int retVal = Win32Call(WaitForSingleObject(sem->handle, INFINITE));
+    int retVal = Win32Call(WaitForSingleObject, sem->handle, INFINITE).value;
     return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int iox_sem_trywait(iox_sem_t* sem)
 {
-    int retVal = Win32Call(WaitForSingleObject(sem->handle, 0));
+    int retVal = Win32Call(WaitForSingleObject, sem->handle, 0).value;
     if (retVal != WAIT_OBJECT_0)
     {
         errno = EAGAIN;
@@ -90,7 +90,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
          + HALF_MILLI_SECOND_ROUNDING_CORRECTION_IN_NS)
         / NANO_SECONDS_PER_MILLI_SECOND;
 
-    auto state = Win32Call(WaitForSingleObject(sem->handle, (milliseconds == 0) ? 1 : milliseconds));
+    auto state = Win32Call(WaitForSingleObject, sem->handle, (milliseconds == 0) ? 1 : milliseconds).value;
     if (state == WAIT_TIMEOUT)
     {
         errno = ETIMEDOUT;
@@ -101,7 +101,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 
 int iox_sem_close(iox_sem_t* sem)
 {
-    int retVal = Win32Call(CloseHandle(sem->handle)) ? 0 : -1;
+    int retVal = Win32Call(CloseHandle, sem->handle).value ? 0 : -1;
     delete sem;
     return (retVal) ? 0 : -1;
 }
@@ -117,20 +117,23 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
 {
     SECURITY_ATTRIBUTES securityAttribute;
     SECURITY_DESCRIPTOR securityDescriptor;
-    Win32Call(InitializeSecurityDescriptor(&securityDescriptor, SECURITY_DESCRIPTOR_REVISION));
+    Win32Call(InitializeSecurityDescriptor, &securityDescriptor, SECURITY_DESCRIPTOR_REVISION).value;
 
     TCHAR* permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
         TEXT("(A;OICI;GA;;;AN)")                             // access to anonymous logon
         TEXT("(A;OICI;GRGWGX;;;AU)")                         // access to authenticated users
         TEXT("(A;OICI;GA;;;BA)");                            // access to administrators
 
-    Win32Call(ConvertStringSecurityDescriptorToSecurityDescriptor(
-        permissions, SDDL_REVISION_1, &(securityAttribute.lpSecurityDescriptor), NULL));
+    Win32Call(ConvertStringSecurityDescriptorToSecurityDescriptor,
+              reinterpret_cast<LPCSTR>(permissions),
+              static_cast<DWORD>(SDDL_REVISION_1),
+              static_cast<PSECURITY_DESCRIPTOR*>(&(securityAttribute.lpSecurityDescriptor)),
+              static_cast<PULONG>(NULL));
     securityAttribute.nLength = sizeof(SECURITY_ATTRIBUTES);
     securityAttribute.lpSecurityDescriptor = &securityDescriptor;
     securityAttribute.bInheritHandle = FALSE;
 
-    HANDLE returnValue = Win32Call(CreateSemaphoreA(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name));
+    HANDLE returnValue = Win32Call(CreateSemaphoreA, &securityAttribute, value, MAX_SEMAPHORE_VALUE, name).value;
     return returnValue;
 }
 
@@ -182,7 +185,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
     }
     else
     {
-        sem->handle = Win32Call(OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name));
+        sem->handle = Win32Call(OpenSemaphoreA, SEMAPHORE_ALL_ACCESS, false, name).value;
         if (sem->handle == nullptr)
         {
             delete sem;

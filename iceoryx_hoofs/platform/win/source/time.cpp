@@ -166,8 +166,8 @@ int clock_gettime(clockid_t clk_id, struct timespec* tp)
     {
         constexpr double NANO_SECONDS_PER_SECOND = 1000000000.0;
         LARGE_INTEGER ticksPerSecond, ticks;
-        QueryPerformanceFrequency(&ticksPerSecond);
-        QueryPerformanceCounter(&ticks);
+        Win32Call(QueryPerformanceFrequency, &ticksPerSecond);
+        Win32Call(QueryPerformanceCounter, &ticks);
         double seconds = static_cast<double>(ticks.QuadPart) / static_cast<double>(ticksPerSecond.QuadPart);
         tp->tv_sec = static_cast<time_t>(seconds);
         tp->tv_nsec = static_cast<long>((seconds - std::floor(seconds)) * NANO_SECONDS_PER_SECOND);
@@ -175,7 +175,7 @@ int clock_gettime(clockid_t clk_id, struct timespec* tp)
     }
     else if (clk_id == CLOCK_REALTIME)
     {
-        return Win32Call(timespec_get(tp, TIME_UTC));
+        return Win32Call(timespec_get, tp, TIME_UTC).error;
     }
     errno = EINVAL;
     return -1;
@@ -189,8 +189,8 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
     SYSTEMTIME systemTime;
     FILETIME fileTime;
 
-    Win32Call(GetSystemTime(&systemTime));
-    Win32Call(SystemTimeToFileTime(&systemTime, &fileTime));
+    Win32Call(GetSystemTime, &systemTime);
+    Win32Call(SystemTimeToFileTime, &systemTime, &fileTime);
     uint64_t time =
         static_cast<uint64_t>(fileTime.dwLowDateTime) + (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32);
 
