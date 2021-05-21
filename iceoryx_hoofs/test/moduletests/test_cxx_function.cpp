@@ -479,7 +479,7 @@ TEST_F(function_test, StaticSwapWorks)
     test_function sut1(f1);
     test_function sut2(f2);
 
-    test_function::swap(sut1, sut2);
+    swap(sut1, sut2);
 
     ASSERT_TRUE(sut1.operator bool());
     EXPECT_EQ(sut1(1), f2(1));

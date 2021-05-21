@@ -123,11 +123,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @param f the function to swap this with
     void swap(storable_function& f) noexcept;
 
-    /// @brief swap two storable functions
-    /// @param f the first function to swap with g
-    /// @param g the second function to swap with f
-    static void swap(storable_function& f, storable_function& g) noexcept;
-
     /// @brief size in bytes required to store a CallableType in a storable_function
     /// @return number of bytes StorageType must be able to allocate to store CallableType
     /// @note this is not smallest possible due to alignment, it may work with a smaller size but
@@ -206,6 +201,12 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     static ReturnType invokeFreeFunction(void* callable, Args&&... args);
 };
+
+/// @brief swap two storable functions
+/// @param f the first function to swap with g
+/// @param g the second function to swap with f
+template <typename S, typename T>
+static void swap(storable_function<S, T>& f, storable_function<S, T>& g) noexcept;
 
 } // namespace cxx
 } // namespace iox

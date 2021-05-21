@@ -137,12 +137,10 @@ void storable_function<S, signature<ReturnType, Args...>>::swap(storable_functio
     *this = std::move(tmp);
 }
 
-template <typename S, typename ReturnType, typename... Args>
-void storable_function<S, signature<ReturnType, Args...>>::swap(storable_function& f, storable_function& g) noexcept
+template <typename S, typename T>
+void swap(storable_function<S, T>& f, storable_function<S, T>& g) noexcept
 {
-    storable_function tmp = std::move(f);
-    f = std::move(g);
-    g = std::move(tmp);
+    f.swap(g);
 }
 
 template <typename S, typename ReturnType, typename... Args>
