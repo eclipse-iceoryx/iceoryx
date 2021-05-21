@@ -72,7 +72,7 @@ if(BUILD_TEST)
             WORKING_DIRECTORY "${SOURCE_DIR}"
             RESULT_VARIABLE result)
         if(result)
-            message(FATAL_ERROR "CMake step [patch] for googletest failed: ${result}")
+            message(WARNING "CMake step [patch] for googletest failed: ${result}! Build of gtest might fail")
         endif()
     endif()
 

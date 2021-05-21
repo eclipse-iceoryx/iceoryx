@@ -59,7 +59,8 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
 
     auto lockCall = posixCall(iox_flock)(m_fd, LOCK_EX | LOCK_NB)
                         .failureReturnValue(ERROR_CODE)
-                        .evaluateWithIgnoredErrnos(EWOULDBLOCK);
+                        .suppressErrorMessagesForErrnos(EWOULDBLOCK)
+                        .evaluate();
 
     if (lockCall.has_error())
     {
@@ -67,15 +68,7 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
             std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.get_error().errnum));
-    }
-    else if (lockCall->errnum == EWOULDBLOCK)
-    {
-        closeFileDescriptor().or_else([](auto) {
-            std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
-        });
-        // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return cxx::error<FileLockError>(FileLockError::LOCKED_BY_OTHER_PROCESS);
+        return cxx::error<FileLockError>(convertErrnoToFileLockError(lockCall.get_error().errnum));
     }
 
     return cxx::success<>();

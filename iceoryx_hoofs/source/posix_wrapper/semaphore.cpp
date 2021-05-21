@@ -113,7 +113,7 @@ cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const uni
 {
     const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
     auto call =
-        posixCall(iox_sem_timedwait)(m_handlePtr, &timeout).failureReturnValue(-1).evaluateWithIgnoredErrnos(ETIMEDOUT);
+        posixCall(iox_sem_timedwait)(m_handlePtr, &timeout).failureReturnValue(-1).ignoreErrnos(ETIMEDOUT).evaluate();
 
     if (call.has_error())
     {
@@ -131,7 +131,7 @@ cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const uni
 
 cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
 {
-    auto call = posixCall(iox_sem_trywait)(m_handlePtr).failureReturnValue(-1).evaluateWithIgnoredErrnos(EAGAIN);
+    auto call = posixCall(iox_sem_trywait)(m_handlePtr).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
     if (call.has_error())
     {

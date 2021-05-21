@@ -34,43 +34,18 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
         posixCall, posixFunctionName, file, line, callingFunction);
 }
 
-inline bool isErrnumIgnored(const int32_t)
-{
-    return false;
-}
-
-template <typename... IgnoredErrnos>
-inline bool
-isErrnumIgnored(const int32_t errnum, const int32_t firstErrno, const IgnoredErrnos... remainingErrnos) noexcept
-{
-    if (errnum == firstErrno)
-    {
-        return true;
-    }
-
-    return isErrnumIgnored(errnum, remainingErrnos...);
-}
-
-template <typename ReturnType, bool ConvertableToErrno>
-struct AssignReturnValueIfItsErrno
-{
-    static void call(const ReturnType, int32_t&) noexcept
-    {
-    }
-};
-
 template <typename ReturnType>
-struct AssignReturnValueIfItsErrno<ReturnType, true>
+inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionName,
+                                                      const char* file,
+                                                      int line,
+                                                      const char* callingFunction) noexcept
+    : posixFunctionName(posixFunctionName)
+    , file(file)
+    , callingFunction(callingFunction)
+    , line(line)
 {
-    static void call(const ReturnType returnValue, int32_t& errnum) noexcept
-    {
-        // only override when failure was signaled but errno == 0 (SUCCESS)
-        if (errnum == 0)
-        {
-            errnum = static_cast<int32_t>(returnValue);
-        }
-    }
-};
+}
+
 } // namespace internal
 
 template <typename T>
@@ -86,7 +61,7 @@ inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(Func
                                                                             const int32_t line,
                                                                             const char* callingFunction) noexcept
     : m_posixCall{posixCall}
-    , m_details{posixFunctionName, file, line, callingFunction, true, {}}
+    , m_details{posixFunctionName, file, line, callingFunction}
 {
 }
 
@@ -116,49 +91,33 @@ inline PosixCallVerificator<ReturnType>::PosixCallVerificator(internal::PosixCal
 }
 
 template <typename ReturnType>
-inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::successReturnValue(const ReturnType value) && noexcept
-{
-    m_details.hasSuccess = (m_details.result.value == value);
-    return PosixCallEvaluator<ReturnType>(m_details);
-}
-
-template <typename ReturnType>
 template <typename... SuccessReturnValues>
 inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::successReturnValue(const ReturnType value,
-                                                     const SuccessReturnValues... remainingValues) && noexcept
+PosixCallVerificator<ReturnType>::successReturnValue(const SuccessReturnValues... successReturnValues) && noexcept
 {
-    m_details.hasSuccess = (m_details.result.value == value);
-    if (m_details.hasSuccess)
-    {
-        return PosixCallEvaluator<ReturnType>(m_details);
-    }
+    m_details.hasSuccess = algorithm::doesContainValue(m_details.result.value, successReturnValues...);
 
-    // we require an rvalue of our object
-    return std::move(*this).successReturnValue(remainingValues...);
+    return PosixCallEvaluator<ReturnType>(m_details);
 }
 
 template <typename ReturnType>
 template <typename... FailureReturnValues>
 inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::failureReturnValue(const ReturnType value,
-                                                     const FailureReturnValues... remainingValues) && noexcept
+PosixCallVerificator<ReturnType>::failureReturnValue(const FailureReturnValues... failureReturnValues) && noexcept
 {
-    m_details.hasSuccess = (m_details.result.value != value);
-    if (m_details.result.value == value)
-    {
-        return PosixCallEvaluator<ReturnType>(m_details);
-    }
-    // we require an rvalue of our object
-    return std::move(*this).failureReturnValue(remainingValues...);
+    using ValueType = decltype(m_details.result.value);
+    m_details.hasSuccess =
+        !algorithm::doesContainValue(m_details.result.value, static_cast<ValueType>(failureReturnValues)...);
+
+    return PosixCallEvaluator<ReturnType>(m_details);
 }
 
 template <typename ReturnType>
-inline PosixCallEvaluator<ReturnType>
-PosixCallVerificator<ReturnType>::failureReturnValue(const ReturnType value) && noexcept
+inline PosixCallEvaluator<ReturnType> PosixCallVerificator<ReturnType>::returnValueMatchesErrno() && noexcept
 {
-    m_details.hasSuccess = (m_details.result.value != value);
+    m_details.hasSuccess = m_details.result.value == 0;
+    m_details.result.errnum = static_cast<int32_t>(m_details.result.value);
+
     return PosixCallEvaluator<ReturnType>(m_details);
 }
 
@@ -170,32 +129,46 @@ inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(internal::PosixCallDet
 
 template <typename ReturnType>
 template <typename... IgnoredErrnos>
-inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
-PosixCallEvaluator<ReturnType>::evaluateWithIgnoredErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
+inline PosixCallEvaluator<ReturnType>
+PosixCallEvaluator<ReturnType>::ignoreErrnos(const IgnoredErrnos... ignoredErrnos) const&& noexcept
 {
     if (!m_details.hasSuccess)
     {
-        internal::AssignReturnValueIfItsErrno<ReturnType, std::is_convertible<ReturnType, int32_t>::value>::call(
-            m_details.result.value, m_details.result.errnum);
+        m_details.hasIgnoredErrno |= algorithm::doesContainValue(m_details.result.errnum, ignoredErrnos...);
     }
 
-    if (m_details.hasSuccess || internal::isErrnumIgnored(m_details.result.errnum, ignoredErrnos...))
+    return *this;
+}
+
+template <typename ReturnType>
+template <typename... SilentErrnos>
+inline PosixCallEvaluator<ReturnType>
+PosixCallEvaluator<ReturnType>::suppressErrorMessagesForErrnos(const SilentErrnos... silentErrnos) const&& noexcept
+{
+    if (!m_details.hasSuccess)
     {
-        return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
+        m_details.hasSilentErrno |= algorithm::doesContainValue(m_details.result.errnum, silentErrnos...);
     }
 
-    std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
-              << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
-              << m_details.result.getHumanReadableErrnum() << std::endl;
-
-    return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);
+    return *this;
 }
 
 template <typename ReturnType>
 inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 {
-    return std::move(*this).evaluateWithIgnoredErrnos();
+    if (m_details.hasSuccess || m_details.hasIgnoredErrno)
+    {
+        return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
+    }
+    else if (!m_details.hasSilentErrno)
+    {
+        std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
+                  << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
+                  << m_details.result.getHumanReadableErrnum() << std::endl;
+    }
+
+    return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);
 }
 
 } // namespace posix
