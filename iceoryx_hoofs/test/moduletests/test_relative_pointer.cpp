@@ -73,12 +73,12 @@ TYPED_TEST_CASE(base_relative_ptr_test, Types);
 
 TYPED_TEST(base_relative_ptr_test, ConstrTests)
 {
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, memoryPartition[0], SHARED_MEMORY_SIZE), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, memoryPartition[1], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
 
     {
         auto offset = SHARED_MEMORY_SIZE / 2;
-        void* adr = memoryPartition[0] + offset;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -87,7 +87,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
     }
 
     {
-        RelativePointer<TypeParam> rp(memoryPartition[0]);
+        RelativePointer<TypeParam> rp(this->memoryPartition[0]);
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
@@ -95,7 +95,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE / 2;
-        void* adr = memoryPartition[0] + offset;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -104,7 +104,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE - 1;
-        void* adr = memoryPartition[0] + offset;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -112,7 +112,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
     }
 
     {
-        RelativePointer<TypeParam> rp(memoryPartition[1]);
+        RelativePointer<TypeParam> rp(this->memoryPartition[1]);
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
@@ -120,7 +120,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE / 2;
-        void* adr = memoryPartition[1] + offset;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -129,7 +129,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE - 1;
-        void* adr = memoryPartition[1] + offset;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -143,7 +143,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE + 1;
-        void* adr = memoryPartition[1] + offset;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_NE(rp, nullptr);
     }
@@ -151,12 +151,12 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
 TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 {
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, memoryPartition[0], SHARED_MEMORY_SIZE), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, memoryPartition[1], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
 
     {
         RelativePointer<TypeParam> rp;
-        rp = memoryPartition[0];
+        rp = this->memoryPartition[0];
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
@@ -164,7 +164,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         RelativePointer<TypeParam> rp;
-        rp = memoryPartition[0];
+        rp = this->memoryPartition[0];
         BaseRelativePointer basePointer(rp);
         RelativePointer<TypeParam> recovered(basePointer);
 
@@ -180,7 +180,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE / 2;
-        void* adr = memoryPartition[0] + offset;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -190,7 +190,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE - 1;
-        void* adr = memoryPartition[0] + offset;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -200,7 +200,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         RelativePointer<TypeParam> rp;
-        rp = memoryPartition[1];
+        rp = this->memoryPartition[1];
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
@@ -208,7 +208,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE / 2;
-        void* adr = memoryPartition[1] + offset;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -218,7 +218,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE - 1;
-        void* adr = memoryPartition[1] + offset;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -234,7 +234,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE + 1;
-        void* adr = memoryPartition[1] + offset;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_NE(rp, nullptr);
@@ -243,15 +243,15 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
 TYPED_TEST(base_relative_ptr_test, IdAndOffset)
 {
-    void* basePtr1 = memoryPartition[0];
+    void* basePtr1 = this->memoryPartition[0];
 
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
     EXPECT_EQ(rp1.getOffset(), reinterpret_cast<std::ptrdiff_t>(basePtr1));
     EXPECT_EQ(rp1.getId(), 1);
 
     int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(memoryPartition[0] + offset);
+    auto offsetAddr1 = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
     RelativePointer<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(rp2.getOffset(), offset);
     EXPECT_EQ(rp2.getId(), 1);
@@ -260,81 +260,81 @@ TYPED_TEST(base_relative_ptr_test, IdAndOffset)
 
 TYPED_TEST(base_relative_ptr_test, getOffset)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
-    EXPECT_EQ(BaseRelativePointer::getOffset(1, memoryPartition[0]), 0);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(BaseRelativePointer::getOffset(1, this->memoryPartition[0]), 0);
 
     int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(memoryPartition[0] + offset);
+    auto offsetAddr1 = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
     RelativePointer<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(BaseRelativePointer::getOffset(1, offsetAddr1), offset);
 }
 
 TYPED_TEST(base_relative_ptr_test, getPtr)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
-    EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), memoryPartition[0]);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), this->memoryPartition[0]);
 
     int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(memoryPartition[0] + offset);
+    auto offsetAddr1 = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
     RelativePointer<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), offsetAddr1);
 }
 
 TYPED_TEST(base_relative_ptr_test, registerPtr)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), false);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), false);
     EXPECT_EQ(rp1.unregisterPtr(1), true);
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
 }
 
 TYPED_TEST(base_relative_ptr_test, unRegisterPointerTest_Valid)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
-    rp1.registerPtr(1, memoryPartition[0]);
+    rp1.registerPtr(1, this->memoryPartition[0]);
     EXPECT_EQ(rp1.unregisterPtr(1), true);
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
 }
 
 TYPED_TEST(base_relative_ptr_test, unregisterPointerAll)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
-    RelativePointer<TypeParam> rp2(memoryPartition[1], 9999);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp2(this->memoryPartition[1], 9999);
 
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
-    EXPECT_EQ(rp2.registerPtr(9999, memoryPartition[1]), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp2.registerPtr(9999, this->memoryPartition[1]), true);
     BaseRelativePointer::unregisterAll();
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
-    EXPECT_EQ(rp2.registerPtr(9999, memoryPartition[1]), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp2.registerPtr(9999, this->memoryPartition[1]), true);
 }
 
 TYPED_TEST(base_relative_ptr_test, registerPtrWithId)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
-    RelativePointer<TypeParam> rp2(memoryPartition[1], 10000);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp2(this->memoryPartition[1], 10000);
 
-    EXPECT_EQ(rp1.registerPtr(1, memoryPartition[0]), true);
-    EXPECT_EQ(rp2.registerPtr(10000, memoryPartition[1]), false);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp2.registerPtr(10000, this->memoryPartition[1]), false);
 }
 
 TYPED_TEST(base_relative_ptr_test, basePointerValid)
 {
-    void* basePtr1 = memoryPartition[0];
+    void* basePtr1 = this->memoryPartition[0];
 
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     EXPECT_EQ(rp1.getBasePtr(1), nullptr);
-    rp1.registerPtr(1, memoryPartition[0]);
+    rp1.registerPtr(1, this->memoryPartition[0]);
     EXPECT_EQ(basePtr1, rp1.getBasePtr(1));
 }
 
 TYPED_TEST(base_relative_ptr_test, assignmentOperator)
 {
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     RelativePointer<TypeParam> rp2 = rp1;
 
     EXPECT_EQ(rp1.getBasePtr(), rp2.getBasePtr());
@@ -344,9 +344,9 @@ TYPED_TEST(base_relative_ptr_test, assignmentOperator)
 
 TYPED_TEST(base_relative_ptr_test, pointerOperator)
 {
-    auto baseAddr = reinterpret_cast<TypeParam*>(memoryPartition[0]);
+    auto baseAddr = reinterpret_cast<TypeParam*>(this->memoryPartition[0]);
     *baseAddr = static_cast<TypeParam>(88);
-    RelativePointer<TypeParam> rp1(memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
     EXPECT_EQ(*rp1, *baseAddr);
     *baseAddr = static_cast<TypeParam>(99);
@@ -437,8 +437,8 @@ TYPED_TEST(base_relative_ptr_test, memoryRemapping)
 
 TYPED_TEST(base_relative_ptr_test, MemoryReMapping_SharedMemory)
 {
-    void* memoryWriter = memoryPartition[0];
-    void* memoryReader = memoryPartition[0];
+    void* memoryWriter = this->memoryPartition[0];
+    void* memoryReader = this->memoryPartition[0];
 
     Data* dataPointer1 = new (memoryWriter) Data(12, 21);
 
