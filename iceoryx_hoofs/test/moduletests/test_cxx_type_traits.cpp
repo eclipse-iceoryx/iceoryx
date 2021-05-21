@@ -57,6 +57,20 @@ TEST(TypeTraitsTest, IsInvocableResolvesToFalse)
     EXPECT_FALSE(sut);
 }
 
+TEST(TypeTraitsTest, IsInvocableRResolvesToTrue)
+{
+    auto lambda = [](int foo) -> int { return foo++; };
+    auto sut = is_invocable_r<int, decltype(lambda), int>::value;
+    EXPECT_TRUE(sut);
+}
+
+TEST(TypeTraitsTest, IsInvocableRResolvesToFalse)
+{
+    auto lambda = [](float foo) -> float { return foo++; };
+    auto sut = is_invocable_r<void, decltype(lambda), int>::value;
+    EXPECT_FALSE(sut);
+}
+
 TEST(TypeTraitsTest, NoTypeAsMemberIsFalse)
 {
     struct Sut
@@ -111,4 +125,29 @@ TEST(TypeTraitsTest, AddConstConditionallyTypeAliasWorks)
 
     EXPECT_TRUE(std::is_const<SutTypeResult>::value);
 }
+
+TEST(TypeTraitsTest, IsFunctionPointerResolvesToTrue)
+{
+    auto result = is_function_pointer<void (*)(double)>::value;
+    EXPECT_TRUE(result);
+
+    result = is_function_pointer<int* (*)(double)>::value;
+    EXPECT_TRUE(result);
+
+    result = is_function_pointer<void (*)(int, double)>::value;
+    EXPECT_TRUE(result);
+}
+
+TEST(TypeTraitsTest, IsFunctionPointerResolvesToFalse)
+{
+    auto result = is_function_pointer<int*>::value;
+    EXPECT_FALSE(result);
+
+    result = is_function_pointer<void*>::value;
+    EXPECT_FALSE(result);
+
+    result = is_function_pointer<int>::value;
+    EXPECT_FALSE(result);
+}
+
 } // namespace

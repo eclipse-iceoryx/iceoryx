@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_CXX_STATIC_STORAGE_INL
-#define IOX_UTILS_CXX_STATIC_STORAGE_INL
+#ifndef IOX_HOOFS_CXX_STATIC_STORAGE_INL
+#define IOX_HOOFS_CXX_STATIC_STORAGE_INL
 
 #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
@@ -28,9 +28,9 @@ constexpr uint64_t static_storage<Capacity, Align>::align_mismatch(uint64_t alig
 {
     auto r = align % requiredAlign;
 
-    // if r != 0 we are not aligned and need to add this amount to an align
-    // aligned address to be aligned with alignTarget
-    // in the worst case this is requiredAlign - 1
+    // If r != 0 we are not aligned with requiredAlign and need to add r to an align
+    // aligned address to be aligned with requiredAlign.
+    // In the worst case r is requiredAlign - 1
     return r != 0 ? requiredAlign - r : 0;
 }
 
@@ -99,4 +99,4 @@ constexpr uint64_t static_storage<Capacity, Align>::capacity() noexcept
 } // namespace iox
 
 
-#endif // IOX_UTILS_STATIC_STORAGE_INL
+#endif // IOX_HOOFS_STATIC_STORAGE_INL

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_STORABLE_FUNCTION_HPP
-#define IOX_UTILS_STORABLE_FUNCTION_HPP
+#ifndef IOX_HOOFS_STORABLE_FUNCTION_HPP
+#define IOX_HOOFS_STORABLE_FUNCTION_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
 #include <iostream>
-#include <type_traits>
 #include <utility>
 
 
@@ -58,6 +57,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     storable_function() noexcept = default;
 
     /// @brief construct from functor (including lambdas)
+    ///
+    /// @note  Will not compile for StorageType = static_storage if the functor cannot be stored.
+    ///        For other StorageTypes it will terminate at runtime if the functor cannot be stored
+    ///        (and this cannot be detected at compile-time).
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
@@ -90,20 +93,25 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief invoke the stored function
     /// @param args arguments to invoke the stored function with
     /// @return return value of the stored function
-    /// @note  Invoking the function if there is no stored function (i.e. operator bool returns false)
-    ///        leads to terminate being called.
-    /// @note Deliberately not noexcept but can only throw if the stored callable can throw an exception (hence
-    ///       will never throw if we use only our own noexcept functions).
-    /// @note If arguments are passed by value, the copy constructor may be invoked twice:
-    ///       once when passing the arguments to operator() and once when they are passed to the stored callable
-    ///       itself. This appears to be unavoidable and also happens in std::function.
-    ///       The user can always provide a wrapped callable which takes a reference,
-    ///       which is generally preferable for large objects anyway.
-    /// @note Arguments of class type cannot have the move constructor explicitly deleted since the arguments
-    ///       must be forwarded internally which is done by move or, if no move is specified, by copy.
-    ///       If the move operation is explcitly deleted the compiler will not fall back to copy but emit an error.
-    ///       Not specifying move or using a default implementation is fine.
-    ///       This is also the case for std::function (for the gcc implementation at least).
+    ///
+    /// @note 1) Invoking the function if there is no stored function (i.e. operator bool returns false)
+    ///          leads to terminate being called.
+    ///
+    ///       2) Deliberately not noexcept but can only throw if the stored callable can throw an exception (hence
+    ///          will never throw if we use only our own noexcept functions).
+    ///
+    ///       3) If arguments are passed by value, the copy constructor may be invoked twice:
+    ///          once when passing the arguments to operator() and once when they are passed to the stored callable
+    ///          itself. This appears to be unavoidable and also happens in std::function.
+    ///          The user can always provide a wrapped callable which takes a reference,
+    ///          which is generally preferable for large objects anyway.
+    ///
+    ///       4) Arguments of class type cannot have the move constructor explicitly deleted since the arguments
+    ///          must be forwarded internally which is done by move or, if no move is specified, by copy.
+    ///          If the move operation is explicitly deleted the compiler will not fall back to copy but emit an error.
+    ///          Not specifying move or using a default implementation is fine.
+    ///          This is also the case for std::function (for the gcc implementation at least).
+    ///
     ReturnType operator()(Args... args);
 
 
@@ -112,9 +120,12 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     operator bool() noexcept;
 
     /// @brief swap this with another storable function
+    /// @param f the function to swap this with
     void swap(storable_function& f) noexcept;
 
     /// @brief swap two storable functions
+    /// @param f the first function to swap with g
+    /// @param g the second function to swap with f
     static void swap(storable_function& f, storable_function& g) noexcept;
 
     /// @brief size in bytes required to store a CallableType in a storable_function
@@ -143,11 +154,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
         void (*moveFunction)(storable_function& src, storable_function& dest){nullptr};
         void (*destroyFunction)(storable_function& f){nullptr};
 
-        operations() = default;
-        operations(const operations& other) = default;
-        operations& operator=(const operations& other) = default;
-        operations(operations&& other) = default;
-        operations& operator=(operations&& other) = default;
+        operations() noexcept = default;
+        operations(const operations& other) noexcept = default;
+        operations& operator=(const operations& other) noexcept = default;
+        operations(operations&& other) noexcept = default;
+        operations& operator=(operations&& other) noexcept = default;
 
         void copy(const storable_function& src, storable_function& dest) noexcept;
 
@@ -162,6 +173,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     void* m_callable{nullptr}; // pointer to stored type-erased callable
     ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored
+
+    /// @note For static_storage as the StorageType we detect at compile time if the functor can be stored.
+    ///       If this is not the case, compilation will fail.
+    ///       For other StorageTypes where storing might fail due to insufficent memory this may not be detectable
+    ///       at compile time and we call terminate at runtime if the functor could not be stored.
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
@@ -196,4 +212,4 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
 #include "iceoryx_hoofs/internal/cxx/storable_function.inl"
 
-#endif // IOX_UTILS_STORABLE_FUNCTION_HPP
+#endif // IOX_HOOFS_STORABLE_FUNCTION_HPP

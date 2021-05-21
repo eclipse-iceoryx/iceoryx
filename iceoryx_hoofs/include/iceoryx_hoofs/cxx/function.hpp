@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_FUNCTION_HPP
-#define IOX_UTILS_FUNCTION_HPP
+#ifndef IOX_HOOFS_FUNCTION_HPP
+#define IOX_HOOFS_FUNCTION_HPP
 
 #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 #include "iceoryx_hoofs/internal/cxx/storable_function.hpp"
@@ -49,4 +49,4 @@ using function = storable_function<static_storage<Capacity>, Signature>;
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_FUNCTION_HPP
+#endif // IOX_HOOFS_FUNCTION_HPP

@@ -67,7 +67,7 @@ if(BUILD_TEST)
 
     if(NOT WIN32)
         execute_process(
-            COMMAND patch -p1
+            COMMAND patch --merge -p1
             INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/internal_utils_remove_werror.cmake.patch"
             WORKING_DIRECTORY "${SOURCE_DIR}"
             RESULT_VARIABLE result)

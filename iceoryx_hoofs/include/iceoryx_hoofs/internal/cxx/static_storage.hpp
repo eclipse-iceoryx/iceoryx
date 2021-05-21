@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_STATIC_STORAGE_HPP
-#define IOX_UTILS_STATIC_STORAGE_HPP
+#ifndef IOX_HOOFS_STATIC_STORAGE_HPP
+#define IOX_HOOFS_STATIC_STORAGE_HPP
 
 #include <cstring>
 #include <memory>
@@ -98,4 +98,4 @@ class static_storage
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/cxx/static_storage.inl"
-#endif // IOX_UTILS_STATIC_STORAGE_HPP
+#endif // IOX_HOOFS_STATIC_STORAGE_HPP

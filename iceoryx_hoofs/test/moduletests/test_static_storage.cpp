@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,17 +55,12 @@ struct alignas(Align) Bytes
 
 namespace
 {
-class static_storage_test : public Test
-{
-  public:
-    void SetUp() override
-    {
-    }
 
-    void TearDown() override
-    {
-    }
-};
+TEST(static_storage_test, CapacityIsConsistent)
+{
+    constexpr uint64_t CAPACITY = 16;
+    EXPECT_EQ(static_storage<CAPACITY>::capacity(), CAPACITY);
+}
 
 TEST(static_storage_test, IsAllocatableWithoutAlignmentRestriction)
 {

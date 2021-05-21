@@ -24,6 +24,7 @@
 #include <cstddef>
 #include <iostream>
 #include <memory>
+#include <type_traits>
 
 namespace iox
 {
@@ -88,14 +89,16 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
               typename = std::enable_if_t<!is_function_pointer<CallableType>::value
-                                          && not_same<CallableType, function_ref>::value
+                                          && !std::is_same<CallableType, function_ref>::value
                                           && is_invocable<CallableType, ArgTypes...>::value>>
     function_ref(CallableType&& callable) noexcept;
 
     /// @brief Creates a function_ref from a function pointer
     /// @param[in] function function pointer to function we want to reference
-    /// @note this overload is needed, as the general implementation 
-    /// will not work properly for function pointers
+    ///
+    /// @note This overload is needed, as the general implementation
+    /// will not work properly for function pointers.
+    /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
     function_ref(ReturnType (*function)(ArgTypes...));
 
     function_ref(function_ref&& rhs) noexcept;

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_STORABLE_FUNCTION_INL
-#define IOX_UTILS_STORABLE_FUNCTION_INL
+#ifndef IOX_HOOFS_STORABLE_FUNCTION_INL
+#define IOX_HOOFS_STORABLE_FUNCTION_INL
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/cxx/storable_function.hpp"
@@ -173,16 +173,10 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
     else
     {
         std::cerr << "storable_function: no memory to store functor\n";
-        // (this cannot happen in the static_storage case)
+        // this cannot happen in the static_storage case
     }
 
     cxx::Ensures(!empty());
-
-    // We detect the problem at compile time or store nothing when memory is exhausted.
-    // Note that we have no other choice, it is used in the ctor and we cannot throw
-    // the object will be valid but not callable (operator bool returns false).
-
-    // If used with StorageType = static_storage we always detect this at compile time.
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -201,7 +195,7 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
 
     if (ptr)
     {
-        auto obj = reinterpret_cast<CallableType*>(src.m_callable);
+        auto obj = static_cast<CallableType*>(src.m_callable);
         ptr = new (ptr) CallableType(*obj);
         dest.m_callable = ptr;
         dest.m_invoker = src.m_invoker;
@@ -231,7 +225,7 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
     auto ptr = dest.m_storage.template allocate<CallableType>();
     if (ptr)
     {
-        auto obj = reinterpret_cast<CallableType*>(src.m_callable);
+        auto obj = static_cast<CallableType*>(src.m_callable);
         ptr = new (ptr) CallableType(std::move(*obj));
         dest.m_callable = ptr;
         dest.m_invoker = src.m_invoker;
@@ -313,7 +307,6 @@ void storable_function<S, signature<ReturnType, Args...>>::operations::copy(cons
 {
     if (copyFunction)
     {
-        std::cout << "copyFunction" << std::endl;
         copyFunction(src, dest);
     }
 }
@@ -340,4 +333,4 @@ void storable_function<S, signature<ReturnType, Args...>>::operations::destroy(s
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_STORABLE_FUNCTION_INL
+#endif // IOX_HOOFS_STORABLE_FUNCTION_INL
