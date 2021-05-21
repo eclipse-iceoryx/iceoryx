@@ -143,7 +143,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE + 1;
-        void* adr = this->memoryPartition[1] + offset;
+        void* adr = static_cast<uint8_t*>(this->memoryPartition[1]) + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_NE(rp, nullptr);
     }
@@ -234,7 +234,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE + 1;
-        void* adr = this->memoryPartition[1] + offset;
+        void* adr = static_cast<uint8_t*>(this->memoryPartition[1]) + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_NE(rp, nullptr);
