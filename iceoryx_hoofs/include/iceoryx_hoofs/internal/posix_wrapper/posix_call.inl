@@ -33,27 +33,6 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
     return PosixCallBuilder<ReturnType, FunctionArguments...>(
         posixCall, posixFunctionName, file, line, callingFunction);
 }
-
-template <typename ReturnType, bool ConvertableToErrno>
-struct AssignReturnValueIfItsErrno
-{
-    static void call(const ReturnType, int32_t&) noexcept
-    {
-    }
-};
-
-template <typename ReturnType>
-struct AssignReturnValueIfItsErrno<ReturnType, true>
-{
-    static void call(const ReturnType returnValue, int32_t& errnum) noexcept
-    {
-        // only override when failure was signaled but errno == 0 (SUCCESS)
-        if (errnum == 0)
-        {
-            errnum = static_cast<int32_t>(returnValue);
-        }
-    }
-};
 } // namespace internal
 
 template <typename T>
