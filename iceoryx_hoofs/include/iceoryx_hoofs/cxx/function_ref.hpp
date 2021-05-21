@@ -74,6 +74,11 @@ class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
 
+    template <typename T1, typename T2>
+    using has_same_decayed_type = typename std::integral_constant<
+        bool,
+        bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
+
   public:
     /// @brief Creates an empty function_ref in an invalid state
     /// @note Handle with care, program will terminate when calling an invalid function_ref
@@ -89,7 +94,7 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
               typename = std::enable_if_t<!is_function_pointer<CallableType>::value
-                                          && !std::is_same<CallableType, function_ref>::value
+                                          && !has_same_decayed_type<CallableType, function_ref>::value
                                           && is_invocable<CallableType, ArgTypes...>::value>>
     function_ref(CallableType&& callable) noexcept;
 
