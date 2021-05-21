@@ -33,6 +33,6 @@ class RouDiFuzz : iox::roudi::RouDi
 
     /// @brief Send a message to the processMessage method of RouDi
     /// @param[in] Message which should be sent to the processMessage method of RouDi
-    void processMessageFuzz(std::string aMessage) noexcept;
+    void processMessageFuzz(const std::string aMessage) noexcept;
 };
 #endif /*IOX_POSH_FUZZTESTS_ROUDIFUZZ_HPP*/

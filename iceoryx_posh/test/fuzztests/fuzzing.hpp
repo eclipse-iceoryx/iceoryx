@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 
+static constexpr int32_t ERROR_CODE = -1;
+
 /// @brief Fuzzing is a class which is used to send a message to different interfaces which shall be fuzzed.
 class Fuzzing
 {
@@ -31,19 +33,24 @@ class Fuzzing
     /// be possible to invoke the processMessage method within RouDi without directly modifying the code in RouDi.
     /// @param[in] shared_ptr to RouDiFuzz such that processMessage can be invoked
     /// @param[in] std::string containing a message which shall be sent to the interface
-    void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage) noexcept;
+    void fuzzingRouDiCom(const std::shared_ptr<RouDiFuzz> aRouDi, const std::string aMessage) noexcept;
 
     /// @brief fuzzingRouDiUDS is a method to test the Unix Domain Socket interface of RouDi. It connects to
     /// RouDi's uds and sends the message given as input to RouDi
     /// @param[in] std::string containing a message which shall be sent to the interface
-    /// @param[out] int as result of connect(). If the int = -1 it means that it was not possible to connect to the
-    /// socket
-    int fuzzingRouDiUDS(std::string aMessage) noexcept;
+    /// @param[out] bool as result of connect(). If the result is false it means that it was not possible to
+    /// connect to the socket
+    bool fuzzingRouDiUDS(const std::string aMessage) noexcept;
 
     /// @brief fuzzingTOMLParser is a method to send a message to the TOML parser.
     /// @param[in] std::string containing a message which shall be sent to the interface
     /// @param[in] std::string containing a valid path to an empty file which will be used to write the tomlFile into.
     /// This is necessary because the TOML parser expects a path to a file as input
-    void fuzzingTOMLParser(std::string tomlFile, std::string tempFile) noexcept;
+    /// @param[out] bool as result if the TOML file could be sent to the parser
+    bool fuzzingTOMLParser(const std::string tomlFile, const std::string tempFile) noexcept;
+
+  private:
+    int32_t m_sockfd{iox::posix::UnixDomainSocket::INVALID_FD};
+    int32_t m_connectfd{iox::posix::UnixDomainSocket::INVALID_FD};
 };
 #endif /* IOX_POSH_FUZZTESTS_FUZZING_HPP */

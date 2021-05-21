@@ -86,17 +86,19 @@ int main(int argc, char* argv[]) noexcept
     if ((cmd.getFuzzingAPI() == FuzzingApi::UDS) || (cmd.getFuzzingAPI() == FuzzingApi::COM)) // Start RouDi
     {
         aRouDi = aFuzzHelper.startRouDiThread();
-
-        uint8_t retryCounter{0};
-        while (!aFuzzHelper.checkIsRouDiRunning())
+        if ((cmd.getFuzzingAPI() == FuzzingApi::UDS))
         {
-            if (retryCounter >= MAX_RETRIES)
+            uint8_t retryCounter{0};
+            while (!aFuzzHelper.checkIsRouDiRunning())
             {
-                iox::LogError() << "RouDi could not be started, program terminates!";
-                return EXIT_FAILURE;
+                if (retryCounter >= MAX_RETRIES)
+                {
+                    iox::LogError() << "RouDi could not be started, program terminates!";
+                    return EXIT_FAILURE;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_RETRY_IN_MS));
+                retryCounter++;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_RETRY_IN_MS));
-            retryCounter++;
         }
     }
 
@@ -116,7 +118,11 @@ int main(int argc, char* argv[]) noexcept
 
             case FuzzingApi::UDS:
             {
-                aFuzzer.fuzzingRouDiUDS(aMessage);
+                bool hasConnect = aFuzzer.fuzzingRouDiUDS(aMessage);
+                if (!hasConnect)
+                {
+                    iox::LogError() << "Could not connect to the UDS socket";
+                }
                 iox::LogDebug() << "Messages sent to RouDi: " << aMessage;
                 break;
             }

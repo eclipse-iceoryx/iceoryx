@@ -40,7 +40,7 @@ std::shared_ptr<RouDiFuzz> FuzzHelper::startRouDiThread() noexcept
 
 bool FuzzHelper::checkIsRouDiRunning() const noexcept
 {
-    return Fuzzing().fuzzingRouDiUDS("Hello Roudi!") != -1;
+    return Fuzzing().fuzzingRouDiUDS("Hello Roudi!");
 }
 
 std::vector<std::string> FuzzHelper::combineString(std::vector<std::string>& allMessages) noexcept
