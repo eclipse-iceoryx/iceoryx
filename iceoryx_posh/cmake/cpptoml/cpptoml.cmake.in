@@ -24,6 +24,8 @@ ExternalProject_Add(ext_cpptoml
   GIT_TAG           v0.1.1
   SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/cpptoml/src"
   BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/cpptoml/build"
+  PATCH_COMMAND
+    "${CMAKE_COMMAND}" -E chdir "<SOURCE_DIR>" git apply -p1 --ignore-space-change --whitespace=nowarn "${CMAKE_CURRENT_SOURCE_DIR}/0001-Add-include-limits-to-port-to-GCC-11.patch"
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
