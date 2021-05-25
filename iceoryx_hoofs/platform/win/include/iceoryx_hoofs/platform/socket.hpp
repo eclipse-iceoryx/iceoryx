@@ -23,18 +23,8 @@
 
 #include <cstdint>
 
-#define AF_INET 0
-#define SOCK_STREAM 1
-#define SOL_SOCKET 2
-#define SO_SNDTIMEO 3
-#define SO_RCVTIMEO 4
-#define AF_LOCAL 5
-#define SOCK_DGRAM 6
-
-using in_port_t = int;
+#define AF_LOCAL AF_INET
 using sa_family_t = int;
-using socklen_t = int;
-using in_addr_t = uint32_t;
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_socket(int domain, int type, int protocol);
