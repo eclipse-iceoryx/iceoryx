@@ -70,8 +70,8 @@ bool ServiceDescription::ClassHash::operator!=(const ClassHash& rhs) const noexc
 
 ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexcept
 {
-    std::underlying_type<Scope>::type scope;
-    std::underlying_type<Interfaces>::type interfaceSource;
+    std::underlying_type<Scope>::type scope = 0;
+    std::underlying_type<Interfaces>::type interfaceSource = 0;
     f_serial.extract(m_serviceString,
                      m_instanceString,
                      m_eventString,

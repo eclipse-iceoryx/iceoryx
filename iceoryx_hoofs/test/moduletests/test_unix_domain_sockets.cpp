@@ -43,14 +43,12 @@ class UnixDomainSocket_test : public Test
   public:
     void SetUp()
     {
-        auto serverResult = UnixDomainSocket::create(
-            goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
+        auto serverResult = UnixDomainSocket::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
         internal::CaptureStderr();
 
-        auto clientResult = UnixDomainSocket::create(
-            goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
+        auto clientResult = UnixDomainSocket::create(goodName, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.value());
     }
@@ -76,14 +74,6 @@ class UnixDomainSocket_test : public Test
 
 const size_t UnixDomainSocket_test::MaxMsgSize = UnixDomainSocket::MAX_MESSAGE_SIZE;
 constexpr uint64_t UnixDomainSocket_test::MaxMsgNumber;
-
-TEST_F(UnixDomainSocket_test, NonBlockingModeNotSupported)
-{
-    auto result = UnixDomainSocket::create(
-        goodName, IpcChannelMode::NON_BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
-    EXPECT_TRUE(result.has_error());
-    ASSERT_THAT(result.get_error(), Eq(IpcChannelError::INVALID_ARGUMENTS));
-}
 
 TEST_F(UnixDomainSocket_test, UnlinkNonExistingWithInvalidNameLeadsToError)
 {

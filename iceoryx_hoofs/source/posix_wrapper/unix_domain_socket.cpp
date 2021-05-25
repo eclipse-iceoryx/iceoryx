@@ -39,7 +39,6 @@ UnixDomainSocket::UnixDomainSocket() noexcept
 }
 
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
-                                   const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
@@ -54,7 +53,6 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
             }
             return UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
-        mode,
         channelSide,
         maxMsgSize,
         maxMsgNumber)
@@ -63,7 +61,6 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const UdsName_t& name,
-                                   const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber IOX_MAYBE_UNUSED) noexcept
@@ -85,12 +82,10 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     else
     {
         m_maxMessageSize = maxMsgSize;
-        initalizeSocket(mode)
-            .and_then([this]() { this->m_isInitialized = true; })
-            .or_else([this](IpcChannelError& error) {
-                this->m_isInitialized = false;
-                this->m_errorValue = error;
-            });
+        initalizeSocket().and_then([this]() { this->m_isInitialized = true; }).or_else([this](IpcChannelError& error) {
+            this->m_isInitialized = false;
+            this->m_errorValue = error;
+        });
     }
 }
 
@@ -302,7 +297,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 }
 
 
-cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChannelMode mode) noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 {
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
@@ -312,13 +307,6 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
     strncpy(m_sockAddr.sun_path, m_name.c_str(), m_name.size());
-
-    // we currently don't support a IpcChannelMode::NON_BLOCKING, for send and receive timouts can be used, the other
-    // calls are blocking
-    if (IpcChannelMode::NON_BLOCKING == mode)
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
-    }
 
     // the mask will be applied to the permissions, we only allow users and group members to have read and write access
     // the system call always succeeds, no need to check for errors

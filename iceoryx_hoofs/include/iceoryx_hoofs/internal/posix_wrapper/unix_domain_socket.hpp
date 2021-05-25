@@ -113,7 +113,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const IpcChannelName_t& name,
-                     const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
@@ -127,7 +126,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const NoPathPrefix_t,
                      const UdsName_t& name,
-                     const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
@@ -136,7 +134,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief initializes the unix domain socket
     /// @param mode blocking or non_blocking
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> initalizeSocket(const IpcChannelMode mode) noexcept;
+    cxx::expected<IpcChannelError> initalizeSocket() noexcept;
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
