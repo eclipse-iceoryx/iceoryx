@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,25 +13,26 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
-//! [topic data]
-struct RadarObject
+#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+
+int sigemptyset(sigset_t* set)
 {
-    RadarObject() noexcept
-    {
-    }
-    RadarObject(double x, double y, double z) noexcept
-        : x(x)
-        , y(y)
-        , z(z)
-    {
-    }
-    double x = 0.0;
-    double y = 0.0;
-    double z = 0.0;
-};
-//! [topic data]
+    return 0;
+}
 
-#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact)
+{
+    auto previousSignalHandler = Win32Call(signal, signum, act->sa_handler).value;
+    if (oldact != nullptr)
+    {
+        oldact->sa_handler = previousSignalHandler;
+    }
+    return 0;
+}
+
+int kill(pid_t pid, int sig)
+{
+    return 0;
+}

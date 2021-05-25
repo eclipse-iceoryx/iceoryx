@@ -17,78 +17,45 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_PTHREAD_HPP
 #define IOX_HOOFS_WIN_PLATFORM_PTHREAD_HPP
 
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
+
 #include <thread>
+#include <type_traits>
 
 #define PTHREAD_PROCESS_SHARED 0
 #define PTHREAD_MUTEX_RECURSIVE_NP 1
 #define PTHREAD_MUTEX_FAST_NP 2
 #define PTHREAD_PRIO_NONE 3
 
-using pthread_mutex_t = int;
+struct pthread_mutex_t
+{
+    HANDLE handle;
+};
+
 using pthread_mutexattr_t = int;
 using pthread_t = std::thread::native_handle_type;
 
-inline int pthread_setname_np(pthread_t thread, const char* name)
-{
-    return 0;
-}
+int pthread_setname_np(pthread_t thread, const char* name);
+int pthread_mutexattr_destroy(pthread_mutexattr_t* attr);
+int pthread_mutexattr_init(pthread_mutexattr_t* attr);
+int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared);
+int pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type);
+int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol);
+
+int pthread_mutex_destroy(pthread_mutex_t* mutex);
+int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr);
+int pthread_mutex_lock(pthread_mutex_t* mutex);
+int pthread_mutex_trylock(pthread_mutex_t* mutex);
+int pthread_mutex_unlock(pthread_mutex_t* mutex);
 
 inline int iox_pthread_setname_np(pthread_t thread, const char* name)
 {
-    return pthread_setname_np(thread, name);
-}
-
-inline int pthread_getname_np(pthread_t thread, char* name, size_t len)
-{
     return 0;
 }
 
-inline int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
-{
-    return 0;
-}
 
-inline int pthread_mutexattr_init(pthread_mutexattr_t* attr)
-{
-    return 0;
-}
-
-inline int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared)
-{
-    return 0;
-}
-
-inline int pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type)
-{
-    return 0;
-}
-
-inline int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol)
-{
-    return 0;
-}
-
-inline int pthread_mutex_destroy(pthread_mutex_t* mutex)
-{
-    return 0;
-}
-
-inline int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
-{
-    return 0;
-}
-
-inline int pthread_mutex_lock(pthread_mutex_t* mutex)
-{
-    return 0;
-}
-
-inline int pthread_mutex_trylock(pthread_mutex_t* mutex)
-{
-    return 0;
-}
-
-inline int pthread_mutex_unlock(pthread_mutex_t* mutex)
+inline int pthread_getname_np(pthread_t thread, const char* name, size_t len)
 {
     return 0;
 }

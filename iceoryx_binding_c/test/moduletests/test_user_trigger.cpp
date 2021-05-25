@@ -28,6 +28,8 @@ extern "C" {
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 class iox_user_trigger_test : public Test
@@ -126,3 +128,5 @@ TEST_F(iox_user_trigger_test, disable_trigger_eventingItFromWaitsetCleansup)
 
     EXPECT_EQ(m_waitSet.size(), 0U);
 }
+
+} // namespace

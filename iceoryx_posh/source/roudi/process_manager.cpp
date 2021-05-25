@@ -156,7 +156,8 @@ bool ProcessManager::isProcessAlive(const Process& process) noexcept
     static constexpr int32_t ERROR_CODE = -1;
     auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
                             .failureReturnValue(ERROR_CODE)
-                            .evaluateWithIgnoredErrnos(ESRCH)
+                            .ignoreErrnos(ESRCH)
+                            .evaluate()
                             .or_else([&](auto& r) {
                                 this->evaluateKillError(
                                     process, r.errnum, r.getHumanReadableErrnum().c_str(), ShutdownPolicy::SIG_TERM);

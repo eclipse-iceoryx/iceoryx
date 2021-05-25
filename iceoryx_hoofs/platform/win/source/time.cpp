@@ -162,12 +162,23 @@ int timer_getoverrun(timer_t)
 
 int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
-    if (clk_id != CLOCK_REALTIME)
+    if (clk_id == CLOCK_MONOTONIC)
     {
-        fprintf(stderr, "Windows Version of clock_gettime supports only CLOCK_REALTIME clockID\n");
+        constexpr int64_t NANO_SECONDS_PER_SECOND = 1000000000;
+        auto now = std::chrono::steady_clock::now();
+        auto nanoSeconds = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch());
+        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+
+        tp->tv_sec = seconds.count();
+        tp->tv_nsec = nanoSeconds.count() - seconds.count() * NANO_SECONDS_PER_SECOND;
+        return 0;
     }
-    int retVal = Win32Call(timespec_get(tp, TIME_UTC));
-    return retVal;
+    else if (clk_id == CLOCK_REALTIME)
+    {
+        return Win32Call(timespec_get, tp, TIME_UTC).error;
+    }
+    errno = EINVAL;
+    return -1;
 }
 
 int gettimeofday(struct timeval* tp, struct timezone* tzp)
@@ -178,8 +189,8 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
     SYSTEMTIME systemTime;
     FILETIME fileTime;
 
-    Win32Call(GetSystemTime(&systemTime));
-    Win32Call(SystemTimeToFileTime(&systemTime, &fileTime));
+    Win32Call(GetSystemTime, &systemTime);
+    Win32Call(SystemTimeToFileTime, &systemTime, &fileTime);
     uint64_t time =
         static_cast<uint64_t>(fileTime.dwLowDateTime) + (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32);
 
