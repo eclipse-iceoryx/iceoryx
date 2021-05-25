@@ -40,6 +40,7 @@ int pthread_getname_np(pthread_t thread, char* name, size_t len)
     if (result == 0)
     {
         wcstombs(name, wName, len);
+        LocalFree(wName);
     }
 
     return result;

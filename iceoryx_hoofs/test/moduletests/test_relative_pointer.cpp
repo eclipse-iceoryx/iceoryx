@@ -40,6 +40,7 @@ struct Data
 
 static constexpr uint64_t SHARED_MEMORY_SIZE = 4096 * 32;
 static constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;
+static uint8_t memoryPatternValue = 1U;
 
 template <typename T>
 class base_relative_ptr_test : public Test
@@ -48,6 +49,8 @@ class base_relative_ptr_test : public Test
     void SetUp() override
     {
         internal::CaptureStderr();
+        memset(memoryPartition, memoryPatternValue, NUMBER_OF_MEMORY_PARTITIONS * SHARED_MEMORY_SIZE);
+        ++memoryPatternValue;
     }
 
     void TearDown() override
@@ -251,11 +254,11 @@ TYPED_TEST(base_relative_ptr_test, IdAndOffset)
     EXPECT_EQ(rp1.getId(), 1);
 
     int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
-    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
+    auto addressAtOffset = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
     EXPECT_EQ(rp2.getOffset(), offset);
     EXPECT_EQ(rp2.getId(), 1);
-    EXPECT_EQ(rp2.get(), offsetAddr1);
+    EXPECT_EQ(rp2.get(), addressAtOffset);
 }
 
 TYPED_TEST(base_relative_ptr_test, getOffset)
@@ -265,9 +268,9 @@ TYPED_TEST(base_relative_ptr_test, getOffset)
     EXPECT_EQ(BaseRelativePointer::getOffset(1, this->memoryPartition[0]), 0);
 
     int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
-    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
-    EXPECT_EQ(BaseRelativePointer::getOffset(1, offsetAddr1), offset);
+    auto addressAtOffset = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
+    EXPECT_EQ(BaseRelativePointer::getOffset(1, addressAtOffset), offset);
 }
 
 TYPED_TEST(base_relative_ptr_test, getPtr)
@@ -277,9 +280,9 @@ TYPED_TEST(base_relative_ptr_test, getPtr)
     EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), this->memoryPartition[0]);
 
     int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
-    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
-    EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), offsetAddr1);
+    auto addressAtOffset = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
+    EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), addressAtOffset);
 }
 
 TYPED_TEST(base_relative_ptr_test, registerPtr)
@@ -433,45 +436,6 @@ TYPED_TEST(base_relative_ptr_test, memoryRemapping)
         // this would also happen in another application where the static base pointer lookup table
         // is might differ from application to application
     }
-}
-
-TYPED_TEST(base_relative_ptr_test, MemoryReMapping_SharedMemory)
-{
-    void* memoryWriter = this->memoryPartition[0];
-    void* memoryReader = this->memoryPartition[0];
-
-    Data* dataPointer1 = new (memoryWriter) Data(12, 21);
-
-    EXPECT_EQ(dataPointer1->Data1, reinterpret_cast<Data*>(memoryReader)->Data1);
-
-    int offset = SHARED_MEMORY_SIZE / 2;
-    auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memoryWriter) + offset);
-    auto offsetAddr2 = reinterpret_cast<int*>(static_cast<uint8_t*>(memoryReader) + offset);
-    *offsetAddr1 = 37;
-
-    EXPECT_EQ(*offsetAddr2, *offsetAddr1);
-
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memoryWriter)), true);
-    {
-        RelativePointer<int> rp1(offsetAddr1, 1);
-
-        EXPECT_EQ(rp1.getId(), 1);
-        EXPECT_EQ(rp1.getOffset(), offset);
-        EXPECT_EQ(*rp1, 37);
-        EXPECT_EQ(rp1.get(), offsetAddr1);
-    }
-    EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
-
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memoryReader)), true);
-    {
-        RelativePointer<int> rp1(offsetAddr2, 1);
-
-        EXPECT_EQ(rp1.getId(), 1);
-        EXPECT_EQ(rp1.getOffset(), offset);
-        EXPECT_EQ(*rp1, 37);
-        EXPECT_EQ(rp1.get(), offsetAddr2);
-    }
-    EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
 }
 
 TYPED_TEST(base_relative_ptr_test, compileTest)
