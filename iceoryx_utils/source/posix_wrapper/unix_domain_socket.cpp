@@ -401,7 +401,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         auto connectCall = cxx::makeSmartC(connect,
                                            cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                            {ERROR_CODE},
-                                           {ENOENT},
+                                           {ENOENT, ECONNREFUSED},
                                            m_sockfd,
                                            (struct sockaddr*)&m_sockAddr,
                                            static_cast<socklen_t>(sizeof(m_sockAddr)));
@@ -415,7 +415,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.getErrNum()));
         }
-        else if (connectCall.getErrNum() == ENOENT)
+        else if (connectCall.getErrNum() == ENOENT || connectCall.getErrNum() == ECONNREFUSED)
         {
             closeFileDescriptor().or_else([](auto) {
                 std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
@@ -547,7 +547,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     case ECONNREFUSED:
     {
-        std::cerr << "No server for unix domain socket \"" << m_name << "\"" << std::endl;
+        // no error message needed since this is a normal use case
         return IpcChannelError(IpcChannelError::NO_SUCH_CHANNEL);
     }
     case ECONNRESET:

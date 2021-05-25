@@ -22,6 +22,7 @@
 #include <iostream>
 
 #include <assert.h>
+#include <limits>
 
 namespace iox
 {
