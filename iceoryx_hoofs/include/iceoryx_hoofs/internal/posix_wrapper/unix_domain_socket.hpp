@@ -47,8 +47,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr size_t NULL_TERMINATOR_SIZE = 1;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
-    static constexpr int32_t ERROR_CODE = -1;
-    static constexpr int32_t INVALID_FD = -1;
 
     using UdsName_t = cxx::string<LONGEST_VALID_NAME>;
 
@@ -147,6 +145,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
   private:
+    static constexpr int32_t ERROR_CODE = -1;
+    static constexpr int32_t INVALID_FD = -1;
+
     UdsName_t m_name;
     IpcChannelSide m_channelSide;
     int32_t m_sockfd{INVALID_FD};

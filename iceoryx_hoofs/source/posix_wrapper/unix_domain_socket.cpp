@@ -128,6 +128,16 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
+    if (!isNameValid(name))
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+
+    if (UdsName_t().capacity() < name.size() + UdsName_t(PATH_PREFIX).size())
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+
     return unlinkIfExists(NoPathPrefix, UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
@@ -199,7 +209,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
                                                            const units::Duration& timeout) const noexcept
 {
     constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    if (msg.size() > m_maxMessageSize + NULL_TERMINATOR_SIZE)
+    if (msg.size() >= m_maxMessageSize + NULL_TERMINATOR_SIZE)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -512,7 +522,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
 
 bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
 {
-    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME);
+    return !name.empty();
 }
 
 
