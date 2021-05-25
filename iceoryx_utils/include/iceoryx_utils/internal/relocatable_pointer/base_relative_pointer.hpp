@@ -21,6 +21,7 @@
 #include "pointer_repository.hpp"
 
 #include <cstdint>
+#include <limits>
 
 namespace iox
 {
