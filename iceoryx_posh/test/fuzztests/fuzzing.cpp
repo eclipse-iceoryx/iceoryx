@@ -60,7 +60,8 @@ bool Fuzzing::fuzzingRouDiUDS(const std::string aMessage) noexcept
     auto connectCall =
         iox::posix::posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&aSockAddr), sizeof(aSockAddr))
             .failureReturnValue(ERROR_CODE)
-            .evaluateWithIgnoredErrnos(ENOENT)
+            .suppressErrorMessagesForErrnos(ENOENT)
+            .evaluate()
             .and_then([&](auto& r) { m_connectfd = r.value; });
 
     if (connectCall.has_error() || m_connectfd == -1)
@@ -73,7 +74,8 @@ bool Fuzzing::fuzzingRouDiUDS(const std::string aMessage) noexcept
         iox::posix::posixCall(sendto)(
             m_sockfd, aMessage.c_str(), aMessage.length() + 1, static_cast<int>(0), nullptr, static_cast<socklen_t>(0))
             .failureReturnValue(ERROR_CODE)
-            .evaluateWithIgnoredErrnos(ENOENT)
+            .suppressErrorMessagesForErrnos(ENOENT)
+            .evaluate()
             .and_then([](auto&) {
                 std::this_thread::sleep_for(
                     std::chrono::milliseconds(500)); // 0.5  second We need to wait otherwise it can happen that
