@@ -31,6 +31,7 @@ namespace iox
 namespace posix
 {
 constexpr char UnixDomainSocket::PATH_PREFIX[];
+constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
 
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
