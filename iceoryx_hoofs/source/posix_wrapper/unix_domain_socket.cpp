@@ -141,7 +141,7 @@ void UnixDomainSocket::startServerThread() noexcept
             while (m_keepRunning.load())
             {
                 std::string message;
-                message.resize(512);
+                message.resize(m_maxMessageSize);
                 DWORD bytesRead;
                 LPOVERLAPPED noOverlapping = NULL;
                 bool fSuccess = ReadFile(namedPipe, message.data(), message.size(), &bytesRead, noOverlapping);
