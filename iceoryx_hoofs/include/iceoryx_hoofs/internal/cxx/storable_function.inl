@@ -245,7 +245,6 @@ template <typename S, typename ReturnType, typename... Args>
 template <typename CallableType>
 void storable_function<S, signature<ReturnType, Args...>>::destroy(storable_function& f) noexcept
 {
-    // TODO: this is not an indication allocate was called anymore (due to fptrs also being stored in m_callable)
     if (f.m_callable)
     {
         auto ptr = static_cast<CallableType*>(f.m_callable);

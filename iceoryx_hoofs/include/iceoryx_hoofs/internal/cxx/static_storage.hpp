@@ -79,8 +79,9 @@ class static_storage
     ///       nor is it overwritten. Setting the memory to zero can be done with clear.
     constexpr void deallocate() noexcept;
 
-    /// @brief set the managed static memory to all zeros
-    constexpr void clear() noexcept;
+    /// @brief set the managed static memory to all zeros if there is no object currently stored
+    /// @return true if the memory was set to zero, false otherwise
+    constexpr bool clear() noexcept;
 
     /// @brief get the storage capacity in bytes
     /// @return maximum number of bytes available in the static storage

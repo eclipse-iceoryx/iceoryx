@@ -157,7 +157,7 @@ TEST(static_storage_test, TypedAllocateAfterDeallocateSucceeds)
     EXPECT_NE(sut.allocate<Data>(), nullptr);
 }
 
-TEST(static_storage_test, ClearSetsStorageBytesToZero)
+TEST(static_storage_test, ClearSetsStorageBytesToZeroIfThereIsNoObjectStored)
 {
     using Data = Bytes<16, 4>;
     static_storage<18, 2> sut;
@@ -166,8 +166,22 @@ TEST(static_storage_test, ClearSetsStorageBytesToZero)
     data->set(37);
     EXPECT_TRUE(data->hasValue(37));
 
-    sut.clear();
+    sut.deallocate();
+    EXPECT_TRUE(sut.clear());
     EXPECT_TRUE(data->hasValue(0));
+}
+
+TEST(static_storage_test, ClearHasNoEffectIfThereIsAnObjectStored)
+{
+    using Data = Bytes<16, 4>;
+    static_storage<18, 2> sut;
+    auto data = sut.allocate<Data>();
+    ASSERT_NE(data, nullptr);
+    data->set(37);
+    EXPECT_TRUE(data->hasValue(37));
+
+    EXPECT_FALSE(sut.clear());
+    EXPECT_TRUE(data->hasValue(37));
 }
 
 TEST(static_storage_test, DeallocateDoesNotClearStorageBytes)

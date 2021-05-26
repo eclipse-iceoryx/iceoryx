@@ -84,9 +84,14 @@ constexpr void static_storage<Capacity, Align>::deallocate() noexcept
 }
 
 template <uint64_t Capacity, uint64_t Align>
-constexpr void static_storage<Capacity, Align>::clear() noexcept
+constexpr bool static_storage<Capacity, Align>::clear() noexcept
 {
-    std::memset(m_bytes, 0, Capacity);
+    if (m_ptr == nullptr)
+    {
+        std::memset(m_bytes, 0, Capacity);
+        return true;
+    }
+    return false;
 }
 
 template <uint64_t Capacity, uint64_t Align>
