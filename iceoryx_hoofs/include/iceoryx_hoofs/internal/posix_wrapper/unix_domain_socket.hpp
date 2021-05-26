@@ -44,12 +44,16 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     {
     };
     static constexpr NoPathPrefix_t NoPathPrefix{};
+#ifdef _WIN32
+    static constexpr char PATH_PREFIX[] = "";
+#else
     static constexpr char PATH_PREFIX[] = "/tmp/";
+#endif
 
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
-    ///  the same behavior on every platform we use 2048.
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 2048U - NULL_TERMINATOR_SIZE;
+    /// @brief Max message size is on linux = 4096, on mac os = 2048, on windows = 512. To have
+    ///  the same behavior on every platform we use 512.
+    static constexpr uint64_t MAX_MESSAGE_SIZE = 512U - NULL_TERMINATOR_SIZE;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 
@@ -109,6 +113,8 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
+    static bool isNameValid(const UdsName_t& name) noexcept;
+
     /// @brief c'tor
     /// @param name for the unix domain socket
     /// @param channel side client or server
@@ -138,7 +144,8 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     UdsName_t m_pipeName;
     IpcChannelSide m_channelSide;
 
-    units::Duration m_loopTimeout = units::Duration::fromMilliseconds(50);
+    uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
+    units::Duration m_loopTimeout = units::Duration::fromMilliseconds(10);
     std::atomic_bool m_keepRunning{true};
     std::thread m_serverThread;
     mutable std::mutex m_receivedMessagesMutex;
@@ -151,8 +158,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
     IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
-
-    static bool isNameValid(const UdsName_t& name) noexcept;
 
     /// @brief Tries to close the file descriptor
     /// @return IpcChannelError if error occured

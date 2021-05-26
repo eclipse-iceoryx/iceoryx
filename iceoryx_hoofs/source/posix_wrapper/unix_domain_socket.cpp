@@ -32,7 +32,6 @@ namespace iox
 namespace posix
 {
 constexpr char UnixDomainSocket::PATH_PREFIX[];
-constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
 
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
@@ -54,6 +53,11 @@ UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
     *this = std::move(other);
 }
 
+bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
+{
+    return !name.empty();
+}
+
 #if defined(_WIN32)
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelSide channelSide,
@@ -68,9 +72,23 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
-    : m_channelSide(channelSide)
-
+    : m_maxMessageSize(maxMsgSize)
+    , m_channelSide(channelSide)
 {
+    if (!isNameValid(name))
+    {
+        this->m_isInitialized = false;
+        this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
+        return;
+    }
+
+    if (maxMsgSize > MAX_MESSAGE_SIZE)
+    {
+        this->m_isInitialized = false;
+        this->m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
+        return;
+    }
+
     setPipeName(name);
     switch (channelSide)
     {
@@ -154,6 +172,7 @@ UnixDomainSocket& UnixDomainSocket::UnixDomainSocket::operator=(UnixDomainSocket
         m_channelSide = std::move(other.m_channelSide);
         m_keepRunning.store(other.m_keepRunning.load());
         m_receivedMessages = std::move(other.m_receivedMessages);
+        m_maxMessageSize = std::move(other.m_maxMessageSize);
 
         other.destroy();
         startServerThread();
@@ -175,12 +194,20 @@ void UnixDomainSocket::setPipeName(const UdsName_t& name) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
+    if (isNameValid(name))
+    {
+        return cxx::success<bool>(true);
+    }
     return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
                                                                       const UdsName_t& name) noexcept
 {
+    if (isNameValid(name))
+    {
+        return cxx::success<bool>(true);
+    }
     return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
 }
 
@@ -196,11 +223,22 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 
 cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
 {
+    return timedSend(msg, units::Duration::fromMilliseconds(0));
+}
+
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                           const units::Duration& timeout) const noexcept
+{
     if (IpcChannelSide::SERVER == m_channelSide)
     {
         std::cerr << "sending on server side not supported for unix domain socket \"" << m_pipeName << "\""
                   << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
+
+    if (msg.size() > m_maxMessageSize)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
     // open pipe
@@ -226,12 +264,13 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
             std::terminate();
         }
 
-        printf("waiting for pipe\n");
-        DWORD timeoutInMs = 20000;
-        if (!WaitNamedPipeA(m_pipeName.c_str(), timeoutInMs))
+        if (timeout.toMilliseconds() != 0)
         {
-            printf("Could not open pipe: 20 second wait timed out.");
-            std::terminate();
+            if (!WaitNamedPipeA(m_pipeName.c_str(), timeout.toMilliseconds()))
+            {
+                printf("Could not open pipe: 20 second wait timed out.");
+                // error
+            }
         }
     }
 
@@ -258,41 +297,9 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
     return cxx::success<>();
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
-                                                           const units::Duration& timeout) const noexcept
-{
-    if (IpcChannelSide::SERVER == m_channelSide)
-    {
-        std::cerr << "sending on server side not supported for unix domain socket \"" << m_pipeName << "\""
-                  << std::endl;
-        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
-    }
-
-    return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
-}
-
 cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const noexcept
 {
-    if (IpcChannelSide::CLIENT == m_channelSide)
-    {
-        std::cerr << "receiving on client side not supported for unix domain socket \"" << m_pipeName << "\""
-                  << std::endl;
-        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
-    }
-
-    while (true)
-    {
-        {
-            std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
-            if (!m_receivedMessages.empty())
-            {
-                std::string msg = m_receivedMessages.front();
-                m_receivedMessages.pop();
-                return cxx::success<std::string>(msg);
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
-    }
+    return timedReceive(units::Duration::fromMilliseconds(0));
 }
 
 cxx::expected<std::string, IpcChannelError>
@@ -305,7 +312,25 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    units::Duration remainingTime = timeout;
+    int64_t minimumRetries = 10;
+    do
+    {
+        {
+            std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
+            if (!m_receivedMessages.empty())
+            {
+                std::string msg = m_receivedMessages.front();
+                m_receivedMessages.pop();
+                return cxx::success<std::string>(msg);
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
+        remainingTime = remainingTime - m_loopTimeout;
+        --minimumRetries;
+    } while (remainingTime.toMilliseconds() > 0 || minimumRetries > 0);
+
+    return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
 #else
@@ -533,6 +558,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 
     return timedReceive(units::Duration(tv));
 }
+
 
 cxx::expected<std::string, IpcChannelError>
 UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
@@ -786,10 +812,6 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
 }
 
-bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
-{
-    return !name.empty();
-}
 #endif
 
 } // namespace posix

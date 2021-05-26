@@ -77,6 +77,7 @@ class UnixDomainSocket_test : public Test
 
     bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
     {
+#if !defined(_WIN32)
         static constexpr int32_t ERROR_CODE = -1;
         struct sockaddr_un sockAddr;
 
@@ -142,6 +143,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
+#if !defined(_WIN32)
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
 {
     UnixDomainSocket::UdsName_t longSocketName;
@@ -153,6 +155,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
     ASSERT_TRUE(ret.has_error());
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
+#endif
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {

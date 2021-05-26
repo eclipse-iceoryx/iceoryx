@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if !defined(_WIN32)
 #include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 
@@ -394,4 +393,3 @@ TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
     EXPECT_GT(timeDiff, timeout - minTimeoutTolerance);
 }
 } // namespace
-#endif
