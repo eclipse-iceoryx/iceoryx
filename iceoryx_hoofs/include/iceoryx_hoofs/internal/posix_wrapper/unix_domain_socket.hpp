@@ -26,6 +26,12 @@
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/un.hpp"
 
+#ifdef _WIN32
+#include "iceoryx_hoofs/platform/windows.hpp"
+#include <mutex>
+#include <queue>
+#endif
+
 namespace iox
 {
 namespace posix
@@ -125,7 +131,19 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
+#if defined(_WIN32)
+    void setPipeName(const UdsName_t& name) noexcept;
+    void startServerThread() noexcept;
 
+    UdsName_t m_pipeName;
+    IpcChannelSide m_channelSide;
+
+    units::Duration m_loopTimeout = units::Duration::fromMilliseconds(50);
+    std::atomic_bool m_keepRunning{true};
+    std::thread m_serverThread;
+    mutable std::mutex m_receivedMessagesMutex;
+    mutable std::queue<std::string> m_receivedMessages;
+#else
     /// @brief initializes the unix domain socket
     /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> initalizeSocket() noexcept;
@@ -149,6 +167,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     int32_t m_sockfd{INVALID_FD};
     struct sockaddr_un m_sockAddr;
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
+#endif
 };
 } // namespace posix
 } // namespace iox

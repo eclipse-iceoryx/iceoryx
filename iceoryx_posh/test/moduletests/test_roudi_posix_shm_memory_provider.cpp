@@ -54,7 +54,7 @@ class PosixShmMemoryProvider_Test : public Test
         return !iox::posix::SharedMemoryObject::create(TEST_SHM_NAME,
                                                        8,
                                                        iox::posix::AccessMode::READ_ONLY,
-                                                       iox::posix::OwnerShip::OPEN_EXISTING,
+                                                       iox::posix::OwnerShip::OPEN_EXISTING_SHM,
                                                        iox::posix::SharedMemoryObject::NO_ADDRESS_HINT)
                     .has_error();
     }

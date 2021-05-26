@@ -75,7 +75,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 {
     auto sut = iox::posix::SharedMemory::create("/schlomo",
                                                 iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::OwnerShip::OPEN_EXISTING,
+                                                iox::posix::OwnerShip::OPEN_EXISTING_SHM,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     EXPECT_THAT(sut.has_error(), Eq(true));

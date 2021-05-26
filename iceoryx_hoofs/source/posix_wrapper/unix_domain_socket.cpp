@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <string>
 
+
 namespace iox
 {
 namespace posix
@@ -39,6 +40,275 @@ UnixDomainSocket::UnixDomainSocket() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
+{
+    // This is for being API compatible with the message queue, but has no equivalent for socket.
+    // We return false to say that the socket is not outdated. If there is a problem,
+    // we rely on the other calls and their error returns
+
+    return cxx::success<bool>(false);
+}
+
+UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
+{
+    *this = std::move(other);
+}
+
+#if defined(_WIN32)
+UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
+                                   const IpcChannelSide channelSide,
+                                   const size_t maxMsgSize,
+                                   const uint64_t maxMsgNumber) noexcept
+    : UnixDomainSocket(NoPathPrefix, name, channelSide, maxMsgSize, maxMsgNumber)
+{
+}
+
+UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
+                                   const UdsName_t& name,
+                                   const IpcChannelSide channelSide,
+                                   const size_t maxMsgSize,
+                                   const uint64_t maxMsgNumber) noexcept
+    : m_channelSide(channelSide)
+
+{
+    setPipeName(name);
+    switch (channelSide)
+    {
+    case IpcChannelSide::CLIENT:
+    {
+        break;
+    }
+    case IpcChannelSide::SERVER:
+    {
+        startServerThread();
+        break;
+    }
+    }
+    m_isInitialized = true;
+}
+
+void UnixDomainSocket::startServerThread() noexcept
+{
+    if (m_channelSide != IpcChannelSide::SERVER)
+    {
+        return;
+    }
+
+    m_serverThread = std::thread([this] {
+        while (m_keepRunning.load())
+        {
+            DWORD inputBufferSize = 512;
+            DWORD outputBufferSize = 512;
+            DWORD openMode = PIPE_ACCESS_DUPLEX;
+            DWORD pipeMode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
+            DWORD noTimeout = 0;
+            LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
+            HANDLE namedPipe = CreateNamedPipeA(m_pipeName.c_str(),
+                                                openMode,
+                                                pipeMode,
+                                                PIPE_UNLIMITED_INSTANCES,
+                                                outputBufferSize,
+                                                inputBufferSize,
+                                                noTimeout,
+                                                noSecurityAttributes);
+
+            if (namedPipe == INVALID_HANDLE_VALUE)
+            {
+                __PrintLastErrorToConsole("", "", 0);
+                printf("Server CreateNamedPipe failed, GLE=%d.\n", GetLastError());
+                return;
+            }
+
+            ConnectNamedPipe(namedPipe, NULL);
+            while (m_keepRunning.load())
+            {
+                std::string message;
+                message.resize(512);
+                DWORD bytesRead;
+                LPOVERLAPPED noOverlapping = NULL;
+                bool fSuccess = ReadFile(namedPipe, message.data(), message.size(), &bytesRead, noOverlapping);
+
+                message.resize(bytesRead);
+                if (fSuccess)
+                {
+                    std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
+                    m_receivedMessages.push(message);
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
+            }
+
+            FlushFileBuffers(namedPipe);
+            DisconnectNamedPipe(namedPipe);
+            CloseHandle(namedPipe);
+        }
+    });
+}
+
+UnixDomainSocket& UnixDomainSocket::UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
+{
+    if (this != &other)
+    {
+        destroy();
+        m_pipeName = std::move(other.m_pipeName);
+        m_channelSide = std::move(other.m_channelSide);
+        m_keepRunning.store(other.m_keepRunning.load());
+        m_receivedMessages = std::move(other.m_receivedMessages);
+
+        other.destroy();
+        startServerThread();
+    }
+
+    return *this;
+}
+
+UnixDomainSocket::~UnixDomainSocket() noexcept
+{
+    destroy();
+}
+
+void UnixDomainSocket::setPipeName(const UdsName_t& name) noexcept
+{
+    m_pipeName = "\\\\.\\pipe\\";
+    m_pipeName.append(cxx::TruncateToCapacity, name);
+}
+
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
+{
+    return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+}
+
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
+                                                                      const UdsName_t& name) noexcept
+{
+    return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+}
+
+cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
+{
+    if (m_serverThread.joinable())
+    {
+        m_keepRunning = false;
+        m_serverThread.join();
+    }
+    return cxx::success<>();
+}
+
+cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
+{
+    if (IpcChannelSide::SERVER == m_channelSide)
+    {
+        std::cerr << "sending on server side not supported for unix domain socket \"" << m_pipeName << "\""
+                  << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
+
+    // open pipe
+    DWORD disableSharing = 0;
+    LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
+    DWORD defaultAttributes = 0;
+    HANDLE noTemplateFile = NULL;
+    HANDLE namedPipe = CreateFileA(m_pipeName.c_str(),
+                                   GENERIC_READ | GENERIC_WRITE,
+                                   disableSharing,
+                                   noSecurityAttributes,
+                                   OPEN_EXISTING,
+                                   defaultAttributes,
+                                   noTemplateFile);
+
+
+    if (namedPipe == INVALID_HANDLE_VALUE)
+    {
+        if (GetLastError() != ERROR_PIPE_BUSY)
+        {
+            __PrintLastErrorToConsole("", "", 0);
+            printf("Could not open pipe for reading. GLE=%d\n", GetLastError());
+            std::terminate();
+        }
+
+        printf("waiting for pipe\n");
+        DWORD timeoutInMs = 20000;
+        if (!WaitNamedPipeA(m_pipeName.c_str(), timeoutInMs))
+        {
+            printf("Could not open pipe: 20 second wait timed out.");
+            std::terminate();
+        }
+    }
+
+    // set to message read mode
+    DWORD pipeMode = PIPE_READMODE_MESSAGE;
+    bool fSuccess = SetNamedPipeHandleState(namedPipe, &pipeMode, NULL, NULL);
+    if (!fSuccess)
+    {
+        printf("SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
+        std::terminate();
+    }
+
+    // send message
+    DWORD numberOfSentBytes = 0;
+    fSuccess = WriteFile(namedPipe, msg.data(), msg.size(), &numberOfSentBytes, NULL);
+
+    if (!fSuccess)
+    {
+        printf("WriteFile to pipe failed. GLE=%d\n", GetLastError());
+        std::terminate();
+    }
+
+    CloseHandle(namedPipe);
+    return cxx::success<>();
+}
+
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                           const units::Duration& timeout) const noexcept
+{
+    if (IpcChannelSide::SERVER == m_channelSide)
+    {
+        std::cerr << "sending on server side not supported for unix domain socket \"" << m_pipeName << "\""
+                  << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
+
+    return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+}
+
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const noexcept
+{
+    if (IpcChannelSide::CLIENT == m_channelSide)
+    {
+        std::cerr << "receiving on client side not supported for unix domain socket \"" << m_pipeName << "\""
+                  << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
+
+    while (true)
+    {
+        {
+            std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
+            if (!m_receivedMessages.empty())
+            {
+                std::string msg = m_receivedMessages.front();
+                m_receivedMessages.pop();
+                return cxx::success<std::string>(msg);
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
+    }
+}
+
+cxx::expected<std::string, IpcChannelError>
+UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
+{
+    if (IpcChannelSide::CLIENT == m_channelSide)
+    {
+        std::cerr << "receiving on client side not supported for unix domain socket \"" << m_pipeName << "\""
+                  << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
+
+    return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+}
+
+#else
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
@@ -90,10 +360,6 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     }
 }
 
-UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
-{
-    *this = std::move(other);
-}
 
 UnixDomainSocket::~UnixDomainSocket() noexcept
 {
@@ -393,16 +659,6 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
     }
 }
 
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
-{
-    // This is for being API compatible with the message queue, but has no equivalent for socket.
-    // We return false to say that the socket is not outdated. If there is a problem,
-    // we rely on the other calls and their error returns
-
-    return cxx::success<bool>(false);
-}
-
-
 IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t errnum) const noexcept
 {
     switch (errnum)
@@ -534,7 +790,7 @@ bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
 {
     return !name.empty();
 }
-
+#endif
 
 } // namespace posix
 } // namespace iox

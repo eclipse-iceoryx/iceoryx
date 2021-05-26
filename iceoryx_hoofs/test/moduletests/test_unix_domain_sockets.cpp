@@ -196,7 +196,6 @@ TEST_F(UnixDomainSocket_test, SendOnServerLeadsToError)
 void successfulSendAndReceive(const std::string& message, const sendCall_t& send, const receiveCall_t& receive)
 {
     ASSERT_FALSE(send(message).has_error());
-
     auto receivedMessage = receive();
     ASSERT_FALSE(receivedMessage.has_error());
     EXPECT_EQ(message, *receivedMessage);

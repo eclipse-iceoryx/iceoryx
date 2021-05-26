@@ -66,7 +66,7 @@ TEST_F(SharedMemoryObject_Test, CTorOpenNonExistingSharedMemoryObject)
     auto sut = iox::posix::SharedMemoryObject::create("/pummeluff",
                                                       100,
                                                       iox::posix::AccessMode::READ_WRITE,
-                                                      iox::posix::OwnerShip::OPEN_EXISTING,
+                                                      iox::posix::OwnerShip::OPEN_EXISTING_SHM,
                                                       iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     EXPECT_THAT(sut.has_error(), Eq(true));
 }
@@ -169,7 +169,7 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
     auto sut = iox::posix::SharedMemoryObject::create("/shmSut",
                                                       memorySize,
                                                       iox::posix::AccessMode::READ_WRITE,
-                                                      iox::posix::OwnerShip::OPEN_EXISTING,
+                                                      iox::posix::OwnerShip::OPEN_EXISTING_SHM,
                                                       iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     int* sutValue1 = static_cast<int*>(sut->allocate(sizeof(int), 1));
     int* sutValue2 = static_cast<int*>(sut->allocate(sizeof(int), 1));
