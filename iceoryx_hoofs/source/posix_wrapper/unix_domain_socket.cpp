@@ -113,8 +113,7 @@ void UnixDomainSocket::startServerThread() noexcept
     }
 
     m_serverThread = std::thread([this] {
-        while (m_keepRunning.load())
-        {
+        auto initPipe = [this]() -> HANDLE {
             DWORD inputBufferSize = MAX_MESSAGE_SIZE;
             DWORD outputBufferSize = MAX_MESSAGE_SIZE;
             DWORD openMode = PIPE_ACCESS_DUPLEX;
@@ -134,31 +133,63 @@ void UnixDomainSocket::startServerThread() noexcept
             {
                 __PrintLastErrorToConsole("", "", 0);
                 printf("Server CreateNamedPipe failed, GLE=%d.\n", GetLastError());
-                return;
             }
 
             ConnectNamedPipe(namedPipe, NULL);
-            while (m_keepRunning.load())
+            return namedPipe;
+        };
+
+        auto closePipe = [&](HANDLE& pipe) {
+            if (pipe == INVALID_HANDLE_VALUE)
             {
+                return;
+            }
+            FlushFileBuffers(pipe);
+            DisconnectNamedPipe(pipe);
+            CloseHandle(pipe);
+            pipe = INVALID_HANDLE_VALUE;
+        };
+
+        constexpr uint64_t NUMBER_OF_PIPES = 128U;
+        HANDLE pipes[NUMBER_OF_PIPES];
+        for (uint64_t i = 0U; i < NUMBER_OF_PIPES; ++i)
+        {
+            pipes[i] = INVALID_HANDLE_VALUE;
+        }
+
+        while (m_keepRunning.load())
+        {
+            for (uint64_t i = 0; i < NUMBER_OF_PIPES; ++i)
+            {
+                if (pipes[i] == INVALID_HANDLE_VALUE)
+                {
+                    pipes[i] = initPipe();
+                }
+
                 std::string message;
                 message.resize(m_maxMessageSize);
                 DWORD bytesRead;
                 LPOVERLAPPED noOverlapping = NULL;
-                bool fSuccess = ReadFile(namedPipe, message.data(), message.size(), &bytesRead, noOverlapping);
+                bool fSuccess = ReadFile(pipes[i], message.data(), message.size(), &bytesRead, noOverlapping);
 
                 message.resize(bytesRead);
                 if (fSuccess)
                 {
                     std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
                     m_receivedMessages.push(message);
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
+                    closePipe(pipes[i]);
+                    pipes[i] = initPipe();
                     break;
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
+        }
 
-            FlushFileBuffers(namedPipe);
-            DisconnectNamedPipe(namedPipe);
-            CloseHandle(namedPipe);
+        for (uint64_t i = 0; i < NUMBER_OF_PIPES; ++i)
+        {
+            closePipe(pipes[i]);
         }
     });
 }
