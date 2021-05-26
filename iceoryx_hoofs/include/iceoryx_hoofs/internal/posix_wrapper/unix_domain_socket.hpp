@@ -40,11 +40,10 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr NoPathPrefix_t NoPathPrefix{};
     static constexpr char PATH_PREFIX[] = "/tmp/";
 
+    static constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
     /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
-    static constexpr size_t MAX_MESSAGE_SIZE = 2048U;
-    static constexpr size_t SHORTEST_VALID_NAME = 2U;
-    static constexpr size_t NULL_TERMINATOR_SIZE = 1;
+    static constexpr uint64_t MAX_MESSAGE_SIZE = 2048U - NULL_TERMINATOR_SIZE;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 

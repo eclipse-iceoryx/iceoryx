@@ -50,12 +50,14 @@ class UnixDomainSocket_test : public Test
   public:
     void SetUp()
     {
-        auto serverResult = UnixDomainSocket::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
+        auto serverResult = UnixDomainSocket::create(
+            goodName, IpcChannelSide::SERVER, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
         CaptureStderr();
 
-        auto clientResult = UnixDomainSocket::create(goodName, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
+        auto clientResult = UnixDomainSocket::create(
+            goodName, IpcChannelSide::CLIENT, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.value());
     }
@@ -116,13 +118,11 @@ class UnixDomainSocket_test : public Test
 
     const std::chrono::milliseconds WAIT_IN_MS{10};
     std::atomic_bool doWaitForThread{true};
-    static const size_t MaxMsgSize;
     static constexpr uint64_t MaxMsgNumber = 10U;
     UnixDomainSocket server;
     UnixDomainSocket client;
 };
 
-const size_t UnixDomainSocket_test::MaxMsgSize = UnixDomainSocket::MAX_MESSAGE_SIZE;
 constexpr uint64_t UnixDomainSocket_test::MaxMsgNumber;
 
 TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameLeadsToInvalidChannelNameError)
@@ -320,6 +320,8 @@ TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithTimedReceive)
     receivingOnClientLeadsToError([&] { return client.timedReceive(1_ms); });
 }
 
+// is not supported on mac os and behaves there like receive
+#if !defined(__APPLE)
 TEST_F(UnixDomainSocket_test, TimedReceiveBlocks)
 {
     auto start = std::chrono::steady_clock::now();
@@ -350,4 +352,5 @@ TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived)
     ASSERT_FALSE(client.send(message).has_error());
     waitThread.join();
 }
+#endif
 } // namespace

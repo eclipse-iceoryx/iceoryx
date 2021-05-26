@@ -214,7 +214,6 @@ cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_
 
 
     int32_t openFlags = O_RDWR;
-    openFlags |= 0;
     if (channelSide == IpcChannelSide::SERVER)
     {
         openFlags |= O_CREAT;

@@ -208,8 +208,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
                                                            const units::Duration& timeout) const noexcept
 {
-    constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    if (msg.size() >= m_maxMessageSize + NULL_TERMINATOR_SIZE)
+    if (msg.size() > m_maxMessageSize)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -268,7 +267,6 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
     return timedReceive(units::Duration(tv));
 }
 
-
 cxx::expected<std::string, IpcChannelError>
 UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
@@ -279,6 +277,16 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     }
 
     struct timeval tv = timeout;
+#if defined(__APPLE__)
+    if (tv.tv_sec != 0 || tv.tv_usec != 0)
+    {
+        std::cerr
+            << "socket: \"" << m_name
+            << "\", timedSend with a timeout != 0 is not supported on MacOS. timedSend will behave like send instead."
+            << std::endl;
+    }
+#endif
+
     auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
