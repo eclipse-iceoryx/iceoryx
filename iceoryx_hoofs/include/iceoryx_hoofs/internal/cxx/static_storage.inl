@@ -51,14 +51,14 @@ constexpr bool static_storage<Capacity, Align>::is_allocatable() noexcept
 
 template <uint64_t Capacity, uint64_t Align>
 template <typename T>
-T* static_storage<Capacity, Align>::allocate() noexcept
+constexpr T* static_storage<Capacity, Align>::allocate() noexcept
 {
     static_assert(is_allocatable<T>(), "type does not fit into static storage");
     return reinterpret_cast<T*>(allocate(alignof(T), sizeof(T)));
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void* static_storage<Capacity, Align>::allocate(const uint64_t align, const uint64_t size) noexcept
+constexpr void* static_storage<Capacity, Align>::allocate(const uint64_t align, const uint64_t size) noexcept
 {
     if (m_ptr)
     {
@@ -78,13 +78,13 @@ void* static_storage<Capacity, Align>::allocate(const uint64_t align, const uint
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void static_storage<Capacity, Align>::deallocate() noexcept
+constexpr void static_storage<Capacity, Align>::deallocate() noexcept
 {
     m_ptr = nullptr;
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void static_storage<Capacity, Align>::clear() noexcept
+constexpr void static_storage<Capacity, Align>::clear() noexcept
 {
     std::memset(m_bytes, 0, Capacity);
 }

@@ -42,7 +42,7 @@ template <uint64_t Capacity, uint64_t Align = 1>
 class static_storage
 {
   public:
-    static_storage() noexcept = default;
+    constexpr static_storage() noexcept = default;
 
     ~static_storage() noexcept;
 
@@ -66,21 +66,21 @@ class static_storage
     /// @return pointer to memory where a T can be constructed if memory is available, nullptr otherwise
     /// @note  compilation fails if storage is insufficient for objects of type T
     template <typename T>
-    T* allocate() noexcept;
+    constexpr T* allocate() noexcept;
 
     /// @brief request aligned memory with a specific size in bytes
     /// @param align alignment of the memory requested
     /// @param size number of bytes of the memory requested
     /// @return pointer to aligned memory of the requested size if available, nullptr otherwise
-    void* allocate(const uint64_t align, const uint64_t size) noexcept;
+    constexpr void* allocate(const uint64_t align, const uint64_t size) noexcept;
 
     /// @brief mark the static memory as unused
     /// @note no dtor of the stored type is called (we do not know the type)
     ///       nor is it overwritten. Setting the memory to zero can be done with clear.
-    void deallocate() noexcept;
+    constexpr void deallocate() noexcept;
 
     /// @brief set the managed static memory to all zeros
-    void clear() noexcept;
+    constexpr void clear() noexcept;
 
     /// @brief get the storage capacity in bytes
     /// @return maximum number of bytes available in the static storage
