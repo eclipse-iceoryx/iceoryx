@@ -300,6 +300,7 @@ TEST_F(function_test, CopyCtorCopiesStoredFunctor)
 
     EXPECT_EQ(Functor::numCopied, 1U);
     ASSERT_TRUE(sut.operator bool());
+    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -328,6 +329,7 @@ TEST_F(function_test, CopyAssignmentCopiesStoredFunctor)
     EXPECT_EQ(Functor::numDestroyed, 1U);
     EXPECT_EQ(Functor::numCopied, 1U);
     ASSERT_TRUE(sut.operator bool());
+    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -356,9 +358,8 @@ TEST_F(function_test, CopyCtorCopiesStoredFreeFunction)
     test_function sut(f);
 
     ASSERT_TRUE(sut.operator bool());
-    // EXPECT_EQ(sut(1), f(1));
-    std::cerr << "f(1)" << f(1) << std::endl;
-    std::cerr << "sut(1)" << sut(1) << std::endl;
+    ASSERT_TRUE(f.operator bool());
+    EXPECT_EQ(sut(1), f(1));
 }
 
 TEST_F(function_test, MoveCtorMovesStoredFreeFunction)
@@ -383,6 +384,7 @@ TEST_F(function_test, CopyAssignmentCopiesStoredFreeFunction)
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     ASSERT_TRUE(sut.operator bool());
+    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -412,6 +414,7 @@ TEST_F(function_test, CopiedNonCallableFunctionIsNotCallable)
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
+    EXPECT_FALSE(f.operator bool());
 }
 
 TEST_F(function_test, MovedNonCallableFunctionIsNotCallable)
