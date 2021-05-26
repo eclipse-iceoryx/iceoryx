@@ -6,6 +6,7 @@ class RpcBaseHeader {
   + getSequenceId(): uint64_t
   + getChunkHeader(): ChunkHeader*
   + getUserPayload(): void*
+  # m_rpcHeaderVersion: uint8_t
   # m_clientQueueId: RelativePointer<ClientChunkQueueData_t>
   # m_sequenceId: uint64_t
 }
