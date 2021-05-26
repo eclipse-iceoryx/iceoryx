@@ -2,6 +2,7 @@
 skinparam backgroundColor #EEEBDC
 
 class UntypedClient {
+  Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
   connect(): void
   disconnect(): void
   getConnectionState(): ConnectionState
@@ -16,6 +17,7 @@ class UntypedClient {
 }
 
 class UntypedServer {
+  Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
   offer(): void
   stopOffer():void
   isOffered(): bool
