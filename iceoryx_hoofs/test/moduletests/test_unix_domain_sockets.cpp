@@ -321,7 +321,7 @@ TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithTimedReceive)
 }
 
 // is not supported on mac os and behaves there like receive
-#if !defined(__APPLE)
+#if !defined(__APPLE__)
 TEST_F(UnixDomainSocket_test, TimedReceiveBlocks)
 {
     auto start = std::chrono::steady_clock::now();
