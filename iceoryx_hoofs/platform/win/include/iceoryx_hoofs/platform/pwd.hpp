@@ -33,12 +33,30 @@ struct passwd
 
 inline struct passwd* getpwnam(const char* name)
 {
-    return nullptr;
+    static char* value = "windows dummy";
+    static struct passwd dummy;
+    dummy.pw_name = value;
+    dummy.pw_passwd = value;
+    dummy.pw_uid = 0;
+    dummy.pw_gid = 0;
+    dummy.pw_gecos = 0;
+    dummy.pw_dir = value;
+    dummy.pw_shell = value;
+    return &dummy;
 }
 
 inline struct passwd* getpwuid(uid_t uid)
 {
-    return nullptr;
+    static char* value = "windows dummy";
+    static struct passwd dummy;
+    dummy.pw_name = value;
+    dummy.pw_passwd = value;
+    dummy.pw_uid = 0;
+    dummy.pw_gid = 0;
+    dummy.pw_gecos = 0;
+    dummy.pw_dir = value;
+    dummy.pw_shell = value;
+    return &dummy;
 }
 
 inline uid_t geteuid()

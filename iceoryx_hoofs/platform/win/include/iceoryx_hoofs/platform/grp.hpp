@@ -34,16 +34,28 @@ inline gid_t getegid(void)
 
 inline struct group* getgrnam(const char* name)
 {
-    return nullptr;
+    static char* groupName = "windows group";
+    static char* groupPasswd = "windows passwd";
+    static struct group dummy;
+    dummy.gr_name = groupName;
+    dummy.gr_passwd = groupPasswd;
+    return &dummy;
 }
 
 inline struct group* getgrgid(gid_t gid)
 {
-    return nullptr;
+    static char* groupName = "windows group";
+    static char* groupPasswd = "windows passwd";
+    static struct group dummy;
+    dummy.gr_name = groupName;
+    dummy.gr_passwd = groupPasswd;
+    return &dummy;
 }
 
 inline int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
 {
+    groups[0] = 0;
+    *ngroups = 1;
     return 0;
 }
 
