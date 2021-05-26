@@ -194,6 +194,8 @@ UnixDomainSocket& UnixDomainSocket::UnixDomainSocket::operator=(UnixDomainSocket
 {
     if (this != &other)
     {
+        CreationPattern_t::operator=(std::move(other));
+
         destroy();
         m_pipeName = std::move(other.m_pipeName);
         m_channelSide = std::move(other.m_channelSide);
@@ -288,7 +290,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
         {
             __PrintLastErrorToConsole("", "", 0);
             printf("Could not open pipe for reading. GLE=%d\n", GetLastError());
-            std::terminate();
+            // std::terminate();
         }
 
         if (timeout.toMilliseconds() != 0)
@@ -307,7 +309,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     if (!fSuccess)
     {
         printf("SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
-        std::terminate();
+        // std::terminate();
     }
 
     // send message
@@ -317,7 +319,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     if (!fSuccess)
     {
         printf("WriteFile to pipe failed. GLE=%d\n", GetLastError());
-        std::terminate();
+        // std::terminate();
     }
 
     CloseHandle(namedPipe);
