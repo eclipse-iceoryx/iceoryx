@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class ClientOptions {
+  responseQueueCapacity: uint64_t
+  nodeName: NodeName_t
+  connectOnCreate: bool
+  responseQueueFullPolicy: ResponseQueueFullPolicy
+  serverTooSlowPolicy: ServerTooSlowPolicy
+}
+
+class ServerOptions {
+  requestQueueCapacity: uint64_t
+  nodeName: NodeName_t
+  offerOnCreate: bool
+  clientTooSlowPolicy: ClientTooSlowPolicy
+}
+
+enum ResponseQueueFullPolicy {
+    BLOCK_SERVER,
+    DISCARD_OLDEST_DATA
+}
+
+enum ClientTooSlowPolicy {
+    WAIT_FOR_CLIENT,
+    DISCARD_OLDEST_DATA
+}
+
+enum ServerTooSlowPolicy {
+    WAIT_FOR_SERVER,
+    DISCARD_OLDEST_DATA
+}
+
+@enduml

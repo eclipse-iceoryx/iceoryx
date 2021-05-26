@@ -83,21 +83,20 @@ which results in sending the responses in a different order than the request wer
 The sequence ID must be set by the user and also checked by the user on response.
 The `RequestHeader` has also the option to specify a message as fire and forget, which means it won't get a response to this request.
 
-In the client options, we can have:
-FireAndForget option
-blocking, timed blocking, non blocking options
-Field for configuring queue sizes and their overflow strategy
-ConnectOnCreate option
+#### Client/Server Options
 
-In the server options, we can have:
-kPoll, kEvent, kSingleThread option as discussed above
-enum class for exception types in response header
-Field for configuring queue sizes and their overflow strategy
-SubscribeOnCreate option
+![client and server options](diagrams/request_response_options.svg)
+
+The client and server options can be used to control certain aspects of the clients and servers.
+Beside setting the capacity of the queues and defining whether a client should be connected and a server offering on creation,
+the behaviour for a slow client and server can be defined.
+A client can ask a server to block if its response queue is full.
+The server will obey if the corresponding `ClientTooSlowPolicy` is set to `WAIT_FOR_CLIENT`.
+If the options don't match, the client will not be connected to the server.
 
 ### Code example
 
 ## Open issues
 
 - integration into a gateway, e.g. the DDS gateway
--
+- check if a Listener can be used for a timed wait for a response on the client side
