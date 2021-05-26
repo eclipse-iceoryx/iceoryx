@@ -51,9 +51,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 #endif
 
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    /// @brief Max message size is on linux = 4096, on mac os = 2048, on windows = 512. To have
+    /// @brief Max message size is on linux = 4096, on mac os = 2048. To have
     ///  the same behavior on every platform we use 512.
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 512U - NULL_TERMINATOR_SIZE;
+    static constexpr uint64_t MAX_MESSAGE_SIZE = 2048U - NULL_TERMINATOR_SIZE;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 

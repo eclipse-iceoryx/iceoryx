@@ -22,6 +22,28 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
+#if defined(_WIN32)
+int main(int argc, char* argv[])
+{
+    using iox::roudi::IceOryxRouDiApp;
+
+    iox::config::CmdLineArgs_t cmdLineArgs;
+    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs);
+
+    auto roudiConfig = configFileProvider.parse();
+
+    if (roudiConfig.has_error())
+    {
+        iox::LogFatal() << "Couldn't parse config file. Error: "
+                        << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                         roudiConfig.get_error());
+        return EXIT_FAILURE;
+    }
+
+    IceOryxRouDiApp roudi(cmdLineArgs, roudiConfig.value());
+    return roudi.run();
+}
+#else
 int main(int argc, char* argv[])
 {
     using iox::roudi::IceOryxRouDiApp;
@@ -47,6 +69,6 @@ int main(int argc, char* argv[])
     }
 
     IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig.value());
-
     return roudi.run();
 }
+#endif

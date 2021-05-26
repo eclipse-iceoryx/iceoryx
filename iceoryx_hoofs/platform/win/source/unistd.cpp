@@ -56,7 +56,7 @@ int ftruncate(int fildes, off_t length)
 
 long sysconf(int name)
 {
-    return 0;
+    return 4096;
 }
 
 int iox_close(int fd)

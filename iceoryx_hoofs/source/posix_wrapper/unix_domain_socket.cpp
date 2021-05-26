@@ -115,8 +115,8 @@ void UnixDomainSocket::startServerThread() noexcept
     m_serverThread = std::thread([this] {
         while (m_keepRunning.load())
         {
-            DWORD inputBufferSize = 512;
-            DWORD outputBufferSize = 512;
+            DWORD inputBufferSize = MAX_MESSAGE_SIZE;
+            DWORD outputBufferSize = MAX_MESSAGE_SIZE;
             DWORD openMode = PIPE_ACCESS_DUPLEX;
             DWORD pipeMode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
             DWORD noTimeout = 0;
