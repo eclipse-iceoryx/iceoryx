@@ -39,7 +39,34 @@ In order to support asynchronous requests, a sequence ID should be part of each 
 ### Solution
 
 This is an overview of the untyped `Client` and `Server` classes.
+
 ![simple class diagram](diagrams/request_response_overview_class.svg)
+
+The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` building blocks. The `Client` uses a `ChunkSender` to send requests and a `ChunkReceiver` to get the responses while the `Server` uses a `ChunkReceiver` to get the requests and a `ChunkReceiver` to send the responses.
+
+#### Typed API
+
+![typed API](diagrams/request_response_typed_api.svg)
+
+#### Untyped API
+
+![typed API](diagrams/request_response_untyped_api.svg)
+
+#### Client Port
+
+![typed API](diagrams/request_response_client_port.svg)
+
+The `ClientPortData` is located in the shared memory and contain only the data but no methods to access them.
+`ClientPortUser` is the class providing the methods for the user access and `ClientPortRouDi` provides the
+interface RouDi needs to connect the client to the server and to cleanup the port resources.
+
+#### Server Port
+
+![typed API](diagrams/request_response_server_port.svg)
+
+Similar to the Client Port, the Server Port has `ServerPortData` which is located in the shared memory and contain only the data but no methods to access them.
+`ServerPortUser` is the class providing the methods for the user access and `ServerPortRouDi` provides the
+interface RouDi needs to connect the client to the server once the server offers its service and to cleanup the port resources.
 
 - fire and forget -> notification
 
@@ -59,4 +86,4 @@ SubscribeOnCreate option
 
 ## Open issues
 
-
+- integration into a gateway, e.g. the DDS gateway
