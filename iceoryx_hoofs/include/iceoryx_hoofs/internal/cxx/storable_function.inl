@@ -288,7 +288,7 @@ template <typename S, typename ReturnType, typename... Args>
 template <typename T>
 constexpr uint64_t storable_function<S, signature<ReturnType, Args...>>::required_storage_size() noexcept
 {
-    return sizeof(T) + alignof(T);
+    return S::template allocation_size<T>();
 }
 
 template <typename S, typename ReturnType, typename... Args>

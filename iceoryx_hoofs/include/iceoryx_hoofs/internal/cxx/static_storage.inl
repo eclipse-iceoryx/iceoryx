@@ -45,8 +45,8 @@ template <typename T>
 constexpr bool static_storage<Capacity, Align>::is_allocatable() noexcept
 {
     // note that we can guarantee it to be allocatable if we have
-    // Capacity >= sizeof(T) + alignof(T) - 1 
-    return sizeof(T) + align_mismatch(alignof(m_bytes), alignof(T)) <= Capacity;
+    // Capacity >= sizeof(T) + alignof(T) - 1
+    return allocation_size<T>() <= Capacity;
 }
 
 template <uint64_t Capacity, uint64_t Align>
@@ -98,6 +98,13 @@ template <uint64_t Capacity, uint64_t Align>
 constexpr uint64_t static_storage<Capacity, Align>::capacity() noexcept
 {
     return Capacity;
+}
+
+template <uint64_t Capacity, uint64_t Align>
+template <typename T>
+constexpr uint64_t static_storage<Capacity, Align>::allocation_size() noexcept
+{
+    return sizeof(T) + align_mismatch(alignof(m_bytes), alignof(T));
 }
 
 } // namespace cxx

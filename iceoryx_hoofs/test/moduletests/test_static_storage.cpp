@@ -214,5 +214,25 @@ TEST(static_storage_test, TypedAllocationIsAligned)
     EXPECT_EQ(p % 8, 0);
 }
 
+TEST(static_storage_test, AllocationSizeReturnsSizeIfTypeIsAlignedWithStorage)
+{
+    constexpr uint64_t typeAlign = 2;
+    constexpr uint64_t storageAlign = 2 * typeAlign;
+    using Data = Bytes<4, typeAlign>;
+
+    constexpr auto size = static_storage<17, storageAlign>::allocation_size<Data>();
+    EXPECT_EQ(size, sizeof(Data));
+}
+
+TEST(static_storage_test, AllocationSizeReturnsMoreThanSizeIfTypeIsNotAlignedWithStorage)
+{
+    constexpr uint64_t typeAlign = 16;
+    constexpr uint64_t storageAlign = 4;
+    using Data = Bytes<4, typeAlign>;
+
+    constexpr auto size = static_storage<17, storageAlign>::allocation_size<Data>();
+    EXPECT_EQ(size, sizeof(Data) + typeAlign - storageAlign);
+}
+
 
 } // namespace

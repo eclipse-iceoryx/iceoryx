@@ -88,6 +88,12 @@ class static_storage
     /// @note this is an upper bound for the object size it can store
     static constexpr uint64_t capacity() noexcept;
 
+    /// @brief return the number of bytes that need to be allocated to store a T in this storage class
+    /// @return number of bytes the storage will allocate if we allocate a T
+    /// @note the returned size s satisfies sizeof(T) <= s < sizeof(T) + alignof(T)
+    template <typename T>
+    static constexpr uint64_t allocation_size() noexcept;
+
   private:
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
