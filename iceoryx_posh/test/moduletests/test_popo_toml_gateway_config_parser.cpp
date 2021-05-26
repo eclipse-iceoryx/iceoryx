@@ -368,10 +368,10 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
 {
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
-    auto serviceEntry = cpptoml::make_table();
 
     for (uint32_t i = 1U; i <= iox::MAX_GATEWAY_SERVICES; ++i)
     {
+        auto serviceEntry = cpptoml::make_table();
         std::string stringentry = "validservice" + std::to_string(i);
         serviceEntry->insert("service", stringentry);
         serviceEntry->insert("instance", stringentry);
@@ -390,6 +390,16 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
     EXPECT_EQ(config.m_configuredServices.size(), iox::MAX_GATEWAY_SERVICES);
     EXPECT_FALSE(result.has_error());
     EXPECT_FALSE(config.m_configuredServices.empty());
+
+    uint32_t count = 1;
+    for (auto configuredService : config.m_configuredServices)
+    {
+        std::string stringentry = "validservice" + std::to_string(count);
+        EXPECT_EQ(configuredService.m_serviceDescription.getServiceIDString(), stringentry);
+        EXPECT_EQ(configuredService.m_serviceDescription.getInstanceIDString(), stringentry);
+        EXPECT_EQ(configuredService.m_serviceDescription.getEventIDString(), stringentry);
+        ++count;
+    }
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest,
