@@ -50,11 +50,11 @@ The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` buil
 
 #### Untyped API
 
-![typed API](diagrams/request_response_untyped_api.svg)
+![untyped API](diagrams/request_response_untyped_api.svg)
 
 #### Client Port
 
-![typed API](diagrams/request_response_client_port.svg)
+![client port](diagrams/request_response_client_port.svg)
 
 The `ClientPortData` is located in the shared memory and contain only the data but no methods to access them.
 `ClientPortUser` is the class providing the methods for the user access and `ClientPortRouDi` provides the
@@ -62,13 +62,26 @@ interface RouDi needs to connect the client to the server and to cleanup the por
 
 #### Server Port
 
-![typed API](diagrams/request_response_server_port.svg)
+![server port](diagrams/request_response_server_port.svg)
 
 Similar to the Client Port, the Server Port has `ServerPortData` which is located in the shared memory and contain only the data but no methods to access them.
 `ServerPortUser` is the class providing the methods for the user access and `ServerPortRouDi` provides the
 interface RouDi needs to connect the client to the server once the server offers its service and to cleanup the port resources.
 
-- fire and forget -> notification
+#### Request/Response Header
+
+![rpc header](diagrams/request_response_header.svg)
+
+Since request and response need to encode different meta-information, we also need different header for the messages.
+The common data is aggregated in `RpcBaseHeader` which contains a `RelativePointer` to the `ClientChunkQueueData_t` and a sequence ID.
+The `ClientChunkQueueData_t` pointer is used to identify the queue which receives the response.
+It must not be used to send the response since the lifetime might already have ended at the time
+the response is sent but used as identifier for `ChunkDistributor::deliverToQueue`.
+The sequence ID is used to match a response to a specific request if multiple requests are invoke asynchronously.
+Depending on the client and server options, a request might be dropped or a server could have a worker pool
+which results in sending the responses in a different order than the request were received.
+The sequence ID must be set by the user and also checked by the user on response.
+The `RequestHeader` has also the option to specify a message as fire and forget, which means it won't get a response to this request.
 
 In the client options, we can have:
 FireAndForget option
@@ -87,3 +100,4 @@ SubscribeOnCreate option
 ## Open issues
 
 - integration into a gateway, e.g. the DDS gateway
+-

@@ -1,0 +1,30 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class RpcBaseHeader {
+  + RpcBaseHeader(chunkQueueId: ClientChunkQueueData_t&, sequenceId: uint64_t)
+  + getSequenceId(): uint64_t
+  + getChunkHeader(): ChunkHeader*
+  + getUserPayload(): void*
+  # m_clientQueueId: RelativePointer<ClientChunkQueueData_t>
+  # m_sequenceId: uint64_t
+}
+
+class RequestHeader {
+  + RequestHeader(chunkQueueId: ClientChunkQueueData_t&)
+  + setSequenceId(sequenceId: uint64_t): void
+  + setFireAndForget(fireAndForget: bool): void
+  - m_isFireAndForget: bool
+}
+
+class ResponseHeader {
+  + ResponseHeader(chunkQueueId: ClientChunkQueueData_t&, sequenceId: uint64_t)
+  + setServerError(serverError: bool): void
+  + hasServerError(): bool
+  - m_hasServerError: bool
+}
+
+RequestHeader --> RpcBaseHeader
+ResponseHeader --> RpcBaseHeader
+
+@enduml
