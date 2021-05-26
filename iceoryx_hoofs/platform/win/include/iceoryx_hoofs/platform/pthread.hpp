@@ -36,7 +36,6 @@ struct pthread_mutex_t
 using pthread_mutexattr_t = int;
 using pthread_t = std::thread::native_handle_type;
 
-int pthread_setname_np(pthread_t thread, const char* name);
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr);
 int pthread_mutexattr_init(pthread_mutexattr_t* attr);
 int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared);
@@ -49,15 +48,7 @@ int pthread_mutex_lock(pthread_mutex_t* mutex);
 int pthread_mutex_trylock(pthread_mutex_t* mutex);
 int pthread_mutex_unlock(pthread_mutex_t* mutex);
 
-inline int iox_pthread_setname_np(pthread_t thread, const char* name)
-{
-    return 0;
-}
-
-
-inline int pthread_getname_np(pthread_t thread, const char* name, size_t len)
-{
-    return 0;
-}
+int iox_pthread_setname_np(pthread_t thread, const char* name);
+int pthread_getname_np(pthread_t thread, char* name, size_t len);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_PTHREAD_HPP

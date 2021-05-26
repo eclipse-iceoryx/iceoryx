@@ -15,10 +15,35 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/pthread.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
 
-int pthread_setname_np(pthread_t thread, const char* name)
+#include <cwchar>
+#include <vector>
+
+int iox_pthread_setname_np(pthread_t thread, const char* name)
 {
-    return 0;
+    DWORD threadId = Win32Call(GetThreadId, static_cast<HANDLE>(thread)).value;
+
+    std::mbstate_t state = std::mbstate_t();
+    uint64_t length = std::mbsrtowcs(nullptr, &name, 0, &state) + 1U;
+    std::vector<wchar_t> wName(length);
+    std::mbsrtowcs(wName.data(), &name, length, &state);
+
+    return Win32Call(SetThreadDescription, static_cast<HANDLE>(thread), wName.data()).error;
+}
+
+int pthread_getname_np(pthread_t thread, char* name, size_t len)
+{
+    wchar_t* wName;
+    auto result = Win32Call(GetThreadDescription, static_cast<HANDLE>(thread), &wName).error;
+    if (result == 0)
+    {
+        wcstombs(name, wName, len);
+        LocalFree(wName);
+    }
+
+    return result;
 }
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
