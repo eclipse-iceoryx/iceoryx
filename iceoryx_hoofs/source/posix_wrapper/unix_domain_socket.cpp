@@ -73,6 +73,7 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
     : m_maxMessageSize(maxMsgSize)
+    , m_numberOfPipes(maxMsgNumber)
     , m_channelSide(channelSide)
 {
     if (!isNameValid(name))
@@ -150,16 +151,11 @@ void UnixDomainSocket::startServerThread() noexcept
             pipe = INVALID_HANDLE_VALUE;
         };
 
-        constexpr uint64_t NUMBER_OF_PIPES = 128U;
-        HANDLE pipes[NUMBER_OF_PIPES];
-        for (uint64_t i = 0U; i < NUMBER_OF_PIPES; ++i)
-        {
-            pipes[i] = INVALID_HANDLE_VALUE;
-        }
+        std::vector<HANDLE> pipes(m_numberOfPipes, INVALID_HANDLE_VALUE);
 
         while (m_keepRunning.load())
         {
-            for (uint64_t i = 0; i < NUMBER_OF_PIPES; ++i)
+            for (uint64_t i = 0; i < m_numberOfPipes; ++i)
             {
                 if (pipes[i] == INVALID_HANDLE_VALUE)
                 {
@@ -187,7 +183,7 @@ void UnixDomainSocket::startServerThread() noexcept
             std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
         }
 
-        for (uint64_t i = 0; i < NUMBER_OF_PIPES; ++i)
+        for (uint64_t i = 0; i < m_numberOfPipes; ++i)
         {
             closePipe(pipes[i]);
         }

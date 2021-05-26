@@ -145,6 +145,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     IpcChannelSide m_channelSide;
 
     uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
+    uint64_t m_numberOfPipes{10U};
     units::Duration m_loopTimeout = units::Duration::fromMilliseconds(10);
     std::atomic_bool m_keepRunning{true};
     std::thread m_serverThread;
