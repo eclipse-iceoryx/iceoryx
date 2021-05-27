@@ -121,14 +121,16 @@ Contra:
 
 * Bespoken solution more complex than todays approach (thread-safety required, lock-free mechanism needed)
 * In an optimal case IPC channel communication shall only be used for startup
+* New thread needs to be maintained by user
 
 ##### Alternative B: Built-in topic based on `InterfacePort`'s
 
 * Built-in topic approach based on `InterfacePort`'s
   * Sniff and intercept `CaproMessage`
-* Also see
-  * [overview diagram](diagrams/service-discovery-sequence-diagram.puml)
-  * [sequence diagram](diagrams/service-discovery-overview.puml)
+
+![overview diagram](diagrams/service-discovery/overview-alternative-b.svg)
+
+![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-b.svg)
 
 Pro:
 
@@ -140,7 +142,6 @@ Pro:
 
 Con:
 
-* Overhead, `Listener` will wake up on every `CaproMessage`
 * Bookkeeping at user-side, just delta of service registry is transferred
 * What will RouDi do if he runs out of memory?
   * Dimensioning according to max values is not optimal (MAX_INTERFACE_CAPRO_FIFO_SIZE)
@@ -149,7 +150,6 @@ Con:
 
 Remark:
 
-* Need to filter out your own `CaproMessageType::FIND` requests
 * Extend `dispatchCaproMessage()` with condition variable and notification mechanism
 
 ##### Alternative C: Custom thread
@@ -172,6 +172,10 @@ Create a new publisher in RouDi which sends a `ServiceRegistryTopic`. This publi
 change in the service registry and to transmit the service discovery registry. The complete old service registry
 (saved locally) would be compared to the new service registry in a new class, extending the public user API.
 
+![overview diagram](diagrams/service-discovery/overview-alternative-b.svg)
+
+![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-b.svg)
+
 Pro:
 
 * Simple and consistent user API for both event-based and sychronous requests
@@ -185,20 +189,49 @@ Pro:
 Con:
 
 * New publisher in RouDi needed
-* Partially overlapping features with `InterfacePort`s
-  * Could the `InterfacePort`s be replace by alternative D?
+* Memory consumption is high through to traditional pub/sub
 
 Note:
 
 * To avoid any out of memory issues with custom user-configured mempools or access rights problems, the publisher shall
 write into the `iceoryx_managment` segment (same applies for the introspection publishers)
 
+##### Alternative E: Introduce new StatusPort/ConfigPort/BroadcastPort
+
+Traditional publishers and subscribers are not optimised for sending data that does not change very often or never
+(e.g. parameter, configurations or introspection data). In case the traditional publishers and subscribers are
+re-used as `StatusPort`s like in alternative D the memory consumption is high and only needed rarely in certain
+situations (like startup). For that reason a new class of ports called `StatusPort` shall be introduced. Internally
+only two memory chunks shall be used similar to `iox::concurrent::TACO` using a ABA counter to check if the writer
+has written while the reading was reading (Frankenstein object). The reader shall copy the `ServiceRegistryTopic`
+to a local copy from shared memory. Only trivially copyable data shall be supported.
+Client data shall not be accessed directly, but through a lambda.
+
+Pro:
+
+* `StatusPorts` can be used to communicate between two safety domains (e.g. ASIL-B and ASIL-D) as the subscriber would
+only need read access and not write access
+* Re-use the `StatusPort` for introspection 2.0, heartbeat/keepalive and to send static configurations
+* Fast data transport by using shared memory
+* Could replace `InterfacePort`s
+* Not just delta of service registry is transmitted, but complete service registry info
+* Simple and consistent user API for both event-based and sychronous requests
+  * Filtering for `findService` could be done inside the new class
+
+Con:
+
+* New class, which needs RouDi infrastructure integration (e.g. requesting this port)
+* Starvation possible if the writer updates too often and the reader never finished its read (should be taken care by
+good documentation)
+* 
+
 ### Decision
 
-The **event-based notification alternative D** fulfills both requirements for a asychronous, one shot-polling approach as
+The **event-based notification alternative E** fulfills both requirements for a asychronous, one shot-polling approach as
 well as the event-based one. It can replace the `InterfacePort`s, which broadens the usage e.g. for gateways or even
-introspection 2.0. Furthermore, alternative D does not add any new non-trivial building blocks. The one-shot RPC call
-does not lead to a shared memory transmission compared to the alternative B (request/response feature usage) as the
+introspection 2.0. Furthermore, alternative E adds a new building blocks that can be used to communicate between two
+different safety levels (e.g. ASIL-B & ASIL-D) while ensuring freedom from interference. The one-shot RPC call does
+not lead to a shared memory transmission compared to the alternative B (request/response feature usage) as the
 complete service registry is stored locally.
 
 ### Code example
@@ -276,6 +309,79 @@ class DiscoveryInfo
 // Class should be attachable to Listener
 iox::popo::DiscoveryInfo discoveryInfo;
 myListener.attachEvent(discoveryInfo, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
+```
+
+#### Event-based notification: Alternative E
+
+```cpp
+// StatusPort implementation
+StatusPortHeader {
+    using uint64_t INVALID {0};
+    using uint64_t UPDATING {-1};
+    std::atomic<uint64_t> generation{INVALID};
+}
+template <typename T>
+using StatusPortData = Sample<T, StatusPortHeader>; // pretty neat, eh? We use a chunk to store the StatusPortData -> this means the number of ports and data sizes can be configured by the user without recompiling RouDi; could potentially also be done for the other ports
+
+template <typename T>
+StatusPortWriter {
+  public:
+    void write(cxx::function_ref<void(T&)> f);
+  private:
+    StatusPortData<T> data; // potentially also just a `ChunkHeader*`
+};
+
+template <typename T>
+StatusPortReader {
+  public:
+    void read(cxx::function_ref<void(const T&)> f);
+  private:
+    StatusPortData<T> data;
+};
+
+// User facing API
+class DiscoveryInfo
+{
+  public:
+
+    // Move all service-related methods from PoshRuntime to this class
+    cxx::expected<InstanceContainer, FindServiceError>
+    PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
+    {
+        // Update local service registry
+        get();
+
+        return filterFor(serviceDescription);
+    }
+
+    // @todo check if still needed
+    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
+    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    ServiceRegistryTopic get() noexcept
+    {
+        m_statusPortReader.read([&](auto& ServiceRegistryTopic){
+            // Update our local copy of the service registry
+            m_lastServiceRegistry = ServiceRegistryTopic;
+        });
+        return m_lastServiceRegistry;
+    }
+
+    ServiceRegistryTopic getDelta() noexcept
+    {
+        auto old = m_lastServiceRegistry;
+        get();
+        return old - m_lastServiceRegistry;
+    }
+
+    ServiceRegistryTopic getDelta(const capro::ServiceDescription& serviceDescription) noexcept;
+
+   filterFor(const capro::ServiceDescription& serviceDescription) noexcept;
+  private:
+    StatusPortReader<ServiceRegistryTopic> m_statusPortReader;
+    ServiceRegistryTopic m_lastServiceRegistry;
+}
+
 ```
 
 #### Sychronous, one-shot RPC (Polling): Alternative B

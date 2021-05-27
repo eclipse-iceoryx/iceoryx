@@ -185,7 +185,7 @@ The following table gives an overview of the different terminologies and the cur
 
 |                                                                                   | Group   | Instance         | Topic                  |
 |-----------------------------------------------------------------------------------|---------|------------------|------------------------|
-| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace::Topic | -                      |
+| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic | -                      |
 | AUTOSAR                                                                           | Service | Instance         | Event                  |
 | [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
 | [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds/pull/303/files)              | -       | Type Name        | Topic Name             |
