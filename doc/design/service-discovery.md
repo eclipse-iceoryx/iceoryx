@@ -223,7 +223,6 @@ Con:
 * New class, which needs RouDi infrastructure integration (e.g. requesting this port)
 * Starvation possible if the writer updates too often and the reader never finished its read (should be taken care by
 good documentation)
-* 
 
 ### Decision
 
