@@ -33,7 +33,7 @@ using namespace iox::cxx;
 template <uint32_t Size, uint32_t Align = 1U>
 struct alignas(Align) Bytes
 {
-    uint8_t data[Size];
+    uint8_t data[Size] = {};
 
     void set(uint8_t value)
     {
@@ -182,21 +182,6 @@ TEST(static_storage_test, ClearHasNoEffectIfThereIsAnObjectStored)
 
     EXPECT_FALSE(sut.clear());
     EXPECT_TRUE(data->hasValue(37));
-}
-
-TEST(static_storage_test, DeallocateDoesNotClearStorageBytes)
-{
-    using Data = Bytes<16, 4>;
-    static_storage<18, 2> sut;
-    auto data = sut.allocate<Data>();
-    ASSERT_NE(data, nullptr);
-    data->set(73);
-    EXPECT_TRUE(data->hasValue(73));
-
-    sut.deallocate();
-    data = reinterpret_cast<Data*>(sut.allocate(16, 4));
-    ASSERT_NE(data, nullptr);
-    EXPECT_TRUE(data->hasValue(73));
 }
 
 TEST(static_storage_test, AllocationIsAligned)

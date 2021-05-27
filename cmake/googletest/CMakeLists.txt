@@ -67,8 +67,8 @@ if(BUILD_TEST)
 
     if(NOT WIN32)
         execute_process(
-            COMMAND patch --merge -p1
-            INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/internal_utils_remove_werror.cmake.patch"
+            COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+            INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-remove-werror-from-build-flags.patch"
             WORKING_DIRECTORY "${SOURCE_DIR}"
             RESULT_VARIABLE result)
         if(result)
