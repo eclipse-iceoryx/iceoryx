@@ -20,6 +20,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
@@ -109,3 +111,5 @@ TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
 {
     EXPECT_CALL(sut.port(), destroy).Times(1);
 }
+
+} // namespace

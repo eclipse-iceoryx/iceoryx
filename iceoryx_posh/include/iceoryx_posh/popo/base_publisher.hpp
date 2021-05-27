@@ -18,11 +18,11 @@
 #ifndef IOX_POSH_POPO_BASE_PUBLISHER_HPP
 #define IOX_POSH_POPO_BASE_PUBLISHER_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {

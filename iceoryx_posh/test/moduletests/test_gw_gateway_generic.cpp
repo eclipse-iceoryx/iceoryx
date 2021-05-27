@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include "test.hpp"
 
 #include "stubs/stub_gateway_generic.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 using ::testing::_;
@@ -142,11 +145,12 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result = gw.addChannel(
-            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))),
-            StubbedIceoryxTerminal::Options());
+        auto result =
+            gw.addChannel(iox::capro::ServiceDescription(
+                              iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                              iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                              iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))),
+                          StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
@@ -161,11 +165,12 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result = gw.addChannel(
-            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))),
-            StubbedIceoryxTerminal::Options());
+        auto result =
+            gw.addChannel(iox::capro::ServiceDescription(
+                              iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                              iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                              iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))),
+                          StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
@@ -259,3 +264,5 @@ TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChanne
 
     EXPECT_EQ(3U, count);
 }
+
+} // namespace

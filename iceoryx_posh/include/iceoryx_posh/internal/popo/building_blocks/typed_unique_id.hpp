@@ -16,8 +16,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
 
-#include "iceoryx_utils/cxx/newtype.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/cxx/newtype.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 #include <atomic>
 #include <cstdint>

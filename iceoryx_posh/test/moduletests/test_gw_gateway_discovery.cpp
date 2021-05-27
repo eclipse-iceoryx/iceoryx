@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +20,9 @@
 #include "iceoryx_posh/gateway/gateway_discovery.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 using CaproMessage = iox::capro::CaproMessage;
 using BasePort = iox::popo::BasePort;
@@ -65,3 +67,5 @@ TEST_F(GatewayDiscovery_test, GetCaproMessage)
     EXPECT_EQ(iox::capro::CaproMessageType::ACK, msg.m_type);
     EXPECT_EQ(iox::capro::ServiceDescription(), msg.m_serviceDescription);
 }
+
+} // namespace

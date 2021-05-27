@@ -58,4 +58,3 @@ void iox_notification_info_call(iox_notification_info_t const self)
 {
     (*self)();
 }
-

@@ -224,7 +224,7 @@ to process local constructs, no dynamic allocators
 
 !!! note
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above.
-    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils#cxx).
+    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx).
 
 ### Publisher
 

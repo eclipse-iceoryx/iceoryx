@@ -44,6 +44,10 @@ Let's assume you want to execute only `ServiceDescription_test` from posh_module
 ./build/posh/test/posh_moduletests --gtest_filter="ServiceDescription_test*"
 ```
 
+!!! hint
+    While writing code on iceoryx you should use git hooks that automatically ensure that you follow the coding and style guidelines.
+    See [`git-hooks`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
+
 ## :fontawesome-solid-pump-soap: Use Sanitizer Scan
 
 Due to the fact that iceoryx works a lot with system memory, it should be ensured that errors like memory leaks are not introduced.
@@ -81,14 +85,14 @@ This should be only rarely used and only in coordination with an iceoryx maintai
 
 !!! note
     iceoryx needs to be built as a static library for working with sanitizer flags. The script does it automatically.
-    Except when you want to use the ${ICEORYX_WARNINGS} then you have to call `findpackage(iceoryx_utils)`
+    Except when you want to use the ${ICEORYX_WARNINGS} then you have to call `findpackage(iceoryx_hoofs)`
 
 ## :material-library: iceoryx library build
 
 The iceoryx build consists of several libraries which have dependencies on each other. The goal is to have self-encapsulated library packages available where the end-user can easily find it with the CMake command `find-package(...)`.
 In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access. As an alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
 
-As a starting point for the CMake build, iceoryx_meta collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together. The provided build script `iceoryx_build_test.sh` in the `tools` folder uses iceoryx_meta.
+As a starting point for the CMake build, iceoryx_meta collects all libraries (hoofs, posh etc.) and extensions (binding_c, dds) together. The provided build script `iceoryx_build_test.sh` in the `tools` folder uses iceoryx_meta.
 
 Per default, iceoryx is built as static lib for better usability.
 Additionally, we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time.
@@ -109,4 +113,4 @@ LD_LIBRARY_PATH=/your/path/to/lib iox-roudi
 If you want to share iceoryx to other users, you can create a debian package. This can be done by using: `./tools/iceoryx_build_test.sh package` where it will be deployed into the `build_package` folder.
 
 !!! note
-    The CMake libraries export their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
+    The CMake libraries export their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_hoofs)` when you have it done for iceoryx_posh. It includes it already.

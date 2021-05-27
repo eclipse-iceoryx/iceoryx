@@ -16,13 +16,13 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
 #define IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/port_pool_memory_block.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 #include <cstdint>
 

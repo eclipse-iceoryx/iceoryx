@@ -15,21 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-// anonymous namespace to prevent linker issues or sanitizer false positives
-// if a struct with the same name is used in other tests
-namespace
-{
 struct DummyData
 {
     DummyData() = default;
@@ -40,7 +38,6 @@ struct DummyHeader
     DummyHeader() = default;
     uint64_t counter = 0;
 };
-} // namespace
 
 template <typename T, typename H = iox::mepoo::NoUserHeader>
 class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
@@ -157,3 +154,5 @@ TEST_F(SampleTest, CallingGetUserHeaderFromConstTypeReturnsCorrectAddress)
 
     // ===== Cleanup ===== //
 }
+
+} // namespace

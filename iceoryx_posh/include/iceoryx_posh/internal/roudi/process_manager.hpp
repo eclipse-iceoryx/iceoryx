@@ -17,6 +17,9 @@
 #ifndef IOX_POSH_ROUDI_PROCESS_MANAGER_HPP
 #define IOX_POSH_ROUDI_PROCESS_MANAGER_HPP
 
+#include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
@@ -25,9 +28,6 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
-#include "iceoryx_utils/cxx/list.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
 #include <ctime>

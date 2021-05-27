@@ -16,13 +16,13 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 
-using namespace iox;
-using namespace iox::capro;
-
-
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
+using namespace iox;
+using namespace iox::capro;
 
 TEST(iox_service_description_translation_test, TranslatesIntegersCorrectly)
 {
@@ -52,3 +52,5 @@ TEST(iox_service_description_translation_test, TranslatesStringCorrectly)
     EXPECT_THAT(std::string(cServiceDescription.instanceString), Eq("FunkyInstance"));
     EXPECT_THAT(std::string(cServiceDescription.eventString), Eq("BumbleBeeSighted"));
 }
+
+} // namespace

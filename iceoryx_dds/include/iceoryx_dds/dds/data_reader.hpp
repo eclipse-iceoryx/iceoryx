@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,9 @@
 #define IOX_DDS_DDS_DATA_READER_HPP
 
 #include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {
@@ -46,53 +46,37 @@ constexpr const char* DataReaderErrorString[] = {"INVALID_STATE",
                                                  "INVALID_DATA",
                                                  "BUFFER_SIZE_MISMATCH"};
 
+/// @brief Abstraction for DDS Data Readers.
 class DataReader
 {
   public:
-    ///
-    /// @brief connect Connect the DataReader to the underlying DDS network.
-    ///
+    /// @brief Connect the DataReader to the underlying DDS network.
     virtual void connect() noexcept = 0;
 
-    ///
     /// @brief peekNextIoxChunkDatagramHeader Get the IoxChunkDatagramHeader of the next sample if one is available.
     /// @return The IoxChunkDatagramHeader of the next sample if one is available.
-    ///
     virtual iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() noexcept = 0;
 
-    ///
-    /// @brief hasSamples Checks if new samples ready to take.
-    /// @return True if new samples available.
-    ///
+    /// @brief Checks if new samples are ready to take.
+    /// @return True if new samples are available.
     virtual bool hasSamples() noexcept = 0;
 
-    ///
     /// @brief take Take the next available sample from the DDS data space.
     /// @param datagramHeader with size information
     /// @param userHeaderBuffer buffer for the user-header
     /// @param userPayloadBuffer buffer for the user-payload
     /// @return Error if unsuccessful.
-    ///
     virtual iox::cxx::expected<DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
                                                          uint8_t* const userHeaderBuffer,
                                                          uint8_t* const userPayloadBuffer) noexcept = 0;
 
-    ///
-    /// @brief getServiceId
-    /// @return The ID of the service producing the bytes
-    ///
+    /// @brief get ID of the service
     virtual capro::IdString_t getServiceId() const noexcept = 0;
 
-    ///
-    /// @brief getInstanceId
-    /// @return The ID of the instance of the service producing the bytes
-    ///
+    /// @brief get ID of the instance
     virtual capro::IdString_t getInstanceId() const noexcept = 0;
 
-    ///
-    /// @brief getEventId
-    /// @return The ID of the event producing the data
-    ///
+    /// @brief get ID of the event
     virtual capro::IdString_t getEventId() const noexcept = 0;
 
   protected:
