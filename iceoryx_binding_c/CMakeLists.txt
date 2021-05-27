@@ -16,19 +16,22 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "0.99.6")
+set(IOX_VERSION_STRING "1.0.0")
 
-find_package(iceoryx_utils REQUIRED)
 
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
+
 project(iceoryx_binding_c VERSION ${IOX_VERSION_STRING})
-#adjust_version()
 
+find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
+
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
 
 #
 ########## set variables for export ##########
@@ -52,7 +55,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 add_library(${PROJECT_NAME}
-    source/c_event_info.cpp
+    source/c_notification_info.cpp
     source/c_listener.cpp
     source/c_node.cpp
     source/c_publisher.cpp
@@ -89,13 +92,13 @@ if(NOT (WIN32 OR QNX))
         pthread
       PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
     )
 else()
     target_link_libraries(${PROJECT_NAME}
       PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
     )
 endif()
 

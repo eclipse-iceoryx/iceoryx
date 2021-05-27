@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_INL
 #define IOX_POSH_GW_GATEWAY_GENERIC_INL
 
+#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
 // ================================================== Public ================================================== //
 
@@ -110,7 +110,7 @@ template <typename channel_t, typename gateway_t>
 inline cxx::optional<channel_t>
 GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const noexcept
 {
-    auto guardedVector = this->m_channels.GetScopeGuard();
+    auto guardedVector = this->m_channels.getScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
         return channel.getServiceDescription() == service;
     });
@@ -128,7 +128,7 @@ template <typename channel_t, typename gateway_t>
 inline void
 GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept
 {
-    auto guardedVector = m_channels.GetScopeGuard();
+    auto guardedVector = m_channels.getScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
     {
         f(*channel);
@@ -139,7 +139,7 @@ template <typename channel_t, typename gateway_t>
 inline cxx::expected<GatewayError>
 GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescription& service) noexcept
 {
-    auto guardedVector = this->m_channels.GetScopeGuard();
+    auto guardedVector = this->m_channels.getScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
         return channel.getServiceDescription() == service;
     });

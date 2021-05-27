@@ -18,17 +18,17 @@
 #ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
+#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "iceoryx_utils/cxx/deadline_timer.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/stat.hpp"
-#include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/platform/unistd.hpp"
 
 #include <cstdint>
 #include <errno.h>
@@ -67,6 +67,8 @@ enum class IpcMessageType : int32_t
     KEEPALIVE,
     TERMINATION,
     TERMINATION_ACK,
+    PREPARE_APP_TERMINATION,
+    PREPARE_APP_TERMINATION_ACK,
     ERROR,
     APP_WAIT,
     WAKEUP_TRIGGER,
@@ -86,6 +88,7 @@ enum class IpcMessageErrorType : int32_t
     /// A publisher could not be created unique
     NO_UNIQUE_CREATED,
     REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE,
+    REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT,
     REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE,
     REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE,
     REQUEST_EVENT_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE,

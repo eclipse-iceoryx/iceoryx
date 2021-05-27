@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -79,7 +79,7 @@ ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
 ConditionListener::NotificationVector_t ConditionListener::timedWait(const units::Duration& timeToWait) noexcept
 {
     return waitImpl([this, timeToWait]() -> bool {
-        if (this->getMembers()->m_semaphore.timedWait(timeToWait, true).has_error())
+        if (this->getMembers()->m_semaphore.timedWait(timeToWait).has_error())
         {
             errorHandler(
                 Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);

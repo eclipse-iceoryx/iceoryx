@@ -20,11 +20,11 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 
-/// @todo this should probably be moved to iceoryx_utils/allocator/bump_allocator.hpp
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+/// @todo this should probably be moved to iceoryx_hoofs/allocator/bump_allocator.hpp
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
 {
@@ -178,8 +178,6 @@ const char* MemoryProvider::getErrorString(const MemoryProviderError error)
         return "MEMORY_ALREADY_CREATED";
     case MemoryProviderError::MEMORY_CREATION_FAILED:
         return "MEMORY_CREATION_FAILED";
-    case MemoryProviderError::PAGE_SIZE_CHECK_ERROR:
-        return "PAGE_SIZE_CHECK_ERROR";
     case MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE:
         return "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE";
     case MemoryProviderError::MEMORY_ALLOCATION_FAILED:

@@ -16,10 +16,6 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 
-using namespace iox;
-using namespace iox::capro;
-
-
 extern "C" {
 #include "iceoryx_binding_c/service_description.h"
 }
@@ -28,7 +24,11 @@ extern "C" {
 
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
+using namespace iox;
+using namespace iox::capro;
 
 TEST(iox_service_description_test, StringSizesAreCorrect)
 {
@@ -40,3 +40,4 @@ TEST(iox_service_description_test, StringSizesAreCorrect)
                 Eq(iox::capro::IdString_t().capacity()));
 }
 
+} // namespace

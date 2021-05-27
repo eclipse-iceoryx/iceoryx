@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -31,16 +31,16 @@ iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
 std::atomic_bool keepRunning{true};
-constexpr char APP_NAME[] = "iox-ex-callbacks-subscriber";
+constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownSemaphore.post().or_else([](auto) {
         std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
     keepRunning = false;
 }
@@ -103,21 +103,31 @@ int main()
     });
 
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
-    listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
+    listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback)).or_else([](auto) {
         std::cerr << "unable to attach heartbeat event" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
-    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
+
+    // It is possible to attach any c function here with a signature of void(iox::popo::Subscriber<CounterTopic> *).
+    // But please be aware that the listener does not take ownership of the callback, therefore it has to exist as
+    // long as the event is attached. Furthermore, it excludes lambdas which are capturing data since they are not
+    // convertable to a c function pointer.
+    // to simplify the example we attach the same callback onSampleReceivedCallback again
+    listener
+        .attachEvent(subscriberLeft,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
-    // it is possible to attach any callback here with the required signature. to simplify the
-    // example we attach the same callback onSampleReceivedCallback again
-    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
+    listener
+        .attachEvent(subscriberRight,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 
     // wait until someone presses CTRL+c

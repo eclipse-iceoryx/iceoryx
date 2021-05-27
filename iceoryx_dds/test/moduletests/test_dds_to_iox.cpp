@@ -23,6 +23,8 @@
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
@@ -121,3 +123,5 @@ TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
     gw.forward(testChannel);
 }
 #endif
+
+} // namespace

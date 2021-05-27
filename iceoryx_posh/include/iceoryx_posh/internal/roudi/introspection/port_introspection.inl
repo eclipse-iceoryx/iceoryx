@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 
-#include "iceoryx_utils/posix_wrapper/thread.hpp"
+#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 
 namespace iox
 {
@@ -577,9 +577,8 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void
-PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic
-                                                                         [[gnu::unused]]) noexcept
+inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
+    PortThroughputIntrospectionTopic& topic IOX_MAYBE_UNUSED) noexcept
 {
     /// @todo #402 re-add port throughput
 }

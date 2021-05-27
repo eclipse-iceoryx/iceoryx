@@ -17,10 +17,10 @@
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/scoped_static.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {

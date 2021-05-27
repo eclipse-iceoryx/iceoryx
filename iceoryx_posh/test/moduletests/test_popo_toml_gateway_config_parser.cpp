@@ -1,4 +1,5 @@
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "stubs/stub_toml_gateway_config_parser.hpp"
-
-#include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
@@ -333,6 +335,7 @@ TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
     EXPECT_EQ(parseErrorInputFile.first, result.get_error());
 }
 
+
 TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFileReturnOnlyOneEntry)
 {
     auto toml = cpptoml::make_table();
@@ -353,7 +356,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFile
     CreateTmpTomlFile(toml);
 
     iox::roudi::ConfigFilePathString_t Path =
-    iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
+        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
     GatewayConfig config = result.value();
     EXPECT_FALSE(result.has_error());
@@ -369,7 +372,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
 
     for (uint32_t i = 1U; i <= iox::MAX_GATEWAY_SERVICES; ++i)
     {
-        std::string stringentry = "validservice"+ std::to_string(i);
+        std::string stringentry = "validservice" + std::to_string(i);
         serviceEntry->insert("service", stringentry);
         serviceEntry->insert("instance", stringentry);
         serviceEntry->insert("event", stringentry);
@@ -380,17 +383,17 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
     CreateTmpTomlFile(toml);
 
     iox::roudi::ConfigFilePathString_t Path =
-    iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
+        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
     GatewayConfig config = result.value();
 
     EXPECT_EQ(config.m_configuredServices.size(), iox::MAX_GATEWAY_SERVICES);
     EXPECT_FALSE(result.has_error());
     EXPECT_FALSE(config.m_configuredServices.empty());
-
 }
 
-TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMoreThanMaximumAllowedNumberOfConfiguredServicesReturnOnlyMaximumAllowedNumber)
+TEST_F(TomlGatewayConfigParserSuiteTest,
+       ParseValidConfigFileWithMoreThanMaximumAllowedNumberOfConfiguredServicesReturnOnlyMaximumAllowedNumber)
 {
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
@@ -398,7 +401,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMoreThanMaximum
 
     for (uint32_t i = 1U; i <= (iox::MAX_GATEWAY_SERVICES + 2); ++i)
     {
-        std::string stringentry = "validservice"+ std::to_string(i);
+        std::string stringentry = "validservice" + std::to_string(i);
         serviceEntry->insert("service", stringentry);
         serviceEntry->insert("instance", stringentry);
         serviceEntry->insert("event", stringentry);
@@ -409,7 +412,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMoreThanMaximum
     CreateTmpTomlFile(toml);
 
     iox::roudi::ConfigFilePathString_t Path =
-    iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
+        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
     GatewayConfig config = result.value();
 
@@ -417,3 +420,5 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMoreThanMaximum
     EXPECT_FALSE(result.has_error());
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
+
+} // namespace

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# This script remove trailing whitespaces and runs clang-format
+# on the modified file
+
+current_dir=$(pwd)
+repo_root_dir=$(git rev-parse --show-toplevel)
+
+cd "${repo_root_dir}" || exit
+
+## remove trailing whitespaces
+files=$(git diff --cached --name-only --diff-filter=ACMRT)
+if [[ -n ${files} ]]; then
+    echo "Removing Whitespaces on the following file(s):"
+    echo "--------------------------------------------"
+    echo "${files}"
+    echo
+    for file in $files ; do
+        if [ -f $file ]; then
+            sed -i 's/\s*$//g' "$file"
+            git add "$file"
+        fi
+    done
+fi
+
+## clang-format
+cpp_files=$(git diff --cached --name-only --diff-filter=ACMRT | grep -E "\.(c|cpp|inl|h|hpp)$")
+if [[ -n ${cpp_files} ]]; then
+
+    CLANG_CMD="clang-format-10"
+    if ! command -v $CLANG_CMD &> /dev/null
+    then
+        CLANG_MAJOR_VERSION=$(clang-format --version | sed -n "s/clang-format version \([0-9]*\)\.[0-9]*\.[0-9]*/\1/p")
+        if [[ $CLANG_MAJOR_VERSION -lt "10" ]]; then
+            echo "Warning: clang-format of version 10 or higher is not installed."
+            echo "Code will not be formatted."
+            exit 0
+        else
+            CLANG_CMD="clang-format"
+        fi
+    fi
+
+    echo "Running clang-format on the following file(s):"
+    echo "--------------------------------------------"
+    echo "${cpp_files}" | sed 's/^/\ -\ /g'
+    echo
+
+    for file in $cpp_files ; do
+        if [ -f $file ]; then
+            $CLANG_CMD -i -style=file ${file}
+            git add ${file}
+        fi
+    done
+fi
+
+cd "${current_dir}" || exit

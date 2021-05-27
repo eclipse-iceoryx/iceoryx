@@ -19,14 +19,12 @@
 
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using iox::roudi::IceOryxRouDiMemoryManager;
 
-namespace iox
-{
-namespace test
-{
 /// @brief This test file verifies that the BaseClass IceoryxRouDiMemoryManager is tested
 class IceoryxRoudiMemoryManager_test : public Test
 {
@@ -167,5 +165,4 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryNotFailingAfterCalledTwoTime
     EXPECT_THAT(res.has_error(), Eq(false));
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

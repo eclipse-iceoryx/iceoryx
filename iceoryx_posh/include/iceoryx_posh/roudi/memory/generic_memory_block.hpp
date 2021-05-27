@@ -18,7 +18,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <cstdint>
 

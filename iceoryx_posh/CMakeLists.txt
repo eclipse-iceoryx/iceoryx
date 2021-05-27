@@ -16,16 +16,12 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.6")
+set(IOX_VERSION_STRING "1.0.0")
 
-find_package(iceoryx_utils REQUIRED)
-
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
-#adjust_version()
 
 find_package(Threads REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
@@ -41,6 +37,11 @@ include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
 include(cmake/iceoryx_posh_deployment.cmake)
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
+
 
 if(CLANG_TIDY)
     find_program(
@@ -81,12 +82,14 @@ add_library(iceoryx_posh
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
     source/mepoo/chunk_header.cpp
+    source/mepoo/chunk_management.cpp
     source/mepoo/chunk_settings.cpp
     source/mepoo/mepoo_config.cpp
     source/mepoo/segment_config.cpp
     source/mepoo/memory_manager.cpp
     source/mepoo/mem_pool.cpp
     source/mepoo/shared_chunk.cpp
+    source/mepoo/shm_safe_unmanaged_chunk.cpp
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
@@ -110,14 +113,13 @@ add_library(iceoryx_posh
     source/popo/ports/server_port_data.cpp
     source/popo/ports/server_port_roudi.cpp
     source/popo/ports/server_port_user.cpp
-    source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/condition_listener.cpp
     source/popo/building_blocks/condition_notifier.cpp
-    source/popo/building_blocks/condition_variable_data.cpp    
+    source/popo/building_blocks/condition_variable_data.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
     source/popo/listener.cpp
-    source/popo/event_info.cpp
+    source/popo/notification_info.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
     source/popo/user_trigger.cpp
@@ -166,7 +168,7 @@ target_include_directories(iceoryx_posh
 )
 target_link_libraries(iceoryx_posh
     PUBLIC
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
     ${CMAKE_THREAD_LIBS_INIT}
@@ -219,7 +221,7 @@ target_include_directories(iceoryx_posh_gateway
 
 target_link_libraries(iceoryx_posh_gateway
     PUBLIC
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
     iceoryx_posh::iceoryx_posh
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
@@ -283,7 +285,7 @@ target_link_libraries(iceoryx_posh_roudi
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
@@ -321,7 +323,7 @@ if(TOML_CONFIG)
 
     target_link_libraries(iceoryx_posh_config PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
         iceoryx_posh::iceoryx_posh_roudi
         cpptoml
         ${ICEORYX_SANITIZER_FLAGS}
@@ -350,7 +352,7 @@ if(TOML_CONFIG)
 
     target_link_libraries(iox-roudi
         PRIVATE
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
         ${PROJECT_NAMESPACE}::iceoryx_posh_config
     )
@@ -421,7 +423,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     target_link_libraries(iceoryx_posh_testing
         PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
         iceoryx_posh::iceoryx_posh_roudi
     )
 

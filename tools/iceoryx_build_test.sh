@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# This script builds iceoryx_utils und iceoryx_posh and executes all tests
+# This script builds iceoryx_hoofs und iceoryx_posh and executes all tests
 
 set -e
 
@@ -49,8 +49,7 @@ EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-EXAMPLES="callbacks callbacks_in_c ice_multi_publisher icedelivery singleprocess waitset"
-COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
+COMPONENTS="iceoryx_posh iceoryx_hoofs iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
 TOOLCHAIN_FILE=""
 
 while (( "$#" )); do
@@ -299,16 +298,19 @@ fi
 
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf $WORKSPACE/build_out_of_tree
-    if [ "$BINDING_C_FLAG" == "ON" ]; then
-        EXAMPLES="${EXAMPLES} icedelivery_in_c waitset_in_c iceperf"
-    fi
+    cd $WORKSPACE
+    EXAMPLES=$(find iceoryx_examples/ -maxdepth 1 -type d -printf '%d\t%P\n' | sort -r -nk1 | cut -f2-)
+    # Exclude directories without CMake file from the out-of-tree build
+    EXAMPLES=${EXAMPLES/iceensemble/""}
+    EXAMPLES=${EXAMPLES/icecrystal/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}
-    cd $WORKSPACE && mkdir -p build_out_of_tree && cd build_out_of_tree
+    mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
             mkdir -p $ex && cd $ex
             cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
                   -DTOML_CONFIG=$TOML_FLAG \
+                  -DBINDING_C=$BINDING_C_FLAG \
                   $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then

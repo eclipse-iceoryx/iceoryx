@@ -1,8 +1,8 @@
 # Change Log
 
-## [v1.0.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-04-30)
+## [v1.0.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-04-15)
 
-[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.0...v1.0.0)
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.7...v1.0.0)
 
 Description:
 This is the first major release for Eclipse iceoryx. That means it is the first release with long-term support and the adopters of iceoryx can rely on a stable API. The release called Almond allows for true zero-copy inter-process-communication on Linux, QNX and MacOS and provides C and modern C++ user APIs. This release is supported until 2022-04-01.
@@ -54,11 +54,12 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 - iceoryx libs should be build as static libs [\#509](https://github.com/eclipse-iceoryx/iceoryx/issues/509)
 - Build with gcov is broken [\#497](https://github.com/eclipse-iceoryx/iceoryx/issues/497)
 
-## [v0.99.x](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.x) (2021-04-xx)
+## [v0.99.7](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.7) (2021-04-09)
 
-[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.6...v0.99.x)
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.6...v0.99.7)
 
 - cleanup testing libraries; if used outside of iceoryx, include paths and link targets must be adjusted
+- build iceoryx_utils, iceoryx_posh and iceoryx_binding_c as shared libraries in colcon
 
 ## [v0.99.6](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.6) (2021-04-08)
 

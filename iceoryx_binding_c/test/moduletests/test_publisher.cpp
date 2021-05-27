@@ -25,10 +25,6 @@
 
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::capro;
-using namespace iox::mepoo;
-using namespace iox::cxx;
-using namespace iox::posix;
 
 extern "C" {
 #include "iceoryx_binding_c/chunk.h"
@@ -38,7 +34,13 @@ extern "C" {
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
+using namespace iox::capro;
+using namespace iox::cxx;
+using namespace iox::mepoo;
+using namespace iox::posix;
 
 class iox_pub_test : public Test
 {
@@ -302,22 +304,6 @@ TEST_F(iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-TEST_F(iox_pub_test, noLastChunkWhenNothingSent)
-{
-    EXPECT_EQ(iox_pub_loan_previous_chunk(&m_sut), nullptr);
-}
-
-TEST_F(iox_pub_test, lastChunkAvailableAfterSend)
-{
-    void* chunk = nullptr;
-    iox_pub_loan_chunk(&m_sut, &chunk, 100);
-    iox_pub_publish_chunk(&m_sut, chunk);
-
-    const void* lastChunk = iox_pub_loan_previous_chunk(&m_sut);
-
-    EXPECT_EQ(chunk, lastChunk);
-}
-
 TEST_F(iox_pub_test, sendDeliversChunk)
 {
     void* chunk = nullptr;
@@ -390,3 +376,5 @@ TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
         ::testing::ExitedWithCode(0),
         ".*");
 }
+
+} // namespace

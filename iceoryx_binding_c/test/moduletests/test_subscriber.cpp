@@ -28,10 +28,6 @@
 
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::capro;
-using namespace iox::mepoo;
-using namespace iox::cxx;
-using namespace iox::posix;
 
 extern "C" {
 #include "iceoryx_binding_c/chunk.h"
@@ -43,7 +39,13 @@ extern "C" {
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
+using namespace iox::capro;
+using namespace iox::cxx;
+using namespace iox::mepoo;
+using namespace iox::posix;
 
 class iox_sub_test : public Test
 {
@@ -348,7 +350,7 @@ TEST_F(iox_sub_test, detachingFromWaitSetWorks)
     EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
-TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectEventId)
+TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectNotificationId)
 {
     iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
@@ -357,7 +359,7 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectEventId)
     auto triggerVector = m_waitSet->wait();
 
     ASSERT_EQ(triggerVector.size(), 1U);
-    EXPECT_EQ(triggerVector[0]->getEventId(), 587U);
+    EXPECT_EQ(triggerVector[0]->getNotificationId(), 587U);
 }
 
 TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
@@ -446,3 +448,5 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
         ::testing::ExitedWithCode(0),
         ".*");
 }
+
+} // namespace

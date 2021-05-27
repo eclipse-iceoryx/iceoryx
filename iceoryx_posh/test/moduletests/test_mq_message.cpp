@@ -16,10 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32) && !defined(__APPLE__)
+#include "iceoryx_hoofs/testing/mocks/time_mock.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "iceoryx_utils/testing/mocks/time_mock.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using iox::runtime::IpcMessage;
@@ -433,4 +435,6 @@ TEST_F(IpcMessage_test, setMessage)
     message1.setMessage("1,2,3,4");
     EXPECT_THAT(message1.isValid(), Eq(false));
 }
+
+} // namespace
 #endif

@@ -16,13 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 #include <cstdint>
 
@@ -446,7 +446,20 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-void PortManager::unblockShutdown() noexcept
+void PortManager::unblockProcessShutdown(const RuntimeName_t& runtimeName) noexcept
+{
+    for (auto port : m_portPool->getPublisherPortDataList())
+    {
+        PublisherPortRouDiType publisherPort(port);
+        if (runtimeName == publisherPort.getRuntimeName())
+        {
+            port->m_offeringRequested.store(false, std::memory_order_relaxed);
+            doDiscoveryForPublisherPort(publisherPort);
+        }
+    }
+}
+
+void PortManager::unblockRouDiShutdown() noexcept
 {
     makeAllPublisherPortsToStopOffer();
 }

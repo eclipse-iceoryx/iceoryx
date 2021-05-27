@@ -17,14 +17,14 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/log/logstream.hpp"
 
 #include <cstdint>
 
@@ -120,7 +120,6 @@ static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_C
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
 
 // Memory
-constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32U;
 constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32U;
 constexpr uint32_t MAX_SHM_SEGMENTS = 100U;
 

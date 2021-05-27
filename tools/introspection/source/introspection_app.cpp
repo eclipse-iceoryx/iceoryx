@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_introspection/introspection_app.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_versions.hpp"
 
 #include <chrono>
@@ -92,7 +92,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             break;
 
         case 'v':
-            std::cout << "Latest official IceOryx release version: " << ICEORYX_LATEST_RELEASE_VERSION << "\n"
+            std::cout << "Latest official iceoryx release version: " << ICEORYX_LATEST_RELEASE_VERSION << "\n"
                       << std::endl;
             exit(EXIT_SUCCESS);
             break;
@@ -226,7 +226,7 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1u;
-    /// @todo Wrap kernel calls with SmartC
+    /// @todo Wrap kernel calls with posixCall
     int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
 
     // Event detected

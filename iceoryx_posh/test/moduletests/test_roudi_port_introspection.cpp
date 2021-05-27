@@ -15,19 +15,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "mocks/publisher_mock.hpp"
-#include "mocks/subscriber_mock.hpp"
-#include "test.hpp"
-
-using namespace ::testing;
-using ::testing::Return;
-
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+#include "mocks/publisher_mock.hpp"
+#include "mocks/subscriber_mock.hpp"
+
+#include "test.hpp"
 
 #include <cstdint>
+
+namespace
+{
+using namespace ::testing;
 
 template <typename PublisherPort, typename SubscriberPort>
 class PortIntrospectionAccess : public iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>
@@ -471,3 +472,5 @@ TEST_F(PortIntrospection_test, DISABLED_thread)
     std::this_thread::sleep_for(
         std::chrono::milliseconds(555)); // if the thread doesn't stop, we have 12 runs after the sleep period
 }
+
+} // namespace

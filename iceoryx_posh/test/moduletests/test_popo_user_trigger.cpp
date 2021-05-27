@@ -15,18 +15,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::popo;
 
-namespace
-{
 class WaitSetTest : public iox::popo::WaitSet<>
 {
   public:
@@ -56,7 +56,6 @@ class UserTrigger_test : public Test
         m_callbackOrigin = origin;
     }
 };
-} // namespace
 
 UserTrigger* UserTrigger_test::m_callbackOrigin = nullptr;
 
@@ -151,7 +150,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
 
     auto result = m_waitSet.timedWait(1_s);
     ASSERT_THAT(result.size(), Eq(1U));
-    EXPECT_THAT(result[0U]->getEventId(), 4412U);
+    EXPECT_THAT(result[0U]->getNotificationId(), 4412U);
 }
 
 TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
@@ -167,7 +166,7 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 {
     UserTrigger sut;
-    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback).has_error());
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, createNotificationCallback(UserTrigger_test::callback)).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
@@ -180,7 +179,7 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
 {
     UserTrigger sut;
-    ASSERT_FALSE(m_waitSet.attachEvent(sut, 0U, &UserTrigger_test::callback).has_error());
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 0U, createNotificationCallback(UserTrigger_test::callback)).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
@@ -189,3 +188,5 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
     (*triggerInfoVector[0U])();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
+
+} // namespace

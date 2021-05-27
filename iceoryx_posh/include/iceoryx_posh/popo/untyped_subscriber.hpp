@@ -18,11 +18,11 @@
 #ifndef IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/base_subscriber.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 namespace iox
 {
@@ -45,7 +45,7 @@ class UntypedSubscriberImpl : public BaseSubscriber_t
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
-    virtual ~UntypedSubscriberImpl() = default;
+    virtual ~UntypedSubscriberImpl() noexcept;
 
     ///
     /// @brief Take the chunk from the top of the receive queue.
@@ -57,13 +57,13 @@ class UntypedSubscriberImpl : public BaseSubscriber_t
 
     ///
     /// @brief Releases the ownership of the chunk provided by the user-payload pointer.
-    /// @param userPayloadOfChunk pointer to the user-payload of the chunk to be released
-    /// @details The userPayloadOfChunk pointer must have been previously provided by take and
+    /// @param userPayload pointer to the user-payload of the chunk to be released
+    /// @details The userPayload pointer must have been previously provided by take and
     ///          not have been already released.
     ///          The chunk must not be accessed afterwards as its memory may have
     ///          been reclaimed.
     ///
-    void release(const void* const userPayloadOfChunk) noexcept;
+    void release(const void* const userPayload) noexcept;
 
   protected:
     using BaseSubscriber::port;

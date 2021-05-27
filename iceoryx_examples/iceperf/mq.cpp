@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,47 +16,67 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "mq.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
-#include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
+#include <thread>
 
 MQ::MQ(const std::string& publisherName, const std::string& subscriberName) noexcept
-    : m_publisherName(publisherName)
-    , m_subscriberName(subscriberName)
+    : m_publisherMqName(PREFIX + publisherName)
+    , m_subscriberMqName(PREFIX + subscriberName)
 {
+    initMqAttributes();
+}
+
+void MQ::cleanupOutdatedResources(const std::string& publisherName, const std::string& subscriberName) noexcept
+{
+    auto publisherMqName = PREFIX + publisherName;
+    iox::posix::posixCall(mq_unlink)(publisherMqName.c_str())
+        .failureReturnValue(ERROR_CODE)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << "mq_unlink error for " << publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
+
+    auto subscriberMqName = PREFIX + subscriberName;
+    iox::posix::posixCall(mq_unlink)(subscriberMqName.c_str())
+        .failureReturnValue(ERROR_CODE)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << "mq_unlink error for " << subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }
 
 void MQ::initLeader() noexcept
 {
-    init();
-
-    open(m_subscriberName, iox::posix::IpcChannelSide::SERVER);
+    open(m_subscriberMqName, iox::posix::IpcChannelSide::SERVER);
 
     std::cout << "waiting for follower" << std::endl;
 
     receivePerfTopic();
 
-    open(m_publisherName, iox::posix::IpcChannelSide::CLIENT);
+    open(m_publisherMqName, iox::posix::IpcChannelSide::CLIENT);
 }
 
 void MQ::initFollower() noexcept
 {
-    init();
+    open(m_subscriberMqName, iox::posix::IpcChannelSide::SERVER);
 
-    open(m_subscriberName, iox::posix::IpcChannelSide::SERVER);
+    std::cout << "registering with the leader" << std::endl;
 
-    std::cout << "registering with the leader, if no leader this will crash with a message queue error now"
-              << std::endl;
+    open(m_publisherMqName, iox::posix::IpcChannelSide::CLIENT);
 
-    open(m_publisherName, iox::posix::IpcChannelSide::CLIENT);
-
-    sendPerfTopic(sizeof(PerfTopic), true);
+    sendPerfTopic(sizeof(PerfTopic), RunFlag::RUN);
 }
 
-void MQ::init() noexcept
+void MQ::initMqAttributes() noexcept
 {
     // fields have a different order in QNX,
     // so we need to initialize by name
@@ -71,42 +92,41 @@ void MQ::init() noexcept
 
 void MQ::shutdown() noexcept
 {
-    auto mqCallSubClose = iox::cxx::makeSmartC(
-        mq_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_mqDescriptorSubscriber);
+    iox::posix::posixCall(mq_close)(m_mqDescriptorSubscriber)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << "mq_close error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 
-    if (mqCallSubClose.hasErrors())
-    {
-        std::cout << "mq_close error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(mq_unlink)(m_subscriberMqName.c_str())
+        .failureReturnValue(ERROR_CODE)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << "mq_unlink error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum()
+                      << std::endl;
+            exit(1);
+        });
 
-    auto mqCallSubUnlink = iox::cxx::makeSmartC(
-        mq_unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, m_subscriberName.c_str());
-
-    if (mqCallSubUnlink.hasErrors())
-    {
-        std::cout << "mq_unlink error" << std::endl;
-        exit(1);
-    }
-
-    auto mqCallPubClose = iox::cxx::makeSmartC(
-        mq_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_mqDescriptorPublisher);
-
-    if (mqCallPubClose.hasErrors())
-    {
-        std::cout << "mq_close error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(mq_close)(m_mqDescriptorPublisher)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << "mq_close error for " << m_publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }
 
-void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
+void MQ::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
 {
     char* buffer = new char[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
     // Specify the payload size for the measurement
     sample->payloadSize = payloadSizeInBytes;
-    sample->run = runFlag;
+    sample->runFlag = runFlag;
     if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
         sample->subPackets = 1;
@@ -145,79 +165,65 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
     int32_t openFlags = O_RDWR;
     if (channelSide == iox::posix::IpcChannelSide::SERVER)
     {
-        auto mqCall = iox::cxx::makeSmartC(
-            mq_unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
-        if (mqCall.hasErrors())
-        {
-            std::cout << "mq_unlink error" << std::endl;
-            exit(1);
-        }
-
         openFlags |= O_CREAT;
     }
 
-    // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0);
-
-    auto mqCall = iox::cxx::makeSmartC(mq_open,
-                                       iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                       {ERROR_CODE},
-                                       {ENOENT},
-                                       name.c_str(),
-                                       openFlags,
-                                       m_filemode,
-                                       &m_attributes);
-
-    umask(umaskSaved);
-
-    if (mqCall.hasErrors())
+    constexpr bool TRY_TO_OPEN{true};
+    while (TRY_TO_OPEN)
     {
-        std::cout << "mq_open error " << name << std::endl;
-        exit(1);
-    }
+        // the mask will be applied to the permissions, therefore we need to set it to 0
+        mode_t umaskSaved = umask(0);
 
-    if (channelSide == iox::posix::IpcChannelSide::SERVER)
-    {
-        m_mqDescriptorSubscriber = mqCall.getReturnValue();
-    }
-    else
-    {
-        m_mqDescriptorPublisher = mqCall.getReturnValue();
+        auto mqCall = iox::posix::posixCall(iox_mq_open4)(name.c_str(), openFlags, m_filemode, &m_attributes)
+                          .failureReturnValue(ERROR_CODE)
+                          .ignoreErrnos(ENOENT)
+                          .evaluate()
+                          .or_else([&](auto& r) {
+                              std::cout << "mq_open error for " << name << ", " << r.getHumanReadableErrnum()
+                                        << std::endl;
+                              exit(1);
+                          });
+        umask(umaskSaved);
+
+        if (mqCall->errnum == ENOENT)
+        {
+            constexpr std::chrono::milliseconds RETRY_INTERVAL{10};
+            std::this_thread::sleep_for(RETRY_INTERVAL);
+            continue;
+        }
+
+        if (channelSide == iox::posix::IpcChannelSide::SERVER)
+        {
+            m_mqDescriptorSubscriber = mqCall->value;
+        }
+        else
+        {
+            m_mqDescriptorPublisher = mqCall->value;
+        }
+
+        break;
     }
 }
 
 void MQ::send(const char* buffer, uint32_t length) noexcept
 {
-    auto mqCall = iox::cxx::makeSmartC(mq_send,
-                                       iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                       {ERROR_CODE},
-                                       {},
-                                       m_mqDescriptorPublisher,
-                                       buffer,
-                                       length,
-                                       1U);
-
-    if (mqCall.hasErrors())
-    {
-        std::cout << std::endl << "send error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(mq_send)(m_mqDescriptorPublisher, buffer, length, 1U)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << std::endl
+                      << "send error for " << m_publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }
 
 void MQ::receive(char* buffer) noexcept
 {
-    auto mqCall = iox::cxx::makeSmartC(mq_receive,
-                                       iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                       {static_cast<ssize_t>(ERROR_CODE)},
-                                       {},
-                                       m_mqDescriptorSubscriber,
-                                       buffer,
-                                       MAX_MESSAGE_SIZE,
-                                       nullptr);
-
-    if (mqCall.hasErrors())
-    {
-        std::cout << "receive error" << std::endl;
-        exit(1);
-    }
+    iox::posix::posixCall(mq_receive)(m_mqDescriptorSubscriber, buffer, MAX_MESSAGE_SIZE, nullptr)
+        .failureReturnValue(ERROR_CODE)
+        .evaluate()
+        .or_else([&](auto& r) {
+            std::cout << "receive error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+            exit(1);
+        });
 }

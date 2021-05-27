@@ -27,7 +27,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
 
 
 # ===== Core
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_hoofs ${CMAKE_BINARY_DIR}/hoofs)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
 
 # ===== Doxygen example
@@ -55,7 +55,9 @@ endif()
 
 # ===== Examples
 if(EXAMPLES)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icehello ${CMAKE_BINARY_DIR}/iceoryx_examples/icehello)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceoptions ${CMAKE_BINARY_DIR}/iceoryx_examples/iceoptions)
     if(BINDING_C)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/callbacks_in_c ${CMAKE_BINARY_DIR}/iceoryx_examples/callbacks_in_c)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_in_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_in_c)
@@ -65,7 +67,9 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/callbacks ${CMAKE_BINARY_DIR}/iceoryx_examples/callbacks)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_access_control ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_access_control)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/complexdata ${CMAKE_BINARY_DIR}/iceoryx_examples/complexdata)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/user_header ${CMAKE_BINARY_DIR}/iceoryx_examples/user_header)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)

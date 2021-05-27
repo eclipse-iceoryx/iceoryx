@@ -76,7 +76,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
                 (requestedHistory <= currChunkHistorySize) ? currChunkHistorySize - requestedHistory : 0u;
             for (auto i = startIndex; i < currChunkHistorySize; ++i)
             {
-                deliverToQueue(queueToAdd, getMembers()->m_history[i]);
+                deliverToQueue(queueToAdd, getMembers()->m_history[i].cloneToSharedChunk());
             }
 
             return cxx::success<void>();
@@ -216,8 +216,10 @@ inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDeliv
     {
         if (getMembers()->m_history.size() >= getMembers()->m_historyCapacity)
         {
+            auto chunkToRemove = getMembers()->m_history.begin();
+            chunkToRemove->releaseToSharedChunk();
             // PRQA S 3804 1 # we are not iterating here, so return value can be ignored
-            getMembers()->m_history.erase(getMembers()->m_history.begin());
+            getMembers()->m_history.erase(chunkToRemove);
         }
         // PRQA S 3804 1 # we ensured that there is space in the history, so return value can be ignored
         getMembers()->m_history.push_back(chunk); // PRQA S 3804
@@ -242,6 +244,11 @@ template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::clearHistory() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
+
+    for (auto& unmanagedChunk : getMembers()->m_history)
+    {
+        unmanagedChunk.releaseToSharedChunk();
+    }
 
     getMembers()->m_history.clear();
 }

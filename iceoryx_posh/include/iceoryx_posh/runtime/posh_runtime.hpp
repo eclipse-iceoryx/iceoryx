@@ -17,6 +17,9 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -29,9 +32,6 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <map>
@@ -77,6 +77,10 @@ class PoshRuntime
     /// @brief get the name that was used to register with RouDi
     /// @return name of the registered application
     RuntimeName_t getInstanceName() const noexcept;
+
+    /// @brief initiates the shutdown of the runtime to unblock all potentially blocking publisher
+    /// with the SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
+    void shutdown() noexcept;
 
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
@@ -207,15 +211,17 @@ class PoshRuntime
     SharedMemoryUser m_ShmInterface;
     popo::ApplicationPort m_applicationPort;
 
-    void sendKeepAlive() noexcept;
+    std::atomic<bool> m_shutdownRequested{false};
+    void sendKeepAliveAndHandleShutdownPreparation() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
     /// @note the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
-    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{concurrent::PeriodicTaskAutoStart,
-                                                                        PROCESS_KEEP_ALIVE_INTERVAL,
-                                                                        "KeepAlive",
-                                                                        *this,
-                                                                        &PoshRuntime::sendKeepAlive};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{
+        concurrent::PeriodicTaskAutoStart,
+        PROCESS_KEEP_ALIVE_INTERVAL,
+        "KeepAlive",
+        *this,
+        &PoshRuntime::sendKeepAliveAndHandleShutdownPreparation};
 };
 
 } // namespace runtime

@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
@@ -24,12 +25,12 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::popo;
 using namespace iox::mepoo;
@@ -155,6 +156,28 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
         auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getUserPayload());
         EXPECT_THAT(data, Eq(i));
     }
+}
+
+TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler)
+{
+    auto chunk = this->allocateChunk();
+    // this is currently the only possibility to test an invalid CHUNK_HEADER_VERSION
+    auto chunkHeaderAddress = reinterpret_cast<uint64_t>(chunk.getChunkHeader());
+    auto chunkHeaderVersionAddress = chunkHeaderAddress + sizeof(uint32_t);
+    auto chunkHeaderVersionPointer = reinterpret_cast<uint8_t*>(chunkHeaderVersionAddress);
+    *chunkHeaderVersionPointer = std::numeric_limits<uint8_t>::max();
+
+    this->m_pusher.push(chunk);
+
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            receivedError = error;
+            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
+        });
+
+    EXPECT_FALSE(this->m_popper.tryPop().has_value());
+    EXPECT_EQ(receivedError, iox::Error::kPOPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION);
 }
 
 TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
@@ -347,15 +370,17 @@ TYPED_TEST(ChunkQueueSoFi_test, InitialNoLostChunks)
 
 TYPED_TEST(ChunkQueueSoFi_test, IndicateALostChunk)
 {
-    this->m_pusher.lostAChunk();    
+    this->m_pusher.lostAChunk();
 
     EXPECT_TRUE(this->m_popper.hasLostChunks());
 }
 
 TYPED_TEST(ChunkQueueSoFi_test, LostChunkInfoIsResetAfterRead)
 {
-    this->m_pusher.lostAChunk();    
+    this->m_pusher.lostAChunk();
     this->m_popper.hasLostChunks();
 
     EXPECT_FALSE(this->m_popper.hasLostChunks());
 }
+
+} // namespace

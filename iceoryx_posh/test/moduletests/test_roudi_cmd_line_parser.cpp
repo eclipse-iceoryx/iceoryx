@@ -21,7 +21,6 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 
 using namespace ::testing;
-using ::testing::Return;
 
 using namespace iox::roudi;
 using namespace iox::config;
@@ -43,9 +42,7 @@ bool operator==(const CmdLineArgs_t& lhs, const CmdLineArgs_t& rhs)
 } // namespace config
 } // namespace iox
 
-namespace iox
-{
-namespace test
+namespace
 {
 class CmdLineParser_test : public Test
 {
@@ -475,6 +472,5 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     EXPECT_TRUE(result.value().run);
 }
 
-} // namespace test
-} // namespace iox
+} // namespace
 #endif

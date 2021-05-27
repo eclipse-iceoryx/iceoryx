@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,15 @@
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/timer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <cstdint>
 
@@ -109,8 +109,13 @@ PoshRuntime::~PoshRuntime() noexcept
         }
         else
         {
-            LogError() << "Got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
+            LogError() << "Got wrong response from IPC channel for IpcMessageType::TERMINATION:'"
+                       << receiveBuffer.getMessage() << "'";
         }
+    }
+    else
+    {
+        LogError() << "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'";
     }
 }
 
@@ -120,17 +125,17 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
     if (!name.has_value())
     {
         LogError() << "Cannot initialize runtime. Application name has not been specified!";
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_NO_NAME_PROVIDED, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->empty())
     {
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_NAME_EMPTY, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->c_str()[0] == '/')
     {
         LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED, nullptr, ErrorLevel::FATAL);
     }
 
     return *name.value();
@@ -139,6 +144,11 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
 RuntimeName_t PoshRuntime::getInstanceName() const noexcept
 {
     return m_appName;
+}
+
+void PoshRuntime::shutdown() noexcept
+{
+    m_shutdownRequested.store(true, std::memory_order_relaxed);
 }
 
 const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noexcept
@@ -187,9 +197,9 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << options.nodeName << std::to_string(options.offerOnCreate)
-               << std::to_string(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyCapacity)
+               << options.nodeName << cxx::convert::toString(options.offerOnCreate)
+               << cxx::convert::toString(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -213,6 +223,12 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
+            break;
+        case IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. RouDi did not find a writable shared memory segment for the current "
+                         "user. Try using another user or adapt RouDi's config.";
+            errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Undefined behavior occurred while creating service '"
@@ -293,9 +309,10 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << options.nodeName << std::to_string(options.subscribeOnCreate)
-               << std::to_string(static_cast<uint8_t>(options.queueFullPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyRequest)
+               << cxx::convert::toString(options.queueCapacity) << options.nodeName
+               << cxx::convert::toString(options.subscribeOnCreate)
+               << cxx::convert::toString(static_cast<uint8_t>(options.queueFullPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
@@ -589,11 +606,44 @@ bool PoshRuntime::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) 
 }
 
 // this is the callback for the m_keepAliveTimer
-void PoshRuntime::sendKeepAlive() noexcept
+void PoshRuntime::sendKeepAliveAndHandleShutdownPreparation() noexcept
 {
     if (!m_ipcChannelInterface.sendKeepalive())
     {
         LogWarn() << "Error in sending keep alive";
+    }
+
+    // this is not the nicest solution, but we cannot send this in the signal handler where m_shutdownRequested is
+    // usually set; luckily the runtime already has a thread running and therefore this thread is used to unblock the
+    // application shutdown from a potentially blocking publisher with the
+    // SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
+    if (m_shutdownRequested.exchange(false, std::memory_order_relaxed))
+    {
+        // Inform RouDi to prepare for app shutdown
+        IpcMessage sendBuffer;
+        sendBuffer << IpcMessageTypeToString(IpcMessageType::PREPARE_APP_TERMINATION) << m_appName;
+        IpcMessage receiveBuffer;
+
+        if (m_ipcChannelInterface.sendRequestToRouDi(sendBuffer, receiveBuffer)
+            && (1U == receiveBuffer.getNumberOfElements()))
+        {
+            std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
+
+            if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::PREPARE_APP_TERMINATION_ACK)
+            {
+                LogVerbose() << "RouDi unblocked shutdown of " << m_appName << ".";
+            }
+            else
+            {
+                LogError() << "Got wrong response from IPC channel for PREPARE_APP_TERMINATION:'"
+                           << receiveBuffer.getMessage() << "'";
+            }
+        }
+        else
+        {
+            LogError() << "Sending IpcMessageType::PREPARE_APP_TERMINATION to RouDi failed:'"
+                       << receiveBuffer.getMessage() << "'";
+        }
     }
 }
 

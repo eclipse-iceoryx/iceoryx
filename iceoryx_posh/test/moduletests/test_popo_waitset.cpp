@@ -15,28 +15,28 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
 #include <chrono>
 #include <memory>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
+
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
-namespace
-{
 class WaitSetTest : public iox::popo::WaitSet<>
 {
   public:
@@ -185,7 +185,7 @@ class WaitSet_test : public Test
             return m_stateHandle.getUniqueId();
         }
 
-        uint64_t getUniqueEventId() const
+        uint64_t getUniqueNotificationId() const
         {
             return m_eventHandle.getUniqueId();
         }
@@ -216,6 +216,8 @@ class WaitSet_test : public Test
 
         SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
         SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
+        uint64_t* m_contextData1 = nullptr;
+        uint64_t* m_contextData2 = nullptr;
         bool m_autoResetTrigger = true;
         bool m_isEventBased = false;
     };
@@ -231,6 +233,20 @@ class WaitSet_test : public Test
     static void triggerCallback2(WaitSet_test::SimpleEventClass* const waitset)
     {
         waitset->m_triggerCallbackArgument2 = waitset;
+    }
+
+    static void triggerCallback1WithContextData(WaitSet_test::SimpleEventClass* const waitset,
+                                                uint64_t* const contextData)
+    {
+        waitset->m_triggerCallbackArgument1 = waitset;
+        waitset->m_contextData1 = contextData;
+    }
+
+    static void triggerCallback2WithContextData(WaitSet_test::SimpleEventClass* const waitset,
+                                                uint64_t* const contextData)
+    {
+        waitset->m_triggerCallbackArgument2 = waitset;
+        waitset->m_contextData2 = contextData;
     }
 
     void SetUp() override
@@ -250,15 +266,15 @@ class WaitSet_test : public Test
     {
     }
 
-    template <uint64_t EventInfoVectorCapacity, typename EventOrigin>
-    static bool
-    doesEventInfoVectorContain(const iox::cxx::vector<const EventInfo*, EventInfoVectorCapacity>& eventInfoVector,
-                               const uint64_t eventId,
-                               const EventOrigin& origin)
+    template <uint64_t NotificationInfoVectorCapacity, typename EventOrigin>
+    static bool doesNotificationInfoVectorContain(
+        const iox::cxx::vector<const NotificationInfo*, NotificationInfoVectorCapacity>& eventInfoVector,
+        const uint64_t eventId,
+        const EventOrigin& origin)
     {
         for (auto& e : eventInfoVector)
         {
-            if (e->getEventId() == eventId && e->doesOriginateFrom(&origin)
+            if (e->getNotificationId() == eventId && e->doesOriginateFrom(&origin)
                 && e->template getOrigin<EventOrigin>() == &origin)
             {
                 return true;
@@ -380,7 +396,6 @@ SimpleState1 WaitSet_test::SimpleEventClass::m_simpleState1 = SimpleState1::INVA
 SimpleState2 WaitSet_test::SimpleEventClass::m_simpleState2 = SimpleState2::INVALID;
 SimpleState1 WaitSet_test::SimpleEventClass::m_simpleState1TriggerCallback = SimpleState1::INVALID;
 SimpleState2 WaitSet_test::SimpleEventClass::m_simpleState2TriggerCallback = SimpleState2::INVALID;
-} // namespace
 
 ////////////////////////
 // BEGIN attach / detach
@@ -741,7 +756,7 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[1]).has_error());
     std::vector<uint64_t> uniqueTriggerIds;
-    uniqueTriggerIds.emplace_back(m_simpleEvents[0].getUniqueEventId());
+    uniqueTriggerIds.emplace_back(m_simpleEvents[0].getUniqueNotificationId());
     uniqueTriggerIds.emplace_back(m_simpleEvents[1].getUniqueStateId());
     m_sut.reset();
 
@@ -763,7 +778,7 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenFullWaitsetGoesOutOfScope)
         }
         else
         {
-            uniqueTriggerIds.emplace_back(m_simpleEvents[i].getUniqueEventId());
+            uniqueTriggerIds.emplace_back(m_simpleEvents[i].getUniqueNotificationId());
         }
     }
     m_sut.reset();
@@ -890,7 +905,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 }
 
 void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
-                                         const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+                                         const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
@@ -901,7 +916,7 @@ void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
 
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(1U));
-    EXPECT_THAT(triggerVector[0U]->getEventId(), 5U);
+    EXPECT_THAT(triggerVector[0U]->getNotificationId(), 5U);
     EXPECT_TRUE(triggerVector[0U]->doesOriginateFrom(&test->m_simpleEvents[0]));
     EXPECT_EQ(triggerVector[0U]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[0]);
 }
@@ -917,7 +932,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
 }
 
 void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
-    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
@@ -934,7 +949,7 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 
     for (uint64_t i = 0U; i < 24U; ++i)
     {
-        EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, 100U + i, test->m_simpleEvents[i]));
+        EXPECT_TRUE(WaitSet_test::doesNotificationInfoVectorContain(triggerVector, 100U + i, test->m_simpleEvents[i]));
     }
 }
 
@@ -949,8 +964,8 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTrigger
 }
 
 
-void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
-                                                         const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
@@ -967,7 +982,8 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
 
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
-        EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, i * 3U + 2U, test->m_simpleEvents[i]));
+        EXPECT_TRUE(
+            WaitSet_test::doesNotificationInfoVectorContain(triggerVector, i * 3U + 2U, test->m_simpleEvents[i]));
     }
 }
 
@@ -981,10 +997,11 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
     WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
-                                               const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsEventTriggersWithOneCorrectCallback(WaitSet_test* test,
+                                                    const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
-    auto result1 = test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
+    auto result1 = test->m_sut->attachEvent(
+        test->m_simpleEvents[0], 1U, createNotificationCallback(WaitSet_test::triggerCallback1));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
 
@@ -998,21 +1015,29 @@ void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
     EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
 }
 
-TEST_F(WaitSet_test, WaitReturnsTriggersWithOneCorrectCallback)
+TEST_F(WaitSet_test, WaitReturnsEventTriggersWithOneCorrectCallback)
 {
-    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
+    WaitReturnsEventTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
 }
 
-TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallback)
+TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallback)
 {
-    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
+    WaitReturnsEventTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
-                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
-    auto result1 = test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
-    auto result2 = test->m_sut->attachEvent(test->m_simpleEvents[1], 2U, &WaitSet_test::triggerCallback2);
+    uint64_t contextData1 = 0U;
+    uint64_t contextData2 = 0U;
+    auto result1 = test->m_sut->attachEvent(
+        test->m_simpleEvents[0],
+        1U,
+        createNotificationCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
+    auto result2 = test->m_sut->attachEvent(
+        test->m_simpleEvents[1],
+        2U,
+        createNotificationCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
     ASSERT_THAT(result2.has_error(), Eq(false));
@@ -1028,19 +1053,92 @@ void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
 
     EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
     EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
+    EXPECT_THAT(test->m_simpleEvents[0].m_contextData1, Eq(&contextData1));
+    EXPECT_THAT(test->m_simpleEvents[1].m_contextData2, Eq(&contextData2));
 }
 
-TEST_F(WaitSet_test, WaitReturnsTriggersWithTwoCorrectCallbacks)
+TEST_F(WaitSet_test, WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData)
 {
-    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut->wait(); });
+    WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->wait(); });
 }
 
-TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallbacks)
+TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData)
 {
-    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut->timedWait(10_ms); });
+    WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-void NonResetStatesAreReturnedAgain(WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsStateTriggersWithOneCorrectCallback(WaitSet_test* test,
+                                                    const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
+{
+    auto result1 = test->m_sut->attachState(
+        test->m_simpleEvents[0], 1U, createNotificationCallback(WaitSet_test::triggerCallback1));
+
+    ASSERT_THAT(result1.has_error(), Eq(false));
+
+    test->m_simpleEvents[0].trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(1U));
+
+    (*triggerVector[0U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
+}
+
+TEST_F(WaitSet_test, WaitReturnsStateTriggersWithOneCorrectCallback)
+{
+    WaitReturnsStateTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsStateTriggersWithTwoCorrectCallback)
+{
+    WaitReturnsStateTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
+}
+
+void WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
+{
+    uint64_t contextData1 = 0U;
+    uint64_t contextData2 = 0U;
+    auto result1 = test->m_sut->attachState(
+        test->m_simpleEvents[0],
+        1U,
+        createNotificationCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
+    auto result2 = test->m_sut->attachState(
+        test->m_simpleEvents[1],
+        2U,
+        createNotificationCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
+
+    ASSERT_THAT(result1.has_error(), Eq(false));
+    ASSERT_THAT(result2.has_error(), Eq(false));
+
+    test->m_simpleEvents[0].trigger();
+    test->m_simpleEvents[1].trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(2U));
+
+    (*triggerVector[0U])();
+    (*triggerVector[1U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
+    EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
+    EXPECT_THAT(test->m_simpleEvents[0].m_contextData1, Eq(&contextData1));
+    EXPECT_THAT(test->m_simpleEvents[1].m_contextData2, Eq(&contextData2));
+}
+
+TEST_F(WaitSet_test, WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData)
+{
+    WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData)
+{
+    WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->timedWait(10_ms); });
+}
+
+void NonResetStatesAreReturnedAgain(WaitSet_test* test,
+                                    const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllStates();
 
@@ -1056,8 +1154,8 @@ void NonResetStatesAreReturnedAgain(WaitSet_test* test, const std::function<Wait
     eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(2U));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 7U, test->m_simpleEvents[7]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 7U, test->m_simpleEvents[7]));
 }
 
 TEST_F(WaitSet_test, NonResetStatesAreReturnedAgainInTimedWait)
@@ -1070,7 +1168,8 @@ TEST_F(WaitSet_test, NonResetStatesAreReturnedAgainInWait)
     NonResetStatesAreReturnedAgain(this, [&] { return m_sut->wait(); });
 }
 
-void TriggeredEventsAreNotReturnedTwice(WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void TriggeredEventsAreNotReturnedTwice(WaitSet_test* test,
+                                        const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllEvents();
 
@@ -1084,7 +1183,7 @@ void TriggeredEventsAreNotReturnedTwice(WaitSet_test* test, const std::function<
     eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(1U));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
 }
 
 TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwiceInTimedWait)
@@ -1099,7 +1198,7 @@ TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwiceInWait)
 }
 
 void InMixSetupOnlyStateTriggerAreReturnedTwice(WaitSet_test* test,
-                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+                                                const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllWithEventStateMix();
 
@@ -1117,7 +1216,7 @@ void InMixSetupOnlyStateTriggerAreReturnedTwice(WaitSet_test* test,
     ASSERT_THAT(eventVector.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET / 2U));
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; i += 2)
     {
-        EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, i, test->m_simpleEvents[i]));
+        EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, i, test->m_simpleEvents[i]));
     }
 }
 
@@ -1133,7 +1232,7 @@ TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwiceInWait)
 }
 
 void WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(
-    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllWithEventStateMix();
 
@@ -1148,8 +1247,8 @@ void WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(
     eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 1U, test->m_simpleEvents[1]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 1U, test->m_simpleEvents[1]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
 }
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgainInTimedWait)
@@ -1164,7 +1263,7 @@ TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAga
 }
 
 void WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(
-    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllWithEventStateMix();
 
@@ -1179,8 +1278,8 @@ void WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(
     eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
 }
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgainInTimedWait)
@@ -1195,7 +1294,7 @@ TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgai
 }
 
 void WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(
-    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+    WaitSet_test* test, const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllWithEventStateMix();
 
@@ -1218,12 +1317,12 @@ void WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(
     eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(6));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 1U, test->m_simpleEvents[1]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 6U, test->m_simpleEvents[6]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 12U, test->m_simpleEvents[12]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 13U, test->m_simpleEvents[13]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 1U, test->m_simpleEvents[1]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 6U, test->m_simpleEvents[6]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 12U, test->m_simpleEvents[12]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 13U, test->m_simpleEvents[13]));
 }
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgainInTimedWait)
@@ -1238,7 +1337,7 @@ TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgainIn
 }
 
 void NotifyingWaitSetTwiceWithSameTriggersWorks(WaitSet_test* test,
-                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+                                                const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
     test->attachAllEvents();
 
@@ -1253,8 +1352,8 @@ void NotifyingWaitSetTwiceWithSameTriggersWorks(WaitSet_test* test,
     eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
-    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 7U, test->m_simpleEvents[7]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesNotificationInfoVectorContain(eventVector, 7U, test->m_simpleEvents[7]));
 }
 
 TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorksInTimedWait)
@@ -1279,7 +1378,7 @@ TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
 
     auto eventVector = m_sut->wait();
     ASSERT_THAT(eventVector.size(), Eq(1));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
+    EXPECT_TRUE(doesNotificationInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
 
     eventVector = m_sut->timedWait(iox::units::Duration::fromMilliseconds(1));
     EXPECT_TRUE(eventVector.empty());
@@ -1298,10 +1397,66 @@ TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWai
 
     auto eventVector = m_sut->wait();
     ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
+    EXPECT_TRUE(doesNotificationInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
+    EXPECT_TRUE(doesNotificationInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
 
     eventVector = m_sut->timedWait(iox::units::Duration::fromMilliseconds(1));
     ASSERT_THAT(eventVector.size(), Eq(1));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
+    EXPECT_TRUE(doesNotificationInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
 }
+
+TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
+{
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
+
+    std::thread t([&] {
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut->wait();
+        triggerVector = m_sut->wait();
+        triggerVector = m_sut->wait();
+        isThreadFinished.store(true);
+    });
+
+    while (!doStartWaiting.load())
+        ;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_sut->markForDestruction();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
+}
+
+TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
+{
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
+
+    std::thread t([&] {
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        isThreadFinished.store(true);
+    });
+
+    while (!doStartWaiting.load())
+        ;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_sut->markForDestruction();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
+}
+
+} // namespace

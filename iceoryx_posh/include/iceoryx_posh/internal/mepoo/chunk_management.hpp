@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 #define IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -31,7 +31,7 @@ namespace mepoo
 class MemPool;
 struct ChunkHeader;
 
-struct alignas(32) ChunkManagement
+struct ChunkManagement
 {
     using base_t = ChunkHeader;
     using referenceCounterBase_t = uint64_t;
@@ -39,12 +39,7 @@ struct alignas(32) ChunkManagement
 
     ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
                     const cxx::not_null<MemPool*> mempool,
-                    const cxx::not_null<MemPool*> chunkManagementPool) noexcept
-        : m_chunkHeader(chunkHeader)
-        , m_mempool(mempool)
-        , m_chunkManagementPool(chunkManagementPool)
-    {
-    }
+                    const cxx::not_null<MemPool*> chunkManagementPool) noexcept;
 
     iox::rp::RelativePointer<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1U};

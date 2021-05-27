@@ -38,9 +38,7 @@ struct NoUserHeader
 {
 };
 
-/// @brief IMPORTANT the alignment MUST be 32 or less since all mempools are
-///         32 byte aligned otherwise we get alignment problems!
-struct alignas(32) ChunkHeader
+struct ChunkHeader
 {
     using UserPayloadOffset_t = uint32_t;
 
@@ -63,9 +61,18 @@ struct alignas(32) ChunkHeader
     ///            - semantic meaning of a member changes
     static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
 
+    /// @brief User-Header id for no user-header
+    static constexpr uint16_t NO_USER_HEADER{0x0000};
+    /// @brief User-Header id for an unknown user-header
+    static constexpr uint16_t UNKNOWN_USER_HEADER{0xFFFF};
+
     /// @brief The ChunkHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the ChunkHeader version
     uint8_t chunkHeaderVersion() const noexcept;
+
+    /// @brief The id of the user-header used by the chunk; if no user-header is used, this is set to NO_USER_HEADER
+    /// @return the user-header id of the chunk
+    uint16_t userHeaderId() const noexcept;
 
     /// @brief Get the pointer to the user-header
     /// @return the pointer to the user-header
@@ -101,25 +108,33 @@ struct alignas(32) ChunkHeader
     /// @return the chunk size
     uint32_t chunkSize() const noexcept;
 
+    /// @brief The size of the chunk occupied by the user-header
+    /// @return the user-header size
+    uint32_t userHeaderSize() const noexcept;
+
     /// @brief The size of the chunk occupied by the user-payload
     /// @return the user-payload size
     uint32_t userPayloadSize() const noexcept;
 
+    /// @brief The alignment of the chunk occupied by the user-payload
+    /// @return the user-payload alignment
+    uint32_t userPayloadAlignment() const noexcept;
+
     /// @brief The unique identifier of the publisher the chunk was sent from
     /// @return the id of the publisher the chunk was sent from
-    UniquePortId originId() const;
+    UniquePortId originId() const noexcept;
 
     /// @brief A serial number for the sent chunks
     /// @brief the serquence number of the chunk
-    uint64_t sequenceNumber() const;
+    uint64_t sequenceNumber() const noexcept;
 
   private:
     template <typename T>
     friend class popo::ChunkSender;
 
-    void setOriginId(UniquePortId originId);
+    void setOriginId(UniquePortId originId) noexcept;
 
-    void setSequenceNumber(uint64_t sequenceNumber);
+    void setSequenceNumber(uint64_t sequenceNumber) noexcept;
 
     uint64_t overflowSafeUsedSizeOfChunk() const noexcept;
 
@@ -133,10 +148,14 @@ struct alignas(32) ChunkHeader
     uint32_t m_chunkSize{0U};
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
     // reserved for future functionality and used to indicate the padding bytes; currently not used and set to `0`
-    uint8_t m_reserved[3]{};
+    uint8_t m_reserved{0};
+    // currently just a placeholder
+    uint16_t m_userHeaderId{NO_USER_HEADER};
     UniquePortId m_originId{popo::InvalidId};
     uint64_t m_sequenceNumber{0U};
+    uint32_t m_userHeaderSize{0U};
     uint32_t m_userPayloadSize{0U};
+    uint32_t m_userPayloadAlignment{1U};
     UserPayloadOffset_t m_userPayloadOffset{sizeof(ChunkHeader)};
 };
 

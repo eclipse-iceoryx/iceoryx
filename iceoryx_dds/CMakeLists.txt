@@ -16,14 +16,9 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "0.99.6")
+set(IOX_VERSION_STRING "1.0.0")
 
-find_package(iceoryx_utils REQUIRED)
-
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
 project(iceoryx_dds VERSION ${IOX_VERSION_STRING})
-#adjust_version()
 
 if(NOT cpptoml_FOUND)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/dds_gateway/cpptoml/prebuild)
@@ -31,10 +26,15 @@ if(NOT cpptoml_FOUND)
     find_package(cpptoml REQUIRED)
 endif()
 
+find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
 
 #
 ########## set variables for export ##########
@@ -64,7 +64,7 @@ add_library(iceoryx_dds
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
-set_target_properties(iceoryx_utils PROPERTIES
+set_target_properties(iceoryx_hoofs PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -81,7 +81,7 @@ target_link_libraries(iceoryx_dds
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_gateway
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
 )
 
 if(USE_CYCLONE_DDS)
@@ -90,6 +90,7 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_dds/dds/cyclone_context.cpp
         source/iceoryx_dds/dds/cyclone_data_reader.cpp
         source/iceoryx_dds/dds/cyclone_data_writer.cpp
+        source/iceoryx_dds/dds/iox_chunk_datagram_header.cpp
     )
 
     # Generate IDL at configure time

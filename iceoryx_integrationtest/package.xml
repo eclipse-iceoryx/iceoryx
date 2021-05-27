@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>iceoryx_integrationtest</name>
-  <version>0.99.6</version>
+  <version>1.0.0</version>
   <description>iceoryx Software Integrationtest</description>
     <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
@@ -17,7 +17,7 @@
   <test_depend>ros_testing</test_depend>
   <test_depend>iceoryx_binding_c</test_depend>
   <test_depend>iceoryx_posh</test_depend>
-  <test_depend>iceoryx_utils</test_depend>
+  <test_depend>iceoryx_hoofs</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

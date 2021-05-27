@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
     <name>iceoryx_binding_c</name>
-    <version>0.99.6</version>
+    <version>1.0.0</version>
     <description>Eclipse iceoryx inter-process-communication (IPC) middleware C-Language Binding</description>
     <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
@@ -13,7 +13,7 @@
     <buildtool_depend>cmake</buildtool_depend>
 
     <build_depend>iceoryx_posh</build_depend>
-    <build_depend>iceoryx_utils</build_depend>
+    <build_depend>iceoryx_hoofs</build_depend>
 
     <doc_depend>doxygen</doc_depend>
 
