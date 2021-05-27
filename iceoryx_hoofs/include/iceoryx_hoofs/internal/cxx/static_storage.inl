@@ -104,7 +104,7 @@ template <uint64_t Capacity, uint64_t Align>
 template <typename T>
 constexpr uint64_t static_storage<Capacity, Align>::allocation_size() noexcept
 {
-    return sizeof(T) + align_mismatch(alignof(m_bytes), alignof(T));
+    return sizeof(T) + align_mismatch(Align, alignof(T));
 }
 
 } // namespace cxx
