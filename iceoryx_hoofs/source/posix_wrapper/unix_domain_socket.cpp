@@ -283,7 +283,8 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         std::cerr
             << "socket: \"" << m_name
-            << "\", timedSend with a timeout != 0 is not supported on MacOS. timedSend will behave like send instead."
+            << "\", timedReceive with a timeout != 0 is not supported on MacOS. timedReceive will behave like receive "
+               "instead."
             << std::endl;
     }
 #endif

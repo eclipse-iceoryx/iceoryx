@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -105,7 +105,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
   private:
     /// @brief c'tor
     /// @param name for the unix domain socket
-    /// @param mode blocking or non_blocking
     /// @param channel side client or server
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
@@ -117,7 +116,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief c'tor
     /// @param NoPathPrefix signalling that this constructor does not add a path prefix
     /// @param name for the unix domain socket
-    /// @param mode blocking or non_blocking
     /// @param channel side client or server
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
@@ -129,7 +127,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
 
     /// @brief initializes the unix domain socket
-    /// @param mode blocking or non_blocking
     /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> initalizeSocket() noexcept;
 

@@ -151,7 +151,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
-TEST_F(UnixDomainSocket_test, UnlinkExistingSocketLeadsIsSuccessful)
+TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
     UnixDomainSocket::UdsName_t socketFileName = UnixDomainSocket::PATH_PREFIX;
     socketFileName.append(cxx::TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
