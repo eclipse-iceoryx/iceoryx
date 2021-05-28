@@ -55,7 +55,26 @@ UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 
 bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
 {
-    return !name.empty();
+    if (name.empty())
+    {
+        return false;
+    }
+
+    for (uint64_t i = 0; i < name.size(); ++i)
+    {
+        if (!((65 <= name.c_str()[i] && name.c_str()[i] <= 90) ||  // A-Z
+              (97 <= name.c_str()[i] && name.c_str()[i] <= 122) || // a-z
+              (48 <= name.c_str()[i] && name.c_str()[i] <= 57) ||  // 0-9
+              name.c_str()[i] == 45 ||                             // -
+              name.c_str()[i] == 46 ||                             // .
+              name.c_str()[i] == 95                                // _
+              ))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 #if defined(_WIN32)
