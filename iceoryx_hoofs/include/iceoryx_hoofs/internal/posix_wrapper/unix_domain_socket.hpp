@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/un.hpp"
 
