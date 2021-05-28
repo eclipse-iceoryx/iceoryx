@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/posix_wrapper/periodic_timer.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/periodic_timer.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "test.hpp"
 
 #include <chrono>

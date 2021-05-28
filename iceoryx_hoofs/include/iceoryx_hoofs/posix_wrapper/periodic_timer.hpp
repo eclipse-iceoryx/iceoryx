@@ -14,12 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_PERIODIC_TIMER_HPP
-#define IOX_UTILS_PERIODIC_TIMER_HPP
+#ifndef IOX_HOOFS_PERIODIC_TIMER_HPP
+#define IOX_HOOFS_PERIODIC_TIMER_HPP
 
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include <thread>
 
 namespace iox
@@ -119,4 +119,4 @@ class PeriodicTimer
 } // namespace posix
 } // namespace iox
 
-#endif // IOX_UTILS_PERIODIC_TIMER_HPP
+#endif // IOX_HOOFS_PERIODIC_TIMER_HPP

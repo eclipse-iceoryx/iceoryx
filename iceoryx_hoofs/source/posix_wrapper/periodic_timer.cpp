@@ -14,7 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/posix_wrapper/periodic_timer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/periodic_timer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 using namespace iox::units::duration_literals;
 
@@ -34,7 +35,7 @@ PeriodicTimer::PeriodicTimer(const iox::units::Duration interval) noexcept
 void PeriodicTimer::start() noexcept
 {
     stop();
-    auto waitResult = m_waitSemaphore.timedWait(m_interval, true);
+    auto waitResult = m_waitSemaphore.timedWait(m_interval);
     cxx::Ensures(!waitResult.has_error());
     m_timeForNextActivation = now().value() + m_interval;
 }
@@ -58,11 +59,11 @@ cxx::expected<units::Duration, TimerErrorCause> PeriodicTimer::now() noexcept
 {
     struct timespec ts;
     auto result =
-        cxx::makeSmartC(clock_gettime, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, CLOCK_REALTIME, &ts);
+        posixCall(clock_gettime)(CLOCK_REALTIME, &ts).failureReturnValue(-1).evaluate();
 
-    if (result.hasErrors())
+    if (result.has_error())
     {
-        return createErrorCodeFromErrNo(result.getErrNum());
+        return createErrorCodeFromErrNo(result.get_error().errnum);
     }
 
     return cxx::success<units::Duration>(ts);
@@ -96,7 +97,7 @@ cxx::expected<iox::posix::WaitResult, TimerErrorCause> PeriodicTimer::wait(Timer
                     m_timeForNextActivation = m_timeForNextActivation + m_interval; // Skip to the next activation
                 }
                 auto timeDiff = m_timeForNextActivation - now().value(); // calculate remaining time for activation
-                auto waitResult = m_waitSemaphore.timedWait(timeDiff, true);
+                auto waitResult = m_waitSemaphore.timedWait(timeDiff);
                 if (waitResult.has_error())
                 {
                     return cxx::error<TimerErrorCause>(TimerErrorCause::INTERNAL_LOGIC_ERROR);
@@ -118,7 +119,7 @@ cxx::expected<iox::posix::WaitResult, TimerErrorCause> PeriodicTimer::wait(Timer
         else
         {
             auto actualWaitDuration = m_timeForNextActivation - now().value();
-            auto waitResult = m_waitSemaphore.timedWait(actualWaitDuration, true);
+            auto waitResult = m_waitSemaphore.timedWait(actualWaitDuration);
             if (waitResult.has_error())
             {
                 return cxx::error<TimerErrorCause>(TimerErrorCause::INTERNAL_LOGIC_ERROR);
