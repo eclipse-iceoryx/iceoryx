@@ -55,14 +55,21 @@ jobs:
       - name: Build and install dependencies
       # tinfo library which is required by iceoryx_introspection isn't available in mac
         run: |
-          brew install bison
           brew install ncurses
+          cd $GITHUB_WORKSPACE
+          mkdir -p build
+          cd build
+          git clone https://git.savannah.gnu.org/git/bison.git
+          cd bison
+          git checkout v3.5.1
+          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/
+          make
+          make install
 
       - name: Build
         run: |
-          export LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/ncurses/lib"
+          export LDFLAGS="-L/usr/local/opt/ncurses/lib"
           export CFLAGS="-I/usr/local/opt/ncurses/include"
-          export PATH="/usr/local/opt/bison/bin:$PATH"
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize
 
       - name: Run tests
