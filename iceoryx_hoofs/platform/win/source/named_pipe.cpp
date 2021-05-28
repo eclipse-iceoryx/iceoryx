@@ -114,7 +114,7 @@ NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeout
     LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
     DWORD defaultAttributes = 0;
     HANDLE noTemplateFile = NULL;
-    m_handle = CreateFileA(name.c_str(),
+    m_handle = CreateFileA(pipeName.c_str(),
                            GENERIC_READ | GENERIC_WRITE,
                            disableSharing,
                            noSecurityAttributes,
