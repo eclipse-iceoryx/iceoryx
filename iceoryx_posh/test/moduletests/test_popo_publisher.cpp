@@ -21,13 +21,11 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-// anonymous namespace to prevent linker issues or sanitizer false positives
-// if a struct with the same name is used in other tests
-namespace
-{
 struct DummyData
 {
     DummyData() = default;
@@ -42,7 +40,6 @@ struct DummyData
     };
     uint64_t val{defaultVal()};
 };
-} // namespace
 
 using TestPublisher = iox::popo::PublisherImpl<DummyData, iox::mepoo::NoUserHeader, MockBasePublisher<DummyData>>;
 
@@ -104,28 +101,6 @@ TEST_F(PublisherTest, LoanWithArgumentsCallsCustomCtor)
     ASSERT_FALSE(result.has_error());
     EXPECT_EQ(result.value()->val, CUSTOM_VALUE);
     EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader()));
-    // ===== Cleanup ===== //
-}
-
-TEST_F(PublisherTest, LoanPreviousSampleSucceeds)
-{
-    EXPECT_CALL(portMock, tryGetPreviousChunk())
-        .WillOnce(Return(ByMove(iox::cxx::optional<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousSample();
-    // ===== Verify ===== //
-    EXPECT_TRUE(result.has_value());
-    EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader()));
-    // ===== Cleanup ===== //
-}
-
-TEST_F(PublisherTest, LoanPreviousSampleFails)
-{
-    EXPECT_CALL(portMock, tryGetPreviousChunk()).WillOnce(Return(ByMove(iox::cxx::nullopt)));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousSample();
-    // ===== Verify ===== //
-    EXPECT_FALSE(result.has_value());
     // ===== Cleanup ===== //
 }
 
@@ -321,3 +296,5 @@ TEST_F(PublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublisherPor
     // ===== Test ===== //
     sut.getServiceDescription();
 }
+
+} // namespace

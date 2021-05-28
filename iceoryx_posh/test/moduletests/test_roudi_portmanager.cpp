@@ -15,26 +15,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
-
-#include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
-
 #include "iceoryx_utils/testing/watch_dog.hpp"
+
+#include "test.hpp"
 
 #include <cstdint>
 #include <limits> // std::numeric_limits
 
+namespace
+{
 using namespace ::testing;
-using ::testing::Return;
 
 using iox::popo::PublisherOptions;
 using iox::popo::PublisherPortUser;
@@ -83,8 +83,11 @@ class PortManager_test : public Test
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
         auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-        m_payloadDataSegmentMemoryManager =
-            m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
+        auto segmentInfo =
+            m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
+        ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());
+
+        m_payloadDataSegmentMemoryManager = &segmentInfo.m_memoryManager.value().get();
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_portManager->stopPortIntrospection();
@@ -135,7 +138,7 @@ class PortManager_test : public Test
     {
         for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
         {
-            auto newProcessName = runtimeName + std::to_string(i);
+            auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto interfacePort = m_portManager->acquireInterfacePortData(
                 iox::capro::Interfaces::INTERNAL, iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
             ASSERT_NE(interfacePort, nullptr);
@@ -152,7 +155,7 @@ class PortManager_test : public Test
     {
         for (unsigned int i = 0; i < iox::MAX_PROCESS_NUMBER; i++)
         {
-            auto newProcessName = runtimeName + std::to_string(i);
+            auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto applicationPort = m_portManager->acquireApplicationPortData(
                 iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
             ASSERT_NE(applicationPort, nullptr);
@@ -169,7 +172,7 @@ class PortManager_test : public Test
     {
         for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
         {
-            auto newProcessName = runtimeName + std::to_string(i);
+            auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto condVar = m_portManager->acquireConditionVariableData(
                 iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
             ASSERT_FALSE(condVar.has_error());
@@ -188,8 +191,9 @@ class PortManager_test : public Test
     {
         for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
         {
-            iox::RuntimeName_t newProcessName(iox::cxx::TruncateToCapacity, runtimeName + std::to_string(i));
-            iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, nodeName + std::to_string(i));
+            iox::RuntimeName_t newProcessName(iox::cxx::TruncateToCapacity,
+                                              runtimeName + iox::cxx::convert::toString(i));
+            iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, nodeName + iox::cxx::convert::toString(i));
             auto node = m_portManager->acquireNodeData(newProcessName, newNodeName);
             ASSERT_FALSE(node.has_error());
             if (f)
@@ -411,7 +415,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 
         bool errorHandlerCalled = false;
         auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-            [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+            [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
 
@@ -439,7 +443,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 
         bool errorHandlerCalled = false;
         auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-            [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+            [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
         auto subscriberPortDataResult =
@@ -556,7 +560,7 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        auto newProcessName = runtimeName + std::to_string(testi);
+        auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeInterfaceData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
 
@@ -613,7 +617,7 @@ TEST_F(PortManager_test, DeleteApplicationPortfromMaximumNumberAndAddOneIsSucces
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        auto newruntimeName = runtimeName + std::to_string(testi);
+        auto newruntimeName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeApplicationData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newruntimeName));
 
@@ -672,7 +676,7 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        auto newProcessName = runtimeName + std::to_string(testi);
+        auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeConditionVariableData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
 
@@ -741,8 +745,8 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
     // delete one and add one NodeData should be possible now
     unsigned int i = 0U;
-    iox::RuntimeName_t newProcessName(iox::cxx::TruncateToCapacity, runtimeName + std::to_string(i));
-    iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, nodeName + std::to_string(i));
+    iox::RuntimeName_t newProcessName(iox::cxx::TruncateToCapacity, runtimeName + iox::cxx::convert::toString(i));
+    iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, nodeName + iox::cxx::convert::toString(i));
     // this is done because there is no removeNodeData method in the PortManager class
     m_portManager->deletePortsOfProcess(newProcessName);
 
@@ -761,7 +765,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
 
     // first acquire all possible NodeData
     acquireMaxNumberOfNodes(
-        nodeName, runtimeName, [&](auto node, auto newNodeName [[gnu::unused]], auto newProcessName [[gnu::unused]]) {
+        nodeName, runtimeName, [&](auto node, auto newNodeName IOX_MAYBE_UNUSED, auto newProcessName IOX_MAYBE_UNUSED) {
             nodeContainer.push_back(node);
         });
 
@@ -1030,3 +1034,5 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
 
     EXPECT_EQ(serviceCounter->load(), initialCount + 1);
 }
+
+} // namespace

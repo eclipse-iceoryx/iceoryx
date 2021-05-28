@@ -47,15 +47,28 @@ namespace
 {
 iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
+void* g_contextData = nullptr;
 
 void userTriggerCallback(iox_user_trigger_t userTrigger)
 {
     g_userTriggerCallbackArgument = userTrigger;
 }
 
+void userTriggerCallbackWithContextData(iox_user_trigger_t userTrigger, void* const contextData)
+{
+    g_userTriggerCallbackArgument = userTrigger;
+    g_contextData = contextData;
+}
+
 void subscriberCallback(iox_sub_t subscriber)
 {
     g_subscriberCallbackArgument = subscriber;
+}
+
+void subscriberCallbackWithContextData(iox_sub_t subscriber, void* const contextData)
+{
+    g_subscriberCallbackArgument = subscriber;
+    g_contextData = contextData;
 }
 
 class iox_listener_test : public Test
@@ -74,6 +87,7 @@ class iox_listener_test : public Test
     {
         g_userTriggerCallbackArgument = nullptr;
         g_subscriberCallbackArgument = nullptr;
+        g_contextData = nullptr;
 
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
@@ -249,7 +263,6 @@ TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
     }
 }
 
-
 TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_ATTACHED)
 {
     EXPECT_THAT(iox_listener_attach_subscriber_event(
@@ -268,6 +281,17 @@ TIMING_TEST_F(iox_listener_test, UserTriggerCallbackIsCalledWhenTriggered, Repea
     EXPECT_THAT(g_userTriggerCallbackArgument, Eq(m_userTrigger[0U]));
 });
 
+TIMING_TEST_F(iox_listener_test, UserTriggerCallbackWithContextDataIsCalledWhenTriggered, Repeat(5), [&] {
+    int someContextData;
+    EXPECT_THAT(iox_listener_attach_user_trigger_event_with_context_data(
+                    &m_sut, m_userTrigger[0U], &userTriggerCallbackWithContextData, &someContextData),
+                Eq(iox_ListenerResult::ListenerResult_SUCCESS));
+    iox_user_trigger_trigger(m_userTrigger[0U]);
+    std::this_thread::sleep_for(TIMEOUT);
+    EXPECT_THAT(g_userTriggerCallbackArgument, Eq(m_userTrigger[0U]));
+    EXPECT_THAT(g_contextData, Eq(static_cast<void*>(&someContextData)));
+});
+
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Repeat(5), [&] {
     EXPECT_THAT(iox_listener_attach_subscriber_event(
                     &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
@@ -284,4 +308,28 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
 
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
+});
+
+TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSampleIsReceived, Repeat(5), [&] {
+    int someContextData;
+    EXPECT_THAT(
+        iox_listener_attach_subscriber_event_with_context_data(&m_sut,
+                                                               &m_subscriber[0U],
+                                                               iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
+                                                               &subscriberCallbackWithContextData,
+                                                               &someContextData),
+        Eq(iox_ListenerResult::ListenerResult_SUCCESS));
+
+    Subscribe(m_subscriber[0U]);
+    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
+
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    m_chunkPusher[0U].push(m_memoryManager.getChunk(chunkSettings));
+
+    std::this_thread::sleep_for(TIMEOUT);
+    EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
+    EXPECT_THAT(g_contextData, Eq(static_cast<void*>(&someContextData)));
 });

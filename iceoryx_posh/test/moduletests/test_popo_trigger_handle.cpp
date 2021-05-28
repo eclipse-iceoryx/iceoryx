@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@
 #include "test.hpp"
 #include <thread>
 
+namespace
+{
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
@@ -149,3 +151,4 @@ TEST_F(TriggerHandle_test, wasTriggeredReturnsFalseAfterItWasTriggeredAndTheList
     EXPECT_FALSE(m_sut.wasTriggered());
 }
 
+} // namespace

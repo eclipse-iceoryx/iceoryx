@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 namespace iox
 {
@@ -47,17 +47,10 @@ void SignalGuard::restorePreviousAction() noexcept
     if (m_doRestorePreviousAction)
     {
         m_doRestorePreviousAction = false;
-        if (cxx::makeSmartC(sigaction,
-                            cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                            {0},
-                            {},
-                            static_cast<int>(m_signal),
-                            &m_previousAction,
-                            nullptr)
-                .hasErrors())
-        {
-            std::cerr << "Unable to restore the previous signal handling state!" << std::endl;
-        }
+        posixCall(sigaction)(static_cast<int>(m_signal), &m_previousAction, nullptr)
+            .successReturnValue(0)
+            .evaluate()
+            .or_else([](auto&) { std::cerr << "Unable to restore the previous signal handling state!" << std::endl; });
     }
 }
 
@@ -67,7 +60,7 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
     struct sigaction action;
 
     // sigemptyset fails when a nullptr is provided and this should never happen with this logic
-    if (cxx::makeSmartC(sigemptyset, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &action.sa_mask).hasErrors())
+    if (posixCall(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
     {
         std::cerr << "This should never happen! Unable to create an empty sigaction set while registering a signal "
                      "handler for the signal ["
@@ -82,14 +75,10 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
 
     // sigaction fails when action is a nullptr (which we ensure that its not) or when the signal SIGSTOP or SIGKILL
     // should be registered which can also never happen - ensured by the enum class.
-    if (cxx::makeSmartC(sigaction,
-                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                        {0},
-                        {},
-                        static_cast<int>(signal),
-                        &action,
-                        &previousAction)
-            .hasErrors())
+    if (posixCall(sigaction)(static_cast<int>(signal), &action, &previousAction)
+            .successReturnValue(0)
+            .evaluate()
+            .has_error())
     {
         std::cerr << "This should never happen! An error occurred while registering a signal handler for the signal ["
                   << static_cast<int>(signal) << "]. " << std::endl;

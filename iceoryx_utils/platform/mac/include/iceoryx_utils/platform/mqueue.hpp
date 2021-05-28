@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,11 +46,6 @@ inline int mq_close(mqd_t)
     return 0;
 }
 
-inline mqd_t mq_open(const char*, int, mode_t, struct mq_attr*)
-{
-    return 0;
-}
-
 inline ssize_t mq_receive(mqd_t, char*, size_t, unsigned int*)
 {
     return 0;
@@ -64,5 +60,16 @@ inline int mq_unlink(const char*)
 {
     return 0;
 }
+
+inline mqd_t iox_mq_open2(const char*, int)
+{
+    return 0;
+}
+
+inline mqd_t iox_mq_open4(const char*, int, mode_t, struct mq_attr*)
+{
+    return 0;
+}
+
 
 #endif // IOX_UTILS_MAC_PLATFORM_MQUEUE_HPP

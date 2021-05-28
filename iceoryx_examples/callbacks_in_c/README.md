@@ -18,7 +18,7 @@ and at the Glossary of the
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
+[![asciicast](https://asciinema.org/a/407369.svg)](https://asciinema.org/a/407369)
 
 ## Code Walkthrough
 
@@ -186,6 +186,62 @@ the `rightCache` afterward.
         leftCache.isSet = false;
         rightCache.isSet = false;
     }
+```
+
+### Additional context data for callbacks (ice_c_callbacks_with_context_data.c)
+
+Sometimes you would like to modify data structures within the callback which 
+are not globally available. To facilitate this we implemented functions called 
+`iox_listener_attach_***_event_with_context_data` which are enabling you to 
+to provide an additional void pointer to the callback as second argument.
+
+The following example is a simplified version of the 
+[ice_c_callbacks_subscriber.c](#ice_c_callbacks_subscriber.c) example where we 
+removed the cyclic heartbeat trigger. The key difference is that we have 
+a local variable called `counterService` in which we store the `leftCache` 
+and `rightCache` and we let the callback update that variable directly.
+
+```c
+int main()
+{
+    //...
+
+    CounterService counterService;
+    counterService.leftCache.isSet = false;
+    counterService.rightCache.isSet = false;
+```
+
+The callback gets an additional void pointer argument which we cast then to 
+our CounterService to perform the same tasks as in the previous example but now 
+on `CounterService * self`.
+
+```c 
+void onSampleReceivedCallback(iox_sub_t subscriber, void* contextData)
+{
+    if (contextData == NULL)
+    {
+        fprintf(stderr, "aborting subscriberCallback since contextData is a null pointer\n");
+        return;
+    }
+
+    CounterService* self = (CounterService*)contextData;
+    // ...
+```
+
+Finally, we have to attach both subscribers and provide the pointer to `counterService`
+as additional argument so that we can access it in the callback.
+
+!!! attention 
+    The user has to ensure that the contextData (`&counterService`) in 
+    `iox_listener_attach_subscriber_event_with_context_data` 
+    lives as long as the attachment, with its callback is, attached otherwise 
+    the callback context data pointer is dangling.
+
+```c 
+iox_listener_attach_subscriber_event_with_context_data(
+    listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback, &counterService);
+iox_listener_attach_subscriber_event_with_context_data(
+    listener, subscriberRight, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback, &counterService);
 ```
 
 <center>

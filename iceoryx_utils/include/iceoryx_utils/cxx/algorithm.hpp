@@ -17,8 +17,6 @@
 #ifndef IOX_UTILS_CXX_ALGORITHM_HPP
 #define IOX_UTILS_CXX_ALGORITHM_HPP
 
-#include "iceoryx_utils/cxx/vector.hpp"
-
 #include <cstdint>
 #include <type_traits>
 

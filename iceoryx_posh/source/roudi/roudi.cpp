@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,10 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
+    , m_prcMgr(concurrent::ForwardArgsToCTor,
+               *m_roudiMemoryInterface,
+               portManager,
+               roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
@@ -101,8 +104,16 @@ void RouDi::shutdown()
 
         m_prcMgr->requestShutdownOfAllProcesses();
 
+        using namespace units::duration_literals;
+        auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
         while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
         {
+            if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
+            {
+                LogWarn() << "Some applications seem to not shutdown gracefully! Time until hard shutdown: "
+                          << finalKillTimer.remainingTime().toSeconds() << "s!";
+                remainingDurationForWarnPrint = remainingDurationForWarnPrint - 5_s;
+            }
             // give processes some time to terminate
             std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
         }
@@ -224,11 +235,33 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
             popo::PublisherOptions options;
-            options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+            uint64_t historyCapacity{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
+                           << message.getElementAtIndex(3).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.historyCapacity = historyCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
-            options.offerOnCreate = (0U == std::stoull(message.getElementAtIndex(5))) ? false : true;
-            options.subscriberTooSlowPolicy =
-                static_cast<popo::SubscriberTooSlowPolicy>(std::stoul(message.getElementAtIndex(6)));
+
+            uint64_t offerOnCreate{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
+                           << message.getElementAtIndex(5).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.offerOnCreate = (0U == offerOnCreate) ? false : true;
+
+            uint8_t subscriberTooSlowPolicy{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
+                           << message.getElementAtIndex(6).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.subscriberTooSlowPolicy = static_cast<popo::SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
 
             m_prcMgr->addPublisherForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -249,11 +282,41 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
 
             popo::SubscriberOptions options;
-            options.historyRequest = std::stoull(message.getElementAtIndex(3));
-            options.queueCapacity = std::stoull(message.getElementAtIndex(4));
+            uint64_t historyRequest;
+            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(3).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.historyRequest = historyRequest;
+            uint64_t queueCapacity;
+            if (!cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(4).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.queueCapacity = queueCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
-            options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
-            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
+
+            uint32_t subscribeOnCreate;
+            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(6).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
+
+            uint8_t queueFullPolicy{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(7).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(queueFullPolicy);
 
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));

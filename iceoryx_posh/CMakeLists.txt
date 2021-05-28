@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.7")
+set(IOX_VERSION_STRING "1.0.0")
 
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 
@@ -82,12 +82,14 @@ add_library(iceoryx_posh
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
     source/mepoo/chunk_header.cpp
+    source/mepoo/chunk_management.cpp
     source/mepoo/chunk_settings.cpp
     source/mepoo/mepoo_config.cpp
     source/mepoo/segment_config.cpp
     source/mepoo/memory_manager.cpp
     source/mepoo/mem_pool.cpp
     source/mepoo/shared_chunk.cpp
+    source/mepoo/shm_safe_unmanaged_chunk.cpp
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
@@ -111,14 +113,13 @@ add_library(iceoryx_posh
     source/popo/ports/server_port_data.cpp
     source/popo/ports/server_port_roudi.cpp
     source/popo/ports/server_port_user.cpp
-    source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/condition_listener.cpp
     source/popo/building_blocks/condition_notifier.cpp
     source/popo/building_blocks/condition_variable_data.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
     source/popo/listener.cpp
-    source/popo/event_info.cpp
+    source/popo/notification_info.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
     source/popo/user_trigger.cpp

@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.7")
+set(IOX_VERSION_STRING "1.0.0")
 
 
 #include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxVersion.cmake")
@@ -179,6 +179,7 @@ add_library(iceoryx_utils
     source/units/duration.cpp
     source/relocatable_pointer/base_relative_pointer.cpp
     source/relocatable_pointer/base_relocatable_pointer.cpp
+    source/relocatable_pointer/relative_pointer_data.cpp
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)

@@ -35,33 +35,36 @@ Framing with terminology
 - iceoryx runs on multiple platforms -> endianness of recorded chunks might differ
 - for tracing, a chunk should be uniquely identifiable -> store origin and sequence number
 - the chunk is located in the shared memory, which will be mapped to arbitrary positions in the address space of various processes -> no absolute pointer are allowed
-- aligning the `ChunkHeader` to 32 bytes will ensure that all member are on the same cache line and will improve performance
 - in order to reduce complexity, the alignment of the user-header must not exceed the alignment of the `ChunkHeader`
 
 ### Solution
 
 #### ChunkHeader Definition
 ```
-struct alignas(32) ChunkHeader
+class ChunkHeader
 {
     uint32_t chunkSize;
     uint8_t chunkHeaderVersion;
-    uint8_t reserved1;
-    uint8_t reserved2;
-    uint8_t reserved3;
+    uint8_t reserved{0};
+    uint16_t userHeaderId;
     uint64_t originId;
     uint64_t sequenceNumber;
-    uint32_t userPayloadSize;
+    uint32_t userHeaderSize{0U};
+    uint32_t userPayloadSize{0U};
+    uint32_t userPayloadAlignment{1U};
     uint32_t userPayloadOffset;
 };
 ```
 
 - **chunkSize** is the size of the whole chunk
 - **chunkHeaderVersion** is used to detect incompatibilities for record&replay functionality
-- **reserved1**, **reserved2**, **reserved3** are currently not used and set to `0`
+- **reserved** is currently not used and set to `0`
+- **userHeaderId** is currently not used and set to `NO_USER_HEADER`
 - **originId** is the unique identifier of the publisher the chunk was sent from
 - **sequenceNumber** is a serial number for the sent chunks
+- **userPayloadSize** is the size of the chunk occupied by the user-header
 - **userPayloadSize** is the size of the chunk occupied by the user-payload
+- **userPayloadAlignment** is the alignment of the chunk occupied by the user-payload
 - **userPayloadOffset** is the offset of the user-payload relative to the begin of the chunk
 
 #### Framing
@@ -160,7 +163,7 @@ chunkSize = sizeof(chunkHeader) + userPayloadSize;
 
 2. No user-header and user-payload alignment exceeds the `ChunkHeader` alignment
 
-Worst case scenario is when a part of the `ChunkHeader` crosses the user-payload alignment boundary, so that the user-payload must be aligned to the next boundary. Currently this is not possible, since the size equals the alignment of the `ChunkHeader`. This might change if more member are added to the `ChunkHeader` or the alignment is reduced. The following drawing demonstrates this scenario.
+Worst case scenario is when a part of the `ChunkHeader` crosses the user-payload alignment boundary, so that the user-payload must be aligned to the next boundary. The following drawing demonstrates this scenario.
 
 ```
                                ┌ back-offset
@@ -246,33 +249,7 @@ Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` a
 
 ## Open Issues
 
-- the design was done with the intention to have a user-header of arbitrary size, if the size is limited to e.g. 32 bytes, some things could be simplified
-- publisher/subscriber API proposal
-```
-// publisher
-auto pub = iox::popo::Publisher<MyPayload, MyUserHeader>(serviceDescription);
-pub.loan()
-    .and_then([&](auto& sample) {
-        sample.getHeader()->userHeader<MyUserHeader>()->data = 42;
-        sample->a = 42;
-        sample->b = 13;
-        sample.publish();
-    })
-    .or_else([](iox::popo::AllocationError) {
-        // Do something with error.
-    });
-
-// subscriber
-auto sub = iox::popo::Subscriber<MyPayload, MyUserHeader>(serviceDescription);
-sub->take()
-    .and_then([](auto& sample){
-        std::cout << "User-Header data: " << sample.getHeader()->userHeader<MyUserHeader>()->data << std::endl;
-        std::cout << "User-Payload data: " << static_cast<const MyPayload*>(sample->get())->data << std::endl;
-    });
-```
-    - the publisher/subscriber would have a default parameter for the user-header to be source compatible with our current API
-    - the drawback is that the user could use the wrong user-header. Maybe `Sample` also needs an additional template parameter
-    - additionally, a `ChunkHeaderHook` could be used on the publisher side
+- a `ChunkHeaderHook` could be used on the publisher side
 ```
 template <typename UserHeader>
 class MyChunkHeaderHook : public ChunkHeaderHook
@@ -289,43 +266,6 @@ auto pub = iox::popo::Publisher<MyPayload>(serviceDescription, userHeaderHook);
 ```
         - alternatively, instead of the ChunkHeaderHook class, the publisher could have a method `registerDeliveryHook(std::function<void(ChunkHeader&)>)`
         - allow the user only read access to the `ChunkHeader` and write access to the `UserHeader`
-- untyped publisher/subscriber API proposal
-```
-// publisher option 1
-auto pub = iox::popo::UntypedPublisher<MyUserHeader>(serviceDescription);
-
-// publisher option 2
-auto userHeaderSize = sizeOf(MyUserHeader);
-auto pub = iox::popo::UntypedPublisher(serviceDescription, userHeaderSize);
-
-auto payloadSize = sizeof(MyPayload);
-auto payloadAlignment = alignof(MyPayload);
-pub.loan(payloadSize, payloadAlignment)
-    .and_then([&](auto& sample) {
-        sample.getHeader()->userHeader<MyUserHeader>()->data = 42;
-        auto payload = new (sample.get()) MyPayload();
-        payload->data = 73;
-        sample.publish();
-    })
-    .or_else([](iox::popo::AllocationError) {
-        // Do something with error.
-    });
-
-// subscriber option 1
-auto pub = iox::popo::UntypedPublisher<MyUserHeader>(serviceDescription);
-
-// subscriber option 2
-auto userHeaderSize = sizeOf(MyUserHeader);
-auto pub = iox::popo::UntypedSubscriber(serviceDescription, userHeaderSize);
-sub->take()
-    .and_then([](auto& sample){
-        std::cout << "User-Header data: " << sample.getHeader()->userHeader<MyUserHeader>()->data << std::endl;
-        std::cout << "User-Payload data: " << static_cast<const MyPayload*>(sample->get())->data << std::endl;
-    });
-```
-    - option 1 has the benefit to catch a wrong alignment of the user-header and would be necessary if we make the `Sample` aware of the user-header
-- C bindings
-    - PoC is needed
 - user defined sequence number
     - this can probably be done by a `ChunkHeaderHook`
     - alternatively, a flag could be introduce into the `ChunkHeader`

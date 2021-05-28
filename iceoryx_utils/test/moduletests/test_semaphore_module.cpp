@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 #include "iceoryx_utils/testing/timing_test.hpp"
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
@@ -37,8 +38,10 @@ typedef iox::posix::Semaphore* CreateSemaphore();
 iox::posix::Semaphore* createNamedSemaphore()
 {
     static int i = 10;
-    auto semaphore = iox::posix::Semaphore::create(
-        iox::posix::CreateNamedSemaphore, std::string("/fuuSem" + std::to_string(i++)).c_str(), S_IRUSR | S_IWUSR, 0);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore,
+                                                   std::string("/fuuSem" + iox::cxx::convert::toString(i++)).c_str(),
+                                                   S_IRUSR | S_IWUSR,
+                                                   0);
     return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
 }
 
@@ -222,7 +225,7 @@ TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
 
     for (int i = 0; i < 12; ++i)
     {
-        auto call = sut->timedWait(timeToWait, false);
+        auto call = sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
@@ -237,7 +240,7 @@ TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)
     const iox::units::Duration timeToWait = 2_us;
     for (int i = 0; i < 4; ++i)
     {
-        auto call = sut->timedWait(timeToWait, false);
+        auto call = sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
     }
@@ -320,7 +323,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
         auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
         ASSERT_FALSE(syncSemaphore->post().has_error());
         ASSERT_FALSE(sut->wait().has_error());
-        auto call = sut->timedWait(timeout, false);
+        auto call = sut->timedWait(timeout);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
         timedWaitFinish.store(true);
@@ -346,7 +349,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
         auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
         ASSERT_FALSE(syncSemaphore->post().has_error());
         ASSERT_FALSE(sut->wait().has_error());
-        auto call = sut->timedWait(timeout, false);
+        auto call = sut->timedWait(timeout);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
         timedWaitFinish.store(true);

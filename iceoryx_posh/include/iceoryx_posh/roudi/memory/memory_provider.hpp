@@ -43,8 +43,6 @@ enum class MemoryProviderError
     MEMORY_ALREADY_CREATED,
     /// generic error if memory creation failed
     MEMORY_CREATION_FAILED,
-    /// an error occurred while getting the page size
-    PAGE_SIZE_CHECK_ERROR,
     /// attempt to create memory with an alignment bigger than the page size
     MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE,
     /// memory creation failed at allocating memory

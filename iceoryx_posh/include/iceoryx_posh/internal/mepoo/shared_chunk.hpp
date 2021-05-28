@@ -36,7 +36,6 @@ class SharedChunk
   public:
     SharedChunk() = default;
     SharedChunk(ChunkManagement* const resource) noexcept;
-    SharedChunk(const rp::RelativePointer<ChunkManagement>& resource) noexcept;
     ~SharedChunk() noexcept;
 
     SharedChunk(const SharedChunk& rhs) noexcept;
@@ -49,7 +48,6 @@ class SharedChunk
     void* getUserPayload() const noexcept;
 
     ChunkManagement* release() noexcept;
-    iox::rp::RelativePointer<ChunkManagement> releaseWithRelativePtr() noexcept;
 
     bool operator==(const SharedChunk& rhs) const noexcept;
     /// @todo use the newtype pattern to avoid the void pointer
@@ -60,8 +58,6 @@ class SharedChunk
 
     operator bool() const noexcept;
 
-    bool hasNoOtherOwners() const noexcept;
-
     template <typename>
     friend class SharedPointer;
 
@@ -71,7 +67,7 @@ class SharedChunk
     void freeChunk() noexcept;
 
   private:
-    iox::rp::RelativePointer<ChunkManagement> m_chunkManagement;
+    ChunkManagement* m_chunkManagement{nullptr};
 };
 } // namespace mepoo
 } // namespace iox

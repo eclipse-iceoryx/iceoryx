@@ -26,6 +26,8 @@
 
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
@@ -53,15 +55,12 @@ class PoshRuntimeTestAccess : public PoshRuntime
     }
 };
 
-namespace
-{
 bool callbackWasCalled = false;
 PoshRuntime& testFactory(iox::cxx::optional<const iox::RuntimeName_t*> name)
 {
     callbackWasCalled = true;
     return PoshRuntimeTestAccess::getDefaultRuntime(name);
 }
-} // namespace
 
 class PoshRuntime_test : public Test
 {
@@ -101,11 +100,7 @@ class PoshRuntime_test : public Test
     IpcMessage m_receiveBuffer;
     const iox::NodeName_t m_nodeName{"testNode"};
     const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
-    static bool m_errorHandlerCalled;
 };
-
-bool PoshRuntime_test::m_errorHandlerCalled{false};
-
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
@@ -131,12 +126,26 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
-TEST_F(PoshRuntime_test, LeadingSlashAppName)
+// To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
+TEST(PoshRuntime, LeadingSlashAppName)
 {
+    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+
     const iox::RuntimeName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
-                 "Cannot initialize runtime. Please remove leading slash from Application name /miau");
+    auto errorHandlerCalled{false};
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+
+    PoshRuntime::initRuntime(invalidAppName);
+
+    EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED));
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
@@ -726,3 +735,5 @@ TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
     // just in case the previous test doesn't die and breaks the following tests
     PoshRuntimeTestAccess::resetRuntimeFactory();
 }
+
+} // namespace

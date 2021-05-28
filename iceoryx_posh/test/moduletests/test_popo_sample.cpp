@@ -23,13 +23,11 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-// anonymous namespace to prevent linker issues or sanitizer false positives
-// if a struct with the same name is used in other tests
-namespace
-{
 struct DummyData
 {
     DummyData() = default;
@@ -40,7 +38,6 @@ struct DummyHeader
     DummyHeader() = default;
     uint64_t counter = 0;
 };
-} // namespace
 
 template <typename T, typename H = iox::mepoo::NoUserHeader>
 class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
@@ -157,3 +154,5 @@ TEST_F(SampleTest, CallingGetUserHeaderFromConstTypeReturnsCorrectAddress)
 
     // ===== Cleanup ===== //
 }
+
+} // namespace

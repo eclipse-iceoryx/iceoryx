@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 #include "test.hpp"
 
 #include <cstdlib>
@@ -41,17 +41,13 @@ class PosixAccessRights_test : public Test
         fileStream.open(TestFileName, std::fstream::out | std::fstream::trunc);
         fileStream.close();
 
-        auto sysC = iox::cxx::makeSmartC(system,
-                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {-1},
-                                         {},
-                                         std::string("groups > " + TestFileName).c_str());
-
-        if (sysC.hasErrors())
-        {
-            std::cerr << "system call failed with error: " << sysC.getErrorString();
-            exit(EXIT_FAILURE);
-        }
+        iox::posix::posixCall(system)(std::string("groups > " + TestFileName).c_str())
+            .failureReturnValue(-1)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
+                exit(EXIT_FAILURE);
+            });
 
         internal::CaptureStderr();
     }

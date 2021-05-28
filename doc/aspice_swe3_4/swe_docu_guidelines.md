@@ -15,7 +15,7 @@ To generate the documentation you need to install:
 ```bash
 sudo apt install doxygen graphviz texlive-base texlive-font-utils texlive-latex-extra
 ```
-The documentation we use plantuml for describing dynamic behavior in the code (sequence or activity diagrams).
+The documentation we use PlantUML for describing dynamic behavior in the code (sequence or activity diagrams).
 Needed package:
 ```bash
 sudo apt install plantuml
@@ -103,7 +103,7 @@ See the header files under iceoryx/doc/aspice_swe3_4/example.
 
 ### PlantUML
 
-if you want to make complex aspects of your implementation visible, you can write plantuml directly into the 
+if you want to make complex aspects of your implementation visible, you can write PlantUML directly into the 
 doxygen description of your class. An example can be found at [example_base_class.hpp](example/iceoryx_component/source/example_module/example_base_class.hpp)
 
 Having PlantUML installed is not a must. If you want to use it you need to install it, and the variable `PLANTUML_JAR_PATH` needs to be set.

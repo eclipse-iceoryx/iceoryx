@@ -9,33 +9,7 @@ threads that are interacting without starting RouDi every time separately.
 
 ## Run singleprocess
 
-The example can be started with
-
-```sh
-build/iceoryx_examples/singleprocess/single_process
-```
-
-<!-- @todo Replace this with asciinema recording before v1.0-->
-
-After you have started the example you should see an output like
-
-```bash
-Log level set to: [ Error ]
-Reserving 71546016 bytes in the shared memory [/iceoryx_mgmt]
-[ Reserving shared memory successful ]
-Reserving 149655680 bytes in the shared memory [/users]
-[ Reserving shared memory successful ]
-RouDi is ready for clients
-Sending   -> 0
-Sending   -> 1
-Receiving <- 0
-Receiving <- 1
-Sending   -> 2
-Receiving <- 2
-Sending   -> 3
-...
-Finished
-```
+[![asciicast](https://asciinema.org/a/407439.svg)](https://asciinema.org/a/407439)
 
 The first lines until `RouDi is ready for clients` are coming from the RouDi
 startup in which the shared memory management segment and user data segment are
@@ -130,7 +104,7 @@ while (keepRunning.load())
 {
     publisher.loan().and_then([&](auto& sample) {
         sample->counter = counter++;
-        consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
+        consoleOutput(std::string("Sending   " + greenRightArrow + iox::cxx::convert::toString(sample->counter)));
         sample.publish();
     });
 
@@ -165,7 +139,7 @@ while (keepRunning.load())
         {
             subscriber.take()
                 .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
-                    consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
+                    consoleOutput(std::string("Receiving " + orangeLeftArrow + iox::cxx::convert::toString(sample->counter)));
                 })
                 .if_empty([&] { hasMoreSamples = false; })
                 .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });

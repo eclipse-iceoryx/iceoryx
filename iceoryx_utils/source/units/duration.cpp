@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,8 @@
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <utility>
 
@@ -45,13 +48,12 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
     else
     {
         struct timespec referenceTime;
-        auto result = cxx::makeSmartC(clock_gettime,
-                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                      {-1},
-                                      {},
-                                      (reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
-                                      &referenceTime);
-        if (result.hasErrors())
+
+        if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
+                                            &referenceTime)
+                .failureReturnValue(-1)
+                .evaluate()
+                .has_error())
         {
             return {0, 0};
         }

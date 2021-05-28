@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,5 +18,8 @@
 #define IOX_UTILS_LINUX_PLATFORM_MQUEUE_HPP
 
 #include <mqueue.h>
+
+mqd_t iox_mq_open2(const char* name, int oflag);
+mqd_t iox_mq_open4(const char* name, int oflag, mode_t mode, struct mq_attr* attr);
 
 #endif // IOX_UTILS_LINUX_PLATFORM_MQUEUE_HPP

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -125,17 +125,17 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
     if (!name.has_value())
     {
         LogError() << "Cannot initialize runtime. Application name has not been specified!";
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_NO_NAME_PROVIDED, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->empty())
     {
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_NAME_EMPTY, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->c_str()[0] == '/')
     {
         LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED, nullptr, ErrorLevel::FATAL);
     }
 
     return *name.value();
@@ -197,9 +197,9 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << options.nodeName << std::to_string(options.offerOnCreate)
-               << std::to_string(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyCapacity)
+               << options.nodeName << cxx::convert::toString(options.offerOnCreate)
+               << cxx::convert::toString(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -223,6 +223,12 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
+            break;
+        case IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. RouDi did not find a writable shared memory segment for the current "
+                         "user. Try using another user or adapt RouDi's config.";
+            errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Undefined behavior occurred while creating service '"
@@ -303,9 +309,10 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << options.nodeName << std::to_string(options.subscribeOnCreate)
-               << std::to_string(static_cast<uint8_t>(options.queueFullPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyRequest)
+               << cxx::convert::toString(options.queueCapacity) << options.nodeName
+               << cxx::convert::toString(options.subscribeOnCreate)
+               << cxx::convert::toString(static_cast<uint8_t>(options.queueFullPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

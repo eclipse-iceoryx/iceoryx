@@ -17,14 +17,13 @@
 #ifndef IOX_UTILS_CXX_HELPLETS_HPP
 #define IOX_UTILS_CXX_HELPLETS_HPP
 
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/platform/platform_correction.hpp"
-
 #include <assert.h>
 #include <cstdint>
 #include <iostream>
 #include <limits>
 #include <type_traits>
+
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -181,19 +180,6 @@ constexpr size_t maxSize()
     return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
 }
 
-/// @todo better name
-/// create a GenericRAII object to cleanup a static optional object at the end of the scope
-/// @param [in] T memory container which has emplace(...) and reset
-/// @param [in] CTorArgs ctor types for the object to construct
-/// @param [in] memory is a reference to a memory container, e.g. cxx::optional
-/// @param [in] ctorArgs ctor arguments for the object to construct
-/// @return cxx::GenericRAII
-template <typename T, typename... CTorArgs>
-GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs)
-{
-    memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
-    return GenericRAII([] {}, [&memory] { memory.reset(); });
-}
 /// Convert Enum class type to string
 template <typename T, typename Enumeration>
 const char* convertEnumToString(T port, const Enumeration source)
@@ -247,50 +233,6 @@ struct BestFittingType
 
 template <uint64_t Value>
 using BestFittingType_t = typename BestFittingType<Value>::Type_t;
-
-/// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
-/// Purpose is to suppress the unused compiler warning by adding an attribute to the return value
-/// @param[in] expr name of the function where the return value is not used.
-/// @code
-///     uint32_t foo();
-///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
-/// @endcode
-#define IOX_DISCARD_RESULT(expr) static_cast<void>(expr) // NOLINT
-
-/// @brief IOX_NO_DISCARD adds the [[nodiscard]] keyword if it is available for the current compiler.
-///        If additionally the keyword [[gnu::warn_unused]] is present it will be added as well.
-/// @note
-//    [[nodiscard]], [[gnu::warn_unused]] supported since gcc 4.8 (https://gcc.gnu.org/projects/cxx-status.html)
-///   [[nodiscard]], [[gnu::warn_unused]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
-///   activate keywords for gcc>=5 or clang>=4
-#if (defined(__GNUC__) && __GNUC__ >= 5) || (defined(__clang__) && __clang_major >= 4)
-#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
-#else
-// On WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
-#if defined(_WIN32)
-#define IOX_NO_DISCARD [[nodiscard]] // NOLINT
-// on an unknown platform we use for now nothing since we do not know what is supported there
-#else
-#define IOX_NO_DISCARD
-#endif
-#endif
-
-/// @brief IOX_FALLTHROUGH adds the [[fallthrough]] keyword when it is available for the current compiler.
-/// @note
-//    [[fallthrough]] supported since gcc 7 (https://gcc.gnu.org/projects/cxx-status.html)
-///   [[fallthrough]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
-///   activate keywords for gcc>=7 or clang>=4
-#if (defined(__GNUC__) && __GNUC__ >= 7) || (defined(__clang__) && __clang_major >= 4)
-#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
-#else
-// On WIN32 we are using C++17 which makes the keyword [[fallthrough]] available
-#if defined(_WIN32)
-#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
-// on an unknown platform we use for now nothing since we do not know what is supported there
-#else
-#define IOX_FALLTHROUGH
-#endif
-#endif
 
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system

@@ -9,13 +9,13 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 
 Create three terminals and start RouDi, a publisher and a subscriber. You can also mix the typed and untyped versions.
 
-[![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
+[![asciicast](https://asciinema.org/a/407359.svg)](https://asciinema.org/a/407359)
 
 ## Code walkthrough
 
 This example makes use of two kinds of API flavors. With the untyped API, you have the most flexibility. It enables you
 to put APIs on a higher level with a different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or
-the ROS2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
+the ROS 2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
 abstraction. A simple example how such an abstraction could look like is given in the second step with the typed
 example. The typed API provides type safety combined with [RAII](https://en.cppreference.com/w/cpp/language/raii).
 

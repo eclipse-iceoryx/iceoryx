@@ -26,13 +26,14 @@
 #include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
 using namespace iox::posix;
 using namespace iox::version;
-using ::testing::Return;
 
 class ProcessManager_test : public Test
 {
@@ -121,17 +122,23 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
     m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-    auto payloadDataSegmentMemoryManager =
-        m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
+    auto payloadDataSegmentMemoryManager = m_roudiMemoryManager->segmentManager()
+                                               .value()
+                                               ->getSegmentInformationWithWriteAccessForUser(user)
+                                               .m_memoryManager;
+
+    ASSERT_TRUE(payloadDataSegmentMemoryManager.has_value());
 
     // get publisher and subscriber
     PublisherOptions publisherOptions{
         0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, m_processname, payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    PublisherPortUser publisher(m_portManager
+                                    ->acquirePublisherPortData({1U, 1U, 1U},
+                                                               publisherOptions,
+                                                               m_processname,
+                                                               &payloadDataSegmentMemoryManager.value().get(),
+                                                               PortConfigInfo())
+                                    .value());
 
     ASSERT_TRUE(publisher.isOffered());
 
@@ -141,3 +148,5 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
     // ideally this should be checked by a mock, but since there isn't on for PortManager we just check the side effect
     ASSERT_FALSE(publisher.isOffered());
 }
+
+} // namespace

@@ -27,6 +27,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -34,6 +35,8 @@
 
 #include <memory>
 
+namespace
+{
 using namespace ::testing;
 
 struct DummySample
@@ -235,16 +238,8 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkSender.release(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkSender.release(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -382,38 +377,6 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
     }
 }
 
-/// @todo iox-#14: this needs to be ported to the ChunkHeaderHooks once available
-#if 0
-TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
-{
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
-
-    for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
-    {
-        auto maybeChunkHeader = m_chunkSender.tryAllocate(iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), HEADER_SIZE, HEADER_ALIGNMENT);
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-
-        if (!maybeChunkHeader.has_error())
-        {
-            (*maybeChunkHeader)->m_info.m_externalSequenceNumber_bl = true;
-            (*maybeChunkHeader)->m_info.m_sequenceNumber = i;
-            m_chunkSender.send(*maybeChunkHeader);
-        }
-    }
-
-    for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
-    {
-        iox::popo::ChunkQueuePopper<ChunkQueueData_t> myQueue(&m_chunkQueueData);
-        EXPECT_FALSE(myQueue.empty());
-        auto popRet = myQueue.tryPop();
-        EXPECT_TRUE(popRet.has_value());
-        EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
-    }
-}
-#endif
-
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
@@ -460,16 +423,8 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkSender.send(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkSender.send(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -502,16 +457,8 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkSender.pushToHistory(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkSender.pushToHistory(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -683,3 +630,5 @@ TEST_F(ChunkSender_test, Cleanup)
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
+
+} // namespace

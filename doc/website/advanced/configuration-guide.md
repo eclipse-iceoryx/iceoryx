@@ -1,6 +1,6 @@
 # Configuration guide
 
-## CMake switches for configuring iceoryx_posh build
+## :material-cog: CMake switches for configuring iceoryx_posh build
 
 When building iceoryx_posh, there are several configuration options set by default.
 These options adjust the limits of Publisher and Subscriber Ports for resource management. These limits are used to create management structures in the shared memory segment called `iceoryx_mgmt` when starting up RouDi.
@@ -28,10 +28,14 @@ cmake -Bbuild -Hiceoryx_meta -DIOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY
 
 With that change, the footprint of the management segment is reduced to ~52.7 MBytes. For larger use cases you can increase the value to avoid that samples are dropped on the subscriber side (see also [#615](https://github.com/eclipse-iceoryx/iceoryx/issues/615)).
 
-## Configuring Mempools for RouDi
+## :material-memory: Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to limit the read and write access between different applications. Inside of these segments reside mempools where the user payload data for transfer is stored.
 Based on the [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) the end-user may want to configure the mempools with the number of chunks and their size.
+
+!!! note
+    Actually only the chunk-payload size is configured and the size of the `ChunkHeader` will be added to the configured size. If a user-header or a user-payload alignment larger than 8 is used, the available size for the user-payload will be smaller than the configured chunk-payload since some space is needed for the other functionality.
+    Please have a look at the `chunk_header.md` design document for a formula how to determine the necessary chunk-payload size with user-header and extended user-payload alignment.
 
 For building RouDi, iceoryx ships a library named `iceoryx_posh_roudi`. This lib gives you an API for compiling your own RouDi application and is part of `iceoryx_posh`.
 
@@ -41,9 +45,9 @@ For building RouDi, iceoryx ships a library named `iceoryx_posh_roudi`. This lib
     1. Chunksize needs to be greater than the alignment
     2. Chunksize needs to be a multiple of the alignment
 
-The value for the alignment is set to 32.
+The value for the alignment is set to 8.
 
-### Dynamic configuration
+### :material-file-cog: Dynamic configuration
 
 One way is to read a configuration dynamically at RouDi runtime (startup).
 Using TOML Config in RouDi is not mandatory for configuring segments and mempools, but a comfortable alternative.

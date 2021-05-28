@@ -20,6 +20,8 @@
 #include "iceoryx_utils/testing/mocks/time_mock.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using iox::runtime::IpcMessage;
@@ -433,4 +435,6 @@ TEST_F(IpcMessage_test, setMessage)
     message1.setMessage("1,2,3,4");
     EXPECT_THAT(message1.isValid(), Eq(false));
 }
+
+} // namespace
 #endif

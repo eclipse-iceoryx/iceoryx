@@ -24,7 +24,7 @@ concurrently, even from inside a callback that was triggered by an event!
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
+[![asciicast](https://asciinema.org/a/407365.svg)](https://asciinema.org/a/407365)
 
 ## Code Walkthrough
 
@@ -86,21 +86,31 @@ our `heartbeat` user trigger to print the heartbeat message to the console via a
 callback (`heartbeatCallback`).
 
 ```cpp
-listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
-    std::cerr << "unable to attach heartbeat event" << std::endl;
-    std::terminate();
+listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback))
+        .or_else([](auto) {
+            std::cerr << "unable to attach heartbeat event" << std::endl;
+            std::exit(EXIT_FAILURE);
 });
-listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
+
+listener.attachEvent(subscriberLeft,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED, 
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberLeft" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
-// it is possible to attach any callback here with the required signature. to simplify the
-// example we attach the same callback onSampleReceivedCallback again
-listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
+
+// It is possible to attach any c function here with a signature of void(iox::popo::Subscriber<CounterTopic> *).
+// But please be aware that the listener does not take ownership of the callback, therefore it has to exist as
+// long as the event is attached. Furthermore, it excludes lambdas which are capturing data since they are not
+// convertable to a c function pointer.
+// to simplify the example we attach the same callback onSampleReceivedCallback again
+listener.attachEvent(subscriberRight,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberRight" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 ```
 
@@ -183,6 +193,124 @@ Afterward, we reset both caches to start fresh again.
         rightCache.reset();
     }
 ```
+
+### Additional context data for callbacks (ice_callbacks_listener_as_class_member.cpp)
+
+Here we demonstrate how you can provide virtually everything as an additional argument to the callbacks.
+You just have to provide a reference to a value as additional argument in the `attachEvent` method 
+which is then provided as argument in your callback. One of the use cases is to get access 
+to members and methods of an object inside a static method which we demonstrate here.
+
+This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscriber.cpp) 
+one, except that we left out the cyclic heartbeat trigger. The key difference is that 
+the listener is now a class member and in every callback we would like to change 
+some member variables. To do this we require an additional pointer to the object 
+since the listener requires c function references which do not allow the usage
+of lambdas with capturing. Here we can use the userType feature which allows us 
+to provide the this pointer as additional argument to the callback.
+
+The main function is now pretty short, we instantiate our object of type `CounterService`
+and call `waitForShutdown` which uses the `shutdownSemaphore` like in the 
+previous example to wait for the control c event from the user.
+```cpp
+auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+
+iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+
+CounterService counterService;
+
+counterService.waitForShutdown();
+```
+
+Our `CounterService` has the following members:
+```cpp
+class CounterService {
+    //...
+    iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
+    iox::popo::Subscriber<CounterTopic> m_subscriberRight;
+    iox::cxx::optional<CounterTopic> m_leftCache;
+    iox::cxx::optional<CounterTopic> m_rightCache;
+    iox::popo::Listener m_listener;
+};
+```
+
+And their purposes are the same as in the previous example. In the constructor
+we initialize the two subscribers and attach them to our listener. But now we 
+add an additional parameter in the `iox::popo::createNotificationCallback`, the 
+dereferenced `this` pointer. It has to be dereferenced since we require a reference 
+as argument.
+
+!!! attention 
+    The user has to ensure that the contextData (`*this`) in `attachEvent` 
+    lives as long as the attachment, with its callback, is attached otherwise 
+    the callback context data pointer is dangling.
+
+```cpp
+CounterService()
+    : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
+    , m_subscriberRight({"Radar", "FrontRight", "Counter"})
+{
+    /// Attach the static method onSampleReceivedCallback and provide "*this" as additional argument
+    /// to the callback to gain access to the object whenever the callback is called.
+    /// It is not possible to use a lambda with capturing here since they are not convertable to
+    /// a C function pointer.
+    m_listener
+        .attachEvent(m_subscriberLeft,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriberLeft" << std::endl;
+            std::exit(EXIT_FAILURE);
+        });
+    m_listener
+        .attachEvent(m_subscriberRight,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriberRight" << std::endl;
+            std::exit(EXIT_FAILURE);
+        });
+}
+```
+
+The `onSampleReceivedCallback` is now a static method instead of a free function. It 
+has to be static since we require a C function reference as callback argument and a 
+static method can be converted into such a type. But in a static method we do not 
+have access to the members of an object, therefore we have to add an additional 
+argument, the pointer to the object itself, called `self`. 
+```cpp
+static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, 
+                                     CounterService* self)
+{
+    subscriber->take().and_then([subscriber, self](auto& sample) {
+        auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
+
+        // store the sample in the corresponding cache
+        if (instanceString == iox::capro::IdString_t("FrontLeft"))
+        {
+            self->m_leftCache.emplace(*sample);
+        }
+        else if (instanceString == iox::capro::IdString_t("FrontRight"))
+        {
+            self->m_rightCache.emplace(*sample);
+        }
+
+        std::cout << "received: " << sample->counter << std::endl;
+    });
+
+    // if both caches are filled we can process them
+    if (self->m_leftCache && self->m_rightCache)
+    {
+        std::cout << "Received samples from FrontLeft and FrontRight. Sum of " << self->m_leftCache->counter
+                  << " + " << self->m_rightCache->counter << " = "
+                  << self->m_leftCache->counter + self->m_rightCache->counter << std::endl;
+        self->m_leftCache.reset();
+        self->m_rightCache.reset();
+    }
+}
+```
+
 
 <center>
 [Check out callbacks on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks){ .md-button }

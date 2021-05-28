@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "0.99.7")
+set(IOX_VERSION_STRING "1.0.0")
 
 
 
@@ -55,7 +55,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 add_library(${PROJECT_NAME}
-    source/c_event_info.cpp
+    source/c_notification_info.cpp
     source/c_listener.cpp
     source/c_node.cpp
     source/c_publisher.cpp

@@ -22,6 +22,8 @@
 #include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::mepoo;
@@ -361,3 +363,5 @@ TEST_F(SharedPointer_Test, SharedPointerWithContentIsValid)
     auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
     EXPECT_THAT(static_cast<bool>(sut3), Eq(true));
 }
+
+} // namespace

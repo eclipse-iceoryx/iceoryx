@@ -15,8 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/cxx/attributes.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
 #include "test.hpp"
+
 
 namespace
 {
@@ -1175,7 +1177,7 @@ TEST_F(list_test, InsertSomeElementsListLValue)
     }
     sut.insert(iter, a);
 
-    for (auto& x [[gnu::unused]] : sut)
+    for (auto& x IOX_MAYBE_UNUSED : sut)
     {
         ++loopCounter;
     }
@@ -2199,7 +2201,7 @@ TEST_F(list_test, invalidIteratorComparison)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 [[gnu::unused]] = sut.erase(iter);
+    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
     EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
@@ -2229,7 +2231,7 @@ TEST_F(list_test, invalidIteratorDereferencing)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 [[gnu::unused]] = sut.erase(iter);
+    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
     EXPECT_DEATH(dummyFunc((*iter).m_value), "");
 }
@@ -2244,7 +2246,7 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 [[gnu::unused]] = sut.erase(iter);
+    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
     EXPECT_DEATH(dummyFunc(iter->m_value == 12U), "");
 }
@@ -2253,7 +2255,7 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
 {
     uint64_t i = 0U;
     using TestFwdList = list<TestListElement, TESTLISTCAPACITY>;
-    alignas(alignof(TestFwdList)) uint8_t otherSutBuffer[sizeof(TestFwdList)];
+    alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
     uint8_t* otherSutPtr = otherSutBuffer;
 
     {

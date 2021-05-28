@@ -17,7 +17,6 @@
 #define IOX_UTILS_POSIX_WRAPPER_PTHREAD_HPP
 
 #include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/platform/pthread.hpp"
 

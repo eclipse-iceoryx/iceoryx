@@ -48,7 +48,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
                                               const uint32_t userHeaderSize,
                                               const uint32_t userHeaderAlignment) noexcept
 {
-    // use the chunk stored in m_lastChunk if:
+    // use the chunk stored in m_lastChunkUnmanaged if:
     //   - there is a valid chunk
     //   - there is no other owner
     //   - the new user-payload still fits in it
@@ -62,16 +62,19 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     const auto& chunkSettings = chunkSettingsResult.value();
     const uint32_t requiredChunkSize = chunkSettings.requiredChunkSize();
 
-    auto& lastChunk = getMembers()->m_lastChunk;
-    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize() >= requiredChunkSize))
+    auto& lastChunkUnmanaged = getMembers()->m_lastChunkUnmanaged;
+    mepoo::ChunkHeader* lastChunkChunkHeader =
+        lastChunkUnmanaged.isNotLogicalNullptrAndHasNoOtherOwners() ? lastChunkUnmanaged.getChunkHeader() : nullptr;
+
+    if (lastChunkChunkHeader && (lastChunkChunkHeader->chunkSize() >= requiredChunkSize))
     {
-        if (getMembers()->m_chunksInUse.insert(lastChunk))
+        auto sharedChunk = lastChunkUnmanaged.cloneToSharedChunk();
+        if (getMembers()->m_chunksInUse.insert(sharedChunk))
         {
-            auto chunkHeader = lastChunk.getChunkHeader();
-            auto chunkSize = chunkHeader->chunkSize();
-            chunkHeader->~ChunkHeader();
-            new (chunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
-            return cxx::success<mepoo::ChunkHeader*>(lastChunk.getChunkHeader());
+            auto chunkSize = lastChunkChunkHeader->chunkSize();
+            lastChunkChunkHeader->~ChunkHeader();
+            new (lastChunkChunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
+            return cxx::success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
         }
         else
         {
@@ -126,7 +129,9 @@ inline void ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chu
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
         this->deliverToAllStoredQueues(chunk);
-        getMembers()->m_lastChunk = chunk;
+
+        getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
+        getMembers()->m_lastChunkUnmanaged = chunk;
     }
     // END of critical section, chunk will be lost if process gets hard terminated in between
 }
@@ -139,7 +144,9 @@ inline void ChunkSender<ChunkSenderDataType>::pushToHistory(mepoo::ChunkHeader* 
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
         this->addToHistoryWithoutDelivery(chunk);
-        getMembers()->m_lastChunk = chunk;
+
+        getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
+        getMembers()->m_lastChunkUnmanaged = chunk;
     }
     // END of critical section, chunk will be lost if process gets hard terminated in between
 }
@@ -147,9 +154,9 @@ inline void ChunkSender<ChunkSenderDataType>::pushToHistory(mepoo::ChunkHeader* 
 template <typename ChunkSenderDataType>
 inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkSenderDataType>::tryGetPreviousChunk() const noexcept
 {
-    if (getMembers()->m_lastChunk)
+    if (!getMembers()->m_lastChunkUnmanaged.isLogicalNullptr())
     {
-        return getMembers()->m_lastChunk.getChunkHeader();
+        return getMembers()->m_lastChunkUnmanaged.getChunkHeader();
     }
     else
     {
@@ -162,7 +169,7 @@ inline void ChunkSender<ChunkSenderDataType>::releaseAll() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
     this->cleanup();
-    getMembers()->m_lastChunk = nullptr;
+    getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
 }
 
 template <typename ChunkSenderDataType>

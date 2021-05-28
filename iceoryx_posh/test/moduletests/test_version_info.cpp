@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,8 @@
 #include "iceoryx_versions.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::version;
 using namespace iox::cxx;
@@ -177,3 +180,5 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInBuildDate)
     EXPECT_TRUE(versionInfo.checkCompatibility(versionInfoWithUnequalBuildDate, CompatibilityCheckLevel::COMMIT_ID));
     EXPECT_FALSE(versionInfo.checkCompatibility(versionInfoWithUnequalBuildDate, CompatibilityCheckLevel::BUILD_DATE));
 }
+
+} // namespace

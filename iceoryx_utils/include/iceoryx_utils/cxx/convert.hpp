@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 #ifndef IOX_UTILS_CXX_CONVERT_HPP
 #define IOX_UTILS_CXX_CONVERT_HPP
 
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
 
 #include <climits>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <limits>
 #include <sstream>
 #include <string>
