@@ -19,19 +19,27 @@
 #include "iceoryx_hoofs/platform/windows.hpp"
 
 #include <cstdint>
+#include <mutex>
 #include <optional>
+#include <queue>
 #include <string>
+#include <thread>
+#include <vector>
 
-struct NamedPipeReceiver
+
+class NamedPipeReceiverInstance
 {
-    NamedPipeReceiver() noexcept = default;
-    NamedPipeReceiver(const std::string& name, uint64_t maxMessageSize, const uint64_t maxNumberOfMessages) noexcept;
-    NamedPipeReceiver(const NamedPipeReceiver&) = delete;
-    NamedPipeReceiver(NamedPipeReceiver&& rhs) noexcept;
-    ~NamedPipeReceiver() noexcept;
+  public:
+    NamedPipeReceiverInstance() noexcept = default;
+    NamedPipeReceiverInstance(const std::string& name,
+                              uint64_t maxMessageSize,
+                              const uint64_t maxNumberOfMessages) noexcept;
+    NamedPipeReceiverInstance(const NamedPipeReceiverInstance&) = delete;
+    NamedPipeReceiverInstance(NamedPipeReceiverInstance&& rhs) noexcept;
+    ~NamedPipeReceiverInstance() noexcept;
 
-    NamedPipeReceiver& operator=(const NamedPipeReceiver& rhs) = delete;
-    NamedPipeReceiver& operator=(NamedPipeReceiver&& rhs) noexcept;
+    NamedPipeReceiverInstance& operator=(const NamedPipeReceiverInstance& rhs) = delete;
+    NamedPipeReceiverInstance& operator=(NamedPipeReceiverInstance&& rhs) noexcept;
 
     operator bool() const noexcept;
 
@@ -42,6 +50,34 @@ struct NamedPipeReceiver
 
     HANDLE m_handle = INVALID_HANDLE_VALUE;
     uint64_t m_maxMessageSize = 0U;
+};
+
+class NamedPipeReceiver
+{
+  public:
+    NamedPipeReceiver(const std::string& name, uint64_t maxMessageSize, const uint64_t maxNumberOfMessages) noexcept;
+    NamedPipeReceiver(const NamedPipeReceiver&) = delete;
+    NamedPipeReceiver(NamedPipeReceiver&&) = delete;
+    ~NamedPipeReceiver() noexcept;
+
+    NamedPipeReceiver& operator=(const NamedPipeReceiver&) = delete;
+    NamedPipeReceiver& operator=(NamedPipeReceiver&&) = delete;
+
+    std::optional<std::string> receive() noexcept;
+    std::optional<std::string> timedReceive(const uint64_t timeoutInMs) noexcept;
+
+  private:
+    void receiveLoop() noexcept;
+
+    std::string m_pipeName;
+    uint64_t m_maxMessageSize = 0U;
+    uint64_t m_maxNumberOfMessages = 0U;
+    int64_t m_receiveLoopIntervalInMs = 10;
+    std::vector<NamedPipeReceiverInstance> m_pipeInstances;
+    std::thread m_receiveThread;
+    std::mutex m_receivedMessagesMutex;
+    std::queue<std::string> m_receivedMessages;
+    std::atomic_bool m_keepRunning{false};
 };
 
 class NamedPipeSender
@@ -60,10 +96,12 @@ class NamedPipeSender
     operator bool() const noexcept;
 
     bool send(const std::string& message) noexcept;
-    HANDLE m_handle = INVALID_HANDLE_VALUE;
 
   private:
     void destroy() noexcept;
+    HANDLE m_handle = INVALID_HANDLE_VALUE;
 };
+
+std::string generatePipePathName(const std::string& name) noexcept;
 
 #endif

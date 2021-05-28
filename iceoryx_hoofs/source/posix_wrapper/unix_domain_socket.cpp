@@ -26,15 +26,15 @@
 #include <cstdlib>
 #include <string>
 
-#ifdef _WIN32
-#include "iceoryx_hoofs/platform/named_pipe.hpp"
-#endif
 
 namespace iox
 {
 namespace posix
 {
 constexpr char UnixDomainSocket::PATH_PREFIX[];
+constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
+constexpr uint64_t UnixDomainSocket::NULL_TERMINATOR_SIZE;
+
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
     this->m_isInitialized = false;
@@ -93,7 +93,8 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
-    : m_maxMessageSize(maxMsgSize)
+    : m_pipeName(name)
+    , m_maxMessageSize(maxMsgSize)
     , m_numberOfPipes(maxMsgNumber)
     , m_channelSide(channelSide)
 {
@@ -111,7 +112,6 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
         return;
     }
 
-    setPipeName(name);
     switch (channelSide)
     {
     case IpcChannelSide::CLIENT:
@@ -120,48 +120,11 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     }
     case IpcChannelSide::SERVER:
     {
-        startServerThread();
+        m_pipeReceiver.emplace(m_pipeName, m_maxMessageSize, m_numberOfPipes);
         break;
     }
     }
     m_isInitialized = true;
-}
-
-void UnixDomainSocket::startServerThread() noexcept
-{
-    if (m_channelSide != IpcChannelSide::SERVER)
-    {
-        return;
-    }
-
-    m_serverThread = std::thread([this] {
-        std::vector<NamedPipeReceiver> pipes(m_numberOfPipes);
-
-        while (m_keepRunning.load())
-        {
-            for (uint64_t i = 0; i < m_numberOfPipes; ++i)
-            {
-                if (!pipes[i])
-                {
-                    pipes[i] = NamedPipeReceiver(m_pipeName, m_maxMessageSize, m_numberOfPipes);
-                }
-
-                auto message = pipes[i].receive();
-                if (message)
-                {
-                    {
-                        std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
-                        m_receivedMessages.push(Message_t(cxx::TruncateToCapacity, message->c_str()));
-                    }
-
-                    pipes[i] = NamedPipeReceiver(m_pipeName, m_maxMessageSize, m_numberOfPipes);
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
-        }
-
-        pipes.clear();
-    });
 }
 
 UnixDomainSocket& UnixDomainSocket::UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
@@ -173,12 +136,11 @@ UnixDomainSocket& UnixDomainSocket::UnixDomainSocket::operator=(UnixDomainSocket
         destroy();
         m_pipeName = std::move(other.m_pipeName);
         m_channelSide = std::move(other.m_channelSide);
-        m_keepRunning.store(other.m_keepRunning.load());
-        m_receivedMessages = std::move(other.m_receivedMessages);
         m_maxMessageSize = std::move(other.m_maxMessageSize);
+        m_numberOfPipes = std::move(other.m_numberOfPipes);
 
         other.destroy();
-        startServerThread();
+        m_pipeReceiver.emplace(m_pipeName, m_maxMessageSize, m_numberOfPipes);
     }
 
     return *this;
@@ -187,12 +149,6 @@ UnixDomainSocket& UnixDomainSocket::UnixDomainSocket::operator=(UnixDomainSocket
 UnixDomainSocket::~UnixDomainSocket() noexcept
 {
     destroy();
-}
-
-void UnixDomainSocket::setPipeName(const UdsName_t& name) noexcept
-{
-    m_pipeName = "\\\\.\\pipe\\";
-    m_pipeName.append(cxx::TruncateToCapacity, name);
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
@@ -216,11 +172,7 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
 
 cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
-    if (m_serverThread.joinable())
-    {
-        m_keepRunning = false;
-        m_serverThread.join();
-    }
+    m_pipeReceiver.reset();
     return cxx::success<>();
 }
 
@@ -273,25 +225,15 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    units::Duration remainingTime = timeout;
-    int64_t minimumRetries = 10;
-    do
+    auto message = m_pipeReceiver->timedReceive(timeout.toMilliseconds());
+    if (message)
     {
-        {
-            std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
-            if (!m_receivedMessages.empty())
-            {
-                std::string msg = m_receivedMessages.front();
-                m_receivedMessages.pop();
-                return cxx::success<std::string>(msg);
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
-        remainingTime = remainingTime - m_loopTimeout;
-        --minimumRetries;
-    } while (remainingTime.toMilliseconds() > 0 || minimumRetries > 0);
-
-    return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
+        return cxx::success<std::string>(*message);
+    }
+    else
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
+    }
 }
 
 #else

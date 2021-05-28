@@ -17,18 +17,19 @@
 #include "iceoryx_hoofs/platform/named_pipe.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
-NamedPipeReceiver::NamedPipeReceiver(const std::string& name,
-                                     uint64_t maxMessageSize,
-                                     const uint64_t maxNumberOfMessages) noexcept
+NamedPipeReceiverInstance::NamedPipeReceiverInstance(const std::string& name,
+                                                     uint64_t maxMessageSize,
+                                                     const uint64_t maxNumberOfMessages) noexcept
     : m_maxMessageSize{maxMessageSize}
 {
+    auto pipeName = generatePipePathName(name);
     const DWORD inputBufferSize = maxMessageSize * maxNumberOfMessages;
     const DWORD outputBufferSize = maxMessageSize * maxNumberOfMessages;
     const DWORD openMode = PIPE_ACCESS_DUPLEX;
     const DWORD pipeMode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
     const DWORD noTimeout = 0;
     const LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
-    m_handle = CreateNamedPipeA(name.c_str(),
+    m_handle = CreateNamedPipeA(pipeName.c_str(),
                                 openMode,
                                 pipeMode,
                                 PIPE_UNLIMITED_INSTANCES,
@@ -40,24 +41,24 @@ NamedPipeReceiver::NamedPipeReceiver(const std::string& name,
     if (m_handle == INVALID_HANDLE_VALUE)
     {
         __PrintLastErrorToConsole("", "", 0);
-        printf("Server CreateNamedPipeReceiver failed for: %s.\n", name.c_str());
+        printf("Server CreateNamedPipeReceiverInstance failed for: %s.\n", pipeName.c_str());
         return;
     }
 
     ConnectNamedPipe(m_handle, NULL);
 }
 
-NamedPipeReceiver::NamedPipeReceiver(NamedPipeReceiver&& rhs) noexcept
+NamedPipeReceiverInstance::NamedPipeReceiverInstance(NamedPipeReceiverInstance&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-NamedPipeReceiver::~NamedPipeReceiver() noexcept
+NamedPipeReceiverInstance::~NamedPipeReceiverInstance() noexcept
 {
     destroy();
 }
 
-NamedPipeReceiver& NamedPipeReceiver::operator=(NamedPipeReceiver&& rhs) noexcept
+NamedPipeReceiverInstance& NamedPipeReceiverInstance::operator=(NamedPipeReceiverInstance&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -70,7 +71,7 @@ NamedPipeReceiver& NamedPipeReceiver::operator=(NamedPipeReceiver&& rhs) noexcep
     return *this;
 }
 
-void NamedPipeReceiver::destroy() noexcept
+void NamedPipeReceiverInstance::destroy() noexcept
 {
     if (m_handle != INVALID_HANDLE_VALUE)
     {
@@ -81,12 +82,12 @@ void NamedPipeReceiver::destroy() noexcept
     }
 }
 
-NamedPipeReceiver::operator bool() const noexcept
+NamedPipeReceiverInstance::operator bool() const noexcept
 {
     return m_handle != INVALID_HANDLE_VALUE;
 }
 
-std::optional<std::string> NamedPipeReceiver::receive() noexcept
+std::optional<std::string> NamedPipeReceiverInstance::receive() noexcept
 {
     if (!*this)
     {
@@ -108,6 +109,7 @@ std::optional<std::string> NamedPipeReceiver::receive() noexcept
 
 NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeoutInMs) noexcept
 {
+    auto pipeName = generatePipePathName(name);
     DWORD disableSharing = 0;
     LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
     DWORD defaultAttributes = 0;
@@ -125,21 +127,21 @@ NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeout
         if (GetLastError() != ERROR_PIPE_BUSY)
         {
             __PrintLastErrorToConsole("", "", 0);
-            printf("Could not open pipe %s for reading.\n", name.c_str());
+            printf("Could not open pipe %s for reading.\n", pipeName.c_str());
             return;
         }
 
         if (timeoutInMs != 0)
         {
-            if (!WaitNamedPipeA(name.c_str(), timeoutInMs))
+            if (!WaitNamedPipeA(pipeName.c_str(), timeoutInMs))
             {
                 __PrintLastErrorToConsole("", "", 0);
-                printf("Unable to wait %d ms for pipe %s.\n", timeoutInMs, name.c_str());
+                printf("Unable to wait %d ms for pipe %s.\n", timeoutInMs, pipeName.c_str());
                 return;
             }
             else
             {
-                m_handle = CreateFileA(name.c_str(),
+                m_handle = CreateFileA(pipeName.c_str(),
                                        GENERIC_READ | GENERIC_WRITE,
                                        disableSharing,
                                        noSecurityAttributes,
@@ -158,7 +160,7 @@ NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeout
     if (!SetNamedPipeHandleState(m_handle, &pipeMode, NULL, NULL))
     {
         __PrintLastErrorToConsole("", "", 0);
-        printf("SetNamedPipeHandleState failed for pipe %s\n", name.c_str());
+        printf("SetNamedPipeHandleState failed for pipe %s\n", pipeName.c_str());
         destroy();
     }
 }
@@ -213,4 +215,90 @@ void NamedPipeSender::destroy() noexcept
         CloseHandle(m_handle);
         m_handle = INVALID_HANDLE_VALUE;
     }
+}
+
+NamedPipeReceiver::NamedPipeReceiver(const std::string& name,
+                                     uint64_t maxMessageSize,
+                                     const uint64_t maxNumberOfMessages) noexcept
+    : m_pipeName{name}
+    , m_maxMessageSize{maxMessageSize}
+    , m_maxNumberOfMessages{maxNumberOfMessages}
+{
+    m_pipeInstances.resize(m_maxNumberOfMessages);
+    m_keepRunning.store(true);
+    m_receiveThread = std::thread(&NamedPipeReceiver::receiveLoop, this);
+}
+
+NamedPipeReceiver::~NamedPipeReceiver() noexcept
+{
+    if (m_keepRunning.load() == true)
+    {
+        m_keepRunning.store(false);
+        m_receiveThread.join();
+    }
+}
+
+std::optional<std::string> NamedPipeReceiver::receive() noexcept
+{
+    return timedReceive(0U);
+}
+
+std::optional<std::string> NamedPipeReceiver::timedReceive(const uint64_t timeoutInMs) noexcept
+{
+    int64_t remainingTimeInMs = static_cast<int64_t>(timeoutInMs);
+    int64_t minimumRetries = 10;
+    do
+    {
+        {
+            std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
+            if (!m_receivedMessages.empty())
+            {
+                std::string msg = m_receivedMessages.front();
+                m_receivedMessages.pop();
+                return std::make_optional(msg);
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_receiveLoopIntervalInMs));
+        remainingTimeInMs -= m_receiveLoopIntervalInMs;
+        --minimumRetries;
+    } while (remainingTimeInMs > 0 || minimumRetries > 0);
+
+    return std::nullopt;
+}
+
+void NamedPipeReceiver::receiveLoop() noexcept
+{
+    while (m_keepRunning.load())
+    {
+        for (auto& pipe : m_pipeInstances)
+        {
+            if (!pipe)
+            {
+                pipe = NamedPipeReceiverInstance(m_pipeName, m_maxMessageSize, m_maxNumberOfMessages);
+            }
+
+            auto message = pipe.receive();
+            if (message)
+            {
+                {
+                    std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
+                    if (m_receivedMessages.size() >= m_maxNumberOfMessages)
+                    {
+                        m_receivedMessages.pop();
+                    }
+                    m_receivedMessages.push(message->c_str());
+                }
+
+                pipe = NamedPipeReceiverInstance(m_pipeName, m_maxMessageSize, m_maxNumberOfMessages);
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_receiveLoopIntervalInMs));
+    }
+
+    m_pipeInstances.clear();
+}
+
+std::string generatePipePathName(const std::string& name) noexcept
+{
+    return "\\\\.\\pipe\\" + name;
 }

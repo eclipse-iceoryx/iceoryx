@@ -27,6 +27,7 @@
 #include "iceoryx_hoofs/platform/un.hpp"
 
 #ifdef _WIN32
+#include "iceoryx_hoofs/platform/named_pipe.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
 #include <mutex>
 #include <optional>
@@ -140,19 +141,13 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
 #if defined(_WIN32)
-    void setPipeName(const UdsName_t& name) noexcept;
-    void startServerThread() noexcept;
-
     UdsName_t m_pipeName;
     IpcChannelSide m_channelSide;
 
     uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
     uint64_t m_numberOfPipes{10U};
-    units::Duration m_loopTimeout = units::Duration::fromMilliseconds(10);
-    std::atomic_bool m_keepRunning{true};
-    std::thread m_serverThread;
-    mutable std::mutex m_receivedMessagesMutex;
-    mutable std::queue<Message_t> m_receivedMessages;
+
+    mutable std::optional<NamedPipeReceiver> m_pipeReceiver;
 #else
     /// @brief initializes the unix domain socket
     /// @return IpcChannelError if error occured
