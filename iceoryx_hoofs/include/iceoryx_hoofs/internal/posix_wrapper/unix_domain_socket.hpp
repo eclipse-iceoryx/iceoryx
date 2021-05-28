@@ -29,6 +29,7 @@
 #ifdef _WIN32
 #include "iceoryx_hoofs/platform/windows.hpp"
 #include <mutex>
+#include <optional>
 #include <queue>
 #endif
 
@@ -176,30 +177,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 #endif
 };
-
-#ifdef _WIN32
-struct NamedPipe
-{
-    NamedPipe() noexcept = default;
-    NamedPipe(const UnixDomainSocket::UdsName_t& name,
-              uint64_t maxMessageSize,
-              const uint64_t maxNumberOfMessages) noexcept;
-    NamedPipe(const NamedPipe&) = delete;
-    NamedPipe(NamedPipe&& rhs) noexcept;
-    ~NamedPipe() noexcept;
-
-    NamedPipe& operator=(const NamedPipe& rhs) = delete;
-    NamedPipe& operator=(NamedPipe&& rhs) noexcept;
-
-    operator bool() const noexcept;
-
-    HANDLE m_handle = INVALID_HANDLE_VALUE;
-
-  private:
-    void destroy() noexcept;
-};
-#endif
-
 } // namespace posix
 } // namespace iox
 

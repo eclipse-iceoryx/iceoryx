@@ -26,81 +26,15 @@
 #include <cstdlib>
 #include <string>
 
+#ifdef _WIN32
+#include "iceoryx_hoofs/platform/named_pipe.hpp"
+#endif
 
 namespace iox
 {
 namespace posix
 {
 constexpr char UnixDomainSocket::PATH_PREFIX[];
-
-#ifdef _WIN32
-NamedPipe::NamedPipe(const UnixDomainSocket::UdsName_t& name,
-                     uint64_t maxMessageSize,
-                     const uint64_t maxNumberOfMessages) noexcept
-{
-    const DWORD inputBufferSize = maxMessageSize * maxNumberOfMessages;
-    const DWORD outputBufferSize = maxMessageSize * maxNumberOfMessages;
-    const DWORD openMode = PIPE_ACCESS_DUPLEX;
-    const DWORD pipeMode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
-    const DWORD noTimeout = 0;
-    const LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
-    m_handle = CreateNamedPipeA(name.c_str(),
-                                openMode,
-                                pipeMode,
-                                PIPE_UNLIMITED_INSTANCES,
-                                outputBufferSize,
-                                inputBufferSize,
-                                noTimeout,
-                                noSecurityAttributes);
-
-    if (m_handle == INVALID_HANDLE_VALUE)
-    {
-        __PrintLastErrorToConsole("", "", 0);
-        printf("Server CreateNamedPipe failed, GLE=%d.\n", GetLastError());
-    }
-
-    ConnectNamedPipe(m_handle, NULL);
-}
-
-NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
-{
-    *this = std::move(rhs);
-}
-
-NamedPipe::~NamedPipe() noexcept
-{
-    destroy();
-}
-
-NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        destroy();
-
-        m_handle = rhs.m_handle;
-        rhs.m_handle = INVALID_HANDLE_VALUE;
-    }
-    return *this;
-}
-
-void NamedPipe::destroy() noexcept
-{
-    if (m_handle != INVALID_HANDLE_VALUE)
-    {
-        FlushFileBuffers(m_handle);
-        DisconnectNamedPipe(m_handle);
-        CloseHandle(m_handle);
-        m_handle = INVALID_HANDLE_VALUE;
-    }
-}
-
-NamedPipe::operator bool() const noexcept
-{
-    return m_handle != INVALID_HANDLE_VALUE;
-}
-#endif
-
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
     this->m_isInitialized = false;
@@ -212,21 +146,15 @@ void UnixDomainSocket::startServerThread() noexcept
                     pipes[i] = NamedPipe(m_pipeName, m_maxMessageSize, m_numberOfPipes);
                 }
 
-                std::string message;
-                message.resize(m_maxMessageSize);
-                DWORD bytesRead;
-                LPOVERLAPPED noOverlapping = NULL;
-                bool fSuccess = ReadFile(pipes[i].m_handle, message.data(), message.size(), &bytesRead, noOverlapping);
-
-                message.resize(bytesRead);
-                if (fSuccess)
+                auto message = pipes[i].receive();
+                if (message)
                 {
-                    std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
-                    m_receivedMessages.push(Message_t(cxx::TruncateToCapacity, message.c_str()));
+                    {
+                        std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
+                        m_receivedMessages.push(Message_t(cxx::TruncateToCapacity, message->c_str()));
+                    }
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
                     pipes[i] = NamedPipe(m_pipeName, m_maxMessageSize, m_numberOfPipes);
-                    break;
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
