@@ -196,18 +196,29 @@ TEST_F(UnixDomainSocket_test, SendOnServerLeadsToError)
     sendOnServerLeadsToError([&](auto& msg) { return server.send(msg); });
 }
 
-void successfulSendAndReceive(const std::string& message, const sendCall_t& send, const receiveCall_t& receive)
+void successfulSendAndReceive(const std::vector<std::string>& messages,
+                              const sendCall_t& send,
+                              const receiveCall_t& receive)
 {
-    ASSERT_FALSE(send(message).has_error());
-    auto receivedMessage = receive();
-    ASSERT_FALSE(receivedMessage.has_error());
-    EXPECT_EQ(message, *receivedMessage);
+    for (auto& m : messages)
+    {
+        ASSERT_FALSE(send(m).has_error());
+    }
+
+    std::vector<std::string> receivedMessages;
+    for (uint64_t i = 0, messagesSize = messages.size(); i < messagesSize; ++i)
+    {
+        auto receivedMessage = receive();
+        ASSERT_FALSE(receivedMessage.has_error());
+        receivedMessages.emplace_back(*receivedMessage);
+    }
+    EXPECT_EQ(messages, receivedMessages);
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndReceive)
 {
     successfulSendAndReceive(
-        "what's hypnotoads eye color?",
+        {"what's hypnotoads eye color?"},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -215,7 +226,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        "the earth is a disc on the back of hypnotoad",
+        {"the earth is a disc on the back of hypnotoad"},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -223,7 +234,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "it is not the sun that rises, it is hypnotoad who is opening its eyes",
+        {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -231,7 +242,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "what is the most beautiful color in the world? it's hypnotoad.",
+        {"what is the most beautiful color in the world? it's hypnotoad."},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -239,31 +250,31 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
+        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
+        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
+        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
+        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -271,7 +282,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendA
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -279,7 +290,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimedSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -287,7 +298,57 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
+        [&](auto& msg) { return client.send(msg); },
+        [&]() { return server.timedReceive(1_ms); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndReceive)
+{
+    successfulSendAndReceive(
+        {"Famous hypntoad alike creators from around the world:",
+         "Zoich, proposed mascot for the winter olympics 2014",
+         "Ed Bighead",
+         "Jason Funderberker"},
+        [&](auto& msg) { return client.send(msg); },
+        [&]() { return server.receive(); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimedSendAndReceive)
+{
+    successfulSendAndReceive(
+        {"Facts about hypnotoad",
+         "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
+         "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
+         "hypnotoad has its own tv show called: everyone loves hypnotoad",
+         "his homeworld is maybe Kif Krokers homeworld",
+         "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into his "
+         "eyes"},
+        [&](auto& msg) { return client.timedSend(msg, 1_ms); },
+        [&]() { return server.receive(); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimedSendAndTimedReceive)
+{
+    successfulSendAndReceive(
+        {"hypnotoad was part of the german pop band Modern Talking and produced songs like",
+         "you're my, heart you're my seal",
+         "cheri cheri hypnotoad",
+         "brother hypno hypno toad",
+         "you are not alone hypnotoad is there for you"},
+        [&](auto& msg) { return client.timedSend(msg, 1_ms); },
+        [&]() { return server.timedReceive(1_ms); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndTimedReceive)
+{
+    successfulSendAndReceive(
+        {"most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
+         "success",
+         "homer simpson licked hypnotoad before he was famous (Missionary Impossible)",
+         "but remember, always ask the toad before licking otherwise it is just rude",
+         "if the toad answers you the licking question, please consult David Hasselhof first or some other random "
+         "person"},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }

@@ -290,15 +290,14 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
         {
             __PrintLastErrorToConsole("", "", 0);
             printf("Could not open pipe for reading. GLE=%d\n", GetLastError());
-            // std::terminate();
+            return cxx::error<IpcChannelError>(IpcChannelError::I_O_ERROR);
         }
 
         if (timeout.toMilliseconds() != 0)
         {
             if (!WaitNamedPipeA(m_pipeName.c_str(), timeout.toMilliseconds()))
             {
-                printf("Could not open pipe: 20 second wait timed out.");
-                // error
+                return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
             }
         }
     }
@@ -309,7 +308,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     if (!fSuccess)
     {
         printf("SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
-        // std::terminate();
+        return cxx::error<IpcChannelError>(IpcChannelError::ACCESS_DENIED);
     }
 
     // send message
@@ -319,7 +318,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     if (!fSuccess)
     {
         printf("WriteFile to pipe failed. GLE=%d\n", GetLastError());
-        // std::terminate();
+        return cxx::error<IpcChannelError>(IpcChannelError::ACCESS_DENIED);
     }
 
     CloseHandle(namedPipe);
