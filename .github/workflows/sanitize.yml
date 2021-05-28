@@ -57,14 +57,14 @@ jobs:
         run: |
           brew install ncurses
           cd $GITHUB_WORKSPACE
-          mkdir -p build
-          cd build
+          mkdir -p bison_build
+          cd bison_build
           wget https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.gz
           tar -xvf bison-3.5.1.tar.gz
           cd bison-3.5.1
-          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/
+          ./configure
           make
-          make install
+          sudo make install
 
       - name: Build
         run: |
