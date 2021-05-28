@@ -22,17 +22,8 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/mqueue.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/un.hpp"
-
-#ifdef _WIN32
-#include "iceoryx_hoofs/platform/named_pipe.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
-#include <mutex>
-#include <optional>
-#include <queue>
-#endif
 
 namespace iox
 {
@@ -46,17 +37,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     {
     };
     static constexpr NoPathPrefix_t NoPathPrefix{};
-#ifdef _WIN32
-    static constexpr char PATH_PREFIX[] = "";
-#else
-    static constexpr char PATH_PREFIX[] = "/tmp/";
-#endif
-
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    /// @brief Max message size is on linux = 4096, on mac os = 2048. To have
-    ///  the same behavior on every platform we use 512.
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 2048U - NULL_TERMINATOR_SIZE;
-    /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
+    static constexpr uint64_t MAX_MESSAGE_SIZE = IOX_SOCKET_MAX_MESSAGE_SIZE - NULL_TERMINATOR_SIZE;
+    /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the IOX_SOCKET_PATH_PREFIX
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 
     using UdsName_t = cxx::string<LONGEST_VALID_NAME>;
@@ -140,15 +123,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-#if defined(_WIN32)
-    UdsName_t m_pipeName;
-    IpcChannelSide m_channelSide;
-
-    uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
-    uint64_t m_numberOfPipes{10U};
-
-    mutable std::optional<NamedPipeReceiver> m_pipeReceiver;
-#else
     /// @brief initializes the unix domain socket
     /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> initalizeSocket() noexcept;
@@ -170,7 +144,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     int32_t m_sockfd{INVALID_FD};
     struct sockaddr_un m_sockAddr;
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
-#endif
 };
 } // namespace posix
 } // namespace iox
