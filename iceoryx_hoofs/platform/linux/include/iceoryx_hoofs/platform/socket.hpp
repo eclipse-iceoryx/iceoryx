@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_LINUX_PLATFORM_SOCKET_HPP
 #define IOX_HOOFS_LINUX_PLATFORM_SOCKET_HPP
 
+#include <cstdint>
 #include <sys/socket.h>
 
 constexpr uint64_t IOX_SOCKET_MAX_MESSAGE_SIZE = 4096;
