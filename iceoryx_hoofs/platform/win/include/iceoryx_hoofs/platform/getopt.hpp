@@ -36,7 +36,7 @@ struct option
 
 inline int getopt_long(int, char* const[], const char*, const struct option*, int*)
 {
-    return 0;
+    return -1;
 }
 
 #endif // IOX_HOOFS_WIN_PLATFORM_GETOPT_HPP
