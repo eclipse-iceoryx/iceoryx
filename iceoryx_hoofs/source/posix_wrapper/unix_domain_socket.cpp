@@ -33,6 +33,74 @@ namespace posix
 {
 constexpr char UnixDomainSocket::PATH_PREFIX[];
 
+#ifdef _WIN32
+NamedPipe::NamedPipe(const UnixDomainSocket::UdsName_t& name,
+                     uint64_t maxMessageSize,
+                     const uint64_t maxNumberOfMessages) noexcept
+{
+    const DWORD inputBufferSize = maxMessageSize * maxNumberOfMessages;
+    const DWORD outputBufferSize = maxMessageSize * maxNumberOfMessages;
+    const DWORD openMode = PIPE_ACCESS_DUPLEX;
+    const DWORD pipeMode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
+    const DWORD noTimeout = 0;
+    const LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
+    m_handle = CreateNamedPipeA(name.c_str(),
+                                openMode,
+                                pipeMode,
+                                PIPE_UNLIMITED_INSTANCES,
+                                outputBufferSize,
+                                inputBufferSize,
+                                noTimeout,
+                                noSecurityAttributes);
+
+    if (m_handle == INVALID_HANDLE_VALUE)
+    {
+        __PrintLastErrorToConsole("", "", 0);
+        printf("Server CreateNamedPipe failed, GLE=%d.\n", GetLastError());
+    }
+
+    ConnectNamedPipe(m_handle, NULL);
+}
+
+NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+NamedPipe::~NamedPipe() noexcept
+{
+    destroy();
+}
+
+NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        destroy();
+
+        m_handle = rhs.m_handle;
+        rhs.m_handle = INVALID_HANDLE_VALUE;
+    }
+    return *this;
+}
+
+void NamedPipe::destroy() noexcept
+{
+    if (m_handle != INVALID_HANDLE_VALUE)
+    {
+        FlushFileBuffers(m_handle);
+        DisconnectNamedPipe(m_handle);
+        CloseHandle(m_handle);
+        m_handle = INVALID_HANDLE_VALUE;
+    }
+}
+
+NamedPipe::operator bool() const noexcept
+{
+    return m_handle != INVALID_HANDLE_VALUE;
+}
+#endif
+
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
     this->m_isInitialized = false;
@@ -133,79 +201,38 @@ void UnixDomainSocket::startServerThread() noexcept
     }
 
     m_serverThread = std::thread([this] {
-        auto initPipe = [this]() -> HANDLE {
-            DWORD inputBufferSize = MAX_MESSAGE_SIZE;
-            DWORD outputBufferSize = MAX_MESSAGE_SIZE;
-            DWORD openMode = PIPE_ACCESS_DUPLEX;
-            DWORD pipeMode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
-            DWORD noTimeout = 0;
-            LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
-            HANDLE namedPipe = CreateNamedPipeA(m_pipeName.c_str(),
-                                                openMode,
-                                                pipeMode,
-                                                PIPE_UNLIMITED_INSTANCES,
-                                                outputBufferSize,
-                                                inputBufferSize,
-                                                noTimeout,
-                                                noSecurityAttributes);
-
-            if (namedPipe == INVALID_HANDLE_VALUE)
-            {
-                __PrintLastErrorToConsole("", "", 0);
-                printf("Server CreateNamedPipe failed, GLE=%d.\n", GetLastError());
-            }
-
-            ConnectNamedPipe(namedPipe, NULL);
-            return namedPipe;
-        };
-
-        auto closePipe = [&](HANDLE& pipe) {
-            if (pipe == INVALID_HANDLE_VALUE)
-            {
-                return;
-            }
-            FlushFileBuffers(pipe);
-            DisconnectNamedPipe(pipe);
-            CloseHandle(pipe);
-            pipe = INVALID_HANDLE_VALUE;
-        };
-
-        std::vector<HANDLE> pipes(m_numberOfPipes, INVALID_HANDLE_VALUE);
+        std::vector<NamedPipe> pipes(m_numberOfPipes);
 
         while (m_keepRunning.load())
         {
             for (uint64_t i = 0; i < m_numberOfPipes; ++i)
             {
-                if (pipes[i] == INVALID_HANDLE_VALUE)
+                if (!pipes[i])
                 {
-                    pipes[i] = initPipe();
+                    pipes[i] = NamedPipe(m_pipeName, m_maxMessageSize, m_numberOfPipes);
                 }
 
                 std::string message;
                 message.resize(m_maxMessageSize);
                 DWORD bytesRead;
                 LPOVERLAPPED noOverlapping = NULL;
-                bool fSuccess = ReadFile(pipes[i], message.data(), message.size(), &bytesRead, noOverlapping);
+                bool fSuccess = ReadFile(pipes[i].m_handle, message.data(), message.size(), &bytesRead, noOverlapping);
 
                 message.resize(bytesRead);
                 if (fSuccess)
                 {
                     std::lock_guard<std::mutex> lock(m_receivedMessagesMutex);
-                    m_receivedMessages.push(message);
+                    m_receivedMessages.push(Message_t(cxx::TruncateToCapacity, message.c_str()));
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
-                    closePipe(pipes[i]);
-                    pipes[i] = initPipe();
+                    pipes[i] = NamedPipe(m_pipeName, m_maxMessageSize, m_numberOfPipes);
                     break;
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
         }
 
-        for (uint64_t i = 0; i < m_numberOfPipes; ++i)
-        {
-            closePipe(pipes[i]);
-        }
+        pipes.clear();
     });
 }
 

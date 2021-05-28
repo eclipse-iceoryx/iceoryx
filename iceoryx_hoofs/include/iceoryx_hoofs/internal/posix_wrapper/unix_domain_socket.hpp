@@ -58,6 +58,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 
     using UdsName_t = cxx::string<LONGEST_VALID_NAME>;
+    using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -150,7 +151,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     std::atomic_bool m_keepRunning{true};
     std::thread m_serverThread;
     mutable std::mutex m_receivedMessagesMutex;
-    mutable std::queue<std::string> m_receivedMessages;
+    mutable std::queue<Message_t> m_receivedMessages;
 #else
     /// @brief initializes the unix domain socket
     /// @return IpcChannelError if error occured
@@ -175,6 +176,30 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 #endif
 };
+
+#ifdef _WIN32
+struct NamedPipe
+{
+    NamedPipe() noexcept = default;
+    NamedPipe(const UnixDomainSocket::UdsName_t& name,
+              uint64_t maxMessageSize,
+              const uint64_t maxNumberOfMessages) noexcept;
+    NamedPipe(const NamedPipe&) = delete;
+    NamedPipe(NamedPipe&& rhs) noexcept;
+    ~NamedPipe() noexcept;
+
+    NamedPipe& operator=(const NamedPipe& rhs) = delete;
+    NamedPipe& operator=(NamedPipe&& rhs) noexcept;
+
+    operator bool() const noexcept;
+
+    HANDLE m_handle = INVALID_HANDLE_VALUE;
+
+  private:
+    void destroy() noexcept;
+};
+#endif
+
 } // namespace posix
 } // namespace iox
 
