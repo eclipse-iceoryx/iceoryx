@@ -15,8 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/named_pipe.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
-NamedPipe::NamedPipe(const std::string& name, uint64_t maxMessageSize, const uint64_t maxNumberOfMessages) noexcept
+NamedPipeReceiver::NamedPipeReceiver(const std::string& name,
+                                     uint64_t maxMessageSize,
+                                     const uint64_t maxNumberOfMessages) noexcept
     : m_maxMessageSize{maxMessageSize}
 {
     const DWORD inputBufferSize = maxMessageSize * maxNumberOfMessages;
@@ -37,23 +40,24 @@ NamedPipe::NamedPipe(const std::string& name, uint64_t maxMessageSize, const uin
     if (m_handle == INVALID_HANDLE_VALUE)
     {
         __PrintLastErrorToConsole("", "", 0);
-        printf("Server CreateNamedPipe failed, GLE=%d.\n", GetLastError());
+        printf("Server CreateNamedPipeReceiver failed for: %s.\n", name.c_str());
+        return;
     }
 
     ConnectNamedPipe(m_handle, NULL);
 }
 
-NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
+NamedPipeReceiver::NamedPipeReceiver(NamedPipeReceiver&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-NamedPipe::~NamedPipe() noexcept
+NamedPipeReceiver::~NamedPipeReceiver() noexcept
 {
     destroy();
 }
 
-NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
+NamedPipeReceiver& NamedPipeReceiver::operator=(NamedPipeReceiver&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -66,7 +70,7 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
     return *this;
 }
 
-void NamedPipe::destroy() noexcept
+void NamedPipeReceiver::destroy() noexcept
 {
     if (m_handle != INVALID_HANDLE_VALUE)
     {
@@ -77,13 +81,18 @@ void NamedPipe::destroy() noexcept
     }
 }
 
-NamedPipe::operator bool() const noexcept
+NamedPipeReceiver::operator bool() const noexcept
 {
     return m_handle != INVALID_HANDLE_VALUE;
 }
 
-std::optional<std::string> NamedPipe::receive() noexcept
+std::optional<std::string> NamedPipeReceiver::receive() noexcept
 {
+    if (!*this)
+    {
+        return std::nullopt;
+    }
+
     std::string message;
     message.resize(m_maxMessageSize);
     DWORD bytesRead;
@@ -95,4 +104,113 @@ std::optional<std::string> NamedPipe::receive() noexcept
     }
 
     return std::nullopt;
+}
+
+NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeoutInMs) noexcept
+{
+    DWORD disableSharing = 0;
+    LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
+    DWORD defaultAttributes = 0;
+    HANDLE noTemplateFile = NULL;
+    m_handle = CreateFileA(name.c_str(),
+                           GENERIC_READ | GENERIC_WRITE,
+                           disableSharing,
+                           noSecurityAttributes,
+                           OPEN_EXISTING,
+                           defaultAttributes,
+                           noTemplateFile);
+
+    if (m_handle == INVALID_HANDLE_VALUE)
+    {
+        if (GetLastError() != ERROR_PIPE_BUSY)
+        {
+            __PrintLastErrorToConsole("", "", 0);
+            printf("Could not open pipe %s for reading.\n", name.c_str());
+            return;
+        }
+
+        if (timeoutInMs != 0)
+        {
+            if (!WaitNamedPipeA(name.c_str(), timeoutInMs))
+            {
+                __PrintLastErrorToConsole("", "", 0);
+                printf("Unable to wait %d ms for pipe %s.\n", timeoutInMs, name.c_str());
+                return;
+            }
+            else
+            {
+                m_handle = CreateFileA(name.c_str(),
+                                       GENERIC_READ | GENERIC_WRITE,
+                                       disableSharing,
+                                       noSecurityAttributes,
+                                       OPEN_EXISTING,
+                                       defaultAttributes,
+                                       noTemplateFile);
+                if (m_handle == INVALID_HANDLE_VALUE)
+                {
+                    return;
+                }
+            }
+        }
+    }
+
+    DWORD pipeMode = PIPE_READMODE_MESSAGE;
+    if (!SetNamedPipeHandleState(m_handle, &pipeMode, NULL, NULL))
+    {
+        __PrintLastErrorToConsole("", "", 0);
+        printf("SetNamedPipeHandleState failed for pipe %s\n", name.c_str());
+        destroy();
+    }
+}
+
+NamedPipeSender::NamedPipeSender(NamedPipeSender&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+NamedPipeSender::~NamedPipeSender() noexcept
+{
+    destroy();
+}
+
+NamedPipeSender& NamedPipeSender::operator=(NamedPipeSender&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        destroy();
+
+        m_handle = rhs.m_handle;
+        rhs.m_handle = INVALID_HANDLE_VALUE;
+    }
+    return *this;
+}
+
+NamedPipeSender::operator bool() const noexcept
+{
+    return m_handle != INVALID_HANDLE_VALUE;
+}
+
+bool NamedPipeSender::send(const std::string& message) noexcept
+{
+    DWORD numberOfSentBytes = 0;
+    if (!WriteFile(m_handle, message.data(), message.size(), &numberOfSentBytes, NULL))
+    {
+        printf("Unable to send message: %s\n", message.c_str());
+        return false;
+    }
+    else if (numberOfSentBytes != message.size())
+    {
+        printf("Could only send the first %ld bytes of the message: %s\n", numberOfSentBytes, message.c_str());
+        return false;
+    }
+    return true;
+}
+
+void NamedPipeSender::destroy() noexcept
+{
+    if (m_handle != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(m_handle);
+        m_handle = INVALID_HANDLE_VALUE;
+    }
 }

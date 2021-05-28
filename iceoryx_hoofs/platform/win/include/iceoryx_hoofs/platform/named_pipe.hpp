@@ -22,33 +22,33 @@
 #include <optional>
 #include <string>
 
-struct NamedPipe
+struct NamedPipeReceiver
 {
-    NamedPipe() noexcept = default;
-    NamedPipe(const std::string& name, uint64_t maxMessageSize, const uint64_t maxNumberOfMessages) noexcept;
-    NamedPipe(const NamedPipe&) = delete;
-    NamedPipe(NamedPipe&& rhs) noexcept;
-    ~NamedPipe() noexcept;
+    NamedPipeReceiver() noexcept = default;
+    NamedPipeReceiver(const std::string& name, uint64_t maxMessageSize, const uint64_t maxNumberOfMessages) noexcept;
+    NamedPipeReceiver(const NamedPipeReceiver&) = delete;
+    NamedPipeReceiver(NamedPipeReceiver&& rhs) noexcept;
+    ~NamedPipeReceiver() noexcept;
 
-    NamedPipe& operator=(const NamedPipe& rhs) = delete;
-    NamedPipe& operator=(NamedPipe&& rhs) noexcept;
+    NamedPipeReceiver& operator=(const NamedPipeReceiver& rhs) = delete;
+    NamedPipeReceiver& operator=(NamedPipeReceiver&& rhs) noexcept;
 
     operator bool() const noexcept;
 
     std::optional<std::string> receive() noexcept;
 
-    HANDLE m_handle = INVALID_HANDLE_VALUE;
-    uint64_t m_maxMessageSize = 0U;
-
   private:
     void destroy() noexcept;
+
+    HANDLE m_handle = INVALID_HANDLE_VALUE;
+    uint64_t m_maxMessageSize = 0U;
 };
 
 class NamedPipeSender
 {
   public:
     NamedPipeSender() noexcept = default;
-    NamedPipeSender(const std::string& name) noexcept;
+    NamedPipeSender(const std::string& name, const uint64_t timeoutInMs) noexcept;
 
     NamedPipeSender(const NamedPipeSender& rhs) = delete;
     NamedPipeSender(NamedPipeSender&& rhs) noexcept;
@@ -60,8 +60,10 @@ class NamedPipeSender
     operator bool() const noexcept;
 
     bool send(const std::string& message) noexcept;
-
     HANDLE m_handle = INVALID_HANDLE_VALUE;
+
+  private:
+    void destroy() noexcept;
 };
 
 #endif

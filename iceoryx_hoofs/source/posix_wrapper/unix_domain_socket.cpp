@@ -135,7 +135,7 @@ void UnixDomainSocket::startServerThread() noexcept
     }
 
     m_serverThread = std::thread([this] {
-        std::vector<NamedPipe> pipes(m_numberOfPipes);
+        std::vector<NamedPipeReceiver> pipes(m_numberOfPipes);
 
         while (m_keepRunning.load())
         {
@@ -143,7 +143,7 @@ void UnixDomainSocket::startServerThread() noexcept
             {
                 if (!pipes[i])
                 {
-                    pipes[i] = NamedPipe(m_pipeName, m_maxMessageSize, m_numberOfPipes);
+                    pipes[i] = NamedPipeReceiver(m_pipeName, m_maxMessageSize, m_numberOfPipes);
                 }
 
                 auto message = pipes[i].receive();
@@ -154,7 +154,7 @@ void UnixDomainSocket::startServerThread() noexcept
                         m_receivedMessages.push(Message_t(cxx::TruncateToCapacity, message->c_str()));
                     }
 
-                    pipes[i] = NamedPipe(m_pipeName, m_maxMessageSize, m_numberOfPipes);
+                    pipes[i] = NamedPipeReceiver(m_pipeName, m_maxMessageSize, m_numberOfPipes);
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(m_loopTimeout.toMilliseconds()));
@@ -244,58 +244,17 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    // open pipe
-    DWORD disableSharing = 0;
-    LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
-    DWORD defaultAttributes = 0;
-    HANDLE noTemplateFile = NULL;
-    HANDLE namedPipe = CreateFileA(m_pipeName.c_str(),
-                                   GENERIC_READ | GENERIC_WRITE,
-                                   disableSharing,
-                                   noSecurityAttributes,
-                                   OPEN_EXISTING,
-                                   defaultAttributes,
-                                   noTemplateFile);
-
-
-    if (namedPipe == INVALID_HANDLE_VALUE)
+    NamedPipeSender sender(m_pipeName.c_str(), timeout.toMilliseconds());
+    if (!sender)
     {
-        if (GetLastError() != ERROR_PIPE_BUSY)
-        {
-            __PrintLastErrorToConsole("", "", 0);
-            printf("Could not open pipe for reading. GLE=%d\n", GetLastError());
-            return cxx::error<IpcChannelError>(IpcChannelError::I_O_ERROR);
-        }
-
-        if (timeout.toMilliseconds() != 0)
-        {
-            if (!WaitNamedPipeA(m_pipeName.c_str(), timeout.toMilliseconds()))
-            {
-                return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
-            }
-        }
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    // set to message read mode
-    DWORD pipeMode = PIPE_READMODE_MESSAGE;
-    bool fSuccess = SetNamedPipeHandleState(namedPipe, &pipeMode, NULL, NULL);
-    if (!fSuccess)
+    if (!sender.send(msg))
     {
-        printf("SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
         return cxx::error<IpcChannelError>(IpcChannelError::ACCESS_DENIED);
     }
 
-    // send message
-    DWORD numberOfSentBytes = 0;
-    fSuccess = WriteFile(namedPipe, msg.data(), msg.size(), &numberOfSentBytes, NULL);
-
-    if (!fSuccess)
-    {
-        printf("WriteFile to pipe failed. GLE=%d\n", GetLastError());
-        return cxx::error<IpcChannelError>(IpcChannelError::ACCESS_DENIED);
-    }
-
-    CloseHandle(namedPipe);
     return cxx::success<>();
 }
 
