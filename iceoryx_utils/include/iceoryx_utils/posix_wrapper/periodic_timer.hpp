@@ -27,38 +27,38 @@ namespace iox
 namespace posix
 {
 /// @brief This enum class offers the timer error codes.
-enum class TimerError
+enum class TimerErrorCause
 {
     INVALID_ARGUMENTS,
     NO_PERMISSION,
     INVALID_POINTER,
-
     INTERNAL_LOGIC_ERROR,
+    TICK_EXCEEDED_TIME_LIMIT,
     NO_ERROR,
     INVALID_STATE
 };
 
 /// @brief This enum class offers the timer state events.
-enum class PeriodicTimerState : uint8_t
+enum class TimerState : uint8_t
 {
-    DISABLED, /// state for the inactive timer
-    ENABLED   /// state for the active timer
+    STOP, /// if the Timer is disabled
+    TICK, /// if the Timer is executing
+    DELAY /// if the Timer is delayed
 };
 
-/// @brief This enum class offers the timer state events.
-/// After the wait if the timer is disabled it returns STOP.
-/// After the wait if the timer is enabled and to be activated without delay it returns TICK.
-/// After the wait if the timer is enabled and to be activated with delay it returns TICK_DELAY.
-/// After the wait if the timer is enabled and to be activated with delay breaching the delay threshold it returns
-/// TICK_THRESHOLD_DELAY.
-enum class PeriodicTimerEvent : uint8_t
+///@brief This enum class offers the various policy to handle the delays
+enum class TimerCatchupPolicy : uint8_t
 {
-    STOP,
-    TICK,
-    TICK_DELAY,
-    TICK_THRESHOLD_DELAY
+    IMMEDIATE_TICK,    /// if there is delay in execution then immediate next activation
+    SKIP_TO_NEXT_TICK, /// if there is a delay in execution then the next activation is done in next slot
+    HOLD_ON_DELAY      // if there is a delay the activation is not calculated and duration of delay is returned
 };
 
+struct WaitResult
+{
+    TimerState state;
+    iox::units::Duration timeDelay;
+};
 
 /// @brief This class offers periodic timer functionality. This timer is started immediately upon construction.
 /// The periodic timer waits for the duration specified as interval before it comes to execution again. The periodicity
@@ -80,11 +80,7 @@ class PeriodicTimer
   public:
     /// @brief Constructor
     /// @param[in] interval duration until the timer sleeps and wakes up for execution
-    /// @param[in] delayThreshold optional parameter. The delay duration that is allowed between each activation. If the
-    /// execution time breaches this threshold the timer returns the state accordingly. The delayThreshold should be a
-    /// natural number for delay consideration.
-    PeriodicTimer(const iox::units::Duration interval,
-                  const iox::units::Duration delayThreshold = units::Duration::fromSeconds(0)) noexcept;
+    PeriodicTimer(const iox::units::Duration interval) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
     virtual ~PeriodicTimer() noexcept = default;
@@ -103,20 +99,21 @@ class PeriodicTimer
 
     /// @brief This function returns the current time.
     /// @return The system clock real time is returned.
-    static cxx::expected<units::Duration, TimerError> now() noexcept;
+    static cxx::expected<units::Duration, TimerErrorCause> now() noexcept;
 
     /// @brief Briefly waits for the timer interval. This is achieved by trying to do a timed wait for the interval
     /// duration on the already acquired binary semaphore.
-    /// @return TICK if the timer is active, STOP if the timer is stopped already, TICK_DELAY if there is delay and
-    /// TICK_THRESHOLD_DELAY if the delay is more than the given delay threshold.
-    cxx::expected<iox::posix::PeriodicTimerEvent, TimerError> wait() noexcept;
+    /// @return WaitResult with timer state of TICK if the timer is active and running, STOP if the timer is stopped
+    /// already, DELAY if the execution time crossed the next activation time. If the timer state is DELAY the actual
+    /// delay duration is set to the WaitResult.
+    cxx::expected<iox::posix::WaitResult, TimerErrorCause> wait(TimerCatchupPolicy policy) noexcept;
 
   private:
     iox::units::Duration m_interval{units::Duration::fromSeconds(0)};
     iox::units::Duration m_timeForNextActivation{units::Duration::fromSeconds(0)};
-    iox::units::Duration m_delayThreshold{units::Duration::fromSeconds(0)};
     posix::Semaphore m_waitSemaphore;
-    static cxx::error<TimerError> createErrorCodeFromErrNo(const int32_t errnum) noexcept;
+    static cxx::error<TimerErrorCause> createErrorCodeFromErrNo(const int32_t errnum) noexcept;
+    iox::posix::WaitResult m_waitResult{iox::posix::TimerState::TICK, units::Duration::fromSeconds(0)};
 };
 
 } // namespace posix

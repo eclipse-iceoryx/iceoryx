@@ -22,16 +22,12 @@ namespace iox
 {
 namespace posix
 {
-PeriodicTimer::PeriodicTimer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept
+PeriodicTimer::PeriodicTimer(const iox::units::Duration interval) noexcept
     : m_interval(interval)
-    , m_delayThreshold(delayThreshold)
 {
-    m_waitSemaphore =
-        std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U)
-                      .or_else([](posix::SemaphoreError&) {
-                          errorHandler(Error::kROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, nullptr, ErrorLevel::FATAL);
-                      })
-                      .value());
+    auto timerSemaphore = posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U);
+    cxx::Ensures(!timerSemaphore.has_error() && "Could not create Semaphore for PeriodicTimer!");
+    m_waitSemaphore = std::move(timerSemaphore.value());
     start();
 }
 
@@ -58,7 +54,7 @@ void PeriodicTimer::stop() noexcept
     }
 }
 
-cxx::expected<units::Duration, TimerError> PeriodicTimer::now() noexcept
+cxx::expected<units::Duration, TimerErrorCause> PeriodicTimer::now() noexcept
 {
     struct timespec ts;
     auto result =
@@ -72,25 +68,52 @@ cxx::expected<units::Duration, TimerError> PeriodicTimer::now() noexcept
     return cxx::success<units::Duration>(ts);
 }
 
-cxx::expected<iox::posix::PeriodicTimerEvent, TimerError> PeriodicTimer::wait() noexcept
+cxx::expected<iox::posix::WaitResult, TimerErrorCause> PeriodicTimer::wait(TimerCatchupPolicy policy) noexcept
 {
     // To check if the TIMER is active (if the sempahore is acquired)
     if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
     {
         if (now().value() > m_timeForNextActivation)
         {
-            auto timeDiff = now().value()
-                            - m_timeForNextActivation; // Calculate the time delay to check if it breaches the threshold
-            m_timeForNextActivation = m_timeForNextActivation + m_interval; // Calculate the next time for activation
-            if (m_delayThreshold > 0_ms)
+            if (policy == TimerCatchupPolicy::IMMEDIATE_TICK)
             {
-                if (timeDiff > m_delayThreshold)
+                m_timeForNextActivation = now().value();
+                m_waitResult.state = iox::posix::TimerState::TICK;
+                return cxx::success<iox::posix::WaitResult>(m_waitResult);
+            }
+            else if (policy == TimerCatchupPolicy::SKIP_TO_NEXT_TICK)
+            {
+                auto delay = now().value() - m_timeForNextActivation; // calculate the time delay
+                if (delay > m_interval)
                 {
-                    return cxx::success<iox::posix::PeriodicTimerEvent>(
-                        iox::posix::PeriodicTimerEvent::TICK_THRESHOLD_DELAY);
+                    auto totalSlotToBeSkipped =
+                        delay.toMilliseconds() / m_interval.toMilliseconds(); // calculate the total slots missed
+                    m_timeForNextActivation =
+                        m_timeForNextActivation + m_interval * totalSlotToBeSkipped; // Skip to the next activation
+                }
+                else
+                {
+                    m_timeForNextActivation = m_timeForNextActivation + m_interval; // Skip to the next activation
+                }
+                auto timeDiff = m_timeForNextActivation - now().value(); // calculate remaining time for activation
+                auto waitResult = m_waitSemaphore.timedWait(timeDiff, true);
+                if (waitResult.has_error())
+                {
+                    return cxx::error<TimerErrorCause>(TimerErrorCause::INTERNAL_LOGIC_ERROR);
+                }
+                else
+                {
+                    m_waitResult.state = iox::posix::TimerState::TICK;
+                    return cxx::success<iox::posix::WaitResult>(m_waitResult);
                 }
             }
-            return cxx::success<iox::posix::PeriodicTimerEvent>(iox::posix::PeriodicTimerEvent::TICK_DELAY);
+            else
+            {
+                auto timeDiff = now().value() - m_timeForNextActivation; // Calculate the time delay
+                m_waitResult.state = iox::posix::TimerState::DELAY;
+                m_waitResult.timeDelay = timeDiff;
+                return cxx::success<iox::posix::WaitResult>(m_waitResult);
+            }
         }
         else
         {
@@ -98,39 +121,41 @@ cxx::expected<iox::posix::PeriodicTimerEvent, TimerError> PeriodicTimer::wait() 
             auto waitResult = m_waitSemaphore.timedWait(actualWaitDuration, true);
             if (waitResult.has_error())
             {
-                return cxx::error<TimerError>(TimerError::INTERNAL_LOGIC_ERROR);
+                return cxx::error<TimerErrorCause>(TimerErrorCause::INTERNAL_LOGIC_ERROR);
             }
             else
             {
                 m_timeForNextActivation = m_timeForNextActivation + m_interval;
-                return cxx::success<iox::posix::PeriodicTimerEvent>(iox::posix::PeriodicTimerEvent::TICK);
+                m_waitResult.state = iox::posix::TimerState::TICK;
+                return cxx::success<iox::posix::WaitResult>(m_waitResult);
             }
         }
     }
-    return cxx::success<iox::posix::PeriodicTimerEvent>(iox::posix::PeriodicTimerEvent::STOP);
+    m_waitResult.state = iox::posix::TimerState::STOP;
+    return cxx::success<iox::posix::WaitResult>(m_waitResult);
 }
 
-cxx::error<TimerError> PeriodicTimer::createErrorCodeFromErrNo(const int32_t errnum) noexcept
+cxx::error<TimerErrorCause> PeriodicTimer::createErrorCodeFromErrNo(const int32_t errnum) noexcept
 {
-    TimerError timerError = TimerError::INTERNAL_LOGIC_ERROR;
+    TimerErrorCause timerErrorCause = TimerErrorCause::INTERNAL_LOGIC_ERROR;
     switch (errnum)
     {
     case EINVAL:
     {
         std::cerr << "The argument provided is invalid" << std::endl;
-        timerError = TimerError::INVALID_ARGUMENTS;
+        timerErrorCause = TimerErrorCause::INVALID_ARGUMENTS;
         break;
     }
     case EPERM:
     {
         std::cerr << "No permissions to set the clock" << std::endl;
-        timerError = TimerError::NO_PERMISSION;
+        timerErrorCause = TimerErrorCause::NO_PERMISSION;
         break;
     }
     case EFAULT:
     {
         std::cerr << "An invalid pointer was provided" << std::endl;
-        timerError = TimerError::INVALID_POINTER;
+        timerErrorCause = TimerErrorCause::INVALID_POINTER;
         break;
     }
     default:
@@ -139,7 +164,7 @@ cxx::error<TimerError> PeriodicTimer::createErrorCodeFromErrNo(const int32_t err
         break;
     }
     }
-    return cxx::error<TimerError>(timerError);
+    return cxx::error<TimerErrorCause>(timerErrorCause);
 }
 
 } // namespace posix
