@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "mq.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
-#include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/platform_correction.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <thread>
@@ -36,7 +36,8 @@ void MQ::cleanupOutdatedResources(const std::string& publisherName, const std::s
     auto publisherMqName = PREFIX + publisherName;
     iox::posix::posixCall(mq_unlink)(publisherMqName.c_str())
         .failureReturnValue(ERROR_CODE)
-        .evaluateWithIgnoredErrnos(ENOENT)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
         .or_else([&](auto& r) {
             std::cout << "mq_unlink error for " << publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
@@ -45,7 +46,8 @@ void MQ::cleanupOutdatedResources(const std::string& publisherName, const std::s
     auto subscriberMqName = PREFIX + subscriberName;
     iox::posix::posixCall(mq_unlink)(subscriberMqName.c_str())
         .failureReturnValue(ERROR_CODE)
-        .evaluateWithIgnoredErrnos(ENOENT)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
         .or_else([&](auto& r) {
             std::cout << "mq_unlink error for " << subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
@@ -100,7 +102,8 @@ void MQ::shutdown() noexcept
 
     iox::posix::posixCall(mq_unlink)(m_subscriberMqName.c_str())
         .failureReturnValue(ERROR_CODE)
-        .evaluateWithIgnoredErrnos(ENOENT)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
         .or_else([&](auto& r) {
             std::cout << "mq_unlink error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum()
                       << std::endl;
@@ -173,7 +176,8 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
 
         auto mqCall = iox::posix::posixCall(iox_mq_open4)(name.c_str(), openFlags, m_filemode, &m_attributes)
                           .failureReturnValue(ERROR_CODE)
-                          .evaluateWithIgnoredErrnos(ENOENT)
+                          .ignoreErrnos(ENOENT)
+                          .evaluate()
                           .or_else([&](auto& r) {
                               std::cout << "mq_open error for " << name << ", " << r.getHumanReadableErrnum()
                                         << std::endl;

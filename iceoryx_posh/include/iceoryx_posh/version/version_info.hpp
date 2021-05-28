@@ -16,11 +16,11 @@
 #ifndef IOX_POSH_VERSION_VERSION_INFO_HPP
 #define IOX_POSH_VERSION_VERSION_INFO_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/serialization.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_versions.hpp"
 
 #include <cstdint>

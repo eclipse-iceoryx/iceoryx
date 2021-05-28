@@ -15,17 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include topic data]
 #include "topic_data.hpp"
+//! [include topic data]
 
+//! [includes]
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
+//! [includes]
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
-
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
@@ -38,30 +40,43 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
+    //! [runtime initialization]
+    constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    //! [runtime initialization]
 
+    //! [create untyped publisher]
     iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    //! [create untyped publisher]
 
     double ct = 0.0;
     while (!killswitch)
     {
         ++ct;
 
-        // Loan chunk and provide logic to populate it via a lambda
+        //! [Loan chunk and provide logic to populate it via a lambda]
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& userPayload) {
+                //! [construct RadarObject]
                 RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
-                iox::cxx::Expects(userPayload == data);
+                //! [construct RadarObject]
 
+                //! [write data]
                 data->x = ct;
                 data->y = ct;
                 data->z = ct;
+                //! [write data]
+
+                //! [publish]
                 publisher.publish(userPayload);
+                //! [publish]
             })
             .or_else([&](auto& error) {
-                // Do something with the error
+                //! [print error]
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+                //! [print error]
             });
+        //! [Loan chunk and provide logic to populate it via a lambda]
 
         std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
 

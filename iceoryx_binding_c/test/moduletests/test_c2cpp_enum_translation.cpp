@@ -19,6 +19,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 template <typename CPP, typename C>
@@ -99,3 +101,5 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
 #endif
 #pragma GCC diagnostic pop
 }
+
+} // namespace

@@ -16,11 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {

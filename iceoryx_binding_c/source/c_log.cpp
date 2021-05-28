@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/log/logmanager.hpp"
+#include "iceoryx_hoofs/log/logmanager.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"
@@ -22,7 +22,8 @@ extern "C" {
 
 using namespace iox::log;
 
-LogLevel toLogLevel(enum iox_LogLevel level) {
+LogLevel toLogLevel(enum iox_LogLevel level)
+{
     switch (level)
     {
     case Iceoryx_LogLevel_Off:
@@ -44,6 +45,7 @@ LogLevel toLogLevel(enum iox_LogLevel level) {
     }
 }
 
-void iox_set_loglevel(enum iox_LogLevel level) {
+void iox_set_loglevel(enum iox_LogLevel level)
+{
     LogManager::GetLogManager().SetDefaultLogLevel(toLogLevel(level), LogLevelOutput::kHideLogLevel);
 }

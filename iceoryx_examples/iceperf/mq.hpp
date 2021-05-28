@@ -19,13 +19,13 @@
 
 #include "base.hpp"
 
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/design_pattern/creation.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/mqueue.hpp"
-#include "iceoryx_utils/platform/stat.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/design_pattern/creation.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/mqueue.hpp"
+#include "iceoryx_hoofs/platform/stat.hpp"
 
 #include <string>
 

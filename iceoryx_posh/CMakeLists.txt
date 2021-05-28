@@ -21,7 +21,7 @@ set(IOX_VERSION_STRING "1.0.0")
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 
 find_package(Threads REQUIRED)
-find_package(iceoryx_utils REQUIRED)
+find_package(iceoryx_hoofs REQUIRED)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
@@ -168,7 +168,7 @@ target_include_directories(iceoryx_posh
 )
 target_link_libraries(iceoryx_posh
     PUBLIC
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
     ${CMAKE_THREAD_LIBS_INIT}
@@ -221,7 +221,7 @@ target_include_directories(iceoryx_posh_gateway
 
 target_link_libraries(iceoryx_posh_gateway
     PUBLIC
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
     iceoryx_posh::iceoryx_posh
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
@@ -285,7 +285,7 @@ target_link_libraries(iceoryx_posh_roudi
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
-    iceoryx_utils::iceoryx_utils
+    iceoryx_hoofs::iceoryx_hoofs
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
@@ -323,7 +323,7 @@ if(TOML_CONFIG)
 
     target_link_libraries(iceoryx_posh_config PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
         iceoryx_posh::iceoryx_posh_roudi
         cpptoml
         ${ICEORYX_SANITIZER_FLAGS}
@@ -352,7 +352,7 @@ if(TOML_CONFIG)
 
     target_link_libraries(iox-roudi
         PRIVATE
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
         ${PROJECT_NAMESPACE}::iceoryx_posh_config
     )
@@ -423,7 +423,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     target_link_libraries(iceoryx_posh_testing
         PRIVATE
         iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
+        iceoryx_hoofs::iceoryx_hoofs
         iceoryx_posh::iceoryx_posh_roudi
     )
 

@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_MEPOO_SEGMENT_MANAGER_INL
 #define IOX_POSH_MEPOO_SEGMENT_MANAGER_INL
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
 
 namespace iox
 {

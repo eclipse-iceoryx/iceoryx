@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# This script prepares the commit messages to include
+# the issued ID at the beginning of the message.
+
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ "$branch_name" =~ ^iox-#[0-9]+ ]]; then
+    branch_name="$(echo "$branch_name" | grep -Eo 'iox-#[0-9]+')"
+else
+    echo "Warning: The branch name doesn't follow the convention of 'iox-#ISSUE_NUMBER'."
+    echo "Commit message won't be autoformatted."
+    exit 0
+fi
+
+commit_msg=$(cat $1)
+if [[ $commit_msg =~ ^iox-#[0-9]+ ]]; then
+    commit_msg="$(echo "$commit_msg" | grep -Eo 'iox-#[0-9]+')"
+    if [[ "$commit_msg" != "$branch_name" ]]; then
+        echo "Warning: Commit message ticket number does not fit to branch ticket number: $commit_msg."
+        echo "Is this on purpose?"
+        echo "Commit message will not be autoformatted."
+        exit 0
+    fi
+else
+    echo "Info: Commit message does not start with issue number: $commit_msg."
+    echo "Commit message will be autoformatted."
+    echo -e "$branch_name $(cat $1)" > $1
+fi

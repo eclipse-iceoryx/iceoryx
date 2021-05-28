@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {

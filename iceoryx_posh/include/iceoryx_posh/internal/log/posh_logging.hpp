@@ -18,7 +18,7 @@
 
 /// @todo this might be needed to be public when the logger is used in templates
 
-#include "iceoryx_utils/log/logging_free_function_building_block.hpp"
+#include "iceoryx_hoofs/log/logging_free_function_building_block.hpp"
 
 namespace iox
 {

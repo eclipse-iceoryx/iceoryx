@@ -14,12 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <atomic>
@@ -76,9 +76,8 @@ int main()
                 // Consume a sample
                 subscriber.take()
                     .and_then([](auto& sample) { std::cout << " got value: " << sample->counter << std::endl; })
-                    .or_else([](auto& reason
-                                    IOX_MAYBE_UNUSED) { /* we could check and handle the reason why there is no data */
-                                                        std::cout << "got no data" << std::endl;
+                    .or_else([](auto& reason) {
+                        std::cout << "got no data, return code: " << static_cast<uint64_t>(reason) << std::endl;
                     });
                 // We could consume all samples but do not need to.
                 // If there is more than one sample we will wake up again since the state of the subscriber is still

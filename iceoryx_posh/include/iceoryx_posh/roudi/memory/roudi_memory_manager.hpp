@@ -23,9 +23,9 @@
 #include "iceoryx_posh/internal/roudi/memory/port_pool_memory_block.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 
 #include <cstdint>
 

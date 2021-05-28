@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "uds.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <chrono>
 #include <thread>
@@ -46,7 +46,8 @@ void UDS::cleanupOutdatedResources(const std::string& publisherName, const std::
     initSocketAddress(sockAddrPublisher, publisherSocketName);
     iox::posix::posixCall(unlink)(sockAddrPublisher.sun_path)
         .failureReturnValue(ERROR_CODE)
-        .evaluateWithIgnoredErrnos(ENOENT)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
         .or_else([](auto& r) {
             std::cout << "unlink error " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
@@ -58,7 +59,8 @@ void UDS::cleanupOutdatedResources(const std::string& publisherName, const std::
 
     iox::posix::posixCall(unlink)(sockAddrSubscriber.sun_path)
         .failureReturnValue(ERROR_CODE)
-        .evaluateWithIgnoredErrnos(ENOENT)
+        .ignoreErrnos(ENOENT)
+        .evaluate()
         .or_else([](auto& r) {
             std::cout << "unlink error " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
@@ -130,7 +132,8 @@ void UDS::waitForLeader() noexcept
                                                       reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
                                                       sizeof(m_sockAddrPublisher))
                             .failureReturnValue(ERROR_CODE)
-                            .evaluateWithIgnoredErrnos(ENOENT)
+                            .ignoreErrnos(ENOENT)
+                            .evaluate()
                             .or_else([](auto& r) {
                                 std::cout << "send error " << r.getHumanReadableErrnum() << std::endl;
                                 exit(1);
@@ -240,7 +243,8 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
                                          reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
                                          sizeof(m_sockAddrPublisher))
                .failureReturnValue(ERROR_CODE)
-               .evaluateWithIgnoredErrnos(ENOBUFS)
+               .ignoreErrnos(ENOBUFS)
+               .evaluate()
                .or_else([](auto& r) {
                    std::cout << std::endl << "send error " << r.getHumanReadableErrnum() << std::endl;
                    exit(1);

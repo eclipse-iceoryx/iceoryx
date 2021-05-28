@@ -16,12 +16,12 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_utils/testing/timing_test.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -38,13 +38,12 @@ extern "C" {
 #include <atomic>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::mepoo;
 
-
-namespace
-{
 iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
 void* g_contextData = nullptr;
@@ -170,9 +169,6 @@ class iox_listener_test : public Test
     static constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(100);
 };
 constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
-
-
-} // namespace
 
 TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
 {
@@ -333,3 +329,5 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
     EXPECT_THAT(g_contextData, Eq(static_cast<void*>(&someContextData)));
 });
+
+} // namespace

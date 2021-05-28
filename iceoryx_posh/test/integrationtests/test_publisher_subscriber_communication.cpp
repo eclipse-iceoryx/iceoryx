@@ -14,19 +14,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/forward_list.hpp"
+#include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/stack.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/cxx/variant.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
-#include "iceoryx_utils/cxx/forward_list.hpp"
-#include "iceoryx_utils/cxx/list.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/stack.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/variant.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "iceoryx_utils/testing/watch_dog.hpp"
 
 #include "test.hpp"
 
@@ -328,7 +328,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
     EXPECT_TRUE(wasSampleDelivered.load());
 
-    EXPECT_FALSE(subscriber->hasMissedData());    
+    EXPECT_FALSE(subscriber->hasMissedData());
     sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("and hypnotoad will smile back")));
@@ -362,7 +362,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     t1.join();
     EXPECT_TRUE(wasSampleDelivered.load());
 
-    EXPECT_TRUE(subscriber->hasMissedData());   
+    EXPECT_TRUE(subscriber->hasMissedData());
     auto sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("second hypnotoad ate it")));
@@ -370,7 +370,6 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("third a tiny black hole smells like butter")));
-
 }
 
 TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsBlockingAndPublisherDoesNotOfferBlocking)
@@ -440,7 +439,7 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
     EXPECT_TRUE(wasSampleDelivered.load());
 
-    EXPECT_FALSE(subscriberBlocking->hasMissedData());  // we don't loose samples here
+    EXPECT_FALSE(subscriberBlocking->hasMissedData()); // we don't loose samples here
     sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad wants a cookie")));
@@ -460,7 +459,6 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
     EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
-
 }
 
 } // namespace

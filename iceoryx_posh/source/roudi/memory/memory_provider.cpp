@@ -20,11 +20,11 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 
-/// @todo this should probably be moved to iceoryx_utils/allocator/bump_allocator.hpp
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+/// @todo this should probably be moved to iceoryx_hoofs/allocator/bump_allocator.hpp
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
 {

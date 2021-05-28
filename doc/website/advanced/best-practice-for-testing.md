@@ -247,6 +247,35 @@ Some classes are hard to test or to reach a full coverage. This might be due to 
 Mocks can help to have full control over the `sut` and reliably cause error conditions to test the negative code path.
 There is an [extensive gmock documentation](https://github.com/google/googletest/tree/release-1.8.1/googlemock/docs) in the gtest github repository.
 
+## Pitfalls
+Some tests require creating dummy classes and it might be that the same name is chosen multiple times, e.g. “class DummyData {...};”.
+Usually, at some time the compiler would complain about double definitions.
+But since the definitions are not in header but source files and therefore confined in a translation unit, this is not the case and the test binary gets created.
+There might still be issues though, since the binary contains multiple symbols with the same name.
+One of these issues may arise with the usage of sanitizers, e.g. the address or leak sanitizer.
+If there are multiple “DummyData” classes with different sizes and they are created on the heap, which is totally fine for tests, the address sanitizer might detect an error since something with a different size than expected will be freed.
+To prevent such issues, the tests should be placed within an anonymous namespace which makes all the symbols unique.
+
+```cpp
+namespace
+{
+struct DummyData {
+    uint32_t foo{0};
+};
+
+class MyTest : public Test
+{
+    //...
+};
+
+TEST_F(MyTest, TestName)
+{
+    EXPECT_EQ(ANSWER, 42)
+}
+
+}
+```
+
 # Conclusion
 
 - apply the AAA pattern to structure the test and check only one state transition per test case (all side effects of that transition must be checked, though)
@@ -259,3 +288,4 @@ There is an [extensive gmock documentation](https://github.com/google/googletest
 - use `ASSERT_*` before doing a potential dangerous action which might crash the test application, like accessing a `nullptr` or a `cxx::optional` with a `nullopt`
 - use mocks to reduce the complexity of the test arrangement
 - apply the **DRY** principle by using typed and parameterized tests
+- wrap the tests in an anonymous namespace

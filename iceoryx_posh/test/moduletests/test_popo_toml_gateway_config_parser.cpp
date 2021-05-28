@@ -244,7 +244,7 @@ INSTANTIATE_TEST_CASE_P(ParseAllMalformedInputConfigFiles,
                                ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
                                                      "toml_parser_exception.toml"}));
 
-                                                     
+
 #pragma GCC diagnostic pop
 
 TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)

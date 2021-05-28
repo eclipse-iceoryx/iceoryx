@@ -15,15 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/stat.hpp"
-#include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/testing/test_definitions.hpp"
 #include "test.hpp"
 
 

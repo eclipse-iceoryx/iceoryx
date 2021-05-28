@@ -70,7 +70,8 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
 
 TEST_F(PoshRuntimeNode_test, ConstructorNodeWithMaximalSizeNodeNameIsSuccess)
 {
-    const NodeName_t nodeName{"aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
+    const NodeName_t nodeName{
+        "aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
 
     Node node("aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd");
 

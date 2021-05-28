@@ -1,6 +1,6 @@
 # Installation
 
-All iceoryx libraries are deployed as independent CMake packages. Posh is using functions from utils and is depending on it. You are able to build posh and utils and integrate them into existing CMake projects.
+All iceoryx libraries are deployed as independent CMake packages. Posh is using functions from hoofs and is depending on it. You are able to build posh and hoofs and integrate them into existing CMake projects.
 
 ## Prerequisites
 

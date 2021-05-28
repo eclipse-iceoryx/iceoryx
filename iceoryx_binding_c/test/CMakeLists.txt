@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(test_binding_c VERSION 0)
 
-find_package(iceoryx_utils_testing REQUIRED)
+find_package(iceoryx_hoofs_testing REQUIRED)
 find_package(iceoryx_posh_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
@@ -31,8 +31,8 @@ set(TEST_LINK_LIBS
     GTest::gtest
     GTest::gmock
     iceoryx_binding_c::iceoryx_binding_c
-    iceoryx_utils::iceoryx_utils
-    iceoryx_utils_testing::iceoryx_utils_testing
+    iceoryx_hoofs::iceoryx_hoofs
+    iceoryx_hoofs_testing::iceoryx_hoofs_testing
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_roudi

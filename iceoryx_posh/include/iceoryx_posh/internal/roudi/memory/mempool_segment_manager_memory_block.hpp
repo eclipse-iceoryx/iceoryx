@@ -21,7 +21,7 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <cstdint>
 

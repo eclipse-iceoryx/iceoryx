@@ -46,11 +46,11 @@ git checkout $BRANCH
 # Generate doxygen
 cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
 cd $WORKSPACE/build
-make -j8 doxygen_iceoryx_posh doxygen_iceoryx_utils doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
+make -j8 doxygen_iceoryx_posh doxygen_iceoryx_hoofs doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
 
 cd $WORKSPACE
 
-PACKAGES="utils posh c-binding DDS-gateway introspection"
+PACKAGES="hoofs posh c-binding DDS-gateway introspection"
 
 # Generate doxybook2 config files, to have correct links in doxygen docu
 mkdir -p $WORKSPACE/tools/website/generated/
@@ -71,8 +71,8 @@ for PACKAGE in ${PACKAGES}  ; do
 done
 
 # Generate markdown from doxygen
-mkdir -p $WORKSPACE/doc/website/API-reference/utils
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_utils/xml/ --output $WORKSPACE/doc/website/API-reference/utils --config $WORKSPACE/tools/website/generated/doxybook2-utils.json
+mkdir -p $WORKSPACE/doc/website/API-reference/hoofs
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_hoofs/xml/ --output $WORKSPACE/doc/website/API-reference/hoofs --config $WORKSPACE/tools/website/generated/doxybook2-hoofs.json
 
 mkdir -p $WORKSPACE/doc/website/API-reference/posh
 doxybook2 --input $WORKSPACE/build/doc/iceoryx_posh/xml/ --output $WORKSPACE/doc/website/API-reference/posh --config $WORKSPACE/tools/website/generated/doxybook2-posh.json

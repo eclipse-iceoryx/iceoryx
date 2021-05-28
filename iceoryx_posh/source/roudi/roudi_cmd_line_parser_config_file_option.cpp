@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_versions.hpp"
 
-#include "iceoryx_utils/platform/getopt.hpp"
+#include "iceoryx_hoofs/platform/getopt.hpp"
 #include <iostream>
 
 namespace iox

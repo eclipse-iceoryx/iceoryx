@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/platform/resource.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/platform/resource.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
