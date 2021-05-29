@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "test.hpp"
 
 #include <type_traits>
@@ -56,6 +57,8 @@ class Helplets_test : public Test
     {
     }
 };
+
+constexpr uint64_t FILE_PATH_LENGTH = 128U;
 
 TEST_F(Helplets_test, maxSize)
 {
@@ -190,12 +193,247 @@ TYPED_TEST(Helplets_test_isPowerOfTwo, MaxValueForTypeIsNotPowerOfTwo)
     EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(TestFixture::MAX)));
 }
 
-TEST(Helplets_test_isFilePath, StringWithEndingSlashIsNotAFilePath)
+TEST(Helplets_test_isValidFileName, EmptyNameIsInvalid)
 {
-    EXPECT_FALSE(iox::cxx::isFilePath(std::string("/")));
-    EXPECT_FALSE(iox::cxx::isFilePath(std::string("../")));
-    EXPECT_FALSE(iox::cxx::isFilePath(std::string("////")));
-    EXPECT_FALSE(iox::cxx::isFilePath(std::string("/fu/bla/far/")));
-    EXPECT_FALSE(iox::cxx::isFilePath(std::string("/schnappa/di/puppa//")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("")));
 }
+
+TEST(Helplets_test_isValidFileName, RelativePathComponentsAreInvalid)
+{
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>(".")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("..")));
+}
+
+TEST(Helplets_test_isValidFileName, FileNameWithValidSymbolsAndDotsAreValid)
+{
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("fuu.")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("fuu..")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("..bla")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(".blubb")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("scna..bla")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("scna.blubb")));
+}
+
+TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
+{
+    std::array<std::string, 3> combinations;
+
+    for (uint32_t i = 0U; i <= 255U; ++i)
+    {
+        if ((65 <= i && i <= 90) ||  // A-Z
+            (97 <= i && i <= 122) || // a-z
+            (48 <= i && i <= 57) ||  // 0-9
+            i == 45 ||               // -
+            // for simplicity we exclude the valid dot here, since it is
+            // invalid when it occurs alone.
+            // it is tested separately
+            // i == 46 ||               // .
+            i == 58 || // :
+            i == 95    // _
+        )
+        {
+            uint32_t index = i % 3;
+
+            auto& s = combinations[index];
+            s.resize(s.size() + 1);
+            s[s.size() - 1] = static_cast<char>(i);
+
+            EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(TruncateToCapacity, s)));
+        }
+    }
+}
+
+TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedPathIsInvalid)
+{
+    std::string validName1 = "summon";
+    std::string validName2 = "TheHolyToad";
+
+    for (uint32_t i = 0U; i <= 255U; ++i)
+    {
+        if ((65 <= i && i <= 90) ||  // A-Z
+            (97 <= i && i <= 122) || // a-z
+            (48 <= i && i <= 57) ||  // 0-9
+            i == 45 ||               // -
+            i == 46 ||               // .
+            i == 58 ||               // :
+            i == 95                  // _
+        )
+        {
+            continue;
+        }
+
+        std::string invalidCharacterFront;
+        invalidCharacterFront.resize(1);
+        invalidCharacterFront[0] = static_cast<char>(i);
+        invalidCharacterFront += validName1 + validName2;
+
+        std::string invalidCharacterMiddle = validName1;
+        invalidCharacterMiddle.resize(invalidCharacterMiddle.size() + 1);
+        invalidCharacterMiddle[invalidCharacterMiddle.size() - 1] = static_cast<char>(i);
+
+        std::string invalidCharacterEnd = validName1 + validName2;
+        invalidCharacterEnd.resize(invalidCharacterEnd.size() + 1);
+        invalidCharacterEnd[invalidCharacterEnd.size() - 1] = static_cast<char>(i);
+
+        string<FILE_PATH_LENGTH> invalidCharacterFrontTest(TruncateToCapacity, invalidCharacterFront);
+        string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(TruncateToCapacity, invalidCharacterMiddle);
+        string<FILE_PATH_LENGTH> invalidCharacterEndTest(TruncateToCapacity, invalidCharacterEnd);
+
+        EXPECT_FALSE(isValidFileName(invalidCharacterFrontTest));
+        EXPECT_FALSE(isValidFileName(invalidCharacterMiddleTest));
+        EXPECT_FALSE(isValidFileName(invalidCharacterEndTest));
+    }
+}
+
+TEST(Helplets_test_isValidFilePath, StringWithEndingSlashIsNotAFilePath)
+{
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("//")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("../")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("////")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/fu/bla/far/")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/schnappa/di/puppa//")));
+}
+
+TEST(Helplets_test_isValidFilePath, MultipleSlashsAreValidFilePath)
+{
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("//beginning/double/slash")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/middle//double/slash")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("middle//double/slash")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/multi////slash")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("////multi/slash")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("//multi///slash////hypno")));
+}
+
+TEST(Helplets_test_isValidFilePath, RelativePathElementsAreValid)
+{
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("../some.file")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("./another_file")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("./dir/../../fuu-bar")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("./././gimme-blubb")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("./../.././gimme-blubb")));
+}
+
+TEST(Helplets_test_isValidFilePath, RelativePathBeginningFromRootIsValid)
+{
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/./././gimme-blubb")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/../../../gimme-blubb")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/../some/dir/gimme-blubb")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/./blubb/dir/gimme-blubb")));
+}
+
+TEST(Helplets_test_isValidFilePath, SingleFileIsValidPath)
+{
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("gimme-blubb")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("a")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("fuu:blubb")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/blarbi")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/x")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/fuu:-012")));
+}
+
+TEST(Helplets_test_isValidFilePath, ValidPathsWithNoRelativeComponentAreValid)
+{
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/fuu/bla/blubb/balaa")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/a/b/c/d/1/2/4")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("asd/fuu/asdaaas/1")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("123/456")));
+}
+
+TEST(Helplets_test_isValidFilePath, EndingWithRelativePathComponentIsInvalid)
+{
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/..")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/.")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("./..")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("../.")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("some/path/to/..")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/another/path/to/.")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("../bla/fuu/../blubb/.")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("./blubb/fuu/../bla/..")));
+}
+
+TEST(Helplets_test_isValidFilePath, FilesWithEndingDotsAreValid)
+{
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("a.")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/asda.")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/bla/../fuu/asda..")));
+    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/bla/./.././xa..")));
+}
+
+TEST(Helplets_test_isValidFilePath, PathWhichContainsAllValidCharactersIsValid)
+{
+    EXPECT_TRUE(isValidFilePath(
+        string<FILE_PATH_LENGTH>("/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/0123456789/-.:_")));
+    EXPECT_TRUE(isValidFilePath(
+        string<FILE_PATH_LENGTH>("/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_")));
+}
+
+TEST(Helplets_test_isValidFilePath, WhenOneInvalidCharacterIsContainedPathIsInvalid)
+{
+    std::string validPath1 = "/hello";
+    std::string validPath2 = "fuu/world";
+
+    // begin at 1 since 0 is string termination
+    for (uint32_t i = 1U; i <= 255U; ++i)
+    {
+        // ignore valid characters
+        if ((65 <= i && i <= 90) ||  // A-Z
+            (97 <= i && i <= 122) || // a-z
+            (48 <= i && i <= 57) ||  // 0-9
+            i == 45 ||               // -
+            i == 46 ||               // .
+            i == 58 ||               // :
+            i == 95                  // _
+        )
+        {
+            continue;
+        }
+
+        // ignore path separators since they are valid path characters
+        bool isPathSeparator = false;
+        auto numberOfPathSeparators = strlen(IOX_PATH_SEPARATORS);
+        for (uint64_t k = 0; k < numberOfPathSeparators; ++k)
+        {
+            if (static_cast<char>(i) == IOX_PATH_SEPARATORS[k])
+            {
+                isPathSeparator = true;
+                break;
+            }
+        }
+
+        if (isPathSeparator)
+        {
+            continue;
+        }
+
+        // test
+        std::string invalidCharacterFront;
+        invalidCharacterFront.resize(1);
+        invalidCharacterFront[0] = static_cast<char>(i);
+        invalidCharacterFront += validPath1 + validPath2;
+
+        std::string invalidCharacterMiddle = validPath1;
+        invalidCharacterMiddle.resize(invalidCharacterMiddle.size() + 1);
+        invalidCharacterMiddle[invalidCharacterMiddle.size() - 1] = static_cast<char>(i);
+
+        std::string invalidCharacterEnd = validPath1 + validPath2;
+        invalidCharacterEnd.resize(invalidCharacterEnd.size() + 1);
+        invalidCharacterEnd[invalidCharacterEnd.size() - 1] = static_cast<char>(i);
+
+        string<FILE_PATH_LENGTH> invalidCharacterFrontTest(TruncateToCapacity, invalidCharacterFront);
+        string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(TruncateToCapacity, invalidCharacterMiddle);
+        string<FILE_PATH_LENGTH> invalidCharacterEndTest(TruncateToCapacity, invalidCharacterEnd);
+
+        EXPECT_FALSE(isValidFilePath(invalidCharacterFrontTest));
+        EXPECT_FALSE(isValidFilePath(invalidCharacterMiddleTest));
+        EXPECT_FALSE(isValidFilePath(invalidCharacterEndTest));
+    }
+}
+
+TEST(Helplets_test_isValidFilePath, EmptyFilePathIsInvalid)
+{
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("")));
+}
+
+
 } // namespace
