@@ -19,6 +19,7 @@
 
 #include <assert.h>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <type_traits>
@@ -30,6 +31,10 @@ namespace iox
 {
 namespace cxx
 {
+template <uint64_t Capacity>
+class string;
+struct TruncateToCapacity_t;
+
 namespace internal
 {
 inline void
@@ -253,13 +258,13 @@ constexpr bool isPowerOfTwo(const T n)
 
 /// @brief checks if the given string is a valid filename
 /// @return true if the string is a filename, otherwise false
-template <typename StringType>
-bool isFileName(const StringType& name) noexcept;
+template <uint64_t StringCapacity>
+bool isValidFileName(const string<StringCapacity>& name) noexcept;
 
 /// @brief verifies if the given string is a valid path to a file
 /// @return true if the string is a path to a file, otherwise false
-template <typename StringType>
-bool isFilePath(const StringType& name) noexcept;
+template <uint64_t StringCapacity>
+bool isValidFilePath(const string<StringCapacity>& name) noexcept;
 
 } // namespace cxx
 } // namespace iox

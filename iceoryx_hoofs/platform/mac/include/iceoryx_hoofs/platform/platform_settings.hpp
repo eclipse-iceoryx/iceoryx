@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-constexpr char IOX_PATH_SEPARATOR = '/';
+constexpr const char IOX_PATH_SEPARATORS[] = "/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 2048;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
 

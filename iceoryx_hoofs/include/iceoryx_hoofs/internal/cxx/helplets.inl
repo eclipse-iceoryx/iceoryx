@@ -16,8 +16,12 @@
 #ifndef IOX_HOOFS_CXX_HELPLETS_INL
 #define IOX_HOOFS_CXX_HELPLETS_INL
 
-template <typename StringType>
-inline bool isFileName(const StringType& name) noexcept
+namespace iox
+{
+namespace cxx
+{
+template <uint64_t StringCapacity>
+inline bool isValidFileName(const string<StringCapacity>& name) noexcept
 {
     if (name.empty())
     {
@@ -28,14 +32,14 @@ inline bool isFileName(const StringType& name) noexcept
 
     // a single dot is the relative path to the current directory and therefore
     // no file name
-    if (nameSize == 1 && name[0] == '.')
+    if (nameSize == 1 && name.c_str()[0] == '.')
     {
         return false;
     }
 
     // a double dot is the relative path to the directory above and therefore
     // no file name
-    if (nameSize == 2 && name[0] == '.' && name[1] == '.')
+    if (nameSize == 2 && name.c_str()[0] == '.' && name.c_str()[1] == '.')
     {
         return false;
     }
@@ -59,8 +63,8 @@ inline bool isFileName(const StringType& name) noexcept
     return true;
 }
 
-template <typename StringType>
-inline bool isFilePath(const StringType& name) noexcept
+template <uint64_t StringCapacity>
+inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
 {
     if (name.empty())
     {
@@ -71,13 +75,58 @@ inline bool isFilePath(const StringType& name) noexcept
 
     // a file path ends with the filename and not the path separator, only a
     // directory can end with a path separator
-    if (name[nameSize - 1] == IOX_PATH_SEPARATOR)
+    auto numberOfPathSeparators = strlen(IOX_PATH_SEPARATORS);
+    for (uint64_t i = 0; i < numberOfPathSeparators; ++i)
     {
-        return false;
+        if (name.c_str()[nameSize - 1] == IOX_PATH_SEPARATORS[i])
+        {
+            return false;
+        }
     }
 
-    return true;
-}
+    auto temp = name;
 
+    const string<StringCapacity> currentDirectory(".");
+    const string<StringCapacity> parentDirectory("..");
+
+    while (!temp.empty())
+    {
+        auto separatorPosition = temp.find_first_of(IOX_PATH_SEPARATORS);
+
+        // multiple slashes are explicitly allowed. the following paths
+        // are equivalent:
+        // /some/fuu/bar
+        // //some///fuu////bar
+        if (separatorPosition && *separatorPosition == 0)
+        {
+            temp = *temp.substr(*separatorPosition + 1);
+            continue;
+        }
+
+        // verify if the entry between two path separators is a valid directory
+        // name, e.g. either it has the relative component . or .. or conforms
+        // with a valid file name
+        if (separatorPosition)
+        {
+            auto filenameToVerify = temp.substr(0, *separatorPosition);
+            if (!isValidFileName(*filenameToVerify) && *filenameToVerify != currentDirectory
+                && *filenameToVerify != parentDirectory)
+            {
+                return false;
+            }
+
+            temp = *temp.substr(*separatorPosition + 1);
+        }
+        // we reached the last entry, if its a valid file name the path is valid
+        else if (!separatorPosition)
+        {
+            return isValidFileName(temp);
+        }
+    }
+
+    return false;
+}
+} // namespace cxx
+} // namespace iox
 
 #endif

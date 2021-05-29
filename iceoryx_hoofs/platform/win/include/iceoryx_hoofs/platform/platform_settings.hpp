@@ -18,7 +18,8 @@
 
 #include <cstdint>
 
-constexpr char IOX_PATH_SEPARATOR = '\\';
+// windows has two possible path separators
+constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
 

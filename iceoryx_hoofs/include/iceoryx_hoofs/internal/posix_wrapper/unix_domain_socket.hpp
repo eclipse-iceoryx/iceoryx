@@ -101,8 +101,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
-    static bool isNameValid(const UdsName_t& name) noexcept;
-
     /// @brief c'tor
     /// @param name for the unix domain socket
     /// @param channel side client or server
