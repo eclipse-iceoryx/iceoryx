@@ -24,6 +24,7 @@
 #include <type_traits>
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 
 namespace iox
 {
@@ -250,7 +251,19 @@ constexpr bool isPowerOfTwo(const T n)
     return n && ((n & (n - 1U)) == 0U);
 }
 
+/// @brief checks if the given string is a valid filename
+/// @return true if the string is a filename, otherwise false
+template <typename StringType>
+bool isFileName(const StringType& name) noexcept;
+
+/// @brief verifies if the given string is a valid path to a file
+/// @return true if the string is a path to a file, otherwise false
+template <typename StringType>
+bool isFilePath(const StringType& name) noexcept;
+
 } // namespace cxx
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/cxx/helplets.inl"
 
 #endif // IOX_HOOFS_CXX_HELPLETS_HPP

@@ -20,9 +20,6 @@
 #include <cstdint>
 #include <sys/socket.h>
 
-constexpr uint64_t IOX_SOCKET_MAX_MESSAGE_SIZE = 2048;
-constexpr char IOX_SOCKET_PATH_PREFIX[] = "/tmp/";
-
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_socket(int domain, int type, int protocol);
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);

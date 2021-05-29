@@ -26,9 +26,6 @@
 #define AF_LOCAL AF_INET
 using sa_family_t = int;
 
-constexpr uint64_t IOX_SOCKET_MAX_MESSAGE_SIZE = 4096;
-constexpr char IOX_SOCKET_PATH_PREFIX[] = "";
-
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_socket(int domain, int type, int protocol);
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);

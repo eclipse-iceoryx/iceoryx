@@ -189,4 +189,13 @@ TYPED_TEST(Helplets_test_isPowerOfTwo, MaxValueForTypeIsNotPowerOfTwo)
 {
     EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(TestFixture::MAX)));
 }
+
+TEST(Helplets_test_isFilePath, StringWithEndingSlashIsNotAFilePath)
+{
+    EXPECT_FALSE(iox::cxx::isFilePath(std::string("/")));
+    EXPECT_FALSE(iox::cxx::isFilePath(std::string("../")));
+    EXPECT_FALSE(iox::cxx::isFilePath(std::string("////")));
+    EXPECT_FALSE(iox::cxx::isFilePath(std::string("/fu/bla/far/")));
+    EXPECT_FALSE(iox::cxx::isFilePath(std::string("/schnappa/di/puppa//")));
+}
 } // namespace
