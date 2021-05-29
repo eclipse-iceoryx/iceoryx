@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/platform/named_pipe.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/platform/un.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
@@ -76,7 +77,7 @@ int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
         constexpr uint64_t MAX_NUMBER_OF_MESSAGES = 10U;
         const struct sockaddr_un* addrInfo = reinterpret_cast<const struct sockaddr_un*>(addr);
         iter->second.receiver = std::make_unique<NamedPipeReceiver>(
-            addrInfo->sun_path, IOX_SOCKET_MAX_MESSAGE_SIZE, MAX_NUMBER_OF_MESSAGES);
+            addrInfo->sun_path, IOX_UDS_SOCKET_MAX_MESSAGE_SIZE, MAX_NUMBER_OF_MESSAGES);
     }
     return 0;
 }

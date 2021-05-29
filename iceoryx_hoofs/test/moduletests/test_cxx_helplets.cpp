@@ -19,6 +19,8 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "test.hpp"
 
+#include <array>
+#include <string>
 #include <type_traits>
 
 namespace
