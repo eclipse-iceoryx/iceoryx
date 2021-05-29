@@ -112,4 +112,4 @@ jobs:
           build\hoofs\test\Debug\hoofs_integrationtests.exe
           build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-iox_listener*:BindingC_Runtime*:iox_sub*:iox_ws*:iox_types*:*TimingTest*"
           build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-PoshRuntime*:IceoryxRoudiApp*:IceoryxRoudiMemoryManager*:ProcessIntrospection*:Process_test*:ParseAllMalformedInput*:*TimingTest*"
-          build\posh\test\Debug\posh_integrationtests.exe --gtest_filter="-*ChunkBuildingBlocks*:PortUser*:Mepoo*:PublisherSubscriberCommunication*:RoudiFindService*"
+          build\posh\test\Debug\posh_integrationtests.exe --gtest_filter="-*ChunkBuildingBlocks*:PortUser*:Mepoo*:PublisherSubscriberCommunication*:RoudiFindService*:PubSubListener*"
