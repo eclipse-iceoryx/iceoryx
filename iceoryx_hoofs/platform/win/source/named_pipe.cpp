@@ -75,9 +75,9 @@ void NamedPipeReceiverInstance::destroy() noexcept
 {
     if (m_handle != INVALID_HANDLE_VALUE)
     {
-        FlushFileBuffers(m_handle);
-        DisconnectNamedPipe(m_handle);
-        CloseHandle(m_handle);
+        Win32Call(FlushFileBuffers, m_handle);
+        Win32Call(DisconnectNamedPipe, m_handle);
+        Win32Call(CloseHandle, m_handle);
         m_handle = INVALID_HANDLE_VALUE;
     }
 }
@@ -114,40 +114,42 @@ NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeout
     LPSECURITY_ATTRIBUTES noSecurityAttributes = NULL;
     DWORD defaultAttributes = 0;
     HANDLE noTemplateFile = NULL;
-    m_handle = CreateFileA(pipeName.c_str(),
-                           GENERIC_READ | GENERIC_WRITE,
-                           disableSharing,
-                           noSecurityAttributes,
-                           OPEN_EXISTING,
-                           defaultAttributes,
-                           noTemplateFile);
+    m_handle = Win32Call(CreateFileA,
+                         pipeName.c_str(),
+                         GENERIC_READ | GENERIC_WRITE,
+                         disableSharing,
+                         noSecurityAttributes,
+                         OPEN_EXISTING,
+                         defaultAttributes,
+                         noTemplateFile)
+                   .value;
 
     if (m_handle == INVALID_HANDLE_VALUE)
     {
         if (GetLastError() != ERROR_PIPE_BUSY)
         {
-            __PrintLastErrorToConsole("", "", 0);
             printf("Could not open pipe %s for reading.\n", pipeName.c_str());
             return;
         }
 
         if (timeoutInMs != 0)
         {
-            if (!WaitNamedPipeA(pipeName.c_str(), timeoutInMs))
+            if (!Win32Call(WaitNamedPipeA, pipeName.c_str(), timeoutInMs).value)
             {
-                __PrintLastErrorToConsole("", "", 0);
                 printf("Unable to wait %d ms for pipe %s.\n", timeoutInMs, pipeName.c_str());
                 return;
             }
             else
             {
-                m_handle = CreateFileA(pipeName.c_str(),
-                                       GENERIC_READ | GENERIC_WRITE,
-                                       disableSharing,
-                                       noSecurityAttributes,
-                                       OPEN_EXISTING,
-                                       defaultAttributes,
-                                       noTemplateFile);
+                m_handle = Win32Call(CreateFileA,
+                                     pipeName.c_str(),
+                                     GENERIC_READ | GENERIC_WRITE,
+                                     disableSharing,
+                                     noSecurityAttributes,
+                                     OPEN_EXISTING,
+                                     defaultAttributes,
+                                     noTemplateFile)
+                               .value;
                 if (m_handle == INVALID_HANDLE_VALUE)
                 {
                     return;
@@ -157,9 +159,9 @@ NamedPipeSender::NamedPipeSender(const std::string& name, const uint64_t timeout
     }
 
     DWORD pipeMode = PIPE_READMODE_MESSAGE;
-    if (!SetNamedPipeHandleState(m_handle, &pipeMode, NULL, NULL))
+    if (!Win32Call(SetNamedPipeHandleState, m_handle, &pipeMode, static_cast<LPDWORD>(NULL), static_cast<LPDWORD>(NULL))
+             .value)
     {
-        __PrintLastErrorToConsole("", "", 0);
         printf("SetNamedPipeHandleState failed for pipe %s\n", pipeName.c_str());
         destroy();
     }
@@ -195,7 +197,9 @@ NamedPipeSender::operator bool() const noexcept
 bool NamedPipeSender::send(const std::string& message) noexcept
 {
     DWORD numberOfSentBytes = 0;
-    if (!WriteFile(m_handle, message.data(), message.size(), &numberOfSentBytes, NULL))
+    if (!Win32Call(
+             WriteFile, m_handle, message.data(), message.size(), &numberOfSentBytes, static_cast<LPOVERLAPPED>(NULL))
+             .value)
     {
         printf("Unable to send message: %s\n", message.c_str());
         return false;
@@ -212,7 +216,7 @@ void NamedPipeSender::destroy() noexcept
 {
     if (m_handle != INVALID_HANDLE_VALUE)
     {
-        CloseHandle(m_handle);
+        Win32Call(CloseHandle, m_handle);
         m_handle = INVALID_HANDLE_VALUE;
     }
 }

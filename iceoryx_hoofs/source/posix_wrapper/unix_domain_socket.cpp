@@ -316,6 +316,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
         auto recvCall = posixCall(iox_recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
                             .suppressErrorMessagesForErrnos(EAGAIN)
+                            .suppressErrorMessagesForErrnos(EWOULDBLOCK)
                             .evaluate();
         message[MAX_MESSAGE_SIZE] = 0;
 

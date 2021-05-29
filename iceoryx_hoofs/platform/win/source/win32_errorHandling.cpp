@@ -37,8 +37,7 @@ int __PrintLastErrorToConsole(const char* functionName, const char* file, const 
                       NULL);
 
         coutMutex.lock();
-        std::cerr << "< Win32API Error > " << file << ":" << line << " { " << functionName << " } [ " << lastError
-                  << " ] ::: " << buffer;
+        fprintf(stderr, "< Win32API Error > %s:%d { %s } [ %d ] ::: %s", file, line, functionName, lastError, buffer);
         coutMutex.unlock();
     }
     return lastError;
