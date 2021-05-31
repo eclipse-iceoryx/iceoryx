@@ -42,7 +42,7 @@ This is an overview of the untyped `Client` and `Server` classes.
 
 ![simple class diagram](diagrams/request_response_overview_class.svg)
 
-The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` building blocks. The `Client` uses a `ChunkSender` to send requests and a `ChunkReceiver` to get the responses while the `Server` uses a `ChunkReceiver` to get the requests and a `ChunkReceiver` to send the responses.
+The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` building blocks. The `Client` uses a `ChunkSender` to send requests and a `ChunkReceiver` to get the responses while the `Server` uses a `ChunkReceiver` to get the requests and a `ChunkSender` to send the responses.
 
 #### Typed API
 

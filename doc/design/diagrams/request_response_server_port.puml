@@ -14,12 +14,12 @@ class ServerPortUser {
   isOffered(): bool
   hasClients(): bool
   getRequest(): expected<const RequestHeader*, ChunkReceiveResult>
-  releaseRequest(response Header: const RequestHeader*): void
+  releaseRequest(requestHeader: const RequestHeader*): void
   hasNewRequests(): void
   hasLostRequestsSinceLastCall(): bool
   allocateResponse(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
-  sendResponse(requestHeader: ResponseHeader): void
-  freeResponset(requestHeader: ResponseHeader): void
+  sendResponse(responseHeader: ResponseHeader): void
+  freeResponse(responseHeader: ResponseHeader): void
   setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
   unsetConditionVariable: void
   isConditionVariableSet(): bool
