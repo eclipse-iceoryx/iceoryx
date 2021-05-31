@@ -4,9 +4,9 @@
 
 Service discovery over IPC channel e.g. message queue or UNIX domain socket is not performant since larger data is
 transferred, which can lead to transmission of several frames. If lots of services are discovered at high-frequency
-e.g. at startup the IPC channel can become a bottleneck. Furthermore, a lesson learned from the iceoryx development
-so far is, that the IPC channel should just be used for the earliest communication during startup and not for the
-creation of objects inside the shared memory (see [this issue](https://github.com/eclipse-iceoryx/iceoryx/issues/611)).
+e.g. at startup the IPC channel can become a bottleneck. Furthermore, in a safety environment the IPC channel should
+just be used for the earliest communication during startup and not for the creation of objects inside the shared memory
+(see [this issue](https://github.com/eclipse-iceoryx/iceoryx/issues/611)).
 
 ### Status quo in iceoryx Almond
 
@@ -120,7 +120,7 @@ Pro:
 Contra:
 
 * Bespoken solution more complex than todays approach (thread-safety required, lock-free mechanism needed)
-* In an optimal case IPC channel communication shall only be used for startup
+* In a safety environment the IPC channel communication shall only be used for startup
 * New thread needs to be maintained by user
 
 ##### Alternative B: Built-in topic based on `InterfacePort`'s
