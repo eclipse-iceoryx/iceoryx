@@ -75,32 +75,35 @@ class UnixDomainSocket_test : public Test
     {
     }
 
-    void createTestSocket(const UnixDomainSocket::UdsName_t& name)
+    bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
     {
         static constexpr int32_t ERROR_CODE = -1;
         struct sockaddr_un sockAddr;
-        int32_t sockfd;
 
         memset(&sockAddr, 0, sizeof(sockAddr));
         sockAddr.sun_family = AF_LOCAL;
         strncpy(sockAddr.sun_path, name.c_str(), name.size());
 
+        bool socketCreationSuccess = true;
         iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
             .failureReturnValue(ERROR_CODE)
             .evaluate()
-            .and_then([&](auto& r) { sockfd = r.value; })
-            .or_else([](auto&) {
+            .and_then([&](auto& r) {
+                iox::posix::posixCall(iox_bind)(
+                    r.value, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
+                    .failureReturnValue(ERROR_CODE)
+                    .evaluate()
+                    .or_else([&](auto&) {
+                        std::cerr << "unable to bind socket\n";
+                        socketCreationSuccess = false;
+                    });
+            })
+            .or_else([&](auto&) {
                 std::cerr << "unable to create socket\n";
-                std::terminate();
+                socketCreationSuccess = false;
             });
 
-        iox::posix::posixCall(iox_bind)(sockfd, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
-            .failureReturnValue(ERROR_CODE)
-            .evaluate()
-            .or_else([](auto&) {
-                std::cerr << "unable to bind socket\n";
-                std::terminate();
-            });
+        return socketCreationSuccess;
     }
 
     void signalThreadReady()
@@ -155,7 +158,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
     UnixDomainSocket::UdsName_t socketFileName = UnixDomainSocket::PATH_PREFIX;
     socketFileName.append(cxx::TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
-    createTestSocket(socketFileName);
+    ASSERT_TRUE(createTestSocket(socketFileName));
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, socketFileName);
     EXPECT_FALSE(ret.has_error());
 }
@@ -165,17 +168,19 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessfu
     UnixDomainSocket::UdsName_t socketFileName = "iceoryx-hoofs-moduletest.socket";
     UnixDomainSocket::UdsName_t socketFileNameWithPrefix = UnixDomainSocket::PATH_PREFIX;
     socketFileNameWithPrefix.append(cxx::TruncateToCapacity, socketFileName);
-    createTestSocket(socketFileNameWithPrefix);
+    ASSERT_TRUE(createTestSocket(socketFileNameWithPrefix));
     auto ret = UnixDomainSocket::unlinkIfExists(socketFileName);
     EXPECT_FALSE(ret.has_error());
 }
 
+// the current contract of the unix domain socket is that a server can only receive
+// and the client can only send
 void sendOnServerLeadsToError(const sendCall_t& send)
 {
     cxx::string<10> message{"Foo"};
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
-    ASSERT_THAT(result.get_error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
+    EXPECT_THAT(result.get_error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
 }
 
 TEST_F(UnixDomainSocket_test, TimedSendOnServerLeadsToError)
@@ -303,6 +308,8 @@ TEST_F(UnixDomainSocket_test, UnableToSendTooLongMessageWithTimedSend)
     unableToSendTooLongMessage([&](auto& msg) { return client.timedSend(msg, 1_ms); });
 }
 
+// the current contract of the unix domain socket is that a server can only receive
+// and the client can only send
 void receivingOnClientLeadsToError(const receiveCall_t& receive)
 {
     auto result = receive();
