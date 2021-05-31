@@ -25,7 +25,7 @@ jobs:
           echo $(clang --version)
 
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@0.1.2
+        uses: ros-tooling/setup-ros@0.2.1
         with:
           required-ros-distributions: foxy
 
