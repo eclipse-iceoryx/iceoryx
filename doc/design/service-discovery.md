@@ -46,7 +46,7 @@ just be used for the earliest communication during startup and not for the creat
 
 * Cyclone DDS calls this feature [topic discovery](https://github.com/eclipse-cyclonedds/cyclonedds/blob/master/docs/dev/topic_discovery.md). See also the [feature request](https://github.com/eclipse-cyclonedds/cyclonedds/issues/42).
 
-* Based on SDEP (simple endpoint discovery protocol)
+* Based on SEDP (simple endpoint discovery protocol)
 * `dds_ktopic`
   * stores pointer to `ddsi_topic_definition`
 * Has built-in DCPSTopic topic and contains
@@ -54,8 +54,8 @@ just be used for the earliest communication during startup and not for the creat
   * Type name
   * Topic key
   * QoS settings
-* `dds_find_topic_locally` w/o SDEP
-* `dds_find_topic_globally` with SDEP
+* `dds_find_topic_locally` w/o SEDP
+* `dds_find_topic_globally` with SEDP
 
 #### Static discovery
 
@@ -221,8 +221,9 @@ only need read access and not write access
 Con:
 
 * New class, which needs RouDi infrastructure integration (e.g. requesting this port)
-* Starvation possible if the writer updates too often and the reader never finished its read (should be taken care by
-good documentation)
+* Copy is necessary
+* Starvation possible if the writer updates too often and the reader never finished its read (is a general lock-free
+problem and should be taken care by good documentation)
 
 ### Decision
 

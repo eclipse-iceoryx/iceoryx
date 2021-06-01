@@ -10,7 +10,7 @@ activate UserAppA
 UserAppA->UserAppA: DiscoveryInfo::DiscoveryInfo()
 UserAppA->RouDi:  getMiddlewareSubscriber() / CREATE_Subscriber
 
-RouDi->UserAppA: CREATE_INTERFACE_ACK
+RouDi->UserAppA: CREATE_SUBSCRIBER_ACK
 deactivate UserAppA
 
 UserAppA->UserAppA: Listener::attachEvent(discoveryInfo)
