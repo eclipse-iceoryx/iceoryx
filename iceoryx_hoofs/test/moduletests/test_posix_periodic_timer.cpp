@@ -23,8 +23,9 @@
 #include <chrono>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
-
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 
@@ -110,7 +111,7 @@ TEST_F(PeriodicTimer_test, TimerStopAfterWaitTest)
 TIMING_TEST_F(PeriodicTimer_test, ResetWithNewDurationINTERVALTest, Repeat(5), [&] {
     Timer sut(INTERVAL);
     iox::units::Duration NEW_DURATION{100_ms};
-    const int RANGE_APPROX = 2; // 2ms arppoximation. This may be lost in execution.
+    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     sut.start(NEW_DURATION);
 
     auto timeBeforeWait = sut.now().value();
@@ -137,7 +138,7 @@ TIMING_TEST_F(PeriodicTimer_test, currentTimeTest, Repeat(5), [&] {
 
 TIMING_TEST_F(PeriodicTimer_test, periodicityWithoutExecutionTimeTest, Repeat(5), [&] {
     Timer sut(INTERVAL);
-    const int RANGE_APPROX = 2; // 2ms arppoximation. This may be lost in execution.
+    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     auto timeUntilNextActivation = sut.now().value() + INTERVAL;
 
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
@@ -149,7 +150,7 @@ TIMING_TEST_F(PeriodicTimer_test, periodicityWithoutExecutionTimeTest, Repeat(5)
 
 TIMING_TEST_F(PeriodicTimer_test, periodicityExecutionTimeLessThanActivationTimeTest, Repeat(5), [&] {
     constexpr int EXECUTIONTIME = 30;
-    const int RANGE_APPROX = 2; // 2ms arppoximation. This may be lost in execution.
+    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     Timer sut(INTERVAL);
     auto timeUntilNextActivation = sut.now().value() + INTERVAL;
 
@@ -174,7 +175,7 @@ TIMING_TEST_F(PeriodicTimer_test, immediateCatchupPolicyTest, Repeat(5), [&] {
     auto currentTimeAfterWait = sut.now().value();
 
     auto remainingTimeForNextActivation = currentTimeAfterWait - currentTimeAfterExecution;
-    const int RANGE_APPROX = 2; // 2ms arppoximation. This may be lost in execution.
+    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
     TIMING_TEST_EXPECT_TRUE(remainingTimeForNextActivation.toMilliseconds() <= RANGE_APPROX);
 });
@@ -220,3 +221,5 @@ TIMING_TEST_F(PeriodicTimer_test, errorCatchupPolicyTest, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::DELAY ? true : false);
     TIMING_TEST_EXPECT_TRUE(delayExpected == timerState.value().timeDelay.toMilliseconds());
 });
+
+} //namespace
