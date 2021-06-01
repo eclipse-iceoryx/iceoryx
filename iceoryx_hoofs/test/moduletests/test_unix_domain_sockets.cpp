@@ -77,6 +77,7 @@ class UnixDomainSocket_test : public Test
 
     bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
     {
+        bool socketCreationSuccess = true;
 #if !defined(_WIN32)
         static constexpr int32_t ERROR_CODE = -1;
         struct sockaddr_un sockAddr;
@@ -85,7 +86,6 @@ class UnixDomainSocket_test : public Test
         sockAddr.sun_family = AF_LOCAL;
         strncpy(sockAddr.sun_path, name.c_str(), name.size());
 
-        bool socketCreationSuccess = true;
         iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
             .failureReturnValue(ERROR_CODE)
             .evaluate()
@@ -103,7 +103,7 @@ class UnixDomainSocket_test : public Test
                 std::cerr << "unable to create socket\n";
                 socketCreationSuccess = false;
             });
-
+#endif
         return socketCreationSuccess;
     }
 
