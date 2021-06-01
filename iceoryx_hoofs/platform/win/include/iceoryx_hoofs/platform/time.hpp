@@ -35,12 +35,6 @@
 using suseconds_t = uint64_t;
 using clockid_t = int;
 
-struct timeval
-{
-    time_t tv_sec;
-    suseconds_t tv_usec;
-};
-
 struct itimerspec
 {
     timespec it_interval;

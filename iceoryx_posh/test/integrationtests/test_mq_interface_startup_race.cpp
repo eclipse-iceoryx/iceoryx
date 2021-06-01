@@ -101,7 +101,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = IpcChannelType::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+            m_appQueue = IpcChannelType::create(MqAppName, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 
@@ -111,7 +111,7 @@ class CMqInterfaceStartupRace_test : public Test
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
     IpcChannelType::result_t m_roudiQueue{
-        IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
+        IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
     IpcChannelType::result_t m_appQueue;
 };
@@ -140,8 +140,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
             exit(EXIT_FAILURE);
         });
 
-        auto m_roudiQueue2 =
-            IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto m_roudiQueue2 = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -187,8 +186,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
             exit(EXIT_FAILURE);
         });
 
-        auto newRoudi =
-            IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);

@@ -90,7 +90,7 @@ void UDS::initFollower() noexcept
 void UDS::init() noexcept
 {
     // init subscriber
-    iox::posix::posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0)
+    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .and_then([this](auto& r) { m_sockfdSubscriber = r.value; })
@@ -99,7 +99,7 @@ void UDS::init() noexcept
             exit(1);
         });
 
-    iox::posix::posixCall(bind)(
+    iox::posix::posixCall(iox_bind)(
         m_sockfdSubscriber, reinterpret_cast<struct sockaddr*>(&m_sockAddrSubscriber), sizeof(m_sockAddrSubscriber))
         .failureReturnValue(ERROR_CODE)
         .evaluate()
@@ -109,7 +109,7 @@ void UDS::init() noexcept
         });
 
     // init publisher
-    iox::posix::posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0)
+    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .and_then([this](auto& r) { m_sockfdPublisher = r.value; })
@@ -125,12 +125,12 @@ void UDS::waitForLeader() noexcept
     constexpr bool TRY_TO_SEND{true};
     while (TRY_TO_SEND)
     {
-        auto sendCall = iox::posix::posixCall(sendto)(m_sockfdPublisher,
-                                                      nullptr,
-                                                      0,
-                                                      0,
-                                                      reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                                      sizeof(m_sockAddrPublisher))
+        auto sendCall = iox::posix::posixCall(iox_sendto)(m_sockfdPublisher,
+                                                          nullptr,
+                                                          0,
+                                                          0,
+                                                          reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                                          sizeof(m_sockAddrPublisher))
                             .failureReturnValue(ERROR_CODE)
                             .ignoreErrnos(ENOENT)
                             .evaluate()
@@ -172,7 +172,7 @@ void UDS::shutdown() noexcept
 
     if (m_sockfdSubscriber != INVALID_FD)
     {
-        iox::posix::posixCall(iox_close)(m_sockfdSubscriber)
+        iox::posix::posixCall(iox_closesocket)(m_sockfdSubscriber)
             .failureReturnValue(ERROR_CODE)
             .evaluate()
             .or_else([](auto& r) {
@@ -236,12 +236,12 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
     // only return from this loop when the message could be send successfully
     // if the OS socket message buffer if full, retry until it is free'd by
     // the OS and the message could be send
-    while (iox::posix::posixCall(sendto)(m_sockfdPublisher,
-                                         buffer,
-                                         length,
-                                         0,
-                                         reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                         sizeof(m_sockAddrPublisher))
+    while (iox::posix::posixCall(iox_sendto)(m_sockfdPublisher,
+                                             buffer,
+                                             length,
+                                             0,
+                                             reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                             sizeof(m_sockAddrPublisher))
                .failureReturnValue(ERROR_CODE)
                .ignoreErrnos(ENOBUFS)
                .evaluate()
@@ -257,7 +257,7 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
 
 void UDS::receive(char* buffer) noexcept
 {
-    iox::posix::posixCall(recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+    iox::posix::posixCall(iox_recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .or_else([](auto& r) {

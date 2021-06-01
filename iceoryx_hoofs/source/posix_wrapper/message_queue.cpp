@@ -36,7 +36,6 @@ MessageQueue::MessageQueue()
 }
 
 MessageQueue::MessageQueue(const IpcChannelName_t& name,
-                           const IpcChannelMode mode,
                            const IpcChannelSide channelSide,
                            const size_t maxMsgSize,
                            const uint64_t maxMsgNumber)
@@ -71,7 +70,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         }
         // fields have a different order in QNX,
         // so we need to initialize by name
-        m_attributes.mq_flags = (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
+        m_attributes.mq_flags = 0;
         m_attributes.mq_maxmsg = static_cast<long>(maxMsgNumber);
         m_attributes.mq_msgsize = static_cast<long>(maxMsgSize);
         m_attributes.mq_curmsgs = 0L;
@@ -79,7 +78,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         m_attributes.mq_recvwait = 0L;
         m_attributes.mq_sendwait = 0L;
 #endif
-        auto openResult = open(m_name, mode, channelSide);
+        auto openResult = open(m_name, channelSide);
         if (!openResult.has_error())
         {
             this->m_isInitialized = true;
@@ -204,8 +203,8 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
     return cxx::success<std::string>(std::string(&(message[0])));
 }
 
-cxx::expected<int32_t, IpcChannelError>
-MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
+                                                           const IpcChannelSide channelSide)
 {
     IpcChannelName_t l_name;
     if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
@@ -215,7 +214,6 @@ MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, cons
 
 
     int32_t openFlags = O_RDWR;
-    openFlags |= (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
     if (channelSide == IpcChannelSide::SERVER)
     {
         openFlags |= O_CREAT;
