@@ -197,21 +197,22 @@ Afterward, we reset both caches to start fresh again.
 ### Additional context data for callbacks (ice_callbacks_listener_as_class_member.cpp)
 
 Here we demonstrate how you can provide virtually everything as an additional argument to the callbacks.
-You just have to provide a reference to a value as additional argument in the `attachEvent` method 
-which is then provided as argument in your callback. One of the use cases is to get access 
+You just have to provide a reference to a value as additional argument in the `attachEvent` method
+which is then provided as argument in your callback. One of the use cases is to get access
 to members and methods of an object inside a static method which we demonstrate here.
 
-This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscriber.cpp) 
-one, except that we left out the cyclic heartbeat trigger. The key difference is that 
-the listener is now a class member and in every callback we would like to change 
-some member variables. To do this we require an additional pointer to the object 
+This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscriber.cpp)
+one, except that we left out the cyclic heartbeat trigger. The key difference is that
+the listener is now a class member and in every callback we would like to change
+some member variables. To do this we require an additional pointer to the object
 since the listener requires c function references which do not allow the usage
-of lambdas with capturing. Here we can use the userType feature which allows us 
+of lambdas with capturing. Here we can use the userType feature which allows us
 to provide the this pointer as additional argument to the callback.
 
 The main function is now pretty short, we instantiate our object of type `CounterService`
-and call `waitForShutdown` which uses the `shutdownSemaphore` like in the 
+and call `waitForShutdown` which uses the `shutdownSemaphore` like in the
 previous example to wait for the control c event from the user.
+
 ```cpp
 auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
@@ -224,6 +225,7 @@ counterService.waitForShutdown();
 ```
 
 Our `CounterService` has the following members:
+
 ```cpp
 class CounterService {
     //...
@@ -236,14 +238,14 @@ class CounterService {
 ```
 
 And their purposes are the same as in the previous example. In the constructor
-we initialize the two subscribers and attach them to our listener. But now we 
-add an additional parameter in the `iox::popo::createNotificationCallback`, the 
-dereferenced `this` pointer. It has to be dereferenced since we require a reference 
+we initialize the two subscribers and attach them to our listener. But now we
+add an additional parameter in the `iox::popo::createNotificationCallback`, the
+dereferenced `this` pointer. It has to be dereferenced since we require a reference
 as argument.
 
-!!! attention 
-    The user has to ensure that the contextData (`*this`) in `attachEvent` 
-    lives as long as the attachment, with its callback, is attached otherwise 
+!!! attention
+    The user has to ensure that the contextData (`*this`) in `attachEvent`
+    lives as long as the attachment, with its callback, is attached otherwise
     the callback context data pointer is dangling.
 
 ```cpp
@@ -274,13 +276,14 @@ CounterService()
 }
 ```
 
-The `onSampleReceivedCallback` is now a static method instead of a free function. It 
-has to be static since we require a C function reference as callback argument and a 
-static method can be converted into such a type. But in a static method we do not 
-have access to the members of an object, therefore we have to add an additional 
-argument, the pointer to the object itself, called `self`. 
+The `onSampleReceivedCallback` is now a static method instead of a free function. It
+has to be static since we require a C function reference as callback argument and a
+static method can be converted into such a type. But in a static method we do not
+have access to the members of an object, therefore we have to add an additional
+argument, the pointer to the object itself, called `self`.
+
 ```cpp
-static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, 
+static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber,
                                      CounterService* self)
 {
     subscriber->take().and_then([subscriber, self](auto& sample) {
@@ -310,7 +313,6 @@ static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscr
     }
 }
 ```
-
 
 <center>
 [Check out callbacks on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks){ .md-button }

@@ -1,0 +1,38 @@
+@startuml
+title Alternative B: iceoryx-based ECU forwarding CaPro messages to Gateway and User App
+
+package "iceoryx instance e.g. electronic control unit" {
+    component RouDi {
+        artifact discoveryLoop [
+        PortManager::sendToAllMatchingInterfacePorts()
+        ]
+        artifact server [
+        m_server : Server
+        ]
+    }
+    component "User App" {
+        component ServiceDiscoveryListener {
+            artifact serviceDiscoveryThread [
+            m_thread  : Thread
+            m_interfacePort  : InterfacePort
+            ]
+            artifact callback [
+            m_callback  : std::function<void()>
+            ]
+        }
+        artifact client [
+        m_client : Client
+        ]
+    }
+}
+
+package "DDS instance e.g. electronic control unit" {
+    component DCPSTopic
+}
+
+[discoveryLoop] ..> [DCPSTopic] : dispatchCaProMessage()
+[discoveryLoop] ..> [serviceDiscoveryThread] : dispatchCaProMessage()
+[server] <..> [client] : findService()
+[DCPSTopic] ..> [discoveryLoop]  : Not yet implemented
+[serviceDiscoveryThread] ..> [callback]  : calls
+@enduml
