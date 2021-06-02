@@ -34,8 +34,10 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
   public:
     static constexpr uint64_t MAX_MESSAGE_SIZE = IOX_UDS_SOCKET_MAX_MESSAGE_SIZE;
     static constexpr uint64_t MAX_NUMBER_OF_MESSAGES = 10U;
+    static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
-    static constexpr const char NAMED_PIPE_PREFIX[] = "/";
+    static constexpr units::Duration BLOCKING_TIMEOUT = units::Duration::fromDays(1);
+    static constexpr const char NAMED_PIPE_PREFIX[] = "/named_pipe_";
 
     using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;

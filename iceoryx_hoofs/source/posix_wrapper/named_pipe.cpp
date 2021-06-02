@@ -25,6 +25,7 @@ namespace iox
 namespace posix
 {
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
+constexpr units::Duration NamedPipe::BLOCKING_TIMEOUT;
 
 NamedPipe::NamedPipe() noexcept
 {
@@ -47,7 +48,8 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    if (!cxx::isValidFilePath(name))
+    // leading slash is allowed even though it is not a valid file name
+    if (!cxx::isValidFileName(name) && !(!name.empty() && name.c_str()[0] == '/'))
     {
         std::cerr << "The named pipe name: \"" << name << "\" is not a valid file path name." << std::endl;
         m_isInitialized = false;
@@ -82,10 +84,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     }
 
     m_sharedMemory.emplace(std::move(sharedMemory.value()));
-
-    m_messages =
-        static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
-    m_sharedMemory->finalizeAllocation();
+    m_messages = static_cast<MessageQueue_t*>(m_sharedMemory->getBaseAddress());
 
     if (channelSide == IpcChannelSide::SERVER)
     {
@@ -121,7 +120,9 @@ NamedPipe::~NamedPipe() noexcept
 
 IpcChannelName_t NamedPipe::convertName(const IpcChannelName_t& name) noexcept
 {
-    return IpcChannelName_t(cxx::TruncateToCapacity, cxx::concatenate(NAMED_PIPE_PREFIX, name).c_str());
+    return IpcChannelName_t(
+        cxx::TruncateToCapacity,
+        cxx::concatenate(NAMED_PIPE_PREFIX, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
 }
 
 cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
@@ -146,7 +147,7 @@ cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelN
 {
     constexpr int ERROR_CODE = -1;
     auto unlinkCall =
-        posixCall(shm_unlink)(name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
+        posixCall(shm_unlink)(convertName(name).c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
     if (!unlinkCall.has_error())
     {
         return cxx::success<bool>(unlinkCall->errnum != ENOENT);
@@ -159,22 +160,7 @@ cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelN
 
 cxx::expected<IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
-    }
-
-    if (message.size() > MAX_MESSAGE_SIZE)
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
-    }
-
-    if (!m_messages->tryPush(Message_t(cxx::TruncateToCapacity, message)))
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::OUT_OF_MEMORY);
-    }
-
-    return cxx::success<>();
+    return timedSend(message, BLOCKING_TIMEOUT);
 }
 
 cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
@@ -185,11 +171,15 @@ cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
         return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
     }
 
+    if (message.size() > MAX_MESSAGE_SIZE)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+    }
+
     units::Duration remainingTime = timeout;
     do
     {
-        auto result = send(message);
-        if (!result.has_error())
+        if (m_messages->tryPush(Message_t(cxx::TruncateToCapacity, message)))
         {
             return cxx::success<>();
         }
@@ -203,17 +193,7 @@ cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
 
 cxx::expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
-    }
-
-    auto message = m_messages->pop();
-    if (message.has_value())
-    {
-        return cxx::success<std::string>(*message);
-    }
-    return cxx::error<IpcChannelError>(IpcChannelError::I_O_ERROR);
+    return timedReceive(BLOCKING_TIMEOUT);
 }
 
 cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
@@ -226,10 +206,10 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units:
     units::Duration remainingTime = timeout;
     do
     {
-        auto result = receive();
-        if (!result.has_error())
+        auto message = m_messages->pop();
+        if (message.has_value())
         {
-            return result;
+            return cxx::success<std::string>(message->c_str());
         }
 
         std::this_thread::sleep_for(std::chrono::nanoseconds(CYCLE_TIME.toNanoseconds()));
