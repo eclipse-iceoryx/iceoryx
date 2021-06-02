@@ -24,6 +24,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 
 #include <cstdint>
@@ -41,10 +42,6 @@ class PublisherPortUser;
 class SubscriberPortRouDi;
 class SubscriberPortUser;
 } // namespace popo
-namespace posix
-{
-class UnixDomainSocket;
-} // namespace posix
 
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
@@ -57,7 +54,7 @@ using SubscriberPortType = iox::build::CommunicationPolicy;
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
 ///      be found.
-using IpcChannelType = iox::posix::UnixDomainSocket;
+using IpcChannelType = IoxIpcChannelType;
 
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;

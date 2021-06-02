@@ -18,8 +18,17 @@
 
 #include <cstdint>
 
+namespace iox
+{
+namespace posix
+{
+class UnixDomainSocket;
+} // namespace posix
+} // namespace iox
+
 constexpr const char IOX_PATH_SEPARATORS[] = "/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
+using IoxIpcChannelType = iox::posix::UnixDomainSocket;
 
 #endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
