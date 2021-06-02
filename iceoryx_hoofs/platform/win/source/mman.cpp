@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
 void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
@@ -23,25 +24,24 @@ void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
     DWORD fileOffsetLow = 0;
     DWORD numberOfBytesToMap = length;
 
-    void* mappedObject = MapViewOfFile(
-        HandleTranslator::getInstance().get(fd), desiredAccess, fileOffsetHigh, fileOffsetLow, numberOfBytesToMap);
-
-    if (mappedObject == nullptr)
-    {
-        PrintLastErrorToConsole();
-    }
+    void* mappedObject = Win32Call(MapViewOfFile,
+                                   HandleTranslator::getInstance().get(fd),
+                                   desiredAccess,
+                                   fileOffsetHigh,
+                                   fileOffsetLow,
+                                   numberOfBytesToMap)
+                             .value;
 
     return mappedObject;
 }
 
 int munmap(void* addr, size_t length)
 {
-    if (UnmapViewOfFile(addr))
+    if (Win32Call(UnmapViewOfFile, addr).value)
     {
         return 0;
     }
 
-    PrintLastErrorToConsole();
     return -1;
 }
 
@@ -55,27 +55,38 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 
     if (oflag & O_CREAT) // O_EXCL
     {
-        sharedMemoryHandle =
-            CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, access, MAXIMUM_SIZE_HIGH, MAXIMUM_SIZE_LOW, name);
+        auto result = Win32Call(CreateFileMapping,
+                                static_cast<HANDLE>(INVALID_HANDLE_VALUE),
+                                static_cast<LPSECURITY_ATTRIBUTES>(nullptr),
+                                static_cast<DWORD>(access),
+                                static_cast<DWORD>(MAXIMUM_SIZE_HIGH),
+                                static_cast<DWORD>(MAXIMUM_SIZE_LOW),
+                                static_cast<LPCSTR>(name));
+        sharedMemoryHandle = result.value;
 
-        if (oflag & O_EXCL && PrintLastErrorToConsole() == ERROR_ALREADY_EXISTS)
+        if (oflag & O_EXCL && result.error == ERROR_ALREADY_EXISTS)
         {
             if (sharedMemoryHandle != nullptr)
             {
-                CloseHandle(sharedMemoryHandle);
+                Win32Call(CloseHandle, sharedMemoryHandle).value;
             }
             return -1;
         }
     }
     else
     {
-        sharedMemoryHandle = OpenFileMapping(FILE_MAP_ALL_ACCESS, false, name);
+        auto result = Win32Call(OpenFileMapping,
+                                static_cast<DWORD>(FILE_MAP_ALL_ACCESS),
+                                static_cast<BOOL>(false),
+                                static_cast<LPCSTR>(name));
 
-        if (PrintLastErrorToConsole() != 0)
+        sharedMemoryHandle = result.value;
+
+        if (result.error != 0)
         {
             if (sharedMemoryHandle != nullptr)
             {
-                CloseHandle(sharedMemoryHandle);
+                Win32Call(CloseHandle, sharedMemoryHandle);
             }
             return -1;
         }

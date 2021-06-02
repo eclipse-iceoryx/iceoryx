@@ -15,10 +15,35 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/pthread.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
 
-int pthread_setname_np(pthread_t thread, const char* name)
+#include <cwchar>
+#include <vector>
+
+int iox_pthread_setname_np(pthread_t thread, const char* name)
 {
-    return 0;
+    DWORD threadId = Win32Call(GetThreadId, static_cast<HANDLE>(thread)).value;
+
+    std::mbstate_t state = std::mbstate_t();
+    uint64_t length = std::mbsrtowcs(nullptr, &name, 0, &state) + 1U;
+    std::vector<wchar_t> wName(length);
+    std::mbsrtowcs(wName.data(), &name, length, &state);
+
+    return Win32Call(SetThreadDescription, static_cast<HANDLE>(thread), wName.data()).error;
+}
+
+int pthread_getname_np(pthread_t thread, char* name, size_t len)
+{
+    wchar_t* wName;
+    auto result = Win32Call(GetThreadDescription, static_cast<HANDLE>(thread), &wName).error;
+    if (result == 0)
+    {
+        wcstombs(name, wName, len);
+        LocalFree(wName);
+    }
+
+    return result;
 }
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
@@ -48,13 +73,16 @@ int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol)
 
 int pthread_mutex_destroy(pthread_mutex_t* mutex)
 {
-    Win32Call(CloseHandle(mutex->handle));
+    Win32Call(CloseHandle, mutex->handle);
     return 0;
 }
 
 int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 {
-    mutex->handle = Win32Call(CreateMutexA(NULL, FALSE, NULL));
+    mutex->handle =
+        Win32Call(
+            CreateMutexA, static_cast<LPSECURITY_ATTRIBUTES>(NULL), static_cast<BOOL>(FALSE), static_cast<LPCSTR>(NULL))
+            .value;
     if (mutex->handle == NULL)
     {
         return EINVAL;
@@ -64,7 +92,7 @@ int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 
 int pthread_mutex_lock(pthread_mutex_t* mutex)
 {
-    DWORD waitResult = Win32Call(WaitForSingleObject(mutex->handle, INFINITE));
+    DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, INFINITE).value;
 
     switch (waitResult)
     {
@@ -77,7 +105,7 @@ int pthread_mutex_lock(pthread_mutex_t* mutex)
 
 int pthread_mutex_trylock(pthread_mutex_t* mutex)
 {
-    DWORD waitResult = Win32Call(WaitForSingleObject(mutex->handle, 0));
+    DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, 0).value;
 
     switch (waitResult)
     {
@@ -92,7 +120,7 @@ int pthread_mutex_trylock(pthread_mutex_t* mutex)
 
 int pthread_mutex_unlock(pthread_mutex_t* mutex)
 {
-    auto releaseResult = Win32Call(ReleaseMutex(mutex->handle));
+    auto releaseResult = Win32Call(ReleaseMutex, mutex->handle).value;
     if (!releaseResult)
     {
         return EPERM;

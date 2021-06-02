@@ -31,6 +31,7 @@ namespace iox
 namespace posix
 {
 constexpr char UnixDomainSocket::PATH_PREFIX[];
+constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
 
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
@@ -39,7 +40,6 @@ UnixDomainSocket::UnixDomainSocket() noexcept
 }
 
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
-                                   const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
@@ -54,7 +54,6 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
             }
             return UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
-        mode,
         channelSide,
         maxMsgSize,
         maxMsgNumber)
@@ -63,7 +62,6 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const UdsName_t& name,
-                                   const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber IOX_MAYBE_UNUSED) noexcept
@@ -85,12 +83,10 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     else
     {
         m_maxMessageSize = maxMsgSize;
-        initalizeSocket(mode)
-            .and_then([this]() { this->m_isInitialized = true; })
-            .or_else([this](IpcChannelError& error) {
-                this->m_isInitialized = false;
-                this->m_errorValue = error;
-            });
+        initalizeSocket().and_then([this]() { this->m_isInitialized = true; }).or_else([this](IpcChannelError& error) {
+            this->m_isInitialized = false;
+            this->m_errorValue = error;
+        });
     }
 }
 
@@ -133,6 +129,16 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
+    if (!isNameValid(name))
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+
+    if (UdsName_t().capacity() < name.size() + UdsName_t(PATH_PREFIX).size())
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+
     return unlinkIfExists(NoPathPrefix, UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
@@ -161,7 +167,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
-        auto closeCall = posixCall(iox_close)(m_sockfd).failureReturnValue(ERROR_CODE).evaluate();
+        auto closeCall = posixCall(iox_closesocket)(m_sockfd).failureReturnValue(ERROR_CODE).evaluate();
 
         if (!closeCall.has_error())
         {
@@ -203,8 +209,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
                                                            const units::Duration& timeout) const noexcept
 {
-    constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    if (msg.size() > m_maxMessageSize + NULL_TERMINATOR_SIZE)
+    if (msg.size() > m_maxMessageSize)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -226,7 +231,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 #endif
 
-    auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
+    auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
                               .evaluate();
@@ -237,7 +242,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
     else
     {
-        auto sendCall = posixCall(sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
+        auto sendCall = posixCall(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
                             .failureReturnValue(ERROR_CODE)
                             .evaluate();
 
@@ -263,7 +268,6 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
     return timedReceive(units::Duration(tv));
 }
 
-
 cxx::expected<std::string, IpcChannelError>
 UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
@@ -274,7 +278,18 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     }
 
     struct timeval tv = timeout;
-    auto setsockoptCall = posixCall(setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
+#if defined(__APPLE__)
+    if (tv.tv_sec != 0 || tv.tv_usec != 0)
+    {
+        std::cerr
+            << "socket: \"" << m_name
+            << "\", timedReceive with a timeout != 0 is not supported on MacOS. timedReceive will behave like receive "
+               "instead."
+            << std::endl;
+    }
+#endif
+
+    auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
                               .evaluate();
@@ -287,7 +302,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         char message[MAX_MESSAGE_SIZE + 1];
 
-        auto recvCall = posixCall(recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+        auto recvCall = posixCall(iox_recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
                             .suppressErrorMessagesForErrnos(EAGAIN)
                             .evaluate();
@@ -302,7 +317,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 }
 
 
-cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChannelMode mode) noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 {
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
@@ -313,23 +328,16 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
     }
     strncpy(m_sockAddr.sun_path, m_name.c_str(), m_name.size());
 
-    // we currently don't support a IpcChannelMode::NON_BLOCKING, for send and receive timouts can be used, the other
-    // calls are blocking
-    if (IpcChannelMode::NON_BLOCKING == mode)
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
-    }
-
     // the mask will be applied to the permissions, we only allow users and group members to have read and write access
     // the system call always succeeds, no need to check for errors
     mode_t umaskSaved = umask(S_IXUSR | S_IXGRP | S_IRWXO);
     // Reset to old umask when going out of scope
     cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
 
-    auto socketCall =
-        posixCall(socket)(AF_LOCAL, SOCK_DGRAM, 0).failureReturnValue(ERROR_CODE).evaluate().and_then([this](auto& r) {
-            m_sockfd = r.value;
-        });
+    auto socketCall = posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
+                          .failureReturnValue(ERROR_CODE)
+                          .evaluate()
+                          .and_then([this](auto& r) { m_sockfd = r.value; });
 
     if (socketCall.has_error())
     {
@@ -340,9 +348,10 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
     {
         unlink(m_sockAddr.sun_path);
 
-        auto bindCall = posixCall(bind)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
-                            .failureReturnValue(ERROR_CODE)
-                            .evaluate();
+        auto bindCall =
+            posixCall(iox_bind)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
+                .failureReturnValue(ERROR_CODE)
+                .evaluate();
 
         if (!bindCall.has_error())
         {
@@ -363,7 +372,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
         // is created and server not present)
         auto connectCall =
-            posixCall(connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
+            posixCall(iox_connect)(m_sockfd, reinterpret_cast<struct sockaddr*>(&m_sockAddr), sizeof(m_sockAddr))
                 .failureReturnValue(ERROR_CODE)
                 .suppressErrorMessagesForErrnos(ENOENT, ECONNREFUSED)
                 .evaluate();
@@ -523,7 +532,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
 
 bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
 {
-    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME);
+    return !name.empty();
 }
 
 

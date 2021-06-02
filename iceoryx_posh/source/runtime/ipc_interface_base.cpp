@@ -162,8 +162,7 @@ bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) n
         [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_runtimeName; });
 
     m_channelSide = channelSide;
-    IpcChannelType::create(
-        m_runtimeName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
+    IpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
 
     return m_ipcChannel.isInitialized();

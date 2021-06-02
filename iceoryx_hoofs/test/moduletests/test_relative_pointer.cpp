@@ -16,11 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/mman.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include "test.hpp"
 
@@ -31,10 +26,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::rp;
-
-constexpr mode_t ShmMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
-constexpr int OFlags = O_CREAT | O_RDWR;
-constexpr size_t ShmSize = 4096 * 32;
 
 struct Data
 {
@@ -47,54 +38,23 @@ struct Data
     uint32_t Data2 = 72;
 };
 
-template <size_t n>
-class Memory
-{
-  public:
-    Memory()
-    {
-    }
+static constexpr uint64_t SHARED_MEMORY_SIZE = 4096 * 32;
+static constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;
+static uint8_t memoryPatternValue = 1U;
 
-    std::uint8_t* operator[](int i)
-    {
-        return &buf[i];
-    }
-
-    std::uint8_t buf[n];
-};
-
+template <typename T>
 class base_relative_ptr_test : public Test
 {
   public:
     void SetUp() override
     {
-        iox::posix::posixCall(iox_shm_open)("TestShm", OFlags, ShmMode)
-            .failureReturnValue(-1)
-            .evaluate()
-            .and_then([this](auto& r) { m_fileDescriptor = r.value; })
-            .or_else([](auto& r) {
-                std::cerr << "iox_shm_open failed with error: " << r.getHumanReadableErrnum() << std::endl;
-                exit(EXIT_FAILURE);
-            });
-
-        iox::posix::posixCall(ftruncate)(m_fileDescriptor, ShmSize)
-            .failureReturnValue(-1)
-            .evaluate()
-            .or_else([](auto& r) {
-                std::cerr << "ftruncate failed with error: " << r.getHumanReadableErrnum() << std::endl;
-                exit(EXIT_FAILURE);
-            });
-
         internal::CaptureStderr();
+        memset(memoryPartition, memoryPatternValue, NUMBER_OF_MEMORY_PARTITIONS * SHARED_MEMORY_SIZE);
+        ++memoryPatternValue;
     }
 
     void TearDown() override
     {
-        iox::posix::posixCall(shm_unlink)("TestShm").failureReturnValue(-1).evaluate().or_else([](auto& r) {
-            std::cerr << "shm_unlink failed with error: " << r.getHumanReadableErrnum() << std::endl;
-            exit(EXIT_FAILURE);
-        });
-
         BaseRelativePointer::unregisterAll();
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -102,33 +62,8 @@ class base_relative_ptr_test : public Test
             std::cout << output << std::endl;
         }
     }
-    uint32_t m_fileDescriptor{0U};
-};
 
-template <typename T>
-class relativeptrtests : public base_relative_ptr_test
-{
-};
-class MemMap
-{
-  public:
-    MemMap(int fileDescriptor)
-    {
-        m_mapAddr = mmap(nullptr, ShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-    }
-    ~MemMap()
-    {
-        munmap(m_mapAddr, ShmSize);
-        m_mapAddr = nullptr;
-    }
-
-    void* getMappedAddress()
-    {
-        return m_mapAddr;
-    }
-
-  private:
-    void* m_mapAddr = nullptr;
+    uint8_t memoryPartition[NUMBER_OF_MEMORY_PARTITIONS][SHARED_MEMORY_SIZE];
 };
 
 typedef testing::Types<uint8_t, int8_t, double> Types;
@@ -136,21 +71,17 @@ typedef testing::Types<uint8_t, int8_t, double> Types;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(relativeptrtests, Types);
+TYPED_TEST_CASE(base_relative_ptr_test, Types);
 #pragma GCC diagnostic pop
 
-
-TYPED_TEST(relativeptrtests, ConstrTests)
+TYPED_TEST(base_relative_ptr_test, ConstrTests)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    MemMap memMap1(this->m_fileDescriptor);
-
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
 
     {
-        auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE / 2;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -159,15 +90,15 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     }
 
     {
-        RelativePointer<TypeParam> rp(memMap.getMappedAddress());
+        RelativePointer<TypeParam> rp(this->memoryPartition[0]);
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE / 2;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -175,8 +106,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     }
 
     {
-        auto offset = ShmSize - 1;
-        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE - 1;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -184,15 +115,15 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     }
 
     {
-        RelativePointer<TypeParam> rp(memMap1.getMappedAddress());
+        RelativePointer<TypeParam> rp(this->memoryPartition[1]);
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE / 2;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -200,8 +131,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     }
 
     {
-        auto offset = ShmSize - 1;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE - 1;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -214,24 +145,21 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     }
 
     {
-        auto offset = ShmSize + 1;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE + 1;
+        void* adr = static_cast<uint8_t*>(this->memoryPartition[1]) + offset;
         RelativePointer<TypeParam> rp(adr);
         EXPECT_NE(rp, nullptr);
     }
 }
 
-TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
+TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    MemMap memMap1(this->m_fileDescriptor);
-
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
 
     {
         RelativePointer<TypeParam> rp;
-        rp = memMap.getMappedAddress();
+        rp = this->memoryPartition[0];
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
@@ -239,7 +167,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         RelativePointer<TypeParam> rp;
-        rp = memMap.getMappedAddress();
+        rp = this->memoryPartition[0];
         BaseRelativePointer basePointer(rp);
         RelativePointer<TypeParam> recovered(basePointer);
 
@@ -254,8 +182,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE / 2;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -264,8 +192,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        auto offset = ShmSize - 1;
-        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE - 1;
+        void* adr = this->memoryPartition[0] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -275,15 +203,15 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         RelativePointer<TypeParam> rp;
-        rp = memMap1.getMappedAddress();
+        rp = this->memoryPartition[1];
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE / 2;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -292,8 +220,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        auto offset = ShmSize - 1;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE - 1;
+        void* adr = this->memoryPartition[1] + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -308,124 +236,108 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        auto offset = ShmSize + 1;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        auto offset = SHARED_MEMORY_SIZE + 1;
+        void* adr = static_cast<uint8_t*>(this->memoryPartition[1]) + offset;
         RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_NE(rp, nullptr);
     }
 }
 
-TYPED_TEST(relativeptrtests, IdAndOffset)
+TYPED_TEST(base_relative_ptr_test, IdAndOffset)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    void* basePtr1 = memMap.getMappedAddress();
+    void* basePtr1 = this->memoryPartition[0];
 
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
     EXPECT_EQ(rp1.getOffset(), reinterpret_cast<std::ptrdiff_t>(basePtr1));
     EXPECT_EQ(rp1.getId(), 1);
 
-    int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
-    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
+    int offset = SHARED_MEMORY_SIZE / 2;
+    auto addressAtOffset = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
     EXPECT_EQ(rp2.getOffset(), offset);
     EXPECT_EQ(rp2.getId(), 1);
-    EXPECT_EQ(rp2.get(), offsetAddr1);
+    EXPECT_EQ(rp2.get(), addressAtOffset);
 }
 
-TYPED_TEST(relativeptrtests, getOffset)
+TYPED_TEST(base_relative_ptr_test, getOffset)
 {
-    MemMap memMap(this->m_fileDescriptor);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(BaseRelativePointer::getOffset(1, this->memoryPartition[0]), 0);
 
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(BaseRelativePointer::getOffset(1, memMap.getMappedAddress()), 0);
-
-    int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
-    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
-    EXPECT_EQ(BaseRelativePointer::getOffset(1, offsetAddr1), offset);
+    int offset = SHARED_MEMORY_SIZE / 2;
+    auto addressAtOffset = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
+    EXPECT_EQ(BaseRelativePointer::getOffset(1, addressAtOffset), offset);
 }
 
-TYPED_TEST(relativeptrtests, getPtr)
+TYPED_TEST(base_relative_ptr_test, getPtr)
 {
-    MemMap memMap(this->m_fileDescriptor);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), this->memoryPartition[0]);
 
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), memMap.getMappedAddress());
-
-    int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
-    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
-    EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), offsetAddr1);
+    int offset = SHARED_MEMORY_SIZE / 2;
+    auto addressAtOffset = reinterpret_cast<TypeParam*>(this->memoryPartition[0] + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
+    EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), addressAtOffset);
 }
 
-TYPED_TEST(relativeptrtests, registerPtr)
+TYPED_TEST(base_relative_ptr_test, registerPtr)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), false);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), false);
     EXPECT_EQ(rp1.unregisterPtr(1), true);
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
 }
 
-TYPED_TEST(relativeptrtests, unRegisterPointerTest_Valid)
+TYPED_TEST(base_relative_ptr_test, unRegisterPointerTest_Valid)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
-    rp1.registerPtr(1, memMap.getMappedAddress());
+    rp1.registerPtr(1, this->memoryPartition[0]);
     EXPECT_EQ(rp1.unregisterPtr(1), true);
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
 }
 
-TYPED_TEST(relativeptrtests, unregisterPointerAll)
+TYPED_TEST(base_relative_ptr_test, unregisterPointerAll)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    MemMap memMap1(this->m_fileDescriptor);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp2(this->memoryPartition[1], 9999);
 
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    RelativePointer<TypeParam> rp2(memMap1.getMappedAddress(), 9999);
-
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(rp2.registerPtr(9999, memMap1.getMappedAddress()), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp2.registerPtr(9999, this->memoryPartition[1]), true);
     BaseRelativePointer::unregisterAll();
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(rp2.registerPtr(9999, memMap1.getMappedAddress()), true);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp2.registerPtr(9999, this->memoryPartition[1]), true);
 }
 
-TYPED_TEST(relativeptrtests, registerPtrWithId)
+TYPED_TEST(base_relative_ptr_test, registerPtrWithId)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    MemMap memMap1(this->m_fileDescriptor);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
+    RelativePointer<TypeParam> rp2(this->memoryPartition[1], 10000);
 
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    RelativePointer<TypeParam> rp2(memMap1.getMappedAddress(), 10000);
-
-    EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(rp2.registerPtr(10000, memMap1.getMappedAddress()), false);
+    EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
+    EXPECT_EQ(rp2.registerPtr(10000, this->memoryPartition[1]), false);
 }
 
-TYPED_TEST(relativeptrtests, basePointerValid)
+TYPED_TEST(base_relative_ptr_test, basePointerValid)
 {
-    MemMap memMap(this->m_fileDescriptor);
-    void* basePtr1 = memMap.getMappedAddress();
+    void* basePtr1 = this->memoryPartition[0];
 
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     EXPECT_EQ(rp1.getBasePtr(1), nullptr);
-    rp1.registerPtr(1, memMap.getMappedAddress());
+    rp1.registerPtr(1, this->memoryPartition[0]);
     EXPECT_EQ(basePtr1, rp1.getBasePtr(1));
 }
 
-TYPED_TEST(relativeptrtests, assignmentOperator)
+TYPED_TEST(base_relative_ptr_test, assignmentOperator)
 {
-    MemMap memMap(this->m_fileDescriptor);
-
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     RelativePointer<TypeParam> rp2 = rp1;
 
     EXPECT_EQ(rp1.getBasePtr(), rp2.getBasePtr());
@@ -433,13 +345,11 @@ TYPED_TEST(relativeptrtests, assignmentOperator)
     EXPECT_EQ(rp1.getOffset(), rp2.getOffset());
 }
 
-TYPED_TEST(relativeptrtests, pointerOperator)
+TYPED_TEST(base_relative_ptr_test, pointerOperator)
 {
-    MemMap memMap(this->m_fileDescriptor);
-
-    auto baseAddr = reinterpret_cast<TypeParam*>(memMap.getMappedAddress());
+    auto baseAddr = reinterpret_cast<TypeParam*>(this->memoryPartition[0]);
     *baseAddr = static_cast<TypeParam>(88);
-    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
     EXPECT_EQ(*rp1, *baseAddr);
     *baseAddr = static_cast<TypeParam>(99);
@@ -449,15 +359,15 @@ TYPED_TEST(relativeptrtests, pointerOperator)
 /// central use case of the relative pointer:
 /// it is tested that changing the (static) lookup table of a relative pointer causes existing
 /// relative pointers point to changed locations relative to the new lookup table
-TEST_F(base_relative_ptr_test, memoryRemapping)
+TYPED_TEST(base_relative_ptr_test, memoryRemapping)
 {
     constexpr size_t BLOCK_SIZE = 1024;
     // simulate 3 consecutive memory blocks on the stack
-    Memory<BLOCK_SIZE> block1;
-    Memory<BLOCK_SIZE> block2;
+    uint8_t block1[BLOCK_SIZE];
+    uint8_t block2[BLOCK_SIZE];
 
-    uint8_t* base1 = block1[0];
-    uint8_t* base2 = block2[0];
+    uint8_t* base1 = block1;
+    uint8_t* base2 = block2;
 
     // uint8 write
     *base1 = 37U;
@@ -528,50 +438,11 @@ TEST_F(base_relative_ptr_test, memoryRemapping)
     }
 }
 
-TEST_F(base_relative_ptr_test, MemoryReMapping_SharedMemory)
-{
-    MemMap memMapWriter(this->m_fileDescriptor);
-    MemMap memMapReader(this->m_fileDescriptor);
-
-    Data* dataPointer1 = new (memMapWriter.getMappedAddress()) Data(12, 21);
-
-    EXPECT_EQ(dataPointer1->Data1, reinterpret_cast<Data*>(memMapReader.getMappedAddress())->Data1);
-
-    int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapWriter.getMappedAddress()) + offset);
-    auto offsetAddr2 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapReader.getMappedAddress()) + offset);
-    *offsetAddr1 = 37;
-
-    EXPECT_EQ(*offsetAddr2, *offsetAddr1);
-
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memMapWriter.getMappedAddress())), true);
-    {
-        RelativePointer<int> rp1(offsetAddr1, 1);
-
-        EXPECT_EQ(rp1.getId(), 1);
-        EXPECT_EQ(rp1.getOffset(), offset);
-        EXPECT_EQ(*rp1, 37);
-        EXPECT_EQ(rp1.get(), offsetAddr1);
-    }
-    EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
-
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memMapReader.getMappedAddress())), true);
-    {
-        RelativePointer<int> rp1(offsetAddr2, 1);
-
-        EXPECT_EQ(rp1.getId(), 1);
-        EXPECT_EQ(rp1.getOffset(), offset);
-        EXPECT_EQ(*rp1, 37);
-        EXPECT_EQ(rp1.get(), offsetAddr2);
-    }
-    EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
-}
-
-TEST_F(base_relative_ptr_test, compileTest)
+TYPED_TEST(base_relative_ptr_test, compileTest)
 {
     // No functional test. Tests if code compiles
-    RelativePointer<void> p1;
-    RelativePointer<const void> p2;
+    RelativePointer<TypeParam> p1;
+    RelativePointer<const TypeParam> p2;
 }
 
 } // namespace
