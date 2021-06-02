@@ -34,11 +34,14 @@ storable_function<S, signature<ReturnType, Args...>>::storable_function(const Fu
 template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::storable_function(ReturnType (*function)(Args...)) noexcept
 {
-    m_invoker = invokeFreeFunction;
-    m_callable = reinterpret_cast<void*>(function);
-    m_operations.copyFunction = copyFreeFunction;
-    m_operations.moveFunction = moveFreeFunction;
-    // destroy is not needed for free functions
+    if (function)
+    {
+        m_invoker = invokeFreeFunction;
+        m_callable = reinterpret_cast<void*>(function);
+        m_operations.copyFunction = copyFreeFunction;
+        m_operations.moveFunction = moveFreeFunction;
+        // destroy is not needed for free functions
+    }
 }
 
 template <typename S, typename ReturnType, typename... Args>

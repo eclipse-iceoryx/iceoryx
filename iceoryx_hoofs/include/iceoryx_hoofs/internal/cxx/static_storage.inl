@@ -54,7 +54,7 @@ template <typename T>
 constexpr T* static_storage<Capacity, Align>::allocate() noexcept
 {
     static_assert(is_allocatable<T>(), "type does not fit into static storage");
-    return reinterpret_cast<T*>(allocate(alignof(T), sizeof(T)));
+    return static_cast<T*>(allocate(alignof(T), sizeof(T)));
 }
 
 template <uint64_t Capacity, uint64_t Align>
@@ -69,7 +69,7 @@ constexpr void* static_storage<Capacity, Align>::allocate(const uint64_t align, 
     m_ptr = m_bytes;
     if (std::align(align, size, m_ptr, space))
     {
-        // fits, ptr was potentially modified to reflect alignent
+        // fits, ptr was potentially modified to reflect alignment
         return m_ptr;
     }
 

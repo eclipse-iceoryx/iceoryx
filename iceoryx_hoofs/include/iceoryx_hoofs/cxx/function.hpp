@@ -38,7 +38,7 @@ namespace cxx
 ///        For the API see storable_function.
 ///
 /// @tparam Signature The signature of the callable to be stored, e.g. int (char, void*).
-/// @tparam Capacity The static storage capacity available to store a callabe in bytes.
+/// @tparam Capacity The static storage capacity available to store a callable in bytes.
 ///
 /// @note  If the static storage is insufficient to store the callable we get a compile time error.
 ///

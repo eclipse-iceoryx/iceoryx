@@ -33,15 +33,6 @@ namespace cxx
 template <typename SignatureType>
 class function_ref;
 
-template <typename...>
-struct is_function_ref : std::false_type
-{
-};
-
-template <typename... Targs>
-struct is_function_ref<function_ref<Targs...>> : std::true_type
-{
-};
 
 /// @brief cxx::function_ref is a non-owning reference to a callable.
 ///

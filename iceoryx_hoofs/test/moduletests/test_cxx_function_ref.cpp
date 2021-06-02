@@ -345,7 +345,7 @@ TEST_F(function_refTest, CreationWithFunctionPointerWithRefArgWorks)
     EXPECT_EQ(arg, freeFuncTestValue);
 }
 
-TEST_F(function_refTest, CreationWithFunctionPointerWithComplexeTypeArgWorks)
+TEST_F(function_refTest, CreationWithFunctionPointerWithComplexTypeArgWorks)
 {
     constexpr auto fp = &returnComplexType;
     function_ref<ComplexType(ComplexType)> sut(fp);

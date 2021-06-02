@@ -178,6 +178,14 @@ TEST_F(function_test, DefaultConstructionCreatesNoCallable)
     EXPECT_FALSE(sut.operator bool());
 }
 
+TEST_F(function_test, ConstructionFromFunctionNullPointerIsNotCallable)
+{
+    int (*fp)(int) = nullptr;
+    test_function sut(fp);
+
+    EXPECT_FALSE(sut.operator bool());
+}
+
 TEST_F(function_test, ConstructionFromFunctorIsCallable)
 {
     Functor f(73);
@@ -257,6 +265,10 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
     static_storage<1024U> storage;
     auto p = storage.allocate<Functor>();
     p = new (p) Functor(INITIAL_STATE);
+
+    // call the dtor in any case (even if the test fails due to ASSERT)
+    std::unique_ptr<Functor, void (*)(Functor*)> guard(p, [](Functor* f) { f->~Functor(); });
+
     auto& functor = *p;
 
     // test whether the function really owns the functor
@@ -268,8 +280,7 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
     // both increment their state independently
     EXPECT_EQ(sut(1U), functor(1U));
 
-    // clear original (set to 0)
-    p->~Functor();
+    guard.reset(); // call the deleter
     storage.clear();
 
     EXPECT_EQ(sut(1U), INITIAL_STATE + 2U);
@@ -490,7 +501,7 @@ TEST_F(function_test, StaticSwapWorks)
     EXPECT_EQ(sut2(1), f1(1));
 }
 
-TEST_F(function_test, functorOfSizeSmallerThanStorageBytesCanBeStored)
+TEST_F(function_test, FunctorOfSizeSmallerThanStorageBytesCanBeStored)
 {
     // it will not compile if the storage is too small,
     constexpr auto BYTES = test_function::required_storage_size<Functor>();
@@ -500,21 +511,21 @@ TEST_F(function_test, functorOfSizeSmallerThanStorageBytesCanBeStored)
     EXPECT_TRUE(sut.operator bool());
 }
 
-TEST_F(function_test, isStorableIsConsistent)
+TEST_F(function_test, IsStorableIsConsistent)
 {
     constexpr auto BYTES = test_function::required_storage_size<Functor>();
     constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<Functor>();
     EXPECT_TRUE(RESULT);
 }
 
-TEST_F(function_test, isNotStorableDueToSize)
+TEST_F(function_test, IsNotStorableDueToSize)
 {
     constexpr auto BYTES = test_function::required_storage_size<Functor>();
     constexpr auto RESULT = iox::cxx::function<signature, BYTES - alignof(Functor)>::is_storable<Functor>();
     EXPECT_FALSE(RESULT);
 }
 
-TEST_F(function_test, isNotStorableDueToSignature)
+TEST_F(function_test, IsNotStorableDueToSignature)
 {
     auto nonStorable = []() {};
     using NonStorable = decltype(nonStorable);
@@ -524,7 +535,7 @@ TEST_F(function_test, isNotStorableDueToSignature)
 }
 
 
-TEST_F(function_test, callWithCopyConstructibleArgument)
+TEST_F(function_test, CallWithCopyConstructibleArgument)
 {
     iox::cxx::function<int32_t(Arg), 1024> sut(freeFunctionWithCopyableArg);
     std::function<int32_t(Arg)> func(freeFunctionWithCopyableArg);
@@ -540,7 +551,7 @@ TEST_F(function_test, callWithCopyConstructibleArgument)
     // in this case
 }
 
-TEST_F(function_test, callWithVoidSignatureWorks)
+TEST_F(function_test, CallWithVoidSignatureWorks)
 {
     const int32_t initial = 73;
     int value = initial;
@@ -553,7 +564,7 @@ TEST_F(function_test, callWithVoidSignatureWorks)
     EXPECT_EQ(value, initial + 1);
 }
 
-TEST_F(function_test, callWithReferenceArgumentsWorks)
+TEST_F(function_test, CallWithReferenceArgumentsWorks)
 {
     const int32_t initial = 73;
     Arg arg(initial);
@@ -567,7 +578,7 @@ TEST_F(function_test, callWithReferenceArgumentsWorks)
     EXPECT_EQ(arg.value, initial + 1);
 }
 
-TEST_F(function_test, callWithConstReferenceArgumentsWorks)
+TEST_F(function_test, CallWithConstReferenceArgumentsWorks)
 {
     const int32_t initial = 73;
     Arg arg(initial);
@@ -581,7 +592,7 @@ TEST_F(function_test, callWithConstReferenceArgumentsWorks)
     EXPECT_EQ(result, initial + 1);
 }
 
-TEST_F(function_test, callWithValueArgumentsWorks)
+TEST_F(function_test, CallWithValueArgumentsWorks)
 {
     const int32_t initial = 73;
     Arg arg(initial);
@@ -595,7 +606,7 @@ TEST_F(function_test, callWithValueArgumentsWorks)
     EXPECT_EQ(result, initial + 1);
 }
 
-TEST_F(function_test, callWithRValueReferenceArgumentsWorks)
+TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
 {
     const int32_t initial = 73;
     Arg arg(initial);
@@ -609,7 +620,7 @@ TEST_F(function_test, callWithRValueReferenceArgumentsWorks)
     EXPECT_EQ(result, initial + 1);
 }
 
-TEST_F(function_test, callWithMixedArgumentsWorks)
+TEST_F(function_test, CallWithMixedArgumentsWorks)
 {
     Arg arg1(1);
     Arg arg2(2);
