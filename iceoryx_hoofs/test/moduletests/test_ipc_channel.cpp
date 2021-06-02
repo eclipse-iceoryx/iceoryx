@@ -29,8 +29,10 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
 
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__)
 using IpcChannelTypes = Types<UnixDomainSocket>;
+#elif defined(_WIN32)
+using IpcChannelTypes = Types<NamedPipe>;
 #else
 using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket, NamedPipe>;
 #endif
