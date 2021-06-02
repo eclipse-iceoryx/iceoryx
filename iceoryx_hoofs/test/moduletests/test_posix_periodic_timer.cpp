@@ -65,22 +65,25 @@ TEST_F(PeriodicTimer_test, ZeroINTERVALTest)
     Timer sut(0_s);
 
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    bool result = timerState.value().state == iox::posix::TimerState::TICK ? true : false;
 
-    ASSERT_TRUE(result);
+    ASSERT_FALSE(timerState.has_error());
+    EXPECT_EQ(timerState.value().state, iox::posix::TimerState::TICK);
 }
 
 TIMING_TEST_F(PeriodicTimer_test, DurationINTERVALTest, Repeat(5), [&] {
     Timer sut(INTERVAL);
 
-    auto timeBeforeWait = sut.now().value();
+    auto timeBeforeWait = sut.now();
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    auto timeAfterWait = sut.now().value();
-    auto duration = timeAfterWait - timeBeforeWait;
-    bool result = (duration.toMilliseconds() == INTERVAL.toMilliseconds()) ? true : false;
+    auto timeAfterWait = sut.now();
 
-    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
-    TIMING_TEST_EXPECT_TRUE(result);
+    ASSERT_FALSE(timeBeforeWait.has_error());
+    ASSERT_FALSE(timerState.has_error());
+    ASSERT_FALSE(timeAfterWait.has_error());
+
+    auto duration = timeAfterWait.value() - timeBeforeWait.value();
+
+    TIMING_TEST_EXPECT_TRUE(duration.toMilliseconds()  ==  INTERVAL.toMilliseconds());           
 });
 
 TEST_F(PeriodicTimer_test, TimerStopTest)
@@ -89,11 +92,10 @@ TEST_F(PeriodicTimer_test, TimerStopTest)
 
     sut.stop();
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    bool result = timerState.value().state == iox::posix::TimerState::STOP ? true : false;
 
-    ASSERT_TRUE(result);
+    ASSERT_FALSE(timerState.has_error());
+    EXPECT_EQ(timerState.value().state, iox::posix::TimerState::STOP);
 }
-
 
 TEST_F(PeriodicTimer_test, TimerStopAfterWaitTest)
 {
@@ -102,22 +104,26 @@ TEST_F(PeriodicTimer_test, TimerStopAfterWaitTest)
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
     sut.stop();
     timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    bool result = timerState.value().state == iox::posix::TimerState::STOP ? true : false;
 
-    ASSERT_TRUE(result);
+    ASSERT_FALSE(timerState.has_error());
+    EXPECT_EQ(timerState.value().state, iox::posix::TimerState::STOP);
 }
 
-
 TIMING_TEST_F(PeriodicTimer_test, ResetWithNewDurationINTERVALTest, Repeat(5), [&] {
-    Timer sut(INTERVAL);
+    constexpr int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     iox::units::Duration NEW_DURATION{100_ms};
-    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
+    Timer sut(INTERVAL);
+    
     sut.start(NEW_DURATION);
-
-    auto timeBeforeWait = sut.now().value();
+    auto timeBeforeWait = sut.now();
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    auto timeAfterWait = sut.now().value();
-    auto duration = timeAfterWait - timeBeforeWait;
+    auto timeAfterWait = sut.now();
+
+    ASSERT_FALSE(timeBeforeWait.has_error());
+    ASSERT_FALSE(timerState.has_error());
+    ASSERT_FALSE(timeAfterWait.has_error());
+
+    auto duration = timeAfterWait.value() - timeBeforeWait.value();
 
     TIMING_TEST_EXPECT_FALSE(timerState.has_error());
     TIMING_TEST_EXPECT_TRUE(duration.toMilliseconds() - NEW_DURATION.toMilliseconds() <= RANGE_APPROX);
@@ -127,87 +133,116 @@ TIMING_TEST_F(PeriodicTimer_test, currentTimeTest, Repeat(5), [&] {
     Timer sut(INTERVAL);
     struct timespec ts;
 
-    clock_gettime(CLOCK_REALTIME, &ts);
-    auto timeNow = sut.now().value();
+    TIMING_TEST_EXPECT_TRUE(clock_gettime(CLOCK_REALTIME, &ts) == 0);
+    
+    auto timeNow = sut.now();
     auto currentSystemTime = iox::units::Duration(ts);
 
-    bool result = timeNow.toMilliseconds() == currentSystemTime.toMilliseconds() ? true : false;
-
-    TIMING_TEST_EXPECT_TRUE(result);
+    TIMING_TEST_EXPECT_FALSE(timeNow.has_error());
+    TIMING_TEST_EXPECT_TRUE(timeNow.value().toMilliseconds() == currentSystemTime.toMilliseconds());
 });
 
 TIMING_TEST_F(PeriodicTimer_test, periodicityWithoutExecutionTimeTest, Repeat(5), [&] {
     Timer sut(INTERVAL);
-    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
-    auto timeUntilNextActivation = sut.now().value() + INTERVAL;
+    constexpr int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
+    auto timeUntilNextActivation = sut.now();
 
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    auto currentTime = sut.now().value();
+    auto currentTime = sut.now();
 
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
-    TIMING_TEST_EXPECT_TRUE(currentTime.toMilliseconds() - timeUntilNextActivation.toMilliseconds() <= RANGE_APPROX);
+    TIMING_TEST_EXPECT_FALSE(timeUntilNextActivation.has_error());
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
+    TIMING_TEST_EXPECT_FALSE(currentTime.has_error());
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK);
+    TIMING_TEST_EXPECT_TRUE(currentTime.value().toMilliseconds() - (timeUntilNextActivation.value() + INTERVAL).toMilliseconds()  <= RANGE_APPROX);
 });
 
 TIMING_TEST_F(PeriodicTimer_test, periodicityExecutionTimeLessThanActivationTimeTest, Repeat(5), [&] {
     constexpr int EXECUTIONTIME = 30;
-    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
+    constexpr int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     Timer sut(INTERVAL);
-    auto timeUntilNextActivation = sut.now().value() + INTERVAL;
-
+    
+    auto timeBeforeActivation = sut.now();
     std::this_thread::sleep_for(std::chrono::milliseconds(EXECUTIONTIME));
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    auto currentTime = sut.now().value();
+    auto currentTime = sut.now();
 
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
-    TIMING_TEST_EXPECT_TRUE(currentTime.toMilliseconds() - timeUntilNextActivation.toMilliseconds() <= RANGE_APPROX);
+    TIMING_TEST_EXPECT_FALSE(timeBeforeActivation.has_error());
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
+    TIMING_TEST_EXPECT_FALSE(currentTime.has_error());
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK);
+
+    auto expectedTimeOfActivation = timeBeforeActivation.value() + INTERVAL;
+    TIMING_TEST_EXPECT_TRUE(currentTime.value().toMilliseconds() - expectedTimeOfActivation.toMilliseconds()  <= RANGE_APPROX);
 });
 
 TIMING_TEST_F(PeriodicTimer_test, immediateCatchupPolicyTest, Repeat(5), [&] {
     constexpr int EXECUTIONTIME = 70;
+    constexpr int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     Timer sut(INTERVAL);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(EXECUTIONTIME));
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK);
 
-    auto currentTimeAfterExecution = sut.now().value();
+    auto currentTimeAfterExecution = sut.now();
     timerState = sut.wait(iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK);
-    auto currentTimeAfterWait = sut.now().value();
+    auto currentTimeAfterWait = sut.now();
 
-    auto remainingTimeForNextActivation = currentTimeAfterWait - currentTimeAfterExecution;
-    const int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
+    TIMING_TEST_EXPECT_FALSE(currentTimeAfterExecution.has_error());
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
+    TIMING_TEST_EXPECT_FALSE(currentTimeAfterWait.has_error());
+
+    auto remainingTimeForNextActivation = currentTimeAfterWait.value() - currentTimeAfterExecution.value();
+
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK);
     TIMING_TEST_EXPECT_TRUE(remainingTimeForNextActivation.toMilliseconds() <= RANGE_APPROX);
 });
 
 TIMING_TEST_F(PeriodicTimer_test, skipToNextTickCatchupPolicyWithLessDelayTest, Repeat(5), [&] {
     constexpr int EXECUTIONTIME = 70;
+    constexpr int TIME_SLOT_CONSUMED = 2;
+    constexpr int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     Timer sut(INTERVAL);
-    const int TIME_SLOT_CONSUMED = 2;
+    
 
-    auto timeBeforeActivation = sut.now().value();
+    auto timeBeforeActivation = sut.now();
     std::this_thread::sleep_for(std::chrono::milliseconds(EXECUTIONTIME));
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::SKIP_TO_NEXT_TICK);
-    auto timeAfterExecution = sut.now().value();
+    auto timeAfterExecution = sut.now();
 
-    auto timeBetweenActivation = timeAfterExecution - timeBeforeActivation;
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
-    TIMING_TEST_EXPECT_TRUE(timeBetweenActivation.toMilliseconds() >= (INTERVAL.toMilliseconds() * TIME_SLOT_CONSUMED));
+    TIMING_TEST_EXPECT_FALSE(timeBeforeActivation.has_error());
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
+    TIMING_TEST_EXPECT_FALSE(timeAfterExecution.has_error());
+
+    auto timeBetweenActivation = timeAfterExecution.value() - timeBeforeActivation.value();
+    auto diffInActivationTime = timeBetweenActivation.toMilliseconds() - (INTERVAL.toMilliseconds() * TIME_SLOT_CONSUMED);
+
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK);
+    TIMING_TEST_EXPECT_TRUE(diffInActivationTime <= RANGE_APPROX);
 });
 
 TIMING_TEST_F(PeriodicTimer_test, skipToNextTickCatchupPolicyWithLargeDelayTest, Repeat(5), [&] {
     constexpr int EXECUTIONTIME = 150;
+    constexpr int TIME_SLOT_CONSUMED = 3;
+    constexpr int RANGE_APPROX = 2; // 2ms approximation. This may be lost in execution.
     Timer sut(INTERVAL);
-    const int TIME_SLOT_CONSUMED = 3;
+    
 
-    auto timeBeforeActivation = sut.now().value();
+    auto timeBeforeActivation = sut.now();
     std::this_thread::sleep_for(std::chrono::milliseconds(EXECUTIONTIME));
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::SKIP_TO_NEXT_TICK);
-    auto timeAfterExecution = sut.now().value();
+    auto timeAfterExecution = sut.now();
 
-    auto timeBetweenActivation = timeAfterExecution - timeBeforeActivation;
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK ? true : false);
-    TIMING_TEST_EXPECT_TRUE(timeBetweenActivation.toMilliseconds() >= (INTERVAL.toMilliseconds() * TIME_SLOT_CONSUMED));
+    TIMING_TEST_EXPECT_FALSE(timeBeforeActivation.has_error());
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
+    TIMING_TEST_EXPECT_FALSE(timeAfterExecution.has_error());
+
+    auto timeBetweenActivation = timeAfterExecution.value() - timeBeforeActivation.value();
+    auto diffInActivationTime = timeBetweenActivation.toMilliseconds() - (INTERVAL.toMilliseconds() * TIME_SLOT_CONSUMED);
+    
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::TICK);
+    TIMING_TEST_EXPECT_TRUE(diffInActivationTime <= RANGE_APPROX);
 });
 
 TIMING_TEST_F(PeriodicTimer_test, errorCatchupPolicyTest, Repeat(5), [&] {
@@ -216,9 +251,10 @@ TIMING_TEST_F(PeriodicTimer_test, errorCatchupPolicyTest, Repeat(5), [&] {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(EXECUTIONTIME));
     auto timerState = sut.wait(iox::posix::TimerCatchupPolicy::HOLD_ON_DELAY);
-
     auto delayExpected = EXECUTIONTIME - INTERVAL.toMilliseconds();
-    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::DELAY ? true : false);
+
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
+    TIMING_TEST_EXPECT_TRUE(timerState.value().state == iox::posix::TimerState::DELAY);
     TIMING_TEST_EXPECT_TRUE(delayExpected == timerState.value().timeDelay.toMilliseconds());
 });
 

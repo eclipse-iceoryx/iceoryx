@@ -35,9 +35,10 @@ PeriodicTimer::PeriodicTimer(const iox::units::Duration interval) noexcept
 void PeriodicTimer::start() noexcept
 {
     stop();
-    auto waitResult = m_waitSemaphore.timedWait(m_interval);
-    cxx::Ensures(!waitResult.has_error());
-    m_timeForNextActivation = now().value() + m_interval;
+    cxx::Ensures(!m_waitSemaphore.timedWait(m_interval).has_error());
+    auto currentTime = now();
+    cxx::Ensures(!currentTime.has_error());
+    m_timeForNextActivation = currentTime.value() + m_interval;
 }
 
 void PeriodicTimer::start(const iox::units::Duration interval) noexcept
@@ -48,10 +49,11 @@ void PeriodicTimer::start(const iox::units::Duration interval) noexcept
 
 void PeriodicTimer::stop() noexcept
 {
-    if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
+    auto semValue = m_waitSemaphore.getValue();
+    cxx::Ensures(!semValue.has_error());
+    if (semValue.value() == iox::posix::SEM_ACQUIRED)
     {
-        auto stopResult = m_waitSemaphore.post();
-        cxx::Ensures(!stopResult.has_error());
+        cxx::Ensures(!m_waitSemaphore.post().has_error());
     }
 }
 
@@ -72,19 +74,26 @@ cxx::expected<units::Duration, TimerErrorCause> PeriodicTimer::now() noexcept
 cxx::expected<iox::posix::WaitResult, TimerErrorCause> PeriodicTimer::wait(TimerCatchupPolicy policy) noexcept
 {
     // To check if the TIMER is active (if the sempahore is acquired)
-    if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
+    auto semValue = m_waitSemaphore.getValue();
+    cxx::Ensures(!semValue.has_error());
+    if (semValue.value() == iox::posix::SEM_ACQUIRED)
     {
-        if (now().value() > m_timeForNextActivation)
+        auto currentTime = now();
+        cxx::Ensures(!currentTime.has_error());
+        if (currentTime.value() > m_timeForNextActivation)
         {
-            if (policy == TimerCatchupPolicy::IMMEDIATE_TICK)
+            switch (policy)
             {
-                m_timeForNextActivation = now().value();
+            case iox::posix::TimerCatchupPolicy::IMMEDIATE_TICK:
+            {
+                m_timeForNextActivation = currentTime.value();
                 m_waitResult.state = iox::posix::TimerState::TICK;
                 return cxx::success<iox::posix::WaitResult>(m_waitResult);
             }
-            else if (policy == TimerCatchupPolicy::SKIP_TO_NEXT_TICK)
+
+            case iox::posix::TimerCatchupPolicy::SKIP_TO_NEXT_TICK:
             {
-                auto delay = now().value() - m_timeForNextActivation; // calculate the time delay
+                auto delay = currentTime.value() - m_timeForNextActivation; // calculate the time delay
                 if (delay > m_interval)
                 {
                     auto totalSlotToBeSkipped =
@@ -96,7 +105,7 @@ cxx::expected<iox::posix::WaitResult, TimerErrorCause> PeriodicTimer::wait(Timer
                 {
                     m_timeForNextActivation = m_timeForNextActivation + m_interval; // Skip to the next activation
                 }
-                auto timeDiff = m_timeForNextActivation - now().value(); // calculate remaining time for activation
+                auto timeDiff = m_timeForNextActivation - currentTime.value(); // calculate remaining time for activation
                 auto waitResult = m_waitSemaphore.timedWait(timeDiff);
                 if (waitResult.has_error())
                 {
@@ -108,17 +117,24 @@ cxx::expected<iox::posix::WaitResult, TimerErrorCause> PeriodicTimer::wait(Timer
                     return cxx::success<iox::posix::WaitResult>(m_waitResult);
                 }
             }
-            else
+
+            case iox::posix::TimerCatchupPolicy::HOLD_ON_DELAY:
             {
-                auto timeDiff = now().value() - m_timeForNextActivation; // Calculate the time delay
+                auto timeDiff = currentTime.value() - m_timeForNextActivation; // Calculate the time delay
                 m_waitResult.state = iox::posix::TimerState::DELAY;
                 m_waitResult.timeDelay = timeDiff;
                 return cxx::success<iox::posix::WaitResult>(m_waitResult);
             }
+
+            default:
+            {
+                return cxx::error<TimerErrorCause>(TimerErrorCause::INVALID_ARGUMENTS);
+            }
+            }
         }
         else
         {
-            auto actualWaitDuration = m_timeForNextActivation - now().value();
+            auto actualWaitDuration = m_timeForNextActivation - currentTime.value();
             auto waitResult = m_waitSemaphore.timedWait(actualWaitDuration);
             if (waitResult.has_error())
             {

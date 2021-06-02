@@ -26,7 +26,10 @@ namespace iox
 {
 namespace posix
 {
-/// @brief This enum class offers the timer error codes.
+/// @brief constant holds the acquired value of binary semaphore 0
+static constexpr int SEM_ACQUIRED = 0;
+
+/// @brief This enum class offers the timer error codes
 enum class TimerErrorCause
 {
     INVALID_ARGUMENTS,
@@ -38,7 +41,7 @@ enum class TimerErrorCause
     INVALID_STATE
 };
 
-/// @brief This enum class offers the timer state events.
+/// @brief This enum class offers the timer state events
 enum class TimerState : uint8_t
 {
     STOP, /// if the Timer is disabled
