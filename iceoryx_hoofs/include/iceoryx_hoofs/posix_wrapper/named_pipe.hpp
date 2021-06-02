@@ -42,26 +42,61 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
 
-    NamedPipe() noexcept;
     NamedPipe(const NamedPipe&) = delete;
     NamedPipe& operator=(const NamedPipe&) = delete;
+
+    /// @brief For compatibility with IpcChannel alias, default ctor which creates
+    ///        an uninitialized NamedPipe.
+    NamedPipe() noexcept;
 
     NamedPipe(NamedPipe&& rhs) noexcept;
     NamedPipe& operator=(NamedPipe&& rhs) noexcept;
     ~NamedPipe() noexcept;
 
+    /// @brief destroys an initialized named pipe.
+    /// @return is always successful
     cxx::expected<IpcChannelError> destroy() noexcept;
+
+    /// @brief removes a named pipe artifact from the system
+    /// @return true if the artifact was removed, false when no artifact was found and
+    ///         IpcChannelError::INTERNAL_LOGIC_ERROR when shm_unlink failed
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
+
+    /// @brief for compatibility with IpcChannelError
+    /// @return always false
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
+    /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
+    ///        delivered
+    /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
+    /// @return success when message was sent otherwise an error which describes the failure
     cxx::expected<IpcChannelError> send(const std::string& message) const noexcept;
+
+    /// @brief sends a message via the named pipe.
+    /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
+    /// @param[in] timeout the timeout on how long this method should retry to send the message
+    /// @return success when message was sent otherwise an error which describes the failure
     cxx::expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
+
+    /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
+    ///        received
+    /// @return on success a string containing the message, otherwise an error which describes the failure
     cxx::expected<std::string, IpcChannelError> receive() const noexcept;
+
+    /// @brief receives a message via the named pipe.
+    /// @param[in] timeout the timeout on how long this method should retry to receive a message
+    /// @return on success a string containing the message, otherwise an error which describes the failure
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
   private:
     friend class DesignPattern::Creation<NamedPipe, IpcChannelError>;
 
+    /// @brief constructor which creates a named pipe. This creates a shared memory file with the
+    ///        prefix NAMED_PIPE_PREFIX concatenated with name.
+    /// @param[in] name the name of the named pipe
+    /// @param[in] channelSide defines the channel side (server creates the shared memory, clients opens it)
+    /// @param[in] maxMsgSize maximum message size, must be less or equal than MAX_MESSAGE_SIZE
+    /// @param[in] maxMsgNumber the maximum number of messages, must be less or equal than MAX_NUMBER_OF_MESSAGES
     NamedPipe(const IpcChannelName_t& name,
               const IpcChannelSide channelSide,
               const size_t maxMsgSize = MAX_MESSAGE_SIZE,

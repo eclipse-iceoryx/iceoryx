@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
 void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
@@ -48,7 +49,6 @@ int munmap(void* addr, size_t length)
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
     static constexpr DWORD MAXIMUM_SIZE_HIGH = 0;
-    static constexpr DWORD MAXIMUM_SUPPORTED_SHM_SIZE = 1024 * 1024 * 1024;
 
     HANDLE sharedMemoryHandle{nullptr};
     DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
@@ -60,7 +60,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
                                 static_cast<LPSECURITY_ATTRIBUTES>(nullptr),
                                 static_cast<DWORD>(access),
                                 static_cast<DWORD>(MAXIMUM_SIZE_HIGH),
-                                static_cast<DWORD>(MAXIMUM_SUPPORTED_SHM_SIZE),
+                                static_cast<DWORD>(IOX_MAXIMUM_SUPPORTED_SHM_SIZE),
                                 static_cast<LPCSTR>(name));
         sharedMemoryHandle = result.value;
 

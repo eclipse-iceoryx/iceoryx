@@ -30,16 +30,10 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
 
     uint64_t nameSize = name.size();
 
-    // a single dot is the relative path to the current directory and therefore
-    // no file name
-    if (nameSize == 1 && name.c_str()[0] == '.')
-    {
-        return false;
-    }
+    const string<StringCapacity> currentDirectory(".");
+    const string<StringCapacity> parentDirectory("..");
 
-    // a double dot is the relative path to the directory above and therefore
-    // no file name
-    if (nameSize == 2 && name.c_str()[0] == '.' && name.c_str()[1] == '.')
+    if (name == currentDirectory || name == parentDirectory)
     {
         return false;
     }

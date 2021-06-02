@@ -66,6 +66,16 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
+    if (maxMsgNumber > MAX_NUMBER_OF_MESSAGES)
+    {
+        std::cerr << "A message amount of " << maxMsgNumber
+                  << " exceeds the maximum number of messages for named pipes of " << MAX_NUMBER_OF_MESSAGES
+                  << std::endl;
+        m_isInitialized = false;
+        m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
+        return;
+    }
+
     auto sharedMemory = SharedMemoryObject::create(
         convertName(name),
         sizeof(MessageQueue_t) + alignof(MessageQueue_t),
