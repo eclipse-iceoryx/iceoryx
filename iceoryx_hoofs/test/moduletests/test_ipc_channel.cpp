@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
 
 #include "test.hpp"
 
@@ -31,7 +32,7 @@ using namespace iox::posix;
 #if defined(__APPLE__) || defined(_WIN32)
 using IpcChannelTypes = Types<UnixDomainSocket>;
 #else
-using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
+using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket, NamedPipe>;
 #endif
 
 constexpr char goodName[] = "channel_test";
@@ -57,7 +58,7 @@ class IpcChannel_test : public Test
         auto serverResult = IpcChannelType::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
-        // internal::CaptureStderr();
+        internal::CaptureStderr();
 
         auto clientResult = IpcChannelType::create(goodName, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
@@ -66,11 +67,11 @@ class IpcChannel_test : public Test
 
     void TearDown()
     {
-        // std::string output = internal::GetCapturedStderr();
-        // if (Test::HasFailure())
-        //{
-        //    std::cout << output << std::endl;
-        //}
+        std::string output = internal::GetCapturedStderr();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
     }
 
     ~IpcChannel_test()
@@ -188,9 +189,10 @@ TYPED_TEST(IpcChannel_test, NotDestroyingServerLeadsToNonOutdatedClient)
 
 TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 {
-    if (std::is_same<typename TestFixture::IpcChannelType, UnixDomainSocket>::value)
+    if (std::is_same<typename TestFixture::IpcChannelType, UnixDomainSocket>::value
+        || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
     {
-        // isOutdated cannot be realized for unix domain sockets
+        // isOutdated cannot be realized for unix domain sockets or named pipes
         return;
     }
 
@@ -266,8 +268,10 @@ TYPED_TEST(IpcChannel_test, SendAfterClientDestroyLeadsToError)
 
 TYPED_TEST(IpcChannel_test, SendAfterServerDestroyLeadsToError)
 {
-    if (std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value)
+    if (std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value
+        || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
     {
+        // NamedPipe are as long opened as long there is one instance
         // We still can send to the message queue is we destroy the server
         // it would be outdated, this is checked in another test
         return;
