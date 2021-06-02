@@ -26,6 +26,7 @@ namespace posix
 {
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
 constexpr units::Duration NamedPipe::BLOCKING_TIMEOUT;
+constexpr units::Duration NamedPipe::CYCLE_TIME;
 
 NamedPipe::NamedPipe() noexcept
 {
@@ -112,7 +113,7 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        destroy();
+        IOX_DISCARD_RESULT(destroy());
     }
     CreationPattern_t::operator=(std::move(rhs));
 
@@ -125,7 +126,7 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
 
 NamedPipe::~NamedPipe() noexcept
 {
-    destroy();
+    IOX_DISCARD_RESULT(destroy());
 }
 
 IpcChannelName_t NamedPipe::convertName(const IpcChannelName_t& name) noexcept
