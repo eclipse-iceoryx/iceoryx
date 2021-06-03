@@ -30,7 +30,7 @@
 
 struct pthread_mutex_t
 {
-    HANDLE handle;
+    HANDLE handle = INVALID_HANDLE_VALUE;
     bool isInterprocessMutex = false;
 };
 

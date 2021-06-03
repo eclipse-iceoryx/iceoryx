@@ -99,7 +99,7 @@ int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
                             .value;
 
 
-        if (mutex->handle == NULL)
+        if (mutex->handle == nullptr)
         {
             return EINVAL;
         }
