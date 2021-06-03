@@ -26,7 +26,7 @@ PUML_DIR="$WORKSPACE/doc/design/diagrams"
 EXPORT_DIR=${1:-$PUML_DIR}
 TEMP_DIR="/var/tmp/iceoryx" # this is persistent across reboots
 PLANTUML_DIR="$TEMP_DIR/plantuml-jar-mit-1.2021.5"
-NUM_THREADS=""
+NUM_THREADS=1
 
 cd $WORKSPACE
 
@@ -51,8 +51,6 @@ if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE
     NUM_THREADS=$(nproc)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     NUM_THREADS=$(sysctl -n hw.ncpu)
-else
-    NUM_THREADS=1
 fi
 echo " [i] Generating with $NUM_THREADS threads"
 
