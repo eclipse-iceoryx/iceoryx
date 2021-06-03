@@ -18,8 +18,8 @@ class ServerPortUser {
   hasNewRequests(): void
   hasLostRequestsSinceLastCall(): bool
   allocateResponse(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
-  sendResponse(responseHeader: ResponseHeader): void
-  freeResponse(responseHeader: ResponseHeader): void
+  sendResponse(responseHeader: ResponseHeader*): void
+  freeResponse(responseHeader: ResponseHeader*): void
   setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
   unsetConditionVariable: void
   isConditionVariableSet(): bool

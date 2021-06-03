@@ -53,12 +53,8 @@ interface PublisherInterface<T, H> {
   pubish(sample: Sample<T, H>): void
 }
 
-interface RequestInterface {
-  send(request: Request<Req>): void
-}
-
-interface ResponseInterface {
-  send(response: Response<Res>): void
+interface RpcInterface <RpcType> {
+  send(rpc: RpcType): void
 }
 
 together Group2 {
@@ -71,7 +67,7 @@ class Sample<T, H> {
 }
 
 class Request<Req> {
-  Request(requestUniquePtr: unique_ptr<Req>&&, client: RequestInterface<Req>&)
+  Request(requestUniquePtr: unique_ptr<Req>&&, client: RpcInterface<Request<Req>>&)
   Request(requestUniquePtr: unique_ptr<const Req>&&)
   getRequestHeader(): RequestHeader*
   getRequestHeader() const: const RequestHeader*
@@ -79,7 +75,7 @@ class Request<Req> {
 }
 
 class Response<Res> {
-  Response(responseUniquePtr: unique_ptr<Res>&&, server: ResponseInterface<Res>&)
+  Response(responseUniquePtr: unique_ptr<Res>&&, server: RpcInterface<Response<Res>>&)
   Response(responseUniquePtr: unique_ptr<const Res>&&)
   getResponseHeader(): ResponseHeader*
   getResponseHeader() const: const ResponseHeader*
@@ -87,9 +83,11 @@ class Response<Res> {
 }
 }
 
+note top of Publisher: This is not used by request-response\nand just added to show the similar concepts in the API.
+
 Publisher --> PublisherInterface
-Client --> RequestInterface
-Server --> ResponseInterface
+Client --> RpcInterface
+Server --> RpcInterface
 
 Group1 -[hidden]--- Group2
 

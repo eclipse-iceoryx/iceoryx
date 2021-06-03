@@ -16,7 +16,7 @@ class ClientPortUser {
   sendRequest(requestHeader: RequestHeader*): void
   freeRequest(requestHeader: RequestHeader*): void
   getResponse(): expected<const ResponseHeader*, ChunkReceiveResult>
-  releaseResponse(response Header: const ResponseHeader*): void
+  releaseResponse(responseHeader: const ResponseHeader*): void
   hasNewResponses(): void
   hasLostResponsesSinceLastCall(): bool
   setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
