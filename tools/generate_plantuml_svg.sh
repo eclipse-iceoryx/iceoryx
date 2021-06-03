@@ -24,15 +24,16 @@ set -e
 WORKSPACE="$(git rev-parse --show-toplevel)"
 PUML_DIR="$WORKSPACE/doc/design/diagrams"
 EXPORT_DIR=${1:-$PUML_DIR}
-PLANTUML_DIR="/tmp/plantuml-jar-mit-1.2021.5"
+TEMP_DIR="/var/tmp/iceoryx" # this is persistent across reboots
+PLANTUML_DIR="$TEMP_DIR/plantuml-jar-mit-1.2021.5"
 NUM_THREADS=""
 
 cd $WORKSPACE
 
 if [ ! -f $PLANTUML_DIR/plantuml.jar ]; then
     echo "Downloading Plantuml..."
-    wget -P /tmp https://downloads.sourceforge.net/project/plantuml/1.2021.5/plantuml-jar-mit-1.2021.5.zip
-    cd /tmp
+    wget -P $TEMP_DIR https://downloads.sourceforge.net/project/plantuml/1.2021.5/plantuml-jar-mit-1.2021.5.zip
+    cd $TEMP_DIR
     unzip plantuml-jar-mit-1.2021.5.zip -d plantuml-jar-mit-1.2021.5
     cd $WORKSPACE
 fi
