@@ -1,6 +1,7 @@
 @startuml
 skinparam backgroundColor #EEEBDC
 
+together Group1 {
 class Client<Req, Res> {
   Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
   connect(): void
@@ -27,5 +28,73 @@ class Server<Req, Res> {
   loan(request: Request<Req>&): expected<Response<Res>, Error>
   send(response: Response<Res>): void
 }
+
+class Publisher {
+}
+}
+
+class SmartChunk<TransmissionInterface, T, H> {
+  SmartChunk(chunkUniquePtr: unique_ptr<T>&&, sender: TransmissionInterface&)
+  SmartChunk(chunkUniquePtr: unique_ptr<const T>&&)
+  operator->(): T*
+  operator->() const: const T*
+  operator*(): T&
+  operator*() const: const T&
+  operator bool() const
+  get(): T*
+  get() const: const T*
+  getChunkHeader(): ChunkHeader*
+  getChunkHeader() const: const ChunkHeader*
+}
+
+note right of SmartChunk: ForProducerOnly and ForConsumerOnly type traits\nrestrict access to some ctors and methods,\nlike no non-const access to payload
+
+interface PublisherInterface<T, H> {
+  pubish(sample: Sample<T, H>): void
+}
+
+interface RequestInterface {
+  send(request: Request<Req>): void
+}
+
+interface ResponseInterface {
+  send(response: Response<Res>): void
+}
+
+together Group2 {
+class Sample<T, H> {
+  Sample(sampleUniquePtr: unique_ptr<T>&&, publisher: PublisherInterface<T, H>&)
+  Sample(sampleUniquePtr: unique_ptr<const T>&&)
+  getUserHeader(): H*
+  getUserHeader() const: const H*
+  publish(): void
+}
+
+class Request<Req> {
+  Request(requestUniquePtr: unique_ptr<Req>&&, client: RequestInterface<Req>&)
+  Request(requestUniquePtr: unique_ptr<const Req>&&)
+  getRequestHeader(): RequestHeader*
+  getRequestHeader() const: const RequestHeader*
+  send(): void
+}
+
+class Response<Res> {
+  Response(responseUniquePtr: unique_ptr<Res>&&, server: ResponseInterface<Res>&)
+  Response(responseUniquePtr: unique_ptr<const Res>&&)
+  getResponseHeader(): ResponseHeader*
+  getResponseHeader() const: const ResponseHeader*
+  send(): void
+}
+}
+
+Publisher --> PublisherInterface
+Client --> RequestInterface
+Server --> ResponseInterface
+
+Group1 -[hidden]--- Group2
+
+Sample --> SmartChunk
+Request --> SmartChunk
+Response --> SmartChunk
 
 @enduml
