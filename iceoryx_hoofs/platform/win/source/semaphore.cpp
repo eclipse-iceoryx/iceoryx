@@ -153,7 +153,7 @@ int iox_sem_destroy(iox_sem_t* sem)
     return 0;
 }
 
-HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
+static HANDLE sem_create_win32_semaphore(LONG value, LPCSTR name)
 {
     SECURITY_ATTRIBUTES securityAttribute;
     SECURITY_DESCRIPTOR securityDescriptor;
@@ -182,19 +182,18 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
     sem->isInterprocessSemaphore = (pshared == 1);
     if (sem->isInterprocessSemaphore)
     {
-        sem->handle = __sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str());
-        ipcSemaphoreHandleManager.addHandle(sem->uniqueId, OwnerShip::OWN, sem->handle);
+        sem->handle = sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str());
+        if (sem->handle != nullptr)
+        {
+            ipcSemaphoreHandleManager.addHandle(sem->uniqueId, OwnerShip::OWN, sem->handle);
+        }
     }
     else
     {
-        sem->handle = __sem_create_win32_semaphore(value, nullptr);
+        sem->handle = sem_create_win32_semaphore(value, nullptr);
     }
 
-    if (sem->handle != nullptr)
-    {
-        return 0;
-    }
-    return -1;
+    return (sem->handle != nullptr) ? 0 : -1;
 }
 
 int iox_sem_unlink(const char* name)
@@ -220,7 +219,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         unsigned int value = va_arg(va, unsigned int);
         va_end(va);
 
-        sem->handle = __sem_create_win32_semaphore(value, name);
+        sem->handle = sem_create_win32_semaphore(value, name);
         if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
         {
             iox_sem_close(sem);
