@@ -40,7 +40,7 @@ FileLock::FileLock(const FileName_t& name) noexcept
 
 cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
 {
-    if (!cxx::isValidFileName(m_name))
+    if (!cxx::isValidFilePath(m_name))
     {
         return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
