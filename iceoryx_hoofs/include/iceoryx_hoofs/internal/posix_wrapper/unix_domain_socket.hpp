@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,15 +40,12 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr NoPathPrefix_t NoPathPrefix{};
     static constexpr char PATH_PREFIX[] = "/tmp/";
 
+    static constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
     /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
-    static constexpr size_t MAX_MESSAGE_SIZE = 2048U;
-    static constexpr size_t SHORTEST_VALID_NAME = 2U;
-    static constexpr size_t NULL_TERMINATOR_SIZE = 1;
+    static constexpr uint64_t MAX_MESSAGE_SIZE = 2048U - NULL_TERMINATOR_SIZE;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
-    static constexpr int32_t ERROR_CODE = -1;
-    static constexpr int32_t INVALID_FD = -1;
 
     using UdsName_t = cxx::string<LONGEST_VALID_NAME>;
 
@@ -108,12 +105,10 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
   private:
     /// @brief c'tor
     /// @param name for the unix domain socket
-    /// @param mode blocking or non_blocking
     /// @param channel side client or server
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const IpcChannelName_t& name,
-                     const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
@@ -121,22 +116,19 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief c'tor
     /// @param NoPathPrefix signalling that this constructor does not add a path prefix
     /// @param name for the unix domain socket
-    /// @param mode blocking or non_blocking
     /// @param channel side client or server
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const NoPathPrefix_t,
                      const UdsName_t& name,
-                     const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
 
     /// @brief initializes the unix domain socket
-    /// @param mode blocking or non_blocking
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> initalizeSocket(const IpcChannelMode mode) noexcept;
+    cxx::expected<IpcChannelError> initalizeSocket() noexcept;
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
@@ -149,6 +141,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
   private:
+    static constexpr int32_t ERROR_CODE = -1;
+    static constexpr int32_t INVALID_FD = -1;
+
     UdsName_t m_name;
     IpcChannelSide m_channelSide;
     int32_t m_sockfd{INVALID_FD};

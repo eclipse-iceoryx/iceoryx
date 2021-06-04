@@ -1,0 +1,38 @@
+@startuml
+title Alternative D: Event-based notification between RouDi and User App
+
+participant RouDi
+participant UserAppA
+participant UserAppB
+
+activate UserAppA
+
+UserAppA->UserAppA: DiscoveryInfo::DiscoveryInfo()
+UserAppA->RouDi:  getMiddlewareSubscriber() / CREATE_Subscriber
+
+RouDi->UserAppA: CREATE_SUBSCRIBER_ACK
+deactivate UserAppA
+
+UserAppA->UserAppA: Listener::attachEvent(discoveryInfo)
+
+
+UserAppA->UserAppA: Listener::wait()
+activate UserAppA
+note right: Only react on CaproMessageSubType::SERVICE
+
+UserAppB->RouDi: offer()
+loop every 100ms
+    RouDi->RouDi: doDiscovery()
+
+    activate RouDi
+    RouDi->RouDi: doDiscoveryForPublisherPorts()
+    alt CaproMessage received
+        RouDi->RouDi: sendToAllMatchingInterfaces()
+        RouDi->UserAppA: publish(ServiceRegistryTopic)
+    end
+end
+deactivate RouDi
+UserAppA->UserAppA: wake up from Listener::wait()
+deactivate UserAppA
+
+@enduml

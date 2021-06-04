@@ -29,7 +29,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(_WIN32)
 using IpcChannelTypes = Types<UnixDomainSocket>;
 #else
 using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
@@ -55,14 +55,12 @@ class IpcChannel_test : public Test
 
     void SetUp()
     {
-        auto serverResult = IpcChannelType::create(
-            goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
+        auto serverResult = IpcChannelType::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
         internal::CaptureStderr();
 
-        auto clientResult = IpcChannelType::create(
-            goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
+        auto clientResult = IpcChannelType::create(goodName, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.value());
     }
@@ -99,36 +97,31 @@ TYPED_TEST_CASE(IpcChannel_test, IpcChannelTypes);
 
 TYPED_TEST(IpcChannel_test, CreateWithTooLargeMessageSizeLeadsToError)
 {
-    auto serverResult = TestFixture::IpcChannelType::create(goodName,
-                                                            IpcChannelMode::BLOCKING,
-                                                            IpcChannelSide::SERVER,
-                                                            TestFixture::MaxMsgSize + 1,
-                                                            TestFixture::MaxMsgNumber);
+    auto serverResult = TestFixture::IpcChannelType::create(
+        goodName, IpcChannelSide::SERVER, TestFixture::MaxMsgSize + 1, TestFixture::MaxMsgNumber);
     EXPECT_TRUE(serverResult.has_error());
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED));
 }
 
 TYPED_TEST(IpcChannel_test, CreateNoNameLeadsToError)
 {
-    auto serverResult = TestFixture::IpcChannelType::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = TestFixture::IpcChannelType::create("", IpcChannelSide::SERVER);
     EXPECT_TRUE(serverResult.has_error());
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TYPED_TEST(IpcChannel_test, CreateWithLeadingSlashWorks)
 {
-    auto serverResult =
-        TestFixture::IpcChannelType::create(slashName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = TestFixture::IpcChannelType::create(slashName, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
 }
 
 TYPED_TEST(IpcChannel_test, CreateAgainWorks)
 {
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice
-    auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
-    auto second =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto second = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(second.has_error());
 }
 
@@ -138,13 +131,11 @@ TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
     using namespace iox::units;
     using namespace std::chrono;
 
-    auto serverResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.value());
 
-    auto clientResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
     auto client = std::move(clientResult.value());
 
@@ -162,8 +153,7 @@ TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
     sent = client.send(newMessage).has_error();
     EXPECT_FALSE(sent);
 
-    auto second =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto second = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(second.has_error());
     server = std::move(second.value());
 
@@ -175,8 +165,7 @@ TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
 
 TYPED_TEST(IpcChannel_test, ClientWithoutServerLeadsToNoSuchChannelError)
 {
-    auto clientResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::CLIENT);
     EXPECT_TRUE(clientResult.has_error());
     ASSERT_THAT(clientResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
 }
@@ -184,13 +173,11 @@ TYPED_TEST(IpcChannel_test, ClientWithoutServerLeadsToNoSuchChannelError)
 
 TYPED_TEST(IpcChannel_test, NotDestroyingServerLeadsToNonOutdatedClient)
 {
-    auto serverResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.value());
 
-    auto clientResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
     auto client = std::move(clientResult.value());
 
@@ -208,13 +195,11 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
         return;
     }
 
-    auto serverResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.value());
 
-    auto clientResult =
-        TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
     auto client = std::move(clientResult.value());
 
@@ -229,7 +214,7 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 
 TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
 {
-    auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(anotherGoodName);
     ASSERT_FALSE(ret.has_error());

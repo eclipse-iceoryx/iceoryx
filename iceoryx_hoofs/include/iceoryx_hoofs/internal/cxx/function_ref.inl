@@ -27,7 +27,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
 }
 
 template <class ReturnType, class... ArgTypes>
-template <typename CallableType, typename, typename>
+template <typename CallableType, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     : m_pointerToCallable(reinterpret_cast<void*>(std::addressof(callable)))
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
@@ -35,6 +35,20 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
             std::forward<ArgTypes>(args)...);
     })
 {
+}
+
+template <class ReturnType, class... ArgTypes>
+inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function)(ArgTypes...)) noexcept
+{
+    // the cast is required to work on POSIX systems
+    m_pointerToCallable = reinterpret_cast<void*>(function);
+
+    // the lambda does not capture and is thus convertible to a function pointer
+    // (required by the C++ standard)
+    m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
+        auto f = reinterpret_cast<ReturnType (*)(ArgTypes...)>(target);
+        return f(args...);
+    };
 }
 
 template <class ReturnType, class... ArgTypes>

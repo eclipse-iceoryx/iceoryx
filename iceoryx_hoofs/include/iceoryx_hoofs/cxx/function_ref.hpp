@@ -24,6 +24,7 @@
 #include <cstddef>
 #include <iostream>
 #include <memory>
+#include <type_traits>
 
 namespace iox
 {
@@ -32,15 +33,6 @@ namespace cxx
 template <typename SignatureType>
 class function_ref;
 
-template <typename...>
-struct is_function_ref : std::false_type
-{
-};
-
-template <typename... Targs>
-struct is_function_ref<function_ref<Targs...>> : std::true_type
-{
-};
 
 /// @brief cxx::function_ref is a non-owning reference to a callable.
 ///
@@ -73,6 +65,11 @@ class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
 
+    template <typename T1, typename T2>
+    using has_same_decayed_type = typename std::integral_constant<
+        bool,
+        bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
+
   public:
     /// @brief Creates an empty function_ref in an invalid state
     /// @note Handle with care, program will terminate when calling an invalid function_ref
@@ -87,9 +84,18 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
-              typename = std::enable_if_t<!is_function_ref<std::remove_reference_t<CallableType>>::value>,
-              typename = std::enable_if_t<is_invocable<CallableType, ArgTypes...>::value>>
+              typename = std::enable_if_t<!is_function_pointer<CallableType>::value
+                                          && !has_same_decayed_type<CallableType, function_ref>::value
+                                          && is_invocable<CallableType, ArgTypes...>::value>>
     function_ref(CallableType&& callable) noexcept;
+
+    /// @brief Creates a function_ref from a function pointer
+    /// @param[in] function function pointer to function we want to reference
+    ///
+    /// @note This overload is needed, as the general implementation
+    /// will not work properly for function pointers.
+    /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
+    function_ref(ReturnType (*function)(ArgTypes...)) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;
 

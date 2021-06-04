@@ -1,0 +1,33 @@
+@startuml
+title Alternative B: Event-based notification between RouDi and User App
+
+participant RouDi
+participant UserAppA
+participant UserAppB
+
+UserAppA->RouDi:  getMiddlewareInterface() / CREATE_INTERFACE
+activate UserAppA
+RouDi->UserAppA: CREATE_INTERFACE_ACK
+deactivate UserAppA
+
+RouDi->UserAppA: handleInterfaces() sends complete service registry
+activate UserAppA
+
+note right: Only react on CaproMessageSubType::SERVICE
+
+UserAppB->RouDi: offer()
+loop every 100ms
+    RouDi->RouDi: doDiscovery()
+
+    activate RouDi
+    RouDi->RouDi: doDiscoveryForPublisherPorts()
+    alt CaproMessage received
+        RouDi->RouDi: sendToAllMatchingInterfaces()
+        RouDi->UserAppA: dispatchCaProMessage()
+    end
+end
+deactivate RouDi
+UserAppA->UserAppA: wake up from wait()
+deactivate UserAppA
+
+@enduml

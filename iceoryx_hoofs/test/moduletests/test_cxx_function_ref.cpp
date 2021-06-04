@@ -37,6 +37,11 @@ int freeFunction()
     return freeFuncTestValue;
 }
 
+void freeVoidFunction(int& arg)
+{
+    arg = freeFuncTestValue;
+}
+
 class Functor
 {
   public:
@@ -318,4 +323,45 @@ TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfIntInt)
     auto value = SameSignature([](int value1, int value2 IOX_MAYBE_UNUSED) -> int { return value1; });
     EXPECT_THAT(value, Eq(sameSignatureIntIntTestValue));
 }
+
+TEST_F(function_refTest, CreationWithFunctionPointerWorks)
+{
+    constexpr auto fp = &freeFunction;
+    function_ref<int(void)> sut(fp);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = sut();
+    EXPECT_EQ(result, freeFuncTestValue);
+}
+
+TEST_F(function_refTest, CreationWithFunctionPointerWithRefArgWorks)
+{
+    constexpr auto fp = &freeVoidFunction;
+    function_ref<void(int&)> sut(fp);
+
+    ASSERT_TRUE(sut.operator bool());
+    int arg{0};
+    sut(arg);
+    EXPECT_EQ(arg, freeFuncTestValue);
+}
+
+TEST_F(function_refTest, CreationWithFunctionPointerWithComplexTypeArgWorks)
+{
+    constexpr auto fp = &returnComplexType;
+    function_ref<ComplexType(ComplexType)> sut(fp);
+
+    ASSERT_TRUE(sut.operator bool());
+    ComplexType arg{1, 2, 3.3};
+    auto result = sut(arg);
+    EXPECT_EQ(result, arg);
+}
+
+TEST_F(function_refTest, CreationWithFunctionNullPointerIsNotCallable)
+{
+    int (*fp)(int) = nullptr;
+    function_ref<int(int)> sut(fp);
+
+    EXPECT_FALSE(sut.operator bool());
+}
+
 } // namespace

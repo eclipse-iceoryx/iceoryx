@@ -57,12 +57,6 @@ enum class IpcChannelError : uint8_t
     UNDEFINED
 };
 
-enum class IpcChannelMode : uint8_t
-{
-    NON_BLOCKING,
-    BLOCKING
-};
-
 enum class IpcChannelSide : uint8_t
 {
     CLIENT,
