@@ -99,8 +99,7 @@ INSTANTIATE_TEST_CASE_P(ValidTest,
                                           CheckCharactersValidity_t{std::make_tuple("Under_score_Characters", false)},
                                           CheckCharactersValidity_t{std::make_tuple("_BeginsWithUnderscore", false)},
                                           CheckCharactersValidity_t{std::make_tuple("Hyphen-InService", true)},
-                                          CheckCharactersValidity_t{std::make_tuple("1234567890", true)},
-                                          CheckCharactersValidity_t{std::make_tuple("這場考試_!*#:", true)}));
+                                          CheckCharactersValidity_t{std::make_tuple("1234567890", true)}));
 
 #pragma GCC diagnostic pop
 
