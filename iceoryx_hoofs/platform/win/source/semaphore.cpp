@@ -19,15 +19,76 @@
 
 #include <cstdarg>
 
+enum class OwnerShip
+{
+    OWN,
+    LOAN,
+};
+
+struct IpcHandle_t
+{
+    OwnerShip ownerShip = OwnerShip::LOAN;
+    HANDLE handle = nullptr;
+};
+
+static std::map<UniqueSystemId, IpcHandle_t> ipcSemaphoreHandles;
+
+struct IpcSemaphoreHandleCleaner_t
+{
+    ~IpcSemaphoreHandleCleaner_t() noexcept
+    {
+        for (auto& handle : ipcSemaphoreHandles)
+        {
+            if (handle.second.ownerShip == OwnerShip::LOAN)
+            {
+                CloseHandle(handle.second.handle);
+            }
+        }
+    }
+};
+static IpcSemaphoreHandleCleaner_t ipcSemaphoreHandleCleaner;
+
+static std::string generateSemaphoreName(const UniqueSystemId& id)
+{
+    return "iox_semaphore_" + static_cast<std::string>(id);
+}
+
+static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
+{
+    if (!sem->isInterprocessSemaphore)
+    {
+        return sem->handle;
+    }
+
+    auto iter = ipcSemaphoreHandles.find(sem->uniqueId);
+    if (iter != ipcSemaphoreHandles.end())
+    {
+        return iter->second.handle;
+    }
+
+    HANDLE newHandle =
+        Win32Call(OpenSemaphoreA, SEMAPHORE_ALL_ACCESS, false, generateSemaphoreName(sem->uniqueId).c_str()).value;
+    if (newHandle == nullptr)
+    {
+        fprintf(stderr,
+                "interprocess semaphore %s is corrupted - segmentation fault immanent\n",
+                generateSemaphoreName(sem->uniqueId).c_str());
+        return nullptr;
+    }
+
+    ipcSemaphoreHandles[sem->uniqueId] = IpcHandle_t{OwnerShip::LOAN, newHandle};
+    return newHandle;
+}
+
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     LONG previousValue;
-    auto waitResult = Win32Call(WaitForSingleObject, sem->handle, 0).value;
+    auto waitResult = Win32Call(WaitForSingleObject, acquireSemaphoreHandle(sem), 0).value;
     switch (waitResult)
     {
     case WAIT_OBJECT_0:
     {
-        auto releaseResult = Win32Call(ReleaseSemaphore, sem->handle, 1, &previousValue).value;
+        auto releaseResult = Win32Call(ReleaseSemaphore, acquireSemaphoreHandle(sem), 1, &previousValue).value;
         if (releaseResult)
         {
             *sval = previousValue + 1;
@@ -49,19 +110,19 @@ int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 
 int iox_sem_post(iox_sem_t* sem)
 {
-    int retVal = Win32Call(ReleaseSemaphore, sem->handle, 1, nullptr).value;
+    int retVal = Win32Call(ReleaseSemaphore, acquireSemaphoreHandle(sem), 1, nullptr).value;
     return (retVal != 0) ? 0 : -1;
 }
 
 int iox_sem_wait(iox_sem_t* sem)
 {
-    int retVal = Win32Call(WaitForSingleObject, sem->handle, INFINITE).value;
+    int retVal = Win32Call(WaitForSingleObject, acquireSemaphoreHandle(sem), INFINITE).value;
     return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int iox_sem_trywait(iox_sem_t* sem)
 {
-    int retVal = Win32Call(WaitForSingleObject, sem->handle, 0).value;
+    int retVal = Win32Call(WaitForSingleObject, acquireSemaphoreHandle(sem), 0).value;
     if (retVal != WAIT_OBJECT_0)
     {
         errno = EAGAIN;
@@ -90,7 +151,8 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
          + HALF_MILLI_SECOND_ROUNDING_CORRECTION_IN_NS)
         / NANO_SECONDS_PER_MILLI_SECOND;
 
-    auto state = Win32Call(WaitForSingleObject, sem->handle, (milliseconds == 0) ? 1 : milliseconds).value;
+    auto state =
+        Win32Call(WaitForSingleObject, acquireSemaphoreHandle(sem), (milliseconds == 0) ? 1 : milliseconds).value;
     if (state == WAIT_TIMEOUT)
     {
         errno = ETIMEDOUT;
@@ -101,14 +163,23 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 
 int iox_sem_close(iox_sem_t* sem)
 {
-    int retVal = Win32Call(CloseHandle, sem->handle).value ? 0 : -1;
+    // we close a named semaphore, therefore we do not need to perform an ipc cleanup
+    int retVal = Win32Call(CloseHandle, acquireSemaphoreHandle(sem)).value ? 0 : -1;
     delete sem;
     return (retVal) ? 0 : -1;
 }
 
 int iox_sem_destroy(iox_sem_t* sem)
 {
-    CloseHandle(sem->handle);
+    CloseHandle(acquireSemaphoreHandle(sem));
+    if (sem->isInterprocessSemaphore)
+    {
+        auto iter = ipcSemaphoreHandles.find(sem->uniqueId);
+        if (iter != ipcSemaphoreHandles.end())
+        {
+            ipcSemaphoreHandles.erase(iter);
+        }
+    }
     return 0;
 }
 
@@ -136,10 +207,19 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
     return returnValue;
 }
 
-
 int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
-    sem->handle = __sem_create_win32_semaphore(value, nullptr);
+    sem->isInterprocessSemaphore = (pshared == 1);
+    if (sem->isInterprocessSemaphore)
+    {
+        sem->handle = __sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str());
+        ipcSemaphoreHandles[sem->uniqueId] = {OwnerShip::OWN, sem->handle};
+    }
+    else
+    {
+        sem->handle = __sem_create_win32_semaphore(value, nullptr);
+    }
+
     if (sem->handle != nullptr)
     {
         return 0;
