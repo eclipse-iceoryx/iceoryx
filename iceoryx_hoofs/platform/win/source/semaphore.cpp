@@ -16,37 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/semaphore.hpp"
+#include "iceoryx_hoofs/platform/ipc_handle_manager.hpp"
 
 #include <cstdarg>
 
-enum class OwnerShip
-{
-    OWN,
-    LOAN,
-};
-
-struct IpcHandle_t
-{
-    OwnerShip ownerShip = OwnerShip::LOAN;
-    HANDLE handle = nullptr;
-};
-
-static std::map<UniqueSystemId, IpcHandle_t> ipcSemaphoreHandles;
-
-struct IpcSemaphoreHandleCleaner_t
-{
-    ~IpcSemaphoreHandleCleaner_t() noexcept
-    {
-        for (auto& handle : ipcSemaphoreHandles)
-        {
-            if (handle.second.ownerShip == OwnerShip::LOAN)
-            {
-                CloseHandle(handle.second.handle);
-            }
-        }
-    }
-};
-static IpcSemaphoreHandleCleaner_t ipcSemaphoreHandleCleaner;
+static IpcHandleManager ipcSemaphoreHandleManager;
 
 static std::string generateSemaphoreName(const UniqueSystemId& id)
 {
@@ -60,13 +34,13 @@ static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
         return sem->handle;
     }
 
-    auto iter = ipcSemaphoreHandles.find(sem->uniqueId);
-    if (iter != ipcSemaphoreHandles.end())
+    HANDLE newHandle;
+    if (ipcSemaphoreHandleManager.getHandle(sem->uniqueId, newHandle))
     {
-        return iter->second.handle;
+        return newHandle;
     }
 
-    HANDLE newHandle =
+    newHandle =
         Win32Call(OpenSemaphoreA, SEMAPHORE_ALL_ACCESS, false, generateSemaphoreName(sem->uniqueId).c_str()).value;
     if (newHandle == nullptr)
     {
@@ -76,7 +50,7 @@ static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
         return nullptr;
     }
 
-    ipcSemaphoreHandles[sem->uniqueId] = IpcHandle_t{OwnerShip::LOAN, newHandle};
+    ipcSemaphoreHandleManager.addHandle(sem->uniqueId, OwnerShip::LOAN, newHandle);
     return newHandle;
 }
 
@@ -174,11 +148,7 @@ int iox_sem_destroy(iox_sem_t* sem)
     CloseHandle(acquireSemaphoreHandle(sem));
     if (sem->isInterprocessSemaphore)
     {
-        auto iter = ipcSemaphoreHandles.find(sem->uniqueId);
-        if (iter != ipcSemaphoreHandles.end())
-        {
-            ipcSemaphoreHandles.erase(iter);
-        }
+        ipcSemaphoreHandleManager.removeHandle(sem->uniqueId);
     }
     return 0;
 }
@@ -213,7 +183,7 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
     if (sem->isInterprocessSemaphore)
     {
         sem->handle = __sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str());
-        ipcSemaphoreHandles[sem->uniqueId] = {OwnerShip::OWN, sem->handle};
+        ipcSemaphoreHandleManager.addHandle(sem->uniqueId, OwnerShip::OWN, sem->handle);
     }
     else
     {
