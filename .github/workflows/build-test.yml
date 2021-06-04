@@ -108,7 +108,7 @@ jobs:
       # we have to exclude the tests explicitly until everyone is running
       - name: Run tests, excluding timing_tests
         run: |
-          build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:IpcChannel*:UnixDomainSocket*:FileLock*"
+          build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:IpcChannel*:UnixDomainSocket*"
           build\hoofs\test\Debug\hoofs_integrationtests.exe
           build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime*:*TimingTest*"
           build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-PoshRuntime*:IceoryxRoudiApp*:IceoryxRoudiMemoryManager*:ProcessIntrospection*:ParseAllMalformedInput*:*TimingTest*"
