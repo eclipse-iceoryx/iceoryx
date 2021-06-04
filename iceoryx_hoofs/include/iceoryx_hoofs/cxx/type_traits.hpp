@@ -71,22 +71,42 @@ struct is_invocable
 };
 
 ///
-/// @brief Verfies the signature ReturnType(ArgTypes...) of the provided Callable type
+/// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
+///        and the result of the invocation is convertible to ReturnType.
 ///
-template <typename Callable = void, typename ReturnType = void, typename ArgTypes = void>
-struct has_signature : std::false_type
+/// @note This is an implementation of std::is_invokable_r (C++17).
+///
+template <typename ReturnType, typename Callable, typename... ArgTypes>
+struct is_invocable_r
 {
+    template <typename C, typename... As>
+    static constexpr std::true_type
+    test(std::enable_if_t<std::is_convertible<typename std::result_of<C(As...)>::type, ReturnType>::value>*)
+    {
+        return {};
+    }
+
+    template <typename C, typename... As>
+    static constexpr std::false_type test(...)
+    {
+        return {};
+    }
+
+    // Test with nullptr as this can stand in for a pointer to any type.
+    static constexpr bool value = decltype(test<Callable, ArgTypes...>(nullptr))::value;
 };
 
-template <typename Callable, typename ReturnType, typename... ArgTypes>
-struct has_signature<Callable,
-                     ReturnType(ArgTypes...),
-                     typename std::enable_if<
-                         std::is_convertible<typename std::result_of<Callable(ArgTypes...)>::type, ReturnType>::value,
-                         void>::type> : std::true_type
+///
+/// @brief Check whether T is a function pointer with arbitrary signature
+///
+template <typename T>
+struct is_function_pointer : std::false_type
 {
 };
-
+template <typename ReturnType, typename... ArgTypes>
+struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
+{
+};
 
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
