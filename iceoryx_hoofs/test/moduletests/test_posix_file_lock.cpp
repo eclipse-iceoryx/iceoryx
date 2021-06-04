@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(__APPLE__)
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
 #include "test.hpp"
@@ -63,7 +63,7 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
 {
     auto sut2 = iox::posix::FileLock::create("");
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::NO_FILE_NAME_PROVIDED));
+    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_FILE_NAME));
 }
 
 TEST_F(FileLock_test, MaxStringWorks)

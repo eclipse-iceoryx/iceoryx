@@ -34,6 +34,7 @@ constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
 // so that the code with stub implementation at least compiles
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
+constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "C:\\";
 using IoxIpcChannelType = iox::posix::NamedPipe;
 
 namespace win32

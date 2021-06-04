@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +13,27 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP
-#define IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP
+#ifndef IOX_HOOFS_WIN_PLATFORM_HANDLE_TRANSLATOR_HPP
+#define IOX_HOOFS_WIN_PLATFORM_HANDLE_TRANSLATOR_HPP
 
-#include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
-
-#include <io.h>
 #include <vector>
 
-#define _SC_PAGESIZE 1
-#define STDERR_FILENO 2
+class HandleTranslator
+{
+  public:
+    static HandleTranslator& getInstance() noexcept;
+    HANDLE get(const int handle) const noexcept;
+    int add(HANDLE handle) noexcept;
+    void remove(int handle) noexcept;
 
+  private:
+    HandleTranslator() noexcept = default;
+    struct handle_t
+    {
+        HANDLE windowsHandle;
+    };
+    std::vector<handle_t> m_handleList;
+};
 
-int ftruncate(int fildes, off_t length);
-long sysconf(int name);
-int iox_close(int fd);
-
-#endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP
+#endif

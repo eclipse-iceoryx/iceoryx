@@ -27,10 +27,9 @@ namespace posix
 enum class FileLockError
 {
     INVALID_STATE,
-    NO_FILE_NAME_PROVIDED,
+    INVALID_FILE_NAME,
     LOCKED_BY_OTHER_PROCESS,
     ACCESS_DENIED,
-    INVALID_FILE_NAME,
     QUOTA_EXHAUSTED,
     INVALID_CHARACTERS_IN_FILE_NAME,
     SYSTEM_LIMIT,
@@ -44,14 +43,6 @@ enum class FileLockError
     SYS_CALL_NOT_IMPLEMENTED,
     INTERNAL_LOGIC_ERROR,
 };
-
-
-#if defined(QNX) || defined(QNX__) || defined(__QNX__)
-constexpr char PATH_PREFIX[] = "/var/lock/";
-#else
-constexpr char PATH_PREFIX[] = "/tmp/";
-#endif
-
 
 /// @brief Posix file lock C++ wrapping class
 ///        Following RAII, the lock is acquired on creation and released on destruction. Releasing the locks works even

@@ -16,38 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/unistd.hpp"
+#include "iceoryx_hoofs/platform/handle_translator.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-
-HandleTranslator& HandleTranslator::getInstance() noexcept
-{
-    static HandleTranslator globalHandleTranslator;
-    return globalHandleTranslator;
-}
-
-HANDLE HandleTranslator::get(const int handle) const noexcept
-{
-    return m_handleList[static_cast<size_t>(handle)].windowsHandle;
-}
-
-int HandleTranslator::add(HANDLE handle) noexcept
-{
-    for (int64_t limit = m_handleList.size(), k = 0; k < limit; ++k)
-    {
-        if (m_handleList[k].windowsHandle == nullptr)
-        {
-            m_handleList[k].windowsHandle = handle;
-            return k;
-        }
-    }
-
-    m_handleList.emplace_back(handle_t{handle});
-    return m_handleList.size() - 1;
-}
-
-void HandleTranslator::remove(int handle) noexcept
-{
-    m_handleList[static_cast<uint64_t>(handle)].windowsHandle = nullptr;
-}
 
 int ftruncate(int fildes, off_t length)
 {
