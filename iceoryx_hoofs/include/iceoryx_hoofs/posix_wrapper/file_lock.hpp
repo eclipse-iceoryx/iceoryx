@@ -63,8 +63,13 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
   public:
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
-    using FileName_t = cxx::string<250>;
-    using PathName_t = cxx::string<1024>;
+    static constexpr const char LOCK_FILE_SUFFIX[] = ".lock";
+    static constexpr uint64_t FILENAME_LENGTH = IOX_MAX_FILENAME_LENGTH
+                                                - sizeof(IOX_LOCK_FILE_PATH_PREFIX) / sizeof(char)
+                                                - sizeof(LOCK_FILE_SUFFIX) / sizeof(char);
+
+    using FileName_t = cxx::string<FILENAME_LENGTH>;
+    using PathName_t = cxx::string<IOX_MAX_PATH_LENGTH>;
 
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;

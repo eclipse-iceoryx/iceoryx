@@ -27,6 +27,8 @@ class UnixDomainSocket;
 
 namespace platform
 {
+constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 255U;
+constexpr uint64_t IOX_MAX_PATH_LENGTH = 1023U;
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = true;
 constexpr const char IOX_PATH_SEPARATORS[] = "/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
@@ -35,4 +37,5 @@ constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "/tmp/";
 using IoxIpcChannelType = iox::posix::UnixDomainSocket;
 } // namespace platform
 } // namespace iox
+
 #endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP

@@ -15,8 +15,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_hoofs/platform/handle_translator.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
 
 int iox_flock(int fd, int op)
 {
+    HANDLE handle = HandleTranslator::getInstance().get(fd);
+    if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+    {
+        return -1;
+    }
     return 0;
 }

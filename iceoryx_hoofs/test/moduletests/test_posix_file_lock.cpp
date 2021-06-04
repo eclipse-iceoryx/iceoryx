@@ -68,10 +68,8 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
 
 TEST_F(FileLock_test, MaxStringWorks)
 {
-    const FileLock::FileName_t maxString{
-        "OeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPalo"
-        "emaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlanc"
-        "aOeLaPaloemaBlancaOeLaPaloemaB"};
+    const FileLock::FileName_t maxString(iox::cxx::TruncateToCapacity,
+                                         std::string(FileLock::FileName_t().capacity(), 'x'));
     auto sut2 = iox::posix::FileLock::create(maxString);
     ASSERT_FALSE(sut2.has_error());
 }
