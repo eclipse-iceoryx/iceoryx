@@ -28,11 +28,13 @@ class NamedPipe;
 
 // windows has two possible path separators
 constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
-constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
+// unix domain sockets are not supported in windows but the variables have to be defined
+// so that the code with stub implementation at least compiles
+constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 0U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
 using IoxIpcChannelType = iox::posix::NamedPipe;
 
 // just increase this number to increase the maximum shared memory size supported
 // by windows
-constexpr uint64_t IOX_MAXIMUM_SUPPORTED_SHM_SIZE = 1024 * 1024 * 1024;
+constexpr uint64_t IOX_MAXIMUM_SUPPORTED_SHM_SIZE = 8U * 1024U * 1024U * 1024U;
 #endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP

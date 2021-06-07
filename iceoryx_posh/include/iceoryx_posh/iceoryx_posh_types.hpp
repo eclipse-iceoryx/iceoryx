@@ -51,11 +51,6 @@ using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
 
-/// @brief The socket is created in the current path if no absolute path is given hence
-///      we need an absolut path so that every application knows where our sockets can
-///      be found.
-using IpcChannelType = IoxIpcChannelType;
-
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
 

@@ -72,6 +72,17 @@ struct BestFittingTypeImpl<true, true, false>
 {
     using Type_t = uint32_t;
 };
+
+constexpr char ASCII_A = 'a';
+constexpr char ASCII_Z = 'z';
+constexpr char ASCII_CAPITAL_A = 'A';
+constexpr char ASCII_CAPITAL_Z = 'Z';
+constexpr char ASCII_0 = '0';
+constexpr char ASCII_9 = '9';
+constexpr char ASCII_MINUS = '-';
+constexpr char ASCII_DOT = '.';
+constexpr char ASCII_COLON = ':';
+constexpr char ASCII_UNDERSCORE = '_';
 } // namespace internal
 
 // implementing C++ Core Guideline, I.6. Prefer Expects

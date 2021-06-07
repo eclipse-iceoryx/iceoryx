@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#if !defined(_WIN32)
 #include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/platform/socket.hpp"
@@ -78,7 +79,6 @@ class UnixDomainSocket_test : public Test
     bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
     {
         bool socketCreationSuccess = true;
-#if !defined(_WIN32)
         static constexpr int32_t ERROR_CODE = -1;
         struct sockaddr_un sockAddr;
 
@@ -103,7 +103,6 @@ class UnixDomainSocket_test : public Test
                 std::cerr << "unable to create socket\n";
                 socketCreationSuccess = false;
             });
-#endif
         return socketCreationSuccess;
     }
 
@@ -143,7 +142,6 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
-#if !defined(_WIN32)
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
 {
     UnixDomainSocket::UdsName_t longSocketName;
@@ -155,7 +153,6 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
     ASSERT_TRUE(ret.has_error());
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
-#endif
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
@@ -205,14 +202,12 @@ void successfulSendAndReceive(const std::vector<std::string>& messages,
         ASSERT_FALSE(send(m).has_error());
     }
 
-    std::vector<std::string> receivedMessages;
-    for (uint64_t i = 0, messagesSize = messages.size(); i < messagesSize; ++i)
+    for (uint64_t i = 0, messageSize = messages.size(); i != messageSize; ++i)
     {
         auto receivedMessage = receive();
         ASSERT_FALSE(receivedMessage.has_error());
-        receivedMessages.emplace_back(*receivedMessage);
+        EXPECT_EQ(*receivedMessage, messages[i]);
     }
-    EXPECT_EQ(messages, receivedMessages);
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndReceive)
@@ -226,7 +221,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        {"the earth is a disc on the back of hypnotoad"},
+        {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
+         "elephant slips."},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -424,3 +420,4 @@ TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived)
 }
 #endif
 } // namespace
+#endif

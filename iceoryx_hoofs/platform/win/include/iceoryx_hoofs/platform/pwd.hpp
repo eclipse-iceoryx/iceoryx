@@ -33,7 +33,7 @@ struct passwd
 
 inline struct passwd* getpwnam(const char* name)
 {
-    static char* value = "windows_dummy";
+    static char* value = "iceoryx_windows_dummy";
     static struct passwd dummy;
     dummy.pw_name = value;
     dummy.pw_passwd = value;
@@ -47,7 +47,7 @@ inline struct passwd* getpwnam(const char* name)
 
 inline struct passwd* getpwuid(uid_t uid)
 {
-    static char* value = "windows_dummy";
+    static char* value = "iceoryx_windows_dummy";
     static struct passwd dummy;
     dummy.pw_name = value;
     dummy.pw_passwd = value;

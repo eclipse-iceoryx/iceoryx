@@ -58,7 +58,7 @@ class CMqInterfaceStartupRace_test : public Test
 {
   public:
     CMqInterfaceStartupRace_test()
-        : m_appQueue{IpcChannelType::create()}
+        : m_appQueue{IoxIpcChannelType::create()}
     {
     }
 
@@ -101,7 +101,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = IpcChannelType::create(MqAppName, IpcChannelSide::CLIENT);
+            m_appQueue = IoxIpcChannelType::create(MqAppName, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 
@@ -110,10 +110,10 @@ class CMqInterfaceStartupRace_test : public Test
 
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
-    IpcChannelType::result_t m_roudiQueue{
-        IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER)};
+    IoxIpcChannelType::result_t m_roudiQueue{
+        IoxIpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
-    IpcChannelType::result_t m_appQueue;
+    IoxIpcChannelType::result_t m_appQueue;
 };
 
 #if !defined(__APPLE__)
@@ -140,7 +140,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
             exit(EXIT_FAILURE);
         });
 
-        auto m_roudiQueue2 = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER);
+        auto m_roudiQueue2 = IoxIpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -186,7 +186,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
             exit(EXIT_FAILURE);
         });
 
-        auto newRoudi = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER);
+        auto newRoudi = IoxIpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);

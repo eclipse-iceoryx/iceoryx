@@ -27,6 +27,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::cxx;
+using namespace iox::cxx::internal;
 
 namespace
 {
@@ -59,6 +60,13 @@ class Helplets_test : public Test
     {
     }
 };
+
+bool isValidFileCharacter(const int32_t i) noexcept
+{
+    return ((ASCII_A <= i && i <= ASCII_Z) || (ASCII_CAPITAL_A <= i && i <= ASCII_CAPITAL_Z)
+            || (ASCII_0 <= i && i <= ASCII_9) || i == ASCII_MINUS || i == ASCII_DOT || i == ASCII_COLON
+            || i == ASCII_UNDERSCORE);
+}
 
 constexpr uint64_t FILE_PATH_LENGTH = 128U;
 
@@ -206,33 +214,41 @@ TEST(Helplets_test_isValidFileName, RelativePathComponentsAreInvalid)
     EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("..")));
 }
 
+// this restriction ensures that we are compatible with the windows
+// api which does not support dots and spaces at the end
+TEST(Helplets_test_isValidFileName, DotsAndSpacesAreNotValidAtTheEnd)
+{
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("dot.")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("dotdot..")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("dotdotdot...")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>(" ")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>(" .")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>(" . ")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>(". .")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("space ")));
+    EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("more space  ")));
+}
+
 TEST(Helplets_test_isValidFileName, FileNameWithValidSymbolsAndDotsAreValid)
 {
-    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("fuu.")));
-    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("fuu..")));
     EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("..bla")));
     EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(".blubb")));
     EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("scna..bla")));
     EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("scna.blubb")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(".bla.b.a.sla.a")));
+    EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>("...fuu...man...schmu")));
 }
 
 TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
 {
     std::array<std::string, 3> combinations;
 
-    for (uint32_t i = 0U; i <= 255U; ++i)
+    for (int32_t i = 0; i <= 255; ++i)
     {
-        if ((65 <= i && i <= 90) ||  // A-Z
-            (97 <= i && i <= 122) || // a-z
-            (48 <= i && i <= 57) ||  // 0-9
-            i == 45 ||               // -
-            // for simplicity we exclude the valid dot here, since it is
-            // invalid when it occurs alone.
-            // it is tested separately
-            // i == 46 ||               // .
-            i == 58 || // :
-            i == 95    // _
-        )
+        // for simplicity we exclude the valid dot here, since it is
+        // invalid when it occurs alone.
+        // it is tested separately
+        if (i != ASCII_DOT && isValidFileCharacter(i))
         {
             uint32_t index = i % 3;
 
@@ -249,16 +265,9 @@ TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedFileNameIs
     std::string validName1 = "summon";
     std::string validName2 = "TheHolyToad";
 
-    for (uint32_t i = 0U; i <= 255U; ++i)
+    for (int32_t i = 0; i <= 255; ++i)
     {
-        if ((65 <= i && i <= 90) ||  // A-Z
-            (97 <= i && i <= 122) || // a-z
-            (48 <= i && i <= 57) ||  // 0-9
-            i == 45 ||               // -
-            i == 46 ||               // .
-            i == 58 ||               // :
-            i == 95                  // _
-        )
+        if (isValidFileCharacter(i))
         {
             continue;
         }
@@ -350,12 +359,12 @@ TEST(Helplets_test_isValidFilePath, EndingWithRelativePathComponentIsInvalid)
     EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("./blubb/fuu/../bla/..")));
 }
 
-TEST(Helplets_test_isValidFilePath, FilesWithEndingDotsAreValid)
+TEST(Helplets_test_isValidFilePath, FilePathsWithEndingDotsAreInvalid)
 {
-    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("a.")));
-    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/asda.")));
-    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/bla/../fuu/asda..")));
-    EXPECT_TRUE(isValidFilePath(string<FILE_PATH_LENGTH>("/bla/./.././xa..")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("a.")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/asda.")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/bla/../fuu/asda..")));
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("/bla/./.././xa..")));
 }
 
 TEST(Helplets_test_isValidFilePath, PathWhichContainsAllValidCharactersIsValid)
@@ -372,17 +381,10 @@ TEST(Helplets_test_isValidFilePath, WhenOneInvalidCharacterIsContainedPathIsInva
     std::string validPath2 = "fuu/world";
 
     // begin at 1 since 0 is string termination
-    for (uint32_t i = 1U; i <= 255U; ++i)
+    for (int32_t i = 1; i <= 255; ++i)
     {
         // ignore valid characters
-        if ((65 <= i && i <= 90) ||  // A-Z
-            (97 <= i && i <= 122) || // a-z
-            (48 <= i && i <= 57) ||  // 0-9
-            i == 45 ||               // -
-            i == 46 ||               // .
-            i == 58 ||               // :
-            i == 95                  // _
-        )
+        if (isValidFileCharacter(i))
         {
             continue;
         }

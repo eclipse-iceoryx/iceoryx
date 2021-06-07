@@ -38,17 +38,20 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
         return false;
     }
 
+    // dot at the end is invalid to be compatible with windows api
+    if (name.c_str()[name.size() - 1U] == '.')
+    {
+        return false;
+    }
+
     // check if the file contains only valid characters
     for (uint64_t i = 0; i < nameSize; ++i)
     {
-        if (!((65 <= name.c_str()[i] && name.c_str()[i] <= 90) ||  // A-Z
-              (97 <= name.c_str()[i] && name.c_str()[i] <= 122) || // a-z
-              (48 <= name.c_str()[i] && name.c_str()[i] <= 57) ||  // 0-9
-              name.c_str()[i] == 45 ||                             // -
-              name.c_str()[i] == 46 ||                             // .
-              name.c_str()[i] == 58 ||                             // :
-              name.c_str()[i] == 95                                // _
-              ))
+        if (!((internal::ASCII_A <= name.c_str()[i] && name.c_str()[i] <= internal::ASCII_Z)
+              || (internal::ASCII_CAPITAL_A <= name.c_str()[i] && name.c_str()[i] <= internal::ASCII_CAPITAL_Z)
+              || (internal::ASCII_0 <= name.c_str()[i] && name.c_str()[i] <= internal::ASCII_9)
+              || name.c_str()[i] == internal::ASCII_MINUS || name.c_str()[i] == internal::ASCII_DOT
+              || name.c_str()[i] == internal::ASCII_COLON || name.c_str()[i] == internal::ASCII_UNDERSCORE))
         {
             return false;
         }
