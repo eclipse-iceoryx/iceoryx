@@ -215,6 +215,13 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
     EXPECT_TRUE(outdated.value());
 }
 
+#if !defined(_WIN32)
+// From:
+// https://docs.microsoft.com/en-us/windows/win32/memory/sharing-files-and-memory
+// The shared memory is not destroyed until every process called CloseHandle on
+// that shared memory. If a process as an abnormal termination the kernel calls
+// CloseHandle on every open handle, therefore shared memory remains should be
+// impossible.
 TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
 {
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
@@ -230,6 +237,7 @@ TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
     ASSERT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
 }
+#endif
 
 TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
 {
