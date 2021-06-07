@@ -19,7 +19,7 @@
 
 
 template <typename T>
-inline ExampleBaseClass<T>::ExampleBaseClass(const uint32_t input)
+inline ExampleBaseClass<T>::ExampleBaseClass(const uint32_t input) noexcept
     : m_memberVariable(input)
 {
     // example code
@@ -36,6 +36,13 @@ inline uint32_t ExampleBaseClass<T>::simplerMethod() const noexcept
 {
     // example code
     return 99U;
+}
+
+template <typename T>
+inline uint32_t ExampleBaseClass<T>::doSomething() const noexcept
+{
+    // example code
+    return 42U;
 }
 
 #endif // EXAMPLE_BASE_CLASS_INL_INCLUDED

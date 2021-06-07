@@ -138,6 +138,13 @@ The following doxygen comments are required for public API headers:
     /// @return description
 ```
 
+For overrides of virtual methods the `copydoc` tag can be used:
+
+```cpp
+    /// @copydoc BaseClass::method
+    /// @note Optional describe some specifics to the override
+```
+
 A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure

@@ -45,16 +45,24 @@ class ExampleBaseClass
     /// @brief Short description
     /// @details Detailed description
     /// @param[in] input Description of input parameter
-    ExampleBaseClass(const uint32_t input);
+    ExampleBaseClass(const uint32_t input) noexcept;
 
     /// @brief Short description
     ExampleBaseClass() = default;
 
+    virtual ~ExampleBaseClass() = default;
+
     /// @brief Short description
+    /// @return description of return value
     uint32_t getMemberVariable() const noexcept;
 
     /// @brief Short description
+    /// @return description of return value
     uint32_t simplerMethod() const noexcept;
+
+    /// @brief Short description
+    /// @return description of return value
+    virtual uint32_t doSomething() const noexcept;
 
   private:
     /// @brief Short description
