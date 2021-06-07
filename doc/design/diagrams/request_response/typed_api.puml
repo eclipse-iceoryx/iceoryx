@@ -50,7 +50,7 @@ class SmartChunk<TransmissionInterface, T, H> {
 note right of SmartChunk: ForProducerOnly and ForConsumerOnly type traits\nrestrict access to some ctors and methods,\nlike no non-const access to payload
 
 interface PublisherInterface<T, H> {
-  pubish(sample: Sample<T, H>): void
+  publish(sample: Sample<T, H>): void
 }
 
 interface RpcInterface <RpcType> {
