@@ -56,7 +56,13 @@ int ftruncate(int fildes, off_t length)
 
 long sysconf(int name)
 {
-    return 4096;
+    if (name == _SC_PAGESIZE)
+    {
+        SYSTEM_INFO systemInfo;
+        GetSystemInfo(&systemInfo);
+        return systemInfo.dwPageSize;
+    }
+    return 0;
 }
 
 int iox_close(int fd)

@@ -273,7 +273,7 @@ TYPED_TEST(IpcChannel_test, SendAfterServerDestroyLeadsToError)
     if (std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value
         || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
     {
-        // NamedPipe are as long opened as long there is one instance
+        // NamedPipes are as long opened as long there is one instance
         // We still can send to the message queue is we destroy the server
         // it would be outdated, this is checked in another test
         return;

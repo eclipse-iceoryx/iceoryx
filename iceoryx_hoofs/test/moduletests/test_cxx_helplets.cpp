@@ -237,15 +237,14 @@ TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
             uint32_t index = i % 3;
 
             auto& s = combinations[index];
-            s.resize(s.size() + 1);
-            s[s.size() - 1] = static_cast<char>(i);
+            s.append(1, static_cast<char>(i));
 
             EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(TruncateToCapacity, s)));
         }
     }
 }
 
-TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedPathIsInvalid)
+TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedFileNameIsInvalid)
 {
     std::string validName1 = "summon";
     std::string validName2 = "TheHolyToad";
@@ -265,17 +264,14 @@ TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedPathIsInva
         }
 
         std::string invalidCharacterFront;
-        invalidCharacterFront.resize(1);
-        invalidCharacterFront[0] = static_cast<char>(i);
+        invalidCharacterFront.append(1, static_cast<char>(i));
         invalidCharacterFront += validName1 + validName2;
 
         std::string invalidCharacterMiddle = validName1;
-        invalidCharacterMiddle.resize(invalidCharacterMiddle.size() + 1);
-        invalidCharacterMiddle[invalidCharacterMiddle.size() - 1] = static_cast<char>(i);
+        invalidCharacterMiddle.append(1, static_cast<char>(i));
 
         std::string invalidCharacterEnd = validName1 + validName2;
-        invalidCharacterEnd.resize(invalidCharacterEnd.size() + 1);
-        invalidCharacterEnd[invalidCharacterEnd.size() - 1] = static_cast<char>(i);
+        invalidCharacterEnd.append(1, static_cast<char>(i));
 
         string<FILE_PATH_LENGTH> invalidCharacterFrontTest(TruncateToCapacity, invalidCharacterFront);
         string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(TruncateToCapacity, invalidCharacterMiddle);

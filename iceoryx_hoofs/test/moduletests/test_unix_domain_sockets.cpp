@@ -306,10 +306,10 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendA
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndReceive)
 {
     successfulSendAndReceive(
-        {"Famous hypntoad alike creators from around the world:",
+        {"Famous hypnotoad alike creators from around the world:",
          "Zoich, proposed mascot for the winter olympics 2014",
          "Ed Bighead",
-         "Jason Funderberker"},
+         "Jason Funderburker"},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }

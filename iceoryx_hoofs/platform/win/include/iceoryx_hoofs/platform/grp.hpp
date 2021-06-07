@@ -39,6 +39,8 @@ inline struct group* getgrnam(const char* name)
     static struct group dummy;
     dummy.gr_name = groupName;
     dummy.gr_passwd = groupPasswd;
+    dummy.gr_mem = nullptr;
+    dummy.gr_gid = 0;
     return &dummy;
 }
 
@@ -49,6 +51,8 @@ inline struct group* getgrgid(gid_t gid)
     static struct group dummy;
     dummy.gr_name = groupName;
     dummy.gr_passwd = groupPasswd;
+    dummy.gr_mem = nullptr;
+    dummy.gr_gid = 0;
     return &dummy;
 }
 

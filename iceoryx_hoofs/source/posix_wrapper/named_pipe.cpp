@@ -39,6 +39,11 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
                      const size_t maxMsgSize,
                      const uint64_t maxMsgNumber) noexcept
 {
+    // We do not store maxMsgSize or maxMsgNumber, this is just technical debt since every ipc channel
+    // requires the same behavior as the message queue. The named pipe would get later two template
+    // parameters MAX_MSG_SIZE and MAX_MSG_NUMBER from which the Message_t size and m_messages queue
+    // size is obtained. Reducing the max message size / number of messages even further would not gain
+    // reduced memory usage or decreased runtime. See issue #832.
     if (name.size() + strlen(NAMED_PIPE_PREFIX) > MAX_MESSAGE_SIZE)
     {
         std::cerr << "The named pipe name: \"" << name
@@ -79,6 +84,8 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
 
     auto sharedMemory = SharedMemoryObject::create(
         convertName(name),
+        // add alignment since we require later aligned memory to perform the placement new of
+        // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
         sizeof(MessageQueue_t) + alignof(MessageQueue_t),
         AccessMode::READ_WRITE,
         (channelSide == IpcChannelSide::SERVER) ? OwnerShip::MINE : OwnerShip::OPEN_EXISTING_SHM,
@@ -95,7 +102,8 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     }
 
     m_sharedMemory.emplace(std::move(sharedMemory.value()));
-    m_messages = static_cast<MessageQueue_t*>(m_sharedMemory->getBaseAddress());
+    m_messages =
+        static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
 
     if (channelSide == IpcChannelSide::SERVER)
     {
@@ -114,12 +122,12 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
     if (this != &rhs)
     {
         IOX_DISCARD_RESULT(destroy());
-    }
-    CreationPattern_t::operator=(std::move(rhs));
+        CreationPattern_t::operator=(std::move(rhs));
 
-    m_sharedMemory = std::move(rhs.m_sharedMemory);
-    m_messages = std::move(rhs.m_messages);
-    rhs.m_messages = nullptr;
+        m_sharedMemory = std::move(rhs.m_sharedMemory);
+        m_messages = std::move(rhs.m_messages);
+        rhs.m_messages = nullptr;
+    }
 
     return *this;
 }
@@ -142,7 +150,7 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
     {
         m_isInitialized = false;
         m_errorValue = IpcChannelError::NOT_INITIALIZED;
-
+        m_messages->~LockFreeQueue();
         m_sharedMemory.reset();
         m_messages = nullptr;
     }
