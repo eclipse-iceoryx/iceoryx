@@ -46,7 +46,7 @@ TEST_F(SharedMemory_Test, CTorWithValidArguments)
 {
     auto sut = iox::posix::SharedMemory::create("/ignatz",
                                                 iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::OwnerShip::MINE,
+                                                iox::posix::Policy::PURGE_AND_CREATE,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     EXPECT_THAT(sut.has_error(), Eq(false));
@@ -56,7 +56,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
     EXPECT_THAT(iox::posix::SharedMemory::create("",
                                                  iox::posix::AccessMode::READ_WRITE,
-                                                 iox::posix::OwnerShip::MINE,
+                                                 iox::posix::Policy::PURGE_AND_CREATE,
                                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                  128)
                     .has_error(),
@@ -64,7 +64,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 
     EXPECT_THAT(iox::posix::SharedMemory::create("ignatz",
                                                  iox::posix::AccessMode::READ_WRITE,
-                                                 iox::posix::OwnerShip::MINE,
+                                                 iox::posix::Policy::PURGE_AND_CREATE,
                                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                  128)
                     .has_error(),
@@ -75,7 +75,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 {
     auto sut = iox::posix::SharedMemory::create("/schlomo",
                                                 iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::OwnerShip::OPEN_EXISTING_SHM,
+                                                iox::posix::Policy::OPEN,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     EXPECT_THAT(sut.has_error(), Eq(true));
@@ -87,7 +87,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 
     auto sut = iox::posix::SharedMemory::create("/ignatz.",
                                                 iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::OwnerShip::MINE,
+                                                iox::posix::Policy::PURGE_AND_CREATE,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     handle = sut->getHandle();
@@ -102,7 +102,7 @@ TEST_F(SharedMemory_Test, getHandleOfValidObject)
 {
     auto sut = iox::posix::SharedMemory::create("/ignatz..",
                                                 iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::OwnerShip::MINE,
+                                                iox::posix::Policy::PURGE_AND_CREATE,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     EXPECT_THAT(sut->getHandle(), Ne(-1));

@@ -30,6 +30,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
                                    const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset)
 {
+<<<<<<< HEAD
     // create and map the already existing shared memory region
     posix::SharedMemoryObject::create(roudi::SHM_NAME,
                                       topicSize,
@@ -42,6 +43,22 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
             LogDebug() << "Application registered management segment "
                        << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
                        << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+=======
+    if (doMapSharedMemoryIntoThread)
+    {
+        // create and map the already existing shared memory region
+        posix::SharedMemoryObject::create(roudi::SHM_NAME,
+                                          topicSize,
+                                          posix::AccessMode::READ_WRITE,
+                                          posix::Policy::OPEN,
+                                          posix::SharedMemoryObject::NO_ADDRESS_HINT)
+            .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
+                rp::BaseRelativePointer::registerPtr(
+                    segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                LogDebug() << "Application registered management segment "
+                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+>>>>>>> 74285eaf2 (iox-#33 removed implicit shm removal from posix wrapper and packed it into explicit policy)
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
@@ -63,7 +80,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
         posix::SharedMemoryObject::create(segment.m_sharedMemoryName,
                                           segment.m_size,
                                           accessMode,
-                                          posix::OwnerShip::OPEN_EXISTING_SHM,
+                                          posix::Policy::OPEN,
                                           posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)

@@ -31,7 +31,6 @@ using namespace ::testing;
 TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
 {
     const iox::ShmName_t TEST_SHM_NAME{"/test_name"};
-
     // the death test makes only sense on platforms which are zeroing the whole shared memory
     // if the memory is only reserved a death will never occur
     if (iox::platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
@@ -41,7 +40,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
         badconfig.addMemPool({1 << 30, 100});
         iox::roudi::MemPoolCollectionMemoryBlock badmempools(badconfig);
         iox::roudi::PosixShmMemoryProvider badShmProvider(
-            TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
+            TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::Policy::PURGE_AND_CREATE);
         ASSERT_FALSE(badShmProvider.addMemoryBlock(&badmempools).has_error());
 
         EXPECT_DEATH(IOX_DISCARD_RESULT(badShmProvider.create()), ".*");
@@ -53,7 +52,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     goodconfig.addMemPool({1024, 1});
     iox::roudi::MemPoolCollectionMemoryBlock goodmempools(goodconfig);
     iox::roudi::PosixShmMemoryProvider goodShmProvider(
-        TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
+        TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::Policy::PURGE_AND_CREATE);
     ASSERT_FALSE(goodShmProvider.addMemoryBlock(&goodmempools).has_error());
     ASSERT_FALSE(goodShmProvider.create().has_error());
 }

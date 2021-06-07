@@ -47,14 +47,14 @@ static void memsetSigbusHandler(int)
 SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
-                                       const OwnerShip ownerShip,
+                                       const Policy policy,
                                        const void* baseAddressHint,
                                        const mode_t permissions)
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
 {
     m_isInitialized = true;
 
-    SharedMemory::create(name, accessMode, ownerShip, permissions, m_memorySizeInBytes)
+    SharedMemory::create(name, accessMode, policy, permissions, m_memorySizeInBytes)
         .and_then([this](auto& sharedMemory) { m_sharedMemory.emplace(std::move(sharedMemory)); })
         .or_else([this](auto&) {
             std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
@@ -79,7 +79,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)]
+                  << ", ownership = " << POLICY_STRING[static_cast<uint64_t>(policy)]
                   << ", baseAddressHint = " << std::hex << baseAddressHint
                   << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
         return;
@@ -87,7 +87,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     m_allocator.emplace(m_memoryMap->getBaseAddress(), m_memorySizeInBytes);
 
-    if (ownerShip == OwnerShip::MINE && m_isInitialized)
+    if (m_isInitialized && m_sharedMemory->hasOwnership())
     {
         std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
@@ -107,7 +107,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 name.c_str(),
                 static_cast<unsigned long long>(memorySizeInBytes),
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
-                OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)],
+                POLICY_STRING[static_cast<uint64_t>(policy)],
                 baseAddressHint,
                 std::bitset<sizeof(mode_t)>(permissions).to_ulong());
 

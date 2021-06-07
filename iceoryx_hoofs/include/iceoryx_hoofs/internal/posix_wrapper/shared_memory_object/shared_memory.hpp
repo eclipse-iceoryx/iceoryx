@@ -36,12 +36,15 @@ enum class AccessMode : uint64_t
 };
 static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
 
-enum class OwnerShip : uint64_t
+enum class Policy : uint64_t
 {
-    MINE = 0U,
-    OPEN_EXISTING_SHM = 1U
+    EXCLUSIVE_CREATE = 0U,
+    PURGE_AND_CREATE = 1U,
+    CREATE_OR_OPEN = 2U,
+    OPEN = 3U
 };
-static constexpr const char* OWNERSHIP_STRING[] = {"OwnerShip::MINE", "OwnerShip::OPEN_EXISTING_SHM"};
+static constexpr const char* POLICY_STRING[] = {
+    "Policy::EXCLUSIVE_CREATE", "Policy::PURGE_AND_CREATE", "Policy::CREATE_OR_OPEN", "Policy::OPEN"};
 
 enum class SharedMemoryError
 {
@@ -76,28 +79,31 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     ~SharedMemory() noexcept;
 
     int32_t getHandle() const noexcept;
+    bool hasOwnership() const noexcept;
+
+    static bool unlinkIfExist(const Name_t& name) noexcept;
 
     friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
 
   private:
     SharedMemory(const Name_t& name,
                  const AccessMode accessMode,
-                 const OwnerShip ownerShip,
+                 const Policy policy,
                  const mode_t permissions,
                  const uint64_t size) noexcept;
 
-    bool open(const int oflags, const mode_t permissions, const uint64_t size) noexcept;
+    bool open(const AccessMode accessMode, const Policy policy, const mode_t permissions, const uint64_t size) noexcept;
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
     void reset() noexcept;
+    static int getOflagsFor(const AccessMode accessMode, const Policy policy) noexcept;
 
     SharedMemoryError errnoToEnum(const int32_t errnum) const noexcept;
 
-
     Name_t m_name;
-    OwnerShip m_ownerShip;
     int m_handle{-1};
+    bool m_hasOwnership{false};
 };
 } // namespace posix
 } // namespace iox

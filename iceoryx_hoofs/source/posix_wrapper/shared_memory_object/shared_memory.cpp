@@ -35,10 +35,9 @@ namespace posix
 {
 SharedMemory::SharedMemory(const Name_t& name,
                            const AccessMode accessMode,
-                           const OwnerShip ownerShip,
+                           const Policy policy,
                            const mode_t permissions,
                            const uint64_t size) noexcept
-    : m_ownerShip(ownerShip)
 {
     m_isInitialized = true;
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
@@ -58,18 +57,14 @@ SharedMemory::SharedMemory(const Name_t& name,
     if (m_isInitialized)
     {
         m_name = name;
-        int oflags = 0;
-        oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
-        oflags |= (ownerShip == OwnerShip::MINE) ? O_CREAT | O_EXCL : 0;
-
-        m_isInitialized = open(oflags, permissions, size);
+        m_isInitialized = open(accessMode, policy, permissions, size);
     }
 
     if (!m_isInitialized)
     {
         std::cerr << "Unable to create shared memory with the following properties [ name = " << name
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)]
+                  << ", ownership = " << POLICY_STRING[static_cast<uint64_t>(policy)]
                   << ", mode = " << std::bitset<sizeof(mode_t)>(permissions) << ", sizeInBytes = " << size << " ]"
                   << std::endl;
         return;
@@ -79,6 +74,14 @@ SharedMemory::SharedMemory(const Name_t& name,
 SharedMemory::~SharedMemory() noexcept
 {
     destroy();
+}
+
+int SharedMemory::getOflagsFor(const AccessMode accessMode, const Policy policy) noexcept
+{
+    int oflags = 0;
+    oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
+    oflags |= (policy != Policy::OPEN) ? O_CREAT | O_EXCL : 0;
+    return oflags;
 }
 
 void SharedMemory::destroy() noexcept
@@ -112,7 +115,7 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
         CreationPattern_t::operator=(std::move(rhs));
 
         m_name = rhs.m_name;
-        m_ownerShip = std::move(rhs.m_ownerShip);
+        m_hasOwnership = std::move(rhs.m_hasOwnership);
         m_handle = std::move(rhs.m_handle);
 
         rhs.reset();
@@ -125,43 +128,58 @@ int32_t SharedMemory::getHandle() const noexcept
     return m_handle;
 }
 
-bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64_t size) noexcept
+bool SharedMemory::hasOwnership() const noexcept
+{
+    return m_hasOwnership;
+}
+
+bool SharedMemory::open(const AccessMode accessMode,
+                        const Policy policy,
+                        const mode_t permissions,
+                        const uint64_t size) noexcept
 {
     cxx::Expects(static_cast<int64_t>(size) <= std::numeric_limits<int64_t>::max());
-
+    m_hasOwnership =
+        (policy == Policy::EXCLUSIVE_CREATE || policy == Policy::PURGE_AND_CREATE || policy == Policy::CREATE_OR_OPEN);
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
     {
         cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
 
-        // if we create the shm, cleanup old resources
-        if (oflags & O_CREAT)
+        if (policy == Policy::PURGE_AND_CREATE)
         {
-            posixCall(shm_unlink)(m_name.c_str())
-                .failureReturnValue(-1)
-                .ignoreErrnos(ENOENT)
-                .evaluate()
-                .and_then([this](auto& r) {
-                    if (r.errnum != ENOENT)
-                    {
-                        std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
-                    }
-                });
+            posixCall(shm_unlink)(m_name.c_str()).failureReturnValue(-1).ignoreErrnos(ENOENT).evaluate();
         }
 
-        if (posixCall(iox_shm_open)(m_name.c_str(), oflags, permissions)
-                .failureReturnValue(-1)
-                .evaluate()
-                .and_then([this](auto& r) { m_handle = r.value; })
-                .or_else([this](auto& r) { m_errorValue = this->errnoToEnum(r.errnum); })
-                .has_error())
+        auto result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, policy), permissions)
+                          .failureReturnValue(-1)
+                          .suppressErrorMessagesForErrnos((policy == Policy::CREATE_OR_OPEN) ? EEXIST : 0)
+                          .evaluate();
+        if (result.has_error())
         {
+            // if it was not possible to create the shm exclusively someone else has the
+            // ownership and we just try to open it
+            if (policy == Policy::CREATE_OR_OPEN && result.get_error().errnum == EEXIST)
+            {
+                result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, Policy::OPEN), permissions)
+                             .failureReturnValue(-1)
+                             .evaluate();
+                if (!result.has_error())
+                {
+                    m_handle = result->value;
+                    m_hasOwnership = false;
+                    return true;
+                }
+            }
+
+            m_errorValue = this->errnoToEnum(result.get_error().errnum);
             return false;
         }
+        m_handle = result->value;
     }
 
-    if (m_ownerShip == OwnerShip::MINE)
+    if (m_hasOwnership)
     {
         if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
                 .failureReturnValue(-1)
@@ -176,19 +194,22 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
     return true;
 }
 
+bool SharedMemory::unlinkIfExist(const Name_t& name) noexcept
+{
+    return !posixCall(shm_unlink)(name.c_str())
+                .failureReturnValue(-1)
+                .suppressErrorMessagesForErrnos(ENOENT)
+                .evaluate()
+                .has_error();
+}
+
 bool SharedMemory::unlink() noexcept
 {
-    if (m_isInitialized && m_ownerShip == OwnerShip::MINE)
+    if (m_isInitialized && m_hasOwnership)
     {
-        if (posixCall(shm_unlink)(m_name.c_str())
-                .failureReturnValue(-1)
-                .evaluate()
-                .or_else([](auto& r) {
-                    std::cerr << "Unable to unlink SharedMemory (shm_unlink failed) : " << r.getHumanReadableErrnum()
-                              << std::endl;
-                })
-                .has_error())
+        if (!unlinkIfExist(m_name))
         {
+            std::cerr << "Unable to unlink SharedMemory (shm_unlink failed)." << std::endl;
             return false;
         }
     }
