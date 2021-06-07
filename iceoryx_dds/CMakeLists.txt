@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "1.0.0")
+set(IOX_VERSION_STRING "2.0.0")
 
 project(iceoryx_dds VERSION ${IOX_VERSION_STRING})
 
@@ -138,10 +138,10 @@ target_link_libraries(iox-gw-iceoryx2dds
 
 target_compile_options(iox-gw-iceoryx2dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-gw-dds2iceoryx 
+add_executable(iox-gw-dds2iceoryx
     source/dds2iceoryx_app/main.cpp
 )
-target_link_libraries(iox-gw-dds2iceoryx 
+target_link_libraries(iox-gw-dds2iceoryx
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_gateway
     iceoryx_posh::iceoryx_posh_config
@@ -150,7 +150,7 @@ target_link_libraries(iox-gw-dds2iceoryx
 
 target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-gw-iceoryx2dds iox-gw-dds2iceoryx iceoryx_dds 
+set_target_properties(iox-gw-iceoryx2dds iox-gw-dds2iceoryx iceoryx_dds
   PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
