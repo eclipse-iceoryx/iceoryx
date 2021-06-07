@@ -41,15 +41,16 @@ class GenericMemoryBlock final : public MemoryBlock
     GenericMemoryBlock& operator=(const GenericMemoryBlock&) = delete;
     GenericMemoryBlock& operator=(GenericMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of type T
+    /// @copydoc MemoryBlock::size()
+    /// @note The size of the underlying type T
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the alignment of type T
+    /// @copydoc MemoryBlock::alignment
+    /// @note The alignment of the underlying type T
     uint64_t alignment() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::destroy
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will destroy the underlying type T
     void destroy() noexcept override;
 
     /// @brief A new element is constructed by forwarding the arguments to the constructor of T. If the MemoryBlock has

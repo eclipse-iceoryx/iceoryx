@@ -45,21 +45,20 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
     MemPoolCollectionMemoryBlock& operator=(const MemPoolCollectionMemoryBlock&) = delete;
     MemPoolCollectionMemoryBlock& operator=(MemPoolCollectionMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of type T
+    /// @copydoc MemoryBlock::size
+    /// @note The size for all the MemPools
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the alignment of type T
+    /// @copydoc MemoryBlock::alignment
+    /// @note The memory alignment for the MemPools
     uint64_t alignment() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::memoryAvailable
-    /// This will create the MemPools
-    /// @param [in] memory pointer to a valid memory location to place the mempools
+    /// @copydoc MemoryBlock::memoryAvailable
+    /// @note This will create the MemPools at the location `memory` points to
     void memoryAvailable(void* memory) noexcept override;
 
-    /// @brief Implementation of MemoryBlock::destroy
-    /// This will clean up the MemPools
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will clean up the MemPools
     void destroy() noexcept override;
 
     /// @brief This function enables the access to the MemoryManager for the MemPools

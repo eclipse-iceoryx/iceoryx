@@ -51,15 +51,12 @@ class PosixShmMemoryProvider : public MemoryProvider
     PosixShmMemoryProvider& operator=(const PosixShmMemoryProvider&) = delete;
 
   protected:
-    /// @brief Implementation of MemoryProvider::createMemory
-    /// @param [in] size is the size in bytes for the requested memory, the size should already be calculated according
-    /// to the alignment requirements
-    /// @param [in] alignment the required alignment for the memory
-    /// @return the pointer of the begin of the created memory, nullptr if the memory could not be created
+    /// @copydoc MemoryProvider::createMemory
+    /// @note This creates and maps a POSIX shared memory to the address space of the application
     cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size, const uint64_t alignment) noexcept;
 
-    /// @brief Implementation of MemoryProvider::destroyMemory
-    /// @return a MemoryProviderError if the destruction failed, otherwise success
+    /// @copydoc MemoryProvider::destroyMemory
+    /// @note This closes and unmaps a POSIX shared memory
     cxx::expected<MemoryProviderError> destroyMemory() noexcept;
 
   private:

@@ -40,21 +40,20 @@ class PortPoolMemoryBlock : public MemoryBlock
     PortPoolMemoryBlock& operator=(const PortPoolMemoryBlock&) = delete;
     PortPoolMemoryBlock& operator=(PortPoolMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of for all the ports
+    /// @copydoc MemoryBlock::size
+    /// @note The size of for all the ports
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the memory alignment for the ports
+    /// @copydoc MemoryBlock::alignment
+    /// @note The memory alignment for the ports
     uint64_t alignment() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::memoryAvailable
-    /// This will create the ports
-    /// @param [in] memory pointer to a valid memory location to place the mempools
+    /// @copydoc MemoryBlock::memoryAvailable
+    /// @note This will create the ports at the location `memory` points to
     void memoryAvailable(void* memory) noexcept override;
 
-    /// @brief Implementation of MemoryBlock::destroy
-    /// This will clean up the ports
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will clean up the ports
     void destroy() noexcept override;
 
     /// @brief This function enables the access to the PortPool

@@ -40,21 +40,20 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
     MemPoolSegmentManagerMemoryBlock& operator=(const MemPoolSegmentManagerMemoryBlock&) = delete;
     MemPoolSegmentManagerMemoryBlock& operator=(MemPoolSegmentManagerMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of for SegmentManager
+    /// @copydoc MemoryBlock::size
+    /// @note the size of for SegmentManager
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the memory alignment for SegmentManager
+    /// @copydoc MemoryBlock::alignment
+    /// @note The memory alignment for SegmentManager
     uint64_t alignment() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::memoryAvailable
-    /// This will create the SegmentManager
-    /// @param [in] memory pointer to a valid memory location to place the mempools
+    /// @copydoc MemoryBlock::memoryAvailable
+    /// @note This will create the SegmentManager at the location `memory` points to
     void memoryAvailable(void* memory) noexcept override;
 
-    /// @brief Implementation of MemoryBlock::destroy
-    /// This will clean up the SegmentManager
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will clean up the SegmentManager
     void destroy() noexcept override;
 
     /// @brief This function enables the access to the SegmentManager
