@@ -59,7 +59,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
     HANDLE sharedMemoryHandle{nullptr};
 
-    if (oflag & O_CREAT) // O_EXCL
+    if (oflag & O_CREAT)
     {
         // we do not yet support ACL and rights for data partitions in windows
         // DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
@@ -79,6 +79,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 
         if (oflag & O_EXCL && result.error == ERROR_ALREADY_EXISTS)
         {
+            errno = EEXIST;
             if (sharedMemoryHandle != nullptr)
             {
                 Win32Call(CloseHandle, sharedMemoryHandle).value;
