@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
@@ -33,49 +33,9 @@ namespace iox
 {
 namespace runtime
 {
-PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
-{
-    static factory_t runtimeFactory = PoshRuntime::defaultRuntimeFactory;
-    return runtimeFactory;
-}
-
-void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
-{
-    if (factory)
-    {
-        PoshRuntime::getRuntimeFactory() = factory;
-    }
-    else
-    {
-        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
-        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
-    }
-}
-
-PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept
-{
-    static PoshRuntime instance(name);
-    return instance;
-}
-
-// singleton access
-PoshRuntime& PoshRuntime::getInstance() noexcept
-{
-    return getInstance(cxx::nullopt);
-}
-
-PoshRuntime& PoshRuntime::initRuntime(const RuntimeName_t& name) noexcept
-{
-    return getInstance(cxx::make_optional<const RuntimeName_t*>(&name));
-}
-
-PoshRuntime& PoshRuntime::getInstance(cxx::optional<const RuntimeName_t*> name) noexcept
-{
-    return getRuntimeFactory()(name);
-}
-
-PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
-    : m_appName(verifyInstanceName(name))
+PoshRuntimeImpl::PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name,
+                                 const bool doMapSharedMemoryIntoThread) noexcept
+    : PoshRuntime(name)
     , m_ipcChannelInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_ipcChannelInterface.getShmTopicSize(),
@@ -83,15 +43,9 @@ PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name, const bool do
                      m_ipcChannelInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
-    if (cxx::isCompiledOn32BitSystem())
-    {
-        LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
-    }
-
-    /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
-PoshRuntime::~PoshRuntime() noexcept
+PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
 {
     // Inform RouDi that we're shutting down
     IpcMessage sendBuffer;
@@ -119,39 +73,7 @@ PoshRuntime::~PoshRuntime() noexcept
     }
 }
 
-
-const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const RuntimeName_t*> name) noexcept
-{
-    if (!name.has_value())
-    {
-        LogError() << "Cannot initialize runtime. Application name has not been specified!";
-        errorHandler(Error::kPOSH__RUNTIME_NO_NAME_PROVIDED, nullptr, ErrorLevel::FATAL);
-    }
-    else if (name.value()->empty())
-    {
-        LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        errorHandler(Error::kPOSH__RUNTIME_NAME_EMPTY, nullptr, ErrorLevel::FATAL);
-    }
-    else if (name.value()->c_str()[0] == '/')
-    {
-        LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
-        errorHandler(Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED, nullptr, ErrorLevel::FATAL);
-    }
-
-    return *name.value();
-}
-
-RuntimeName_t PoshRuntime::getInstanceName() const noexcept
-{
-    return m_appName;
-}
-
-void PoshRuntime::shutdown() noexcept
-{
-    m_shutdownRequested.store(true, std::memory_order_relaxed);
-}
-
-const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noexcept
+const std::atomic<uint64_t>* PoshRuntimeImpl::getServiceRegistryChangeCounter() noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::SERVICE_REGISTRY_CHANGE_COUNTER) << m_appName;
@@ -174,9 +96,10 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
     }
 }
 
-PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
-                                                                         const popo::PublisherOptions& publisherOptions,
-                                                                         const PortConfigInfo& portConfigInfo) noexcept
+PublisherPortUserType::MemberType_t*
+PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service,
+                                        const popo::PublisherOptions& publisherOptions,
+                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_HISTORY_CAPACITY =
         PublisherPortUserType::MemberType_t::ChunkSenderData_t::ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
@@ -243,7 +166,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
 }
 
 cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
-PoshRuntime::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept
+PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
@@ -281,9 +204,9 @@ PoshRuntime::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept
 }
 
 SubscriberPortUserType::MemberType_t*
-PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                                     const popo::SubscriberOptions& subscriberOptions,
-                                     const PortConfigInfo& portConfigInfo) noexcept
+PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& service,
+                                         const popo::SubscriberOptions& subscriberOptions,
+                                         const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
 
@@ -346,7 +269,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
 }
 
 cxx::expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
-PoshRuntime::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept
+PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
@@ -383,8 +306,8 @@ PoshRuntime::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept
     return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
-popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
-                                                             const NodeName_t& nodeName) noexcept
+popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::Interfaces interface,
+                                                                 const NodeName_t& nodeName) noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_appName
@@ -413,7 +336,7 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
     return nullptr;
 }
 
-NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
+NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_NODE) << m_appName
@@ -442,7 +365,7 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
 }
 
 cxx::expected<InstanceContainer, FindServiceError>
-PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
+PoshRuntimeImpl::findService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName
@@ -480,7 +403,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
 }
 
 
-bool PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept
+bool PoshRuntimeImpl::offerService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     if (serviceDescription.isValid())
     {
@@ -494,14 +417,14 @@ bool PoshRuntime::offerService(const capro::ServiceDescription& serviceDescripti
     return false;
 }
 
-void PoshRuntime::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
+void PoshRuntimeImpl::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     capro::CaproMessage msg(
         capro::CaproMessageType::STOP_OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
     m_applicationPort.dispatchCaProMessage(msg);
 }
 
-popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
+popo::ApplicationPortData* PoshRuntimeImpl::getMiddlewareApplication() noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_APPLICATION) << m_appName;
@@ -530,7 +453,7 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
 }
 
 cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
-PoshRuntime::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept
+PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
@@ -566,7 +489,7 @@ PoshRuntime::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noe
     return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
-popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexcept
+popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_CONDITION_VARIABLE) << m_appName;
@@ -598,7 +521,7 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
     return maybeConditionVariable.value();
 }
 
-bool PoshRuntime::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
+bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
     // runtime must be thread safe
     std::lock_guard<std::mutex> g(m_appIpcRequestMutex);
@@ -606,7 +529,7 @@ bool PoshRuntime::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) 
 }
 
 // this is the callback for the m_keepAliveTimer
-void PoshRuntime::sendKeepAliveAndHandleShutdownPreparation() noexcept
+void PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation() noexcept
 {
     if (!m_ipcChannelInterface.sendKeepalive())
     {

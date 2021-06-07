@@ -34,7 +34,7 @@ PoshRuntime& singleProcessRuntimeFactory(cxx::optional<const RuntimeName_t*>)
 }
 
 PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept
-    : PoshRuntime(cxx::make_optional<const RuntimeName_t*>(&name), DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD)
+    : PoshRuntimeImpl(cxx::make_optional<const RuntimeName_t*>(&name), DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD)
 {
     auto currentFactory = PoshRuntime::getRuntimeFactory();
     if (currentFactory != nullptr && *currentFactory == PoshRuntime::defaultRuntimeFactory)
