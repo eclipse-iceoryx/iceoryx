@@ -76,7 +76,11 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
     auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
                                                       16,
                                                       iox::posix::AccessMode::READ_WRITE,
+<<<<<<< HEAD
                                                       iox::posix::OpenMode::PURGE_AND_CREATE,
+=======
+                                                      iox::posix::Policy::PURGE_AND_CREATE,
+>>>>>>> 4f0fc4f36 (iox-#33 removed implicit shm removal from posix wrapper and packed it into explicit policy)
                                                       iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     int* test = static_cast<int*>(sut->allocate(sizeof(int), 1));
     ASSERT_THAT(test, Ne(nullptr));

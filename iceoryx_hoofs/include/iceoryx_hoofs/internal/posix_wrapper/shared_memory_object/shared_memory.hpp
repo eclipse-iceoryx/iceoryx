@@ -90,6 +90,9 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
 
     /// @brief returns the file handle of the shared memory
     int32_t getHandle() const noexcept;
+    bool hasOwnership() const noexcept;
+
+    static bool unlinkIfExist(const Name_t& name) noexcept;
 
     /// @brief this class has the ownership of the shared memory when the shared
     ///        memory was created by this class. This is the case when this class

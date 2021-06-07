@@ -143,7 +143,6 @@ bool SharedMemory::open(const AccessMode accessMode,
 
     m_hasOwnership = (openMode == OpenMode::EXCLUSIVE_CREATE || openMode == OpenMode::PURGE_AND_CREATE
                       || openMode == OpenMode::OPEN_OR_CREATE);
-
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
     {
