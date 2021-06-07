@@ -70,6 +70,7 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
 {
   public:
     static constexpr uint64_t NAME_SIZE = 128U;
+    static constexpr int INVALID_HANDLE = -1;
     using Name_t = cxx::string<NAME_SIZE>;
 
     SharedMemory(const SharedMemory&) = delete;
@@ -102,7 +103,7 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     SharedMemoryError errnoToEnum(const int32_t errnum) const noexcept;
 
     Name_t m_name;
-    int m_handle{-1};
+    int m_handle{INVALID_HANDLE};
     bool m_hasOwnership{false};
 };
 } // namespace posix

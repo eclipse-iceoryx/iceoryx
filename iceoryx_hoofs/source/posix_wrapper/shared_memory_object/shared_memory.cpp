@@ -98,7 +98,7 @@ void SharedMemory::reset() noexcept
 {
     m_isInitialized = false;
     m_name = Name_t();
-    m_handle = -1;
+    m_handle = INVALID_HANDLE;
 }
 
 SharedMemory::SharedMemory(SharedMemory&& rhs) noexcept
@@ -149,11 +149,14 @@ bool SharedMemory::open(const AccessMode accessMode,
 
         if (policy == Policy::PURGE_AND_CREATE)
         {
-            posixCall(shm_unlink)(m_name.c_str()).failureReturnValue(-1).ignoreErrnos(ENOENT).evaluate();
+            IOX_DISCARD_RESULT(posixCall(shm_unlink)(m_name.c_str())
+                                   .failureReturnValue(INVALID_HANDLE)
+                                   .ignoreErrnos(ENOENT)
+                                   .evaluate());
         }
 
         auto result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, policy), permissions)
-                          .failureReturnValue(-1)
+                          .failureReturnValue(INVALID_HANDLE)
                           .suppressErrorMessagesForErrnos((policy == Policy::CREATE_OR_OPEN) ? EEXIST : 0)
                           .evaluate();
         if (result.has_error())
@@ -163,7 +166,7 @@ bool SharedMemory::open(const AccessMode accessMode,
             if (policy == Policy::CREATE_OR_OPEN && result.get_error().errnum == EEXIST)
             {
                 result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, Policy::OPEN), permissions)
-                             .failureReturnValue(-1)
+                             .failureReturnValue(INVALID_HANDLE)
                              .evaluate();
                 if (!result.has_error())
                 {
@@ -182,7 +185,7 @@ bool SharedMemory::open(const AccessMode accessMode,
     if (m_hasOwnership)
     {
         if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
-                .failureReturnValue(-1)
+                .failureReturnValue(INVALID_HANDLE)
                 .evaluate()
                 .or_else([this](auto& r) { m_errorValue = this->errnoToEnum(r.errnum); })
                 .has_error())
@@ -197,7 +200,7 @@ bool SharedMemory::open(const AccessMode accessMode,
 bool SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
     return !posixCall(shm_unlink)(name.c_str())
-                .failureReturnValue(-1)
+                .failureReturnValue(INVALID_HANDLE)
                 .suppressErrorMessagesForErrnos(ENOENT)
                 .evaluate()
                 .has_error();
@@ -220,12 +223,12 @@ bool SharedMemory::close() noexcept
 {
     if (m_isInitialized)
     {
-        auto call = posixCall(iox_close)(m_handle).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+        auto call = posixCall(iox_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum()
                       << std::endl;
         });
 
-        m_handle = -1;
+        m_handle = INVALID_HANDLE;
         return !call.has_error();
     }
     return true;
