@@ -30,7 +30,7 @@ class NamedPipe;
 constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
 // unix domain sockets are not supported in windows but the variables have to be defined
 // so that the code with stub implementation at least compiles
-constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 0U;
+constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
 using IoxIpcChannelType = iox::posix::NamedPipe;
 

@@ -85,7 +85,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     int handle;
 
-    auto sut = iox::posix::SharedMemory::create("/ignatz",
+    auto sut = iox::posix::SharedMemory::create("/ignatz.",
                                                 iox::posix::AccessMode::READ_WRITE,
                                                 iox::posix::OwnerShip::MINE,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
@@ -100,7 +100,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 
 TEST_F(SharedMemory_Test, getHandleOfValidObject)
 {
-    auto sut = iox::posix::SharedMemory::create("/ignatz",
+    auto sut = iox::posix::SharedMemory::create("/ignatz..",
                                                 iox::posix::AccessMode::READ_WRITE,
                                                 iox::posix::OwnerShip::MINE,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
