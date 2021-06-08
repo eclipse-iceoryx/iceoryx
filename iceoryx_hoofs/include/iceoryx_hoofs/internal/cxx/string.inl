@@ -144,7 +144,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
         return *this;
     }
 
-    m_rawstringSize = std::min(Capacity, strnlen(rhs, N));
+    m_rawstringSize = std::min(Capacity, static_cast<uint64_t>(strnlen(rhs, N)));
     std::memcpy(&(m_rawstring[0]), rhs, m_rawstringSize);
     m_rawstring[m_rawstringSize] = '\0';
 
