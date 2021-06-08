@@ -363,7 +363,10 @@ TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsTrueAfterDe
 TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsFalseWithoutDefaultInit)
 {
     iox_pub_options_t sut;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     EXPECT_FALSE(iox_pub_options_is_initialized(&sut));
+#pragma GCC diagnostic pop
 }
 
 TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)

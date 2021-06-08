@@ -50,8 +50,8 @@ VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
 /// @brief Serialization of the VersionInfo.
 VersionInfo::operator cxx::Serialization() const noexcept
 {
-    SerializationString_t tmp_m_buildDateString(cxx::TruncateToCapacity, m_buildDateString.c_str());
-    SerializationString_t tmp_commitIdString(cxx::TruncateToCapacity, m_commitIdString.c_str());
+    SerializationString_t tmp_m_buildDateString = m_buildDateString;
+    SerializationString_t tmp_commitIdString = m_commitIdString;
     return cxx::Serialization::create(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
 }

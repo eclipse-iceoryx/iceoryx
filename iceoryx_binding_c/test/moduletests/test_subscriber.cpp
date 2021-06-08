@@ -435,7 +435,10 @@ TEST(iox_sub_options_test, subscriberOptionsInitializationCheckReturnsTrueAfterD
 TEST(iox_sub_options_test, subscriberOptionsInitializationCheckReturnsFalseWithoutDefaultInit)
 {
     iox_sub_options_t sut;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     EXPECT_FALSE(iox_sub_options_is_initialized(&sut));
+#pragma GCC diagnostic pop
 }
 
 TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash)
