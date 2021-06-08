@@ -391,10 +391,10 @@ TEST(Helplets_test_isValidFilePath, WhenOneInvalidCharacterIsContainedPathIsInva
 
         // ignore path separators since they are valid path characters
         bool isPathSeparator = false;
-        auto numberOfPathSeparators = strlen(IOX_PATH_SEPARATORS);
+        auto numberOfPathSeparators = strlen(iox::platform::IOX_PATH_SEPARATORS);
         for (uint64_t k = 0; k < numberOfPathSeparators; ++k)
         {
-            if (static_cast<char>(i) == IOX_PATH_SEPARATORS[k])
+            if (static_cast<char>(i) == iox::platform::IOX_PATH_SEPARATORS[k])
             {
                 isPathSeparator = true;
                 break;

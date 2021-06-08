@@ -243,7 +243,7 @@ class IpcInterfaceBase
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    IoxIpcChannelType m_ipcChannel;
+    platform::IoxIpcChannelType m_ipcChannel;
 };
 
 } // namespace runtime

@@ -67,7 +67,7 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
             {
                 return name;
             }
-            return UdsName_t(IOX_UDS_SOCKET_PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
+            return UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
         channelSide,
         maxMsgSize,
@@ -144,13 +144,13 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsN
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    if (UdsName_t().capacity() < name.size() + UdsName_t(IOX_UDS_SOCKET_PATH_PREFIX).size())
+    if (UdsName_t().capacity() < name.size() + UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).size())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     return unlinkIfExists(NoPathPrefix,
-                          UdsName_t(IOX_UDS_SOCKET_PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
+                          UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,

@@ -68,11 +68,11 @@ IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
 {
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
-    if (m_maxMessageSize > IoxIpcChannelType::MAX_MESSAGE_SIZE)
+    if (m_maxMessageSize > platform::IoxIpcChannelType::MAX_MESSAGE_SIZE)
     {
         LogWarn() << "Message size too large, reducing from " << messageSize << " to "
-                  << IoxIpcChannelType::MAX_MESSAGE_SIZE;
-        m_maxMessageSize = IoxIpcChannelType::MAX_MESSAGE_SIZE;
+                  << platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
+        m_maxMessageSize = platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
     }
 }
 
@@ -119,7 +119,7 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + IoxIpcChannelType::NULL_TERMINATOR_SIZE;
+                static_cast<size_t>(msg.getMessage().size()) + platform::IoxIpcChannelType::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
@@ -139,7 +139,7 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + IoxIpcChannelType::NULL_TERMINATOR_SIZE;
+                static_cast<size_t>(msg.getMessage().size()) + platform::IoxIpcChannelType::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
@@ -162,7 +162,7 @@ bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) n
         [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_runtimeName; });
 
     m_channelSide = channelSide;
-    IoxIpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
+    platform::IoxIpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
 
     return m_ipcChannel.isInitialized();
@@ -190,7 +190,7 @@ bool IpcInterfaceBase::hasClosableIpcChannel() const noexcept
 
 void IpcInterfaceBase::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept
 {
-    if (IoxIpcChannelType::unlinkIfExists(name).value_or(false))
+    if (platform::IoxIpcChannelType::unlinkIfExists(name).value_or(false))
     {
         LogWarn() << "IPC channel still there, doing an unlink of " << name;
     }

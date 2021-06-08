@@ -32,8 +32,11 @@ namespace posix
 class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 {
   public:
-    static constexpr uint64_t MAX_MESSAGE_SIZE = IOX_UDS_SOCKET_MAX_MESSAGE_SIZE;
+    // no system restrictions at all, except available memory. MAX_MESSAGE_SIZE and MAX_NUMBER_OF_MESSAGES can be
+    // increased as long as there is enough memory available
+    static constexpr uint64_t MAX_MESSAGE_SIZE = 4U * 1024U;
     static constexpr uint64_t MAX_NUMBER_OF_MESSAGES = 10U;
+
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
     static constexpr units::Duration BLOCKING_TIMEOUT = units::Duration::fromDays(1);

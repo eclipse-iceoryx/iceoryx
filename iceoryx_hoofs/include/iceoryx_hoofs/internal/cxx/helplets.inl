@@ -72,10 +72,10 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
 
     // a file path ends with the filename and not the path separator, only a
     // directory can end with a path separator
-    auto numberOfPathSeparators = strlen(IOX_PATH_SEPARATORS);
+    auto numberOfPathSeparators = strlen(platform::IOX_PATH_SEPARATORS);
     for (uint64_t i = 0; i < numberOfPathSeparators; ++i)
     {
-        if (name.c_str()[nameSize - 1] == IOX_PATH_SEPARATORS[i])
+        if (name.c_str()[nameSize - 1] == platform::IOX_PATH_SEPARATORS[i])
         {
             return false;
         }
@@ -88,7 +88,7 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
 
     while (!temp.empty())
     {
-        auto separatorPosition = temp.find_first_of(IOX_PATH_SEPARATORS);
+        auto separatorPosition = temp.find_first_of(platform::IOX_PATH_SEPARATORS);
 
         // multiple slashes are explicitly allowed. the following paths
         // are equivalent:
