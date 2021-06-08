@@ -39,7 +39,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
-    static constexpr const char NAMED_PIPE_PREFIX[] = "/iceoryx_named_pipe_";
+    static constexpr const char NAMED_PIPE_PREFIX[] = "/iox_np_";
 
     using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
