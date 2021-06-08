@@ -203,6 +203,20 @@ TYPED_TEST(Helplets_test_isPowerOfTwo, MaxValueForTypeIsNotPowerOfTwo)
     EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(TestFixture::MAX)));
 }
 
+TEST(Helplets_test_isValidFileName, CorrectInternalAsciiAliases)
+{
+    EXPECT_EQ(ASCII_A, 'a');
+    EXPECT_EQ(ASCII_Z, 'z');
+    EXPECT_EQ(ASCII_CAPITAL_A, 'A');
+    EXPECT_EQ(ASCII_CAPITAL_Z, 'Z');
+    EXPECT_EQ(ASCII_0, '0');
+    EXPECT_EQ(ASCII_9, '9');
+    EXPECT_EQ(ASCII_MINUS, '-');
+    EXPECT_EQ(ASCII_DOT, '.');
+    EXPECT_EQ(ASCII_COLON, ':');
+    EXPECT_EQ(ASCII_UNDERSCORE, '_');
+}
+
 TEST(Helplets_test_isValidFileName, EmptyNameIsInvalid)
 {
     EXPECT_FALSE(isValidFileName(string<FILE_PATH_LENGTH>("")));

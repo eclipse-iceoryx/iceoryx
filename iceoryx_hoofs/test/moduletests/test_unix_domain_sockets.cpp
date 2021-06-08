@@ -203,11 +203,11 @@ void successfulSendAndReceive(const std::vector<std::string>& messages,
         ASSERT_FALSE(send(m).has_error());
     }
 
-    for (uint64_t i = 0, messageSize = messages.size(); i != messageSize; ++i)
+    for (auto& sentMessage : messages)
     {
         auto receivedMessage = receive();
         ASSERT_FALSE(receivedMessage.has_error());
-        EXPECT_EQ(*receivedMessage, messages[i]);
+        EXPECT_EQ(*receivedMessage, sentMessage);
     }
 }
 

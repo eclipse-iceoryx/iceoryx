@@ -39,7 +39,8 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
     }
 
     // dot at the end is invalid to be compatible with windows api
-    if (name.c_str()[name.size() - 1U] == '.')
+    const char lastCharacter = name.c_str()[nameSize - 1U];
+    if (lastCharacter == '.')
     {
         return false;
     }
@@ -47,11 +48,11 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
     // check if the file contains only valid characters
     for (uint64_t i = 0; i < nameSize; ++i)
     {
-        if (!((internal::ASCII_A <= name.c_str()[i] && name.c_str()[i] <= internal::ASCII_Z)
-              || (internal::ASCII_CAPITAL_A <= name.c_str()[i] && name.c_str()[i] <= internal::ASCII_CAPITAL_Z)
-              || (internal::ASCII_0 <= name.c_str()[i] && name.c_str()[i] <= internal::ASCII_9)
-              || name.c_str()[i] == internal::ASCII_MINUS || name.c_str()[i] == internal::ASCII_DOT
-              || name.c_str()[i] == internal::ASCII_COLON || name.c_str()[i] == internal::ASCII_UNDERSCORE))
+        const char c = name.c_str()[i];
+        if (!((internal::ASCII_A <= c && c <= internal::ASCII_Z)
+              || (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z)
+              || (internal::ASCII_0 <= c && c <= internal::ASCII_9) || c == internal::ASCII_MINUS
+              || c == internal::ASCII_DOT || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE))
         {
             return false;
         }
@@ -75,7 +76,8 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
     auto numberOfPathSeparators = strlen(platform::IOX_PATH_SEPARATORS);
     for (uint64_t i = 0; i < numberOfPathSeparators; ++i)
     {
-        if (name.c_str()[nameSize - 1] == platform::IOX_PATH_SEPARATORS[i])
+        const char lastCharacter = name.c_str()[nameSize - 1U];
+        if (lastCharacter == platform::IOX_PATH_SEPARATORS[i])
         {
             return false;
         }
