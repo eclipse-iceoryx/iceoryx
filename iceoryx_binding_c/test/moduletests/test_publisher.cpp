@@ -364,8 +364,11 @@ TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsFalseWithou
 {
     iox_pub_options_t sut;
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     EXPECT_FALSE(iox_pub_options_is_initialized(&sut));
+#pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 }
 
