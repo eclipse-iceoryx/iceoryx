@@ -106,8 +106,9 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
         if (separatorPosition)
         {
             auto filenameToVerify = temp.substr(0, *separatorPosition);
-            if (!isValidFileName(*filenameToVerify) && *filenameToVerify != currentDirectory
-                && *filenameToVerify != parentDirectory)
+            bool isValidDirectory = isValidFileName(*filenameToVerify) || *filenameToVerify == currentDirectory
+                                    || *filenameToVerify == parentDirectory;
+            if (!isValidDirectory)
             {
                 return false;
             }

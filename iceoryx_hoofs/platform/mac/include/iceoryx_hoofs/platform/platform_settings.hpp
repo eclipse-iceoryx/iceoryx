@@ -26,6 +26,7 @@ class UnixDomainSocket;
 }
 } // namespace iox
 
+constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
 constexpr const char IOX_PATH_SEPARATORS[] = "/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 2048;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
