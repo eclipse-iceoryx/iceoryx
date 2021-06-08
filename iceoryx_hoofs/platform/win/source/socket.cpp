@@ -15,39 +15,47 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/socket.hpp"
+#include < cstdio>
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_socket(int domain, int type, int protocol)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 ssize_t
 iox_sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_closesocket(int sockfd)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }

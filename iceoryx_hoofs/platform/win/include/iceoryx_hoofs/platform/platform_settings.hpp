@@ -36,9 +36,12 @@ constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
 using IoxIpcChannelType = iox::posix::NamedPipe;
 
+namespace win32
+{
 // just increase this number to increase the maximum shared memory size supported
 // by windows
 constexpr uint64_t IOX_MAXIMUM_SUPPORTED_SHM_SIZE = 1024ULL * 1024ULL * 1024ULL * 1024ULL;
+} // namespace win32
 } // namespace platform
 } // namespace iox
 #endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
