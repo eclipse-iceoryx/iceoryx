@@ -363,13 +363,14 @@ TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsTrueAfterDe
 TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsFalseWithoutDefaultInit)
 {
     iox_pub_options_t sut;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     EXPECT_FALSE(iox_pub_options_is_initialized(&sut));
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
 #pragma GCC diagnostic pop
-#pragma GCC diagnostic pop
+#endif
 }
 
 TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
