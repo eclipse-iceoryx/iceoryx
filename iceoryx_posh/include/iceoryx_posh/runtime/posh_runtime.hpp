@@ -151,6 +151,7 @@ class PoshRuntime
     virtual bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept = 0;
 
   protected:
+    friend class roudi::RuntimeTestInterface;
     using factory_t = PoshRuntime& (*)(cxx::optional<const RuntimeName_t*>);
 
     // Protected constructor for derived classes
