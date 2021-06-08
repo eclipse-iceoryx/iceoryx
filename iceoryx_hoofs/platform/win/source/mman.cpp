@@ -18,6 +18,11 @@
 #include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
+#include <set>
+#include <string>
+
+static std::set<std::string> openedSharedMemorySegments;
+
 void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
     DWORD desiredAccess = FILE_MAP_ALL_ACCESS;
@@ -100,10 +105,19 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
         }
     }
 
+    openedSharedMemorySegments.insert(name);
     return HandleTranslator::getInstance().add(sharedMemoryHandle);
 }
 
 int shm_unlink(const char* name)
 {
-    return 0;
+    auto iter = openedSharedMemorySegments.find(name);
+    if (iter != openedSharedMemorySegments.end())
+    {
+        openedSharedMemorySegments.erase(iter);
+        return 0;
+    }
+
+    errno = ENOENT;
+    return -1;
 }

@@ -67,7 +67,13 @@ long sysconf(int name)
 
 int iox_close(int fd)
 {
-    auto success = Win32Call(CloseHandle, HandleTranslator::getInstance().get(fd)).value;
+    HANDLE handle = HandleTranslator::getInstance().get(fd);
+    if (handle == nullptr)
+    {
+        return 0;
+    }
+
+    auto success = Win32Call(CloseHandle, handle).value;
     HandleTranslator::getInstance().remove(fd);
     if (success == 0)
     {
