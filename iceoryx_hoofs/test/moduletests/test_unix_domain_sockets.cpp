@@ -145,7 +145,8 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
 {
     UnixDomainSocket::UdsName_t longSocketName;
-    for (uint64_t i = 0U; i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(IOX_UDS_SOCKET_PATH_PREFIX) + 1; ++i)
+    for (uint64_t i = 0U; i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(platform::IOX_UDS_SOCKET_PATH_PREFIX) + 1;
+         ++i)
     {
         longSocketName.append(cxx::TruncateToCapacity, "o");
     }
@@ -156,7 +157,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
-    UnixDomainSocket::UdsName_t socketFileName = IOX_UDS_SOCKET_PATH_PREFIX;
+    UnixDomainSocket::UdsName_t socketFileName = platform::IOX_UDS_SOCKET_PATH_PREFIX;
     socketFileName.append(cxx::TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
     ASSERT_TRUE(createTestSocket(socketFileName));
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, socketFileName);
@@ -166,7 +167,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessful)
 {
     UnixDomainSocket::UdsName_t socketFileName = "iceoryx-hoofs-moduletest.socket";
-    UnixDomainSocket::UdsName_t socketFileNameWithPrefix = IOX_UDS_SOCKET_PATH_PREFIX;
+    UnixDomainSocket::UdsName_t socketFileNameWithPrefix = platform::IOX_UDS_SOCKET_PATH_PREFIX;
     socketFileNameWithPrefix.append(cxx::TruncateToCapacity, socketFileName);
     ASSERT_TRUE(createTestSocket(socketFileNameWithPrefix));
     auto ret = UnixDomainSocket::unlinkIfExists(socketFileName);
