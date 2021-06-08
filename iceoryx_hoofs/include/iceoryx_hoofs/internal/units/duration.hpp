@@ -134,6 +134,12 @@ class Duration
     template <typename T>
     static constexpr Duration fromDays(const T value) noexcept;
 
+    /// @brief Constructs a new Duration object of maximum allowed length. Useful for functions which should have an
+    /// "infinite" timeout.
+    static constexpr Duration max() noexcept;
+
+    /// @brief Constructs a new Duration object with a duration of zero
+    static constexpr Duration zero() noexcept;
     // END CREATION FROM STATIC FUNCTIONS
 
     // BEGIN CONSTRUCTORS AND ASSIGNMENT
@@ -312,9 +318,6 @@ class Duration
     /// @note this is factory method is necessary to build with msvc due to issues calling a protected constexpr ctor
     /// from public methods
     static constexpr Duration createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept;
-
-    static constexpr Duration max() noexcept;
-    static constexpr Duration zero() noexcept;
 
   private:
     template <typename T, typename String>

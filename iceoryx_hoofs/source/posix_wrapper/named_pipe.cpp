@@ -25,7 +25,6 @@ namespace iox
 namespace posix
 {
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
-constexpr units::Duration NamedPipe::BLOCKING_TIMEOUT;
 constexpr units::Duration NamedPipe::CYCLE_TIME;
 
 NamedPipe::NamedPipe() noexcept
@@ -55,7 +54,9 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     }
 
     // leading slash is allowed even though it is not a valid file name
-    if (!cxx::isValidFileName(name) && !(!name.empty() && name.c_str()[0] == '/'))
+    bool isValidPipeName = cxx::isValidFileName(name)
+                           || (!name.empty() && name.c_str()[0] == '/' && cxx::isValidFileName(*name.substr(1)));
+    if (!isValidPipeName)
     {
         std::cerr << "The named pipe name: \"" << name << "\" is not a valid file path name." << std::endl;
         m_isInitialized = false;
@@ -179,7 +180,7 @@ cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelN
 
 cxx::expected<IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
-    return timedSend(message, BLOCKING_TIMEOUT);
+    return timedSend(message, units::Duration::max());
 }
 
 cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
@@ -212,7 +213,7 @@ cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
 
 cxx::expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 {
-    return timedReceive(BLOCKING_TIMEOUT);
+    return timedReceive(units::Duration::max());
 }
 
 cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept

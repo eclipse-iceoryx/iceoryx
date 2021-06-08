@@ -63,8 +63,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
         // we do not yet support ACL and rights for data partitions in windows
         // DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
         DWORD access = PAGE_READWRITE | SEC_RESERVE;
-        DWORD MAXIMUM_SIZE_LOW =
-            static_cast<DWORD>(((iox::platform::win32::IOX_MAXIMUM_SUPPORTED_SHM_SIZE << 32) >> 32) & 0xFFFFFFFF);
+        DWORD MAXIMUM_SIZE_LOW = static_cast<DWORD>(iox::platform::win32::IOX_MAXIMUM_SUPPORTED_SHM_SIZE & 0xFFFFFFFF);
         DWORD MAXIMUM_SIZE_HIGH =
             static_cast<DWORD>((iox::platform::win32::IOX_MAXIMUM_SUPPORTED_SHM_SIZE >> 32) & 0xFFFFFFFF);
 
