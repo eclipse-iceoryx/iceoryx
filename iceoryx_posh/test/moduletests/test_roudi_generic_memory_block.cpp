@@ -145,29 +145,6 @@ class GenericMemoryBlock_NonTrivial_Test : public Test
     {
     }
 
-    // this is used to access the protected destroy method of GenericMemoryBlock;
-    // the GenericMemoryBlock is casted to GenericMemoryBlockAccess which can access
-    // the MemoryBlock::destroy method which uses the vtable to call the
-    // GenericMemoryBlock::destroy method
-    class GenericMemoryBlockAccess : public MemoryBlock
-    {
-      public:
-        template <typename T>
-        static void callDestroy(GenericMemoryBlock<T>& mb) noexcept
-        {
-            // due to the vtable, GenericMemoryBlock::destroy will be called and
-            // not GenericMemoryBlockAccess::destroy
-            reinterpret_cast<GenericMemoryBlockAccess*>(&mb)->destroy();
-        };
-
-      private:
-        void destroy() noexcept override
-        {
-            static constexpr bool THIS_SHOULD_NEVER_BE_CALLED{false};
-            EXPECT_TRUE(THIS_SHOULD_NEVER_BE_CALLED);
-        }
-    };
-
     GenericMemoryBlock<NonTrivialClass> sut;
     MemoryProviderTestImpl memoryProvider;
 };
@@ -200,17 +177,15 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, MultipleEmplaceValue)
     EXPECT_THAT(emplaceResult.value()->m_data, Eq(EXPECTED_VALUE));
 }
 
-TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithoutCreate)
+TEST_F(GenericMemoryBlock_NonTrivial_Test, RunDestructorWithoutCreate)
 {
-    GenericMemoryBlockAccess::callDestroy(sut);
     /// @note we just expect to not terminate
 }
 
-TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithoutEmplace)
+TEST_F(GenericMemoryBlock_NonTrivial_Test, RunDestructorWithoutEmplace)
 {
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
-    GenericMemoryBlockAccess::callDestroy(sut);
     /// @note we just expect to not terminate
 }
 
@@ -222,7 +197,7 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithEmplace)
     EXPECT_THAT(sut.emplace(EXPECTED_VALUE).value()->m_data, EXPECTED_VALUE);
     EXPECT_THAT(NonTrivialClass::s_constructorCounter, Eq(1u));
 
-    GenericMemoryBlockAccess::callDestroy(sut);
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
 
     EXPECT_THAT(sut.value().has_value(), Eq(false));
     EXPECT_THAT(NonTrivialClass::s_destructorCounter, Eq(1u));
@@ -235,12 +210,12 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, RepetitiveDestroyWithEmplace)
     IOX_DISCARD_RESULT(memoryProvider.create());
     sut.emplace(EXPECTED_VALUE);
 
-    GenericMemoryBlockAccess::callDestroy(sut);
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
 
     EXPECT_THAT(sut.value().has_value(), Eq(false));
 
-    GenericMemoryBlockAccess::callDestroy(sut);
-    GenericMemoryBlockAccess::callDestroy(sut);
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
 
     EXPECT_THAT(NonTrivialClass::s_destructorCounter, Eq(1u));
 }
