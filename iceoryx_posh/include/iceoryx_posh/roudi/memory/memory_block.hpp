@@ -34,6 +34,7 @@ class MemoryBlock
 
   public:
     MemoryBlock() noexcept = default;
+    virtual ~MemoryBlock() = default;
 
     /// @note this is intentional not movable/copyable, since a pointer to the memory block is registered at a
     /// MemoryProvider and therefore an instance of a MemoryBlock must be pinned to memory
