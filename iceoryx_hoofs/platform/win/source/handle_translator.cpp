@@ -24,16 +24,16 @@ HandleTranslator& HandleTranslator::getInstance() noexcept
 
 HANDLE HandleTranslator::get(const int handle) const noexcept
 {
-    return m_handleList[static_cast<size_t>(handle)].windowsHandle;
+    return m_handleList[static_cast<size_t>(handle)];
 }
 
 int HandleTranslator::add(HANDLE handle) noexcept
 {
     for (int64_t limit = m_handleList.size(), k = 0; k < limit; ++k)
     {
-        if (m_handleList[k].windowsHandle == nullptr)
+        if (m_handleList[k] == nullptr)
         {
-            m_handleList[k].windowsHandle = handle;
+            m_handleList[k] = handle;
             return k;
         }
     }
@@ -42,7 +42,7 @@ int HandleTranslator::add(HANDLE handle) noexcept
     return m_handleList.size() - 1;
 }
 
-void HandleTranslator::remove(int handle) noexcept
+void HandleTranslator::remove(const int handle) noexcept
 {
-    m_handleList[static_cast<uint64_t>(handle)].windowsHandle = nullptr;
+    m_handleList[static_cast<uint64_t>(handle)] = nullptr;
 }

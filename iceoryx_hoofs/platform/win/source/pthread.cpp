@@ -96,7 +96,7 @@ static HANDLE createWin32Mutex(LPSECURITY_ATTRIBUTES securityAttributes, BOOL in
 
 static std::string generateMutexName(const UniqueSystemId& id) noexcept
 {
-    return "iox_mutex" + static_cast<std::string>(id);
+    return "iox_mutex_" + static_cast<std::string>(id);
 }
 
 static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)

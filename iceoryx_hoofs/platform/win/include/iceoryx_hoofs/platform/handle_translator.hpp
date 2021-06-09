@@ -25,15 +25,11 @@ class HandleTranslator
     static HandleTranslator& getInstance() noexcept;
     HANDLE get(const int handle) const noexcept;
     int add(HANDLE handle) noexcept;
-    void remove(int handle) noexcept;
+    void remove(const int handle) noexcept;
 
   private:
     HandleTranslator() noexcept = default;
-    struct handle_t
-    {
-        HANDLE windowsHandle;
-    };
-    std::vector<handle_t> m_handleList;
+    std::vector<HANDLE> m_handleList;
 };
 
 #endif
