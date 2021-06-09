@@ -512,11 +512,7 @@ inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint6
         return iox::cxx::nullopt;
     }
 
-    uint64_t length = count;
-    if (m_rawstringSize < (pos + count))
-    {
-        length = m_rawstringSize - pos;
-    }
+    uint64_t length = std::min(count, m_rawstringSize - pos);
     string subString;
     std::memcpy(&(subString.m_rawstring[0]), &m_rawstring[pos], length);
     subString.m_rawstring[length] = '\0';
