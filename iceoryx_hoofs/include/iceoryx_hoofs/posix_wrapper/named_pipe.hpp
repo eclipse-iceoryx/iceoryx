@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 #include <cstdint>
 
@@ -40,6 +41,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
     static constexpr const char NAMED_PIPE_PREFIX[] = "/iox_np_";
+    static constexpr const char SEND_SEMAPHORE_PREFIX[] = "iox_np_send_";
+    static constexpr const char RECEIVE_SEMAPHORE_PREFIX[] = "iox_np_receive_";
 
     using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
@@ -68,6 +71,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @return always false
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
+    cxx::expected<IpcChannelError> trySend(const std::string& message) const noexcept;
+
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
     ///        delivered
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
@@ -79,6 +84,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @param[in] timeout the timeout on how long this method should retry to send the message
     /// @return success when message was sent otherwise an error which describes the failure
     cxx::expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
+
+    cxx::expected<std::string, IpcChannelError> tryReceive() const noexcept;
 
     /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
     ///        received
@@ -104,10 +111,13 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
               const size_t maxMsgSize = MAX_MESSAGE_SIZE,
               const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
 
-    static IpcChannelName_t convertName(const IpcChannelName_t& name) noexcept;
+    template <typename Prefix>
+    static IpcChannelName_t convertName(const Prefix& p, const IpcChannelName_t& name) noexcept;
 
   private:
     cxx::optional<SharedMemoryObject> m_sharedMemory;
+    cxx::optional<Semaphore> m_sendSemaphore;
+    cxx::optional<Semaphore> m_receiveSemaphore;
     MessageQueue_t* m_messages = nullptr;
 };
 } // namespace posix

@@ -224,6 +224,7 @@ Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) no
 }
 
 Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept
+    : m_isCreated(true)
 {
     if (m_name.unsafe_assign(name) == false)
     {

@@ -163,8 +163,8 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
     }
     else if (!m_details.hasSilentErrno)
     {
-        std::cerr << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
-                  << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
+        std::cerr << m_details.file << ":" << std::dec << m_details.line << " { " << m_details.callingFunction << " -> "
+                  << m_details.posixFunctionName << " }  :::  [ " << std::dec << m_details.result.errnum << " ]  "
                   << m_details.result.getHumanReadableErrnum() << std::endl;
     }
 

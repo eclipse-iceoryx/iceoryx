@@ -25,6 +25,8 @@ namespace iox
 namespace posix
 {
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
+constexpr const char NamedPipe::SEND_SEMAPHORE_PREFIX[];
+constexpr const char NamedPipe::RECEIVE_SEMAPHORE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
 
 NamedPipe::NamedPipe() noexcept
@@ -84,7 +86,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     }
 
     auto sharedMemory = SharedMemoryObject::create(
-        convertName(name),
+        convertName(NAMED_PIPE_PREFIX, name),
         // add alignment since we require later aligned memory to perform the placement new of
         // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
         sizeof(MessageQueue_t) + alignof(MessageQueue_t),
@@ -94,15 +96,59 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
 
     if (sharedMemory.has_error())
     {
-        std::cerr << "Unable to open shared memory: \"" << convertName(name) << "\" for named pipe \"" << name << "\""
-                  << std::endl;
+        std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
+                  << "\" for named pipe \"" << name << "\"" << std::endl;
         m_isInitialized = false;
         m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
                                                                : IpcChannelError::INTERNAL_LOGIC_ERROR;
         return;
     }
 
-    m_sharedMemory.emplace(std::move(sharedMemory.value()));
+    if (sharedMemory->hasOwnership())
+    {
+        auto sendSemaphore = Semaphore::create(CreateNamedSemaphore,
+                                               convertName(SEND_SEMAPHORE_PREFIX, name).c_str(),
+                                               static_cast<mode_t>(S_IRUSR | S_IWUSR),
+                                               static_cast<unsigned int>(maxMsgNumber));
+        auto receiveSemaphore = Semaphore::create(CreateNamedSemaphore,
+                                                  convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(),
+                                                  static_cast<mode_t>(S_IRUSR | S_IWUSR),
+                                                  0U);
+
+        if (sendSemaphore.has_error() || receiveSemaphore.has_error())
+        {
+            std::cerr << "Unable to create named pipe semaphores: \"" << convertName(SEND_SEMAPHORE_PREFIX, name)
+                      << "\" and \"" << convertName(RECEIVE_SEMAPHORE_PREFIX, name) << "\" for named pipe \"" << name
+                      << "\"" << std::endl;
+            m_isInitialized = false;
+            m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
+            return;
+        }
+
+        m_receiveSemaphore.emplace(std::move(*receiveSemaphore));
+        m_sendSemaphore.emplace(std::move(*sendSemaphore));
+    }
+    else
+    {
+        auto sendSemaphore = Semaphore::create(OpenNamedSemaphore, convertName(SEND_SEMAPHORE_PREFIX, name).c_str(), 0);
+        auto receiveSemaphore =
+            Semaphore::create(OpenNamedSemaphore, convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(), 0);
+
+        if (sendSemaphore.has_error() || receiveSemaphore.has_error())
+        {
+            std::cerr << "Unable to open named pipe semaphores: \"" << convertName(SEND_SEMAPHORE_PREFIX, name)
+                      << "\" and \"" << convertName(RECEIVE_SEMAPHORE_PREFIX, name) << "\" for named pipe \"" << name
+                      << "\"" << std::endl;
+            m_isInitialized = false;
+            m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
+            return;
+        }
+
+        m_receiveSemaphore.emplace(std::move(*receiveSemaphore));
+        m_sendSemaphore.emplace(std::move(*sendSemaphore));
+    }
+
+    m_sharedMemory.emplace(std::move(*sharedMemory));
     m_messages =
         static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
 
@@ -126,6 +172,8 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
         CreationPattern_t::operator=(std::move(rhs));
 
         m_sharedMemory = std::move(rhs.m_sharedMemory);
+        m_sendSemaphore = std::move(rhs.m_sendSemaphore);
+        m_receiveSemaphore = std::move(rhs.m_receiveSemaphore);
         m_messages = std::move(rhs.m_messages);
         rhs.m_messages = nullptr;
     }
@@ -138,11 +186,11 @@ NamedPipe::~NamedPipe() noexcept
     IOX_DISCARD_RESULT(destroy());
 }
 
-IpcChannelName_t NamedPipe::convertName(const IpcChannelName_t& name) noexcept
+template <typename Prefix>
+IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t& name) noexcept
 {
-    return IpcChannelName_t(
-        cxx::TruncateToCapacity,
-        cxx::concatenate(NAMED_PIPE_PREFIX, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
+    return IpcChannelName_t(cxx::TruncateToCapacity,
+                            cxx::concatenate(p, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
 }
 
 cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
@@ -152,6 +200,8 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
         m_isInitialized = false;
         m_errorValue = IpcChannelError::NOT_INITIALIZED;
         m_messages->~LockFreeQueue();
+        m_sendSemaphore.reset();
+        m_receiveSemaphore.reset();
         m_sharedMemory.reset();
         m_messages = nullptr;
     }

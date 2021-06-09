@@ -49,14 +49,15 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     SharedMemoryObject& operator=(SharedMemoryObject&&) = default;
     ~SharedMemoryObject() = default;
 
-    void* allocate(const uint64_t size, const uint64_t alignment);
-    void finalizeAllocation();
+    void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
+    void finalizeAllocation() noexcept;
 
-    Allocator* getAllocator();
-    void* getBaseAddress() const;
+    Allocator* getAllocator() noexcept;
+    void* getBaseAddress() const noexcept;
 
-    uint64_t getSizeInBytes() const;
-    int getFileHandle() const;
+    uint64_t getSizeInBytes() const noexcept;
+    int getFileHandle() const noexcept;
+    bool hasOwnership() const noexcept;
 
     friend class DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>;
 
@@ -66,9 +67,9 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
                        const AccessMode accessMode,
                        const OpenMode openMode,
                        const void* baseAddressHint,
-                       const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                       const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) noexcept;
 
-    bool isInitialized() const;
+    bool isInitialized() const noexcept;
 
   private:
     uint64_t m_memorySizeInBytes;
