@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -251,7 +252,8 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeCapaResultsInSi
 {
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    char testChar[STRINGCAP];
+    // increase capacity by one to circumvent gcc -Werror=array-bounds
+    char testChar[STRINGCAP + 1];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
         testChar[i] = 'M';
