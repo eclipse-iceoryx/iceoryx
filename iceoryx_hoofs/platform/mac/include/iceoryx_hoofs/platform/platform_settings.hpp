@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
+#ifndef IOX_HOOFS_MAC_PLATFORM_PLATFORM_SETTINGS_HPP
+#define IOX_HOOFS_MAC_PLATFORM_PLATFORM_SETTINGS_HPP
 
 #include <cstdint>
 
@@ -27,7 +27,7 @@ class UnixDomainSocket;
 
 namespace platform
 {
-constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
+constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = true;
 constexpr const char IOX_PATH_SEPARATORS[] = "/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 2048;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
@@ -35,4 +35,4 @@ using IoxIpcChannelType = iox::posix::UnixDomainSocket;
 } // namespace platform
 } // namespace iox
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
+#endif // IOX_HOOFS_MAC_PLATFORM_PLATFORM_SETTINGS_HPP

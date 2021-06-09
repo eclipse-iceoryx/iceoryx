@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
+#ifndef IOX_HOOFS_WIN_PLATFORM_PLATFORM_SETTINGS_HPP
+#define IOX_HOOFS_WIN_PLATFORM_PLATFORM_SETTINGS_HPP
 
 #include <cstdint>
 
@@ -44,4 +44,4 @@ constexpr uint64_t IOX_MAXIMUM_SUPPORTED_SHM_SIZE = 1024ULL * 1024ULL * 1024ULL 
 } // namespace win32
 } // namespace platform
 } // namespace iox
-#endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
+#endif // IOX_HOOFS_WIN_PLATFORM_PLATFORM_SETTINGS_HPP
