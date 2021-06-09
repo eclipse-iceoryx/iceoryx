@@ -48,6 +48,11 @@ class PortPoolMemoryBlock : public MemoryBlock
     /// @note The memory alignment for the ports
     uint64_t alignment() const noexcept override;
 
+    /// @brief This function enables the access to the PortPool
+    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
+    cxx::optional<PortPoolData*> portPool() const noexcept;
+
+  protected:
     /// @copydoc MemoryBlock::memoryAvailable
     /// @note This will create the ports at the location `memory` points to
     void memoryAvailable(cxx::not_null<void*> memory) noexcept override;
@@ -55,10 +60,6 @@ class PortPoolMemoryBlock : public MemoryBlock
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the ports
     void destroy() noexcept override;
-
-    /// @brief This function enables the access to the PortPool
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<PortPoolData*> portPool() const noexcept;
 
   private:
     PortPoolData* m_portPoolData{nullptr};

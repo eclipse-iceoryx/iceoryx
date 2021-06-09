@@ -54,6 +54,12 @@ class MemoryBlock
     /// @return the alignment of the underlying data.
     virtual uint64_t alignment() const noexcept = 0;
 
+    /// @brief This function provides the pointer to the requested memory.
+    /// @return an optional pointer to a memory block with the requested size and alignment if the memory is available,
+    /// otherwise a cxx::nullopt_t
+    cxx::optional<void*> memory() const noexcept;
+
+  protected:
     /// @brief The MemoryProvider calls this either when MemoryProvider::destroy is called or in its destructor.
     /// @note This function can be called multiple times. Make sure that the implementation can handle this.
     virtual void destroy() noexcept = 0;
@@ -62,11 +68,6 @@ class MemoryBlock
     /// memory.
     /// @param [in] memory pointer to a valid memory block, the same one that the memory() member function would return
     virtual void memoryAvailable(cxx::not_null<void*> memory) noexcept;
-
-    /// @brief This function provides the pointer to the requested memory.
-    /// @return an optional pointer to a memory block with the requested size and alignment if the memory is available,
-    /// otherwise a cxx::nullopt_t
-    cxx::optional<void*> memory() const noexcept;
 
   private:
     void* m_memory{nullptr};

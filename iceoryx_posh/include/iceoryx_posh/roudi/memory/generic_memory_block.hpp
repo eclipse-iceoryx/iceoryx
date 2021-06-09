@@ -49,10 +49,6 @@ class GenericMemoryBlock final : public MemoryBlock
     /// @note The alignment of the underlying type T
     uint64_t alignment() const noexcept override;
 
-    /// @copydoc MemoryBlock::destroy
-    /// @note This will destroy the underlying type T
-    void destroy() noexcept override;
-
     /// @brief A new element is constructed by forwarding the arguments to the constructor of T. If the MemoryBlock has
     /// a value then the destructor of T is called.
     /// @param [in] args are perfectly forwarded to the constructor of T to perform a placement new
@@ -63,6 +59,11 @@ class GenericMemoryBlock final : public MemoryBlock
     /// @brief This function enables the access to the underlying type
     /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
     cxx::optional<T*> value() const noexcept;
+
+  protected:
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will destroy the underlying type T
+    void destroy() noexcept override;
 
   private:
     T* m_value{nullptr};

@@ -53,6 +53,11 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
     /// @note The memory alignment for the MemPools
     uint64_t alignment() const noexcept override;
 
+    /// @brief This function enables the access to the MemoryManager for the MemPools
+    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
+    cxx::optional<mepoo::MemoryManager*> memoryManager() const noexcept;
+
+  protected:
     /// @copydoc MemoryBlock::memoryAvailable
     /// @note This will create the MemPools at the location `memory` points to
     void memoryAvailable(cxx::not_null<void*> memory) noexcept override;
@@ -60,10 +65,6 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the MemPools
     void destroy() noexcept override;
-
-    /// @brief This function enables the access to the MemoryManager for the MemPools
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<mepoo::MemoryManager*> memoryManager() const noexcept;
 
   private:
     mepoo::MePooConfig m_memPoolConfig;
