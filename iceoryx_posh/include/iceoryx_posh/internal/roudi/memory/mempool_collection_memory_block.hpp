@@ -55,7 +55,7 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
 
     /// @copydoc MemoryBlock::memoryAvailable
     /// @note This will create the MemPools at the location `memory` points to
-    void memoryAvailable(void* memory) noexcept override;
+    void memoryAvailable(cxx::not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the MemPools

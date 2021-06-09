@@ -39,7 +39,7 @@ uint64_t PortPoolMemoryBlock::alignment() const noexcept
     return alignof(PortPoolData);
 }
 
-void PortPoolMemoryBlock::memoryAvailable(void* memory) noexcept
+void PortPoolMemoryBlock::memoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     m_portPoolData = new (memory) PortPoolData;
 }

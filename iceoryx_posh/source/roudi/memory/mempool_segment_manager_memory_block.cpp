@@ -45,7 +45,7 @@ uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
                           mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
-void MemPoolSegmentManagerMemoryBlock::memoryAvailable(void* memory) noexcept
+void MemPoolSegmentManagerMemoryBlock::memoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     posix::Allocator allocator(memory, size());
     auto segmentManager = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));

@@ -50,7 +50,7 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
 
     /// @copydoc MemoryBlock::memoryAvailable
     /// @note This will create the SegmentManager at the location `memory` points to
-    void memoryAvailable(void* memory) noexcept override;
+    void memoryAvailable(cxx::not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the SegmentManager

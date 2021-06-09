@@ -21,7 +21,7 @@ namespace iox
 {
 namespace roudi
 {
-void MemoryBlock::memoryAvailable(void* memory IOX_MAYBE_UNUSED) noexcept
+void MemoryBlock::memoryAvailable(cxx::not_null<void*> memory IOX_MAYBE_UNUSED) noexcept
 {
     // nothing to do in the default implementation
 }
