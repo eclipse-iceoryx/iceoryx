@@ -38,7 +38,7 @@ int HandleTranslator::add(HANDLE handle) noexcept
         }
     }
 
-    m_handleList.emplace_back(handle_t{handle});
+    m_handleList.emplace_back(handle);
     return m_handleList.size() - 1;
 }
 
