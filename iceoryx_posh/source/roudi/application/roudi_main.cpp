@@ -47,6 +47,5 @@ int main(int argc, char* argv[])
     }
 
     IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig.value());
-
     return roudi.run();
 }

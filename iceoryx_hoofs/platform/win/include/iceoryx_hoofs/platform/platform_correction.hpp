@@ -35,4 +35,3 @@
 #undef interface
 #undef CreateSemaphore
 #undef NO_ERROR
-#undef OPEN_EXISTING

@@ -39,9 +39,9 @@ static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "A
 enum class OwnerShip : uint64_t
 {
     MINE = 0U,
-    OPEN_EXISTING = 1U
+    OPEN_EXISTING_SHM = 1U
 };
-static constexpr const char* OWNERSHIP_STRING[] = {"OwnerShip::MINE", "OwnerShip::OPEN_EXISTING"};
+static constexpr const char* OWNERSHIP_STRING[] = {"OwnerShip::MINE", "OwnerShip::OPEN_EXISTING_SHM"};
 
 enum class SharedMemoryError
 {

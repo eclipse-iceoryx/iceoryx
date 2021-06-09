@@ -16,7 +16,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/getopt.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
+
+#include <cstdio>
 
 int optind;
 int opterr;
 int optout;
+
+int getopt_long(int argc, char* const[], const char*, const struct option*, int*)
+{
+    if (argc > 1)
+    {
+        fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+        fprintf(stderr, "command line arguments are not supported in windows\n");
+    }
+    return -1;
+}

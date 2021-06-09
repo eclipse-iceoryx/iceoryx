@@ -19,16 +19,22 @@
 
 #include <assert.h>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <type_traits>
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 
 namespace iox
 {
 namespace cxx
 {
+template <uint64_t Capacity>
+class string;
+struct TruncateToCapacity_t;
+
 namespace internal
 {
 inline void
@@ -66,6 +72,17 @@ struct BestFittingTypeImpl<true, true, false>
 {
     using Type_t = uint32_t;
 };
+
+constexpr char ASCII_A = 'a';
+constexpr char ASCII_Z = 'z';
+constexpr char ASCII_CAPITAL_A = 'A';
+constexpr char ASCII_CAPITAL_Z = 'Z';
+constexpr char ASCII_0 = '0';
+constexpr char ASCII_9 = '9';
+constexpr char ASCII_MINUS = '-';
+constexpr char ASCII_DOT = '.';
+constexpr char ASCII_COLON = ':';
+constexpr char ASCII_UNDERSCORE = '_';
 } // namespace internal
 
 // implementing C++ Core Guideline, I.6. Prefer Expects
@@ -250,7 +267,19 @@ constexpr bool isPowerOfTwo(const T n)
     return n && ((n & (n - 1U)) == 0U);
 }
 
+/// @brief checks if the given string is a valid filename
+/// @return true if the string is a filename, otherwise false
+template <uint64_t StringCapacity>
+bool isValidFileName(const string<StringCapacity>& name) noexcept;
+
+/// @brief verifies if the given string is a valid path to a file
+/// @return true if the string is a path to a file, otherwise false
+template <uint64_t StringCapacity>
+bool isValidFilePath(const string<StringCapacity>& name) noexcept;
+
 } // namespace cxx
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/cxx/helplets.inl"
 
 #endif // IOX_HOOFS_CXX_HELPLETS_HPP

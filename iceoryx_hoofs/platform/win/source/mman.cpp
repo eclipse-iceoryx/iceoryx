@@ -15,7 +15,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+
+#include <set>
+#include <string>
+
+static std::set<std::string> openedSharedMemorySegments;
 
 void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
@@ -31,6 +37,9 @@ void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
                                    fileOffsetLow,
                                    numberOfBytesToMap)
                              .value;
+    // windows only reserves memory but does not allocate it right away (see SEC_RESERVE in iox_shm_open)
+    // this call actually allocates the right amount of bytes
+    mappedObject = Win32Call(VirtualAlloc, mappedObject, numberOfBytesToMap, MEM_COMMIT, PAGE_READWRITE).value;
 
     return mappedObject;
 }
@@ -47,14 +56,17 @@ int munmap(void* addr, size_t length)
 
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
-    static constexpr DWORD MAXIMUM_SIZE_HIGH = 0;
-    static constexpr DWORD MAXIMUM_SIZE_LOW = 256;
-
     HANDLE sharedMemoryHandle{nullptr};
-    DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
 
     if (oflag & O_CREAT) // O_EXCL
     {
+        // we do not yet support ACL and rights for data partitions in windows
+        // DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
+        DWORD access = PAGE_READWRITE | SEC_RESERVE;
+        DWORD MAXIMUM_SIZE_LOW = static_cast<DWORD>(iox::platform::win32::IOX_MAXIMUM_SUPPORTED_SHM_SIZE & 0xFFFFFFFF);
+        DWORD MAXIMUM_SIZE_HIGH =
+            static_cast<DWORD>((iox::platform::win32::IOX_MAXIMUM_SUPPORTED_SHM_SIZE >> 32) & 0xFFFFFFFF);
+
         auto result = Win32Call(CreateFileMapping,
                                 static_cast<HANDLE>(INVALID_HANDLE_VALUE),
                                 static_cast<LPSECURITY_ATTRIBUTES>(nullptr),
@@ -92,10 +104,19 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
         }
     }
 
+    openedSharedMemorySegments.insert(name);
     return HandleTranslator::getInstance().add(sharedMemoryHandle);
 }
 
 int shm_unlink(const char* name)
 {
-    return 0;
+    auto iter = openedSharedMemorySegments.find(name);
+    if (iter != openedSharedMemorySegments.end())
+    {
+        openedSharedMemorySegments.erase(iter);
+        return 0;
+    }
+
+    errno = ENOENT;
+    return -1;
 }

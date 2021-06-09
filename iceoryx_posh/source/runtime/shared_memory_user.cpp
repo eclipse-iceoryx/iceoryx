@@ -37,7 +37,7 @@ SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
         posix::SharedMemoryObject::create(roudi::SHM_NAME,
                                           topicSize,
                                           posix::AccessMode::READ_WRITE,
-                                          posix::OwnerShip::OPEN_EXISTING,
+                                          posix::OwnerShip::OPEN_EXISTING_SHM,
                                           posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
                 rp::BaseRelativePointer::registerPtr(
@@ -67,7 +67,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
         posix::SharedMemoryObject::create(segment.m_sharedMemoryName,
                                           segment.m_size,
                                           accessMode,
-                                          posix::OwnerShip::OPEN_EXISTING,
+                                          posix::OwnerShip::OPEN_EXISTING_SHM,
                                           posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)

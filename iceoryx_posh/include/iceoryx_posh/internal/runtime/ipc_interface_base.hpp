@@ -27,6 +27,7 @@
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
+#include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
@@ -242,7 +243,7 @@ class IpcInterfaceBase
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    IpcChannelType m_ipcChannel;
+    platform::IoxIpcChannelType m_ipcChannel;
 };
 
 } // namespace runtime

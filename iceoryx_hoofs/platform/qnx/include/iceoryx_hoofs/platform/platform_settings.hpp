@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,26 +13,26 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_WIN_PLATFORM_GETOPT_HPP
-#define IOX_HOOFS_WIN_PLATFORM_GETOPT_HPP
+#ifndef IOX_HOOFS_QNX_PLATFORM_PLATFORM_SETTINGS_HPP
+#define IOX_HOOFS_QNX_PLATFORM_PLATFORM_SETTINGS_HPP
 
-#define no_argument 0
-#define required_argument 1
+#include <cstdint>
 
-#define optarg "fuu"
-
-extern int optind;
-extern int opterr;
-extern int optout;
-
-struct option
+namespace iox
 {
-    const char* name;
-    int has_arg;
-    int* flag;
-    int val;
-};
+namespace posix
+{
+class UnixDomainSocket;
+}
 
-int getopt_long(int, char* const[], const char*, const struct option*, int*);
+namespace platform
+{
+constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = true;
+constexpr const char IOX_PATH_SEPARATORS[] = "/";
+constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
+constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
+using IoxIpcChannelType = iox::posix::UnixDomainSocket;
+} // namespace platform
+} // namespace iox
 
-#endif // IOX_HOOFS_WIN_PLATFORM_GETOPT_HPP
+#endif // IOX_HOOFS_QNX_PLATFORM_PLATFORM_SETTINGS_HPP

@@ -15,78 +15,47 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/socket.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-
-#include <iostream>
-
-
-struct Winsock2ApiInitializer
-{
-    Winsock2ApiInitializer()
-    {
-        WORD requestedVersion = MAKEWORD(2, 2);
-        WSADATA wsaData;
-        auto result = Win32Call(WSAStartup, requestedVersion, &wsaData).value;
-        if (result != 0)
-        {
-            std::cerr << "unable to initialize winsock2" << std::endl;
-            std::terminate();
-        }
-
-        if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-        {
-            std::cerr << "required winsock2.dll version is 2.2, found " << HIBYTE(wsaData.wVersion) << "."
-                      << LOBYTE(wsaData.wVersion) << std::endl;
-            cleanupWinsock();
-            std::terminate();
-        }
-    }
-
-    ~Winsock2ApiInitializer()
-    {
-        cleanupWinsock();
-    }
-
-    void cleanupWinsock()
-    {
-        Win32Call(WSACleanup);
-    }
-};
-
-static Winsock2ApiInitializer winsock2ApiInitializer;
+#include < cstdio>
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_socket(int domain, int type, int protocol)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 ssize_t
 iox_sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
     return 0;
 }
 
 int iox_closesocket(int sockfd)
 {
-    return Win32Call(closesocket, static_cast<SOCKET>(sockfd)).value;
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    return 0;
 }

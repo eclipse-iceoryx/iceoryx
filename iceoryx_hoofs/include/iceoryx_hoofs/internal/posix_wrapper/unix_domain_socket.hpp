@@ -22,7 +22,8 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/mqueue.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/un.hpp"
 
@@ -38,16 +39,13 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     {
     };
     static constexpr NoPathPrefix_t NoPathPrefix{};
-    static constexpr char PATH_PREFIX[] = "/tmp/";
-
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 1U;
-    /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
-    ///  the same behavior on every platform we use 2048.
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 2048U - NULL_TERMINATOR_SIZE;
-    /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
+    static constexpr uint64_t MAX_MESSAGE_SIZE = platform::IOX_UDS_SOCKET_MAX_MESSAGE_SIZE - NULL_TERMINATOR_SIZE;
+    /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the IOX_SOCKET_PATH_PREFIX
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 
     using UdsName_t = cxx::string<LONGEST_VALID_NAME>;
+    using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -125,7 +123,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-
     /// @brief initializes the unix domain socket
     /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> initalizeSocket() noexcept;
@@ -133,8 +130,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
     IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
-
-    static bool isNameValid(const UdsName_t& name) noexcept;
 
     /// @brief Tries to close the file descriptor
     /// @return IpcChannelError if error occured

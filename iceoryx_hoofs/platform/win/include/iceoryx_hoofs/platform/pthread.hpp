@@ -31,9 +31,14 @@
 struct pthread_mutex_t
 {
     HANDLE handle;
+    bool isInterprocessMutex = false;
 };
 
-using pthread_mutexattr_t = int;
+struct pthread_mutexattr_t
+{
+    bool isInterprocessMutex = false;
+};
+
 using pthread_t = std::thread::native_handle_type;
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr);

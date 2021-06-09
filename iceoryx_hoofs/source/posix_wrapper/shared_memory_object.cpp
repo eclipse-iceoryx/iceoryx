@@ -90,6 +90,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
     if (ownerShip == OwnerShip::MINE && m_isInitialized)
     {
         std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
+        if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
             // shared memory objects concurrently

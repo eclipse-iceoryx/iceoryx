@@ -26,17 +26,32 @@
 #include <cstdlib>
 #include <string>
 
+
 namespace iox
 {
 namespace posix
 {
-constexpr char UnixDomainSocket::PATH_PREFIX[];
 constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
+constexpr uint64_t UnixDomainSocket::NULL_TERMINATOR_SIZE;
 
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
     this->m_isInitialized = false;
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
+}
+
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
+{
+    // This is for being API compatible with the message queue, but has no equivalent for socket.
+    // We return false to say that the socket is not outdated. If there is a problem,
+    // we rely on the other calls and their error returns
+
+    return cxx::success<bool>(false);
+}
+
+UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
+{
+    *this = std::move(other);
 }
 
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
@@ -48,11 +63,11 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
         [&]() -> UdsName_t {
             /// invalid names will be forwarded and handled by the other constructor
             /// separately
-            if (!isNameValid(name))
+            if (!cxx::isValidFilePath(name))
             {
                 return name;
             }
-            return UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
+            return UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
         channelSide,
         maxMsgSize,
@@ -68,7 +83,7 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     : m_name(name)
     , m_channelSide(channelSide)
 {
-    if (!isNameValid(name))
+    if (!cxx::isValidFilePath(name))
     {
         this->m_isInitialized = false;
         this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -88,11 +103,6 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
             this->m_errorValue = error;
         });
     }
-}
-
-UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
-{
-    *this = std::move(other);
 }
 
 UnixDomainSocket::~UnixDomainSocket() noexcept
@@ -129,23 +139,24 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
-    if (!isNameValid(name))
+    if (!cxx::isValidFilePath(name))
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    if (UdsName_t().capacity() < name.size() + UdsName_t(PATH_PREFIX).size())
+    if (UdsName_t().capacity() < name.size() + UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).size())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    return unlinkIfExists(NoPathPrefix, UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
+    return unlinkIfExists(NoPathPrefix,
+                          UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
                                                                       const UdsName_t& name) noexcept
 {
-    if (!isNameValid(name))
+    if (!cxx::isValidFilePath(name))
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -304,7 +315,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 
         auto recvCall = posixCall(iox_recvfrom)(m_sockfd, message, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                             .failureReturnValue(ERROR_CODE)
-                            .suppressErrorMessagesForErrnos(EAGAIN)
+                            .suppressErrorMessagesForErrnos(EAGAIN, EWOULDBLOCK)
                             .evaluate();
         message[MAX_MESSAGE_SIZE] = 0;
 
@@ -315,7 +326,6 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
         return cxx::success<std::string>(std::string(message));
     }
 }
-
 
 cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 {
@@ -392,16 +402,6 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
         }
     }
 }
-
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
-{
-    // This is for being API compatible with the message queue, but has no equivalent for socket.
-    // We return false to say that the socket is not outdated. If there is a problem,
-    // we rely on the other calls and their error returns
-
-    return cxx::success<bool>(false);
-}
-
 
 IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t errnum) const noexcept
 {
@@ -529,12 +529,5 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     }
 }
-
-bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
-{
-    return !name.empty();
-}
-
-
 } // namespace posix
 } // namespace iox

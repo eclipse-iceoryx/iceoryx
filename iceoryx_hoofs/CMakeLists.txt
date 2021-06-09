@@ -168,6 +168,7 @@ add_library(iceoryx_hoofs
     source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/signal_handler.cpp
     source/posix_wrapper/message_queue.cpp
+    source/posix_wrapper/named_pipe.cpp
     source/posix_wrapper/unix_domain_socket.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp
     source/posix_wrapper/shared_memory_object/memory_map.cpp

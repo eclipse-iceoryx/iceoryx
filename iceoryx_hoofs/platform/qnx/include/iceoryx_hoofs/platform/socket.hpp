@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_QNX_PLATFORM_SOCKET_HPP
 #define IOX_HOOFS_QNX_PLATFORM_SOCKET_HPP
 
+#include <cstdint>
 #include <sys/socket.h>
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);

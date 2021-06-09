@@ -53,11 +53,16 @@ int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
 
 int pthread_mutexattr_init(pthread_mutexattr_t* attr)
 {
+    new (attr) pthread_mutexattr_t();
     return 0;
 }
 
 int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared)
 {
+    if (pshared == PTHREAD_PROCESS_SHARED)
+    {
+        attr->isInterprocessMutex = true;
+    }
     return 0;
 }
 
@@ -73,58 +78,80 @@ int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol)
 
 int pthread_mutex_destroy(pthread_mutex_t* mutex)
 {
-    Win32Call(CloseHandle, mutex->handle);
+    if (!mutex->isInterprocessMutex)
+    {
+        Win32Call(CloseHandle, mutex->handle);
+    }
+
     return 0;
 }
 
 int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 {
-    mutex->handle =
-        Win32Call(
-            CreateMutexA, static_cast<LPSECURITY_ATTRIBUTES>(NULL), static_cast<BOOL>(FALSE), static_cast<LPCSTR>(NULL))
-            .value;
-    if (mutex->handle == NULL)
+    mutex->isInterprocessMutex = (attr != NULL && attr->isInterprocessMutex);
+
+    if (!mutex->isInterprocessMutex)
     {
-        return EINVAL;
+        mutex->handle = Win32Call(CreateMutexA,
+                                  static_cast<LPSECURITY_ATTRIBUTES>(NULL),
+                                  static_cast<BOOL>(FALSE),
+                                  static_cast<LPCSTR>(NULL))
+                            .value;
+
+
+        if (mutex->handle == NULL)
+        {
+            return EINVAL;
+        }
     }
     return 0;
 }
 
 int pthread_mutex_lock(pthread_mutex_t* mutex)
 {
-    DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, INFINITE).value;
-
-    switch (waitResult)
+    if (!mutex->isInterprocessMutex)
     {
-    case WAIT_OBJECT_0:
-        return 0;
-    default:
-        return EINVAL;
+        DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, INFINITE).value;
+
+        switch (waitResult)
+        {
+        case WAIT_OBJECT_0:
+            return 0;
+        default:
+            return EINVAL;
+        }
     }
+    return 0;
 }
 
 int pthread_mutex_trylock(pthread_mutex_t* mutex)
 {
-    DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, 0).value;
-
-    switch (waitResult)
+    if (!mutex->isInterprocessMutex)
     {
-    case WAIT_TIMEOUT:
-        return EBUSY;
-    case WAIT_OBJECT_0:
-        return 0;
-    default:
-        return EINVAL;
+        DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, 0).value;
+
+        switch (waitResult)
+        {
+        case WAIT_TIMEOUT:
+            return EBUSY;
+        case WAIT_OBJECT_0:
+            return 0;
+        default:
+            return EINVAL;
+        }
     }
+    return 0;
 }
 
 int pthread_mutex_unlock(pthread_mutex_t* mutex)
 {
-    auto releaseResult = Win32Call(ReleaseMutex, mutex->handle).value;
-    if (!releaseResult)
+    if (!mutex->isInterprocessMutex)
     {
-        return EPERM;
+        auto releaseResult = Win32Call(ReleaseMutex, mutex->handle).value;
+        if (!releaseResult)
+        {
+            return EPERM;
+        }
     }
-
     return 0;
 }

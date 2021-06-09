@@ -108,8 +108,7 @@ int iox_sem_close(iox_sem_t* sem)
 
 int iox_sem_destroy(iox_sem_t* sem)
 {
-    // semaphores are destroyed in windows when the last process which is
-    // holding a semaphore calls CloseHandle
+    CloseHandle(sem->handle);
     return 0;
 }
 

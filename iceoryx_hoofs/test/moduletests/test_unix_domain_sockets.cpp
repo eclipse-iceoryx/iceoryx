@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#if !defined(_WIN32)
 #include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/platform/socket.hpp"
@@ -77,6 +78,7 @@ class UnixDomainSocket_test : public Test
 
     bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
     {
+        bool socketCreationSuccess = true;
         static constexpr int32_t ERROR_CODE = -1;
         struct sockaddr_un sockAddr;
 
@@ -84,7 +86,6 @@ class UnixDomainSocket_test : public Test
         sockAddr.sun_family = AF_LOCAL;
         strncpy(sockAddr.sun_path, name.c_str(), name.size());
 
-        bool socketCreationSuccess = true;
         iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
             .failureReturnValue(ERROR_CODE)
             .evaluate()
@@ -102,7 +103,6 @@ class UnixDomainSocket_test : public Test
                 std::cerr << "unable to create socket\n";
                 socketCreationSuccess = false;
             });
-
         return socketCreationSuccess;
     }
 
@@ -145,7 +145,8 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
 {
     UnixDomainSocket::UdsName_t longSocketName;
-    for (uint64_t i = 0U; i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(UnixDomainSocket::PATH_PREFIX) + 1; ++i)
+    for (uint64_t i = 0U; i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(platform::IOX_UDS_SOCKET_PATH_PREFIX) + 1;
+         ++i)
     {
         longSocketName.append(cxx::TruncateToCapacity, "o");
     }
@@ -156,7 +157,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
-    UnixDomainSocket::UdsName_t socketFileName = UnixDomainSocket::PATH_PREFIX;
+    UnixDomainSocket::UdsName_t socketFileName = platform::IOX_UDS_SOCKET_PATH_PREFIX;
     socketFileName.append(cxx::TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
     ASSERT_TRUE(createTestSocket(socketFileName));
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, socketFileName);
@@ -166,7 +167,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessful)
 {
     UnixDomainSocket::UdsName_t socketFileName = "iceoryx-hoofs-moduletest.socket";
-    UnixDomainSocket::UdsName_t socketFileNameWithPrefix = UnixDomainSocket::PATH_PREFIX;
+    UnixDomainSocket::UdsName_t socketFileNameWithPrefix = platform::IOX_UDS_SOCKET_PATH_PREFIX;
     socketFileNameWithPrefix.append(cxx::TruncateToCapacity, socketFileName);
     ASSERT_TRUE(createTestSocket(socketFileNameWithPrefix));
     auto ret = UnixDomainSocket::unlinkIfExists(socketFileName);
@@ -193,19 +194,27 @@ TEST_F(UnixDomainSocket_test, SendOnServerLeadsToError)
     sendOnServerLeadsToError([&](auto& msg) { return server.send(msg); });
 }
 
-void successfulSendAndReceive(const std::string& message, const sendCall_t& send, const receiveCall_t& receive)
+void successfulSendAndReceive(const std::vector<std::string>& messages,
+                              const sendCall_t& send,
+                              const receiveCall_t& receive)
 {
-    ASSERT_FALSE(send(message).has_error());
+    for (auto& m : messages)
+    {
+        ASSERT_FALSE(send(m).has_error());
+    }
 
-    auto receivedMessage = receive();
-    ASSERT_FALSE(receivedMessage.has_error());
-    EXPECT_EQ(message, *receivedMessage);
+    for (auto& sentMessage : messages)
+    {
+        auto receivedMessage = receive();
+        ASSERT_FALSE(receivedMessage.has_error());
+        EXPECT_EQ(*receivedMessage, sentMessage);
+    }
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndReceive)
 {
     successfulSendAndReceive(
-        "what's hypnotoads eye color?",
+        {"what's hypnotoads eye color?"},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -213,7 +222,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        "the earth is a disc on the back of hypnotoad",
+        {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
+         "elephant slips."},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -221,7 +231,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "it is not the sun that rises, it is hypnotoad who is opening its eyes",
+        {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -229,7 +239,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "what is the most beautiful color in the world? it's hypnotoad.",
+        {"what is the most beautiful color in the world? it's hypnotoad."},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -237,31 +247,31 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
+        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
+        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
+        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        "", [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
+        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -269,7 +279,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendA
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimedSendAndReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -277,7 +287,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimedSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -285,7 +295,57 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndTimedReceive)
 {
     successfulSendAndReceive(
-        std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x'),
+        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
+        [&](auto& msg) { return client.send(msg); },
+        [&]() { return server.timedReceive(1_ms); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndReceive)
+{
+    successfulSendAndReceive(
+        {"Famous hypnotoad alike creators from around the world:",
+         "Zoich, proposed mascot for the winter olympics 2014",
+         "Ed Bighead",
+         "Jason Funderburker"},
+        [&](auto& msg) { return client.send(msg); },
+        [&]() { return server.receive(); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimedSendAndReceive)
+{
+    successfulSendAndReceive(
+        {"Facts about hypnotoad",
+         "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
+         "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
+         "hypnotoad has its own tv show called: everyone loves hypnotoad",
+         "his homeworld is maybe Kif Krokers homeworld",
+         "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into his "
+         "eyes"},
+        [&](auto& msg) { return client.timedSend(msg, 1_ms); },
+        [&]() { return server.receive(); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimedSendAndTimedReceive)
+{
+    successfulSendAndReceive(
+        {"hypnotoad was part of the german pop band Modern Talking and produced songs like",
+         "you're my, heart you're my seal",
+         "cheri cheri hypnotoad",
+         "brother hypno hypno toad",
+         "you are not alone hypnotoad is there for you"},
+        [&](auto& msg) { return client.timedSend(msg, 1_ms); },
+        [&]() { return server.timedReceive(1_ms); });
+}
+
+TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndTimedReceive)
+{
+    successfulSendAndReceive(
+        {"most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
+         "success",
+         "homer simpson licked hypnotoad before he was famous (Missionary Impossible)",
+         "but remember, always ask the toad before licking otherwise it is just rude",
+         "if the toad answers you the licking question, please consult David Hasselhof first or some other random "
+         "person"},
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -361,3 +421,4 @@ TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived)
 }
 #endif
 } // namespace
+#endif
