@@ -33,13 +33,11 @@ class SharedMemoryUser
 {
   public:
     /// @brief Constructor
-    /// @param[in] doMapSharedMemoryIntoThread used by roudi environment for testing. No mapping of memory if false
     /// @param[in] topicSize size of the shared memory management segment
     /// @param[in] segmentManagerAddr adress of the segment manager that does the final mapping of memory in the process
     /// @param[in] segmentId of the relocatable shared memory segment
     /// address space
-    SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
-                     const size_t topicSize,
+    SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
                      const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset);
 

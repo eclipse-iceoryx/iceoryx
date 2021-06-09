@@ -112,7 +112,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const
     }
     else
     {
-        auto runtimeImpl = new runtime::PoshRuntimeImpl(name, false);
+        auto runtimeImpl = new runtime::PoshRuntimeImpl(name, runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI);
         RuntimeTestInterface::s_runtimes.insert({*name.value(), runtimeImpl});
 
         RuntimeTestInterface::t_activeRuntime = runtimeImpl;

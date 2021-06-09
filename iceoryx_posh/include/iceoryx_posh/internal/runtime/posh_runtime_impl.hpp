@@ -28,6 +28,12 @@ namespace iox
 {
 namespace runtime
 {
+enum class RuntimeLocation
+{
+    SEPARATE_PROCESS_FROM_ROUDI,
+    SAME_PROCESS_LIKE_ROUDI,
+};
+
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntimeImpl : public PoshRuntime
 {
@@ -84,7 +90,8 @@ class PoshRuntimeImpl : public PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
     // Protected constructor for IPC setup
-    PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+    PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name,
+                    const RuntimeLocation location = RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI) noexcept;
 
   private:
     cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
@@ -101,7 +108,7 @@ class PoshRuntimeImpl : public PoshRuntime
     // IPC channel interface for POSIX IPC from RouDi
     IpcRuntimeInterface m_ipcChannelInterface;
     // Shared memory interface for POSIX IPC from RouDi
-    SharedMemoryUser m_ShmInterface;
+    cxx::optional<SharedMemoryUser> m_ShmInterface;
     popo::ApplicationPort m_applicationPort;
 
     void sendKeepAliveAndHandleShutdownPreparation() noexcept;

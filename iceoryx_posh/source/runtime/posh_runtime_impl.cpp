@@ -33,14 +33,19 @@ namespace iox
 {
 namespace runtime
 {
-PoshRuntimeImpl::PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name,
-                                 const bool doMapSharedMemoryIntoThread) noexcept
+PoshRuntimeImpl::PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
     : PoshRuntime(name)
     , m_ipcChannelInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
-    , m_ShmInterface(doMapSharedMemoryIntoThread,
-                     m_ipcChannelInterface.getShmTopicSize(),
-                     m_ipcChannelInterface.getSegmentId(),
-                     m_ipcChannelInterface.getSegmentManagerAddressOffset())
+    , m_ShmInterface([&] {
+        // in case the runtime is located in the same process like RouDi the shm is already opened;
+        // also in case of the RouDiEnvironment this would close the shm on destruction of the runstime which is also
+        // not desired
+        return location == RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
+                   ? cxx::nullopt
+                   : cxx::optional<SharedMemoryUser>({m_ipcChannelInterface.getShmTopicSize(),
+                                                      m_ipcChannelInterface.getSegmentId(),
+                                                      m_ipcChannelInterface.getSegmentManagerAddressOffset()});
+    }())
     , m_applicationPort(getMiddlewareApplication())
 {
 }

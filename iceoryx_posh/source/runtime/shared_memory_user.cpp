@@ -26,32 +26,28 @@ namespace iox
 {
 namespace runtime
 {
-SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
-                                   const size_t topicSize,
+SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
                                    const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset)
 {
-    if (doMapSharedMemoryIntoThread)
-    {
-        // create and map the already existing shared memory region
-        posix::SharedMemoryObject::create(roudi::SHM_NAME,
-                                          topicSize,
-                                          posix::AccessMode::READ_WRITE,
-                                          posix::OwnerShip::OPEN_EXISTING_SHM,
-                                          posix::SharedMemoryObject::NO_ADDRESS_HINT)
-            .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-                rp::BaseRelativePointer::registerPtr(
-                    segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
-                LogDebug() << "Application registered management segment "
-                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+    // create and map the already existing shared memory region
+    posix::SharedMemoryObject::create(roudi::SHM_NAME,
+                                      topicSize,
+                                      posix::AccessMode::READ_WRITE,
+                                      posix::OwnerShip::OPEN_EXISTING_SHM,
+                                      posix::SharedMemoryObject::NO_ADDRESS_HINT)
+        .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
+            rp::BaseRelativePointer::registerPtr(
+                segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+            LogDebug() << "Application registered management segment "
+                       << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                       << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
-                this->openDataSegments(segmentId, segmentManagerAddressOffset);
+            this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
-                m_shmObject.emplace(std::move(sharedMemoryObject));
-            })
-            .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_MAPP_ERR); });
-    }
+            m_shmObject.emplace(std::move(sharedMemoryObject));
+        })
+        .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_MAPP_ERR); });
 }
 
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
