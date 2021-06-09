@@ -44,7 +44,7 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
     {
         return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
-    PathName_t fullPath(IOX_LOCK_FILE_PATH_PREFIX + m_name + ".lock");
+    PathName_t fullPath(platform::IOX_LOCK_FILE_PATH_PREFIX + m_name + ".lock");
     constexpr int createFileForReadWrite = O_CREAT | O_RDWR;
     mode_t userReadWriteAccess = S_IRUSR | S_IWUSR;
 
@@ -184,7 +184,7 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     }
     case ENOENT:
     {
-        std::cerr << "directory \"" << IOX_LOCK_FILE_PATH_PREFIX << "\""
+        std::cerr << "directory \"" << platform::IOX_LOCK_FILE_PATH_PREFIX << "\""
                   << " does not exist. Please create it as described in the filesystem hierarchy standard."
                   << std::endl;
         return FileLockError::NO_SUCH_DIRECTORY;
