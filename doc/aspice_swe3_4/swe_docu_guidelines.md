@@ -23,10 +23,10 @@ sudo apt install plantuml
 
 ##  Howto document your code
 The doxygen documentation consist of two parts, the documentation with specific tags in the code and a doxygen file which defines
-the parameters for the generated files. Examples can be found in the subfolders. 
+the parameters for the generated files. Examples can be found in the subfolders.
 
 Some general rules:
- - the implementation documentation should never describe what happens, that does already the code for you. It should describe why it is implemented in the way it is.
+- the implementation documentation should never describe what happens, that does already the code for you. It should describe why it is implemented in the way it is.
 - every doxygen comment line always begin with `///`, no C-style comment blocks with `/**` allowed
 - every doxygen tag always begin with `@` e.g. `@brief comment`, no `\` for tags allowed
 - documentation is done in header files only
@@ -48,6 +48,9 @@ Some general rules:
 A list of available doxygen tags can be found [here](https://www.doxygen.nl/manual/commands.html).
 Here we provide a list with the most usual tags in iceoryx:
  - `/// @brief` short description
+ - `/// @copydoc` used for overrides of virtual methods, see [iceoryx_derived_class.hpp](example/iceoryx_component/include/example_module/example_derived_class.hpp)
+ - `/// @copybrief` similar to `@copydoc` but copies only the brief description
+ - `/// @copydetail` similar to `@copydoc` but copies only the detailed description
  - `/// @details` more text if needed
  - `/// @note` place infos here if they are not that much important but good for explanation
  - `/// @attention` give here important information to the user/developer, keep as short as possible
@@ -103,7 +106,7 @@ See the header files under iceoryx/doc/aspice_swe3_4/example.
 
 ### PlantUML
 
-if you want to make complex aspects of your implementation visible, you can write PlantUML directly into the 
+if you want to make complex aspects of your implementation visible, you can write PlantUML directly into the
 doxygen description of your class. An example can be found at [example_base_class.hpp](example/iceoryx_component/source/example_module/example_base_class.hpp)
 
 Having PlantUML installed is not a must. If you want to use it you need to install it, and the variable `PLANTUML_JAR_PATH` needs to be set.
@@ -116,7 +119,7 @@ For good examples on PlantUML checkout https://plantuml.com.
 
 ### Pull-Request
 
-In iceoryx Pull-Requests are pdf files generated and uploaded to the Github artifact store. 
+In iceoryx Pull-Requests are pdf files generated and uploaded to the Github artifact store.
 
 If you want to download the pdf files from the Pull-Requests or master build you can do it by the following way:
 

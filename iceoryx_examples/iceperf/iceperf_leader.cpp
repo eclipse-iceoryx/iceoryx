@@ -28,6 +28,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <vector>
 
 //! [use constants instead of magic values]
 constexpr const char APP_NAME[]{"iceperf-bench-leader"};

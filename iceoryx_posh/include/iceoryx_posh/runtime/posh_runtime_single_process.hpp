@@ -18,13 +18,13 @@
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 namespace iox
 {
 namespace runtime
 {
-class PoshRuntimeSingleProcess : public PoshRuntime
+class PoshRuntimeSingleProcess : public PoshRuntimeImpl
 {
   public:
     PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept;

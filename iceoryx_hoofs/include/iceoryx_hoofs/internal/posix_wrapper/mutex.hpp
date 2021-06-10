@@ -35,25 +35,19 @@ namespace posix
 ///     #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 ///
 ///     int main() {
-///         cxx::optional<posix::mutex> myMutex = posix::mutex::CreateMutex(false);
+///         posix::mutex myMutex(false);
 ///
-///         // always verify if the mutex could be created since we aren't
-///         // throwing exceptions
-///         if ( myMutex.has_value() ) {
-///             myMutex->lock();
-///             // ... do stuff
-///             myMutex->unlock();
-///         }
+///         myMutex->lock();
+///         // ... do stuff
+///         myMutex->unlock();
 ///
 ///         {
-///             // we need to use the dereferencing operator since myMutex is
-///             // a mutex wrapped in an optional
-///             std::lock_guard<posix::mutex> lock(*myMutex);
+///             std::lock_guard<posix::mutex> lock(myMutex);
 ///             // ...
 ///         }
 ///
 ///     }
-///
+/// @endcode
 /// @attention Errors in c'tor or d'tor can lead to a program termination!
 ///
 class mutex

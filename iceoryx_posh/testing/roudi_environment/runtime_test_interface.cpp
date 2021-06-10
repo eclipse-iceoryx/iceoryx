@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 namespace iox
 {
@@ -112,7 +112,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const
     }
     else
     {
-        auto runtimeImpl = new runtime::PoshRuntime(name, false);
+        auto runtimeImpl = new runtime::PoshRuntimeImpl(name, runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI);
         RuntimeTestInterface::s_runtimes.insert({*name.value(), runtimeImpl});
 
         RuntimeTestInterface::t_activeRuntime = runtimeImpl;

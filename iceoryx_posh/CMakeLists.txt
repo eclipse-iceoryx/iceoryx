@@ -131,6 +131,7 @@ add_library(iceoryx_posh
     source/runtime/ipc_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
+    source/runtime/posh_runtime_impl.cpp
     source/runtime/posh_runtime_single_process.cpp
     source/runtime/node.cpp
     source/runtime/node_data.cpp
