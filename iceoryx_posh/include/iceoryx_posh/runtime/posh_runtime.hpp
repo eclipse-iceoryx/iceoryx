@@ -106,8 +106,8 @@ class PoshRuntime
     /// @return pointer to a created publisher port user
     virtual PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
-                           const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
-                           const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
+                           const popo::PublisherOptions& publisherOptions = {},
+                           const PortConfigInfo& portConfigInfo = {}) noexcept = 0;
 
     /// @brief request the RouDi daemon to create a subscriber port
     /// @param[in] serviceDescription service description for the new subscriber port
@@ -117,15 +117,15 @@ class PoshRuntime
     /// @return pointer to a created subscriber port data
     virtual SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                            const popo::SubscriberOptions& subscriberOptions = popo::SubscriberOptions(),
-                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
+                            const popo::SubscriberOptions& subscriberOptions = {},
+                            const PortConfigInfo& portConfigInfo = {}) noexcept = 0;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
     /// @param[in] nodeName name of the node where the interface should belong to
     /// @return pointer to a created interface port data
     virtual popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
-                                                            const NodeName_t& nodeName = {""}) noexcept = 0;
+                                                            const NodeName_t& nodeName = {}) noexcept = 0;
 
     /// @brief request the RouDi daemon to create an application port
     /// @return pointer to a created application port data
@@ -159,8 +159,6 @@ class PoshRuntime
     PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept;
 
     static PoshRuntime& defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept;
-
-    static RuntimeName_t& defaultRuntimeInstanceName() noexcept;
 
     /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
     /// defaultRuntimeFactory.
