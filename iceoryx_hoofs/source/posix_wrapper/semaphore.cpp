@@ -109,7 +109,7 @@ cxx::expected<SemaphoreError> Semaphore::post() noexcept
     return cxx::success<>();
 }
 
-cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) const noexcept
+cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) noexcept
 {
     const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
     auto call =
@@ -129,7 +129,7 @@ cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const uni
     }
 }
 
-cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
+cxx::expected<bool, SemaphoreError> Semaphore::tryWait() noexcept
 {
     auto call = posixCall(iox_sem_trywait)(m_handlePtr).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
@@ -141,7 +141,7 @@ cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
     return cxx::success<bool>(call->errnum != EAGAIN);
 }
 
-cxx::expected<SemaphoreError> Semaphore::wait() const noexcept
+cxx::expected<SemaphoreError> Semaphore::wait() noexcept
 {
     auto call = posixCall(iox_sem_wait)(m_handlePtr).failureReturnValue(-1).evaluate();
 

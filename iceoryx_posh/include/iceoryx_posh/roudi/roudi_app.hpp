@@ -52,7 +52,7 @@ class RouDiApp
     void registerSigHandler() noexcept;
 
     /// @brief waits for the next signal to RouDi daemon
-    bool waitForSignal() const noexcept;
+    bool waitForSignal() noexcept;
 
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};

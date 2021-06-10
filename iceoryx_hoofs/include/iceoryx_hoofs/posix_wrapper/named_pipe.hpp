@@ -71,6 +71,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @return always false
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
+    /// @brief tries to send a message via the named pipe. if the pipe is full IpcChannelError::TIMEOUT is returned
+    /// @return on failure an error which describes the failure
     cxx::expected<IpcChannelError> trySend(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
@@ -85,6 +87,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @return success when message was sent otherwise an error which describes the failure
     cxx::expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
 
+    /// @brief tries to receive a message via the named pipe. if the pipe is empty IpcChannelError::TIMEOUT is returned
+    /// @return on success a string containing the message, otherwise an error which describes the failure
     cxx::expected<std::string, IpcChannelError> tryReceive() const noexcept;
 
     /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
@@ -116,8 +120,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
   private:
     cxx::optional<SharedMemoryObject> m_sharedMemory;
-    cxx::optional<Semaphore> m_sendSemaphore;
-    cxx::optional<Semaphore> m_receiveSemaphore;
+    mutable cxx::optional<Semaphore> m_sendSemaphore;
+    mutable cxx::optional<Semaphore> m_receiveSemaphore;
     MessageQueue_t* m_messages = nullptr;
 };
 } // namespace posix

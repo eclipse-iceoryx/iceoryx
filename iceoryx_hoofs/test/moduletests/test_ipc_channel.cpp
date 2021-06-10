@@ -127,9 +127,17 @@ TYPED_TEST(IpcChannel_test, CreateAgainWorks)
     EXPECT_FALSE(second.has_error());
 }
 
-
 TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
 {
+    if (std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
+    {
+        // A NamedPipe server creates and destroys a pipe only when it was created
+        // by the server. It is a normal use case that multiple instances can send
+        // or receive concurrently via the same named pipe therefore the ctor of
+        // the named pipe does not purge the underlying data.
+        return;
+    }
+
     using namespace iox::units;
     using namespace std::chrono;
 
