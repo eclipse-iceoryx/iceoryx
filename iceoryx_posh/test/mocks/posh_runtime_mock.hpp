@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MOCKS_POSH_RUNTIME_MOCK_HPP
 #define IOX_POSH_MOCKS_POSH_RUNTIME_MOCK_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-
 #include <gmock/gmock.h>
 
 using namespace ::testing;
@@ -26,6 +26,25 @@ using namespace ::testing;
 class PoshRuntimeMock : public iox::runtime::PoshRuntime
 {
   public:
+    static std::unique_ptr<PoshRuntimeMock> create(const iox::RuntimeName_t& name)
+    {
+        auto& runtime = mockRuntime();
+        iox::cxx::Expects(!runtime.has_value() && "Using multiple PoshRuntimeMock in parallel is not supported!");
+        iox::cxx::Expects(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
+                          && "The PoshRuntimeMock can only be used in combination with the "
+                             "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+
+        runtime = new PoshRuntimeMock(name);
+        PoshRuntime::setRuntimeFactory(mockRuntimeFactory);
+        return std::unique_ptr<PoshRuntimeMock>(runtime.value());
+    }
+
+    ~PoshRuntimeMock()
+    {
+        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
+        mockRuntime().reset();
+    }
+
     /// @todo iox-#841 simplify this when we switch to gmock v1.10
     MOCK_METHOD1(findServiceMock,
                  iox::cxx::expected<iox::runtime::InstanceContainer, iox::runtime::FindServiceError>(
@@ -48,10 +67,25 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     MOCK_METHOD0(getServiceRegistryChangeCounterMock, const std::atomic<uint64_t>*());
     MOCK_METHOD2(sendRequestToRouDiMock, bool(const iox::runtime::IpcMessage&, iox::runtime::IpcMessage&));
 
-  protected:
+  private:
     PoshRuntimeMock(const iox::RuntimeName_t& name)
         : iox::runtime::PoshRuntime(iox::cxx::optional<const iox::RuntimeName_t*>({&name}))
     {
+    }
+
+    static PoshRuntime& mockRuntimeFactory(iox::cxx::optional<const iox::RuntimeName_t*> name) noexcept
+    {
+        auto& runtime = mockRuntime();
+        iox::cxx::Expects(!name.has_value() && "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
+        iox::cxx::Expects(runtime.has_value()
+                          && "This should never happen! If you see this, something went horribly wrong!");
+        return *runtime.value();
+    }
+
+    static iox::cxx::optional<PoshRuntimeMock*>& mockRuntime()
+    {
+        static iox::cxx::optional<PoshRuntimeMock*> runtime = iox::cxx::nullopt;
+        return runtime;
     }
 
     iox::cxx::expected<iox::runtime::InstanceContainer, iox::runtime::FindServiceError>
