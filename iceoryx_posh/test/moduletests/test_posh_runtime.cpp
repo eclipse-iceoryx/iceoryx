@@ -22,6 +22,7 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
 
 #include <type_traits>
@@ -31,36 +32,6 @@ namespace
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
-
-class PoshRuntimeTestAccess : public PoshRuntime
-{
-  public:
-    using PoshRuntime::factory_t;
-    /// @attention do not use the setRuntimeFactory in a test with a running RouDiEnvironment
-    using PoshRuntime::setRuntimeFactory;
-
-    PoshRuntimeTestAccess(iox::cxx::optional<const iox::RuntimeName_t*> s)
-        : PoshRuntime(s)
-    {
-    }
-
-    static PoshRuntime& getDefaultRuntime(iox::cxx::optional<const iox::RuntimeName_t*> name)
-    {
-        return PoshRuntime::defaultRuntimeFactory(name);
-    }
-
-    static void resetRuntimeFactory()
-    {
-        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
-    }
-};
-
-bool callbackWasCalled = false;
-PoshRuntime& testFactory(iox::cxx::optional<const iox::RuntimeName_t*> name)
-{
-    callbackWasCalled = true;
-    return PoshRuntimeTestAccess::getDefaultRuntime(name);
-}
 
 class PoshRuntime_test : public Test
 {
@@ -75,7 +46,6 @@ class PoshRuntime_test : public Test
 
     virtual void SetUp()
     {
-        callbackWasCalled = false;
         internal::CaptureStdout();
     };
 
@@ -713,27 +683,44 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     EXPECT_THAT(wasSampleSent.load(), Eq(true));
 }
 
-// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
-// will be re-enabled with the PoshRuntime Mock from #449
-TEST(PoshRuntimeFactory_test, DISABLED_SetValidRuntimeFactorySucceeds)
+TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
 {
-    // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
-    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::initRuntime("instance");
-    PoshRuntimeTestAccess::resetRuntimeFactory();
+    constexpr const char HYPNOTOAD[]{"hypnotoad"};
+    constexpr const char BRAIN_SLUG[]{"brain-slug"};
 
-    EXPECT_TRUE(callbackWasCalled);
+    auto mockRuntime = PoshRuntimeMock::create(HYPNOTOAD);
+    EXPECT_THAT(PoshRuntime::getInstance().getInstanceName().c_str(), StrEq(HYPNOTOAD));
+    mockRuntime.reset();
+
+    // if the PoshRuntimeMock could not change the runtime factory, the instance name would still be the old one
+    mockRuntime = PoshRuntimeMock::create(BRAIN_SLUG);
+    EXPECT_THAT(PoshRuntime::getInstance().getInstanceName().c_str(), StrEq(BRAIN_SLUG));
 }
 
-// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
-// will be re-enabled with the PoshRuntime Mock from #449
-TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
+TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
 {
+    // this ensures resetting of the runtime factory in case the death test doesn't succeed
+    auto mockRuntime = PoshRuntimeMock::create("hypnotoad");
+
     // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
-    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
-                 "Cannot set runtime factory. Passed factory must not be empty!");
-    // just in case the previous test doesn't die and breaks the following tests
-    PoshRuntimeTestAccess::resetRuntimeFactory();
+    EXPECT_DEATH(
+        {
+            class FactoryAccess : public PoshRuntime
+            {
+              public:
+                using PoshRuntime::factory_t;
+                using PoshRuntime::setRuntimeFactory;
+
+              private:
+                FactoryAccess(iox::cxx::optional<const iox::RuntimeName_t*> s)
+                    : PoshRuntime(s)
+                {
+                }
+            };
+
+            FactoryAccess::setRuntimeFactory(FactoryAccess::factory_t());
+        },
+        "Cannot set runtime factory. Passed factory must not be empty!");
 }
 
 } // namespace
