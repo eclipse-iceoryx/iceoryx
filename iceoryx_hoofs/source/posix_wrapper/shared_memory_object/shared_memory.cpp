@@ -138,9 +138,10 @@ bool SharedMemory::open(const AccessMode accessMode,
                         const mode_t permissions,
                         const uint64_t size) noexcept
 {
-    cxx::Expects(static_cast<int64_t>(size) <= std::numeric_limits<int64_t>::max());
+    cxx::Expects(size <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max()));
+
     m_hasOwnership =
-        (policy == Policy::EXCLUSIVE_CREATE || policy == Policy::PURGE_AND_CREATE || policy == Policy::CREATE_OR_OPEN);
+        (policy == Policy::EXCLUSIVE_CREATE || policy == Policy::PURGE_AND_CREATE || policy == Policy::OPEN_OR_CREATE);
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
@@ -157,13 +158,13 @@ bool SharedMemory::open(const AccessMode accessMode,
 
         auto result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, policy), permissions)
                           .failureReturnValue(INVALID_HANDLE)
-                          .suppressErrorMessagesForErrnos((policy == Policy::CREATE_OR_OPEN) ? EEXIST : 0)
+                          .suppressErrorMessagesForErrnos((policy == Policy::OPEN_OR_CREATE) ? EEXIST : 0)
                           .evaluate();
         if (result.has_error())
         {
             // if it was not possible to create the shm exclusively someone else has the
             // ownership and we just try to open it
-            if (policy == Policy::CREATE_OR_OPEN && result.get_error().errnum == EEXIST)
+            if (policy == Policy::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
             {
                 result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, Policy::OPEN), permissions)
                              .failureReturnValue(INVALID_HANDLE)

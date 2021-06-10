@@ -116,7 +116,7 @@ static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
     if (newHandle == nullptr)
     {
         fprintf(stderr,
-                "interprocess mutex %s is corrupted - segmentation fault immanent\n",
+                "interprocess mutex %s is corrupted - segmentation fault immenent\n",
                 generateMutexName(mutex->uniqueId).c_str());
         return nullptr;
     }

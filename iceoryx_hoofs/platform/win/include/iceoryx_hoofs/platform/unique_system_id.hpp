@@ -20,7 +20,14 @@
 #include <cstdint>
 #include <string>
 
-
+/// @brief IPC constructs in windows like mutex, semaphore etc are hard to handle
+///        and it is even harder when this should be done in a platform independent
+///        manner.
+///        An easier approach is to create named mutex and semaphores and open them
+///        in every process which requires access. This requires that the mutex and
+///        semaphores are created with a system wide unique name. This class generates
+///        a system wide unique id which looks like the following:
+///        ProcessId_Timestamp_ProcessUniqueCounter.
 class UniqueSystemId
 {
   public:

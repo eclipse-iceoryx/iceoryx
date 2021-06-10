@@ -89,7 +89,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
         sizeof(MessageQueue_t) + alignof(MessageQueue_t),
         AccessMode::READ_WRITE,
-        (channelSide == IpcChannelSide::SERVER) ? Policy::CREATE_OR_OPEN : Policy::OPEN,
+        (channelSide == IpcChannelSide::SERVER) ? Policy::OPEN_OR_CREATE : Policy::OPEN,
         iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     if (sharedMemory.has_error())

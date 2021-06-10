@@ -45,7 +45,7 @@ static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
     if (newHandle == nullptr)
     {
         fprintf(stderr,
-                "interprocess semaphore %s is corrupted - segmentation fault immanent\n",
+                "interprocess semaphore %s is corrupted - segmentation fault immenent\n",
                 generateSemaphoreName(sem->uniqueId).c_str());
         return nullptr;
     }

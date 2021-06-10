@@ -36,11 +36,16 @@ enum class AccessMode : uint64_t
 };
 static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
 
+/// @brief describes how the shared memory is opened or created
 enum class Policy : uint64_t
 {
+    /// @brief creates the shared memory, if it exists already the construction will fail
     EXCLUSIVE_CREATE = 0U,
+    /// @brief creates the shared memory, if it exists it will be deleted and recreated
     PURGE_AND_CREATE = 1U,
-    CREATE_OR_OPEN = 2U,
+    /// @brief creates the shared memory, if it does not exist otherwise it opens it
+    OPEN_OR_CREATE = 2U,
+    /// @brief opens the shared memory, if it does not exist it will fail
     OPEN = 3U
 };
 static constexpr const char* POLICY_STRING[] = {

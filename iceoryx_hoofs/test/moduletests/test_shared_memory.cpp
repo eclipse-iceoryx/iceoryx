@@ -49,13 +49,22 @@ class SharedMemory_Test : public Test
     static constexpr const char SUT_SHM_NAME[] = "/ignatz";
 
     iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
-    createSharedMemory(const iox::posix::Policy policy)
+    createSharedMemory(const iox::posix::SharedMemory::Name_t& name, const iox::posix::Policy policy)
     {
-        return iox::posix::SharedMemory::create(SUT_SHM_NAME,
+        return iox::posix::SharedMemory::create(name,
                                                 iox::posix::AccessMode::READ_WRITE,
                                                 policy,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
+    }
+
+    bool createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    {
+        return !iox::posix::posixCall(iox_shm_open)(
+                    name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+                    .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                    .evaluate()
+                    .has_error();
     }
 };
 
@@ -63,40 +72,19 @@ constexpr const char SharedMemory_Test::SUT_SHM_NAME[];
 
 TEST_F(SharedMemory_Test, CTorWithValidArguments)
 {
-    auto sut = iox::posix::SharedMemory::create("/ignatz",
-                                                iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::Policy::PURGE_AND_CREATE,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
+    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::Policy::PURGE_AND_CREATE);
     EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
-    EXPECT_THAT(iox::posix::SharedMemory::create("",
-                                                 iox::posix::AccessMode::READ_WRITE,
-                                                 iox::posix::Policy::PURGE_AND_CREATE,
-                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                 128)
-                    .has_error(),
-                Eq(true));
-
-    EXPECT_THAT(iox::posix::SharedMemory::create("ignatz",
-                                                 iox::posix::AccessMode::READ_WRITE,
-                                                 iox::posix::Policy::PURGE_AND_CREATE,
-                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                 128)
-                    .has_error(),
-                Eq(true));
+    EXPECT_THAT(createSharedMemory("", iox::posix::Policy::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSharedMemory("ignatz", iox::posix::Policy::PURGE_AND_CREATE).has_error(), Eq(true));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 {
-    auto sut = iox::posix::SharedMemory::create("/schlomo",
-                                                iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::Policy::OPEN,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
+    auto sut = createSharedMemory("/schlomo", iox::posix::Policy::OPEN);
     EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
@@ -104,11 +92,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     int handle;
 
-    auto sut = iox::posix::SharedMemory::create(SUT_SHM_NAME,
-                                                iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::Policy::PURGE_AND_CREATE,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
+    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::Policy::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     handle = sut->getHandle();
     {
@@ -120,18 +104,14 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 
 TEST_F(SharedMemory_Test, getHandleOfValidObject)
 {
-    auto sut = iox::posix::SharedMemory::create(SUT_SHM_NAME,
-                                                iox::posix::AccessMode::READ_WRITE,
-                                                iox::posix::Policy::PURGE_AND_CREATE,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
+    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::Policy::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 TEST_F(SharedMemory_Test, UnlinkNonExistingShmFails)
 {
-    EXPECT_FALSE(iox::posix::SharedMemory::unlinkIfExist("/look_over_there_a_dead_pidgin"));
+    EXPECT_FALSE(iox::posix::SharedMemory::unlinkIfExist("/look_there's_a_dead_seagull_flying_its_name_is_dietlbart"));
 }
 
 TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
@@ -146,7 +126,8 @@ TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 
 TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(Policy::EXCLUSIVE_CREATE);
+    iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
+    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::EXCLUSIVE_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -154,19 +135,15 @@ TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 
 TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
 {
-    ASSERT_FALSE(
-        iox::posix::posixCall(iox_shm_open)(SUT_SHM_NAME, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-            .failureReturnValue(SharedMemory::INVALID_HANDLE)
-            .evaluate()
-            .has_error());
-    auto sut = createSharedMemory(Policy::EXCLUSIVE_CREATE);
+    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
+    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::EXCLUSIVE_CREATE);
     ASSERT_TRUE(sut.has_error());
     iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
 }
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(Policy::PURGE_AND_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -174,12 +151,8 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 {
-    ASSERT_FALSE(
-        iox::posix::posixCall(iox_shm_open)(SUT_SHM_NAME, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-            .failureReturnValue(SharedMemory::INVALID_HANDLE)
-            .evaluate()
-            .has_error());
-    auto sut = createSharedMemory(Policy::PURGE_AND_CREATE);
+    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
+    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -187,7 +160,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 
 TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(Policy::CREATE_OR_OPEN);
+    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN_OR_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -195,13 +168,9 @@ TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
 
 TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
 {
-    ASSERT_FALSE(
-        iox::posix::posixCall(iox_shm_open)(SUT_SHM_NAME, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-            .failureReturnValue(SharedMemory::INVALID_HANDLE)
-            .evaluate()
-            .has_error());
+    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
     {
-        auto sut = createSharedMemory(Policy::CREATE_OR_OPEN);
+        auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -211,13 +180,9 @@ TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
 
 TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
 {
-    ASSERT_FALSE(
-        iox::posix::posixCall(iox_shm_open)(SUT_SHM_NAME, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-            .failureReturnValue(SharedMemory::INVALID_HANDLE)
-            .evaluate()
-            .has_error());
+    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
     {
-        auto sut = createSharedMemory(Policy::OPEN);
+        auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -227,7 +192,7 @@ TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
 
 TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(Policy::OPEN);
+    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN);
     ASSERT_TRUE(sut.has_error());
 }
 

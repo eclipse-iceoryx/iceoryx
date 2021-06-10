@@ -19,6 +19,12 @@
 #include "iceoryx_hoofs/platform/windows.hpp"
 #include <vector>
 
+/// @brief In windows file handles have the type HANDLE (void*) in linux it is
+///        usually an int. To establish the portability we keep track of the
+///        windows handles and assign them a unique int so that they can be used
+///        in a platform independent manner.
+///        This class translates a windows handle of type HANDLE to its linux
+///        file handle int pendant.
 class HandleTranslator
 {
   public:
