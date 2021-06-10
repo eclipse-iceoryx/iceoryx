@@ -19,10 +19,9 @@
 
 #include "iceoryx_hoofs/cxx/method_callback.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-
-#include <mutex>
 
 namespace iox
 {
@@ -103,7 +102,7 @@ class PoshRuntimeImpl : public PoshRuntime
     cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    mutable std::mutex m_appIpcRequestMutex;
+    mutable posix::mutex m_appIpcRequestMutex{false};
 
     IpcRuntimeInterface m_ipcChannelInterface;
     cxx::optional<SharedMemoryUser> m_ShmInterface;

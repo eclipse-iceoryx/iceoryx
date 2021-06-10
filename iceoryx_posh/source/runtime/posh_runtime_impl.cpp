@@ -527,7 +527,7 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
 bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
     // runtime must be thread safe
-    std::lock_guard<std::mutex> g(m_appIpcRequestMutex);
+    std::lock_guard<posix::mutex> g(m_appIpcRequestMutex);
     return m_ipcChannelInterface.sendRequestToRouDi(msg, answer);
 }
 
