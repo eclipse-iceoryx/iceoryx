@@ -159,10 +159,9 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
             errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
-            LogWarn() << "Undefined behavior occurred while creating service '"
+            LogWarn() << "Unknown error occurred while creating service '"
                       << service.operator cxx::Serialization().toString() << "'.";
-            errorHandler(
-                Error::kPOSH__RUNTIME_PUBLISHER_PORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_CREATION_UNKNOWN_ERROR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;
@@ -262,10 +261,10 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
                          iox::ErrorLevel::SEVERE);
             break;
         default:
-            LogWarn() << "Undefined behavior occurred while creating service '"
+            LogWarn() << "Unknown error occurred while creating service '"
                       << service.operator cxx::Serialization().toString() << "'.";
             errorHandler(
-                Error::kPOSH__RUNTIME_SUBSCRIBER_PORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+                Error::kPOSH__RUNTIME_SUBSCRIBER_PORT_CREATION_UNKNOWN_ERROR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;
@@ -515,8 +514,8 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
                          iox::ErrorLevel::SEVERE);
             break;
         default:
-            LogWarn() << "Undefined behavior occurred while creating condition variable";
-            errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_CREATION_UNDEFINED_BEHAVIOR,
+            LogWarn() << "Unknown error occurred while creating condition variable";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_CREATION_UNKNOWN_ERROR,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
