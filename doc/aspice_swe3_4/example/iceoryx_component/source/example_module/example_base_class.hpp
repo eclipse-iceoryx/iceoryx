@@ -61,8 +61,19 @@ class ExampleBaseClass
     uint32_t simplerMethod() const noexcept;
 
     /// @brief Short description
+    /// @param[in] a Description of parameter
     /// @return description of return value
-    virtual uint32_t doSomething() const noexcept;
+    virtual uint32_t doSomething(uint32_t a) const noexcept;
+
+    /// @brief Short description
+    /// @return description of return value
+    virtual uint32_t doSomethingWithOverload() const noexcept;
+
+    /// @brief Short description
+    /// @param[in] a Description of parameter
+    /// @param[in] b Description of parameter
+    /// @return description of return value
+    virtual uint32_t doSomethingWithOverload(uint32_t a, uint32_t b) const noexcept;
 
   private:
     /// @brief Short description

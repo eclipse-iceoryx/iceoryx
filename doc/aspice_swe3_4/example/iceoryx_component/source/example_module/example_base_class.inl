@@ -39,10 +39,24 @@ inline uint32_t ExampleBaseClass<T>::simplerMethod() const noexcept
 }
 
 template <typename T>
-inline uint32_t ExampleBaseClass<T>::doSomething() const noexcept
+inline uint32_t ExampleBaseClass<T>::doSomething(uint32_t a) const noexcept
+{
+    // example code
+    return a;
+}
+
+template <typename T>
+inline uint32_t ExampleBaseClass<T>::doSomethingWithOverload() const noexcept
 {
     // example code
     return 42U;
+}
+
+template <typename T>
+inline uint32_t ExampleBaseClass<T>::doSomethingWithOverload(const uint32_t a, const uint32_t b) const noexcept
+{
+    // example code
+    return 42U + a + b;
 }
 
 #endif // EXAMPLE_BASE_CLASS_INL_INCLUDED

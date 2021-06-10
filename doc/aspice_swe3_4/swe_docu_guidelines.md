@@ -49,6 +49,8 @@ A list of available doxygen tags can be found [here](https://www.doxygen.nl/manu
 Here we provide a list with the most usual tags in iceoryx:
  - `/// @brief` short description
  - `/// @copydoc` used for overrides of virtual methods, see [iceoryx_derived_class.hpp](example/iceoryx_component/include/example_module/example_derived_class.hpp)
+ - `/// @copybrief` similar to `@copydoc` but copies only the brief description
+ - `/// @copydetail` similar to `@copydoc` but copies only the detailed description
  - `/// @details` more text if needed
  - `/// @note` place infos here if they are not that much important but good for explanation
  - `/// @attention` give here important information to the user/developer, keep as short as possible
