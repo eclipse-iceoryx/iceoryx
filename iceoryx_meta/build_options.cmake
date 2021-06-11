@@ -34,6 +34,7 @@ option(ROUDI_ENVIRONMENT "Build RouDi Environment for testing, is enabled when b
 option(SANITIZE "Build with sanitizers" OFF)
 option(TEST_WITH_ADDITIONAL_USER "Build Test with additional user accounts for testing access control" OFF)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
+option(JSON_CONFIG "JSON support for RouDi with dynamic configuration" ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # "Create compile_commands.json file"
 
@@ -90,4 +91,5 @@ function(show_config_options)
   message("          SANITIZE.............................: " ${SANITIZE})
   message("          TEST_WITH_ADDITIONAL_USER ...........: " ${TEST_WITH_ADDITIONAL_USER})
   message("          TOML_CONFIG..........................: " ${TOML_CONFIG})
+  message("          JSON_CONFIG..........................: " ${JSON_CONFIG})
 endfunction()

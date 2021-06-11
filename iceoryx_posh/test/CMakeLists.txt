@@ -51,6 +51,7 @@ set(TEST_LINK_LIBS
     iceoryx_hoofs_testing::iceoryx_hoofs_testing
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
+    iceoryx_posh::iceoryx_posh_config_json
     iceoryx_posh::iceoryx_posh_gateway
     iceoryx_posh::iceoryx_posh_roudi
     iceoryx_posh_testing::iceoryx_posh_testing

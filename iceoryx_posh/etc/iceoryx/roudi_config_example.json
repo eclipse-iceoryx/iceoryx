@@ -1,0 +1,40 @@
+{
+  "general":{
+       "version" : 1
+  },
+  "segment":[
+    {
+      "mempool":[
+         {
+           "size":128,
+           "count":10000
+         },
+         {
+           "size":1024,
+           "count":5000
+         },
+         {
+           "size":16384,
+           "count":1000
+         },
+         {
+           "size":131072,
+           "count":200
+         },
+         {
+           "size":524288,
+           "count":50
+         },
+         {
+           "size":1048576,
+           "count":30
+         },
+         {
+           "size":4194304,
+           "count":10
+         }
+       ]
+    }
+  ]
+}
+
