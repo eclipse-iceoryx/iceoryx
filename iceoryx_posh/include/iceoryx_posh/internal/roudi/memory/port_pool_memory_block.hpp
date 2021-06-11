@@ -56,7 +56,7 @@ class PortPoolMemoryBlock : public MemoryBlock
   protected:
     /// @copydoc MemoryBlock::memoryAvailable
     /// @note This will create the ports at the location `memory` points to
-    void memoryAvailable(cxx::not_null<void*> memory) noexcept override;
+    void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the ports

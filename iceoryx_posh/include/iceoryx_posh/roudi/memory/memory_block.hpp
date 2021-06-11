@@ -68,7 +68,7 @@ class MemoryBlock
     /// @brief This function is called once the memory is available and is therefore the earliest possibility to use the
     /// memory.
     /// @param [in] memory pointer to a valid memory block, the same one that the memory() member function would return
-    virtual void memoryAvailable(cxx::not_null<void*> memory) noexcept;
+    virtual void onMemoryAvailable(cxx::not_null<void*> memory) noexcept;
 
   private:
     void* m_memory{nullptr};

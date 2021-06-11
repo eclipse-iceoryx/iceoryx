@@ -193,7 +193,7 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 {
     ASSERT_FALSE(commonSetup().has_error());
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -215,8 +215,8 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
         .Times(1);
     EXPECT_THAT(sut.create().has_error(), Eq(false));
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
-    EXPECT_CALL(memoryBlock2, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock2, onMemoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -248,7 +248,7 @@ TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 {
     ASSERT_FALSE(commonSetup().has_error());
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
     sut.announceMemoryAvailable(); // this shouldn't trigger a second memoryAvailable call on memoryBlock1
 
