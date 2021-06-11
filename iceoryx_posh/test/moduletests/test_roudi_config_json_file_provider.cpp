@@ -28,15 +28,12 @@ using namespace iox;
 using namespace ::testing;
 using namespace std;
 
+#if !defined(_WIN32)
 const std::string TestFile = "JSON_CONFIG.tmp";
 const std::string CrapFile = "CRAP_FILE.tmp";
-#ifndef _WIN32
+
 const std::string TempPath = "/tmp";
 const std::string TestFilePath = TempPath + "/" + TestFile;
-#else
-const std::string TempPath = std::getenv("TEMP");
-const std::string TestFilePath = TempPath + "\\" + TestFile;
-#endif
 
 class JsonConfig_test : public Test
 {
@@ -401,3 +398,5 @@ TEST_F(JsonConfig_Failure_test, Mempool_Without_Chunk_Count_Wrong_Type_test)
                  "}\n";
     ASSERT_EQ(iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_COUNT, parseJson(str).get_error());
 }
+
+#endif
