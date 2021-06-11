@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +36,7 @@ class MemoryBlock
 
   public:
     MemoryBlock() noexcept = default;
-    virtual ~MemoryBlock() = default;
+    virtual ~MemoryBlock() noexcept = default;
 
     /// @note this is intentional not movable/copyable, since a pointer to the memory block is registered at a
     /// MemoryProvider and therefore an instance of a MemoryBlock must be pinned to memory
