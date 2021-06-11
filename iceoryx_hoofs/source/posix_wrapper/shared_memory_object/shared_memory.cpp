@@ -64,7 +64,7 @@ SharedMemory::SharedMemory(const Name_t& name,
     {
         std::cerr << "Unable to create shared memory with the following properties [ name = " << name
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", ownership = " << POLICY_STRING[static_cast<uint64_t>(policy)]
+                  << ", policy = " << POLICY_STRING[static_cast<uint64_t>(policy)]
                   << ", mode = " << std::bitset<sizeof(mode_t)>(permissions) << ", sizeInBytes = " << size << " ]"
                   << std::endl;
         return;
@@ -166,13 +166,13 @@ bool SharedMemory::open(const AccessMode accessMode,
             // ownership and we just try to open it
             if (policy == Policy::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
             {
+                m_hasOwnership = false;
                 result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, Policy::OPEN), permissions)
                              .failureReturnValue(INVALID_HANDLE)
                              .evaluate();
                 if (!result.has_error())
                 {
                     m_handle = result->value;
-                    m_hasOwnership = false;
                     return true;
                 }
             }
