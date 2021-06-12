@@ -108,12 +108,14 @@ ServiceDescription::ServiceDescription() noexcept
 {
 }
 
+/// @todo remove
 ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept
     : ServiceDescription(f_serviceID, InvalidID, f_instanceID)
 {
     m_hasServiceOnlyDescription = true;
 }
 
+/// @todo remove
 ServiceDescription::ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept
     : ServiceDescription(f_service, f_instance, InvalidIDString)
 {

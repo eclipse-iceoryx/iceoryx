@@ -676,6 +676,8 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
     EXPECT_FALSE(serviceDescription1 < serviceDescription2);
 }
 
+/// @todo add new tests for service description?
+
 /// END SERVICEDESCRIPTION TESTS
 
 } // namespace

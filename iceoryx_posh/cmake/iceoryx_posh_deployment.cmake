@@ -22,7 +22,7 @@ if(ONE_TO_MANY_ONLY)
 endif()
 
 if(NOT IOX_COMMUNICATION_POLICY)
-    message(STATUS "[i] Using m:n communication only!")
+    message(STATUS "[i] Using m:n communication!")
     set(IOX_COMMUNICATION_POLICY ManyToManyPolicy)
 endif()
 
