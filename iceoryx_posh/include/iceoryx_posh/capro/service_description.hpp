@@ -108,9 +108,11 @@ class ServiceDescription
     ~ServiceDescription() = default;
 
     /// @brief construction of the capro service description using integers to create a service service description
+    /// @todo remove
     ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept;
 
     /// @brief construction of the capro service description using fixed strings to create a service service description
+    /// @todo remove
     ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept;
 
     /// @brief construction of the capro service description using integers to create an event service description
