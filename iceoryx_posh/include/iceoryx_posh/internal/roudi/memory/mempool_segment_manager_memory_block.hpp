@@ -54,7 +54,7 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
     cxx::optional<mepoo::SegmentManager<>*> segmentManager() const noexcept;
 
   protected:
-    /// @copydoc MemoryBlock::memoryAvailable
+    /// @copydoc MemoryBlock::onMemoryAvailable
     /// @note This will create the SegmentManager at the location `memory` points to
     void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
 

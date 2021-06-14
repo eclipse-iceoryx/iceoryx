@@ -54,7 +54,7 @@ class PortPoolMemoryBlock : public MemoryBlock
     cxx::optional<PortPoolData*> portPool() const noexcept;
 
   protected:
-    /// @copydoc MemoryBlock::memoryAvailable
+    /// @copydoc MemoryBlock::onMemoryAvailable
     /// @note This will create the ports at the location `memory` points to
     void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
 

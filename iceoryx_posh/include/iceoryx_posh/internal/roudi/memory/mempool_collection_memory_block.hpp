@@ -59,7 +59,7 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
     cxx::optional<mepoo::MemoryManager*> memoryManager() const noexcept;
 
   protected:
-    /// @copydoc MemoryBlock::memoryAvailable
+    /// @copydoc MemoryBlock::onMemoryAvailable
     /// @note This will create the MemPools at the location `memory` points to
     void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
 
