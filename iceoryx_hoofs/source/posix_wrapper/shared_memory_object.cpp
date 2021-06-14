@@ -32,7 +32,7 @@ namespace iox
 namespace posix
 {
 constexpr void* SharedMemoryObject::NO_ADDRESS_HINT;
-constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U;
+constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U + platform::IOX_MAX_SHM_NAME_LENGTH;
 
 static char sigbusErrorMessage[SIGBUS_ERROR_MESSAGE_LENGTH];
 static std::mutex sigbusHandlerMutex;
