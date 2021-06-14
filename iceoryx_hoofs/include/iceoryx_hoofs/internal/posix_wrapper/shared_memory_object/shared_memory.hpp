@@ -74,7 +74,7 @@ enum class SharedMemoryError
 class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
 {
   public:
-    static constexpr uint64_t NAME_SIZE = 128U;
+    static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
     static constexpr int INVALID_HANDLE = -1;
     using Name_t = cxx::string<NAME_SIZE>;
 

@@ -28,6 +28,7 @@ class NamedPipe;
 namespace platform
 {
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
+constexpr uint64_t IOX_MAX_SHM_NAME_LENGTH = 255U;
 // yes, windows has two possible path separators!
 constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
 // unix domain sockets are not supported in windows but the variables have to be defined

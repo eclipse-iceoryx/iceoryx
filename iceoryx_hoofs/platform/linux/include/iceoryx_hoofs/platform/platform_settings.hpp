@@ -17,6 +17,7 @@
 #define IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
 
 #include <cstdint>
+#include <linux/limits.h>
 
 namespace iox
 {
@@ -30,6 +31,7 @@ namespace platform
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 255U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 1023U;
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = true;
+constexpr uint64_t IOX_MAX_SHM_NAME_LENGTH = PATH_MAX;
 constexpr const char IOX_PATH_SEPARATORS[] = "/";
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
 constexpr const char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
