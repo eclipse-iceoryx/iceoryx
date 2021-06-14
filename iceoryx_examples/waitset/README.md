@@ -47,7 +47,7 @@ samples present in the subscriber.
 
 ## Expected Output
 
-[![asciicast](https://asciinema.org/a/407372.svg)](https://asciinema.org/a/407372)
+[![asciicast](https://asciinema.org/a/RmfrWRQIULiFGt7dC8PamKGeK.svg)](https://asciinema.org/a/RmfrWRQIULiFGt7dC8PamKGeK)
 
 ## Glossary
 
@@ -101,7 +101,7 @@ about the occurrence of an **Event**. When returning from `WaitSet::wait()` the 
 associated with **Events** which had occurred and **States** which persists. The **NotificationOrigin**, **NotificationId** and **NotificationCallback**
 are stored inside of the **NotificationInfo** and can be acquired by the user.
 
-!!! attention
+!!! warning
     Please be aware of the thread-safety restrictions of the _WaitSet_ and
     read the [Thread Safety](#thread-safety) chapter carefully.
 

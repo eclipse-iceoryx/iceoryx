@@ -24,11 +24,11 @@ The examples are structured in the same way as the C++ ones.
 
 ## Expected Output
 
-[![asciicast](https://asciinema.org/a/407431.svg)](https://asciinema.org/a/407431)
+[![asciicast](https://asciinema.org/a/VX5S5jP6DAzAi4YID1GuJqfjW.svg)](https://asciinema.org/a/VX5S5jP6DAzAi4YID1GuJqfjW)
 
 ## Code Walkthrough
 
-!!! attention
+!!! warning
     Please be aware of the thread-safety restrictions of the _WaitSet_ and
     read the [Thread Safety](#thread-safety) chapter carefully.
 
