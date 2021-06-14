@@ -37,6 +37,10 @@ RuntimeTestInterface::RuntimeTestInterface()
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
+    iox::cxx::Expects(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
+                      && "The RuntimeTestInterface can only be used in combination with the "
+                         "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+
     PoshRuntime::setRuntimeFactory(RuntimeTestInterface::runtimeFactoryGetInstance);
 }
 
