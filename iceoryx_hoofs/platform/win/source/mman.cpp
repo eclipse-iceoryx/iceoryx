@@ -110,7 +110,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
     return HandleTranslator::getInstance().add(sharedMemoryHandle);
 }
 
-int shm_unlink(const char* name)
+int iox_shm_unlink(const char* name)
 {
     auto iter = openedSharedMemorySegments.find(name);
     if (iter != openedSharedMemorySegments.end())

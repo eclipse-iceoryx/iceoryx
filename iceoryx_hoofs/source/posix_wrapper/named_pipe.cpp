@@ -166,8 +166,10 @@ cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
 cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
     constexpr int ERROR_CODE = -1;
-    auto unlinkCall =
-        posixCall(shm_unlink)(convertName(name).c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
+    auto unlinkCall = posixCall(iox_shm_unlink)(convertName(name).c_str())
+                          .failureReturnValue(ERROR_CODE)
+                          .ignoreErrnos(ENOENT)
+                          .evaluate();
     if (!unlinkCall.has_error())
     {
         return cxx::success<bool>(unlinkCall->errnum != ENOENT);

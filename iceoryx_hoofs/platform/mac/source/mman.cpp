@@ -20,3 +20,17 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
     return shm_open(name, oflag, mode);
 }
+
+int iox_shm_unlink(const char* name)
+{
+    int state = shm_unlink(name);
+    // according to mac os shm_unlink sets errno to ENOENT when the name is invalid
+    // and never EINVAL - but it is actually set when ENOENT should be set.
+    // See:
+    // https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/shm_unlink.2.html
+    if (errno == EINVAL)
+    {
+        errno = ENOENT;
+    }
+    return state;
+}

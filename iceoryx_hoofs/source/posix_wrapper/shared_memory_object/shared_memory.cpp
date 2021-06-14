@@ -150,7 +150,7 @@ bool SharedMemory::open(const AccessMode accessMode,
 
         if (openMode == OpenMode::PURGE_AND_CREATE)
         {
-            IOX_DISCARD_RESULT(posixCall(shm_unlink)(m_name.c_str())
+            IOX_DISCARD_RESULT(posixCall(iox_shm_unlink)(m_name.c_str())
                                    .failureReturnValue(INVALID_HANDLE)
                                    .ignoreErrnos(ENOENT)
                                    .evaluate());
@@ -201,7 +201,7 @@ bool SharedMemory::open(const AccessMode accessMode,
 
 cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
-    auto result = posixCall(shm_unlink)(name.c_str())
+    auto result = posixCall(iox_shm_unlink)(name.c_str())
                       .failureReturnValue(INVALID_HANDLE)
                       .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
