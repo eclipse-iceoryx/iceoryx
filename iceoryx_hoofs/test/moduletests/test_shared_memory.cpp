@@ -49,11 +49,11 @@ class SharedMemory_Test : public Test
     static constexpr const char SUT_SHM_NAME[] = "/ignatz";
 
     iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
-    createSharedMemory(const iox::posix::SharedMemory::Name_t& name, const iox::posix::Policy policy)
+    createSharedMemory(const iox::posix::SharedMemory::Name_t& name, const iox::posix::OpenMode openMode)
     {
         return iox::posix::SharedMemory::create(name,
                                                 iox::posix::AccessMode::READ_WRITE,
-                                                policy,
+                                                openMode,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     }
@@ -72,19 +72,19 @@ constexpr const char SharedMemory_Test::SUT_SHM_NAME[];
 
 TEST_F(SharedMemory_Test, CTorWithValidArguments)
 {
-    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::Policy::PURGE_AND_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
     EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
-    EXPECT_THAT(createSharedMemory("", iox::posix::Policy::PURGE_AND_CREATE).has_error(), Eq(true));
-    EXPECT_THAT(createSharedMemory("ignatz", iox::posix::Policy::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSharedMemory("", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSharedMemory("ignatz", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 {
-    auto sut = createSharedMemory("/schlomo", iox::posix::Policy::OPEN);
+    auto sut = createSharedMemory("/schlomo", iox::posix::OpenMode::OPEN_EXISTING);
     EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
@@ -92,7 +92,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     int handle;
 
-    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::Policy::PURGE_AND_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     handle = sut->getHandle();
     {
@@ -104,7 +104,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 
 TEST_F(SharedMemory_Test, getHandleOfValidObject)
 {
-    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::Policy::PURGE_AND_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
@@ -127,7 +127,7 @@ TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 {
     iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::EXCLUSIVE_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -136,14 +136,14 @@ TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
 {
     ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
-    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::EXCLUSIVE_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_TRUE(sut.has_error());
     iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
 }
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::PURGE_AND_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -152,7 +152,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 {
     ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
-    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::PURGE_AND_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -160,7 +160,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 
 TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN_OR_CREATE);
+    auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -170,7 +170,7 @@ TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
 {
     ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
     {
-        auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN_OR_CREATE);
+        auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -182,7 +182,7 @@ TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
 {
     ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
     {
-        auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN);
+        auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
@@ -192,7 +192,7 @@ TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
 
 TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
 {
-    auto sut = createSharedMemory(SUT_SHM_NAME, Policy::OPEN);
+    auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
     ASSERT_TRUE(sut.has_error());
 }
 

@@ -64,7 +64,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     SharedMemoryObject(const SharedMemory::Name_t& name,
                        const uint64_t memorySizeInBytes,
                        const AccessMode accessMode,
-                       const Policy policy,
+                       const OpenMode openMode,
                        const void* baseAddressHint,
                        const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 

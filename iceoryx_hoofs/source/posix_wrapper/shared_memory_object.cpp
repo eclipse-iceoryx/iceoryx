@@ -47,14 +47,14 @@ static void memsetSigbusHandler(int)
 SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
-                                       const Policy policy,
+                                       const OpenMode openMode,
                                        const void* baseAddressHint,
                                        const mode_t permissions)
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
 {
     m_isInitialized = true;
 
-    SharedMemory::create(name, accessMode, policy, permissions, m_memorySizeInBytes)
+    SharedMemory::create(name, accessMode, openMode, permissions, m_memorySizeInBytes)
         .and_then([this](auto& sharedMemory) { m_sharedMemory.emplace(std::move(sharedMemory)); })
         .or_else([this](auto&) {
             std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
@@ -79,9 +79,9 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", policy = " << POLICY_STRING[static_cast<uint64_t>(policy)] << ", baseAddressHint = " << std::hex
-                  << baseAddressHint << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]"
-                  << std::endl;
+                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
+                  << ", baseAddressHint = " << std::hex << baseAddressHint
+                  << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
         return;
     }
 
@@ -102,12 +102,12 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 SIGBUS_ERROR_MESSAGE_LENGTH,
                 "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
                 "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
-                "policy = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
+                "open mode = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
                 "currently available in the system.\n",
                 name.c_str(),
                 static_cast<unsigned long long>(memorySizeInBytes),
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
-                POLICY_STRING[static_cast<uint64_t>(policy)],
+                OPEN_MODE_STRING[static_cast<uint64_t>(openMode)],
                 baseAddressHint,
                 std::bitset<sizeof(mode_t)>(permissions).to_ulong());
 

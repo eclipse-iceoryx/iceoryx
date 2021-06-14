@@ -37,7 +37,7 @@ enum class AccessMode : uint64_t
 static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
 
 /// @brief describes how the shared memory is opened or created
-enum class Policy : uint64_t
+enum class OpenMode : uint64_t
 {
     /// @brief creates the shared memory, if it exists already the construction will fail
     EXCLUSIVE_CREATE = 0U,
@@ -46,10 +46,10 @@ enum class Policy : uint64_t
     /// @brief creates the shared memory, if it does not exist otherwise it opens it
     OPEN_OR_CREATE = 2U,
     /// @brief opens the shared memory, if it does not exist it will fail
-    OPEN = 3U
+    OPEN_EXISTING = 3U
 };
-static constexpr const char* POLICY_STRING[] = {
-    "Policy::EXCLUSIVE_CREATE", "Policy::PURGE_AND_CREATE", "Policy::CREATE_OR_OPEN", "Policy::OPEN"};
+static constexpr const char* OPEN_MODE_STRING[] = {
+    "OpenMode::EXCLUSIVE_CREATE", "OpenMode::PURGE_AND_CREATE", "OpenMode::CREATE_OR_OPEN", "OpenMode::OPEN_EXISTING"};
 
 enum class SharedMemoryError
 {
@@ -87,25 +87,26 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     int32_t getHandle() const noexcept;
     bool hasOwnership() const noexcept;
 
-    static bool unlinkIfExist(const Name_t& name) noexcept;
+    static cxx::expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
 
     friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
 
   private:
     SharedMemory(const Name_t& name,
                  const AccessMode accessMode,
-                 const Policy policy,
+                 const OpenMode openMode,
                  const mode_t permissions,
                  const uint64_t size) noexcept;
 
-    bool open(const AccessMode accessMode, const Policy policy, const mode_t permissions, const uint64_t size) noexcept;
+    bool
+    open(const AccessMode accessMode, const OpenMode openMode, const mode_t permissions, const uint64_t size) noexcept;
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
     void reset() noexcept;
-    static int getOflagsFor(const AccessMode accessMode, const Policy policy) noexcept;
+    static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept;
 
-    SharedMemoryError errnoToEnum(const int32_t errnum) const noexcept;
+    static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
 
     Name_t m_name;
     int m_handle{INVALID_HANDLE};

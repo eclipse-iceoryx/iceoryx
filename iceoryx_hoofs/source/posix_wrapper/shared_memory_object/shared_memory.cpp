@@ -35,7 +35,7 @@ namespace posix
 {
 SharedMemory::SharedMemory(const Name_t& name,
                            const AccessMode accessMode,
-                           const Policy policy,
+                           const OpenMode openMode,
                            const mode_t permissions,
                            const uint64_t size) noexcept
 {
@@ -57,14 +57,14 @@ SharedMemory::SharedMemory(const Name_t& name,
     if (m_isInitialized)
     {
         m_name = name;
-        m_isInitialized = open(accessMode, policy, permissions, size);
+        m_isInitialized = open(accessMode, openMode, permissions, size);
     }
 
     if (!m_isInitialized)
     {
         std::cerr << "Unable to create shared memory with the following properties [ name = " << name
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", policy = " << POLICY_STRING[static_cast<uint64_t>(policy)]
+                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
                   << ", mode = " << std::bitset<sizeof(mode_t)>(permissions) << ", sizeInBytes = " << size << " ]"
                   << std::endl;
         return;
@@ -76,11 +76,11 @@ SharedMemory::~SharedMemory() noexcept
     destroy();
 }
 
-int SharedMemory::getOflagsFor(const AccessMode accessMode, const Policy policy) noexcept
+int SharedMemory::getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept
 {
     int oflags = 0;
     oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
-    oflags |= (policy != Policy::OPEN) ? O_CREAT | O_EXCL : 0;
+    oflags |= (openMode != OpenMode::OPEN_EXISTING) ? O_CREAT | O_EXCL : 0;
     return oflags;
 }
 
@@ -134,21 +134,21 @@ bool SharedMemory::hasOwnership() const noexcept
 }
 
 bool SharedMemory::open(const AccessMode accessMode,
-                        const Policy policy,
+                        const OpenMode openMode,
                         const mode_t permissions,
                         const uint64_t size) noexcept
 {
     cxx::Expects(size <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max()));
 
-    m_hasOwnership =
-        (policy == Policy::EXCLUSIVE_CREATE || policy == Policy::PURGE_AND_CREATE || policy == Policy::OPEN_OR_CREATE);
+    m_hasOwnership = (openMode == OpenMode::EXCLUSIVE_CREATE || openMode == OpenMode::PURGE_AND_CREATE
+                      || openMode == OpenMode::OPEN_OR_CREATE);
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
     {
         cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
 
-        if (policy == Policy::PURGE_AND_CREATE)
+        if (openMode == OpenMode::PURGE_AND_CREATE)
         {
             IOX_DISCARD_RESULT(posixCall(shm_unlink)(m_name.c_str())
                                    .failureReturnValue(INVALID_HANDLE)
@@ -156,18 +156,19 @@ bool SharedMemory::open(const AccessMode accessMode,
                                    .evaluate());
         }
 
-        auto result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, policy), permissions)
+        auto result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, openMode), permissions)
                           .failureReturnValue(INVALID_HANDLE)
-                          .suppressErrorMessagesForErrnos((policy == Policy::OPEN_OR_CREATE) ? EEXIST : 0)
+                          .suppressErrorMessagesForErrnos((openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
                           .evaluate();
         if (result.has_error())
         {
             // if it was not possible to create the shm exclusively someone else has the
             // ownership and we just try to open it
-            if (policy == Policy::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
+            if (openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
             {
                 m_hasOwnership = false;
-                result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, Policy::OPEN), permissions)
+                result = posixCall(iox_shm_open)(
+                             m_name.c_str(), getOflagsFor(accessMode, OpenMode::OPEN_EXISTING), permissions)
                              .failureReturnValue(INVALID_HANDLE)
                              .evaluate();
                 if (!result.has_error())
@@ -177,7 +178,7 @@ bool SharedMemory::open(const AccessMode accessMode,
                 }
             }
 
-            m_errorValue = this->errnoToEnum(result.get_error().errnum);
+            m_errorValue = errnoToEnum(result.get_error().errnum);
             return false;
         }
         m_handle = result->value;
@@ -188,7 +189,7 @@ bool SharedMemory::open(const AccessMode accessMode,
         if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
                 .failureReturnValue(INVALID_HANDLE)
                 .evaluate()
-                .or_else([this](auto& r) { m_errorValue = this->errnoToEnum(r.errnum); })
+                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
                 .has_error())
         {
             return false;
@@ -198,13 +199,25 @@ bool SharedMemory::open(const AccessMode accessMode,
     return true;
 }
 
-bool SharedMemory::unlinkIfExist(const Name_t& name) noexcept
+cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
-    return !posixCall(shm_unlink)(name.c_str())
-                .failureReturnValue(INVALID_HANDLE)
-                .suppressErrorMessagesForErrnos(ENOENT)
-                .evaluate()
-                .has_error();
+    auto result = posixCall(shm_unlink)(name.c_str())
+                      .failureReturnValue(INVALID_HANDLE)
+                      .suppressErrorMessagesForErrnos(ENOENT)
+                      .evaluate();
+
+    if (result.has_error())
+    {
+        auto& error = result.get_error();
+        if (error.errnum == ENOENT)
+        {
+            return cxx::success<bool>(false);
+        }
+
+        return cxx::error<SharedMemoryError>(errnoToEnum(error.errnum));
+    }
+
+    return cxx::success<bool>(true);
 }
 
 bool SharedMemory::unlink() noexcept
@@ -235,12 +248,12 @@ bool SharedMemory::close() noexcept
     return true;
 }
 
-SharedMemoryError SharedMemory::errnoToEnum(const int32_t errnum) const noexcept
+SharedMemoryError SharedMemory::errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EACCES:
-        std::cerr << "No permission to modify, truncate or to access the shared memory!" << std::endl;
+        std::cerr << "No permission to modify, truncate or access the shared memory!" << std::endl;
         return SharedMemoryError::INSUFFICIENT_PERMISSIONS;
     case EPERM:
         std::cerr << "Resizing a file beyond its current size is not supported by the filesystem!" << std::endl;

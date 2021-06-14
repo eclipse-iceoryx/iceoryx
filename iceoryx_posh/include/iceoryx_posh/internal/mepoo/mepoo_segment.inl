@@ -76,7 +76,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
         SharedMemoryObjectType::create(shmName,
                                        MemoryManager::requiredChunkMemorySize(mempoolConfig),
                                        posix::AccessMode::READ_WRITE,
-                                       posix::Policy::PURGE_AND_CREATE,
+                                       posix::OpenMode::PURGE_AND_CREATE,
                                        BASE_ADDRESS_HINT,
                                        static_cast<mode_t>(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .and_then([this](auto& sharedMemoryObject) {
