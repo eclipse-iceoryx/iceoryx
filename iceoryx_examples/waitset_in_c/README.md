@@ -400,7 +400,7 @@ iox_ws_deinit(waitSet);
 iox_user_trigger_deinit(shutdownTrigger);
 ```
 
-### Sync
+### Timer Driven Execution
 In this example, we demonstrate how you can use the WaitSet to trigger a cyclic
 call every second. We use a user trigger which will be triggered in a separate
 thread every second to signal the WaitSet that it's time for the next run.
@@ -410,7 +410,7 @@ so that the event can directly call the cyclic call.
 We begin by creating the waitset and attach the `shutdownTrigger`.
 
 ```c
-iox_runtime_init("iox-c-waitset-sync");
+iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);

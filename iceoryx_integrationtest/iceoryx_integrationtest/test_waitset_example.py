@@ -36,7 +36,7 @@ def generate_test_description():
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
     executable_list = ['iox-cpp-waitset-publisher', 'iox-cpp-waitset-gateway',
                        'iox-cpp-waitset-grouping', 'iox-cpp-waitset-individual',
-                       'iox-cpp-waitset-sync', 'iox-cpp-waitset-trigger']
+                       'iox-cpp-waitset-timer-driven-execution', 'iox-cpp-waitset-trigger']
     process_list = []
 
     for exec in executable_list:
@@ -71,7 +71,7 @@ def generate_test_description():
         launch_testing.actions.ReadyToTest()
     ]), {'iox-cpp-waitset-publisher': process_list[0], 'iox-cpp-waitset-gateway': process_list[1],
          'iox-cpp-waitset-grouping': process_list[2], 'iox-cpp-waitset-individual': process_list[3],
-         'iox-cpp-waitset-sync': process_list[4], 'roudi_process': roudi_process}
+         'iox-cpp-waitset-timer-driven-execution': process_list[4], 'roudi_process': roudi_process}
 
 
 class TestWaitSetExample(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestWaitSetExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'subscriber 1 received: 10', timeout=45, stream='stdout')
 
-    def test_waitset_sync(self, proc_output):
+    def test_waitset_timer_driven_execution(self, proc_output):
         proc_output.assertWaitFor(
             'activation callback', timeout=45, stream='stdout')
 
