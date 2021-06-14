@@ -17,7 +17,7 @@
 #define IOX_HOOFS_MAC_PLATFORM_PLATFORM_SETTINGS_HPP
 
 #include <cstdint>
-#include <sys/mman.h>
+#include <sys/shm.h>
 
 namespace iox
 {
