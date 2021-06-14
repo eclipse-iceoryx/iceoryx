@@ -16,6 +16,9 @@
 
 #include "iceoryx_hoofs/platform/mman.hpp"
 
+#include <errno.h>
+#include <sys/shm.h>
+
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
     return shm_open(name, oflag, mode);
