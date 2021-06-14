@@ -80,10 +80,10 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
     uint64_t MEMORY_ALIGNMENT_2{16};
     EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_1));
     EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_));
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_));
     EXPECT_CALL(memoryBlock2, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_2));
     EXPECT_CALL(memoryBlock2, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
-    EXPECT_CALL(memoryBlock2, memoryAvailableMock(_));
+    EXPECT_CALL(memoryBlock2, onMemoryAvailableMock(_));
 
     IOX_DISCARD_RESULT(memoryProvider1.addMemoryBlock(&memoryBlock1));
     IOX_DISCARD_RESULT(memoryProvider2.addMemoryBlock(&memoryBlock2));
@@ -114,7 +114,7 @@ TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDest
     uint64_t MEMORY_ALIGNMENT_1{8};
     EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_1));
     EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_));
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_));
 
     IOX_DISCARD_RESULT(memoryProvider1.addMemoryBlock(&memoryBlock1));
 
