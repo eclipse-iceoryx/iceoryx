@@ -126,7 +126,7 @@ TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 
 TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 {
-    iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
+    IOX_DISCARD_RESULT(iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME));
     auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
@@ -138,7 +138,7 @@ TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
     ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
     auto sut = createSharedMemory(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_TRUE(sut.has_error());
-    iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
+    IOX_DISCARD_RESULT(iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
