@@ -95,7 +95,7 @@ class TestWaitSetInCExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'subscriber 1 received: 10', timeout=45, stream='stdout')
 
-    def test_waitset__in_c_timer_driven-execution(self, proc_output):
+    def test_waitset__in_c_timer_driven_execution(self, proc_output):
         proc_output.assertWaitFor(
             'activation callback', timeout=45, stream='stdout')
 
