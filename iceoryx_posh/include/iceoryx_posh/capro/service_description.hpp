@@ -104,10 +104,6 @@ class ServiceDescription
     ServiceDescription(ServiceDescription&&) noexcept = default;
     ~ServiceDescription() noexcept = default;
 
-    /// @brief construction of the capro service description using fixed strings to create a service service description
-    /// @todo remove
-    ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept;
-
     /// @brief construction of the capro service description using fixed strings to create an event service description
     ServiceDescription(const IdString_t& f_service,
                        const IdString_t& f_instance,
@@ -131,10 +127,6 @@ class ServiceDescription
 
     /// @brief serialization of the capro description.
     operator cxx::Serialization() const;
-
-    /// @brief Returns true if it contains a service description which does not have
-    ///             events, otherwise it returns false
-    bool hasServiceOnlyDescription() const noexcept;
 
     // @brief Returns if this service description is used for an RouDi-internal channel
     bool isInternal() const noexcept;
@@ -172,7 +164,6 @@ class ServiceDescription
     /// @brief string representation of the event
     IdString_t m_eventString;
 
-    bool m_hasServiceOnlyDescription = false;
     /// @brief 128-Bit class hash (32-Bit * 4)
     ClassHash m_classHash{0, 0, 0, 0};
 

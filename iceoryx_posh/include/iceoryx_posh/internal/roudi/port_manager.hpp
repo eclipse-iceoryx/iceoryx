@@ -99,7 +99,7 @@ class PortManager
     void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
-    runtime::IpcMessage findService(const capro::ServiceDescription& service) noexcept;
+    runtime::IpcMessage findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
   protected:
     void makeAllPublisherPortsToStopOffer() noexcept;
@@ -136,8 +136,8 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<RuntimeName_t>
-    doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
+    cxx::optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
+        noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<RuntimeName_t>
