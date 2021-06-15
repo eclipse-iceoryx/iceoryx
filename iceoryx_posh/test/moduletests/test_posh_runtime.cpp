@@ -251,6 +251,19 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     EXPECT_FALSE(successfullySent);
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithInvalidServiceDescriptionFails)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.historyCapacity = 13U;
+    publisherOptions.nodeName = m_nodeName;
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString),
+        publisherOptions,
+        iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    ASSERT_EQ(nullptr, publisherPort);
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
     iox::popo::PublisherOptions publisherOptions;
@@ -410,6 +423,21 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSu
 
     EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
                 Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithInvalidServiceDescriptionFails)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.historyRequest = 13U;
+    subscriberOptions.queueCapacity = 42U;
+    subscriberOptions.nodeName = m_nodeName;
+
+    const auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString),
+        subscriberOptions,
+        iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    ASSERT_EQ(nullptr, subscriberPort);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
@@ -643,16 +671,14 @@ TEST_F(PoshRuntime_test, OfferEmptyServiceIsInvalid)
 
 TEST_F(PoshRuntime_test, OfferAnyServiceStringIsInvalid)
 {
-    auto isServiceOffered = m_runtime->offerService(
-        {iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
+    auto isServiceOffered = m_runtime->offerService({iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
 
     EXPECT_FALSE(isServiceOffered);
 }
 
 TEST_F(PoshRuntime_test, OfferAnyServiceIdIsInvalid)
 {
-    auto isServiceOffered = m_runtime->offerService(
-        {iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
+    auto isServiceOffered = m_runtime->offerService({iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
 
     EXPECT_FALSE(isServiceOffered);
 }
@@ -663,8 +689,7 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
 
     m_runtime->offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
-    auto instanceContainer =
-        m_receiverRuntime->findService(iox::capro::Wildcard, iox::capro::Wildcard);
+    auto instanceContainer = m_receiverRuntime->findService(iox::capro::Wildcard, iox::capro::Wildcard);
 
     EXPECT_THAT(0u, instanceContainer.value().size());
 }

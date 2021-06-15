@@ -46,11 +46,11 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     }
 
     /// @todo iox-#841 simplify this when we switch to gmock v1.10
-    MOCK_METHOD1(findServiceMock,
+    MOCK_METHOD2(findServiceMock,
                  iox::cxx::expected<iox::runtime::InstanceContainer, iox::runtime::FindServiceError>(
-                     const iox::capro::ServiceDescription&));
+                     const iox::capro::IdString_t&, const iox::capro::IdString_t&));
     MOCK_METHOD1(offerServiceMock, bool(const iox::capro::ServiceDescription&));
-    MOCK_METHOD1(stopOfferServiceMock, void(const iox::capro::ServiceDescription&));
+    MOCK_METHOD1(stopOfferServiceMock, bool(const iox::capro::ServiceDescription&));
     MOCK_METHOD3(getMiddlewarePublisherMock,
                  iox::PublisherPortUserType::MemberType_t*(const iox::capro::ServiceDescription&,
                                                            const iox::popo::PublisherOptions&,
@@ -89,9 +89,9 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     }
 
     iox::cxx::expected<iox::runtime::InstanceContainer, iox::runtime::FindServiceError>
-    findService(const iox::capro::ServiceDescription& serviceDescription) noexcept override
+    findService(const iox::capro::IdString_t& service, const iox::capro::IdString_t& instance) noexcept override
     {
-        return findServiceMock(serviceDescription);
+        return findServiceMock(service, instance);
     }
 
     bool offerService(const iox::capro::ServiceDescription& serviceDescription) noexcept override
@@ -99,9 +99,9 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         return offerServiceMock(serviceDescription);
     }
 
-    void stopOfferService(const iox::capro::ServiceDescription& serviceDescription) noexcept override
+    bool stopOfferService(const iox::capro::ServiceDescription& serviceDescription) noexcept override
     {
-        stopOfferServiceMock(serviceDescription);
+        return stopOfferServiceMock(serviceDescription);
     }
 
     iox::PublisherPortUserType::MemberType_t*

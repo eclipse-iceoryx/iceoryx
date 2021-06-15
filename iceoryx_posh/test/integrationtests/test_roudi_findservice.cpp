@@ -238,6 +238,12 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceMultiInstance)
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(IdString_t("instance3")));
 }
 
+TEST_F(RoudiFindService_test, StopOfferWithInvalidServiceDescriptionFails)
+{
+    EXPECT_FALSE(senderRuntime->stopOfferService(
+        {iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString}));
+}
+
 TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)
 {
     EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
