@@ -118,6 +118,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/condition_variable_data.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
+    source/popo/client_options.cpp
     source/popo/listener.cpp
     source/popo/notification_info.cpp
     source/popo/trigger.cpp
