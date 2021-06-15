@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
+#include "iceoryx_posh/popo/rpc_header.hpp"
 
 #include <atomic>
 #include <cstdint>

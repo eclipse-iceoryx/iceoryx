@@ -121,6 +121,7 @@ add_library(iceoryx_posh
     source/popo/client_options.cpp
     source/popo/listener.cpp
     source/popo/notification_info.cpp
+    source/popo/rpc_header.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
     source/popo/user_trigger.cpp
