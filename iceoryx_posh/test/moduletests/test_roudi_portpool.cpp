@@ -36,7 +36,7 @@ class PortPool_test : public Test
     roudi::PortPoolData m_portPoolData;
     roudi::PortPool sut{m_portPoolData};
 
-    ServiceDescription m_serviceDescription{"service1", "instance1"};
+    ServiceDescription m_serviceDescription{"service1", "instance1", AnyEventString};
     RuntimeName_t m_applicationName{"AppName"};
     RuntimeName_t m_runtimeName{"runtimeName"};
     NodeName_t m_nodeName{"nodeName"};
@@ -176,11 +176,12 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
         RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + cxx::convert::toString(i)};
 
         return sut
-            .addPublisherPort(
-                {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
-                &m_memoryManager,
-                applicationName,
-                m_publisherOptions)
+            .addPublisherPort({IdString_t(cxx::TruncateToCapacity, service),
+                               IdString_t(cxx::TruncateToCapacity, instance),
+                               AnyEventString},
+                              &m_memoryManager,
+                              applicationName,
+                              m_publisherOptions)
             .has_error();
     };
 
@@ -232,7 +233,8 @@ TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
         RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + cxx::convert::toString(i)};
 
         ASSERT_FALSE(sut.addPublisherPort({IdString_t(cxx::TruncateToCapacity, service),
-                                           IdString_t(cxx::TruncateToCapacity, instance)},
+                                           IdString_t(cxx::TruncateToCapacity, instance),
+                                           AnyEventString},
                                           &m_memoryManager,
                                           applicationName,
                                           m_publisherOptions)
@@ -299,10 +301,11 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
         RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + cxx::convert::toString(i)};
 
 
-        auto publisherPort = sut.addSubscriberPort(
-            {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
-            applicationName,
-            m_subscriberOptions);
+        auto publisherPort = sut.addSubscriberPort({IdString_t(cxx::TruncateToCapacity, service),
+                                                    IdString_t(cxx::TruncateToCapacity, instance),
+                                                    AnyEventString},
+                                                   applicationName,
+                                                   m_subscriberOptions);
         return publisherPort.has_error();
     };
 
@@ -348,10 +351,11 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
         std::string instance = "instance" + cxx::convert::toString(i);
         RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + cxx::convert::toString(i)};
 
-        auto publisherPort = sut.addSubscriberPort(
-            {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
-            applicationName,
-            m_subscriberOptions);
+        auto publisherPort = sut.addSubscriberPort({IdString_t(cxx::TruncateToCapacity, service),
+                                                    IdString_t(cxx::TruncateToCapacity, instance),
+                                                    AnyEventString},
+                                                   applicationName,
+                                                   m_subscriberOptions);
         EXPECT_FALSE(publisherPort.has_error());
     }
     auto subscriberPortDataList = sut.getSubscriberPortDataList();

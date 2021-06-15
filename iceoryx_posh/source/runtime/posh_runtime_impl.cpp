@@ -108,6 +108,8 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
     constexpr uint64_t MAX_HISTORY_CAPACITY =
         PublisherPortUserType::MemberType_t::ChunkSenderData_t::ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
 
+    /// @todo call service.isValid()
+
     auto options = publisherOptions;
     if (options.historyCapacity > MAX_HISTORY_CAPACITY)
     {
@@ -212,6 +214,8 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
+
+    /// @todo call service.isValid()
 
     auto options = subscriberOptions;
     if (options.queueCapacity > MAX_QUEUE_CAPACITY)
@@ -368,11 +372,10 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 }
 
 cxx::expected<InstanceContainer, FindServiceError>
-PoshRuntimeImpl::findService(const capro::ServiceDescription& serviceDescription) noexcept
+PoshRuntimeImpl::findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
 {
     IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName
-               << static_cast<cxx::Serialization>(serviceDescription).toString();
+    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName << service << instance;
 
     IpcMessage requestResponse;
 
@@ -397,7 +400,7 @@ PoshRuntimeImpl::findService(const capro::ServiceDescription& serviceDescription
 
     if (numberOfElements > capacity)
     {
-        LogWarn() << numberOfElements << " instances found for service \"" << serviceDescription.getServiceIDString()
+        LogWarn() << numberOfElements << " instances found for service \"" << service
                   << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);

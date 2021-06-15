@@ -143,7 +143,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
                                                      testHash[1],
                                                      testHash[2],
                                                      testHash[3],
-                                                     false,
                                                      static_cast<uint16_t>(testScope),
                                                      static_cast<uint16_t>(testInterfaceSource));
 
@@ -156,7 +155,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
     EXPECT_THAT((serviceDescription1.getClassHash())[1], Eq(testHash[1]));
     EXPECT_THAT((serviceDescription1.getClassHash())[2], Eq(testHash[2]));
     EXPECT_THAT((serviceDescription1.getClassHash())[3], Eq(testHash[3]));
-    EXPECT_THAT(serviceDescription1.hasServiceOnlyDescription(), Eq(false));
     EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INTERNAL));
     EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
 }
@@ -178,7 +176,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
                                                      testHash[1],
                                                      testHash[2],
                                                      testHash[3],
-                                                     true,
                                                      invalidScope);
 
     ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
@@ -205,7 +202,6 @@ TEST_F(ServiceDescription_test,
                                                      testHash[1],
                                                      testHash[2],
                                                      testHash[3],
-                                                     true,
                                                      static_cast<uint16_t>(testScope),
                                                      invalidInterfaceSource);
 
@@ -254,16 +250,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
     EXPECT_EQ(uint32_t(23), serviceDescription1.getClassHash()[1]);
     EXPECT_EQ(uint32_t(34), serviceDescription1.getClassHash()[2]);
     EXPECT_EQ(uint32_t(45), serviceDescription1.getClassHash()[3]);
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionCtorWithServiceStringAndInstanceStringSetsHasServiceDescriptionTrue)
-{
-    testService = "Service";
-    testInstance = "Instance";
-
-    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
-
-    EXPECT_TRUE(serviceDescription1.hasServiceOnlyDescription());
 }
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceAnyEventIDsAreEqual)
@@ -398,62 +384,6 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     serviceDescription1.setInternal();
 
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
-}
-
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceStringIsInvalid)
-{
-    testService = iox::capro::InvalidString;
-    testInstance = "validinstance";
-
-    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-/// @todo remove
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceIDIsAnyService)
-{
-    IdString_t testServiceID = iox::capro::AnyServiceString;
-    IdString_t testInstanceID = iox::capro::AnyInstanceString;
-
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndInstanceStringIsInvalid)
-{
-    testService = "validservice";
-    testInstance = iox::capro::InvalidString;
-
-    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndInstanceIDIsAnyInstance)
-{
-    IdString_t testServiceID = "1";
-    IdString_t testInstanceID = iox::capro::AnyInstanceString;
-
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceAndInstanceAreValid)
-{
-    IdString_t testServiceID = "1";
-    IdString_t testInstanceID = "2";
-
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testInstanceID);
-
-    EXPECT_TRUE(serviceDescription1.isValid());
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsInvalid)

@@ -345,12 +345,14 @@ void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexce
         [&]() { LogWarn() << "Received Keepalive from unknown process " << name; });
 }
 
-void ProcessManager::findServiceForProcess(const RuntimeName_t& name, const capro::ServiceDescription& service) noexcept
+void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
+                                           const capro::IdString_t& service,
+                                           const capro::IdString_t& instance) noexcept
 {
     searchForProcessAndThen(
         name,
         [&](Process& process) {
-            runtime::IpcMessage instanceString({m_portManager.findService(service)});
+            runtime::IpcMessage instanceString({m_portManager.findService(service, instance)});
             process.sendViaIpcChannel(instanceString);
             LogDebug() << "Sent InstanceString to application " << name;
         },

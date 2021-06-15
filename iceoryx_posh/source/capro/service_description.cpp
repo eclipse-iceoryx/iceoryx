@@ -80,7 +80,6 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
                      m_classHash[1u],
                      m_classHash[2u],
                      m_classHash[3u],
-                     m_hasServiceOnlyDescription,
                      scope,
                      interfaceSource);
     if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
@@ -104,13 +103,6 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
 ServiceDescription::ServiceDescription() noexcept
     : ServiceDescription(InvalidString, InvalidString, InvalidString)
 {
-}
-
-/// @todo remove
-ServiceDescription::ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept
-    : ServiceDescription(f_service, f_instance, InvalidString)
-{
-    m_hasServiceOnlyDescription = true;
 }
 
 ServiceDescription::ServiceDescription(const IdString_t& f_service,
@@ -197,7 +189,6 @@ ServiceDescription::operator cxx::Serialization() const
                                       m_classHash[1u],
                                       m_classHash[2u],
                                       m_classHash[3u],
-                                      m_hasServiceOnlyDescription,
                                       scope,
                                       interface);
 }
@@ -216,12 +207,6 @@ IdString_t ServiceDescription::getEventIDString() const noexcept
 {
     return m_eventString;
 }
-
-bool ServiceDescription::hasServiceOnlyDescription() const noexcept
-{
-    return m_hasServiceOnlyDescription;
-}
-
 
 bool ServiceDescription::isInternal() const noexcept
 {
@@ -251,22 +236,12 @@ Interfaces ServiceDescription::getSourceInterface() const noexcept
 /// @todo remove AnyInstanceString's no invalid ServiceDescription is allowed
 bool ServiceDescription::isValid() const noexcept
 {
-    if (m_hasServiceOnlyDescription)
-    {
-        return !(m_serviceString == iox::capro::InvalidString
-                 || m_serviceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyServiceString)
-                 || m_instanceString == iox::capro::InvalidString
-                 || m_instanceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyInstanceString));
-    }
-    else
-    {
-        return !(m_serviceString == iox::capro::InvalidString
-                 || m_serviceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyServiceString)
-                 || m_instanceString == iox::capro::InvalidString
-                 || m_instanceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyInstanceString)
-                 || m_eventString == iox::capro::InvalidString
-                 || m_eventString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyEventString));
-    }
+    return !(m_serviceString == iox::capro::InvalidString
+             || m_serviceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyServiceString)
+             || m_instanceString == iox::capro::InvalidString
+             || m_instanceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyInstanceString)
+             || m_eventString == iox::capro::InvalidString
+             || m_eventString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyEventString));
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept
