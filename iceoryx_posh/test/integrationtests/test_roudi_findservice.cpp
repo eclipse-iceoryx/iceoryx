@@ -71,8 +71,8 @@ TEST_F(RoudiFindService_test, OfferServiceWithAnyServiceIdStringDescriptionFails
 
 TEST_F(RoudiFindService_test, OfferServiceWithAnyServiceIdDescriptionFails)
 {
-    auto isServiceOffered =
-        senderRuntime->offerService(iox::capro::ServiceDescription(iox::capro::AnyService, iox::capro::AnyInstance));
+    auto isServiceOffered = senderRuntime->offerService(
+        iox::capro::ServiceDescription(iox::capro::AnyServiceString, iox::capro::AnyInstanceString));
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -90,16 +90,16 @@ TEST_F(RoudiFindService_test, OfferServiceWithValidEventIdSucessfull)
 TEST_F(RoudiFindService_test, OfferServiceWithInvalidEventIdFails)
 {
     auto isServiceOffered = senderRuntime->offerService(
-        iox::capro::ServiceDescription({"service1", "instance1", iox::capro::InvalidIDString}));
+        iox::capro::ServiceDescription({"service1", "instance1", iox::capro::InvalidString}));
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
 }
 
-TEST_F(RoudiFindService_test, OfferServiceWithAnyEventIdFails)
+TEST_F(RoudiFindService_test, OfferServiceWithAnyEventStringFails)
 {
     auto isServiceOffered =
-        senderRuntime->offerService(iox::capro::ServiceDescription(123u, 456u, iox::capro::AnyEvent));
+        senderRuntime->offerService(iox::capro::ServiceDescription("123", "456", iox::capro::AnyEventString));
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
