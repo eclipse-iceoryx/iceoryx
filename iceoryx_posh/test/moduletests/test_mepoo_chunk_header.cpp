@@ -205,6 +205,34 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstTy
     EXPECT_TRUE(isConstReturn);
 }
 
+TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithNullptrReturnsNullptr)
+{
+    constexpr void* USER_HEADER{nullptr};
+    auto chunkHeader = ChunkHeader::fromUserHeader(USER_HEADER);
+    EXPECT_THAT(chunkHeader, Eq(nullptr));
+}
+
+TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstNullptrReturnsNullptr)
+{
+    constexpr const void* USER_HEADER{nullptr};
+    auto chunkHeader = ChunkHeader::fromUserHeader(USER_HEADER);
+    EXPECT_THAT(chunkHeader, Eq(nullptr));
+}
+
+TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithNonConstParamReturnsNonConstType)
+{
+    auto isNonConstReturn =
+        std::is_same<decltype(ChunkHeader::fromUserHeader(std::declval<void*>())), ChunkHeader*>::value;
+    EXPECT_TRUE(isNonConstReturn);
+}
+
+TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstParamReturnsConstType)
+{
+    auto isConstReturn =
+        std::is_same<decltype(ChunkHeader::fromUserHeader(std::declval<const void*>())), const ChunkHeader*>::value;
+    EXPECT_TRUE(isConstReturn);
+}
+
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 {
     constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
@@ -371,6 +399,13 @@ void checkConversionOfUserPayloadPointerToChunkHeader(const ChunkHeader& sut)
     EXPECT_EQ(ChunkHeader::fromUserPayload(userPayload), &sut);
 }
 
+void checkConversionOfUserHeaderPointerToChunkHeader(const ChunkHeader& sut)
+{
+    SCOPED_TRACE(std::string("Check conversion of user-Header pointer to ChunkHeader pointer"));
+    const auto userHeader = sut.userHeader();
+    EXPECT_EQ(ChunkHeader::fromUserHeader(userHeader), &sut);
+}
+
 class ChunkHeader_AlteringUserPayloadWithoutUserHeader : public ::testing::TestWithParam<PayloadParams>
 {
 };
@@ -498,6 +533,7 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
                     checkUserPayloadAlignment(sut, userPayloadParams);
                     checkUsedSizeOfChunk(sut, userPayloadParams);
                     checkConversionOfUserPayloadPointerToChunkHeader(sut);
+                    checkConversionOfUserHeaderPointerToChunkHeader(sut);
                 });
         }
     }
