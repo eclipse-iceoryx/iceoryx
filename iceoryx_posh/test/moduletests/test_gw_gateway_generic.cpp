@@ -92,10 +92,10 @@ TEST_F(GatewayGenericTest, IgnoresWildcardServices)
 {
     // ===== Setup
     auto completeWildcardService = iox::capro::ServiceDescription(
-        iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString);
-    auto wildcardServiceService = iox::capro::ServiceDescription(iox::capro::AnyServiceString, "instance", "event");
-    auto wildcardInstanceService = iox::capro::ServiceDescription("service", iox::capro::AnyInstanceString, "event");
-    auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", iox::capro::AnyEventString);
+        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    auto wildcardServiceService = iox::capro::ServiceDescription(iox::capro::Wildcard, "instance", "event");
+    auto wildcardInstanceService = iox::capro::ServiceDescription("service", iox::capro::Wildcard, "event");
+    auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", iox::capro::Wildcard);
 
     TestGatewayGeneric gw{};
 

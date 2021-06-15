@@ -644,7 +644,7 @@ TEST_F(PoshRuntime_test, OfferEmptyServiceIsInvalid)
 TEST_F(PoshRuntime_test, OfferAnyServiceStringIsInvalid)
 {
     auto isServiceOffered = m_runtime->offerService(
-        {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
+        {iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
 
     EXPECT_FALSE(isServiceOffered);
 }
@@ -652,7 +652,7 @@ TEST_F(PoshRuntime_test, OfferAnyServiceStringIsInvalid)
 TEST_F(PoshRuntime_test, OfferAnyServiceIdIsInvalid)
 {
     auto isServiceOffered = m_runtime->offerService(
-        {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
+        {iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
 
     EXPECT_FALSE(isServiceOffered);
 }
@@ -664,7 +664,7 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
     m_runtime->offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
     auto instanceContainer =
-        m_receiverRuntime->findService(iox::capro::AnyServiceString, iox::capro::AnyInstanceString);
+        m_receiverRuntime->findService(iox::capro::Wildcard, iox::capro::Wildcard);
 
     EXPECT_THAT(0u, instanceContainer.value().size());
 }

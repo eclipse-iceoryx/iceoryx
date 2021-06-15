@@ -31,9 +31,7 @@ namespace capro
 {
 /// @todo remove
 static const IdString_t InvalidString{"INVALID"};
-static constexpr char AnyServiceString[]{"65535"};
-static constexpr char AnyInstanceString[]{"65535"};
-static constexpr char AnyEventString[]{"65535"};
+static constexpr char Wildcard[]{"*"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
 
@@ -137,8 +135,7 @@ class ServiceDescription
 
     /// @todo remove any*string from doxygen?
     ///@brief Returns true for valid ServiceDescription
-    /// false for ServiceDescription that contains either of InvalidID/InvalidIDString  AnyService/AnyServiceString,
-    /// AnyInstance/AnyInstanceString, AnyEvent/AnyEventString.
+    /// false for ServiceDescription that contains either of InvalidIDString or any Wildcard.
     bool isValid() const noexcept;
 
     ///@{

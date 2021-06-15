@@ -43,7 +43,7 @@ class ServiceRegistry
     void remove(const CaproIdString_t& service, const CaproIdString_t& instance);
     void find(InstanceSet_t& instances,
               const CaproIdString_t& service,
-              const CaproIdString_t& instance = capro::AnyInstanceString) const;
+              const CaproIdString_t& instance = capro::Wildcard) const;
     const serviceMap_t& getServiceMap() const;
 
   private:

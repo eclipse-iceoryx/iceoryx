@@ -44,13 +44,13 @@ class ServiceRegistry_test : public Test
     iox::roudi::ServiceRegistry registry;
     iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
 
-    iox::cxx::string<100> AnyInstanceString{iox::capro::AnyInstanceString};
+    iox::cxx::string<100> Wildcard{iox::capro::Wildcard};
 };
 
 TEST_F(ServiceRegistry_test, SingleAdd)
 {
     registry.add("a", "b");
-    registry.find(searchResults, "a", AnyInstanceString);
+    registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("b")));
@@ -61,7 +61,7 @@ TEST_F(ServiceRegistry_test, SingleMultiAdd)
     registry.add("a", "b");
     registry.add("a", "c");
     registry.add("a", "d");
-    registry.find(searchResults, "a", AnyInstanceString);
+    registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(3));
 
@@ -86,13 +86,13 @@ TEST_F(ServiceRegistry_test, SingleAddMultiService)
 {
     registry.add("a", "b");
     registry.add("c", "d");
-    registry.find(searchResults, "a", AnyInstanceString);
+    registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("b")));
     searchResults.clear();
 
-    registry.find(searchResults, "c", AnyInstanceString);
+    registry.find(searchResults, "c", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("d")));
 }
@@ -152,7 +152,7 @@ TEST_F(ServiceRegistry_test, RemoveAll)
     registry.remove("a", "c");
     registry.remove("a", "d");
 
-    registry.find(searchResults, "a", AnyInstanceString);
+    registry.find(searchResults, "a", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 

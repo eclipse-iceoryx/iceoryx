@@ -62,8 +62,8 @@ TEST_F(RoudiFindService_test, OfferServiceWithDefaultServiceDescriptionFails)
 
 TEST_F(RoudiFindService_test, OfferServiceWithAnyServiceIdStringDescriptionFails)
 {
-    auto isServiceOffered = senderRuntime->offerService(
-        {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
+    auto isServiceOffered =
+        senderRuntime->offerService({iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard});
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -177,7 +177,7 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     instanceContainerExp.push_back("instance2");
     instanceContainerExp.push_back("instance3");
 
-    auto instanceContainer = receiverRuntime->findService("service1", iox::capro::AnyServiceString);
+    auto instanceContainer = receiverRuntime->findService("service1", iox::capro::Wildcard);
 
     ASSERT_THAT(instanceContainer.value().size(), Eq(3u));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
@@ -330,7 +330,7 @@ TEST_F(RoudiFindService_test, InterfacePort)
         auto caproMessage = maybeCaProMessage.value();
         if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString_t("service1"))
             && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString_t("instance1"))
-            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString_t(iox::capro::AnyEventString))))
+            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString_t(iox::capro::Wildcard))))
         {
             serviceFound = true;
             break;
@@ -354,7 +354,7 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
         this->InterOpWait();
     }
 
-    auto instanceContainer = receiverRuntime->findService("s", "65535");
+    auto instanceContainer = receiverRuntime->findService("s", iox::capro::Wildcard);
 
     EXPECT_THAT(instanceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
@@ -373,7 +373,7 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
         this->InterOpWait();
     }
 
-    auto instanceContainer = receiverRuntime->findService("s", "65535");
+    auto instanceContainer = receiverRuntime->findService("s", iox::capro::Wildcard);
 
     ASSERT_THAT(instanceContainer.has_error(), Eq(true));
 }
