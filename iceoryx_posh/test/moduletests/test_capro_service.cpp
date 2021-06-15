@@ -214,7 +214,6 @@ TEST_F(ServiceDescription_test,
     EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
 }
 
-/// @todo remove
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
 {
     ServiceDescription serviceDescription1 = ServiceDescription();
@@ -458,7 +457,7 @@ TEST_F(ServiceDescription_test,
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsInvalid)
 {
-    IdString_t testServiceID = "INVALID";
+    IdString_t testServiceID = InvalidString;
     IdString_t testEventID = "1";
     IdString_t testInstanceID = "1";
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
@@ -502,7 +501,7 @@ TEST_F(ServiceDescription_test,
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsInvalid)
 {
     IdString_t testServiceID = "1";
-    IdString_t testEventID = "INVALID";
+    IdString_t testEventID = InvalidString;
     IdString_t testInstanceID = "1";
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 

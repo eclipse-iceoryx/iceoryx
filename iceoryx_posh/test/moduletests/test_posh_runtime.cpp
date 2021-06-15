@@ -641,7 +641,6 @@ TEST_F(PoshRuntime_test, OfferDefaultServiceDescriptionIsInvalid)
     EXPECT_FALSE(isServiceOffered);
 }
 
-/// @todo remove
 TEST_F(PoshRuntime_test, OfferANYServiceStringIsInvalid)
 {
     auto isServiceOffered = m_runtime->offerService(iox::capro::ServiceDescription(
@@ -650,7 +649,6 @@ TEST_F(PoshRuntime_test, OfferANYServiceStringIsInvalid)
     EXPECT_FALSE(isServiceOffered);
 }
 
-/// @todo remove
 TEST_F(PoshRuntime_test, OfferANYServiceIdIsInvalid)
 {
     auto isServiceOffered = m_runtime->offerService(iox::capro::ServiceDescription(
