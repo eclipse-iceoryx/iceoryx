@@ -68,6 +68,17 @@ class SharedMemory_Test : public Test
                     .evaluate()
                     .has_error();
     }
+
+    bool cleanupSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    {
+        auto result = iox::posix::SharedMemory::unlinkIfExist(name);
+        if (result.has_error())
+        {
+            EXPECT_TRUE(false);
+            return false;
+        }
+        return *result;
+    }
 };
 
 constexpr const char SharedMemory_Test::SUT_SHM_NAME[];
@@ -136,9 +147,7 @@ TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
         EXPECT_TRUE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(*result);
+    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
@@ -157,10 +166,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
         EXPECT_TRUE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(*result);
+    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
@@ -172,10 +178,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
         EXPECT_TRUE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(*result);
+    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
@@ -186,10 +189,7 @@ TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
         EXPECT_TRUE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(*result);
+    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
@@ -201,9 +201,7 @@ TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_TRUE(*result);
+    EXPECT_TRUE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
@@ -215,9 +213,7 @@ TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_TRUE(*result);
+    EXPECT_TRUE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
