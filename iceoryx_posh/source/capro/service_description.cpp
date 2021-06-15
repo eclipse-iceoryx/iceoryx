@@ -248,7 +248,6 @@ Interfaces ServiceDescription::getSourceInterface() const noexcept
     return m_interfaceSource;
 }
 
-/// @todo remove AnyInstanceString's no invalid ServiceDescription is allowed
 bool ServiceDescription::isValid() const noexcept
 {
     if (m_hasServiceOnlyDescription)

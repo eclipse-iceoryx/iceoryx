@@ -29,7 +29,6 @@ namespace iox
 {
 namespace capro
 {
-/// @todo remove
 static const IdString_t InvalidString{"INVALID"};
 static constexpr char AnyServiceString[]{"65535"};
 static constexpr char AnyInstanceString[]{"65535"};
@@ -76,9 +75,7 @@ constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL"
 
 /// @brief class for the identification of a communication event including information on the service, the service
 /// instance and the event id.
-/// In order to support different communication protocols, two types of members exist: integer and string identifiers.
-/// If string IDs are used, the integers are initialized to an invalid number. A class object can be
-/// serialized/deserialized, so it is possible to send the information e.g. over a IPC channel.
+/// A class object can be serialized/deserialized, so it is possible to send the information e.g. over a IPC channel.
 class ServiceDescription
 {
   public:
@@ -115,8 +112,8 @@ class ServiceDescription
                        ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
-    /// @brief compare operator. If wildcards AnyService, AnyInstance or AnyEvent are used as integer IDs, the
-    /// corresponding member comparisons are skipped. Otherwise, both the integer and the string members are compared.
+    /// @brief compare operator. If wildcards AnyServiceString, AnyInstanceString or AnyEventString are used, the
+    /// corresponding member comparisons are skipped.
     bool operator==(const ServiceDescription& rhs) const;
 
     /// @brief negation of compare operator.
@@ -143,7 +140,6 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() noexcept;
 
-    /// @todo remove any*string from doxygen?
     ///@brief Returns true for valid ServiceDescription
     /// false for ServiceDescription that contains either of InvalidID/InvalidIDString  AnyService/AnyServiceString,
     /// AnyInstance/AnyInstanceString, AnyEvent/AnyEventString.
