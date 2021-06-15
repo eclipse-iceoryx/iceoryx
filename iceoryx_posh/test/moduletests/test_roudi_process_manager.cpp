@@ -133,7 +133,7 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
     PublisherOptions publisherOptions{
         0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     PublisherPortUser publisher(m_portManager
-                                    ->acquirePublisherPortData({1U, 1U, 1U},
+                                    ->acquirePublisherPortData({"1", "1", "1"},
                                                                publisherOptions,
                                                                m_processname,
                                                                &payloadDataSegmentMemoryManager.value().get(),
