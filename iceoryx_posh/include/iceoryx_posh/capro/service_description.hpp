@@ -96,7 +96,7 @@ class ServiceDescription
     };
 
     /// @brief construction of the capro service description using serialized strings
-    ServiceDescription(const cxx::Serialization& f_serial) noexcept;
+    ServiceDescription(const cxx::Serialization& serial) noexcept;
 
     /// @brief default C'tor
     ServiceDescription() noexcept;
@@ -105,9 +105,9 @@ class ServiceDescription
     ~ServiceDescription() noexcept = default;
 
     /// @brief construction of the capro service description using fixed strings to create an event service description
-    ServiceDescription(const IdString_t& f_service,
-                       const IdString_t& f_instance,
-                       const IdString_t& f_event,
+    ServiceDescription(const IdString_t& service,
+                       const IdString_t& instance,
+                       const IdString_t& event,
                        ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
