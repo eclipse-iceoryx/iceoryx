@@ -69,11 +69,11 @@ bool ServiceDescription::ClassHash::operator!=(const ClassHash& rhs) const noexc
     return !operator==(rhs);
 }
 
-ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexcept
+ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcept
 {
     std::underlying_type<Scope>::type scope = 0;
     std::underlying_type<Interfaces>::type interfaceSource = 0;
-    f_serial.extract(m_serviceString,
+    serial.extract(m_serviceString,
                      m_instanceString,
                      m_eventString,
                      m_classHash[0u],
@@ -105,15 +105,15 @@ ServiceDescription::ServiceDescription() noexcept
 {
 }
 
-ServiceDescription::ServiceDescription(const IdString_t& f_service,
-                                       const IdString_t& f_instance,
-                                       const IdString_t& f_event,
-                                       ClassHash f_classHash,
+ServiceDescription::ServiceDescription(const IdString_t& service,
+                                       const IdString_t& instance,
+                                       const IdString_t& event,
+                                       ClassHash classHash,
                                        Interfaces interfaceSource) noexcept
-    : m_serviceString{f_service}
-    , m_instanceString{f_instance}
-    , m_eventString{f_event}
-    , m_classHash(f_classHash)
+    : m_serviceString{service}
+    , m_instanceString{instance}
+    , m_eventString{event}
+    , m_classHash(classHash)
     , m_interfaceSource(interfaceSource)
 {
 }
