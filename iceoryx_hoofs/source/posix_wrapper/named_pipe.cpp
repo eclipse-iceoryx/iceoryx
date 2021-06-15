@@ -174,10 +174,8 @@ cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelN
     {
         return cxx::success<bool>(unlinkCall->errnum != ENOENT);
     }
-    else
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
-    }
+
+    return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
 }
 
 cxx::expected<IpcChannelError> NamedPipe::send(const std::string& message) const noexcept

@@ -80,7 +80,8 @@ int SharedMemory::getOflagsFor(const AccessMode accessMode, const OpenMode openM
 {
     int oflags = 0;
     oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
-    oflags |= (openMode != OpenMode::OPEN_EXISTING) ? O_CREAT | O_EXCL : 0;
+    oflags |= (openMode != OpenMode::OPEN_EXISTING) ? O_CREAT : 0;
+    oflags |= (openMode == OpenMode::EXCLUSIVE_CREATE) ? O_EXCL : 0;
     return oflags;
 }
 
@@ -90,13 +91,13 @@ void SharedMemory::destroy() noexcept
     {
         close();
         unlink();
-        reset();
     }
 }
 
 void SharedMemory::reset() noexcept
 {
     m_isInitialized = false;
+    m_hasOwnership = false;
     m_name = Name_t();
     m_handle = INVALID_HANDLE;
 }
@@ -156,7 +157,11 @@ bool SharedMemory::open(const AccessMode accessMode,
                                    .evaluate());
         }
 
-        auto result = posixCall(iox_shm_open)(m_name.c_str(), getOflagsFor(accessMode, openMode), permissions)
+        auto result = posixCall(iox_shm_open)(
+                          m_name.c_str(),
+                          getOflagsFor(accessMode,
+                                       (openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : openMode),
+                          permissions)
                           .failureReturnValue(INVALID_HANDLE)
                           .suppressErrorMessagesForErrnos((openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
                           .evaluate();
@@ -201,35 +206,30 @@ bool SharedMemory::open(const AccessMode accessMode,
 
 cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
-    auto result = posixCall(iox_shm_unlink)(name.c_str())
-                      .failureReturnValue(INVALID_HANDLE)
-                      .suppressErrorMessagesForErrnos(ENOENT)
-                      .evaluate();
+    auto result =
+        posixCall(iox_shm_unlink)(name.c_str()).failureReturnValue(INVALID_HANDLE).ignoreErrnos(ENOENT).evaluate();
 
-    if (result.has_error())
+    if (!result.has_error())
     {
-        auto& error = result.get_error();
-        if (error.errnum == ENOENT)
-        {
-            return cxx::success<bool>(false);
-        }
-
-        return cxx::error<SharedMemoryError>(errnoToEnum(error.errnum));
+        return cxx::success<bool>(result->errnum != ENOENT);
     }
 
-    return cxx::success<bool>(true);
+    return cxx::error<SharedMemoryError>(errnoToEnum(result.get_error().errnum));
 }
 
 bool SharedMemory::unlink() noexcept
 {
     if (m_isInitialized && m_hasOwnership)
     {
-        if (!unlinkIfExist(m_name))
+        auto unlinkResult = unlinkIfExist(m_name);
+        if (unlinkResult.has_error() || unlinkResult.value() == false)
         {
             std::cerr << "Unable to unlink SharedMemory (shm_unlink failed)." << std::endl;
             return false;
         }
     }
+
+    reset();
     return true;
 }
 

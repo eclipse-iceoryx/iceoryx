@@ -49,7 +49,7 @@ enum class OpenMode : uint64_t
     OPEN_EXISTING = 3U
 };
 static constexpr const char* OPEN_MODE_STRING[] = {
-    "OpenMode::EXCLUSIVE_CREATE", "OpenMode::PURGE_AND_CREATE", "OpenMode::CREATE_OR_OPEN", "OpenMode::OPEN_EXISTING"};
+    "OpenMode::EXCLUSIVE_CREATE", "OpenMode::PURGE_AND_CREATE", "OpenMode::OPEN_OR_CREATE", "OpenMode::OPEN_EXISTING"};
 
 enum class SharedMemoryError
 {
@@ -71,6 +71,10 @@ enum class SharedMemoryError
     UNKNOWN_ERROR
 };
 
+/// @brief Creates a bare metal shared memory object with the posix functions
+///        shm_open, shm_unlink etc.
+///        It must be used in combination with MemoryMap (or manual mmap calls)
+//         to gain access to the created/opened shared memory
 class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
 {
   public:
@@ -84,14 +88,31 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     SharedMemory& operator=(SharedMemory&&) noexcept;
     ~SharedMemory() noexcept;
 
+    /// @brief returns the file handle of the shared memory
     int32_t getHandle() const noexcept;
+
+    /// @brief this class has the ownership of the shared memory when the shared
+    ///        memory was created by this class. This is the case when this class
+    ///        was successful created with EXCLUSIVE_CREATE, PURGE_AND_CREATE or OPEN_OR_CREATE
+    ///        and the shared memory was created. If an already available shared memory
+    ///        is opened then this class does not have the ownership.
     bool hasOwnership() const noexcept;
 
+    /// @brief removes shared memory with a given name from the system
+    /// @param[in] name name of the shared memory
+    /// @return true if the shared memory was removed, false if the shared memory did not exist and
+    ///         SharedMemoryError when the underlying shm_unlink call failed.
     static cxx::expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
 
     friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
 
   private:
+    /// @brief constructs or opens existing shared memory
+    /// @param[in] name the name of the shared memory, must start with a leading /
+    /// @param[in] accessMode defines if the shared memory is mapped read only or with read write rights
+    /// @param[in] openMode states how the shared memory is created/opened
+    /// @param[in] permissions the permissions the shared memory should have
+    /// @param[in] size the size in bytes of the shared memory
     SharedMemory(const Name_t& name,
                  const AccessMode accessMode,
                  const OpenMode openMode,
