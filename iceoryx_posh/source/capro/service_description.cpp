@@ -74,14 +74,14 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcep
     std::underlying_type<Scope>::type scope = 0;
     std::underlying_type<Interfaces>::type interfaceSource = 0;
     serial.extract(m_serviceString,
-                     m_instanceString,
-                     m_eventString,
-                     m_classHash[0u],
-                     m_classHash[1u],
-                     m_classHash[2u],
-                     m_classHash[3u],
-                     scope,
-                     interfaceSource);
+                   m_instanceString,
+                   m_eventString,
+                   m_classHash[0u],
+                   m_classHash[1u],
+                   m_classHash[2u],
+                   m_classHash[3u],
+                   scope,
+                   interfaceSource);
     if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
     {
         m_scope = Scope::INVALID;

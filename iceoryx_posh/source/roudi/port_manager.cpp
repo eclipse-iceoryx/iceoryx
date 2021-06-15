@@ -152,28 +152,36 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
 {
     publisherPort.tryGetCaProMessage().and_then([this, &publisherPort](auto caproMessage) {
         m_portIntrospection.reportMessage(caproMessage);
-        if (capro::CaproMessageType::OFFER == caproMessage.m_type)
-        {
-            this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                            caproMessage.m_serviceDescription.getInstanceIDString());
-        }
-        else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
-        {
-            this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                                 caproMessage.m_serviceDescription.getInstanceIDString());
-        }
-        else
-        {
-            // protocol error
-            errorHandler(
-                Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
-        }
 
-        this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
-        // forward to interfaces
-        this->sendToAllMatchingInterfacePorts(caproMessage);
+        if (caproMessage.m_serviceDescription.isValid())
+        {
+            if (capro::CaproMessageType::OFFER == caproMessage.m_type)
+            {
+                this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                                caproMessage.m_serviceDescription.getInstanceIDString());
+            }
+            else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
+            {
+                if (caproMessage.m_serviceDescription.isValid())
+                {
+                    this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                                         caproMessage.m_serviceDescription.getInstanceIDString());
+                }
+            }
+            else
+            {
+                // protocol error
+                errorHandler(Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
+                             nullptr,
+                             iox::ErrorLevel::MODERATE);
+            }
+
+            this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
+            // forward to interfaces
+            this->sendToAllMatchingInterfacePorts(caproMessage);
+        }
     });
-}
+} // namespace roudi
 
 void PortManager::handleSubscriberPorts() noexcept
 {
@@ -302,16 +310,21 @@ void PortManager::handleApplications() noexcept
             case capro::CaproMessageType::OFFER:
             {
                 auto serviceDescription = caproMessage.m_serviceDescription;
-                addEntryToServiceRegistry(serviceDescription.getServiceIDString(),
-                                          serviceDescription.getInstanceIDString());
+                if (serviceDescription.isValid())
+                {
+                    addEntryToServiceRegistry(serviceDescription.getServiceIDString(),
+                                              serviceDescription.getInstanceIDString());
+                }
                 break;
             }
             case capro::CaproMessageType::STOP_OFFER:
             {
                 auto serviceDescription = caproMessage.m_serviceDescription;
-                removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
-                                               serviceDescription.getInstanceIDString());
-
+                if (serviceDescription.isValid())
+                {
+                    removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
+                                                   serviceDescription.getInstanceIDString());
+                }
                 break;
             }
             default:

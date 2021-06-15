@@ -88,11 +88,11 @@ TEST_F(RoudiFindService_test, OfferServiceWithInvalidEventIdFails)
 
 TEST_F(RoudiFindService_test, ReofferedServiceWithValidServiceDescriptionCanBeFound)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->stopOfferService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -103,9 +103,9 @@ TEST_F(RoudiFindService_test, ReofferedServiceWithValidServiceDescriptionCanBeFo
 
 TEST_F(RoudiFindService_test, OfferExsistingServiceMultipleTimesIsRedundant)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -116,7 +116,7 @@ TEST_F(RoudiFindService_test, OfferExsistingServiceMultipleTimesIsRedundant)
 
 TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -130,9 +130,9 @@ TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 
 TEST_F(RoudiFindService_test, OfferMultiMethodServiceSingleInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service2", "instance1", "event1"});
-    senderRuntime->offerService({"service3", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -150,8 +150,8 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceSingleInstance)
 
 TEST_F(RoudiFindService_test, OfferMultiMethodServiceWithDistinctSingleInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service2", "instance2", "event2"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance2", "event2"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -168,9 +168,9 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceWithDistinctSingleInstance)
 
 TEST_F(RoudiFindService_test, SubscribeAnyInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service1", "instance2", "event2"});
-    senderRuntime->offerService({"service1", "instance3", "event3"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance3", "event3"}));
     this->InterOpWait();
     InstanceContainer instanceContainerExp;
     instanceContainerExp.push_back("instance1");
@@ -185,9 +185,9 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceMultiInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service1", "instance2", "event2"});
-    senderRuntime->offerService({"service1", "instance3", "event3"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance3", "event3"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -205,12 +205,12 @@ TEST_F(RoudiFindService_test, OfferSingleMethodServiceMultiInstance)
 
 TEST_F(RoudiFindService_test, OfferMultiMethodServiceMultiInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service1", "instance2", "event2"});
-    senderRuntime->offerService({"service1", "instance3", "event3"});
-    senderRuntime->offerService({"service2", "instance1", "event1"});
-    senderRuntime->offerService({"service2", "instance2", "event2"});
-    senderRuntime->offerService({"service2", "instance3", "event3"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance3", "event3"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -240,9 +240,9 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceMultiInstance)
 
 TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->stopOfferService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -251,12 +251,12 @@ TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)
 
 TEST_F(RoudiFindService_test, StopOfferMultiMethodServiceSingleInstance)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service2", "instance1", "event1"});
-    senderRuntime->offerService({"service3", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->stopOfferService({"service1", "instance1", "event1"});
-    senderRuntime->stopOfferService({"service3", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -272,11 +272,11 @@ TEST_F(RoudiFindService_test, StopOfferMultiMethodServiceSingleInstance)
 
 TEST_F(RoudiFindService_test, StopOfferServiceRedundantCall)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->stopOfferService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->stopOfferService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -287,9 +287,9 @@ TEST_F(RoudiFindService_test, StopOfferServiceRedundantCall)
 
 TEST_F(RoudiFindService_test, StopNonExistingService)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    senderRuntime->stopOfferService({"service2", "instance2", "event2"});
+    EXPECT_TRUE(senderRuntime->stopOfferService({"service2", "instance2", "event2"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "instance1");
@@ -300,9 +300,9 @@ TEST_F(RoudiFindService_test, StopNonExistingService)
 
 TEST_F(RoudiFindService_test, FindNonExistingServices)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
-    senderRuntime->offerService({"service2", "instance1", "event1"});
-    senderRuntime->offerService({"service3", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(senderRuntime->offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService("service1", "schlomo");
@@ -317,7 +317,7 @@ TEST_F(RoudiFindService_test, FindNonExistingServices)
 
 TEST_F(RoudiFindService_test, InterfacePort)
 {
-    senderRuntime->offerService({"service1", "instance1", "event1"});
+    EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
@@ -349,7 +349,7 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
         std::string instance = "i" + iox::cxx::convert::toString(i);
-        senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
+        EXPECT_TRUE(senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         instanceContainerExp.push_back(IdString_t(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();
     }
@@ -368,7 +368,7 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
     for (size_t i = 0; i < noOfInstances; i++)
     {
         std::string instance = "i" + iox::cxx::convert::toString(i);
-        senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
+        EXPECT_TRUE(senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         instanceContainerExp.push_back(IdString_t(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();
     }

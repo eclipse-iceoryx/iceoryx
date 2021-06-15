@@ -97,7 +97,8 @@ class PoshRuntime
 
     /// @brief stop offering the provided service
     /// @param[in] service valid ServiceDescription that shall be no more offered
-    virtual void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
+    /// @return bool, if service is not offered anymore returns true else false
+    virtual bool stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
 
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port

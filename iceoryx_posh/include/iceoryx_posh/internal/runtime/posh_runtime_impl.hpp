@@ -51,7 +51,7 @@ class PoshRuntimeImpl : public PoshRuntime
     bool offerService(const capro::ServiceDescription& serviceDescription) noexcept override;
 
     /// @copydoc PoshRuntime::stopOfferService
-    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept override;
+    bool stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept override;
 
     /// @copydoc PoshRuntime::getMiddlewarePublisher
     PublisherPortUserType::MemberType_t*
