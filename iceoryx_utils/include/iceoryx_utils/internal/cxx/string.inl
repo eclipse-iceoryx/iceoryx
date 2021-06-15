@@ -97,7 +97,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 
 template <uint64_t Capacity>
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(TruncateToCapacity, other, strnlen(other, Capacity + 1U))
+    : string(TruncateToCapacity, other, strnlen(other, Capacity))
 {
 }
 
@@ -143,7 +143,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
         return *this;
     }
 
-    m_rawstringSize = strnlen(rhs, Capacity);
+    m_rawstringSize = std::min(Capacity, static_cast<uint64_t>(strnlen(rhs, N)));
     std::memcpy(&(m_rawstring[0]), rhs, m_rawstringSize);
     m_rawstring[m_rawstringSize] = '\0';
 
@@ -465,14 +465,18 @@ inline typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCx
 string<Capacity>::unsafe_append(const T& t) noexcept
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
-    if (Capacity < (m_rawstringSize + tSize))
+    const char* tData = internal::GetData<T>::call(t);
+    uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
+
+    if (tSize > clampedTSize)
     {
         std::cerr << "Appending failed because the sum of sizes exceeds this' capacity." << std::endl;
         return false;
     }
-    std::memcpy(&(m_rawstring[0]) + m_rawstringSize, internal::GetData<T>::call(t), tSize);
-    m_rawstring[m_rawstringSize + tSize] = '\0';
-    m_rawstringSize += tSize;
+
+    std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
+    m_rawstringSize += clampedTSize;
+    m_rawstring[m_rawstringSize] = '\0';
     return true;
 }
 
@@ -484,20 +488,17 @@ inline
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);
-    if (Capacity < (m_rawstringSize + tSize))
+    uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
+
+    std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
+    if (tSize > clampedTSize)
     {
         std::cerr << "The last " << tSize - Capacity + m_rawstringSize << " characters of " << tData
                   << " are truncated, because the length is larger than the capacity." << std::endl;
-        std::memcpy(&(m_rawstring[0]) + m_rawstringSize, tData, Capacity - m_rawstringSize);
-        m_rawstring[Capacity] = '\0';
-        m_rawstringSize = Capacity;
     }
-    else
-    {
-        std::memcpy(&(m_rawstring[0]) + m_rawstringSize, tData, tSize);
-        m_rawstring[m_rawstringSize + tSize] = '\0';
-        m_rawstringSize += tSize;
-    }
+
+    m_rawstringSize += clampedTSize;
+    m_rawstring[m_rawstringSize] = '\0';
     return *this;
 }
 

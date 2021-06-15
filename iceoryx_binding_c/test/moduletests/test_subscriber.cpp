@@ -433,7 +433,14 @@ TEST(iox_sub_options_test, subscriberOptionsInitializationCheckReturnsTrueAfterD
 TEST(iox_sub_options_test, subscriberOptionsInitializationCheckReturnsFalseWithoutDefaultInit)
 {
     iox_sub_options_t sut;
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     EXPECT_FALSE(iox_sub_options_is_initialized(&sut));
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
 }
 
 TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash)

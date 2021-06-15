@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(IOX_VERSION_STRING "1.0.0")
+set(IOX_VERSION_STRING "1.0.1")
 
 #find_package(iceoryx_utils REQUIRED)
 

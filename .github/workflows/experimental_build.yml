@@ -6,7 +6,7 @@ name: Experimental build
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ master, release* ]
   pull_request:
     branches: [ master, release* ]
 
