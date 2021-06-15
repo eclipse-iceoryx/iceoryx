@@ -24,29 +24,11 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::capro;
 
-TEST(iox_service_description_translation_test, TranslatesIntegersCorrectly)
-{
-    iox::capro::ServiceDescription service(5U, 12U, 89U);
-    auto cServiceDescription = TranslateServiceDescription(service);
-
-    EXPECT_THAT(cServiceDescription.serviceId, Eq(5U));
-    EXPECT_THAT(cServiceDescription.instanceId, Eq(89U));
-    EXPECT_THAT(cServiceDescription.eventId, Eq(12U));
-
-    EXPECT_THAT(std::string(cServiceDescription.serviceString), Eq("5"));
-    EXPECT_THAT(std::string(cServiceDescription.instanceString), Eq("89"));
-    EXPECT_THAT(std::string(cServiceDescription.eventString), Eq("12"));
-}
-
 TEST(iox_service_description_translation_test, TranslatesStringCorrectly)
 {
     iox::capro::ServiceDescription service(
         IdString_t("SomeService"), IdString_t("FunkyInstance"), IdString_t("BumbleBeeSighted"));
     auto cServiceDescription = TranslateServiceDescription(service);
-
-    EXPECT_THAT(cServiceDescription.serviceId, Eq(iox::capro::InvalidID));
-    EXPECT_THAT(cServiceDescription.instanceId, Eq(iox::capro::InvalidID));
-    EXPECT_THAT(cServiceDescription.eventId, Eq(iox::capro::InvalidID));
 
     EXPECT_THAT(std::string(cServiceDescription.serviceString), Eq("SomeService"));
     EXPECT_THAT(std::string(cServiceDescription.instanceString), Eq("FunkyInstance"));

@@ -21,10 +21,6 @@
 
 typedef struct
 {
-    uint16_t serviceId;
-    uint16_t instanceId;
-    uint16_t eventId;
-
     char serviceString[100U];
     char instanceString[100U];
     char eventString[100U];
