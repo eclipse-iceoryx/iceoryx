@@ -23,11 +23,18 @@ namespace popo
 {
 RpcBaseHeader::RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
                              const uint32_t lastKnownClientQueueIndex,
-                             const int64_t sequenceId)
-    : m_lastKnownClientQueueIndex(lastKnownClientQueueIndex)
+                             const int64_t sequenceId,
+                             uint8_t rpcHeaderVersion)
+    : m_rpcHeaderVersion(rpcHeaderVersion)
+    , m_lastKnownClientQueueIndex(lastKnownClientQueueIndex)
     , m_clientQueueUniquePortId(clientQueueUniquePortId)
     , m_sequenceId(sequenceId)
 {
+}
+
+uint8_t RpcBaseHeader::getRpcHeaderVersion() const
+{
+    return m_rpcHeaderVersion;
 }
 
 int64_t RpcBaseHeader::getSequenceId() const noexcept
@@ -57,7 +64,7 @@ const void* RpcBaseHeader::getUserPayload() const noexcept
 
 RequestHeader::RequestHeader(const UniquePortId& clientQueueUniquePortId,
                              const uint32_t lastKnownClientQueueIndex) noexcept
-    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, 0)
+    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, 0, RPC_HEADER_VERSION)
 {
 }
 
@@ -79,7 +86,7 @@ bool RequestHeader::getFireAndForget() const noexcept
 ResponseHeader::ResponseHeader(const UniquePortId& clientQueueUniquePortId,
                                const uint32_t lastKnownClientQueueIndex,
                                const int64_t sequenceId) noexcept
-    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, sequenceId)
+    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, sequenceId, RPC_HEADER_VERSION)
 {
 }
 

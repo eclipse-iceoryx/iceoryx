@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_RPC_HEADER_HPP
 #define IOX_POSH_POPO_RPC_HEADER_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <cstdint>
@@ -38,7 +38,8 @@ class RpcBaseHeader
     /// @param[in] sequenceId is a custom ID to map a response to a request
     explicit RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
                            const uint32_t lastKnownClientQueueIndex,
-                           const int64_t sequenceId);
+                           const int64_t sequenceId,
+                           const uint8_t rpcHeaderVersion);
 
     RpcBaseHeader(const RpcBaseHeader& other) = delete;
     RpcBaseHeader& operator=(const RpcBaseHeader&) = delete;
@@ -50,9 +51,14 @@ class RpcBaseHeader
     ///            - data width of members changes
     ///            - members are rearranged
     ///            - semantic meaning of a member changes
+    ///        in any of RpcBaseHeader, RequestHeader or ResponseHeader!
     static constexpr uint8_t RPC_HEADER_VERSION{1U};
 
     static constexpr uint32_t UNKNOWN_CLIENT_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+
+    /// @brief The RpcBaseHeader version is used to detect incompatibilities for record&replay functionality
+    /// @return the RpcBaseHeader version
+    uint8_t getRpcHeaderVersion() const;
 
     /// @briet Obtains the sequence ID of the RPC message
     /// @return the sequenceId of the RPC message
