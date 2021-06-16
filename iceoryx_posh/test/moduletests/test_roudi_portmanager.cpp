@@ -220,6 +220,41 @@ void setDestroyFlagAndClearContainer(vector& container)
     container.clear();
 }
 
+TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionLeadsToSubscriberNotBeingConnected)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString},
+                publisherOptions,
+                "guiseppe",
+                m_payloadDataSegmentMemoryManager,
+                PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    publisher.offer();
+    // no doDiscovery() at this position is intentional
+
+    SubscriberPortUser subscriber(
+        m_portManager
+            ->acquireSubscriberPortData(
+                {iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString},
+                subscriberOptions,
+                "schlomo",
+                PortConfigInfo())
+            .value());
+    ASSERT_TRUE(subscriber);
+    subscriber.subscribe();
+
+    m_portManager->doDiscovery();
+
+    ASSERT_FALSE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
@@ -600,6 +635,31 @@ TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquir
 
     // so we should able to get some more now
     acquireMaxNumberOfInterfaces(runtimeName);
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionInApplicationPortLeadsToEmptyResponse)
+{
+    auto applicationPortData = m_portManager->acquireApplicationPortData(
+        iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "OhWieSchoenIsPanama"));
+    ASSERT_NE(applicationPortData, nullptr);
+
+    auto interfacePortData = m_portManager->acquireInterfacePortData(
+        iox::capro::Interfaces::AMQP, iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "OhWieSchoenIsNicaragua"));
+    ASSERT_NE(interfacePortData, nullptr);
+
+    iox::popo::ApplicationPort applicationPort{applicationPortData};
+    iox::popo::InterfacePort interfacePort{interfacePortData};
+
+    iox::capro::CaproMessage request{iox::capro::CaproMessageType::OFFER,
+                                     {iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString}};
+
+    applicationPort.dispatchCaProMessage(request);
+
+    m_portManager->doDiscovery();
+
+    auto response = interfacePort.tryGetCaProMessage();
+
+    EXPECT_FALSE(response.has_value());
 }
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)

@@ -29,8 +29,8 @@ namespace iox
 {
 namespace capro
 {
-/// @todo remove
-static const IdString_t InvalidString{"INVALID"};
+static const IdString_t InvalidString{""};
+/// @todo #451 make this an enum and move it to the new user-facing discovery API, only needed for search
 static constexpr char Wildcard[]{"*"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
@@ -133,9 +133,8 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() noexcept;
 
-    /// @todo remove any*string from doxygen?
     ///@brief Returns true for valid ServiceDescription
-    /// false for ServiceDescription that contains either of InvalidIDString or any Wildcard.
+    /// false for ServiceDescription that contain InvalidStrings.
     bool isValid() const noexcept;
 
     ///@{

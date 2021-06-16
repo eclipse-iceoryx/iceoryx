@@ -151,10 +151,9 @@ void PortManager::handlePublisherPorts() noexcept
 void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherPort) noexcept
 {
     publisherPort.tryGetCaProMessage().and_then([this, &publisherPort](auto caproMessage) {
-        m_portIntrospection.reportMessage(caproMessage);
-
         if (caproMessage.m_serviceDescription.isValid())
         {
+            m_portIntrospection.reportMessage(caproMessage);
             if (capro::CaproMessageType::OFFER == caproMessage.m_type)
             {
                 this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
@@ -162,11 +161,8 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
             }
             else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
             {
-                if (caproMessage.m_serviceDescription.isValid())
-                {
-                    this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                                         caproMessage.m_serviceDescription.getInstanceIDString());
-                }
+                this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                                     caproMessage.m_serviceDescription.getInstanceIDString());
             }
             else
             {
@@ -203,26 +199,29 @@ void PortManager::handleSubscriberPorts() noexcept
 void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept
 {
     subscriberPort.tryGetCaProMessage().and_then([this, &subscriberPort](auto caproMessage) {
-        if ((capro::CaproMessageType::SUB == caproMessage.m_type)
-            || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
+        if (caproMessage.m_serviceDescription.isValid())
         {
-            m_portIntrospection.reportMessage(caproMessage, subscriberPort.getUniqueID());
-            if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
+            if ((capro::CaproMessageType::SUB == caproMessage.m_type)
+                || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
             {
-                LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
-                capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
-                                                subscriberPort.getCaProServiceDescription());
-                auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
-                // No response on NACK messages
-                cxx::Ensures(!returnMessage.has_value());
+                m_portIntrospection.reportMessage(caproMessage, subscriberPort.getUniqueID());
+                if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
+                {
+                    LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
+                    capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
+                                                    subscriberPort.getCaProServiceDescription());
+                    auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
+                    // No response on NACK messages
+                    cxx::Ensures(!returnMessage.has_value());
+                }
             }
-        }
-        else
-        {
-            // protocol error
-            errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
-                         nullptr,
-                         iox::ErrorLevel::MODERATE);
+            else
+            {
+                // protocol error
+                errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
+                             nullptr,
+                             iox::ErrorLevel::MODERATE);
+            }
         }
     });
 }
@@ -305,36 +304,33 @@ void PortManager::handleApplications() noexcept
         while (auto maybeCaproMessage = applicationPort.tryGetCaProMessage())
         {
             auto& caproMessage = maybeCaproMessage.value();
-            switch (caproMessage.m_type)
+            auto serviceDescription = caproMessage.m_serviceDescription;
+
+            if (serviceDescription.isValid())
             {
-            case capro::CaproMessageType::OFFER:
-            {
-                auto serviceDescription = caproMessage.m_serviceDescription;
-                if (serviceDescription.isValid())
+                switch (caproMessage.m_type)
+                {
+                case capro::CaproMessageType::OFFER:
                 {
                     addEntryToServiceRegistry(serviceDescription.getServiceIDString(),
                                               serviceDescription.getInstanceIDString());
+                    break;
                 }
-                break;
-            }
-            case capro::CaproMessageType::STOP_OFFER:
-            {
-                auto serviceDescription = caproMessage.m_serviceDescription;
-                if (serviceDescription.isValid())
+                case capro::CaproMessageType::STOP_OFFER:
                 {
                     removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
                                                    serviceDescription.getInstanceIDString());
+                    break;
                 }
-                break;
-            }
-            default:
-            {
-                LogError() << "Roudi: Something went wrong in receiving CaproMessage in ApplicationPortList!";
-            }
-            }
+                default:
+                {
+                    LogError() << "Roudi: Something went wrong in receiving CaproMessage in ApplicationPortList!";
+                }
+                }
 
-            // forward to interfaces
-            sendToAllMatchingInterfacePorts(caproMessage);
+                // forward to interfaces
+                sendToAllMatchingInterfacePorts(caproMessage);
+            }
         }
 
         // check if we have to destroy this application port
