@@ -15,24 +15,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/stat.hpp"
-#include "iceoryx_utils/platform/types.hpp"
 #include "test.hpp"
-#include "testutils/test_definitions.hpp"
 
 
 #include <functional>
 #include <memory>
-
-using namespace ::testing;
-using namespace iox::mepoo;
-using namespace iox::posix;
 
 namespace iox
 {
@@ -48,6 +44,13 @@ struct ErrorTypeAdapter<int>
 };
 } // namespace cxx
 } // namespace iox
+
+namespace
+{
+using namespace ::testing;
+using namespace iox::mepoo;
+using namespace iox::posix;
+
 class MePooSegment_test : public Test
 {
   public:
@@ -197,11 +200,13 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     auto config = sut.getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100U));
 
-    constexpr uint32_t PAYLOAD_SIZE{128U};
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    constexpr uint32_t USER_PAYLOAD_SIZE{128U};
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
     auto chunk = sut.getMemoryManager().getChunk(chunkSettings);
-    EXPECT_THAT(chunk.getChunkHeader()->payloadSize, Eq(PAYLOAD_SIZE));
+    EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
 }
+
+} // namespace

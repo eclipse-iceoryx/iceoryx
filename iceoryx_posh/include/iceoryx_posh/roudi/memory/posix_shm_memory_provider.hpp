@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +19,11 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 
 #include <cstdint>
 
@@ -51,21 +52,18 @@ class PosixShmMemoryProvider : public MemoryProvider
     PosixShmMemoryProvider& operator=(const PosixShmMemoryProvider&) = delete;
 
   protected:
-    /// @brief Implementation of MemoryProvider::createMemory
-    /// @param [in] size is the size in bytes for the requested memory, the size should already be calculated according
-    /// to the alignment requirements
-    /// @param [in] alignment the required alignment for the memory
-    /// @return the pointer of the begin of the created memory, nullptr if the memory could not be created
+    /// @copydoc MemoryProvider::createMemory
+    /// @note This creates and maps a POSIX shared memory to the address space of the application
     cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size, const uint64_t alignment) noexcept;
 
-    /// @brief Implementation of MemoryProvider::destroyMemory
-    /// @return a MemoryProviderError if the destruction failed, otherwise success
+    /// @copydoc MemoryProvider::destroyMemory
+    /// @note This closes and unmaps a POSIX shared memory
     cxx::expected<MemoryProviderError> destroyMemory() noexcept;
 
   private:
     ShmName_t m_shmName;
     posix::AccessMode m_accessMode{posix::AccessMode::READ_ONLY};
-    posix::OwnerShip m_ownership{posix::OwnerShip::OPEN_EXISTING};
+    posix::OwnerShip m_ownership{posix::OwnerShip::OPEN_EXISTING_SHM};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
 };
 

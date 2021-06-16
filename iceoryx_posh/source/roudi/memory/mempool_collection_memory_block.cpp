@@ -19,9 +19,9 @@
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
-#include "iceoryx_utils/cxx/algorithm.hpp"
-#include "iceoryx_utils/internal/concurrent/loffli.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
 {
@@ -39,18 +39,18 @@ MemPoolCollectionMemoryBlock::~MemPoolCollectionMemoryBlock() noexcept
 
 uint64_t MemPoolCollectionMemoryBlock::size() const noexcept
 {
-    return cxx::align(static_cast<uint64_t>(sizeof(mepoo::MemoryManager)), mepoo::MemPool::MEMORY_ALIGNMENT)
+    return cxx::align(static_cast<uint64_t>(sizeof(mepoo::MemoryManager)), mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::MemoryManager::requiredFullMemorySize(m_memPoolConfig);
 }
 
 uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 {
     // algorithm::align doesn't like constexpr values
-    auto memPoolAlignment = mepoo::MemPool::MEMORY_ALIGNMENT;
+    auto memPoolAlignment = mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT;
     return algorithm::max(static_cast<uint64_t>(alignof(mepoo::MemoryManager)), memPoolAlignment);
 }
 
-void MemPoolCollectionMemoryBlock::memoryAvailable(void* memory) noexcept
+void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     posix::Allocator allocator(memory, size());
     auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));

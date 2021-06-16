@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +22,7 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <cstdint>
 
@@ -40,26 +41,26 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
     MemPoolSegmentManagerMemoryBlock& operator=(const MemPoolSegmentManagerMemoryBlock&) = delete;
     MemPoolSegmentManagerMemoryBlock& operator=(MemPoolSegmentManagerMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of for SegmentManager
+    /// @copydoc MemoryBlock::size
+    /// @note the size of for SegmentManager
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the memory alignment for SegmentManager
+    /// @copydoc MemoryBlock::alignment
+    /// @note The memory alignment for SegmentManager
     uint64_t alignment() const noexcept override;
-
-    /// @brief Implementation of MemoryBlock::memoryAvailable
-    /// This will create the SegmentManager
-    /// @param [in] memory pointer to a valid memory location to place the mempools
-    void memoryAvailable(void* memory) noexcept override;
-
-    /// @brief Implementation of MemoryBlock::destroy
-    /// This will clean up the SegmentManager
-    void destroy() noexcept override;
 
     /// @brief This function enables the access to the SegmentManager
     /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
     cxx::optional<mepoo::SegmentManager<>*> segmentManager() const noexcept;
+
+  protected:
+    /// @copydoc MemoryBlock::onMemoryAvailable
+    /// @note This will create the SegmentManager at the location `memory` points to
+    void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
+
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will clean up the SegmentManager
+    void destroy() noexcept override;
 
   private:
     mepoo::SegmentManager<>* m_segmentManager{nullptr};

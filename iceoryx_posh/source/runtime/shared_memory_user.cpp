@@ -16,42 +16,38 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {
 namespace runtime
 {
-SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
-                                   const size_t topicSize,
+SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
                                    const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset)
 {
-    if (doMapSharedMemoryIntoThread)
-    {
-        // create and map the already existing shared memory region
-        posix::SharedMemoryObject::create(roudi::SHM_NAME,
-                                          topicSize,
-                                          posix::AccessMode::READ_WRITE,
-                                          posix::OwnerShip::OPEN_EXISTING,
-                                          posix::SharedMemoryObject::NO_ADDRESS_HINT)
-            .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-                rp::BaseRelativePointer::registerPtr(
-                    segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
-                LogDebug() << "Application registered management segment "
-                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+    // create and map the already existing shared memory region
+    posix::SharedMemoryObject::create(roudi::SHM_NAME,
+                                      topicSize,
+                                      posix::AccessMode::READ_WRITE,
+                                      posix::OwnerShip::OPEN_EXISTING_SHM,
+                                      posix::SharedMemoryObject::NO_ADDRESS_HINT)
+        .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
+            rp::BaseRelativePointer::registerPtr(
+                segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+            LogDebug() << "Application registered management segment "
+                       << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                       << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
-                this->openDataSegments(segmentId, segmentManagerAddressOffset);
+            this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
-                m_shmObject.emplace(std::move(sharedMemoryObject));
-            })
-            .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_MAPP_ERR); });
-    }
+            m_shmObject.emplace(std::move(sharedMemoryObject));
+        })
+        .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_MAPP_ERR); });
 }
 
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
@@ -67,10 +63,10 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
         posix::SharedMemoryObject::create(segment.m_sharedMemoryName,
                                           segment.m_size,
                                           accessMode,
-                                          posix::OwnerShip::OPEN_EXISTING,
+                                          posix::OwnerShip::OPEN_EXISTING_SHM,
                                           posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, &segment](auto& sharedMemoryObject) {
-                if (static_cast<uint32_t>(m_payloadShmObjects.size()) >= MAX_SHM_SEGMENTS)
+                if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {
                     errorHandler(Error::kPOSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
@@ -78,11 +74,11 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                 rp::BaseRelativePointer::registerPtr(
                     segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
 
-                LogInfo() << "Application registered payload segment "
-                          << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                          << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                LogDebug() << "Application registered payload data segment "
+                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 
-                m_payloadShmObjects.emplace_back(std::move(sharedMemoryObject));
+                m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })
             .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_SEGMENT_MAPP_ERR); });
     }

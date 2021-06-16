@@ -70,12 +70,12 @@ class TestRouDiProcessOutput(unittest.TestCase):
             cm.assertInStdout('[ Reserving shared memory successful ]')
             cm.assertInStdout('Registered memory segment')
             cm.assertInStdout('[ Reserving shared memory successful ]')
-            cm.assertInStdout('Roudi registered payload segment')
+            cm.assertInStdout('Roudi registered payload data segment')
             cm.assertInStdout('RouDi is ready for clients')
 
             if os.name != 'nt':
-                cm.assertInStdout("Joining 'ProcessMgmt' thread...")
-                cm.assertInStdout("...'ProcessMgmt' thread joined.")
+                cm.assertInStdout("Joining 'Mon+Discover' thread...")
+                cm.assertInStdout("...'Mon+Discover' thread joined.")
                 cm.assertInStdout("Joining 'IPC-msg-process' thread...")
                 cm.assertInStdout("...'IPC-msg-process' thread joined.")
 
@@ -85,5 +85,5 @@ class TestRouDiProcessOutput(unittest.TestCase):
             cm.assertInStdout('[ Reserving shared memory successful ]')
             cm.assertInStdout('Registered memory segment')
             cm.assertInStdout('[ Reserving shared memory successful ]')
-            cm.assertInStdout('Roudi registered payload segment')
+            cm.assertInStdout('Roudi registered payload data segment')
             cm.assertInStdout('RouDi is ready for clients')

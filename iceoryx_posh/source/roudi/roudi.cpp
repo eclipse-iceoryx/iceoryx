@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
 {
@@ -35,11 +34,14 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              RoudiStartupParameters roudiStartupParameters)
     : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
-    , m_runDiscoveryThread(true)
-    , m_runIpcChannelThread(true)
+    , m_runMonitoringAndDiscoveryThread(true)
+    , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
+    , m_prcMgr(concurrent::ForwardArgsToCTor,
+               *m_roudiMemoryInterface,
+               portManager,
+               roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
@@ -62,8 +64,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
+    m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
+    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -78,23 +80,40 @@ RouDi::~RouDi()
 
 void RouDi::startProcessRuntimeMessagesThread()
 {
-    m_processRuntimeMessagesThread = std::thread(&RouDi::processRuntimeMessages, this);
-    posix::setThreadName(m_processRuntimeMessagesThread.native_handle(), "IPC-msg-process");
+    m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
+    posix::setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown()
 {
     m_processIntrospection.stop();
     m_portManager->stopPortIntrospection();
-    m_runDiscoveryThread = false;
+
+    // stop the process management thread in order to prevent application to register while shutting down
+    m_runMonitoringAndDiscoveryThread = false;
+    if (m_monitoringAndDiscoveryThread.joinable())
+    {
+        LogDebug() << "Joining 'Mon+Discover' thread...";
+        m_monitoringAndDiscoveryThread.join();
+        LogDebug() << "...'Mon+Discover' thread joined.";
+    }
+
     if (m_killProcessesInDestructor)
     {
         cxx::DeadlineTimer finalKillTimer(m_processKillDelay);
 
         m_prcMgr->requestShutdownOfAllProcesses();
 
+        using namespace units::duration_literals;
+        auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
         while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
         {
+            if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
+            {
+                LogWarn() << "Some applications seem to not shutdown gracefully! Time until hard shutdown: "
+                          << finalKillTimer.remainingTime().toSeconds() << "s!";
+                remainingDurationForWarnPrint = remainingDurationForWarnPrint - 5_s;
+            }
             // give processes some time to terminate
             std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
         }
@@ -111,20 +130,14 @@ void RouDi::shutdown()
             m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
         }
     }
+
     // Postpone the IpcChannelThread in order to receive TERMINATION
-    m_runIpcChannelThread = false;
+    m_runHandleRuntimeMessageThread = false;
 
-
-    if (m_processManagementThread.joinable())
-    {
-        LogDebug() << "Joining 'ProcessMgmt' thread...";
-        m_processManagementThread.join();
-        LogDebug() << "...'ProcessMgmt' thread joined.";
-    }
-    if (m_processRuntimeMessagesThread.joinable())
+    if (m_handleRuntimeMessageThread.joinable())
     {
         LogDebug() << "Joining 'IPC-msg-process' thread...";
-        m_processRuntimeMessagesThread.join();
+        m_handleRuntimeMessageThread.join();
         LogDebug() << "...'IPC-msg-process' thread joined.";
     }
 }
@@ -136,7 +149,7 @@ void RouDi::cyclicUpdateHook()
 
 void RouDi::monitorAndDiscoveryUpdate()
 {
-    while (m_runDiscoveryThread)
+    while (m_runMonitoringAndDiscoveryThread)
     {
         m_prcMgr->run();
 
@@ -153,7 +166,7 @@ void RouDi::processRuntimeMessages()
     // the logger is intentionally not used, to ensure that this message is always printed
     std::cout << "RouDi is ready for clients" << std::endl;
 
-    while (m_runIpcChannelThread)
+    while (m_runHandleRuntimeMessageThread)
     {
         // read RouDi's IPC channel
         runtime::IpcMessage message;
@@ -211,7 +224,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_PUBLISHER:
     {
-        if (message.getNumberOfElements() != 7)
+        if (message.getNumberOfElements() != 8)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_PUBLISHER\" from \"" << runtimeName
                        << "\"received!";
@@ -219,12 +232,36 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(6));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
             popo::PublisherOptions options;
-            options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+            uint64_t historyCapacity{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
+                           << message.getElementAtIndex(3).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.historyCapacity = historyCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
-            options.offerOnCreate = (0U == std::stoull(message.getElementAtIndex(5))) ? false : true;
+
+            uint64_t offerOnCreate{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
+                           << message.getElementAtIndex(5).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.offerOnCreate = (0U == offerOnCreate) ? false : true;
+
+            uint8_t subscriberTooSlowPolicy{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
+                           << message.getElementAtIndex(6).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.subscriberTooSlowPolicy = static_cast<popo::SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
 
             m_prcMgr->addPublisherForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -233,7 +270,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_SUBSCRIBER:
     {
-        if (message.getNumberOfElements() != 8)
+        if (message.getNumberOfElements() != 9)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SUBSCRIBER\" from \"" << runtimeName
                        << "\"received!";
@@ -241,15 +278,45 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
 
             popo::SubscriberOptions options;
-            options.historyRequest = std::stoull(message.getElementAtIndex(3));
-            options.queueCapacity = std::stoull(message.getElementAtIndex(4));
+            uint64_t historyRequest;
+            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(3).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.historyRequest = historyRequest;
+            uint64_t queueCapacity;
+            if (!cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(4).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.queueCapacity = queueCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
-            options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
 
+            uint32_t subscribeOnCreate;
+            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(6).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
+
+            uint8_t queueFullPolicy{};
+            if (!cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
+            {
+                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
+                           << message.getElementAtIndex(7).c_str() << "' cannot be extracted from string\n";
+                break;
+            }
+            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(queueFullPolicy);
 
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -331,6 +398,20 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     case runtime::IpcMessageType::KEEPALIVE:
     {
         m_prcMgr->updateLivelinessOfProcess(runtimeName);
+        break;
+    }
+    case runtime::IpcMessageType::PREPARE_APP_TERMINATION:
+    {
+        if (message.getNumberOfElements() != 2)
+        {
+            LogError() << "Wrong number of parameters for \"IpcMessageType::PREPARE_APP_TERMINATION\" from \""
+                       << runtimeName << "\"received!";
+        }
+        else
+        {
+            // this is used to unblock a potentially block application by blocking publisher
+            m_prcMgr->handleProcessShutdownPreparationRequest(runtimeName);
+        }
         break;
     }
     case runtime::IpcMessageType::TERMINATION:

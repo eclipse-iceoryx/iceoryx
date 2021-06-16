@@ -17,13 +17,15 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -34,7 +36,7 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
     using MemoryProvider::getErrorString;
 
     iox::cxx::expected<void*, MemoryProviderError>
-    createMemory(const uint64_t size [[gnu::unused]], const uint64_t alignment [[gnu::unused]]) noexcept override
+    createMemory(const uint64_t size IOX_MAYBE_UNUSED, const uint64_t alignment IOX_MAYBE_UNUSED) noexcept override
     {
         return iox::cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
@@ -77,14 +79,11 @@ class MemoryProvider_Test : public Test
         return sut.create();
     }
 
-    static const int32_t nTestCase = 13;
-
-    iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] = {
+    static constexpr iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[] = {
         iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,
         iox::roudi::MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT,
         iox::roudi::MemoryProviderError::MEMORY_ALREADY_CREATED,
         iox::roudi::MemoryProviderError::MEMORY_CREATION_FAILED,
-        iox::roudi::MemoryProviderError::PAGE_SIZE_CHECK_ERROR,
         iox::roudi::MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE,
         iox::roudi::MemoryProviderError::MEMORY_ALLOCATION_FAILED,
         iox::roudi::MemoryProviderError::MEMORY_MAPPING_FAILED,
@@ -94,19 +93,18 @@ class MemoryProvider_Test : public Test
         iox::roudi::MemoryProviderError::MEMORY_UNMAPPING_FAILED,
         iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED};
 
-    const char* m_testResultGetErrorString[nTestCase] = {"MEMORY_BLOCKS_EXHAUSTED",
-                                                         "NO_MEMORY_BLOCKS_PRESENT",
-                                                         "MEMORY_ALREADY_CREATED",
-                                                         "MEMORY_CREATION_FAILED",
-                                                         "PAGE_SIZE_CHECK_ERROR",
-                                                         "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
-                                                         "MEMORY_ALLOCATION_FAILED",
-                                                         "MEMORY_MAPPING_FAILED",
-                                                         "MEMORY_NOT_AVAILABLE",
-                                                         "MEMORY_DESTRUCTION_FAILED",
-                                                         "MEMORY_DEALLOCATION_FAILED",
-                                                         "MEMORY_UNMAPPING_FAILED",
-                                                         "SIGACTION_CALL_FAILED"};
+    static constexpr const char* m_testResultGetErrorString[] = {"MEMORY_BLOCKS_EXHAUSTED",
+                                                                 "NO_MEMORY_BLOCKS_PRESENT",
+                                                                 "MEMORY_ALREADY_CREATED",
+                                                                 "MEMORY_CREATION_FAILED",
+                                                                 "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
+                                                                 "MEMORY_ALLOCATION_FAILED",
+                                                                 "MEMORY_MAPPING_FAILED",
+                                                                 "MEMORY_NOT_AVAILABLE",
+                                                                 "MEMORY_DESTRUCTION_FAILED",
+                                                                 "MEMORY_DEALLOCATION_FAILED",
+                                                                 "MEMORY_UNMAPPING_FAILED",
+                                                                 "SIGACTION_CALL_FAILED"};
 
     MemoryBlockMock memoryBlock1;
     MemoryBlockMock memoryBlock2;
@@ -115,6 +113,8 @@ class MemoryProvider_Test : public Test
     // instantiate and test non-virtual member functions
     MemoryProviderMock sut;
 };
+constexpr iox::roudi::MemoryProviderError MemoryProvider_Test::m_testCombinationMemoryProviderError[];
+constexpr const char* MemoryProvider_Test::m_testResultGetErrorString[];
 
 TEST_F(MemoryProvider_Test, InitiallyMemoryIsNotAvailable)
 {
@@ -193,7 +193,7 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 {
     ASSERT_FALSE(commonSetup().has_error());
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -215,8 +215,8 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
         .Times(1);
     EXPECT_THAT(sut.create().has_error(), Eq(false));
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
-    EXPECT_CALL(memoryBlock2, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock2, onMemoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -248,7 +248,7 @@ TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 {
     ASSERT_FALSE(commonSetup().has_error());
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
     sut.announceMemoryAvailable(); // this shouldn't trigger a second memoryAvailable call on memoryBlock1
 
@@ -341,9 +341,14 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 
 TEST_F(MemoryProvider_Test, GetErrorString)
 {
-    for (int16_t i = 0; i < nTestCase; i++)
+    constexpr int32_t NUMBER_OF_TEST_CASES =
+        sizeof(m_testCombinationMemoryProviderError) / sizeof(iox::roudi::MemoryProviderError);
+
+    for (int16_t i = 0; i < NUMBER_OF_TEST_CASES; i++)
     {
         const char* result = MemoryProviderFailingCreation::getErrorString(m_testCombinationMemoryProviderError[i]);
         EXPECT_THAT(*result, Eq(*m_testResultGetErrorString[i]));
     }
 }
+
+} // namespace

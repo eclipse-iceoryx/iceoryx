@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32) && !defined(__APPLE__)
+#include "iceoryx_hoofs/testing/mocks/time_mock.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "mocks/time_mock.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using iox::runtime::IpcMessage;
@@ -432,4 +435,6 @@ TEST_F(IpcMessage_test, setMessage)
     message1.setMessage("1,2,3,4");
     EXPECT_THAT(message1.isValid(), Eq(false));
 }
+
+} // namespace
 #endif

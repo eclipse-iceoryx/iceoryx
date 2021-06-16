@@ -38,7 +38,8 @@ struct ClientPortData : public BasePortData
                    mepoo::MemoryManager* const memoryManager,
                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-
+    static constexpr SubscriberTooSlowPolicy CLIENT_SUBSCRIBER_POLICY = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+    static constexpr QueueFullPolicy CLIENT_PUBLISHER_POLICY = QueueFullPolicy::DISCARD_OLDEST_DATA;
     ClientChunkSenderData_t m_chunkSenderData;
     ClientChunkReceiverData_t m_chunkReceiverData;
     std::atomic_bool m_connectRequested{false};

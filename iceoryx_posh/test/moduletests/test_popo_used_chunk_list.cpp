@@ -16,9 +16,9 @@
 
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 #include "test.hpp"
 
@@ -46,9 +46,9 @@ class UsedChunkList_test : public Test
 
     SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint32_t PAYLOAD_SIZE{32U};
+        constexpr uint32_t USER_PAYLOAD_SIZE{32U};
         auto chunkSettingsResult =
-            iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+            iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {

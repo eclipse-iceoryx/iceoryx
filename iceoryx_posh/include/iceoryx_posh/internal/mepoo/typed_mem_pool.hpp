@@ -17,16 +17,16 @@
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/variant.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/variant.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 #include <algorithm>
 
@@ -45,9 +45,9 @@ template <typename T>
 class TypedMemPool
 {
   public:
-    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                 posix::Allocator& f_managementAllocator,
-                 posix::Allocator& f_payloadAllocator) noexcept;
+    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+                 posix::Allocator& managementAllocator,
+                 posix::Allocator& chunkMemoryAllocator) noexcept;
 
     TypedMemPool(const TypedMemPool&) = delete;
     TypedMemPool(TypedMemPool&&) = delete;

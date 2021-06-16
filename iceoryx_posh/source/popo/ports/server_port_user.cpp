@@ -57,11 +57,11 @@ bool ServerPortUser::hasNewRequests() const noexcept
 
 bool ServerPortUser::hasLostRequestsSinceLastCall() noexcept
 {
-    return m_chunkReceiver.hasOverflown();
+    return m_chunkReceiver.hasLostChunks();
 }
 
 cxx::expected<ResponseHeader*, AllocationError>
-ServerPortUser::allocateResponse(const uint32_t /*payloadSize*/) noexcept
+ServerPortUser::allocateResponse(const uint32_t /*userPayloadSize*/) noexcept
 {
     /// @todo
     return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);

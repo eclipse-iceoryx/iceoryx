@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_ROUDI_PORT_POOL_HPP
 #define IOX_POSH_ROUDI_PORT_POOL_HPP
 
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
@@ -29,7 +30,7 @@
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
-#include "iceoryx_utils/cxx/type_traits.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 
 namespace iox
 {
@@ -99,8 +100,9 @@ class PortPool
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
     addApplicationPort(const RuntimeName_t& runtimeName) noexcept;
 
-    cxx::expected<runtime::NodeData*, PortPoolError>
-    addNodeData(const RuntimeName_t& runtimeName, const NodeName_t& nodeName, const uint64_t nodeDeviceIdentifier) noexcept;
+    cxx::expected<runtime::NodeData*, PortPoolError> addNodeData(const RuntimeName_t& runtimeName,
+                                                                 const NodeName_t& nodeName,
+                                                                 const uint64_t nodeDeviceIdentifier) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;

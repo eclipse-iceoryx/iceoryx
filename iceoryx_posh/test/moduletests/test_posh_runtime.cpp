@@ -15,50 +15,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
-
-class PoshRuntimeTestAccess : public PoshRuntime
-{
-  public:
-    using PoshRuntime::factory_t;
-    /// @attention do not use the setRuntimeFactory in a test with a running RouDiEnvironment
-    using PoshRuntime::setRuntimeFactory;
-
-    PoshRuntimeTestAccess(iox::cxx::optional<const iox::RuntimeName_t*> s)
-        : PoshRuntime(s)
-    {
-    }
-
-    static PoshRuntime& getDefaultRuntime(iox::cxx::optional<const iox::RuntimeName_t*> name)
-    {
-        return PoshRuntime::defaultRuntimeFactory(name);
-    }
-
-    static void resetRuntimeFactory()
-    {
-        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
-    }
-};
-
-namespace
-{
-bool callbackWasCalled = false;
-PoshRuntime& testFactory(iox::cxx::optional<const iox::RuntimeName_t*> name)
-{
-    callbackWasCalled = true;
-    return PoshRuntimeTestAccess::getDefaultRuntime(name);
-}
-} // namespace
 
 class PoshRuntime_test : public Test
 {
@@ -73,7 +46,6 @@ class PoshRuntime_test : public Test
 
     virtual void SetUp()
     {
-        callbackWasCalled = false;
         internal::CaptureStdout();
     };
 
@@ -98,11 +70,7 @@ class PoshRuntime_test : public Test
     IpcMessage m_receiveBuffer;
     const iox::NodeName_t m_nodeName{"testNode"};
     const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
-    static bool m_errorHandlerCalled;
 };
-
-bool PoshRuntime_test::m_errorHandlerCalled{false};
-
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
@@ -128,12 +96,26 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
-TEST_F(PoshRuntime_test, LeadingSlashAppName)
+// To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
+TEST(PoshRuntime, LeadingSlashAppName)
 {
+    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+
     const iox::RuntimeName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
-                 "Cannot initialize runtime. Please remove leading slash from Application name /miau");
+    auto errorHandlerCalled{false};
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+
+    PoshRuntime::initRuntime(invalidAppName);
+
+    EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED));
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
@@ -378,6 +360,42 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreateLeadsToOfferedPu
     EXPECT_TRUE(publisherPortData->m_offeringRequested);
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutExplicitlySetQueueFullPolicyLeadsToDiscardOldestData)
+{
+    iox::popo::PublisherOptions publisherOptions;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(9U, 13U, 1550U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
+                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(90U, 130U, 1550U),
+                                                                     publisherOptions,
+                                                                     iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
+                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSubscriberLeadsToWaitForSubscriber)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(18U, 31U, 400U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
+                Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 {
     iox::popo::SubscriberOptions subscriberOptions;
@@ -469,6 +487,42 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithSubscribeOnCreateLeadsToSubs
         iox::capro::ServiceDescription(1U, 2U, 3U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_TRUE(subscriberPortData->m_subscribeRequested);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithoutExplicitlySetQueueFullPolicyLeadsToDiscardOldestData)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+
+    const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(9U, 13U, 1550U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
+                Eq(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
+
+    const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(90U, 130U, 1550U),
+                                                                       subscriberOptions,
+                                                                       iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
+                Eq(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPublisherLeadsToBlockPublisher)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+
+    const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(18U, 31U, 400U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
+                Eq(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
@@ -584,25 +638,89 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
     EXPECT_THAT(0u, instanceContainer.value().size());
 }
 
-// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
-// will be re-enabled with the PoshRuntime Mock from #449
-TEST(PoshRuntimeFactory_test, DISABLED_SetValidRuntimeFactorySucceeds)
+TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
 {
-    // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
-    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::initRuntime("instance");
-    PoshRuntimeTestAccess::resetRuntimeFactory();
+    // get publisher and subscriber
+    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
 
-    EXPECT_TRUE(callbackWasCalled);
+    iox::popo::PublisherOptions publisherOptions{
+        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    iox::popo::SubscriberOptions subscriberOptions{
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
+
+    iox::popo::Publisher<uint8_t> publisher{serviceDescription, publisherOptions};
+    iox::popo::Subscriber<uint8_t> subscriber{serviceDescription, subscriberOptions};
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    ASSERT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+
+    // send samples to fill subscriber queue
+    ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasSampleSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingPublisher([&] {
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
+        wasSampleSent = true;
+    });
+
+    // wait some time to check if the publisher is blocked
+    constexpr int64_t SLEEP_IN_MS = 100;
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    EXPECT_THAT(wasSampleSent.load(), Eq(false));
+
+    m_runtime->shutdown();
+
+    blockingPublisher.join(); // ensure the wasChunkSent store happens before the read
+    EXPECT_THAT(wasSampleSent.load(), Eq(true));
 }
 
-// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
-// will be re-enabled with the PoshRuntime Mock from #449
-TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
+TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
 {
-    // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
-    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
-                 "Cannot set runtime factory. Passed factory must not be empty!");
-    // just in case the previous test doesn't die and breaks the following tests
-    PoshRuntimeTestAccess::resetRuntimeFactory();
+    constexpr const char HYPNOTOAD[]{"hypnotoad"};
+    constexpr const char BRAIN_SLUG[]{"brain-slug"};
+
+    auto mockRuntime = PoshRuntimeMock::create(HYPNOTOAD);
+    EXPECT_THAT(PoshRuntime::getInstance().getInstanceName().c_str(), StrEq(HYPNOTOAD));
+    mockRuntime.reset();
+
+    // if the PoshRuntimeMock could not change the runtime factory, the instance name would still be the old one
+    mockRuntime = PoshRuntimeMock::create(BRAIN_SLUG);
+    EXPECT_THAT(PoshRuntime::getInstance().getInstanceName().c_str(), StrEq(BRAIN_SLUG));
 }
+
+TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
+{
+    // this ensures resetting of the runtime factory in case the death test doesn't succeed
+    auto mockRuntime = PoshRuntimeMock::create("hypnotoad");
+
+    // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
+    EXPECT_DEATH(
+        {
+            class FactoryAccess : public PoshRuntime
+            {
+              public:
+                using PoshRuntime::factory_t;
+                using PoshRuntime::setRuntimeFactory;
+
+              private:
+                FactoryAccess(iox::cxx::optional<const iox::RuntimeName_t*> s)
+                    : PoshRuntime(s)
+                {
+                }
+            };
+
+            FactoryAccess::setRuntimeFactory(FactoryAccess::factory_t());
+        },
+        "Cannot set runtime factory. Passed factory must not be empty!");
+}
+
+} // namespace

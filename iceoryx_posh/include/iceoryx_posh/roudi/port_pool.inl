@@ -27,11 +27,14 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
-    return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                          runtimeName,
-                                                          cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
-                                                          subscriberOptions,
-                                                          memoryInfo);
+    return m_portPoolData->m_subscriberPortMembers.insert(
+        serviceDescription,
+        runtimeName,
+        (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
+            ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
+            : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+        subscriberOptions,
+        memoryInfo);
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
@@ -40,11 +43,14 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
-    return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                          runtimeName,
-                                                          cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                                          subscriberOptions,
-                                                          memoryInfo);
+    return m_portPoolData->m_subscriberPortMembers.insert(
+        serviceDescription,
+        runtimeName,
+        (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
+            ? cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer
+            : cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
+        subscriberOptions,
+        memoryInfo);
 }
 } // namespace roudi
 } // namespace iox

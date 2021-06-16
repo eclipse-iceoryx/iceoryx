@@ -15,21 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
+using namespace iox;
 
-
-namespace iox
-{
-namespace test
-{
 /// @brief Test goal: This test suit verifies class node
 
 class PoshRuntimeNode_test : public Test
@@ -72,7 +70,8 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
 
 TEST_F(PoshRuntimeNode_test, ConstructorNodeWithMaximalSizeNodeNameIsSuccess)
 {
-    const NodeName_t nodeName{"aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
+    const NodeName_t nodeName{
+        "aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
 
     Node node("aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd");
 
@@ -112,5 +111,4 @@ TEST_F(PoshRuntimeNode_test, VerifyMoveConstructorAssignsCorrectNodeName)
     EXPECT_THAT(nodeTest.getNodeName(), Eq(nodeNewName));
 }
 
-} // namespace test
-} // namespace iox
+} // namespace

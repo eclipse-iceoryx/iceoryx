@@ -1,0 +1,50 @@
+@startuml
+title Alternative D: iceoryx-based ECU forwarding CaPro messages to Gateway and User App
+
+package "iceoryx instance e.g. electronic control unit" {
+    component RouDi {
+        artifact discoveryLoop [
+        PortManager::sendToAllMatchingInterfacePorts()
+        ]
+    }
+    component "User App" {
+        component DiscoveryInfoA <<object>> {
+            artifact DiscoveryInfoNoteA [
+            +findService() : cxx::expected<InstanceContainer, FindServiceError>
+            -m_subscriber : Subscriber<ServiceRegistryTopic>
+            -m_lastServiceRegistry : ServiceRegistryTopic
+            ]
+
+        }
+
+        component UserAppListener <<object>>
+
+        component UserDefinedCallback <<object>>
+    }
+    component "DDS Gateway" {
+        component DiscoveryInfoB <<object>> {
+            artifact DiscoveryInfoNoteB [
+            +findService() : cxx::expected<InstanceContainer, FindServiceError>            
+            -m_subscriber : Subscriber<ServiceRegistryTopic>
+            -m_lastServiceRegistry : ServiceRegistryTopic
+            ]
+        }
+        component GatewayListener <<object>>
+
+        component GatewayUserDefinedCallback <<object>>
+    }
+}
+
+package "DDS instance e.g. electronic control unit" {
+    component DCPSTopic
+}
+
+[DiscoveryInfoNoteB] ..> [DCPSTopic] : Implemented
+[discoveryLoop] ..> [DiscoveryInfoNoteA] : publish(ServiceRegistryTopic)
+[discoveryLoop] ..> [DiscoveryInfoNoteB] : publish(ServiceRegistryTopic)
+[DCPSTopic] ..> [DiscoveryInfoNoteB]  : Not yet implemented
+[GatewayListener] ..> [GatewayUserDefinedCallback]  : calls
+[UserAppListener] ..> [UserDefinedCallback]  : calls
+[DiscoveryInfoNoteA] ..> [UserAppListener]  : attached to
+[DiscoveryInfoNoteB] ..> [GatewayListener]  : attached to
+@enduml

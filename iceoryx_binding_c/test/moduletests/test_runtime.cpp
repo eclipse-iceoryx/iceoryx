@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ extern "C" {
 }
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "testutils/roudi_gtest.hpp"
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 
+namespace
+{
 using namespace iox;
 using namespace iox::runtime;
 
@@ -100,3 +102,5 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanRuntimeNameLength)
     ASSERT_THAT(nameLength, Eq(strnlen(ACTUAL_RUNTIME_NAME, iox::MAX_RUNTIME_NAME_LENGTH + 1)));
     EXPECT_THAT(truncatedRuntimeName, StrEq(EXPECTED_RUNTIME_NAME));
 }
+
+} // namespace

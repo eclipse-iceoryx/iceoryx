@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -24,9 +24,9 @@
 #include <iostream>
 
 bool keepRunning = true;
-constexpr char APP_NAME[] = "iox-ex-callbacks-publisher";
+constexpr char APP_NAME[] = "iox-cpp-callbacks-publisher";
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     keepRunning = false;
 }

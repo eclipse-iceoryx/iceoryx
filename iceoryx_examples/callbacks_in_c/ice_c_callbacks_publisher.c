@@ -34,7 +34,7 @@ static void sigHandler(int f_sig)
 
 void sending()
 {
-    iox_runtime_init("iox-ex-callbacks-publisher");
+    iox_runtime_init("iox-c-callbacks-publisher");
 
     iox_pub_options_t options;
     iox_pub_options_init(&options);
@@ -46,29 +46,29 @@ void sending()
     iox_pub_t publisherLeft = iox_pub_init(&publisherLeftStorage, "Radar", "FrontLeft", "Counter", &options);
     iox_pub_t publisherRight = iox_pub_init(&publisherRightStorage, "Radar", "FrontRight", "Counter", &options);
 
-    struct CounterTopic* chunk;
+    struct CounterTopic* userPayload;
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         if (counter % 3 == 0)
         {
-            if (iox_pub_loan_chunk(publisherLeft, (void**)&chunk, sizeof(struct CounterTopic))
+            if (iox_pub_loan_chunk(publisherLeft, (void**)&userPayload, sizeof(struct CounterTopic))
                 == AllocationResult_SUCCESS)
             {
                 printf("Radar.FrontLeft.Counter sending : %d\n", counter);
                 fflush(stdout);
-                chunk->counter = counter;
-                iox_pub_publish_chunk(publisherLeft, chunk);
+                userPayload->counter = counter;
+                iox_pub_publish_chunk(publisherLeft, userPayload);
             }
         }
         else
         {
-            if (iox_pub_loan_chunk(publisherRight, (void**)&chunk, sizeof(struct CounterTopic))
+            if (iox_pub_loan_chunk(publisherRight, (void**)&userPayload, sizeof(struct CounterTopic))
                 == AllocationResult_SUCCESS)
             {
                 printf("Radar.FrontRight.Counter sending : %d\n", counter * 2);
                 fflush(stdout);
-                chunk->counter = counter * 2;
-                iox_pub_publish_chunk(publisherRight, chunk);
+                userPayload->counter = counter * 2;
+                iox_pub_publish_chunk(publisherRight, userPayload);
             }
         }
         sleep_for(1000);

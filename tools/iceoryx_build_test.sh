@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# This script builds iceoryx_utils und iceoryx_posh and executes all tests
+# This script builds iceoryx_hoofs und iceoryx_posh and executes all tests
 
 set -e
 
@@ -49,8 +49,7 @@ EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-EXAMPLES="callbacks callbacks_in_c ice_multi_publisher icedelivery singleprocess waitset"
-COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
+COMPONENTS="iceoryx_posh iceoryx_hoofs iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
 TOOLCHAIN_FILE=""
 
 while (( "$#" )); do
@@ -192,27 +191,28 @@ while (( "$#" )); do
         echo "                          Possible arguments: 'all', 'unit', 'integration', 'only-timing-tests'"
         echo "    -t --toolchain-file   Specify an absolute path to a toolchain file for cross-compiling e.g. (-t $(pwd)/tools/qnx/qnx710.nto.toolchain.aarch64.cmake)"
         echo "Args:"
-        echo "    clean                 Delete the build/ directory before build-step"
-        echo "    release               Build with -O3"
-        echo "    debug                 Build debug configuration -g"
-        echo "    relwithdebinfo        Build with -O2 -DNDEBUG"
-        echo "    examples              Build all examples"
-        echo "    build-all             Build all extensions and all examples"
-        echo "    out-of-tree           Out-of-tree build for CI"
-        echo "    build-strict          Build is performed with '-Werror'"
-        echo "    build-shared          Build shared libs (iceoryx is built as static lib per default)"
-        echo "    build-test            Build all tests (doesn't run)"
-        echo "    test-add-user         Create additional useraccounts in system for testing access control (default off)"
-        echo "    package               Create a debian package from clean build in build_package"
-        echo "    test                  Build and run all tests in all iceoryx components"
-        echo "    toml-config-off       Build without TOML File support"
-        echo "    dds-gateway           Build the iceoryx dds gateway"
         echo "    binding-c             Build the iceoryx C-Binding"
-        echo "    one-to-many-only      Restrict to 1:n communication only"
+        echo "    build-all             Build all extensions and all examples"
+        echo "    build-shared          Build shared libs (iceoryx is built as static lib per default)"
+        echo "    build-strict          Build is performed with '-Werror'"
+        echo "    build-test            Build all tests (doesn't run)"
         echo "    clang                 Build with clang compiler (should be installed already)"
-        echo "    sanitize              Build with sanitizers"
-        echo "    roudi-env             Build the roudi environment"
+        echo "    clean                 Delete the build/ directory before build-step"
+        echo "    dds-gateway           Build the iceoryx dds gateway"
+        echo "    debug                 Build debug configuration -g"
+        echo "    doc                   Build and generate doxygen"
         echo "    help                  Print this help"
+        echo "    examples              Build all examples"
+        echo "    one-to-many-only      Restrict to 1:n communication only"
+        echo "    out-of-tree           Out-of-tree build for CI"
+        echo "    package               Create a debian package from clean build in build_package"
+        echo "    sanitize              Build with sanitizers"
+        echo "    release               Build with -O3"
+        echo "    relwithdebinfo        Build with -O2 -DNDEBUG"
+        echo "    test                  Build and run all tests in all iceoryx components"
+        echo "    test-add-user         Create additional useraccounts in system for testing access control (default off)"
+        echo "    toml-config-off       Build without TOML File support"
+        echo "    roudi-env             Build the roudi environment"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test"
         echo "for gcov report: iceoryx_build_test.sh clean -c unit"
@@ -244,6 +244,9 @@ else
 fi
 echo " [i] Building with $NUM_JOBS jobs"
 
+if [ "$PACKAGE" == "ON" ]; then
+    BUILD_DIR=$WORKSPACE/build_package
+fi
 
 # clean build folders
 if [ $CLEAN_BUILD == true ]
@@ -260,24 +263,31 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
-if [ "$PACKAGE" == "OFF" ]; then
-    echo ">>>>>> Start building iceoryx package <<<<<<"
-    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
-    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
-    -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED \
-    -DSANITIZE=$SANITIZE_FLAG -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE $WORKSPACE/iceoryx_meta
 
-    cmake --build . --target install -- -j$NUM_JOBS
-    echo ">>>>>> Finished building iceoryx package <<<<<<"
-else
-    echo ">>>>>> Start building iceoryx package <<<<<<"
-    cd $WORKSPACE
-    rm -rf build_package
-    mkdir -p build_package
-    cd build_package
+echo ">>>>>> Start building iceoryx package <<<<<<"
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DBUILD_ALL=$BUILD_ALL_FLAG \
+      -DBUILD_STRICT=$STRICT_FLAG \
+      -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+      -DBUILD_TEST=$TEST_FLAG \
+      -DCOVERAGE=$COV_FLAG \
+      -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
+      -DEXAMPLES=$EXAMPLE_FLAG \
+      -DTOML_CONFIG=$TOML_FLAG \
+      -DBUILD_DOC=$BUILD_DOC \
+      -DDDS_GATEWAY=$DDS_GATEWAY_FLAG \
+      -DBINDING_C=$BINDING_C_FLAG \
+      -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
+      -DBUILD_SHARED_LIBS=$BUILD_SHARED \
+      -DSANITIZE=$SANITIZE_FLAG \
+      -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
+      $WORKSPACE/iceoryx_meta
 
-    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=build_package/install/prefix/ $WORKSPACE/iceoryx_meta
-    cmake --build . --target install -- -j$NUM_JOBS
+cmake --build . --target install -- -j$NUM_JOBS
+echo ">>>>>> Finished building iceoryx <<<<<<"
+
+if [ "$PACKAGE" == "ON" ]; then
+    echo ">>>>>> Start building iceoryx package <<<<<<"
     cpack
     echo ">>>>>> Finished building iceoryx package <<<<<<"
 fi
@@ -289,15 +299,20 @@ fi
 
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf $WORKSPACE/build_out_of_tree
-    if [ "$BINDING_C_FLAG" == "ON" ]; then
-        EXAMPLES="${EXAMPLES} icedelivery_in_c waitset_in_c iceperf"
-    fi
+    cd $WORKSPACE
+    EXAMPLES=$(find iceoryx_examples/ -maxdepth 1 -type d -printf '%d\t%P\n' | sort -r -nk1 | cut -f2-)
+    # Exclude directories without CMake file from the out-of-tree build
+    EXAMPLES=${EXAMPLES/iceensemble/""}
+    EXAMPLES=${EXAMPLES/icecrystal/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}
-    cd $WORKSPACE && mkdir -p build_out_of_tree && cd build_out_of_tree
+    mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
             mkdir -p $ex && cd $ex
-            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=$TOML_FLAG $WORKSPACE/iceoryx_examples/$ex
+            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+                  -DTOML_CONFIG=$TOML_FLAG \
+                  -DBINDING_C=$BINDING_C_FLAG \
+                  $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then
                 echo "Out of tree build failed"

@@ -16,23 +16,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-// anonymous namespace to prevent linker issues or sanitizer false positives
-// if a struct with the same name is used in other tests
-namespace
-{
 struct DummyData
 {
     uint64_t val = 42;
 };
-} // namespace
 
 using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
 
@@ -137,7 +134,7 @@ TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
     auto maybeChunk = sut.take();
     // ===== Verify ===== //
     ASSERT_FALSE(maybeChunk.has_error());
-    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
+    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->userPayload());
     // ===== Cleanup ===== //
     sut.release(maybeChunk.value());
 }
@@ -151,3 +148,5 @@ TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+} // namespace

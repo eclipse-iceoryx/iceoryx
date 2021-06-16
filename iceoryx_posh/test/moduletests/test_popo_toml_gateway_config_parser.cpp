@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "stubs/stub_toml_gateway_config_parser.hpp"
 
 #include "test.hpp"
-#include "test_input_path.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
@@ -241,7 +244,7 @@ INSTANTIATE_TEST_CASE_P(ParseAllMalformedInputConfigFiles,
                                ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
                                                      "toml_parser_exception.toml"}));
 
-                                                     
+
 #pragma GCC diagnostic pop
 
 TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
@@ -255,3 +258,5 @@ TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(parseErrorInputFile.first, result.get_error());
 }
+
+} // namespace

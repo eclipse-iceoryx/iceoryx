@@ -19,10 +19,10 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 
 #include <cstdint>
 
@@ -43,8 +43,6 @@ enum class MemoryProviderError
     MEMORY_ALREADY_CREATED,
     /// generic error if memory creation failed
     MEMORY_CREATION_FAILED,
-    /// an error occurred while getting the page size
-    PAGE_SIZE_CHECK_ERROR,
     /// attempt to create memory with an alignment bigger than the page size
     MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE,
     /// memory creation failed at allocating memory
@@ -74,7 +72,7 @@ class MemoryProvider
 
   public:
     MemoryProvider() noexcept = default;
-    ~MemoryProvider() noexcept;
+    virtual ~MemoryProvider() noexcept;
 
     /// @note this is intentional not movable/copyable, since a pointer to the memory provider is registered at the
     /// RouDiMemoryManager and therefore an instance of a MemoryProvider must be pinned to memory

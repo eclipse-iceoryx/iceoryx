@@ -15,17 +15,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
-#include "testutils/timing_test.hpp"
-
-using namespace ::testing;
-using ::testing::Return;
-
-#include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
-
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
+
+#include "test.hpp"
+
+namespace
+{
+using namespace ::testing;
 
 class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUser>
 {
@@ -264,3 +264,5 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
     }
 }
+
+} // namespace

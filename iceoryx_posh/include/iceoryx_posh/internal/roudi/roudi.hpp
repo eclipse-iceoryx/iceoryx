@@ -17,20 +17,20 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
-#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/platform/file.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
 #include <cstdio>
@@ -131,8 +131,8 @@ class RouDi
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
-    std::atomic_bool m_runDiscoveryThread;
-    std::atomic_bool m_runIpcChannelThread;
+    std::atomic_bool m_runMonitoringAndDiscoveryThread;
+    std::atomic_bool m_runHandleRuntimeMessageThread;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
@@ -152,8 +152,8 @@ class RouDi
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 
   private:
-    std::thread m_processManagementThread;
-    std::thread m_processRuntimeMessagesThread;
+    std::thread m_monitoringAndDiscoveryThread;
+    std::thread m_handleRuntimeMessageThread;
 
   protected:
     ProcessIntrospectionType m_processIntrospection;

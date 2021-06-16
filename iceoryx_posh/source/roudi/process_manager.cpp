@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/platform/wait.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/deadline_timer.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/platform/signal.hpp"
-#include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/platform/wait.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -45,11 +46,13 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     , m_portManager(portManager)
     , m_compatibilityCheckLevel(compatibilityCheckLevel)
 {
+    bool fatalError{false};
+
     auto maybeSegmentManager = m_roudiMemoryInterface.segmentManager();
     if (!maybeSegmentManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentManager!";
-        std::terminate();
+        fatalError = true;
     }
     m_segmentManager = maybeSegmentManager.value();
 
@@ -57,7 +60,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain MemoryManager for instrospection!";
-        std::terminate();
+        fatalError = true;
     }
     m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -65,14 +68,31 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeMgmtSegmentId.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentId for iceoryx management segment!";
-        std::terminate();
+        fatalError = true;
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
 
-    auto currentUser = posix::PosixUser::getUserOfCurrentProcess();
-    auto m_segmentInfo = m_segmentManager->getSegmentInformationForUser(currentUser);
-    m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
+    if (fatalError)
+    {
+        /// @todo #539 Use separate error enums once RouDi is more modular
+        errorHandler(Error::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
+    }
 }
+
+void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept
+{
+    searchForProcessAndThen(
+        name,
+        [&](Process& process) {
+            m_portManager.unblockProcessShutdown(name);
+            // Reply with PREPARE_APP_TERMINATION_ACK and let process shutdown
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
+            process.sendViaIpcChannel(sendBuffer);
+        },
+        [&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
+}
+
 void ProcessManager::requestShutdownOfAllProcesses() noexcept
 {
     // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
@@ -80,6 +100,9 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     {
         requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
     }
+
+    // this unblocks the RouDi shutdown if a publisher port is blocked by a full subscriber queue
+    m_portManager.unblockRouDiShutdown();
 }
 
 bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
@@ -117,42 +140,30 @@ void ProcessManager::printWarningForRegisteredProcessesAndClearProcessList() noe
 bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto killC = iox::cxx::makeSmartC(kill,
-                                      iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                      {ERROR_CODE},
-                                      {},
-                                      static_cast<pid_t>(process.getPid()),
-                                      (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
 
-    if (killC.hasErrors())
-    {
-        evaluateKillError(process, killC.getErrNum(), killC.getErrorString(), shutdownPolicy);
-        return false;
-    }
-    return false;
+    return !posix::posixCall(kill)(static_cast<pid_t>(process.getPid()),
+                                   (shutdownPolicy == ShutdownPolicy::SIG_KILL) ? SIGKILL : SIGTERM)
+                .failureReturnValue(ERROR_CODE)
+                .evaluate()
+                .or_else([&](auto& r) {
+                    this->evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), shutdownPolicy);
+                })
+                .has_error();
 }
 
 bool ProcessManager::isProcessAlive(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto checkCommand = iox::cxx::makeSmartC(kill,
-                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                             {ERROR_CODE},
-                                             {ESRCH},
-                                             static_cast<pid_t>(process.getPid()),
-                                             SIGTERM);
+    auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
+                            .failureReturnValue(ERROR_CODE)
+                            .ignoreErrnos(ESRCH)
+                            .evaluate()
+                            .or_else([&](auto& r) {
+                                this->evaluateKillError(
+                                    process, r.errnum, r.getHumanReadableErrnum().c_str(), ShutdownPolicy::SIG_TERM);
+                            });
 
-    if (checkCommand.getErrNum() == ESRCH)
-    {
-        return false;
-    }
-
-    if (checkCommand.hasErrors())
-    {
-        evaluateKillError(process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
-    }
-
-    return true;
+    return !(checkCommand && checkCommand->errnum == ESRCH);
 }
 
 void ProcessManager::evaluateKillError(const Process& process,
@@ -187,8 +198,6 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
 {
-    auto segmentInfo = m_segmentManager->getSegmentInformationForUser(user);
-
     bool returnValue{false};
 
     searchForProcessAndThen(
@@ -199,58 +208,30 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
 
-            if (process.isMonitored()) // is it the same process or a duplicate?
+            if (process.isMonitored())
             {
-                // process exists and is monitored - we rely on monitoring for removal
-                LogWarn() << "Received REG from " << name
-                          << ", but another application with this name is already registered";
+                LogWarn() << "Received register request, but termination of " << name << " not detected yet";
+            }
 
-                // Notify new application that it shall shutdown and try later
-                runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(
-                    runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
-                process.sendViaIpcChannel(sendBuffer);
-                returnValue = false;
+            // process exists, we expect that the existing process crashed
+            LogWarn() << "Application " << name << " crashed. Re-registering application";
+
+            // remove the existing process and add the new process afterwards, we do not send ack to new process
+            constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+            if (!searchForProcessAndRemoveIt(name, terminationFeedback))
+            {
+                LogWarn() << "Application " << name << " could not be removed";
+                return;
             }
             else
             {
-                // process exists and is not monitored, we expect that the existing process crashed
-                LogDebug() << "Registering already existing application " << name;
-
-                // remove the existing process and add the new process afterwards, we do not send ack to new process
-                constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
-                if (!searchForProcessAndRemoveIt(name, terminationFeedback))
-                {
-                    LogWarn()
-                        << "Received REG from " << name
-                        << ", but another application with this name is already registered and could not be removed";
-                    return;
-                }
-                else
-                {
-                    LogDebug() << "Removed existing application " << name;
-                    // try registration again, should succeed since removal was successful
-                    returnValue = addProcess(name,
-                                             pid,
-                                             segmentInfo.m_memoryManager,
-                                             isMonitored,
-                                             transmissionTimestamp,
-                                             segmentInfo.m_segmentID,
-                                             sessionId,
-                                             versionInfo);
-                }
+                // try registration again, should succeed since removal was successful
+                returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
             }
         },
         [&]() {
             // process does not exist in list and can be added
-            returnValue = addProcess(name,
-                                     pid,
-                                     segmentInfo.m_memoryManager,
-                                     isMonitored,
-                                     transmissionTimestamp,
-                                     segmentInfo.m_segmentID,
-                                     sessionId,
-                                     versionInfo);
+            returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
         });
 
     return returnValue;
@@ -258,10 +239,9 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
 bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
-                                cxx::not_null<mepoo::MemoryManager* const> payloadMemoryManager,
+                                const posix::PosixUser& user,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
-                                const uint64_t payloadSegmentId,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
 {
@@ -280,7 +260,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-    m_processList.emplace_back(name, pid, *payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    m_processList.emplace_back(name, pid, user, isMonitored, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
@@ -392,7 +372,7 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new interface for application " << name;
@@ -410,7 +390,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName
                 rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
             runtime::IpcMessage sendBuffer;
-            sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+            sendBuffer << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
         },
         [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
@@ -427,7 +407,7 @@ void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcep
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_APPLICATION_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new ApplicationPort for application " << name;
@@ -446,7 +426,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
-                               << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
 
                     process.sendViaIpcChannel(sendBuffer);
                     m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
@@ -502,7 +482,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
-                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process.sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new SubscriberPort for application " << name;
@@ -527,8 +507,21 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
     searchForProcessAndThen(
         name,
         [&](Process& process) { // create a PublisherPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+
+            if (!segmentInfo.m_memoryManager.has_value())
+            {
+                // Tell the app no writable shared memory segment was found
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
+                process.sendViaIpcChannel(sendBuffer);
+                return;
+            }
+
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, &process.getPayloadMemoryManager(), portConfigInfo);
+                service, publisherOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo);
 
             if (!maybePublisher.has_error())
             {
@@ -537,7 +530,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
-                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process.sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new PublisherPort for application " << name;
@@ -569,7 +562,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(
                         runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
-                               << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                     process.sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ConditionVariable for application " << runtimeName;

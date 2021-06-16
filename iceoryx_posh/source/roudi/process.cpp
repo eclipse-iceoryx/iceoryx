@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process.hpp"
+#include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_utils/platform/types.hpp"
 
 using namespace iox::units::duration_literals;
 namespace iox
@@ -27,16 +27,14 @@ namespace roudi
 {
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
-                 mepoo::MemoryManager& payloadMemoryManager,
+                 const posix::PosixUser& user,
                  const bool isMonitored,
-                 const uint64_t payloadSegmentId,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
     , m_ipcChannel(name)
     , m_timestamp(mepoo::BaseClock_t::now())
-    , m_payloadMemoryManager(payloadMemoryManager)
+    , m_user(user)
     , m_isMonitored(isMonitored)
-    , m_payloadSegmentId(payloadSegmentId)
     , m_sessionId(sessionId)
 {
 }
@@ -57,7 +55,7 @@ void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
     if (!sendSuccess)
     {
         LogWarn() << "Process cannot send message over communication channel";
-        errorHandler(Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::SEVERE);
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::MODERATE);
     }
 }
 
@@ -76,14 +74,9 @@ mepoo::TimePointNs_t Process::getTimestamp() noexcept
     return m_timestamp;
 }
 
-mepoo::MemoryManager& Process::getPayloadMemoryManager() const noexcept
+posix::PosixUser Process::getUser() const noexcept
 {
-    return m_payloadMemoryManager;
-}
-
-uint64_t Process::getPayloadSegmentId() const noexcept
-{
-    return m_payloadSegmentId;
+    return m_user;
 }
 
 bool Process::isMonitored() const noexcept

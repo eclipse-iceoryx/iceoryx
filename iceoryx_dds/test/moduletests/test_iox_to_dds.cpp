@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,24 +19,24 @@
 
 #include "iceoryx_dds/dds/data_writer.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
-#include "mocks/chunk_mock_dds.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"
-#include "testutils/roudi_gtest.hpp"
 
 #include <limits>
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 using ::testing::InSequence;
-using ::testing::Return;
 using ::testing::SetArgPointee;
 
 // ======================================== Helpers ======================================== //
@@ -194,7 +195,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Prepare a mock mempool chunk
-    ChunkMockDDS<int> mockChunk{42};
+    ChunkMock<int> mockChunk{42};
 
     // Set up subscriber to provide the chunk
     auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
@@ -222,7 +223,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Prepare a mock mempool chunk
-    ChunkMockDDS<int> mockChunk{0};
+    ChunkMock<int> mockChunk{0};
     mockChunk.chunkHeader()->m_info.m_payloadSize = 0;
 
     // Set up subscriber to provide the chunk
@@ -249,7 +250,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Prepare a mock mempool chunk
-    ChunkMockDDS<int> mockChunk{42};
+    ChunkMock<int> mockChunk{42};
 
     // Set up expect sequence of interactions with subscriber and data writer
     auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
@@ -318,3 +319,5 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     gw.discover(offerMsg);
 }
 #endif
+
+} // namespace

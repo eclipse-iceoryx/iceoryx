@@ -17,16 +17,18 @@
 
 #include "topic_data.hpp"
 
+//! [include subscriber]
 #include "iceoryx_posh/popo/subscriber.hpp"
+//! [include subscriber]
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-subscriber";
+constexpr char APP_NAME[] = "iox-cpp-subscriber";
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
@@ -41,32 +43,31 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // initialized subscriber
-    iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = 10U;
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    //! [create subscriber]
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    //! [create subscriber]
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
-        {
-            subscriber.take()
-                .and_then([](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; })
-                .or_else([](auto& result) {
-                    // only has to be called if the alternative is of interest,
-                    // i.e. if nothing has to happen when no data is received and
-                    // a possible error alternative is not checked or_else is not needed
-                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                    {
-                        std::cout << "Error receiving chunk." << std::endl;
-                    }
-                });
-        }
-        else
-        {
-            std::cout << "Not subscribed!" << std::endl;
-        }
+        subscriber
+            .take()
+            //! [sample happy path]
+            .and_then([](auto& sample) {
+                //! [print sample info]
+                std::cout << APP_NAME << " got value: " << sample->x << std::endl;
+                //! [print sample info]
+            })
+            //! [sample happy path]
+            .or_else([](auto& result) {
+                // only has to be called if the alternative is of interest,
+                // i.e. if nothing has to happen when no data is received and
+                // a possible error alternative is not checked or_else is not needed
+                if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                {
+                    std::cout << "Error receiving chunk." << std::endl;
+                }
+            });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

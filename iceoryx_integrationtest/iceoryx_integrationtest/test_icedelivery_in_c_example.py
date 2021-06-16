@@ -81,9 +81,9 @@ class TestIcedeliveryInCExample(unittest.TestCase):
 
     def test_icedelivery_in_c_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Sent value: 5', timeout=45, stream='stdout')
+            'iox-c-publisher sent value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Got value: 5', timeout=45, stream='stdout')
+            'iox-c-subscriber got value: 15', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 

@@ -15,13 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::mepoo;
@@ -114,7 +116,7 @@ class SharedPointer_Test : public Test
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {
@@ -135,11 +137,11 @@ class SharedPointer_Test : public Test
 
     int resetCounter = ResetCounter();
 
-    static constexpr uint32_t PAYLOAD_SIZE{64U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{64U};
 
     char memory[4096U];
     iox::posix::Allocator allocator{memory, 4096U};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, allocator, allocator};
+    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 10U, allocator, allocator};
     MemPool chunkMgmtPool{64U, 10U, allocator, allocator};
 
     void* memoryChunk{mempool.getChunk()};
@@ -361,3 +363,5 @@ TEST_F(SharedPointer_Test, SharedPointerWithContentIsValid)
     auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
     EXPECT_THAT(static_cast<bool>(sut3), Eq(true));
 }
+
+} // namespace

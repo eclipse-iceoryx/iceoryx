@@ -45,18 +45,37 @@ class ExampleBaseClass
     /// @brief Short description
     /// @details Detailed description
     /// @param[in] input Description of input parameter
-    ExampleBaseClass(const uint32_t input);
+    ExampleBaseClass(const uint32_t input) noexcept;
 
     /// @brief Short description
     ExampleBaseClass() = default;
 
+    virtual ~ExampleBaseClass() = default;
+
     /// @brief Short description
+    /// @return description of return value
     uint32_t getMemberVariable() const noexcept;
 
     /// @brief Short description
+    /// @return description of return value
     uint32_t simplerMethod() const noexcept;
 
-    private:
+    /// @brief Short description
+    /// @param[in] a Description of parameter
+    /// @return description of return value
+    virtual uint32_t doSomething(uint32_t a) const noexcept;
+
+    /// @brief Short description
+    /// @return description of return value
+    virtual uint32_t doSomethingWithOverload() const noexcept;
+
+    /// @brief Short description
+    /// @param[in] a Description of parameter
+    /// @param[in] b Description of parameter
+    /// @return description of return value
+    virtual uint32_t doSomethingWithOverload(uint32_t a, uint32_t b) const noexcept;
+
+  private:
     /// @brief Short description
     uint32_t m_memberVariable{0U};
 };

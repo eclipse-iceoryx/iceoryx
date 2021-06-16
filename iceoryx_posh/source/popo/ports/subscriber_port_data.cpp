@@ -28,7 +28,7 @@ SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceD
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, subscriberOptions.nodeName)
-    , m_chunkReceiverData(queueType, memoryInfo)
+    , m_chunkReceiverData(queueType, subscriberOptions.queueFullPolicy, memoryInfo)
     , m_historyRequest(subscriberOptions.historyRequest)
     , m_subscribeRequested(subscriberOptions.subscribeOnCreate)
 {

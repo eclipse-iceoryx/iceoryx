@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_introspection/introspection_app.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_versions.hpp"
 
 #include <chrono>
@@ -92,7 +92,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             break;
 
         case 'v':
-            std::cout << "Latest official IceOryx release version: " << ICEORYX_LATEST_RELEASE_VERSION << "\n"
+            std::cout << "Latest official iceoryx release version: " << ICEORYX_LATEST_RELEASE_VERSION << "\n"
                       << std::endl;
             exit(EXIT_SUCCESS);
             break;
@@ -226,7 +226,7 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1u;
-    /// @todo Wrap kernel calls with SmartC
+    /// @todo Wrap kernel calls with posixCall
     int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
 
     // Event detected
@@ -273,15 +273,15 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
     constexpr int32_t numchunksWidth{9};
     constexpr int32_t minFreechunksWidth{9};
     constexpr int32_t chunkSizeWidth{11};
-    constexpr int32_t payloadSizeWidth{13};
+    constexpr int32_t chunkPayloadSizeWidth{13};
 
     wprintw(pad, "%*s |", memPoolWidth, "MemPool");
     wprintw(pad, "%*s |", usedchunksWidth, "Chunks In Use");
     wprintw(pad, "%*s |", numchunksWidth, "Total");
     wprintw(pad, "%*s |", minFreechunksWidth, "Min Free");
     wprintw(pad, "%*s |", chunkSizeWidth, "Chunk Size");
-    wprintw(pad, "%*s\n", payloadSizeWidth, "Payload Size");
-    wprintw(pad, "--------------------------------------------------------------------------\n");
+    wprintw(pad, "%*s\n", chunkPayloadSizeWidth, "Chunk Payload Size");
+    wprintw(pad, "--------------------------------------------------------------------------------\n");
 
     for (size_t i = 0u; i < introspectionInfo.m_mempoolInfo.size(); ++i)
     {
@@ -293,7 +293,7 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
             wprintw(pad, "%*d |", numchunksWidth, info.m_numChunks);
             wprintw(pad, "%*d |", minFreechunksWidth, info.m_minFreeChunks);
             wprintw(pad, "%*d |", chunkSizeWidth, info.m_chunkSize);
-            wprintw(pad, "%*d\n", payloadSizeWidth, info.m_payloadSize);
+            wprintw(pad, "%*d\n", chunkPayloadSizeWidth, info.m_chunkPayloadSize);
         }
     }
     wprintw(pad, "\n");
@@ -695,8 +695,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            memPoolSubscriber.take().and_then(
-                [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) { memPoolSample = sample; });
+            memPoolSubscriber.take().and_then([&](auto& sample) { memPoolSample = sample; });
 
             if (memPoolSample)
             {
@@ -715,8 +714,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            processSubscriber.take().and_then(
-                [&](iox::popo::Sample<const ProcessIntrospectionFieldTopic>& sample) { processSample = sample; });
+            processSubscriber.take().and_then([&](auto& sample) { processSample = sample; });
 
             if (processSample)
             {
@@ -731,18 +729,12 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         // print port information
         if (introspectionSelection.port == true)
         {
-            portSubscriber.take().and_then(
-                [&](iox::popo::Sample<const PortIntrospectionFieldTopic>& sample) { portSample = sample; });
+            portSubscriber.take().and_then([&](auto& sample) { portSample = sample; });
 
-            portThroughputSubscriber.take().and_then(
-                [&](iox::popo::Sample<const PortThroughputIntrospectionFieldTopic>& sample) {
-                    portThroughputSample = sample;
-                });
+            portThroughputSubscriber.take().and_then([&](auto& sample) { portThroughputSample = sample; });
 
             subscriberPortChangingDataSubscriber.take().and_then(
-                [&](iox::popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>& sample) {
-                    subscriberPortChangingDataSamples = sample;
-                });
+                [&](auto& sample) { subscriberPortChangingDataSamples = sample; });
 
             if (portSample && portThroughputSample && subscriberPortChangingDataSamples)
             {

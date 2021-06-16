@@ -16,8 +16,8 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_CONFIG_HPP
 #define IOX_POSH_MEPOO_MEPOO_CONFIG_HPP
 
+#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
 
 #include <cstdint>
 

@@ -1,0 +1,25 @@
+From 3323098aa186c7daa8c969395c0c550f30875193 Mon Sep 17 00:00:00 2001
+From: Homalozoa <nx.tardis@gmail.com>
+Date: Sat, 22 May 2021 18:16:57 +0800
+Subject: [PATCH] Add include <limits> to port to GCC 11
+
+Signed-off-by: Homalozoa <nx.tardis@gmail.com>
+---
+ include/cpptoml.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/cpptoml.h b/include/cpptoml.h
+index 5a00da3..1dc9fd1 100644
+--- a/include/cpptoml.h
++++ b/include/cpptoml.h
+@@ -14,6 +14,7 @@
+ #include <cstring>
+ #include <fstream>
+ #include <iomanip>
++#include <limits>
+ #include <map>
+ #include <memory>
+ #include <sstream>
+-- 
+2.31.1
+

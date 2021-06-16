@@ -7,7 +7,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, release* ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -102,4 +102,14 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" && cmake --build build
+
+      # until the windows support is fully implemented and we can use the windows cmake targets
+      # we have to exclude the tests explicitly until everyone is running
+      - name: Run tests, excluding timing_tests
+        run: |
+          build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:IpcChannel*:Mutex*:UnixDomainSocket*"
+          build\hoofs\test\Debug\hoofs_integrationtests.exe
+          build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime*:*TimingTest*"
+          build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-PoshRuntime*:IceoryxRoudiApp*:IceoryxRoudiMemoryManager*:ProcessIntrospection*:ParseAllMalformedInput*:*TimingTest*"
+          build\posh\test\Debug\posh_integrationtests.exe --gtest_filter="-*ChunkBuildingBlocks*:PortUser*:RoudiFindService*:*TimingTest*"

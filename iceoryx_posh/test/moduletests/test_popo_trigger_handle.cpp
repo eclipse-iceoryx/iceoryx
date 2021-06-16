@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
@@ -21,6 +22,8 @@
 #include "test.hpp"
 #include <thread>
 
+namespace
+{
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
@@ -32,10 +35,17 @@ class TriggerHandle_test : public Test
     {
         m_resetCallbackId = id;
     }
+
+    void SetUp()
+    {
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+    }
+
     uint64_t m_resetCallbackId = 0U;
     ConditionVariableData m_condVar{"Horscht"};
     TriggerHandle_test* m_self = this;
 
+    Watchdog m_watchdog{units::Duration::fromSeconds(2U)};
     TriggerHandle m_sut{m_condVar, {*this, &TriggerHandle_test::resetCallback}, 12U};
 };
 
@@ -116,3 +126,29 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
 
     t.join();
 }
+
+TEST_F(TriggerHandle_test, wasTriggeredReturnsFalseAfterCreation)
+{
+    EXPECT_FALSE(m_sut.wasTriggered());
+}
+
+TEST_F(TriggerHandle_test, wasTriggeredReturnsFalseWhenHandleIsInvalid)
+{
+    m_sut.reset();
+    EXPECT_FALSE(m_sut.wasTriggered());
+}
+
+TEST_F(TriggerHandle_test, wasTriggeredReturnsTrueAfterItWasTriggered)
+{
+    m_sut.trigger();
+    EXPECT_TRUE(m_sut.wasTriggered());
+}
+
+TEST_F(TriggerHandle_test, wasTriggeredReturnsFalseAfterItWasTriggeredAndTheListenerResetIt)
+{
+    m_sut.trigger();
+    ConditionListener(m_condVar).timedWait(units::Duration::fromSeconds(0U));
+    EXPECT_FALSE(m_sut.wasTriggered());
+}
+
+} // namespace

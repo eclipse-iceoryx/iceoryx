@@ -7,7 +7,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, release* ]
 
 jobs:
   clang-sanitize:
@@ -28,9 +28,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build
+        env:
+          CC:   clang-10
+          CXX:  clang++-10
         run: |
           sudo $GITHUB_WORKSPACE/tools/add_test_users.sh
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize clang test-add-user
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize test-add-user
 
       - name: Run tests
         run: |

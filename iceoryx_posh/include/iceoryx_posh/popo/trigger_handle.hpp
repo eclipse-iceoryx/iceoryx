@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_TRIGGER_HANDLE_HPP
 #define IOX_POSH_POPO_TRIGGER_HANDLE_HPP
 
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
-#include "iceoryx_utils/cxx/method_callback.hpp"
 
 #include <limits>
 #include <mutex>
@@ -61,6 +61,11 @@ class TriggerHandle
     /// @brief returns true if the TriggerHandle is valid otherwise false. A TriggerHandle is valid if
     /// m_conditionVariableDataPtr != nullptr.
     bool isValid() const noexcept;
+
+    /// @brief Returns true when the TriggerHandle was triggered.
+    /// @note The TriggerHandle wasTriggered state is set to false again after the underlying ConditionListener gathered
+    /// all events.
+    bool wasTriggered() const noexcept;
 
     /// @brief triggers the Trigger and informs the Notifyable which verifies that the Trigger was triggered by calling
     /// the hasTriggeredCallback

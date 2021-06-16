@@ -17,15 +17,15 @@
 #ifndef IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -51,10 +51,10 @@ class ClientPortUser : public BasePort
 
     /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the ClientPortUser for being able to
     /// cleanup if the user process disappears
-    /// @param[in] payloadSize, size of the user paylaod without additional headers
-    /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
-    /// not
-    cxx::expected<RequestHeader*, AllocationError> allocateRequest(const uint32_t payloadSize) noexcept;
+    /// @param[in] userPayloadSize, size of the user-paylaod without additional headers
+    /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
+    /// user-payload fields, error if not
+    cxx::expected<RequestHeader*, AllocationError> allocateRequest(const uint32_t userPayloadSize) noexcept;
 
     /// @brief Free an allocated request without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free

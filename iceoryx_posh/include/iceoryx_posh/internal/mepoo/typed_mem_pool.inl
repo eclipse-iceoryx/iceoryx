@@ -17,21 +17,21 @@
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
 namespace mepoo
 {
 template <typename T>
-inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                                     posix::Allocator& f_managementAllocator,
-                                     posix::Allocator& f_payloadAllocator) noexcept
-    : m_memPool(static_cast<uint32_t>(requiredChunkSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
-    , m_chunkManagementPool(sizeof(ChunkManagement), f_numberOfChunks, f_managementAllocator, f_managementAllocator)
+inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+                                     posix::Allocator& managementAllocator,
+                                     posix::Allocator& chunkMemoryAllocator) noexcept
+    : m_memPool(static_cast<uint32_t>(requiredChunkSize()), numberOfChunks, managementAllocator, chunkMemoryAllocator)
+    , m_chunkManagementPool(sizeof(ChunkManagement), numberOfChunks, managementAllocator, managementAllocator)
 {
 }
 
@@ -130,24 +130,24 @@ inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
     // this is safe since we use correct values for size and alignment
     auto& chunkSettings = chunkSettingsResult.value();
 
-    return cxx::align(
-        std::max(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), posix::Allocator::MEMORY_ALIGNMENT),
-        MemPool::MEMORY_ALIGNMENT);
+    return cxx::align(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredManagementMemorySize(const uint64_t f_numberOfChunks) noexcept
 {
-    return f_numberOfChunks * sizeof(ChunkManagement)
-           + 2
-                 * cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(f_numberOfChunks)),
-                              SHARED_MEMORY_ALIGNMENT);
+    uint64_t memorySizeForManagementPoolChunks =
+        cxx::align(f_numberOfChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    uint64_t memorySizeForIndices = MemPool::freeList_t::requiredIndexMemorySize(f_numberOfChunks);
+    uint64_t memorySizeForIndicesOfManangementAndDataMemPools =
+        2 * cxx::align(static_cast<uint64_t>(memorySizeForIndices), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    return memorySizeForManagementPoolChunks + memorySizeForIndicesOfManangementAndDataMemPools;
 }
 
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredChunkMemorySize(const uint64_t f_numberOfChunks) noexcept
 {
-    return f_numberOfChunks * requiredChunkSize();
+    return cxx::align(f_numberOfChunks * requiredChunkSize(), MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 template <typename T>

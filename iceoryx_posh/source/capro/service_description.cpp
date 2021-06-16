@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include <iomanip>
 
 namespace iox
@@ -38,15 +39,14 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
     }
 }
 
-uint32_t& ServiceDescription::ClassHash::operator[](
-    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
+uint32_t&
+ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t&
-    ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const
-    noexcept
+const uint32_t& ServiceDescription::ClassHash::operator[](
+    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
 {
     return data[index];
 }
@@ -70,8 +70,8 @@ bool ServiceDescription::ClassHash::operator!=(const ClassHash& rhs) const noexc
 
 ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexcept
 {
-    std::underlying_type<Scope>::type scope;
-    std::underlying_type<Interfaces>::type interfaceSource;
+    std::underlying_type<Scope>::type scope = 0;
+    std::underlying_type<Interfaces>::type interfaceSource = 0;
     f_serial.extract(m_serviceString,
                      m_instanceString,
                      m_eventString,
@@ -124,9 +124,9 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
     : m_serviceID(f_serviceID)
     , m_eventID(f_eventID)
     , m_instanceID(f_instanceID)
-    , m_serviceString(iox::cxx::TruncateToCapacity, std::to_string(f_serviceID))
-    , m_instanceString(iox::cxx::TruncateToCapacity, std::to_string(f_instanceID))
-    , m_eventString(iox::cxx::TruncateToCapacity, std::to_string(f_eventID))
+    , m_serviceString(cxx::TruncateToCapacity, cxx::convert::toString(f_serviceID))
+    , m_instanceString(cxx::TruncateToCapacity, cxx::convert::toString(f_instanceID))
+    , m_eventString(cxx::TruncateToCapacity, cxx::convert::toString(f_eventID))
 {
 }
 

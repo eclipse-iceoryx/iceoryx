@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +17,10 @@
 #ifndef IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 #define IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
 
 namespace iox
 {
@@ -33,14 +33,11 @@ struct IceOryxRouDiComponents
 
     virtual ~IceOryxRouDiComponents() = default;
 
-    /// @brief Locks the socket for preventing multiple start of RouDi
-    RouDiLock m_roudilock;
-
     /// @brief Handles MemoryProvider and MemoryBlocks
-    IceOryxRouDiMemoryManager m_rouDiMemoryManager;
+    IceOryxRouDiMemoryManager rouDiMemoryManager;
 
     /// @brief Handles the ports in shared memory
-    PortManager m_portManager;
+    PortManager portManager;
 };
 } // namespace roudi
 } // namespace iox

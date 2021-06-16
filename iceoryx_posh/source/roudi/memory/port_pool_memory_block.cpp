@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@
 
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
 {
@@ -39,7 +40,7 @@ uint64_t PortPoolMemoryBlock::alignment() const noexcept
     return alignof(PortPoolData);
 }
 
-void PortPoolMemoryBlock::memoryAvailable(void* memory) noexcept
+void PortPoolMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     m_portPoolData = new (memory) PortPoolData;
 }

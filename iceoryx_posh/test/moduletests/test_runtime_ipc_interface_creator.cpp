@@ -21,6 +21,8 @@
 
 #include <chrono>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
@@ -39,8 +41,8 @@ class IpcInterfaceCreator_test : public Test
   public:
     void SetUp()
     {
-        EXPECT_FALSE(IpcChannelType::unlinkIfExists(goodName).has_error());
-        EXPECT_FALSE(IpcChannelType::unlinkIfExists(anotherGoodName).has_error());
+        EXPECT_FALSE(platform::IoxIpcChannelType::unlinkIfExists(goodName).has_error());
+        EXPECT_FALSE(platform::IoxIpcChannelType::unlinkIfExists(anotherGoodName).has_error());
     }
 
     void TearDown()
@@ -65,5 +67,7 @@ TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
     IpcInterfaceCreator m_sut{goodName};
     EXPECT_DEATH({ IpcInterfaceCreator m_sut2{goodName}; }, ".*");
 }
+
+} // namespace
 
 #endif

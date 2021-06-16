@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <cstdint>
 
@@ -45,26 +46,26 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
     MemPoolCollectionMemoryBlock& operator=(const MemPoolCollectionMemoryBlock&) = delete;
     MemPoolCollectionMemoryBlock& operator=(MemPoolCollectionMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of type T
+    /// @copydoc MemoryBlock::size
+    /// @note The size for all the MemPools
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the alignment of type T
+    /// @copydoc MemoryBlock::alignment
+    /// @note The memory alignment for the MemPools
     uint64_t alignment() const noexcept override;
-
-    /// @brief Implementation of MemoryBlock::memoryAvailable
-    /// This will create the MemPools
-    /// @param [in] memory pointer to a valid memory location to place the mempools
-    void memoryAvailable(void* memory) noexcept override;
-
-    /// @brief Implementation of MemoryBlock::destroy
-    /// This will clean up the MemPools
-    void destroy() noexcept override;
 
     /// @brief This function enables the access to the MemoryManager for the MemPools
     /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
     cxx::optional<mepoo::MemoryManager*> memoryManager() const noexcept;
+
+  protected:
+    /// @copydoc MemoryBlock::onMemoryAvailable
+    /// @note This will create the MemPools at the location `memory` points to
+    void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
+
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will clean up the MemPools
+    void destroy() noexcept override;
 
   private:
     mepoo::MePooConfig m_memPoolConfig;

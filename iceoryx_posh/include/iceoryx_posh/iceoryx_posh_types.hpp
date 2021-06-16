@@ -17,13 +17,15 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
+#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/log/logstream.hpp"
 
 #include <cstdint>
 
@@ -40,10 +42,6 @@ class PublisherPortUser;
 class SubscriberPortRouDi;
 class SubscriberPortUser;
 } // namespace popo
-namespace posix
-{
-class UnixDomainSocket;
-} // namespace posix
 
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
@@ -52,11 +50,6 @@ using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
-
-/// @brief The socket is created in the current path if no absolute path is given hence
-///      we need an absolut path so that every application knows where our sockets can
-///      be found.
-using IpcChannelType = iox::posix::UnixDomainSocket;
 
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
@@ -100,10 +93,14 @@ constexpr uint32_t MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY;
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
+namespace popo
+{
+using WaitSetIsConditionSatisfiedCallback = cxx::ConstMethodCallback<bool>;
+}
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 128U;
-constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
-static_assert(MAX_NUMBER_OF_EVENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 128U;
+static_assert(MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
 // Listener
 constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;
@@ -115,16 +112,15 @@ static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_C
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
 
 // Memory
-constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32U;
 constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32U;
 constexpr uint32_t MAX_SHM_SEGMENTS = 100U;
 
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
 
-constexpr uint32_t CHUNK_DEFAULT_PAYLOAD_ALIGNMENT{8U};
-constexpr uint32_t CHUNK_NO_CUSTOM_HEADER_SIZE{0U};
-constexpr uint32_t CHUNK_NO_CUSTOM_HEADER_ALIGNMENT{1U};
+constexpr uint32_t CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT{8U};
+constexpr uint32_t CHUNK_NO_USER_HEADER_SIZE{0U};
+constexpr uint32_t CHUNK_NO_USER_HEADER_ALIGNMENT{1U};
 
 // Message Queue
 constexpr uint32_t ROUDI_MAX_MESSAGES = 5U;
@@ -195,10 +191,11 @@ namespace roudi
 {
 using ConfigFilePathString_t = cxx::string<1024>;
 
-constexpr char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
+constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
+constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
-constexpr char SHM_NAME[] = "/iceoryx_mgmt";
+constexpr const char SHM_NAME[] = "/iceoryx_mgmt";
 
 // Timeout
 using namespace units::duration_literals;

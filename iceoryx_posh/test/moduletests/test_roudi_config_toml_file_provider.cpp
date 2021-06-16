@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,15 +17,14 @@
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
-#include "test_input_path.hpp"
+#include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "test.hpp"
-
-using namespace ::testing;
 
 namespace
 {
+using namespace ::testing;
+
 using ParseErrorInputFile_t = std::pair<iox::roudi::RouDiConfigFileParseError, iox::roudi::ConfigFilePathString_t>;
-};
 
 class RoudiConfigTomlFileProvider_test : public TestWithParam<ParseErrorInputFile_t>
 {
@@ -93,3 +93,5 @@ TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(parseErrorInputFile.first, result.get_error());
 }
+
+} // namespace

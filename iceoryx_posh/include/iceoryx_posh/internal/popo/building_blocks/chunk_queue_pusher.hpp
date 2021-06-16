@@ -17,12 +17,11 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -48,7 +47,11 @@ class ChunkQueuePusher
 
     /// @brief push a new chunk to the chunk queue
     /// @param[in] shared chunk object
-    void push(mepoo::SharedChunk chunk) noexcept;
+    /// @return false if a queue overflow occurred, otherwise true
+    bool push(mepoo::SharedChunk chunk) noexcept;
+
+    /// @brief tell the queue that it lost a chunk (e.g. because push failed and there will be no retry)
+    void lostAChunk() noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

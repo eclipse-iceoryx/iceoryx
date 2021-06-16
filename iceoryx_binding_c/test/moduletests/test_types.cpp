@@ -24,13 +24,14 @@
 using namespace iox;
 using namespace iox::popo;
 
-
 extern "C" {
 #include "iceoryx_binding_c/types.h"
 }
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 TEST(iox_types_test, WaitSetStorageSizeFits)
@@ -62,3 +63,5 @@ TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
     EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }
+
+} // namespace

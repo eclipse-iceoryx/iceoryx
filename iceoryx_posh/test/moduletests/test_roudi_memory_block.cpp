@@ -22,6 +22,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -59,3 +61,5 @@ TEST_F(MemoryBlock_Test, MemoryAvailableAfterCreation)
     ASSERT_THAT(sut.memory().has_value(), Eq(true));
     EXPECT_THAT(sut.memory().value(), Eq(memoryProvider.dummyMemory));
 }
+
+} // namespace

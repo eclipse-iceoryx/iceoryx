@@ -18,10 +18,10 @@
 #ifndef IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
 #define IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
 
 #include "test.hpp"
 
@@ -38,13 +38,13 @@ class MockPublisherPortUser
     }
     MockPublisherPortUser(MemberType_t*){};
 
-    MockPublisherPortUser(const MockPublisherPortUser& rhs [[gnu::unused]]){};
-    MockPublisherPortUser(MockPublisherPortUser&& rhs [[gnu::unused]]){};
-    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs [[gnu::unused]])
+    MockPublisherPortUser(const MockPublisherPortUser& rhs IOX_MAYBE_UNUSED){};
+    MockPublisherPortUser(MockPublisherPortUser&& rhs IOX_MAYBE_UNUSED){};
+    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs IOX_MAYBE_UNUSED)
     {
         return *this;
     };
-    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs [[gnu::unused]])
+    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs IOX_MAYBE_UNUSED)
     {
         return *this;
     };

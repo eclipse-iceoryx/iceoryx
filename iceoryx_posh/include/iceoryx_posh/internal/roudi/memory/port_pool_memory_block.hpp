@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +17,10 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
 #define IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 #include <cstdint>
 
@@ -40,26 +41,26 @@ class PortPoolMemoryBlock : public MemoryBlock
     PortPoolMemoryBlock& operator=(const PortPoolMemoryBlock&) = delete;
     PortPoolMemoryBlock& operator=(PortPoolMemoryBlock&&) = delete;
 
-    /// @brief Implementation of MemoryBlock::size
-    /// @return the size of for all the ports
+    /// @copydoc MemoryBlock::size
+    /// @note The size of for all the ports
     uint64_t size() const noexcept override;
 
-    /// @brief Implementation of MemoryBlock::alignment
-    /// @return the memory alignment for the ports
+    /// @copydoc MemoryBlock::alignment
+    /// @note The memory alignment for the ports
     uint64_t alignment() const noexcept override;
-
-    /// @brief Implementation of MemoryBlock::memoryAvailable
-    /// This will create the ports
-    /// @param [in] memory pointer to a valid memory location to place the mempools
-    void memoryAvailable(void* memory) noexcept override;
-
-    /// @brief Implementation of MemoryBlock::destroy
-    /// This will clean up the ports
-    void destroy() noexcept override;
 
     /// @brief This function enables the access to the PortPool
     /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
     cxx::optional<PortPoolData*> portPool() const noexcept;
+
+  protected:
+    /// @copydoc MemoryBlock::onMemoryAvailable
+    /// @note This will create the ports at the location `memory` points to
+    void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
+
+    /// @copydoc MemoryBlock::destroy
+    /// @note This will clean up the ports
+    void destroy() noexcept override;
 
   private:
     PortPoolData* m_portPoolData{nullptr};

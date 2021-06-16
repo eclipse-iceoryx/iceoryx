@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,12 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#include "iceoryx_hoofs/cxx/attributes.hpp"
 
 namespace iox
 {
 namespace roudi
 {
-void MemoryBlock::memoryAvailable(void* memory [[gnu::unused]]) noexcept
+void MemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory IOX_MAYBE_UNUSED) noexcept
 {
     // nothing to do in the default implementation
 }

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +17,8 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 #define IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <cstdint>
 
@@ -34,6 +36,7 @@ class MemoryBlock
 
   public:
     MemoryBlock() noexcept = default;
+    virtual ~MemoryBlock() noexcept = default;
 
     /// @note this is intentional not movable/copyable, since a pointer to the memory block is registered at a
     /// MemoryProvider and therefore an instance of a MemoryBlock must be pinned to memory
@@ -52,6 +55,12 @@ class MemoryBlock
     /// @return the alignment of the underlying data.
     virtual uint64_t alignment() const noexcept = 0;
 
+    /// @brief This function provides the pointer to the requested memory.
+    /// @return an optional pointer to a memory block with the requested size and alignment if the memory is available,
+    /// otherwise a cxx::nullopt_t
+    cxx::optional<void*> memory() const noexcept;
+
+  protected:
     /// @brief The MemoryProvider calls this either when MemoryProvider::destroy is called or in its destructor.
     /// @note This function can be called multiple times. Make sure that the implementation can handle this.
     virtual void destroy() noexcept = 0;
@@ -59,12 +68,7 @@ class MemoryBlock
     /// @brief This function is called once the memory is available and is therefore the earliest possibility to use the
     /// memory.
     /// @param [in] memory pointer to a valid memory block, the same one that the memory() member function would return
-    virtual void memoryAvailable(void* memory) noexcept;
-
-    /// @brief This function provides the pointer to the requested memory.
-    /// @return an optional pointer to a memory block with the requested size and alignment if the memory is available,
-    /// otherwise a cxx::nullopt_t
-    cxx::optional<void*> memory() const noexcept;
+    virtual void onMemoryAvailable(cxx::not_null<void*> memory) noexcept;
 
   private:
     void* m_memory{nullptr};

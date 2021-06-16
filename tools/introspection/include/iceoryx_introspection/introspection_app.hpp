@@ -16,9 +16,9 @@
 #ifndef IOX_TOOLS_ICEORYX_INTROSPECTION_INTROSPECTION_APP_HPP
 #define IOX_TOOLS_ICEORYX_INTROSPECTION_INTROSPECTION_APP_HPP
 
+#include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_utils/platform/getopt.hpp"
 
 #include <map>
 #include <ncurses.h>
@@ -62,7 +62,7 @@ static const std::map<PrettyOptions, uint32_t> prettyMap = {
 
 
 /// @brief base class for introspection
-/// @todo Wrap all C calls with SmartC
+/// @todo Wrap all C calls with posixCall
 class IntrospectionApp
 {
   public:

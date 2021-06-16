@@ -61,6 +61,18 @@ class ExampleDerivedClass : public ExampleBaseClass<T>
     /// @param[in] b Description of input parameter b
     ExampleDerivedClass(const uint64_t a, const uint64_t b) noexcept;
 
+    /// @copydoc ExampleBaseClass<T>::doSomething
+    /// @note Optional short description of the override
+    uint32_t doSomething(const uint32_t a) const noexcept override;
+
+    /// @copydoc ExampleBaseClass<T>::doSomethingWithOverload()
+    /// @note Optional short description of the override
+    uint32_t doSomethingWithOverload() const noexcept override;
+
+    /// @copydoc ExampleBaseClass<T>::doSomethingWithOverload(uint32_t,uint32_t)
+    /// @note Optional short description of the override
+    uint32_t doSomethingWithOverload(const uint32_t a, const uint32_t b) const noexcept override;
+
     /// @brief Short description
     void simpleMethod() const noexcept;
 

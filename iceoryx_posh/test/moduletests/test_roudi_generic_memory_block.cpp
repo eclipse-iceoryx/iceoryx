@@ -21,6 +21,8 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::roudi;
@@ -175,17 +177,15 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, MultipleEmplaceValue)
     EXPECT_THAT(emplaceResult.value()->m_data, Eq(EXPECTED_VALUE));
 }
 
-TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithoutCreate)
+TEST_F(GenericMemoryBlock_NonTrivial_Test, RunDestructorWithoutCreate)
 {
-    sut.destroy();
     /// @note we just expect to not terminate
 }
 
-TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithoutEmplace)
+TEST_F(GenericMemoryBlock_NonTrivial_Test, RunDestructorWithoutEmplace)
 {
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
-    sut.destroy();
     /// @note we just expect to not terminate
 }
 
@@ -197,7 +197,7 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithEmplace)
     EXPECT_THAT(sut.emplace(EXPECTED_VALUE).value()->m_data, EXPECTED_VALUE);
     EXPECT_THAT(NonTrivialClass::s_constructorCounter, Eq(1u));
 
-    sut.destroy();
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
 
     EXPECT_THAT(sut.value().has_value(), Eq(false));
     EXPECT_THAT(NonTrivialClass::s_destructorCounter, Eq(1u));
@@ -210,12 +210,14 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, RepetitiveDestroyWithEmplace)
     IOX_DISCARD_RESULT(memoryProvider.create());
     sut.emplace(EXPECTED_VALUE);
 
-    sut.destroy();
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
 
     EXPECT_THAT(sut.value().has_value(), Eq(false));
 
-    sut.destroy();
-    sut.destroy();
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
+    IOX_DISCARD_RESULT(memoryProvider.destroy());
 
     EXPECT_THAT(NonTrivialClass::s_destructorCounter, Eq(1u));
 }
+
+} // namespace

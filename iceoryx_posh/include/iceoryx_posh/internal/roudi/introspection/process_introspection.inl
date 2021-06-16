@@ -19,8 +19,8 @@
 
 #include "process_introspection.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 #include <chrono>
 
@@ -173,11 +173,11 @@ inline void ProcessIntrospection<PublisherPort>::send() noexcept
     {
         auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(ProcessIntrospectionFieldTopic),
                                                                   alignof(ProcessIntrospectionFieldTopic),
-                                                                  CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                                  CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+                                                                  CHUNK_NO_USER_HEADER_SIZE,
+                                                                  CHUNK_NO_USER_HEADER_ALIGNMENT);
         if (!maybeChunkHeader.has_error())
         {
-            auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.value()->payload());
+            auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.value()->userPayload());
             new (sample) ProcessIntrospectionFieldTopic;
 
             for (auto& intrData : m_processList)

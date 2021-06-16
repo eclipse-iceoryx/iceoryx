@@ -19,7 +19,6 @@
 
 using namespace ::testing;
 using ::testing::_;
-using ::testing::Return;
 
 
 int main(int argc, char* argv[])

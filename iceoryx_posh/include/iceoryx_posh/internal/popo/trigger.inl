@@ -22,45 +22,96 @@ namespace iox
 {
 namespace popo
 {
-template <typename T>
-inline Trigger::Trigger(T* const eventOrigin,
+template <typename T, typename ContextDataType>
+inline Trigger::Trigger(T* const notificationOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
-                        const uint64_t eventId,
-                        const Callback<T> callback,
-                        const uint64_t uniqueId) noexcept
-    : m_eventInfo(eventOrigin, eventId, callback)
+                        const uint64_t notificationId,
+                        const NotificationCallback<T, ContextDataType>& callback,
+                        const uint64_t uniqueId,
+                        const TriggerType triggerType,
+                        const uint64_t originTriggerType,
+                        const uint64_t originTriggerTypeHash) noexcept
+    : m_notificationInfo(notificationOrigin, notificationId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueId)
+    , m_triggerType(triggerType)
+    , m_originTriggerType(originTriggerType)
+    , m_originTriggerTypeHash(originTriggerTypeHash)
 {
     if (!resetCallback)
     {
         errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
-    }
-
-    if (!hasTriggeredCallback)
-    {
-        errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+        invalidate();
     }
 }
 
-template <typename T>
-inline void Trigger::updateOrigin(T* const newOrigin) noexcept
+template <typename T, typename ContextDataType>
+inline Trigger::Trigger(StateBasedTrigger_t,
+                        T* const stateOrigin,
+                        const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+                        const cxx::MethodCallback<void, uint64_t>& resetCallback,
+                        const uint64_t notificationId,
+                        const NotificationCallback<T, ContextDataType>& callback,
+                        const uint64_t uniqueId,
+                        const uint64_t stateType,
+                        const uint64_t stateTypeHash) noexcept
+    : Trigger(stateOrigin,
+              hasTriggeredCallback,
+              resetCallback,
+              notificationId,
+              callback,
+              uniqueId,
+              TriggerType::STATE_BASED,
+              stateType,
+              stateTypeHash)
 {
-    if (newOrigin != m_eventInfo.m_eventOrigin)
+    if (!hasTriggeredCallback)
     {
-        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getObjectPointer<T>() == m_eventInfo.m_eventOrigin)
+        errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+        invalidate();
+    }
+}
+
+template <typename T, typename ContextDataType>
+inline Trigger::Trigger(EventBasedTrigger_t,
+                        T* const notificationOrigin,
+                        const cxx::MethodCallback<void, uint64_t>& resetCallback,
+                        const uint64_t notificationId,
+                        const NotificationCallback<T, ContextDataType>& callback,
+                        const uint64_t uniqueId,
+                        const uint64_t notificationType,
+                        const uint64_t notificationTypeHash) noexcept
+    : Trigger(notificationOrigin,
+              cxx::ConstMethodCallback<bool>(),
+              resetCallback,
+              notificationId,
+              callback,
+              uniqueId,
+              TriggerType::EVENT_BASED,
+              notificationType,
+              notificationTypeHash)
+{
+}
+
+template <typename T>
+inline void Trigger::updateOrigin(T& newOrigin) noexcept
+{
+    if (isValid() && &newOrigin != m_notificationInfo.m_notificationOrigin)
+    {
+        if (m_hasTriggeredCallback
+            && m_hasTriggeredCallback.getObjectPointer<T>() == m_notificationInfo.m_notificationOrigin)
         {
-            m_hasTriggeredCallback.setCallback(*newOrigin, m_hasTriggeredCallback.getMethodPointer<T>());
+            m_hasTriggeredCallback.setCallback(newOrigin, m_hasTriggeredCallback.getMethodPointer<T>());
         }
 
-        if (m_resetCallback && m_resetCallback.getObjectPointer<T>() == m_eventInfo.m_eventOrigin)
+        if (m_resetCallback && m_resetCallback.getObjectPointer<T>() == m_notificationInfo.m_notificationOrigin)
         {
-            m_resetCallback.setCallback(*newOrigin, m_resetCallback.getMethodPointer<T>());
+            m_resetCallback.setCallback(newOrigin, m_resetCallback.getMethodPointer<T>());
         }
 
-        m_eventInfo.m_eventOrigin = newOrigin;
+        m_notificationInfo.m_notificationOrigin = &newOrigin;
     }
 }
 

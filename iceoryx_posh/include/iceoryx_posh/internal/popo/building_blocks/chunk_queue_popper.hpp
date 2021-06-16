@@ -17,12 +17,11 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {
@@ -51,9 +50,9 @@ class ChunkQueuePopper
     /// @return optional for a shared chunk that is set if the queue is not empty
     cxx::optional<mepoo::SharedChunk> tryPop() noexcept;
 
-    /// @brief check overflow and reset flag
-    /// @return true if the underlying queue overflowed since last call of this method
-    bool hasOverflown() noexcept;
+    /// @brief check if chunks were lost and reset flag
+    /// @return true if the underlying queue has lost chunks due to an overflow since the last call of this method
+    bool hasLostChunks() noexcept;
 
     /// @brief pop a chunk from the chunk queue
     /// @return if the queue is empty return true, otherwise false

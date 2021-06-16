@@ -15,13 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_utils/cxx/generic_raii.hpp"
 
 #include "test.hpp"
 
@@ -29,12 +29,13 @@
 #include <stdlib.h>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 using namespace iox::posix;
-using ::testing::Return;
 
 struct DummySample
 {
@@ -97,11 +98,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
             m_chunkSender
                 .tryAllocate(iox::UniquePortId(),
                              sizeof(DummySample),
-                             iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                             iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                             iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                             iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+                             iox::CHUNK_NO_USER_HEADER_SIZE,
+                             iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
-                    auto sample = chunkHeader->payload();
+                    auto sample = chunkHeader->userPayload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     m_chunkSender.send(chunkHeader);
@@ -130,7 +131,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             m_popper.tryPop()
                 .and_then([&](auto& chunk) {
-                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getUserPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(forwardCounter));
                     m_chunkDistributor.deliverToAllStoredQueues(chunk);
@@ -166,7 +167,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             m_chunkReceiver.tryGet()
                 .and_then([&](auto& chunkHeader) {
-                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
+                    auto dummySample = *reinterpret_cast<const DummySample*>(chunkHeader->userPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
                     m_receiveCounter++;
@@ -210,19 +211,20 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData_t m_chunkSenderData{&m_memoryManager};
+    ChunkSenderData_t m_chunkSenderData{&m_memoryManager, SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
-    ChunkDistributorData_t m_chunkDistributorData;
+    ChunkDistributorData_t m_chunkDistributorData{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
     ChunkQueueData_t m_chunkQueueData{
+        QueueFullPolicy::DISCARD_OLDEST_DATA,
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
     ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData_t m_chunkReceiverData{
-        iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
+    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
+                                            QueueFullPolicy::DISCARD_OLDEST_DATA}; // SoFi intentionally not used
     ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 
@@ -247,7 +249,9 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
         subscribingThread.join();
     }
 
-    ASSERT_FALSE(m_popper.hasOverflown());
-    ASSERT_FALSE(m_chunkReceiver.hasOverflown());
+    ASSERT_FALSE(m_popper.hasLostChunks());
+    ASSERT_FALSE(m_chunkReceiver.hasLostChunks());
     EXPECT_EQ(m_sendCounter, m_receiveCounter);
 }
+
+} // namespace
