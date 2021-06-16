@@ -120,31 +120,19 @@ ServiceDescription::ServiceDescription(const IdString_t& service,
 
 bool ServiceDescription::operator==(const ServiceDescription& rhs) const
 {
-    if ((m_serviceString != IdString_t(cxx::TruncateToCapacity, Wildcard))
-        && (rhs.m_serviceString != IdString_t(cxx::TruncateToCapacity, Wildcard)))
+    if (m_serviceString != rhs.m_serviceString)
     {
-        if (m_serviceString != rhs.m_serviceString)
-        {
-            return false;
-        }
+        return false;
     }
 
-    if ((m_instanceString != IdString_t(cxx::TruncateToCapacity, Wildcard))
-        && (rhs.m_instanceString != IdString_t(cxx::TruncateToCapacity, Wildcard)))
+    if (m_instanceString != rhs.m_instanceString)
     {
-        if (m_instanceString != rhs.m_instanceString)
-        {
-            return false;
-        }
+        return false;
     }
 
-    if ((m_eventString != IdString_t(cxx::TruncateToCapacity, Wildcard))
-        && (rhs.m_eventString != IdString_t(cxx::TruncateToCapacity, Wildcard)))
+    if (m_eventString != rhs.m_eventString)
     {
-        if (m_eventString != rhs.m_eventString)
-        {
-            return false;
-        }
+        return false;
     }
     return true;
 }
@@ -233,15 +221,10 @@ Interfaces ServiceDescription::getSourceInterface() const noexcept
     return m_interfaceSource;
 }
 
-/// @todo remove Wildcard's no invalid ServiceDescription is allowed
 bool ServiceDescription::isValid() const noexcept
 {
-    return !(m_serviceString == iox::capro::InvalidString
-             || m_serviceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::Wildcard)
-             || m_instanceString == iox::capro::InvalidString
-             || m_instanceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::Wildcard)
-             || m_eventString == iox::capro::InvalidString
-             || m_eventString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::Wildcard));
+    return !(m_serviceString == iox::capro::InvalidString || m_instanceString == iox::capro::InvalidString
+             || m_eventString == iox::capro::InvalidString);
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept

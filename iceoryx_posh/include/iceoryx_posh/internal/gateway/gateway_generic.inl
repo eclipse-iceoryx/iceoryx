@@ -77,10 +77,11 @@ inline cxx::expected<channel_t, GatewayError>
 GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service,
                                                  const IceoryxPubSubOptions& options) noexcept
 {
+    /// @todo remove?
     // Filter out wildcard services
-    if (service.getServiceIDString() == capro::IdString_t(cxx::TruncateToCapacity, capro::Wildcard)
-        || service.getInstanceIDString() == capro::IdString_t(cxx::TruncateToCapacity, capro::Wildcard)
-        || service.getEventIDString() == capro::IdString_t(cxx::TruncateToCapacity, capro::Wildcard))
+    if (service.getServiceIDString() == capro::IdString_t(cxx::TruncateToCapacity, "*")
+        || service.getInstanceIDString() == capro::IdString_t(cxx::TruncateToCapacity, "*")
+        || service.getEventIDString() == capro::IdString_t(cxx::TruncateToCapacity, "*"))
     {
         return cxx::error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
     }

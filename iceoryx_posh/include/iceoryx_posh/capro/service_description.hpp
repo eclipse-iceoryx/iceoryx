@@ -30,8 +30,6 @@ namespace iox
 namespace capro
 {
 static const IdString_t InvalidString{""};
-/// @todo #451 make this an enum and move it to the new user-facing discovery API, only needed for search
-static constexpr char Wildcard[]{"*"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
 

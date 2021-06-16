@@ -34,7 +34,7 @@ void ServiceRegistry::find(InstanceSet_t& instances,
                            const CaproIdString_t& service,
                            const CaproIdString_t& instance) const
 {
-    if (instance == iox::cxx::string<100>(capro::Wildcard))
+    if (instance == capro::IdString_t(Wildcard))
     {
         for (auto& instance : m_serviceMap[service].instanceSet)
         {

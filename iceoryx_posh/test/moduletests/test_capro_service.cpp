@@ -21,6 +21,8 @@
 #include "iceoryx_hoofs/cxx/serialization.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+/// @todo #415 replace the service registry include with the new discovery API header
+#include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
 #include <cstdint>
 
@@ -254,26 +256,11 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceAnyEventIDsAreEqual)
 {
-    IdString_t testService = iox::capro::Wildcard;
-    IdString_t testEvent = iox::capro::Wildcard;
-    IdString_t testInstance = iox::capro::Wildcard;
+    IdString_t testService = iox::roudi::Wildcard;
+    IdString_t testEvent = iox::roudi::Wildcard;
+    IdString_t testInstance = iox::roudi::Wildcard;
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testEvent, testInstance);
     ServiceDescription serviceDescription2 = ServiceDescription(testService, testEvent, testInstance);
-
-    EXPECT_TRUE(serviceDescription1 == serviceDescription2);
-}
-
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionWithAnyServiceAnyInstanceAnyEventAndServiceDescriptionWithValidStringsAreEqual)
-{
-    IdString_t testService1 = "1";
-    IdString_t testEvent1 = "2";
-    IdString_t testInstance1 = "3";
-    IdString_t testService2 = iox::capro::Wildcard;
-    IdString_t testEvent2 = iox::capro::Wildcard;
-    IdString_t testInstance2 = iox::capro::Wildcard;
-    ServiceDescription serviceDescription1 = ServiceDescription(testService1, testEvent1, testInstance1);
-    ServiceDescription serviceDescription2 = ServiceDescription(testService2, testEvent2, testInstance2);
 
     EXPECT_TRUE(serviceDescription1 == serviceDescription2);
 }
@@ -342,8 +329,8 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithSameStringsComparedWit
 TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceStringIsSame)
 {
     IdString_t sameService = "1";
-    ServiceDescription description1 = ServiceDescription(sameService, iox::capro::Wildcard, iox::capro::Wildcard);
-    ServiceDescription description2 = ServiceDescription(sameService, iox::capro::Wildcard, iox::capro::Wildcard);
+    ServiceDescription description1 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
+    ServiceDescription description2 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
 
     EXPECT_TRUE(iox::capro::serviceMatch(description1, description2));
 }
@@ -352,8 +339,8 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
 {
     IdString_t serviceID1 = "1";
     IdString_t serviceID2 = "2";
-    ServiceDescription description1 = ServiceDescription(serviceID1, iox::capro::Wildcard, iox::capro::Wildcard);
-    ServiceDescription description2 = ServiceDescription(serviceID2, iox::capro::Wildcard, iox::capro::Wildcard);
+    ServiceDescription description1 = ServiceDescription(serviceID1, iox::roudi::Wildcard, iox::roudi::Wildcard);
+    ServiceDescription description2 = ServiceDescription(serviceID2, iox::roudi::Wildcard, iox::roudi::Wildcard);
 
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
@@ -392,16 +379,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsAnyService)
-{
-    IdString_t testServiceID = iox::capro::Wildcard;
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
 
 TEST_F(ServiceDescription_test,
        ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsInvalid)
@@ -414,31 +391,10 @@ TEST_F(ServiceDescription_test,
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsAnyInstance)
-{
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = iox::capro::Wildcard;
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsInvalid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = InvalidString;
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsAnyEvent)
-{
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = iox::capro::Wildcard;
     IdString_t testInstanceID = "1";
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 

@@ -44,7 +44,7 @@ class ServiceRegistry_test : public Test
     iox::roudi::ServiceRegistry registry;
     iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
 
-    iox::cxx::string<100> Wildcard{iox::capro::Wildcard};
+    iox::capro::IdString_t Wildcard{iox::roudi::Wildcard};
 };
 
 TEST_F(ServiceRegistry_test, SingleAdd)

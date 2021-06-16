@@ -48,7 +48,8 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     /// @todo iox-#841 simplify this when we switch to gmock v1.10
     MOCK_METHOD2(findServiceMock,
                  iox::cxx::expected<iox::runtime::InstanceContainer, iox::runtime::FindServiceError>(
-                     const iox::capro::IdString_t&, const iox::capro::IdString_t&));
+                     const iox::cxx::variant<iox::runtime::SearchMode, iox::capro::IdString_t>,
+                     const iox::cxx::variant<iox::runtime::SearchMode, iox::capro::IdString_t>));
     MOCK_METHOD1(offerServiceMock, bool(const iox::capro::ServiceDescription&));
     MOCK_METHOD1(stopOfferServiceMock, bool(const iox::capro::ServiceDescription&));
     MOCK_METHOD3(getMiddlewarePublisherMock,
@@ -89,7 +90,8 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     }
 
     iox::cxx::expected<iox::runtime::InstanceContainer, iox::runtime::FindServiceError>
-    findService(const iox::capro::IdString_t& service, const iox::capro::IdString_t& instance) noexcept override
+    findService(const iox::cxx::variant<iox::runtime::SearchMode, iox::capro::IdString_t> service,
+                const iox::cxx::variant<iox::runtime::SearchMode, iox::capro::IdString_t> instance) noexcept override
     {
         return findServiceMock(service, instance);
     }

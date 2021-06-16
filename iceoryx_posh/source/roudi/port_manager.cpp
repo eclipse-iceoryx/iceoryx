@@ -281,7 +281,7 @@ void PortManager::handleInterfaces() noexcept
         {
             for (auto& instance : x.second.instanceSet)
             {
-                caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance, capro::Wildcard);
+                caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance, roudi::Wildcard);
 
                 for (auto& interfacePortData : interfacePortsForInitialForwarding)
                 {
@@ -599,7 +599,7 @@ runtime::IpcMessage PortManager::findService(const capro::IdString_t& service,
                                              const capro::IdString_t& instance) noexcept
 {
     // send find to all interfaces
-    capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, {service, instance, capro::Wildcard});
+    capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, {service, instance, roudi::Wildcard});
 
     for (auto interfacePortData : m_portPool->getInterfacePortDataList())
     {

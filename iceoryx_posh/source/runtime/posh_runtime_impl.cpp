@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -380,10 +381,33 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 }
 
 cxx::expected<InstanceContainer, FindServiceError>
-PoshRuntimeImpl::findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
+PoshRuntimeImpl::findService(const cxx::variant<SearchMode, capro::IdString_t> service,
+                             const cxx::variant<SearchMode, capro::IdString_t> instance) noexcept
 {
+    /// @todo #415 remove the string mapping, once the find call is done via shared memory
+    capro::IdString_t serviceString;
+    capro::IdString_t instanceString;
+
+    if (service.index() == 0U)
+    {
+        serviceString = "*";
+    }
+    else
+    {
+        serviceString = *service.get_at_index<1U>();
+    }
+
+    if (instance.index() == 0U)
+    {
+        instanceString = "*";
+    }
+    else
+    {
+        instanceString = *instance.get_at_index<1U>();
+    }
+
     IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName << service << instance;
+    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName << serviceString << instanceString;
 
     IpcMessage requestResponse;
 
@@ -408,7 +432,7 @@ PoshRuntimeImpl::findService(const capro::IdString_t& service, const capro::IdSt
 
     if (numberOfElements > capacity)
     {
-        LogWarn() << numberOfElements << " instances found for service \"" << service
+        LogWarn() << numberOfElements << " instances found for service \"" << serviceString
                   << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);

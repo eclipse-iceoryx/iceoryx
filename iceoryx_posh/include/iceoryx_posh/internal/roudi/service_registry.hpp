@@ -27,6 +27,7 @@ namespace iox
 {
 namespace roudi
 {
+static constexpr char Wildcard[]{"*"};
 class ServiceRegistry
 {
   public:
@@ -43,7 +44,7 @@ class ServiceRegistry
     void remove(const CaproIdString_t& service, const CaproIdString_t& instance);
     void find(InstanceSet_t& instances,
               const CaproIdString_t& service,
-              const CaproIdString_t& instance = capro::Wildcard) const;
+              const CaproIdString_t& instance = Wildcard) const;
     const serviceMap_t& getServiceMap() const;
 
   private:
