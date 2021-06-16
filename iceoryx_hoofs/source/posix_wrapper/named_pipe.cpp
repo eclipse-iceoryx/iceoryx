@@ -89,7 +89,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
         sizeof(MessageQueue_t) + alignof(MessageQueue_t),
         AccessMode::READ_WRITE,
-        (channelSide == IpcChannelSide::SERVER) ? OwnerShip::MINE : OwnerShip::OPEN_EXISTING_SHM,
+        (channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING,
         iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     if (sharedMemory.has_error())
@@ -166,16 +166,16 @@ cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
 cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
     constexpr int ERROR_CODE = -1;
-    auto unlinkCall =
-        posixCall(shm_unlink)(convertName(name).c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
+    auto unlinkCall = posixCall(iox_shm_unlink)(convertName(name).c_str())
+                          .failureReturnValue(ERROR_CODE)
+                          .ignoreErrnos(ENOENT)
+                          .evaluate();
     if (!unlinkCall.has_error())
     {
         return cxx::success<bool>(unlinkCall->errnum != ENOENT);
     }
-    else
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
-    }
+
+    return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
 }
 
 cxx::expected<IpcChannelError> NamedPipe::send(const std::string& message) const noexcept

@@ -215,6 +215,13 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
     EXPECT_TRUE(outdated.value());
 }
 
+#if !defined(_WIN32)
+// From:
+// https://docs.microsoft.com/en-us/windows/win32/memory/sharing-files-and-memory
+// The shared memory is not destroyed until every process called CloseHandle on
+// that shared memory. If a process as an abnormal termination the kernel calls
+// CloseHandle on every open handle, therefore shared memory remains should be
+// impossible.
 TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
 {
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
@@ -230,6 +237,7 @@ TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
     ASSERT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
 }
+#endif
 
 TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
 {
@@ -342,8 +350,6 @@ TYPED_TEST(IpcChannel_test, TimedSendWorks)
                       "longer message";
 
     Duration maxTimeout = 100_ms;
-    Duration minTimeoutTolerance = 10_ms;
-    Duration maxTimeoutTolerance = 20_ms;
 
     // send till it breaks
     for (;;)
@@ -356,10 +362,7 @@ TYPED_TEST(IpcChannel_test, TimedSendWorks)
             ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
             // Do not exceed timeout
             auto timeDiff = units::Duration(after - before);
-            EXPECT_LT(timeDiff, maxTimeout + maxTimeoutTolerance);
-
-            // Check if timedSend has blocked for ~maxTimeout and has not returned immediately
-            EXPECT_GT(timeDiff, maxTimeout - minTimeoutTolerance);
+            EXPECT_GT(timeDiff, maxTimeout);
 
             break;
         }
@@ -374,8 +377,6 @@ TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
 
     std::string msg = "very useful text for tranmission";
     Duration timeout = 100_ms;
-    Duration minTimeoutTolerance = 10_ms;
-    Duration maxTimeoutTolerance = 20_ms;
 
     ASSERT_FALSE(this->client.send(msg).has_error());
 
@@ -391,11 +392,7 @@ TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
     ASSERT_TRUE(received.has_error());
     ASSERT_THAT(received.get_error(), Eq(IpcChannelError::TIMEOUT));
 
-    // Do not exceed timeout
     auto timeDiff = units::Duration(after - before);
-    EXPECT_LT(timeDiff, timeout + maxTimeoutTolerance);
-
-    // Check if timedReceive has blocked for ~timeout and has not returned immediately
-    EXPECT_GT(timeDiff, timeout - minTimeoutTolerance);
+    EXPECT_GT(timeDiff, timeout);
 }
 } // namespace
