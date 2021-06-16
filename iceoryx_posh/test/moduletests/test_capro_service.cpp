@@ -386,7 +386,7 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsInvalid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvalid)
 {
     IdString_t testServiceID = "INVALID";
     IdString_t testEventID = "1";
@@ -397,7 +397,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
 }
 
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsAnyService)
+       ServiceDescriptionIsInvalidWhenServiceIDIsAnyService)
 {
     IdString_t testServiceID = iox::capro::AnyServiceString;
     IdString_t testEventID = "1";
@@ -408,7 +408,7 @@ TEST_F(ServiceDescription_test,
 }
 
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsInvalid)
+       ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
@@ -419,7 +419,7 @@ TEST_F(ServiceDescription_test,
 }
 
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsAnyInstance)
+       ServiceDescriptionIsInvalidWhenInstanceIDIsAnyInstance)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
@@ -429,7 +429,7 @@ TEST_F(ServiceDescription_test,
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsInvalid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "INVALID";
@@ -439,7 +439,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsAnyEvent)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsAnyEvent)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = iox::capro::AnyEventString;
@@ -450,7 +450,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
 }
 
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceInstanceAndEventIDsAreValid)
+       ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
