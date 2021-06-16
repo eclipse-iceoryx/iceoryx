@@ -163,11 +163,11 @@ class ServiceDescription
 
   private:
     /// @brief string representation of the service
-    IdString_t m_serviceString;
+    IdString_t m_serviceString{InvalidString};
     /// @brief string representation of the instance
-    IdString_t m_instanceString;
+    IdString_t m_instanceString{InvalidString};
     /// @brief string representation of the event
-    IdString_t m_eventString;
+    IdString_t m_eventString{InvalidString};
 
     bool m_hasServiceOnlyDescription = false;
     /// @brief 128-Bit class hash (32-Bit * 4)
