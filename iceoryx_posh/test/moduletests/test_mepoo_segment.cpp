@@ -152,12 +152,12 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
                                                                        const uint64_t,
                                                                        const iox::posix::AccessMode f_accessMode,
-                                                                       const iox::posix::OpenMode policy,
+                                                                       const iox::posix::OpenMode openMode,
                                                                        const void*,
                                                                        const mode_t) {
         EXPECT_THAT(std::string(f_name), Eq(std::string("/iox_roudi_test2")));
         EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
-        EXPECT_THAT(policy, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
+        EXPECT_THAT(openMode, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
         mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
