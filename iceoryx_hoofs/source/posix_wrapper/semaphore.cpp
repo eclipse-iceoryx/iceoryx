@@ -187,22 +187,6 @@ Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int va
     }
 }
 
-Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept
-    : m_isNamedSemaphore(false)
-    , m_isShared(true)
-    , m_handlePtr(handle)
-{
-    if (init(handle, 1, value))
-    {
-        m_isInitialized = true;
-    }
-    else
-    {
-        m_isInitialized = false;
-        m_errorValue = SemaphoreError::CREATION_FAILED;
-    }
-}
-
 Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept
     : m_isCreated(false)
 {

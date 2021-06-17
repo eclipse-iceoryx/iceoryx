@@ -170,10 +170,6 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @return if an error during the call occurs the error value is set
     cxx::expected<SemaphoreError> wait() noexcept;
 
-    /// @brief returns the pointer to the managed semaphore. You can use this
-    ///         pointer with all the sem_** functions.
-    iox_sem_t* getHandle() const noexcept;
-
   private:
     cxx::string<128> m_name;
     bool m_isCreated = true;
@@ -199,8 +195,6 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         For details see man sem_init.
     /// @param[in] value initial value of the semaphore
     Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int value) noexcept;
-    /// @deprecated do not use this constructor
-    Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept;
 
     /// @brief Opens an already existing named semaphore. If a semaphore with
     ///         name does not exist an uninitialized Semaphore is returned
@@ -304,6 +298,10 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///
     /// @return returns false when sem_open fails otherwise true
     bool open(const int oflag) noexcept;
+
+    /// @brief returns the pointer to the managed semaphore. You can use this
+    ///         pointer with all the sem_** functions.
+    iox_sem_t* getHandle() const noexcept;
 
     bool open(const int oflag, const mode_t mode, const unsigned int value) noexcept;
 

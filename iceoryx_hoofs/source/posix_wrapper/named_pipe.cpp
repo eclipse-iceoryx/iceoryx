@@ -115,34 +115,6 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     }
 }
 
-NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
-                                        IpcChannelError& error,
-                                        const uint64_t maxMsgNumber) noexcept
-{
-    auto signalError = [&](const char* name) {
-        std::cerr << "Unable to create " << name << " semaphore for named pipe \"" << 'x' << "\"";
-        isInitialized = false;
-        error = IpcChannelError::INTERNAL_LOGIC_ERROR;
-    };
-
-    Semaphore::placementCreate(
-        &semaphores[SEND_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, static_cast<unsigned int>(maxMsgNumber))
-        .or_else([&](auto) { signalError("send"); });
-
-    Semaphore::placementCreate(&semaphores[RECEIVE_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, 0U)
-        .or_else([&](auto) { signalError("receive"); });
-}
-
-Semaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
-{
-    return reinterpret_cast<Semaphore&>(semaphores[SEND_SEMAPHORE]);
-}
-
-Semaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
-{
-    return reinterpret_cast<Semaphore&>(semaphores[RECEIVE_SEMAPHORE]);
-}
-
 NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
 {
     *this = std::move(rhs);
@@ -340,6 +312,33 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units:
     return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
+NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
+                                        IpcChannelError& error,
+                                        const uint64_t maxMsgNumber) noexcept
+{
+    auto signalError = [&](const char* name) {
+        std::cerr << "Unable to create " << name << " semaphore for named pipe \"" << 'x' << "\"";
+        isInitialized = false;
+        error = IpcChannelError::INTERNAL_LOGIC_ERROR;
+    };
+
+    Semaphore::placementCreate(
+        &semaphores[SEND_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, static_cast<unsigned int>(maxMsgNumber))
+        .or_else([&](auto) { signalError("send"); });
+
+    Semaphore::placementCreate(&semaphores[RECEIVE_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, 0U)
+        .or_else([&](auto) { signalError("receive"); });
+}
+
+Semaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
+{
+    return reinterpret_cast<Semaphore&>(semaphores[SEND_SEMAPHORE]);
+}
+
+Semaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
+{
+    return reinterpret_cast<Semaphore&>(semaphores[RECEIVE_SEMAPHORE]);
+}
 
 } // namespace posix
 } // namespace iox
