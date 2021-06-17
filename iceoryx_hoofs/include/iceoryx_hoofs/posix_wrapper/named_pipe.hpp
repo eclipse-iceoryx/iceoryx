@@ -18,6 +18,7 @@
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
@@ -120,15 +121,22 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
   private:
     cxx::optional<SharedMemoryObject> m_sharedMemory;
-    mutable cxx::optional<Semaphore> m_sendSemaphore;
-    mutable cxx::optional<Semaphore> m_receiveSemaphore;
 
     struct NamedPipeData
     {
+        NamedPipeData(bool& isInitialized, IpcChannelError& error, const uint64_t maxMsgNumber) noexcept;
+
+        Semaphore& sendSemaphore() noexcept;
+        Semaphore& receiveSemaphore() noexcept;
+
+        static constexpr uint64_t SEND_SEMAPHORE = 0U;
+        static constexpr uint64_t RECEIVE_SEMAPHORE = 1U;
+
         MessageQueue_t messages;
-        Semaphore sendSemaphore;
-        Semaphore receiveSemaphore;
+        using semaphoreMemory_t = uint8_t[sizeof(Semaphore)];
+        alignas(alignof(Semaphore)) semaphoreMemory_t semaphores[2U];
     };
+
 
     NamedPipeData* m_data = nullptr;
 };

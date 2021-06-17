@@ -57,6 +57,8 @@ class IpcChannel_test : public Test
 
     void SetUp()
     {
+        IOX_DISCARD_RESULT(IpcChannelType::unlinkIfExists(goodName));
+
         auto serverResult = IpcChannelType::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
