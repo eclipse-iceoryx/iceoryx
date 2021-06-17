@@ -163,7 +163,10 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
     {
         m_isInitialized = false;
         m_errorValue = IpcChannelError::NOT_INITIALIZED;
-        m_data->~NamedPipeData();
+        if (m_sharedMemory->hasOwnership())
+        {
+            m_data->~NamedPipeData();
+        }
         m_sharedMemory.reset();
         m_data = nullptr;
     }
