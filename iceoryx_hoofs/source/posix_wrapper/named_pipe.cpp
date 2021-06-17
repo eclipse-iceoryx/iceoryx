@@ -29,6 +29,7 @@ constexpr const char NamedPipe::SEND_SEMAPHORE_PREFIX[];
 constexpr const char NamedPipe::RECEIVE_SEMAPHORE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
+constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_TIMEOUT;
 
 NamedPipe::NamedPipe() noexcept
 {
