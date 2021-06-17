@@ -76,12 +76,14 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (m_isInitialized == false)
     {
+        auto flags = std::cerr.flags();
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
-                  << ", baseAddressHint = " << std::hex << baseAddressHint
+                  << ", baseAddressHint = " << std::hex << baseAddressHint << std::dec
                   << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
+        std::cerr.setf(flags);
         return;
     }
 

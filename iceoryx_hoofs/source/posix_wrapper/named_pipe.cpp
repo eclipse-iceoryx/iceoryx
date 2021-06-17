@@ -104,48 +104,53 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    cxx::expected<Semaphore, SemaphoreError> sendSemaphore = cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
-    cxx::expected<Semaphore, SemaphoreError> receiveSemaphore = cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
-    if (sharedMemory->hasOwnership())
+    m_sharedMemory.emplace(std::move(*sharedMemory));
+
+    m_isInitialized = true;
+    auto signalError = [&](const char* name, const char* openMode) {
+        std::cerr << "Unable to " << openMode << " the named pipe semaphore \"" << name << "\" for named pipe \""
+                  << name << "\"" << std::endl;
+        m_isInitialized = false;
+        m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
+    };
+
+    if (m_sharedMemory->hasOwnership())
     {
-        sendSemaphore = Semaphore::create(CreateNamedSemaphore,
-                                          convertName(SEND_SEMAPHORE_PREFIX, name).c_str(),
-                                          static_cast<mode_t>(S_IRUSR | S_IWUSR),
-                                          static_cast<unsigned int>(maxMsgNumber));
-        receiveSemaphore = Semaphore::create(CreateNamedSemaphore,
-                                             convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(),
-                                             static_cast<mode_t>(S_IRUSR | S_IWUSR),
-                                             0U);
+        Semaphore::create(CreateNamedSemaphore,
+                          convertName(SEND_SEMAPHORE_PREFIX, name).c_str(),
+                          static_cast<mode_t>(S_IRUSR | S_IWUSR),
+                          static_cast<unsigned int>(maxMsgNumber))
+            .and_then([&](auto& r) { m_sendSemaphore.emplace(std::move(r)); })
+            .or_else([&](auto) { signalError(convertName(SEND_SEMAPHORE_PREFIX, name).c_str(), "create"); });
+
+        Semaphore::create(CreateNamedSemaphore,
+                          convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(),
+                          static_cast<mode_t>(S_IRUSR | S_IWUSR),
+                          0U)
+            .and_then([&](auto& r) { m_receiveSemaphore.emplace(std::move(r)); })
+            .or_else([&](auto) { signalError(convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(), "create"); });
     }
     else
     {
-        sendSemaphore = Semaphore::create(OpenNamedSemaphore, convertName(SEND_SEMAPHORE_PREFIX, name).c_str(), 0);
-        receiveSemaphore =
-            Semaphore::create(OpenNamedSemaphore, convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(), 0);
+        Semaphore::create(OpenNamedSemaphore, convertName(SEND_SEMAPHORE_PREFIX, name).c_str(), 0)
+            .and_then([&](auto& r) { m_sendSemaphore.emplace(std::move(r)); })
+            .or_else([&](auto) { signalError(convertName(SEND_SEMAPHORE_PREFIX, name).c_str(), "open"); });
+
+        Semaphore::create(OpenNamedSemaphore, convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(), 0)
+            .and_then([&](auto& r) { m_receiveSemaphore.emplace(std::move(r)); })
+            .or_else([&](auto) { signalError(convertName(RECEIVE_SEMAPHORE_PREFIX, name).c_str(), "open"); });
     }
 
-    if (sendSemaphore.has_error() || receiveSemaphore.has_error())
+    if (m_isInitialized)
     {
-        std::cerr << "Unable to create or open named pipe semaphores: \"" << convertName(SEND_SEMAPHORE_PREFIX, name)
-                  << "\" and \"" << convertName(RECEIVE_SEMAPHORE_PREFIX, name) << "\" for named pipe \"" << name
-                  << "\"" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
-        return;
+        m_messages =
+            static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
+
+        if (channelSide == IpcChannelSide::SERVER)
+        {
+            new (m_messages) MessageQueue_t();
+        }
     }
-
-    m_receiveSemaphore.emplace(std::move(*receiveSemaphore));
-    m_sendSemaphore.emplace(std::move(*sendSemaphore));
-
-    m_sharedMemory.emplace(std::move(*sharedMemory));
-    m_messages =
-        static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
-
-    if (channelSide == IpcChannelSide::SERVER)
-    {
-        new (m_messages) MessageQueue_t();
-    }
-    m_isInitialized = true;
 }
 
 NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
