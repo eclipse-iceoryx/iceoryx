@@ -172,7 +172,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
     /// @brief returns the pointer to the managed semaphore. You can use this
     ///         pointer with all the sem_** functions.
-    iox_sem_t* getHandle() noexcept;
+    iox_sem_t* getHandle() const noexcept;
 
   private:
     cxx::string<128> m_name;
@@ -181,7 +181,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     bool m_isShared = false;
 
     mutable iox_sem_t m_handle;
-    mutable iox::rp::RelativePointer<iox_sem_t> m_handlePtr = &m_handle;
+    mutable iox_sem_t* m_handlePtr = nullptr;
 
   private:
     friend class DesignPattern::Creation<Semaphore, SemaphoreError>;
@@ -318,7 +318,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
     /// @brief Returns true if the semaphore was created with CreateNamed or
     ///         OpenNamed otherwise it returns false.
-    bool isNamedSemaphore() noexcept;
+    bool isNamedSemaphore() const noexcept;
 
     void closeHandle() noexcept;
 

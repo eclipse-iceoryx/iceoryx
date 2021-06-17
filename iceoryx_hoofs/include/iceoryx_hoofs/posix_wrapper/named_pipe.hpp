@@ -122,7 +122,15 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     cxx::optional<SharedMemoryObject> m_sharedMemory;
     mutable cxx::optional<Semaphore> m_sendSemaphore;
     mutable cxx::optional<Semaphore> m_receiveSemaphore;
-    MessageQueue_t* m_messages = nullptr;
+
+    struct NamedPipeData
+    {
+        MessageQueue_t messages;
+        Semaphore sendSemaphore;
+        Semaphore receiveSemaphore;
+    };
+
+    NamedPipeData* m_data = nullptr;
 };
 } // namespace posix
 } // namespace iox

@@ -89,7 +89,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         convertName(NAMED_PIPE_PREFIX, name),
         // add alignment since we require later aligned memory to perform the placement new of
         // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
-        sizeof(MessageQueue_t) + alignof(MessageQueue_t),
+        sizeof(NamedPipeData) + alignof(NamedPipeData),
         AccessMode::READ_WRITE,
         (channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING,
         iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
@@ -143,12 +143,11 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
 
     if (m_isInitialized)
     {
-        m_messages =
-            static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
+        m_data = static_cast<NamedPipeData*>(m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData)));
 
         if (channelSide == IpcChannelSide::SERVER)
         {
-            new (m_messages) MessageQueue_t();
+            new (m_data) NamedPipeData();
         }
     }
 }
@@ -168,8 +167,8 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
         m_sharedMemory = std::move(rhs.m_sharedMemory);
         m_sendSemaphore = std::move(rhs.m_sendSemaphore);
         m_receiveSemaphore = std::move(rhs.m_receiveSemaphore);
-        m_messages = std::move(rhs.m_messages);
-        rhs.m_messages = nullptr;
+        m_data = std::move(rhs.m_data);
+        rhs.m_data = nullptr;
     }
 
     return *this;
@@ -193,11 +192,11 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
     {
         m_isInitialized = false;
         m_errorValue = IpcChannelError::NOT_INITIALIZED;
-        m_messages->~LockFreeQueue();
+        m_data->~NamedPipeData();
         m_sendSemaphore.reset();
         m_receiveSemaphore.reset();
         m_sharedMemory.reset();
-        m_messages = nullptr;
+        m_data = nullptr;
     }
     return cxx::success<>();
 }
@@ -239,7 +238,7 @@ cxx::expected<IpcChannelError> NamedPipe::trySend(const std::string& message) co
 
     if (*result)
     {
-        IOX_DISCARD_RESULT(m_messages->push(Message_t(cxx::TruncateToCapacity, message)));
+        IOX_DISCARD_RESULT(m_data->messages.push(Message_t(cxx::TruncateToCapacity, message)));
         cxx::Expects(!m_receiveSemaphore->post().has_error());
         return cxx::success<>();
     }
@@ -259,7 +258,7 @@ cxx::expected<IpcChannelError> NamedPipe::send(const std::string& message) const
     }
 
     cxx::Expects(!m_sendSemaphore->wait().has_error());
-    IOX_DISCARD_RESULT(m_messages->push(Message_t(cxx::TruncateToCapacity, message)));
+    IOX_DISCARD_RESULT(m_data->messages.push(Message_t(cxx::TruncateToCapacity, message)));
     cxx::Expects(!m_receiveSemaphore->post().has_error());
 
     return cxx::success<>();
@@ -283,7 +282,7 @@ cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
 
     if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
-        IOX_DISCARD_RESULT(m_messages->push(Message_t(cxx::TruncateToCapacity, message)));
+        IOX_DISCARD_RESULT(m_data->messages.push(Message_t(cxx::TruncateToCapacity, message)));
         cxx::Expects(!m_receiveSemaphore->post().has_error());
         return cxx::success<>();
     }
@@ -298,7 +297,7 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
     }
 
     cxx::Expects(!m_receiveSemaphore->wait().has_error());
-    auto message = m_messages->pop();
+    auto message = m_data->messages.pop();
     if (message.has_value())
     {
         cxx::Expects(!m_sendSemaphore->post().has_error());
@@ -319,7 +318,7 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexce
 
     if (*result)
     {
-        auto message = m_messages->pop();
+        auto message = m_data->messages.pop();
         if (message.has_value())
         {
             cxx::Expects(!m_sendSemaphore->post().has_error());
@@ -343,7 +342,7 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units:
 
     if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
-        auto message = m_messages->pop();
+        auto message = m_data->messages.pop();
         if (message.has_value())
         {
             cxx::Expects(!m_sendSemaphore->post().has_error());
