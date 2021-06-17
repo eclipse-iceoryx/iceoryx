@@ -28,6 +28,7 @@ constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
 constexpr const char NamedPipe::SEND_SEMAPHORE_PREFIX[];
 constexpr const char NamedPipe::RECEIVE_SEMAPHORE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
+constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
 
 NamedPipe::NamedPipe() noexcept
 {
@@ -112,6 +113,14 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     if (m_sharedMemory->hasOwnership())
     {
         new (m_data) NamedPipeData(m_isInitialized, m_errorValue, maxMsgNumber);
+    }
+    else
+    {
+        m_isInitialized = m_data->waitForInitialization();
+        if (m_isInitialized == false)
+        {
+            m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
+        }
     }
 }
 
@@ -326,8 +335,29 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
         &semaphores[SEND_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, static_cast<unsigned int>(maxMsgNumber))
         .or_else([&](auto) { signalError("send"); });
 
+    if (!isInitialized)
+    {
+        return;
+    }
+
     Semaphore::placementCreate(&semaphores[RECEIVE_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, 0U)
         .or_else([&](auto) { signalError("receive"); });
+
+    if (!isInitialized)
+    {
+        return;
+    }
+
+    initializationGuard.store(VALID_DATA);
+}
+
+NamedPipe::NamedPipeData::~NamedPipeData() noexcept
+{
+    if (hasValidState())
+    {
+        sendSemaphore().~Semaphore();
+        receiveSemaphore().~Semaphore();
+    }
 }
 
 Semaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
@@ -338,6 +368,33 @@ Semaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
 Semaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
 {
     return reinterpret_cast<Semaphore&>(semaphores[RECEIVE_SEMAPHORE]);
+}
+
+bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept
+{
+    if (hasValidState())
+    {
+        return true;
+    }
+
+    units::Duration remainingTime = WAIT_FOR_INIT_TIMEOUT;
+
+    while (remainingTime.toNanoseconds() > 0U)
+    {
+        std::this_thread::sleep_for(std::chrono::nanoseconds(WAIT_FOR_INIT_SLEEP_TIME.toNanoseconds()));
+        remainingTime = remainingTime - WAIT_FOR_INIT_SLEEP_TIME;
+        if (hasValidState())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool NamedPipe::NamedPipeData::hasValidState() const noexcept
+{
+    return initializationGuard.load() == VALID_DATA;
 }
 
 } // namespace posix

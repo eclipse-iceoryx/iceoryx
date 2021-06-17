@@ -122,17 +122,35 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
   private:
     cxx::optional<SharedMemoryObject> m_sharedMemory;
 
-    struct NamedPipeData
+    class NamedPipeData
     {
+      public:
         NamedPipeData(bool& isInitialized, IpcChannelError& error, const uint64_t maxMsgNumber) noexcept;
+        NamedPipeData(const NamedPipeData&) = delete;
+        NamedPipeData(NamedPipeData&& rhs) = delete;
+        ~NamedPipeData() noexcept;
+
+        NamedPipeData& operator=(const NamedPipeData&) = delete;
+        NamedPipeData& operator=(NamedPipeData&& rhs) = delete;
 
         Semaphore& sendSemaphore() noexcept;
         Semaphore& receiveSemaphore() noexcept;
 
+        bool waitForInitialization() const noexcept;
+        bool hasValidState() const noexcept;
+
+        MessageQueue_t messages;
+
+      private:
         static constexpr uint64_t SEND_SEMAPHORE = 0U;
         static constexpr uint64_t RECEIVE_SEMAPHORE = 1U;
 
-        MessageQueue_t messages;
+        static constexpr uint64_t INVALID_DATA = 0xBAADF00DAFFEDEAD;
+        static constexpr uint64_t VALID_DATA = 0xBAD0FF1CEBEEFBEE;
+        static constexpr units::Duration WAIT_FOR_INIT_TIMEOUT = units::Duration::fromSeconds(1);
+        static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
+
+        std::atomic<uint64_t> initializationGuard{INVALID_DATA};
         using semaphoreMemory_t = uint8_t[sizeof(Semaphore)];
         alignas(alignof(Semaphore)) semaphoreMemory_t semaphores[2U];
     };
