@@ -87,26 +87,26 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    auto sharedMemory = SharedMemoryObject::create(
-        convertName(NAMED_PIPE_PREFIX, name),
-        // add alignment since we require later aligned memory to perform the placement new of
-        // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
-        sizeof(NamedPipeData) + alignof(NamedPipeData),
-        AccessMode::READ_WRITE,
-        (channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING,
-        iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
-
-    if (sharedMemory.has_error())
+    if (SharedMemoryObject::create(
+            convertName(NAMED_PIPE_PREFIX, name),
+            // add alignment since we require later aligned memory to perform the placement new of
+            // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
+            sizeof(NamedPipeData) + alignof(NamedPipeData),
+            AccessMode::READ_WRITE,
+            (channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING,
+            iox::posix::SharedMemoryObject::NO_ADDRESS_HINT)
+            .and_then([&](auto& r) { m_sharedMemory.emplace(std::move(r)); })
+            .or_else([&](auto) {
+                std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
+                          << "\" for named pipe \"" << name << "\"" << std::endl;
+                m_isInitialized = false;
+                m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
+                                                                       : IpcChannelError::INTERNAL_LOGIC_ERROR;
+            })
+            .has_error())
     {
-        std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
-                  << "\" for named pipe \"" << name << "\"" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
-                                                               : IpcChannelError::INTERNAL_LOGIC_ERROR;
         return;
     }
-
-    m_sharedMemory.emplace(std::move(*sharedMemory));
 
     m_data = static_cast<NamedPipeData*>(m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData)));
 
