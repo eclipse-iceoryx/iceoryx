@@ -41,8 +41,6 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
     static constexpr const char NAMED_PIPE_PREFIX[] = "/iox_np_";
-    static constexpr const char SEND_SEMAPHORE_PREFIX[] = "iox_np_send_";
-    static constexpr const char RECEIVE_SEMAPHORE_PREFIX[] = "iox_np_receive_";
 
     using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
@@ -151,7 +149,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
         using semaphoreMemory_t = uint8_t[sizeof(Semaphore)];
-        alignas(alignof(Semaphore)) semaphoreMemory_t semaphores[2U];
+        alignas(Semaphore) semaphoreMemory_t semaphores[2U];
     };
 
 

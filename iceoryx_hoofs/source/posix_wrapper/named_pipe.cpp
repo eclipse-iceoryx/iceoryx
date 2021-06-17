@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
+#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -25,8 +26,6 @@ namespace iox
 namespace posix
 {
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
-constexpr const char NamedPipe::SEND_SEMAPHORE_PREFIX[];
-constexpr const char NamedPipe::RECEIVE_SEMAPHORE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_TIMEOUT;
@@ -381,12 +380,11 @@ bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept
         return true;
     }
 
-    units::Duration remainingTime = WAIT_FOR_INIT_TIMEOUT;
+    cxx::DeadlineTimer deadlineTimer(WAIT_FOR_INIT_TIMEOUT);
 
-    while (remainingTime.toNanoseconds() > 0U)
+    while (!deadlineTimer.hasExpired())
     {
         std::this_thread::sleep_for(std::chrono::nanoseconds(WAIT_FOR_INIT_SLEEP_TIME.toNanoseconds()));
-        remainingTime = remainingTime - WAIT_FOR_INIT_SLEEP_TIME;
         if (hasValidState())
         {
             return true;
