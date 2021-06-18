@@ -5,6 +5,7 @@
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.1...master)
 
 **Features:**
+
 - Enhance posixCall[\#805](https://github.com/eclipse-iceoryx/iceoryx/issues/805)
 - New chunk available callback for the new C++[\#391](https://github.com/eclipse-iceoryx/iceoryx/issues/391)
 - Git Hooks on iceoryx[\#486](https://github.com/eclipse-iceoryx/iceoryx/issues/486)
@@ -13,11 +14,13 @@
 - Axivion analysis on CI[\#409](https://github.com/eclipse-iceoryx/iceoryx/issues/409)
 
 **Bugfixes:**
+
 - Fix warnings for gcc-11.1[\#838](https://github.com/eclipse-iceoryx/iceoryx/issues/838)
 - Incremental builds with the build script are broken[\#821](https://github.com/eclipse-iceoryx/iceoryx/issues/821)
 - Compile failed because of missing <limits> for GCC 11[\#811](https://github.com/eclipse-iceoryx/iceoryx/issues/811) thanks to @homalozoa
 
 **Refactoring:**
+
 - Move all tests into an anonymous namespace[\#563](https://github.com/eclipse-iceoryx/iceoryx/issues/563)
 - Refactor smart_c to use contract by design and expected[\#418](https://github.com/eclipse-iceoryx/iceoryx/issues/418)
 - PoshRuntime Mock[\#449](https://github.com/eclipse-iceoryx/iceoryx/issues/449)
@@ -27,11 +30,71 @@
 - Refine quality levels[\#425](https://github.com/eclipse-iceoryx/iceoryx/issues/425)
 - Clean-up std::terminate usage[\#261](https://github.com/eclipse-iceoryx/iceoryx/issues/261)
 
+**API Breaking Changes:**
+
+Rename utils to hoofs:
+
+- in CMake you need now to find and link the package `iceoryx_hoofs` instead of `iceoryx_utils`
+
+```cmake
+# before
+find_package(iceoryx_utils REQUIRED)
+target_link_libraries(${target}
+    iceoryx_utils::iceoryx_utils)
+
+# after
+find_package(iceoryx_hoofs REQUIRED)
+target_link_libraries(${target}
+    iceoryx_hoofs::iceoryx_hoofs)
+```
+
+- the include paths for `iceoryx_utils` are now `iceoryx_hoofs`
+
+```cpp
+// before
+#include "iceoryx_utils/cxx/string.hpp"
+
+// after
+#include "iceoryx_hoofs/cxx/string.hpp"
+```
+
+Refactoring SmartC:
+
+- Renaming SmartC wrapper to posixCall.
+- Removed `getErrorString()` from posixCall, please use `getHumanReadableErrnum()` instead.
+- Enhanced posixCall to handle a common case were multiple errnos are ignored just to suppress error logging
+
+```cpp
+// before
+#include "iceoryx_utils/cxx/smart_c.hpp"
+
+auto unlinkCallPublisher = iox::cxx::makeSmartC(
+    unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, sockAddrPublisher.sun_path);
+
+    if (unlinkCallPublisher.hasErrors())
+    {
+        std::cout << "unlink error" << std::endl;
+        exit(1);
+    }
+
+// after
+#include "iceoryx_utils/posix_wrapper/posix_call.hpp"
+
+iox::posix::posixCall(unlink)(sockAddrPublisher.sun_path)
+    .failureReturnValue(ERROR_CODE)
+    .ignoreErrnos(ENOENT, EBUSY) // can be a comma-separated list of errnos
+    .evaluate()
+    .or_else([](auto& r) {
+        std::cout << "unlink error " << r.getHumanReadableErrnum() << std::endl;
+        exit(1);
+    });
+```
+
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.0...v1.0.1)
 
-Description:
+**Description:**
 This is the first bugfix release for Eclipse iceoryx 1.0.0. We made minor changes in the documentation and added several patches.
 
 Compared to the feature content of the release 1.0.0, the following bug tickets where resolved:
