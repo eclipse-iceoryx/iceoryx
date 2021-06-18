@@ -124,4 +124,54 @@ TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionCalledFromConstContextReturnsCo
     EXPECT_TRUE(isConstReturn);
 }
 
+class RequestHeader_test : public Test
+{
+  public:
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
+    }
+
+    ChunkMock<bool, RpcBaseHeader> chunk;
+    RequestHeader* sut{new (chunk.userHeader()) RequestHeader(iox::UniquePortId(), 73)};
+};
+
+TEST_F(RequestHeader_test, ConstructorWorks)
+{
+    const iox::UniquePortId clientQueueUniquePortId;
+    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
+    constexpr int64_t EXPECTED_SEQUENCE_ID{0};
+    constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{RpcBaseHeader::RPC_HEADER_VERSION};
+
+    ChunkMock<bool, RpcBaseHeader> chunk;
+    auto requestHeader = new (chunk.userHeader()) RequestHeader(clientQueueUniquePortId, LAST_KNOWN_CLIENT_QUEUE_INDEX);
+
+    checkRpcBaseHeader(static_cast<RpcBaseHeaderAccess*>(chunk.userHeader()),
+                       clientQueueUniquePortId,
+                       LAST_KNOWN_CLIENT_QUEUE_INDEX,
+                       EXPECTED_SEQUENCE_ID,
+                       EXPECTED_RPC_HEADER_VERSION);
+
+    EXPECT_THAT(requestHeader->getFireAndForget(), Eq(false));
+}
+
+TEST_F(RequestHeader_test, SetSequenceIdWorks)
+{
+    constexpr int64_t SEQUENCE_ID{666};
+
+    sut->setSequenceId(SEQUENCE_ID);
+
+    EXPECT_THAT(sut->getSequenceId(), Eq(SEQUENCE_ID));
+}
+
+TEST_F(RequestHeader_test, SetFireAndForgetWorks)
+{
+    sut->setFireAndForget();
+
+    EXPECT_THAT(sut->getFireAndForget(), Eq(true));
+}
+
 } // namespace
