@@ -28,7 +28,6 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
     : m_introspectionMemPoolBlock(introspectionMemPoolConfig())
     , m_segmentManagerBlock(roudiConfig)
     , m_managementShm(SHM_NAME, posix::AccessMode::READ_WRITE, posix::OpenMode::PURGE_AND_CREATE)
-
 {
     m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock).or_else([](auto) {
         errorHandler(

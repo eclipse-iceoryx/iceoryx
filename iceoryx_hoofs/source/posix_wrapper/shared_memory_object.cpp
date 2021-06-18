@@ -49,7 +49,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const AccessMode accessMode,
                                        const OpenMode openMode,
                                        const void* baseAddressHint,
-                                       const mode_t permissions)
+                                       const mode_t permissions) noexcept
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
 {
     m_isInitialized = true;
@@ -76,12 +76,14 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (m_isInitialized == false)
     {
+        auto flags = std::cerr.flags();
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
-                  << ", baseAddressHint = " << std::hex << baseAddressHint
+                  << ", baseAddressHint = " << std::hex << baseAddressHint << std::dec
                   << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
+        std::cerr.setf(flags);
         return;
     }
 
@@ -117,40 +119,46 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
     }
 }
 
-void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment)
+void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
     return m_allocator->allocate(size, alignment);
 }
 
-void SharedMemoryObject::finalizeAllocation()
+void SharedMemoryObject::finalizeAllocation() noexcept
 {
     m_allocator->finalizeAllocation();
 }
 
-bool SharedMemoryObject::isInitialized() const
+bool SharedMemoryObject::isInitialized() const noexcept
 {
     return m_isInitialized;
 }
 
-Allocator* SharedMemoryObject::getAllocator()
+Allocator* SharedMemoryObject::getAllocator() noexcept
 {
     return &*m_allocator;
 }
 
-void* SharedMemoryObject::getBaseAddress() const
+void* SharedMemoryObject::getBaseAddress() const noexcept
 {
     return m_memoryMap->getBaseAddress();
 }
 
-uint64_t SharedMemoryObject::getSizeInBytes() const
+uint64_t SharedMemoryObject::getSizeInBytes() const noexcept
 {
     return m_memorySizeInBytes;
 }
 
-int32_t SharedMemoryObject::getFileHandle() const
+int32_t SharedMemoryObject::getFileHandle() const noexcept
 {
     return m_sharedMemory->getHandle();
 }
+
+bool SharedMemoryObject::hasOwnership() const noexcept
+{
+    return m_sharedMemory->hasOwnership();
+}
+
 
 } // namespace posix
 } // namespace iox

@@ -378,7 +378,8 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     // malloc is used since iox_sub_deinit calls the d'tor of cpp2c_Subscriber
-    auto subscriber = new (malloc(sizeof(cpp2c_Subscriber))) cpp2c_Subscriber();
+    cpp2c_Subscriber* subscriber = static_cast<cpp2c_Subscriber*>(malloc(sizeof(cpp2c_Subscriber)));
+    new (subscriber) cpp2c_Subscriber();
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_state(

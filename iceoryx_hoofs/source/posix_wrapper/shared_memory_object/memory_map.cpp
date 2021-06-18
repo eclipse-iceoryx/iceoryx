@@ -53,12 +53,14 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
         })
         .or_else([&](auto& r) {
             constexpr uint64_t FLAGS_BIT_SIZE = 32U;
+            auto flags = std::cerr.flags();
             std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
                       << baseAddressHint << ", length = " << std::dec << m_length
                       << ", fileDescriptor = " << fileDescriptor
                       << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
                       << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags))
                       << ", offset = " << std::hex << offset << std::dec << " ]" << std::endl;
+            std::cerr.setf(flags);
             this->m_errorValue = this->errnoToEnum(r.errnum);
             this->m_isInitialized = false;
             this->m_baseAddress = nullptr;
