@@ -144,7 +144,7 @@ class Mepoo_IntegrationTest : public Test
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
 
-        iox::capro::ServiceDescription m_service_description{99, 1, 20};
+        iox::capro::ServiceDescription m_service_description{"99", "1", "20"};
 
         auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("sender");
         publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));

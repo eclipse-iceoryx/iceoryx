@@ -20,5 +20,6 @@
 #include <sys/mman.h>
 
 int iox_shm_open(const char* name, int oflag, mode_t mode);
+int iox_shm_unlink(const char* name);
 
 #endif // IOX_HOOFS_MAC_PLATFORM_MMAN_HPP

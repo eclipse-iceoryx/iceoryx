@@ -13,18 +13,37 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_WIN_PLATFORM_IPC_HANDLE_MANAGER_HPP
+#define IOX_HOOFS_WIN_PLATFORM_IPC_HANDLE_MANAGER_HPP
 
-#include "iceoryx_hoofs/platform/file.hpp"
-#include "iceoryx_hoofs/platform/handle_translator.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_hoofs/platform/unique_system_id.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
+#include <map>
 
-int iox_flock(int fd, int op)
+
+enum class OwnerShip
 {
-    HANDLE handle = HandleTranslator::getInstance().get(fd);
-    if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
-    {
-        return -1;
-    }
-    return 0;
-}
+    OWN,
+    LOAN,
+};
+
+struct IpcHandle_t
+{
+    OwnerShip ownerShip = OwnerShip::LOAN;
+    HANDLE handle = nullptr;
+};
+
+class IpcHandleManager
+{
+  public:
+    ~IpcHandleManager() noexcept;
+
+    bool getHandle(const UniqueSystemId& id, HANDLE& handle) noexcept;
+    void addHandle(const UniqueSystemId& id, const OwnerShip ownerShip, HANDLE handle) noexcept;
+    void removeHandle(const UniqueSystemId& id) noexcept;
+
+  private:
+    std::map<UniqueSystemId, IpcHandle_t> ipcHandles;
+};
+
+#endif

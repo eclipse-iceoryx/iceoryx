@@ -378,7 +378,8 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     // malloc is used since iox_sub_deinit calls the d'tor of cpp2c_Subscriber
-    auto subscriber = new (malloc(sizeof(cpp2c_Subscriber))) cpp2c_Subscriber();
+    cpp2c_Subscriber* subscriber = static_cast<cpp2c_Subscriber*>(malloc(sizeof(cpp2c_Subscriber)));
+    new (subscriber) cpp2c_Subscriber();
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_state(
@@ -395,9 +396,6 @@ TEST_F(iox_sub_test, correctServiceDescriptionReturned)
 {
     auto serviceDescription = iox_sub_get_service_description(m_sut);
 
-    EXPECT_THAT(serviceDescription.serviceId, Eq(iox::capro::InvalidID));
-    EXPECT_THAT(serviceDescription.instanceId, Eq(iox::capro::InvalidID));
-    EXPECT_THAT(serviceDescription.eventId, Eq(iox::capro::InvalidID));
     EXPECT_THAT(std::string(serviceDescription.serviceString), Eq("a"));
     EXPECT_THAT(std::string(serviceDescription.instanceString), Eq("b"));
     EXPECT_THAT(std::string(serviceDescription.eventString), Eq("c"));

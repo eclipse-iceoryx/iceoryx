@@ -26,22 +26,6 @@
 #define _SC_PAGESIZE 1
 #define STDERR_FILENO 2
 
-class HandleTranslator
-{
-  public:
-    static HandleTranslator& getInstance() noexcept;
-    HANDLE get(const int handle) const noexcept;
-    int add(HANDLE handle) noexcept;
-    void remove(int handle) noexcept;
-
-  private:
-    struct handle_t
-    {
-        HANDLE windowsHandle;
-    };
-    std::vector<handle_t> m_handleList;
-};
-
 
 int ftruncate(int fildes, off_t length);
 long sysconf(int name);

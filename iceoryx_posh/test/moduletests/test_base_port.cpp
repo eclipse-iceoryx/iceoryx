@@ -35,7 +35,7 @@ using namespace iox::capro;
 using namespace iox::popo;
 
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
-const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(0, 0, 0);
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(InvalidString, InvalidString, InvalidString);
 
 const iox::RuntimeName_t RUNTIME_NAME_EMPTY = {""};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};

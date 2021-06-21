@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,11 +38,10 @@ class PosixShmMemoryProvider : public MemoryProvider
     /// @brief Constructs a PosixShmMemoryProvider which can be used to request memory via MemoryBlocks
     /// @param [in] shmName is the name of the posix share memory
     /// @param [in] accessMode defines the read and write access to the memory
-    /// @param [in] ownership defines the ownership of the shared memory. "mine" controls the lifetime of the memory and
-    /// "openExisting" will just use an already existing shared memory
+    /// @param [in] openMode defines the creation/open mode of the shared memory.
     PosixShmMemoryProvider(const ShmName_t& shmName,
                            const posix::AccessMode accessMode,
-                           const posix::OwnerShip ownership) noexcept;
+                           const posix::OpenMode openMode) noexcept;
     ~PosixShmMemoryProvider() noexcept;
 
     PosixShmMemoryProvider(PosixShmMemoryProvider&&) = delete;
@@ -51,21 +51,18 @@ class PosixShmMemoryProvider : public MemoryProvider
     PosixShmMemoryProvider& operator=(const PosixShmMemoryProvider&) = delete;
 
   protected:
-    /// @brief Implementation of MemoryProvider::createMemory
-    /// @param [in] size is the size in bytes for the requested memory, the size should already be calculated according
-    /// to the alignment requirements
-    /// @param [in] alignment the required alignment for the memory
-    /// @return the pointer of the begin of the created memory, nullptr if the memory could not be created
+    /// @copydoc MemoryProvider::createMemory
+    /// @note This creates and maps a POSIX shared memory to the address space of the application
     cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size, const uint64_t alignment) noexcept;
 
-    /// @brief Implementation of MemoryProvider::destroyMemory
-    /// @return a MemoryProviderError if the destruction failed, otherwise success
+    /// @copydoc MemoryProvider::destroyMemory
+    /// @note This closes and unmaps a POSIX shared memory
     cxx::expected<MemoryProviderError> destroyMemory() noexcept;
 
   private:
     ShmName_t m_shmName;
     posix::AccessMode m_accessMode{posix::AccessMode::READ_ONLY};
-    posix::OwnerShip m_ownership{posix::OwnerShip::OPEN_EXISTING_SHM};
+    posix::OpenMode m_openMode{posix::OpenMode::OPEN_EXISTING};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
 };
 

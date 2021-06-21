@@ -124,7 +124,7 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
     return true;
 }
 
-bool RouDiApp::waitForSignal() const noexcept
+bool RouDiApp::waitForSignal() noexcept
 {
     return !m_semaphore.wait().has_error();
 }

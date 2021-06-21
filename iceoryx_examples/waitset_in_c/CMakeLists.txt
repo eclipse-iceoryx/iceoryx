@@ -54,14 +54,14 @@ target_link_libraries(iox-c-waitset-individual
 )
 target_compile_options(iox-c-waitset-individual PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-c-waitset-sync ./ice_c_waitset_sync.c)
-target_link_libraries(iox-c-waitset-sync
+add_executable(iox-c-waitset-timer-driven-execution ./ice_c_waitset_timer_driven_execution.c)
+target_link_libraries(iox-c-waitset-timer-driven-execution
     iceoryx_binding_c::iceoryx_binding_c
 )
-target_compile_options(iox-c-waitset-sync PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-c-waitset-timer-driven-execution PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_source_files_properties(
-    ./ice_c_waitset_sync.c
+    ./ice_c_waitset_timer_driven_execution.c
     ./ice_c_waitset_individual.c
     ./ice_c_waitset_grouping.c
     ./ice_c_waitset_gateway.c
@@ -71,7 +71,7 @@ set_source_files_properties(
 )
 
 set_target_properties(
-    iox-c-waitset-sync
+    iox-c-waitset-timer-driven-execution
     iox-c-waitset-individual
     iox-c-waitset-grouping
     iox-c-waitset-gateway
@@ -81,6 +81,6 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-c-waitset-publisher iox-c-waitset-gateway iox-c-waitset-grouping iox-c-waitset-individual iox-c-waitset-sync
+    TARGETS iox-c-waitset-publisher iox-c-waitset-gateway iox-c-waitset-grouping iox-c-waitset-individual iox-c-waitset-timer-driven-execution
     RUNTIME DESTINATION bin
 )

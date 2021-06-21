@@ -146,7 +146,7 @@ void MemoryProvider::announceMemoryAvailable() noexcept
     {
         for (auto memoryBlock : m_memoryBlocks)
         {
-            memoryBlock->memoryAvailable(memoryBlock->m_memory);
+            memoryBlock->onMemoryAvailable(memoryBlock->m_memory);
         }
 
         m_memoryAvailableAnnounced = true;

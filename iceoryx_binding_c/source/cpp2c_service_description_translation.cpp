@@ -19,9 +19,6 @@
 iox_service_description_t TranslateServiceDescription(const iox::capro::ServiceDescription& serviceDescription) noexcept
 {
     iox_service_description_t retVal;
-    retVal.serviceId = serviceDescription.getServiceID();
-    retVal.instanceId = serviceDescription.getInstanceID();
-    retVal.eventId = serviceDescription.getEventID();
 
 #if defined(__GNUC__) && __GNUC__ >= 8
 #pragma GCC diagnostic push

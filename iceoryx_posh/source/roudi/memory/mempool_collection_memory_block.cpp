@@ -50,7 +50,7 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
     return algorithm::max(static_cast<uint64_t>(alignof(mepoo::MemoryManager)), memPoolAlignment);
 }
 
-void MemPoolCollectionMemoryBlock::memoryAvailable(void* memory) noexcept
+void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     posix::Allocator allocator(memory, size());
     auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));

@@ -72,7 +72,7 @@ class MemoryProvider
 
   public:
     MemoryProvider() noexcept = default;
-    ~MemoryProvider() noexcept;
+    virtual ~MemoryProvider() noexcept;
 
     /// @note this is intentional not movable/copyable, since a pointer to the memory provider is registered at the
     /// RouDiMemoryManager and therefore an instance of a MemoryProvider must be pinned to memory

@@ -15,11 +15,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/pthread.hpp"
+#include "iceoryx_hoofs/platform/ipc_handle_manager.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
 
 #include <cwchar>
 #include <vector>
+
+static IpcHandleManager ipcMutexHandleManager;
 
 int iox_pthread_setname_np(pthread_t thread, const char* name)
 {
@@ -86,72 +89,98 @@ int pthread_mutex_destroy(pthread_mutex_t* mutex)
     return 0;
 }
 
+static HANDLE createWin32Mutex(LPSECURITY_ATTRIBUTES securityAttributes, BOOL initialOwner, LPCSTR name)
+{
+    return Win32Call(CreateMutexA, securityAttributes, initialOwner, name).value;
+}
+
+static std::string generateMutexName(const UniqueSystemId& id) noexcept
+{
+    return "iox_mutex_" + static_cast<std::string>(id);
+}
+
+static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
+{
+    if (!mutex->isInterprocessMutex)
+    {
+        return mutex->handle;
+    }
+
+    HANDLE newHandle;
+    if (ipcMutexHandleManager.getHandle(mutex->uniqueId, newHandle))
+    {
+        return newHandle;
+    }
+
+    newHandle = Win32Call(OpenMutexA, MUTEX_ALL_ACCESS, false, generateMutexName(mutex->uniqueId).c_str()).value;
+    if (newHandle == nullptr)
+    {
+        fprintf(stderr,
+                "interprocess mutex %s is corrupted - segmentation fault immenent\n",
+                generateMutexName(mutex->uniqueId).c_str());
+        return nullptr;
+    }
+
+    ipcMutexHandleManager.addHandle(mutex->uniqueId, OwnerShip::LOAN, newHandle);
+    return newHandle;
+}
+
 int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 {
     mutex->isInterprocessMutex = (attr != NULL && attr->isInterprocessMutex);
 
     if (!mutex->isInterprocessMutex)
     {
-        mutex->handle = Win32Call(CreateMutexA,
-                                  static_cast<LPSECURITY_ATTRIBUTES>(NULL),
-                                  static_cast<BOOL>(FALSE),
-                                  static_cast<LPCSTR>(NULL))
-                            .value;
-
-
-        if (mutex->handle == NULL)
+        mutex->handle = createWin32Mutex(NULL, FALSE, NULL);
+    }
+    else
+    {
+        mutex->handle = createWin32Mutex(NULL, FALSE, generateMutexName(mutex->uniqueId).c_str());
+        if (mutex->handle != nullptr)
         {
-            return EINVAL;
+            ipcMutexHandleManager.addHandle(mutex->uniqueId, OwnerShip::OWN, mutex->handle);
         }
     }
-    return 0;
+
+    return (mutex->handle == nullptr) ? EINVAL : 0;
 }
 
 int pthread_mutex_lock(pthread_mutex_t* mutex)
 {
-    if (!mutex->isInterprocessMutex)
-    {
-        DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, INFINITE).value;
+    DWORD waitResult = Win32Call(WaitForSingleObject, acquireMutexHandle(mutex), INFINITE).value;
 
-        switch (waitResult)
-        {
-        case WAIT_OBJECT_0:
-            return 0;
-        default:
-            return EINVAL;
-        }
+    switch (waitResult)
+    {
+    case WAIT_OBJECT_0:
+        return 0;
+    default:
+        return EINVAL;
     }
     return 0;
 }
 
 int pthread_mutex_trylock(pthread_mutex_t* mutex)
 {
-    if (!mutex->isInterprocessMutex)
-    {
-        DWORD waitResult = Win32Call(WaitForSingleObject, mutex->handle, 0).value;
+    DWORD waitResult = Win32Call(WaitForSingleObject, acquireMutexHandle(mutex), 0).value;
 
-        switch (waitResult)
-        {
-        case WAIT_TIMEOUT:
-            return EBUSY;
-        case WAIT_OBJECT_0:
-            return 0;
-        default:
-            return EINVAL;
-        }
+    switch (waitResult)
+    {
+    case WAIT_TIMEOUT:
+        return EBUSY;
+    case WAIT_OBJECT_0:
+        return 0;
+    default:
+        return EINVAL;
     }
     return 0;
 }
 
 int pthread_mutex_unlock(pthread_mutex_t* mutex)
 {
-    if (!mutex->isInterprocessMutex)
+    auto releaseResult = Win32Call(ReleaseMutex, acquireMutexHandle(mutex)).value;
+    if (!releaseResult)
     {
-        auto releaseResult = Win32Call(ReleaseMutex, mutex->handle).value;
-        if (!releaseResult)
-        {
-            return EPERM;
-        }
+        return EPERM;
     }
     return 0;
 }

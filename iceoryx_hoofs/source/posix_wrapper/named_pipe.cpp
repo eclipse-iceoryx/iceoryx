@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
+#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -26,6 +27,8 @@ namespace posix
 {
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
+constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
+constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_TIMEOUT;
 
 NamedPipe::NamedPipe() noexcept
 {
@@ -83,34 +86,42 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    auto sharedMemory = SharedMemoryObject::create(
-        convertName(name),
-        // add alignment since we require later aligned memory to perform the placement new of
-        // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
-        sizeof(MessageQueue_t) + alignof(MessageQueue_t),
-        AccessMode::READ_WRITE,
-        (channelSide == IpcChannelSide::SERVER) ? OwnerShip::MINE : OwnerShip::OPEN_EXISTING_SHM,
-        iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
-
-    if (sharedMemory.has_error())
+    if (SharedMemoryObject::create(
+            convertName(NAMED_PIPE_PREFIX, name),
+            // add alignment since we require later aligned memory to perform the placement new of
+            // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
+            sizeof(NamedPipeData) + alignof(NamedPipeData),
+            AccessMode::READ_WRITE,
+            (channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING,
+            iox::posix::SharedMemoryObject::NO_ADDRESS_HINT)
+            .and_then([&](auto& r) { m_sharedMemory.emplace(std::move(r)); })
+            .or_else([&](auto) {
+                std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
+                          << "\" for named pipe \"" << name << "\"" << std::endl;
+                m_isInitialized = false;
+                m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
+                                                                       : IpcChannelError::INTERNAL_LOGIC_ERROR;
+            })
+            .has_error())
     {
-        std::cerr << "Unable to open shared memory: \"" << convertName(name) << "\" for named pipe \"" << name << "\""
-                  << std::endl;
-        m_isInitialized = false;
-        m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
-                                                               : IpcChannelError::INTERNAL_LOGIC_ERROR;
         return;
     }
 
-    m_sharedMemory.emplace(std::move(sharedMemory.value()));
-    m_messages =
-        static_cast<MessageQueue_t*>(m_sharedMemory->allocate(sizeof(MessageQueue_t), alignof(MessageQueue_t)));
+    m_data = static_cast<NamedPipeData*>(m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData)));
 
-    if (channelSide == IpcChannelSide::SERVER)
-    {
-        new (m_messages) MessageQueue_t();
-    }
     m_isInitialized = true;
+    if (m_sharedMemory->hasOwnership())
+    {
+        new (m_data) NamedPipeData(m_isInitialized, m_errorValue, maxMsgNumber);
+    }
+    else
+    {
+        m_isInitialized = m_data->waitForInitialization();
+        if (m_isInitialized == false)
+        {
+            m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
+        }
+    }
 }
 
 NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
@@ -126,8 +137,8 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
         CreationPattern_t::operator=(std::move(rhs));
 
         m_sharedMemory = std::move(rhs.m_sharedMemory);
-        m_messages = std::move(rhs.m_messages);
-        rhs.m_messages = nullptr;
+        m_data = std::move(rhs.m_data);
+        rhs.m_data = nullptr;
     }
 
     return *this;
@@ -138,11 +149,11 @@ NamedPipe::~NamedPipe() noexcept
     IOX_DISCARD_RESULT(destroy());
 }
 
-IpcChannelName_t NamedPipe::convertName(const IpcChannelName_t& name) noexcept
+template <typename Prefix>
+IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t& name) noexcept
 {
-    return IpcChannelName_t(
-        cxx::TruncateToCapacity,
-        cxx::concatenate(NAMED_PIPE_PREFIX, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
+    return IpcChannelName_t(cxx::TruncateToCapacity,
+                            cxx::concatenate(p, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
 }
 
 cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
@@ -151,9 +162,12 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
     {
         m_isInitialized = false;
         m_errorValue = IpcChannelError::NOT_INITIALIZED;
-        m_messages->~LockFreeQueue();
+        if (m_sharedMemory->hasOwnership())
+        {
+            m_data->~NamedPipeData();
+        }
         m_sharedMemory.reset();
-        m_messages = nullptr;
+        m_data = nullptr;
     }
     return cxx::success<>();
 }
@@ -166,21 +180,59 @@ cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
 cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
     constexpr int ERROR_CODE = -1;
-    auto unlinkCall =
-        posixCall(shm_unlink)(convertName(name).c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
+    auto unlinkCall = posixCall(iox_shm_unlink)(convertName(NAMED_PIPE_PREFIX, name).c_str())
+                          .failureReturnValue(ERROR_CODE)
+                          .ignoreErrnos(ENOENT)
+                          .evaluate();
     if (!unlinkCall.has_error())
     {
         return cxx::success<bool>(unlinkCall->errnum != ENOENT);
     }
-    else
+
+    return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+}
+
+cxx::expected<IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
+{
+    if (!m_isInitialized)
     {
-        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
     }
+
+    if (message.size() > MAX_MESSAGE_SIZE)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+    }
+
+    auto result = m_data->sendSemaphore().tryWait();
+    cxx::Expects(!result.has_error());
+
+    if (*result)
+    {
+        IOX_DISCARD_RESULT(m_data->messages.push(Message_t(cxx::TruncateToCapacity, message)));
+        cxx::Expects(!m_data->receiveSemaphore().post().has_error());
+        return cxx::success<>();
+    }
+    return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
 cxx::expected<IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
-    return timedSend(message, units::Duration::max());
+    if (!m_isInitialized)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+    }
+
+    if (message.size() > MAX_MESSAGE_SIZE)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+    }
+
+    cxx::Expects(!m_data->sendSemaphore().wait().has_error());
+    IOX_DISCARD_RESULT(m_data->messages.push(Message_t(cxx::TruncateToCapacity, message)));
+    cxx::Expects(!m_data->receiveSemaphore().post().has_error());
+
+    return cxx::success<>();
 }
 
 cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
@@ -196,24 +248,57 @@ cxx::expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    units::Duration remainingTime = timeout;
-    do
+    auto result = m_data->sendSemaphore().timedWait(timeout);
+    cxx::Expects(!result.has_error());
+
+    if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
-        if (m_messages->tryPush(Message_t(cxx::TruncateToCapacity, message)))
-        {
-            return cxx::success<>();
-        }
-
-        std::this_thread::sleep_for(std::chrono::nanoseconds(CYCLE_TIME.toNanoseconds()));
-        remainingTime = remainingTime - CYCLE_TIME;
-    } while (remainingTime.toNanoseconds() > 0U);
-
+        IOX_DISCARD_RESULT(m_data->messages.push(Message_t(cxx::TruncateToCapacity, message)));
+        cxx::Expects(!m_data->receiveSemaphore().post().has_error());
+        return cxx::success<>();
+    }
     return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
 cxx::expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 {
-    return timedReceive(units::Duration::max());
+    if (!m_isInitialized)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+    }
+
+    cxx::Expects(!m_data->receiveSemaphore().wait().has_error());
+    auto message = m_data->messages.pop();
+    if (message.has_value())
+    {
+        cxx::Expects(!m_data->sendSemaphore().post().has_error());
+        return cxx::success<std::string>(message->c_str());
+    }
+    return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+}
+
+cxx::expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
+{
+    if (!m_isInitialized)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+    }
+
+    auto result = m_data->receiveSemaphore().tryWait();
+    cxx::Expects(!result.has_error());
+
+    if (*result)
+    {
+        auto message = m_data->messages.pop();
+        if (message.has_value())
+        {
+            cxx::Expects(!m_data->sendSemaphore().post().has_error());
+            return cxx::success<std::string>(message->c_str());
+        }
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
+
+    return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
 cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
@@ -223,22 +308,96 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units:
         return cxx::error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
     }
 
-    units::Duration remainingTime = timeout;
-    do
+    auto result = m_data->receiveSemaphore().timedWait(timeout);
+    cxx::Expects(!result.has_error());
+
+    if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
-        auto message = m_messages->pop();
+        auto message = m_data->messages.pop();
         if (message.has_value())
         {
+            cxx::Expects(!m_data->sendSemaphore().post().has_error());
             return cxx::success<std::string>(message->c_str());
         }
-
-        std::this_thread::sleep_for(std::chrono::nanoseconds(CYCLE_TIME.toNanoseconds()));
-        remainingTime = remainingTime - CYCLE_TIME;
-    } while (remainingTime.toNanoseconds() > 0U);
-
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
     return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
+NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
+                                        IpcChannelError& error,
+                                        const uint64_t maxMsgNumber) noexcept
+{
+    auto signalError = [&](const char* name) {
+        std::cerr << "Unable to create " << name << " semaphore for named pipe \"" << 'x' << "\"";
+        isInitialized = false;
+        error = IpcChannelError::INTERNAL_LOGIC_ERROR;
+    };
+
+    Semaphore::placementCreate(
+        &semaphores[SEND_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, static_cast<unsigned int>(maxMsgNumber))
+        .or_else([&](auto) { signalError("send"); });
+
+    if (!isInitialized)
+    {
+        return;
+    }
+
+    Semaphore::placementCreate(&semaphores[RECEIVE_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, 0U)
+        .or_else([&](auto) { signalError("receive"); });
+
+    if (!isInitialized)
+    {
+        return;
+    }
+
+    initializationGuard.store(VALID_DATA);
+}
+
+NamedPipe::NamedPipeData::~NamedPipeData() noexcept
+{
+    if (hasValidState())
+    {
+        sendSemaphore().~Semaphore();
+        receiveSemaphore().~Semaphore();
+    }
+}
+
+Semaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
+{
+    return reinterpret_cast<Semaphore&>(semaphores[SEND_SEMAPHORE]);
+}
+
+Semaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
+{
+    return reinterpret_cast<Semaphore&>(semaphores[RECEIVE_SEMAPHORE]);
+}
+
+bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept
+{
+    if (hasValidState())
+    {
+        return true;
+    }
+
+    cxx::DeadlineTimer deadlineTimer(WAIT_FOR_INIT_TIMEOUT);
+
+    while (!deadlineTimer.hasExpired())
+    {
+        std::this_thread::sleep_for(std::chrono::nanoseconds(WAIT_FOR_INIT_SLEEP_TIME.toNanoseconds()));
+        if (hasValidState())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool NamedPipe::NamedPipeData::hasValidState() const noexcept
+{
+    return initializationGuard.load() == VALID_DATA;
+}
 
 } // namespace posix
 } // namespace iox
