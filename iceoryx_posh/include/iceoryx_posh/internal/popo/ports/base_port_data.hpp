@@ -49,7 +49,7 @@ struct BasePortData
     BasePortData& operator=(BasePortData&&) = delete;
     ~BasePortData() = default;
 
-    capro::ServiceDescription m_serviceDescription{capro::InvalidString, capro::InvalidString, capro::InvalidString};
+    capro::ServiceDescription m_serviceDescription;
     RuntimeName_t m_runtimeName;
     NodeName_t m_nodeName;
     UniquePortId m_uniqueId;
