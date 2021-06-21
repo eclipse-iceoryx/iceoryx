@@ -64,7 +64,7 @@ const void* RpcBaseHeader::getUserPayload() const noexcept
 
 RequestHeader::RequestHeader(const UniquePortId& clientQueueUniquePortId,
                              const uint32_t lastKnownClientQueueIndex) noexcept
-    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, 0, RPC_HEADER_VERSION)
+    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, START_SEQUENCE_ID, RPC_HEADER_VERSION)
 {
 }
 

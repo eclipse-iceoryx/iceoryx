@@ -56,6 +56,7 @@ class RpcBaseHeader
     static constexpr uint8_t RPC_HEADER_VERSION{1U};
 
     static constexpr uint32_t UNKNOWN_CLIENT_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+    static constexpr int64_t START_SEQUENCE_ID{0};
 
     /// @brief The RpcBaseHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the RpcBaseHeader version
