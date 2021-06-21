@@ -53,8 +53,9 @@ Please make sure you have:
 3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
 4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
 5. All commits have been signed with `git commit -s`
-6. You open your pull request towards the base branch `master`
-7. Link the pull request to the according Github issue and set the label accordingly
+6. The CHANGELOG.md is updated with the Github issue that is closed by the Pull-Request (add to unreleased section)
+7. You open your pull request towards the base branch `master`
+8. Link the pull request to the according Github issue and set the label accordingly
 
 **NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
 
