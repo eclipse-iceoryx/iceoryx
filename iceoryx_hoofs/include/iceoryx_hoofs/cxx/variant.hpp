@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <iostream>
 #include <limits>
+#include <type_traits.hpp>
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 
@@ -116,6 +117,8 @@ class variant
     /// @brief creates a variant and perform an in place construction of the type
     ///         stored at index N. If the index N is out of bounds you get a compiler
     ///         error.
+    /// @tparam[in]
+    /// @tparam[in]
     /// @param[in] index index of the type which should be constructed
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type at index
@@ -124,11 +127,19 @@ class variant
 
     /// @brief creates a variant and perform an in place construction of the type T.
     ///         If T is not part of the variant you get a compiler error.
+    /// @tparam[in]
+    /// @tparam[in]
     /// @param[in] type type which should be created inside the variant
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type
     template <typename T, typename... CTorArguments>
     variant(const in_place_type<T>& type, CTorArguments&&... args) noexcept;
+
+    /// @brief creates a variant
+    /// @tparam[in] T
+    /// @param[in] T
+    template <typename T, typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>>
+    variant(T&& value) noexcept;
 
     /// @brief if the variant contains an element the elements copy constructor is called
     ///     otherwise an empty variant is copied
@@ -159,6 +170,7 @@ class variant
     /// @brief if the variant contains an element the elements assignment operator is called otherwise
     ///         we have undefined behavior. It is important that you make sure that the variant really
     ///         contains that type T.
+    /// @tparam[in] T
     /// @param[in] rhs source object for the underlying move assignment
     /// @return reference to the variant itself
     template <typename T>
@@ -176,6 +188,8 @@ class variant
 
     /// @brief calls the constructor of the type T and perfectly forwards the arguments
     ///         to the constructor of T.
+    /// @tparam[in] T
+    /// @tparam[in] T
     /// @return if the variant already contains a different type it returns false, if the construction
     ///         was successful it returns true
     template <typename T, typename... CTorArguments>

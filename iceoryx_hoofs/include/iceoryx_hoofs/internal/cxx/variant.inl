@@ -20,6 +20,9 @@
 
 #include "iceoryx_hoofs/cxx/variant.hpp"
 
+
+/// @todo #415 remove f_*
+
 namespace iox
 {
 namespace cxx
@@ -47,6 +50,13 @@ template <typename T, typename... CTorArguments>
 inline variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... f_args) noexcept
 {
     emplace<T>(std::forward<CTorArguments>(f_args)...);
+}
+
+template <typename... Types>
+template <typename T, typename>
+inline variant<Types...>::variant(T&& value) noexcept
+    : variant(in_place_type<T>(), std::forward<T>(value))
+{
 }
 
 template <typename... Types>
@@ -206,8 +216,8 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
 template <typename... Types>
 template <uint64_t TypeIndex>
-inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
-variant<Types...>::get_at_index() const noexcept
+inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type* variant<Types...>::get_at_index() const
+    noexcept
 {
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
     return const_cast<const T*>(const_cast<variant*>(this)->template get_at_index<TypeIndex>());
