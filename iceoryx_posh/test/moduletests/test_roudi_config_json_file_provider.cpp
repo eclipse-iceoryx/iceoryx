@@ -220,7 +220,6 @@ TEST_F(JsonConfig_Failure_test, To_Many_Segments_test)
                          "\t},"
                          "\t\"segment\":[\n";
 
-
     for (std::uint32_t i = 0; i < MAX_SHM_SEGMENTS + 1; ++i)
     {
         if (i > 0)
@@ -243,6 +242,41 @@ TEST_F(JsonConfig_Failure_test, To_Many_Segments_test)
     config += "\t]\n"
               "}\n";
     ASSERT_EQ(iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED, parseJson(config).get_error());
+}
+
+TEST_F(JsonConfig_Failure_test, To_Many_Nodes_test)
+{
+    std::string config = "{\n"
+                         "\t\"general\":{\n"
+                         "\t\t\"version\" : 1\n"
+                         "\t},"
+                         "\t\"segment\":[\n";
+
+    for (std::uint32_t i = 0; i < MAX_SHM_SEGMENTS + 1; ++i)
+    {
+        if (i > 0)
+        {
+            config += ",";
+        }
+        config += "\t\t{\n"
+                  "\t\t\t\"mempool\":[\n";
+        for (std::uint32_t j = 0; j < MAX_NUMBER_OF_MEMPOOLS; ++j)
+        {
+            if (j > 0)
+            {
+                config += ",";
+            }
+            config += "\t\t\t\t{\n"
+                      "\t\t\t\t\t\"size\":32,\n"
+                      "\t\t\t\t\t\"count\":10000\n"
+                      "\t\t\t\t}\n";
+        }
+        config += "\t\t\t]\n"
+                   "\t\t}\n";
+    }
+    config += "\t]\n"
+              "}\n";
+    ASSERT_EQ(iox::roudi::RouDiConfigFileParseError::INVALID_STATE, parseJson(config).get_error());
 }
 
 TEST_F(JsonConfig_Failure_test, To_Many_Mempools_test)

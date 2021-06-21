@@ -100,8 +100,11 @@ JsonRouDiConfigFileProvider::getMempool(json_t const* segment)
 
 iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> JsonRouDiConfigFileProvider::parse()
 {
+	constexpr static uint32_t NUMBER_OF_JSON_NODES = MAX_SHM_SEGMENTS * ( 2 + MAX_NUMBER_OF_MEMPOOLS * 3 ) + 11;
+
     json_t mem[NUMBER_OF_JSON_NODES];
     std::string content, line;
+    auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
 
     // Early exit in case no config file path was provided
     if (m_customConfigFilePath.empty())
@@ -116,8 +119,13 @@ iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> Js
     {
         content.append(line);
     }
+
     json_t const* json = json_create(&content[0], mem, NUMBER_OF_JSON_NODES);
-    auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
+    if (nullptr == json)
+    {
+        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+            iox::roudi::RouDiConfigFileParseError::INVALID_STATE);
+    }
 
     json_t const* general;
     general = json_getProperty(json, "general");
