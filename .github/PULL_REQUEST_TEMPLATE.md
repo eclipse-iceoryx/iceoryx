@@ -2,6 +2,7 @@
 
 1. [ ] Code follows the coding style of [CONTRIBUTING.md][contributing]
 1. [ ] Tests follow the [best practice for testing][testing]
+1. [ ] Changelog updated [in the unreleased section][changelog] including API breaking changes
 1. [ ] Branch follows the naming format (`iox-#123-this-is-a-branch`)
 1. [ ] Commits messages are according to this [guideline][commit-guidelines]
     - [ ] Commit messages have the issue ID (`iox-#123 commit text`)
@@ -19,6 +20,7 @@
 [eca]: http://www.eclipse.org/legal/ECA.php
 [contributing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#coding-style
 [testing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/best-practice-for-testing.md
+[changelog]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/CHANGELOG.md
 
 ## Notes for Reviewer
 <!-- Items in addition to the checklist below that the reviewer should look for -->

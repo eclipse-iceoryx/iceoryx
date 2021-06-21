@@ -396,8 +396,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvali
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhenServiceIDIsAnyService)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsAnyService)
 {
     IdString_t testServiceID = iox::capro::AnyServiceString;
     IdString_t testEventID = "1";
@@ -407,8 +406,7 @@ TEST_F(ServiceDescription_test,
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
@@ -418,8 +416,7 @@ TEST_F(ServiceDescription_test,
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhenInstanceIDIsAnyInstance)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsAnyInstance)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
@@ -432,7 +429,7 @@ TEST_F(ServiceDescription_test,
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
 {
     IdString_t testServiceID = "1";
-    IdString_t testEventID = "INVALID";
+    IdString_t testEventID = InvalidString;
     IdString_t testInstanceID = "1";
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
@@ -449,8 +446,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsAnyEvent
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";

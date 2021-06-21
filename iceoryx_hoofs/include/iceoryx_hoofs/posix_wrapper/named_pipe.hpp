@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 #include <cstdint>
 
@@ -68,6 +69,10 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @return always false
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
+    /// @brief tries to send a message via the named pipe. if the pipe is full IpcChannelError::TIMEOUT is returned
+    /// @return on failure an error which describes the failure
+    cxx::expected<IpcChannelError> trySend(const std::string& message) const noexcept;
+
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
     ///        delivered
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
@@ -79,6 +84,10 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @param[in] timeout the timeout on how long this method should retry to send the message
     /// @return success when message was sent otherwise an error which describes the failure
     cxx::expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
+
+    /// @brief tries to receive a message via the named pipe. if the pipe is empty IpcChannelError::TIMEOUT is returned
+    /// @return on success a string containing the message, otherwise an error which describes the failure
+    cxx::expected<std::string, IpcChannelError> tryReceive() const noexcept;
 
     /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
     ///        received
@@ -104,11 +113,47 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
               const size_t maxMsgSize = MAX_MESSAGE_SIZE,
               const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
 
-    static IpcChannelName_t convertName(const IpcChannelName_t& name) noexcept;
+    template <typename Prefix>
+    static IpcChannelName_t convertName(const Prefix& p, const IpcChannelName_t& name) noexcept;
 
   private:
     cxx::optional<SharedMemoryObject> m_sharedMemory;
-    MessageQueue_t* m_messages = nullptr;
+
+    class NamedPipeData
+    {
+      public:
+        NamedPipeData(bool& isInitialized, IpcChannelError& error, const uint64_t maxMsgNumber) noexcept;
+        NamedPipeData(const NamedPipeData&) = delete;
+        NamedPipeData(NamedPipeData&& rhs) = delete;
+        ~NamedPipeData() noexcept;
+
+        NamedPipeData& operator=(const NamedPipeData&) = delete;
+        NamedPipeData& operator=(NamedPipeData&& rhs) = delete;
+
+        Semaphore& sendSemaphore() noexcept;
+        Semaphore& receiveSemaphore() noexcept;
+
+        bool waitForInitialization() const noexcept;
+        bool hasValidState() const noexcept;
+
+        MessageQueue_t messages;
+
+      private:
+        static constexpr uint64_t SEND_SEMAPHORE = 0U;
+        static constexpr uint64_t RECEIVE_SEMAPHORE = 1U;
+
+        static constexpr uint64_t INVALID_DATA = 0xBAADF00DAFFEDEAD;
+        static constexpr uint64_t VALID_DATA = 0xBAD0FF1CEBEEFBEE;
+        static constexpr units::Duration WAIT_FOR_INIT_TIMEOUT = units::Duration::fromSeconds(1);
+        static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
+
+        std::atomic<uint64_t> initializationGuard{INVALID_DATA};
+        using semaphoreMemory_t = uint8_t[sizeof(Semaphore)];
+        alignas(Semaphore) semaphoreMemory_t semaphores[2U];
+    };
+
+
+    NamedPipeData* m_data = nullptr;
 };
 } // namespace posix
 } // namespace iox

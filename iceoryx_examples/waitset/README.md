@@ -47,7 +47,7 @@ samples present in the subscriber.
 
 ## Expected Output
 
-[![asciicast](https://asciinema.org/a/407372.svg)](https://asciinema.org/a/407372)
+[![asciicast](https://asciinema.org/a/RmfrWRQIULiFGt7dC8PamKGeK.svg)](https://asciinema.org/a/RmfrWRQIULiFGt7dC8PamKGeK)
 
 ## Glossary
 
@@ -101,7 +101,7 @@ about the occurrence of an **Event**. When returning from `WaitSet::wait()` the 
 associated with **Events** which had occurred and **States** which persists. The **NotificationOrigin**, **NotificationId** and **NotificationCallback**
 are stored inside of the **NotificationInfo** and can be acquired by the user.
 
-!!! attention
+!!! warning
     Please be aware of the thread-safety restrictions of the _WaitSet_ and
     read the [Thread Safety](#thread-safety) chapter carefully.
 
@@ -136,7 +136,7 @@ This example consists of 6 use cases.
  4. `ice_waitset_individual`: A list of subscribers where every subscriber is
     handled differently.
 
- 5. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should
+ 5. `ice_waitset_timer_driven_execution`: We use the WaitSet to trigger a cyclic call which should
     execute an algorithm every 100ms.
 
  6. `ice_waitset_trigger`: We create our own class which can be attached to a
@@ -231,8 +231,8 @@ as long as there are samples in the subscriber since we attached an event that n
 us only once. But it is impossible to miss samples since the notification is reset
 right after `wait` or `timedWait` is returned - this means if a sample arrives after
 those calls we will be notified again.
-Additionally, we would like to count the sum of all processed samples therefor we
-add a second argument called `sumOfAllSamples`, the user defined context data.
+Additionally, since we would like to count the sum of all processed samples, we
+add a second argument called `sumOfAllSamples` to the user defined context data.
 
 ```cpp
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t* const sumOfAllSamples)
@@ -507,7 +507,7 @@ corresponding subscriber. If so, we act.
         }
 ```
 
-### Sync
+### Timer Driven Execution
 
 Let's say we have `SomeClass` and would like to execute a cyclic static method `cyclicRun`
 every second. We could execute any arbitrary algorithm in there

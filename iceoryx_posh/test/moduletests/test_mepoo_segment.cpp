@@ -59,13 +59,13 @@ class MePooSegment_test : public Test
         using createFct = std::function<void(const SharedMemory::Name_t,
                                              const uint64_t,
                                              const iox::posix::AccessMode,
-                                             const iox::posix::OwnerShip,
+                                             const iox::posix::OpenMode,
                                              const void*,
                                              const mode_t)>;
         SharedMemoryObject_MOCK(const SharedMemory::Name_t& name,
                                 const uint64_t memorySizeInBytes,
                                 const AccessMode accessMode,
-                                const OwnerShip ownerShip,
+                                const OpenMode openMode,
                                 const void* baseAddressHint,
                                 const mode_t permissions)
             : m_memorySizeInBytes(memorySizeInBytes)
@@ -73,7 +73,7 @@ class MePooSegment_test : public Test
         {
             if (createVerificator)
             {
-                createVerificator(name, memorySizeInBytes, accessMode, ownerShip, baseAddressHint, permissions);
+                createVerificator(name, memorySizeInBytes, accessMode, openMode, baseAddressHint, permissions);
             }
             filehandle = creat("/tmp/roudi_segment_test", S_IRWXU);
             m_isInitialized = true;
@@ -152,12 +152,12 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
                                                                        const uint64_t,
                                                                        const iox::posix::AccessMode f_accessMode,
-                                                                       const iox::posix::OwnerShip f_ownerShip,
+                                                                       const iox::posix::OpenMode openMode,
                                                                        const void*,
                                                                        const mode_t) {
         EXPECT_THAT(std::string(f_name), Eq(std::string("/iox_roudi_test2")));
         EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
-        EXPECT_THAT(f_ownerShip, Eq(iox::posix::OwnerShip::MINE));
+        EXPECT_THAT(openMode, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
         mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
@@ -171,7 +171,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const SharedMemory::Name_t,
                                                                         const uint64_t f_memorySizeInBytes,
                                                                         const iox::posix::AccessMode,
-                                                                        const iox::posix::OwnerShip,
+                                                                        const iox::posix::OpenMode,
                                                                         const void*,
                                                                         const mode_t) {
         memorySizeInBytes = f_memorySizeInBytes;

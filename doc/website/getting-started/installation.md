@@ -118,7 +118,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```
 
     !!! tip
-        To build all iceoryx components add `-DBUILD_ALL` to the CMake command. For Windows it is currently recommended to use the `cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON` instead
+        To build all iceoryx components add `-DBUILD_ALL=ON` to the CMake command. For Windows it is currently recommended to use the `cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON` instead
 
 3. Compile the source code
 

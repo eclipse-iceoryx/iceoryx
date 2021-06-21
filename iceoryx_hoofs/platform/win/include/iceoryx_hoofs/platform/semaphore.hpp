@@ -20,11 +20,12 @@
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/time.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/platform/unique_system_id.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
 
-
 #include <cstdlib>
+#include <map>
 #include <sddl.h>
 #include <stdio.h>
 #include <time.h>
@@ -35,6 +36,8 @@
 struct iox_sem_t
 {
     HANDLE handle{nullptr};
+    bool isInterprocessSemaphore{false};
+    UniqueSystemId uniqueId;
 };
 static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
 static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;
