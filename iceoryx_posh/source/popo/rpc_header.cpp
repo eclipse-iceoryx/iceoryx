@@ -24,7 +24,7 @@ namespace popo
 RpcBaseHeader::RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
                              const uint32_t lastKnownClientQueueIndex,
                              const int64_t sequenceId,
-                             uint8_t rpcHeaderVersion)
+                             const uint8_t rpcHeaderVersion) noexcept
     : m_rpcHeaderVersion(rpcHeaderVersion)
     , m_lastKnownClientQueueIndex(lastKnownClientQueueIndex)
     , m_clientQueueUniquePortId(clientQueueUniquePortId)
@@ -32,7 +32,7 @@ RpcBaseHeader::RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
 {
 }
 
-uint8_t RpcBaseHeader::getRpcHeaderVersion() const
+uint8_t RpcBaseHeader::getRpcHeaderVersion() const noexcept
 {
     return m_rpcHeaderVersion;
 }

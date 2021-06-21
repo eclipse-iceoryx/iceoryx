@@ -21,7 +21,7 @@ namespace iox
 {
 namespace popo
 {
-cxx::VariantQueueTypes getQueueType(QueueFullPolicy2 policy) noexcept
+cxx::VariantQueueTypes getQueueType(const QueueFullPolicy2 policy) noexcept
 {
     return policy == QueueFullPolicy2::DISCARD_OLDEST_DATA ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
                                                            : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;

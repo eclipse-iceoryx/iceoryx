@@ -36,10 +36,11 @@ class RpcBaseHeader
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     /// @param[in] sequenceId is a custom ID to map a response to a request
+    /// @param[in] rpcHeaderVersion is set by RequestHeader/ResponseHeader and should be RPC_HEADER_VERSION
     explicit RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
                            const uint32_t lastKnownClientQueueIndex,
                            const int64_t sequenceId,
-                           const uint8_t rpcHeaderVersion);
+                           const uint8_t rpcHeaderVersion) noexcept;
 
     RpcBaseHeader(const RpcBaseHeader& other) = delete;
     RpcBaseHeader& operator=(const RpcBaseHeader&) = delete;
@@ -58,7 +59,7 @@ class RpcBaseHeader
 
     /// @brief The RpcBaseHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the RpcBaseHeader version
-    uint8_t getRpcHeaderVersion() const;
+    uint8_t getRpcHeaderVersion() const noexcept;
 
     /// @briet Obtains the sequence ID of the RPC message
     /// @return the sequenceId of the RPC message
