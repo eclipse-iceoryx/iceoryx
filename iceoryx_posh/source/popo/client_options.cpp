@@ -23,36 +23,37 @@ namespace popo
 {
 cxx::Serialization ClientOptions::serialize() const noexcept
 {
-    return cxx::Serialization::create(
-        responseQueueCapacity,
-        nodeName,
-        connectOnCreate,
-        static_cast<std::underlying_type<QueueFullPolicy2>::type>(responseQueueFullPolicy),
-        static_cast<std::underlying_type<ConsumerTooSlowPolicy>::type>(serverTooSlowPolicy));
+    return cxx::Serialization::create(responseQueueCapacity,
+                                      nodeName,
+                                      connectOnCreate,
+                                      static_cast<std::underlying_type_t<QueueFullPolicy2>>(responseQueueFullPolicy),
+                                      static_cast<std::underlying_type_t<ConsumerTooSlowPolicy>>(serverTooSlowPolicy));
 }
 
-ClientOptions ClientOptions::deserialize(const cxx::Serialization& serialized) noexcept
+cxx::expected<ClientOptions, cxx::Serialization::Error>
+ClientOptions::deserialize(const cxx::Serialization& serialized) noexcept
 {
-    using QueueFullPolicyUT = std::underlying_type<QueueFullPolicy2>::type;
-    using ConsumerTooSlowPolicyUT = std::underlying_type<ConsumerTooSlowPolicy>::type;
+    using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy2>;
+    using ConsumerTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
     ClientOptions clientOptions;
     QueueFullPolicyUT responseQueueFullPolicy;
     ConsumerTooSlowPolicyUT serverTooSlowPolicy;
 
-    serialized.extract(clientOptions.responseQueueCapacity,
-                       clientOptions.nodeName,
-                       clientOptions.connectOnCreate,
-                       responseQueueFullPolicy,
-                       serverTooSlowPolicy);
+    auto deserializationSuccessful = serialized.extract(clientOptions.responseQueueCapacity,
+                                                        clientOptions.nodeName,
+                                                        clientOptions.connectOnCreate,
+                                                        responseQueueFullPolicy,
+                                                        serverTooSlowPolicy);
+
+    if (!deserializationSuccessful)
+    {
+        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+    }
 
     if (responseQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy2::DISCARD_OLDEST_DATA))
     {
-        // we cannot call cxx::Ensures here since it would terminate RouDi but the cxx::Serialization
-        // currently doesn't store a failed deserialization -> log warning and use sane default value
-        LogWarn() << "Deserialization of ClientOptions::responseQueueFullPolicy failed! Got '"
-                  << responseQueueFullPolicy << "' Using QueueFullPolicy::DISCARD_OLDEST_DATA as fallback";
-        clientOptions.responseQueueFullPolicy = QueueFullPolicy2::DISCARD_OLDEST_DATA;
+        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
     else
     {
@@ -61,18 +62,14 @@ ClientOptions ClientOptions::deserialize(const cxx::Serialization& serialized) n
 
     if (serverTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
-        // we cannot call cxx::Ensures here since it would terminate RouDi but the cxx::Serialization
-        // currently doesn't store a failed deserialization -> log warning and use sane default value
-        LogWarn() << "Deserialization of ClientOptions::serverTooSlowPolicy failed! Got '" << serverTooSlowPolicy
-                  << "' Using ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA as fallback";
-        clientOptions.serverTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
     else
     {
         clientOptions.serverTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(serverTooSlowPolicy);
     }
 
-    return clientOptions;
+    return cxx::success<ClientOptions>(clientOptions);
 }
 } // namespace popo
 } // namespace iox

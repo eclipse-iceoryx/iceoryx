@@ -51,7 +51,8 @@ struct ClientOptions
     /// @brief serialization of the ClientOptions
     cxx::Serialization serialize() const noexcept;
     /// @brief deserialization of the ClientOptions
-    static ClientOptions deserialize(const cxx::Serialization& serialized) noexcept;
+    static cxx::expected<ClientOptions, cxx::Serialization::Error>
+    deserialize(const cxx::Serialization& serialized) noexcept;
 };
 
 } // namespace popo
