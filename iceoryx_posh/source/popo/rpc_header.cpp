@@ -78,7 +78,7 @@ void RequestHeader::setFireAndForget() noexcept
     m_isFireAndForget = true;
 }
 
-bool RequestHeader::getFireAndForget() const noexcept
+bool RequestHeader::isFireAndForget() const noexcept
 {
     return m_isFireAndForget;
 }

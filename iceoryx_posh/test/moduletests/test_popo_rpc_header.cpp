@@ -158,7 +158,7 @@ TEST_F(RequestHeader_test, ConstructorWorks)
                        EXPECTED_SEQUENCE_ID,
                        EXPECTED_RPC_HEADER_VERSION);
 
-    EXPECT_THAT(requestHeader->getFireAndForget(), Eq(false));
+    EXPECT_THAT(requestHeader->isFireAndForget(), Eq(false));
 }
 
 TEST_F(RequestHeader_test, SetSequenceIdWorks)
@@ -174,7 +174,7 @@ TEST_F(RequestHeader_test, SetFireAndForgetWorks)
 {
     sut->setFireAndForget();
 
-    EXPECT_THAT(sut->getFireAndForget(), Eq(true));
+    EXPECT_THAT(sut->isFireAndForget(), Eq(true));
 }
 
 class ResponseHeader_test : public Test

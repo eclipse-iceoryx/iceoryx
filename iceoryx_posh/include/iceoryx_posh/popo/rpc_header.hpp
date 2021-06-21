@@ -120,7 +120,7 @@ class RequestHeader : public RpcBaseHeader
 
     /// @brief Obtains the fire and forget flag
     /// @return true if set and no response is expected, false otherwise
-    bool getFireAndForget() const noexcept;
+    bool isFireAndForget() const noexcept;
 
   private:
     bool m_isFireAndForget{false};
