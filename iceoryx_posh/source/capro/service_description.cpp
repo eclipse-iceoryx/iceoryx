@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,14 +40,15 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
     }
 }
 
-uint32_t&
-ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
+uint32_t& ServiceDescription::ClassHash::operator[](
+    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t& ServiceDescription::ClassHash::operator[](
-    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
+const uint32_t&
+    ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const
+    noexcept
 {
     return data[index];
 }
@@ -75,9 +77,6 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
     f_serial.extract(m_serviceString,
                      m_instanceString,
                      m_eventString,
-                     m_serviceID,
-                     m_instanceID,
-                     m_eventID,
                      m_classHash[0u],
                      m_classHash[1u],
                      m_classHash[2u],
@@ -104,30 +103,15 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
 }
 
 ServiceDescription::ServiceDescription() noexcept
-    : ServiceDescription(InvalidID, InvalidID, InvalidID)
+    : ServiceDescription(InvalidString, InvalidString, InvalidString)
 {
 }
 
-ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept
-    : ServiceDescription(f_serviceID, InvalidID, f_instanceID)
-{
-    m_hasServiceOnlyDescription = true;
-}
-
+/// @todo remove
 ServiceDescription::ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept
-    : ServiceDescription(f_service, f_instance, InvalidIDString)
+    : ServiceDescription(f_service, f_instance, InvalidString)
 {
     m_hasServiceOnlyDescription = true;
-}
-
-ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID, uint16_t f_instanceID) noexcept
-    : m_serviceID(f_serviceID)
-    , m_eventID(f_eventID)
-    , m_instanceID(f_instanceID)
-    , m_serviceString(cxx::TruncateToCapacity, cxx::convert::toString(f_serviceID))
-    , m_instanceString(cxx::TruncateToCapacity, cxx::convert::toString(f_instanceID))
-    , m_eventString(cxx::TruncateToCapacity, cxx::convert::toString(f_eventID))
-{
 }
 
 ServiceDescription::ServiceDescription(const IdString_t& f_service,
@@ -141,46 +125,32 @@ ServiceDescription::ServiceDescription(const IdString_t& f_service,
     , m_classHash(f_classHash)
     , m_interfaceSource(interfaceSource)
 {
-    if (!(cxx::convert::stringIsNumber(m_serviceString.c_str(), cxx::convert::NumberType::UNSIGNED_INTEGER)
-          && cxx::convert::fromString(m_serviceString.c_str(), m_serviceID)))
-    {
-        m_serviceID = InvalidID;
-    }
-
-    if (!(cxx::convert::stringIsNumber(m_instanceString.c_str(), cxx::convert::NumberType::UNSIGNED_INTEGER)
-          && cxx::convert::fromString(m_instanceString.c_str(), m_instanceID)))
-    {
-        m_instanceID = InvalidID;
-    }
-
-    if (!(cxx::convert::stringIsNumber(m_eventString.c_str(), cxx::convert::NumberType::UNSIGNED_INTEGER)
-          && cxx::convert::fromString(m_eventString.c_str(), m_eventID)))
-    {
-        m_eventID = InvalidID;
-    }
 }
 
 bool ServiceDescription::operator==(const ServiceDescription& rhs) const
 {
-    if ((m_serviceID != AnyService) && (rhs.m_serviceID != AnyService))
+    if ((m_serviceString != IdString_t(cxx::TruncateToCapacity, AnyServiceString))
+        && (rhs.m_serviceString != IdString_t(cxx::TruncateToCapacity, AnyServiceString)))
     {
-        if ((m_serviceID != rhs.m_serviceID) || (m_serviceString != rhs.m_serviceString))
+        if (m_serviceString != rhs.m_serviceString)
         {
             return false;
         }
     }
 
-    if ((m_instanceID != AnyInstance) && (rhs.m_instanceID != AnyInstance))
+    if ((m_instanceString != IdString_t(cxx::TruncateToCapacity, AnyInstanceString))
+        && (rhs.m_instanceString != IdString_t(cxx::TruncateToCapacity, AnyInstanceString)))
     {
-        if ((m_instanceID != rhs.m_instanceID) || (m_instanceString != rhs.m_instanceString))
+        if (m_instanceString != rhs.m_instanceString)
         {
             return false;
         }
     }
 
-    if (m_eventID != AnyEvent && rhs.m_eventID != AnyEvent)
+    if ((m_eventString != IdString_t(cxx::TruncateToCapacity, AnyEventString))
+        && (rhs.m_eventString != IdString_t(cxx::TruncateToCapacity, AnyEventString)))
     {
-        if ((m_eventID != rhs.m_eventID) || (m_eventString != rhs.m_eventString))
+        if (m_eventString != rhs.m_eventString)
         {
             return false;
         }
@@ -224,9 +194,6 @@ ServiceDescription::operator cxx::Serialization() const
     return cxx::Serialization::create(m_serviceString,
                                       m_instanceString,
                                       m_eventString,
-                                      m_serviceID,
-                                      m_instanceID,
-                                      m_eventID,
                                       m_classHash[0u],
                                       m_classHash[1u],
                                       m_classHash[2u],
@@ -234,21 +201,6 @@ ServiceDescription::operator cxx::Serialization() const
                                       m_hasServiceOnlyDescription,
                                       scope,
                                       interface);
-}
-
-uint16_t ServiceDescription::getInstanceID() const noexcept
-{
-    return m_instanceID;
-}
-
-uint16_t ServiceDescription::getServiceID() const noexcept
-{
-    return m_serviceID;
-}
-
-uint16_t ServiceDescription::getEventID() const noexcept
-{
-    return m_eventID;
 }
 
 IdString_t ServiceDescription::getServiceIDString() const noexcept
@@ -301,20 +253,25 @@ bool ServiceDescription::isValid() const noexcept
 {
     if (m_hasServiceOnlyDescription)
     {
-        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
-                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance);
+        return !(m_serviceString == iox::capro::InvalidString
+                 || m_serviceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyServiceString)
+                 || m_instanceString == iox::capro::InvalidString
+                 || m_instanceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyInstanceString));
     }
     else
     {
-        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
-                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance
-                 || m_eventString == iox::capro::InvalidIDString || m_eventID == iox::capro::AnyEvent);
+        return !(m_serviceString == iox::capro::InvalidString
+                 || m_serviceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyServiceString)
+                 || m_instanceString == iox::capro::InvalidString
+                 || m_instanceString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyInstanceString)
+                 || m_eventString == iox::capro::InvalidString
+                 || m_eventString == capro::IdString_t(cxx::TruncateToCapacity, iox::capro::AnyEventString));
     }
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept
 {
-    return (first.getServiceID() == second.getServiceID());
+    return (first.getServiceIDString() == second.getServiceIDString());
 }
 
 } // namespace capro

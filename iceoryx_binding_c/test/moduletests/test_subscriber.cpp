@@ -396,9 +396,6 @@ TEST_F(iox_sub_test, correctServiceDescriptionReturned)
 {
     auto serviceDescription = iox_sub_get_service_description(m_sut);
 
-    EXPECT_THAT(serviceDescription.serviceId, Eq(iox::capro::InvalidID));
-    EXPECT_THAT(serviceDescription.instanceId, Eq(iox::capro::InvalidID));
-    EXPECT_THAT(serviceDescription.eventId, Eq(iox::capro::InvalidID));
     EXPECT_THAT(std::string(serviceDescription.serviceString), Eq("a"));
     EXPECT_THAT(std::string(serviceDescription.instanceString), Eq("b"));
     EXPECT_THAT(std::string(serviceDescription.eventString), Eq("c"));

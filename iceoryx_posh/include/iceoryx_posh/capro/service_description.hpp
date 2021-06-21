@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,16 +30,12 @@ namespace iox
 {
 namespace capro
 {
-static constexpr uint16_t InvalidID = 0u;
-static const IdString_t InvalidIDString{"0"};
-static constexpr uint16_t AnyService = 0xFFFFu;
-static constexpr uint16_t AnyInstance = 0xFFFFu;
-static constexpr uint16_t AnyEvent = 0xFFFFu;
+static const IdString_t InvalidString{"INVALID"};
 static constexpr char AnyServiceString[]{"65535"};
 static constexpr char AnyInstanceString[]{"65535"};
 static constexpr char AnyEventString[]{"65535"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
-static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4u};
+static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
 
 /// @brief Describes from which interface the service is coming from
 enum class Interfaces : uint16_t
@@ -79,9 +76,7 @@ constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL"
 
 /// @brief class for the identification of a communication event including information on the service, the service
 /// instance and the event id.
-/// In order to support different communication protocols, two types of members exist: integer and string identifiers.
-/// If string IDs are used, the integers are initialized to an invalid number. A class object can be
-/// serialized/deserialized, so it is possible to send the information e.g. over a IPC channel.
+/// A class object can be serialized/deserialized, so it is possible to send the information e.g. over a IPC channel.
 class ServiceDescription
 {
   public:
@@ -103,18 +98,13 @@ class ServiceDescription
 
     /// @brief default C'tor
     ServiceDescription() noexcept;
-    ServiceDescription(const ServiceDescription&) = default;
-    ServiceDescription(ServiceDescription&&) = default;
-    ~ServiceDescription() = default;
-
-    /// @brief construction of the capro service description using integers to create a service service description
-    ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept;
+    ServiceDescription(const ServiceDescription&) noexcept = default;
+    ServiceDescription(ServiceDescription&&) noexcept = default;
+    ~ServiceDescription() noexcept = default;
 
     /// @brief construction of the capro service description using fixed strings to create a service service description
+    /// @todo remove
     ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept;
-
-    /// @brief construction of the capro service description using integers to create an event service description
-    ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID, uint16_t f_instanceID) noexcept;
 
     /// @brief construction of the capro service description using fixed strings to create an event service description
     ServiceDescription(const IdString_t& f_service,
@@ -123,8 +113,8 @@ class ServiceDescription
                        ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
-    /// @brief compare operator. If wildcards AnyService, AnyInstance or AnyEvent are used as integer IDs, the
-    /// corresponding member comparisons are skipped. Otherwise, both the integer and the string members are compared.
+    /// @brief compare operator. If wildcards AnyServiceString, AnyInstanceString or AnyEventString are used, the
+    /// corresponding member comparisons are skipped.
     bool operator==(const ServiceDescription& rhs) const;
 
     /// @brief negation of compare operator.
@@ -158,9 +148,6 @@ class ServiceDescription
 
     ///@{
     /// Getters for the integer and string IDs
-    uint16_t getInstanceID() const noexcept;
-    uint16_t getServiceID() const noexcept;
-    uint16_t getEventID() const noexcept;
     IdString_t getServiceIDString() const noexcept;
     IdString_t getInstanceIDString() const noexcept;
     IdString_t getEventIDString() const noexcept;
@@ -175,18 +162,12 @@ class ServiceDescription
     Interfaces getSourceInterface() const noexcept;
 
   private:
-    /// @brief 16-Bit service ID
-    uint16_t m_serviceID;
-    /// @brief 16-Bit event ID
-    uint16_t m_eventID;
-    /// @brief 16-Bit instance ID
-    uint16_t m_instanceID;
     /// @brief string representation of the service
-    IdString_t m_serviceString;
+    IdString_t m_serviceString{InvalidString};
     /// @brief string representation of the instance
-    IdString_t m_instanceString;
+    IdString_t m_instanceString{InvalidString};
     /// @brief string representation of the event
-    IdString_t m_eventString;
+    IdString_t m_eventString{InvalidString};
 
     bool m_hasServiceOnlyDescription = false;
     /// @brief 128-Bit class hash (32-Bit * 4)

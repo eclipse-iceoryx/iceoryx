@@ -35,6 +35,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::cxx;
 
 using iox::popo::PublisherOptions;
 using iox::popo::PublisherPortUser;
@@ -126,7 +127,9 @@ class PortManager_test : public Test
                 }
             }
         }
-        return {m_sIdCounter, m_eventIdCounter, m_instIdCounter};
+        return {iox::capro::IdString_t(TruncateToCapacity, convert::toString(m_sIdCounter)),
+                iox::capro::IdString_t(TruncateToCapacity, convert::toString(m_eventIdCounter)),
+                iox::capro::IdString_t(TruncateToCapacity, convert::toString(m_instIdCounter))};
     }
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
@@ -225,14 +228,15 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
     // no doDiscovery() at this position is intentional
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
 
@@ -248,7 +252,8 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     // no doDiscovery() at this position is intentional
@@ -256,7 +261,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -273,7 +278,8 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, " schlomo ", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     m_portManager->doDiscovery();
@@ -281,7 +287,7 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -298,7 +304,8 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     SubscriberPortUser subscriber1(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber1);
     subscriber1.subscribe();
 
@@ -307,13 +314,14 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
     SubscriberPortUser subscriber2(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "ingnatz", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", " 1 "}, subscriberOptions, " ingnatz ", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber2);
     subscriber2.subscribe();
 
@@ -331,13 +339,14 @@ TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPubl
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     publisher.offer();
     m_portManager->doDiscovery();
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
@@ -348,14 +357,15 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     subscriber.subscribe();
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -367,12 +377,13 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -386,11 +397,12 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
 
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -482,11 +494,12 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberRequestsBlockin
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -501,11 +514,12 @@ TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestPolicyLeadsToConnect)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -520,11 +534,12 @@ TEST_F(PortManager_test, DoDiscoveryPublisherDoesNotAllowBlockingAndSubscriberRe
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
 
     ASSERT_FALSE(publisher.hasSubscribers());
@@ -538,12 +553,13 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLe
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -813,7 +829,7 @@ TEST_F(PortManager_test, UnblockProcessShutdownMakesPublisherStopOffer)
     PublisherOptions publisherOptions{
         0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     PublisherPortUser publisher(m_portManager
-                                    ->acquirePublisherPortData({1U, 1U, 1U},
+                                    ->acquirePublisherPortData({"1", "1", "1"},
                                                                publisherOptions,
                                                                publisherRuntimeName,
                                                                m_payloadDataSegmentMemoryManager,
@@ -836,7 +852,7 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     SubscriberOptions subscriberOptions{
         1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
     PublisherPortUser publisher(m_portManager
-                                    ->acquirePublisherPortData({1U, 1U, 1U},
+                                    ->acquirePublisherPortData({"1", "1", "1"},
                                                                publisherOptions,
                                                                publisherRuntimeName,
                                                                m_payloadDataSegmentMemoryManager,
@@ -844,7 +860,8 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
                                     .value());
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+            .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
     ASSERT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
@@ -900,8 +917,8 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
 {
     iox::RuntimeName_t runtimeName1 = "myApp1";
     iox::RuntimeName_t runtimeName2 = "myApp2";
-    iox::capro::ServiceDescription cap1(1, 1, 1);
-    iox::capro::ServiceDescription cap2(2, 2, 2);
+    iox::capro::ServiceDescription cap1("1", "1", "1");
+    iox::capro::ServiceDescription cap2("2", "2", "2");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
@@ -1024,7 +1041,7 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
     PublisherOptions publisherOptions{1};
 
     auto publisherPortData = m_portManager->acquirePublisherPortData(
-        {1U, 1U, 1U}, publisherOptions, m_runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
+        {"1", "1", "1"}, publisherOptions, m_runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
     ASSERT_FALSE(publisherPortData.has_error());
 
     PublisherPortUser publisher(publisherPortData.value());
