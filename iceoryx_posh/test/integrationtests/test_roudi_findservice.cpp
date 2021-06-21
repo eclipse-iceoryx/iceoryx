@@ -248,7 +248,7 @@ TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 }
 
-TEST_F(RoudiFindService_test, StopOfferMultiMethodServiceSingleInstance) /// @todo #415 fix this
+TEST_F(RoudiFindService_test, StopOfferMultiMethodServiceSingleInstance)
 {
     EXPECT_TRUE(senderRuntime->offerService({"service1", "instance1", "event1"}));
     EXPECT_TRUE(senderRuntime->offerService({"service2", "instance1", "event1"}));

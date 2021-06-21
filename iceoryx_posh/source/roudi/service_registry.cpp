@@ -53,14 +53,18 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     {
         if (m_serviceDescriptionVector[index] == serviceDescription)
         {
+            uint64_t removedValue{0U};
+            bool removedEntry{false};
             for (auto it = m_serviceMap.begin(); it != m_serviceMap.end();)
             {
                 if (it->second == index)
                 {
+                    removedValue = it->second;
                     it = m_serviceMap.erase(it);
+                    removedEntry = true;
                     continue;
                 }
-                else
+                else if (removedEntry && it->second > removedValue)
                 {
                     // update index due to removed element
                     it->second--;
@@ -68,14 +72,18 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
                 it++;
             }
 
+            removedValue = 0U;
+            removedEntry = false;
             for (auto it = m_instanceMap.begin(); it != m_instanceMap.end();)
             {
                 if (it->second == index)
                 {
+                    removedValue = it->second;
                     it = m_instanceMap.erase(it);
+                    removedEntry = true;
                     continue;
                 }
-                else
+                else if (removedEntry && it->second > removedValue)
                 {
                     // update index due to removed element
                     it->second--;
