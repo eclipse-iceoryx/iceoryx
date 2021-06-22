@@ -61,10 +61,12 @@ class PrefixTree
     struct Node;
     struct Node
     {
+        // 3 pointers on 64 Bit systems - 24 Bytes
         Node* child{nullptr};
         Node* sibling{nullptr};
         DataNode* data{nullptr};
 
+        // actual content 1 Byte, but due to alignment the size of the struct is 32 Byte
         char letter;
     };
 
@@ -83,6 +85,7 @@ class PrefixTree
         deleteRecursively(m_root);
     }
 
+    // TODO: do we want to eliminate duplicate values?
     const T* insert(const string_t& key, const T& value)
     {
         uint32_t length = key.size();
@@ -352,7 +355,7 @@ class PrefixTree
     {
         const char* letters = key.c_str();
         uint32_t prefixLength;
-        uint32_t length = key.length();
+        uint32_t length = key.size();
         auto node = findPrefix(letters, length, prefixLength);
         if (prefixLength < length)
         {
