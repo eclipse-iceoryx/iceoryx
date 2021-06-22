@@ -48,11 +48,11 @@ target_link_libraries(iox-cpp-waitset-individual
 )
 target_compile_options(iox-cpp-waitset-individual PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-cpp-waitset-sync ./ice_waitset_sync.cpp)
-target_link_libraries(iox-cpp-waitset-sync
+add_executable(iox-cpp-waitset-timer-driven-execution ./ice_waitset_timer_driven_execution.cpp)
+target_link_libraries(iox-cpp-waitset-timer-driven-execution
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-waitset-sync PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-waitset-timer-driven-execution PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-cpp-waitset-trigger ./ice_waitset_trigger.cpp)
 target_link_libraries(iox-cpp-waitset-trigger
@@ -69,7 +69,7 @@ target_compile_options(iox-cpp-waitset-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEOR
 set_target_properties(
     iox-cpp-waitset-basic
     iox-cpp-waitset-trigger
-    iox-cpp-waitset-sync
+    iox-cpp-waitset-timer-driven-execution
     iox-cpp-waitset-individual
     iox-cpp-waitset-grouping
     iox-cpp-waitset-gateway
@@ -81,6 +81,6 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-cpp-waitset-publisher iox-cpp-waitset-gateway iox-cpp-waitset-grouping iox-cpp-waitset-individual iox-cpp-waitset-sync iox-cpp-waitset-trigger
+    TARGETS iox-cpp-waitset-publisher iox-cpp-waitset-gateway iox-cpp-waitset-grouping iox-cpp-waitset-individual iox-cpp-waitset-timer-driven-execution iox-cpp-waitset-trigger
     RUNTIME DESTINATION bin
 )

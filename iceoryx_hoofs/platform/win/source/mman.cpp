@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_hoofs/platform/handle_translator.hpp"
 #include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 
@@ -58,7 +59,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
     HANDLE sharedMemoryHandle{nullptr};
 
-    if (oflag & O_CREAT) // O_EXCL
+    if (oflag & O_CREAT)
     {
         // we do not yet support ACL and rights for data partitions in windows
         // DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
@@ -78,6 +79,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 
         if (oflag & O_EXCL && result.error == ERROR_ALREADY_EXISTS)
         {
+            errno = EEXIST;
             if (sharedMemoryHandle != nullptr)
             {
                 Win32Call(CloseHandle, sharedMemoryHandle).value;
@@ -108,7 +110,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
     return HandleTranslator::getInstance().add(sharedMemoryHandle);
 }
 
-int shm_unlink(const char* name)
+int iox_shm_unlink(const char* name)
 {
     auto iter = openedSharedMemorySegments.find(name);
     if (iter != openedSharedMemorySegments.end())

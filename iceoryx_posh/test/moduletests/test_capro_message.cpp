@@ -37,9 +37,9 @@ class CaproMessage_test : public Test
 
 TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
 {
-    IdString_t testServiceID{"1U"};
-    IdString_t testEventID{"2U"};
-    IdString_t testInstanceID{"3U"};
+    IdString_t testServiceID{"1"};
+    IdString_t testEventID{"2"};
+    IdString_t testInstanceID{"3"};
     ServiceDescription sd(testServiceID, testEventID, testInstanceID);
     iox::popo::SubscriberPortData recData{
         sd, "foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, iox::popo::SubscriberOptions()};

@@ -291,18 +291,19 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
         ASSERT_FALSE(sut.timer.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.toMilliseconds()));
+    constexpr int64_t REPETITIONS = 10;
+    std::this_thread::sleep_for(std::chrono::milliseconds(REPETITIONS * TIMEOUT.toMilliseconds()));
 
     for (auto& sut : sutList)
     {
         ASSERT_FALSE(sut.timer.stop().has_error());
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.toMilliseconds()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(REPETITIONS * TIMEOUT.toMilliseconds()));
 
     for (auto& sut : sutList)
     {
-        TIMING_TEST_EXPECT_TRUE(7 <= sut.value && sut.value <= 13);
+        TIMING_TEST_EXPECT_TRUE(REPETITIONS / 2 <= sut.value && sut.value <= 3 * REPETITIONS / 2);
     }
 });
 

@@ -146,9 +146,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 
     ASSERT_NE(nullptr, applicationPortData);
     EXPECT_EQ(m_runtimeName, applicationPortData->m_runtimeName);
-    EXPECT_EQ(
-        iox::capro::ServiceDescription(iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString),
-        applicationPortData->m_serviceDescription);
+    EXPECT_EQ(iox::capro::ServiceDescription(), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
 
@@ -198,9 +196,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 
     ASSERT_NE(nullptr, interfacePortData);
     EXPECT_EQ(m_runtimeName, interfacePortData->m_runtimeName);
-    EXPECT_EQ(
-        iox::capro::ServiceDescription(iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString),
-        interfacePortData->m_serviceDescription);
+    EXPECT_EQ(iox::capro::ServiceDescription(), interfacePortData->m_serviceDescription);
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
 }

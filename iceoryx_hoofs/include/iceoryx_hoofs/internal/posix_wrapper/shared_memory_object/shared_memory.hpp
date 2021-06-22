@@ -36,12 +36,20 @@ enum class AccessMode : uint64_t
 };
 static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
 
-enum class OwnerShip : uint64_t
+/// @brief describes how the shared memory is opened or created
+enum class OpenMode : uint64_t
 {
-    MINE = 0U,
-    OPEN_EXISTING_SHM = 1U
+    /// @brief creates the shared memory, if it exists already the construction will fail
+    EXCLUSIVE_CREATE = 0U,
+    /// @brief creates the shared memory, if it exists it will be deleted and recreated
+    PURGE_AND_CREATE = 1U,
+    /// @brief creates the shared memory, if it does not exist otherwise it opens it
+    OPEN_OR_CREATE = 2U,
+    /// @brief opens the shared memory, if it does not exist it will fail
+    OPEN_EXISTING = 3U
 };
-static constexpr const char* OWNERSHIP_STRING[] = {"OwnerShip::MINE", "OwnerShip::OPEN_EXISTING_SHM"};
+static constexpr const char* OPEN_MODE_STRING[] = {
+    "OpenMode::EXCLUSIVE_CREATE", "OpenMode::PURGE_AND_CREATE", "OpenMode::OPEN_OR_CREATE", "OpenMode::OPEN_EXISTING"};
 
 enum class SharedMemoryError
 {
@@ -63,10 +71,15 @@ enum class SharedMemoryError
     UNKNOWN_ERROR
 };
 
+/// @brief Creates a bare metal shared memory object with the posix functions
+///        shm_open, shm_unlink etc.
+///        It must be used in combination with MemoryMap (or manual mmap calls)
+//         to gain access to the created/opened shared memory
 class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
 {
   public:
-    static constexpr uint64_t NAME_SIZE = 128U;
+    static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
+    static constexpr int INVALID_HANDLE = -1;
     using Name_t = cxx::string<NAME_SIZE>;
 
     SharedMemory(const SharedMemory&) = delete;
@@ -75,29 +88,50 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     SharedMemory& operator=(SharedMemory&&) noexcept;
     ~SharedMemory() noexcept;
 
+    /// @brief returns the file handle of the shared memory
     int32_t getHandle() const noexcept;
+
+    /// @brief this class has the ownership of the shared memory when the shared
+    ///        memory was created by this class. This is the case when this class
+    ///        was successful created with EXCLUSIVE_CREATE, PURGE_AND_CREATE or OPEN_OR_CREATE
+    ///        and the shared memory was created. If an already available shared memory
+    ///        is opened then this class does not have the ownership.
+    bool hasOwnership() const noexcept;
+
+    /// @brief removes shared memory with a given name from the system
+    /// @param[in] name name of the shared memory
+    /// @return true if the shared memory was removed, false if the shared memory did not exist and
+    ///         SharedMemoryError when the underlying shm_unlink call failed.
+    static cxx::expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
 
     friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
 
   private:
+    /// @brief constructs or opens existing shared memory
+    /// @param[in] name the name of the shared memory, must start with a leading /
+    /// @param[in] accessMode defines if the shared memory is mapped read only or with read write rights
+    /// @param[in] openMode states how the shared memory is created/opened
+    /// @param[in] permissions the permissions the shared memory should have
+    /// @param[in] size the size in bytes of the shared memory
     SharedMemory(const Name_t& name,
                  const AccessMode accessMode,
-                 const OwnerShip ownerShip,
+                 const OpenMode openMode,
                  const mode_t permissions,
                  const uint64_t size) noexcept;
 
-    bool open(const int oflags, const mode_t permissions, const uint64_t size) noexcept;
+    bool
+    open(const AccessMode accessMode, const OpenMode openMode, const mode_t permissions, const uint64_t size) noexcept;
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
     void reset() noexcept;
+    static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept;
 
-    SharedMemoryError errnoToEnum(const int32_t errnum) const noexcept;
-
+    static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
 
     Name_t m_name;
-    OwnerShip m_ownerShip;
-    int m_handle{-1};
+    int m_handle{INVALID_HANDLE};
+    bool m_hasOwnership{false};
 };
 } // namespace posix
 } // namespace iox

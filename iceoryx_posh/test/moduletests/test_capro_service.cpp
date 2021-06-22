@@ -369,7 +369,7 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsInvalid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvalid)
 {
     IdString_t testServiceID = InvalidString;
     IdString_t testEventID = "1";
@@ -379,9 +379,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsInvalid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
@@ -391,7 +389,7 @@ TEST_F(ServiceDescription_test,
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsInvalid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = InvalidString;
@@ -401,8 +399,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceInstanceAndEventIDsAreValid)
+TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";

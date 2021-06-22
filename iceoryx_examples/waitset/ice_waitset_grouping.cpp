@@ -100,7 +100,9 @@ int main()
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
                 subscriber->take().and_then([&](auto& userPayload) {
                     const CounterTopic* data = static_cast<const CounterTopic*>(userPayload);
+                    auto flags = std::cout.flags();
                     std::cout << "received: " << std::dec << data->counter << std::endl;
+                    std::cout.setf(flags);
                     subscriber->release(userPayload);
                 });
             }

@@ -14,17 +14,35 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/file.hpp"
 #include "iceoryx_hoofs/platform/handle_translator.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
 
-int iox_flock(int fd, int op)
+HandleTranslator& HandleTranslator::getInstance() noexcept
 {
-    HANDLE handle = HandleTranslator::getInstance().get(fd);
-    if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+    static HandleTranslator globalHandleTranslator;
+    return globalHandleTranslator;
+}
+
+HANDLE HandleTranslator::get(const int handle) const noexcept
+{
+    return m_handleList[static_cast<size_t>(handle)];
+}
+
+int HandleTranslator::add(HANDLE handle) noexcept
+{
+    for (int64_t limit = m_handleList.size(), k = 0; k < limit; ++k)
     {
-        return -1;
+        if (m_handleList[k] == nullptr)
+        {
+            m_handleList[k] = handle;
+            return k;
+        }
     }
-    return 0;
+
+    m_handleList.emplace_back(handle);
+    return m_handleList.size() - 1;
+}
+
+void HandleTranslator::remove(const int handle) noexcept
+{
+    m_handleList[static_cast<uint64_t>(handle)] = nullptr;
 }

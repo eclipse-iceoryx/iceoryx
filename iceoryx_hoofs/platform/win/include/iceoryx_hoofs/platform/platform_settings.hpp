@@ -28,13 +28,17 @@ class NamedPipe;
 namespace platform
 {
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
+constexpr uint64_t IOX_MAX_SHM_NAME_LENGTH = 255U;
 // yes, windows has two possible path separators!
 constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
 // unix domain sockets are not supported in windows but the variables have to be defined
 // so that the code with stub implementation at least compiles
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
+constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "C:\\Windows\\Temp\\";
 using IoxIpcChannelType = iox::posix::NamedPipe;
+constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 255U;
+constexpr uint64_t IOX_MAX_PATH_LENGTH = 255U;
 
 namespace win32
 {

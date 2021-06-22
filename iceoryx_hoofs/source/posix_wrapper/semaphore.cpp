@@ -55,7 +55,8 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
             m_handlePtr = &m_handle;
         }
 
-        rhs.m_handlePtr = &rhs.m_handle;
+        rhs.m_handlePtr = nullptr;
+        rhs.m_isInitialized = false;
     }
 
     return *this;
@@ -89,7 +90,7 @@ void Semaphore::closeHandle() noexcept
 cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 {
     int value;
-    auto call = posixCall(iox_sem_getvalue)(m_handlePtr, &value).failureReturnValue(-1).evaluate();
+    auto call = posixCall(iox_sem_getvalue)(getHandle(), &value).failureReturnValue(-1).evaluate();
     if (call.has_error())
     {
         return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
@@ -100,7 +101,7 @@ cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 
 cxx::expected<SemaphoreError> Semaphore::post() noexcept
 {
-    auto call = posixCall(iox_sem_post)(m_handlePtr).failureReturnValue(-1).evaluate();
+    auto call = posixCall(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
     if (call.has_error())
     {
         return cxx::error<SemaphoreError>(errnoToEnum(call.get_error().errnum));
@@ -109,11 +110,11 @@ cxx::expected<SemaphoreError> Semaphore::post() noexcept
     return cxx::success<>();
 }
 
-cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) const noexcept
+cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) noexcept
 {
     const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
     auto call =
-        posixCall(iox_sem_timedwait)(m_handlePtr, &timeout).failureReturnValue(-1).ignoreErrnos(ETIMEDOUT).evaluate();
+        posixCall(iox_sem_timedwait)(getHandle(), &timeout).failureReturnValue(-1).ignoreErrnos(ETIMEDOUT).evaluate();
 
     if (call.has_error())
     {
@@ -129,9 +130,9 @@ cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const uni
     }
 }
 
-cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
+cxx::expected<bool, SemaphoreError> Semaphore::tryWait() noexcept
 {
-    auto call = posixCall(iox_sem_trywait)(m_handlePtr).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
+    auto call = posixCall(iox_sem_trywait)(getHandle()).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
     if (call.has_error())
     {
@@ -141,9 +142,9 @@ cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
     return cxx::success<bool>(call->errnum != EAGAIN);
 }
 
-cxx::expected<SemaphoreError> Semaphore::wait() const noexcept
+cxx::expected<SemaphoreError> Semaphore::wait() noexcept
 {
-    auto call = posixCall(iox_sem_wait)(m_handlePtr).failureReturnValue(-1).evaluate();
+    auto call = posixCall(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
 
     if (call.has_error())
     {
@@ -153,9 +154,9 @@ cxx::expected<SemaphoreError> Semaphore::wait() const noexcept
     return cxx::success<>();
 }
 
-iox_sem_t* Semaphore::getHandle() noexcept
+iox_sem_t* Semaphore::getHandle() const noexcept
 {
-    return m_handlePtr;
+    return (isNamedSemaphore()) ? m_handlePtr : &m_handle;
 }
 
 Semaphore::Semaphore(CreateUnnamedSingleProcessSemaphore_t, const unsigned int value) noexcept
@@ -176,22 +177,6 @@ Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int va
     : m_isNamedSemaphore(false)
 {
     if (init(&m_handle, 1, value))
-    {
-        m_isInitialized = true;
-    }
-    else
-    {
-        m_isInitialized = false;
-        m_errorValue = SemaphoreError::CREATION_FAILED;
-    }
-}
-
-Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept
-    : m_isNamedSemaphore(false)
-    , m_isShared(true)
-    , m_handlePtr(handle)
-{
-    if (init(handle, 1, value))
     {
         m_isInitialized = true;
     }
@@ -224,6 +209,7 @@ Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) no
 }
 
 Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept
+    : m_isCreated(true)
 {
     if (m_name.unsafe_assign(name) == false)
     {
@@ -245,12 +231,12 @@ Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode
 
 bool Semaphore::close() noexcept
 {
-    return !posixCall(iox_sem_close)(m_handlePtr).failureReturnValue(-1).evaluate().has_error();
+    return !posixCall(iox_sem_close)(getHandle()).failureReturnValue(-1).evaluate().has_error();
 }
 
 bool Semaphore::destroy() noexcept
 {
-    return !posixCall(iox_sem_destroy)(m_handlePtr).failureReturnValue(-1).evaluate().has_error();
+    return !posixCall(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate().has_error();
 }
 
 bool Semaphore::init(iox_sem_t* handle, const int pshared, const unsigned int value) noexcept
@@ -284,7 +270,7 @@ bool Semaphore::unlink(const char* name) noexcept
     return !posixCall(iox_sem_unlink)(name).failureReturnValue(-1).evaluate().has_error();
 }
 
-bool Semaphore::isNamedSemaphore() noexcept
+bool Semaphore::isNamedSemaphore() const noexcept
 {
     return m_isNamedSemaphore;
 }

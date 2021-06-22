@@ -36,7 +36,7 @@ def generate_test_description():
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
     executable_list = ['iox-c-waitset-publisher', 'iox-c-waitset-gateway',
                        'iox-c-waitset-grouping', 'iox-c-waitset-individual',
-                       'iox-c-waitset-sync']
+                       'iox-c-waitset-timer-driven-execution']
     process_list = []
 
     for exec in executable_list:
@@ -69,7 +69,7 @@ def generate_test_description():
         process_list[4],
         roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-c-waitset-sync': process_list[4], 'iox-c-waitset-gateway': process_list[1],
+    ]), {'iox-c-waitset-timer-driven-execution': process_list[4], 'iox-c-waitset-gateway': process_list[1],
          'iox-c-waitset-grouping': process_list[2], 'iox-c-waitset-individual': process_list[3],
          'iox-c-waitset-publisher': process_list[0], 'roudi_process': roudi_process}
 
@@ -95,7 +95,7 @@ class TestWaitSetInCExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'subscriber 1 received: 10', timeout=45, stream='stdout')
 
-    def test_waitset__in_c_sync(self, proc_output):
+    def test_waitset__in_c_timer_driven_execution(self, proc_output):
         proc_output.assertWaitFor(
             'activation callback', timeout=45, stream='stdout')
 
