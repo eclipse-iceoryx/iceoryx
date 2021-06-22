@@ -82,20 +82,21 @@ class PoshRuntime
     void shutdown() noexcept;
 
     /// @brief find all services that match the provided service description
-    /// @param[in] serviceDescription service to search for
+    /// @param[in] service service string to search for (wildcards allowed)
+    /// @param[in] instance instance string to search for (wildcards allowed)
     /// @return cxx::expected<InstanceContainer, FindServiceError>
     /// InstanceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
     virtual cxx::expected<InstanceContainer, FindServiceError>
-    findService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
+    findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept = 0;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
-    /// @param[in] serviceDescription service to offer
+    /// @param[in] service valid ServiceDescription to offer
     /// @return bool, if service is offered returns true else false
     virtual bool offerService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
 
     /// @brief stop offering the provided service
-    /// @param[in] serviceDescription of the service that shall be no more offered
+    /// @param[in] service valid ServiceDescription that shall be no more offered
     virtual void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
 
     /// @brief request the RouDi daemon to create a publisher port

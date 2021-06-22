@@ -30,6 +30,7 @@ namespace iox
 {
 namespace capro
 {
+/// @todo remove
 static const IdString_t InvalidString{"INVALID"};
 static constexpr char AnyServiceString[]{"65535"};
 static constexpr char AnyInstanceString[]{"65535"};
@@ -94,7 +95,7 @@ class ServiceDescription
     };
 
     /// @brief construction of the capro service description using serialized strings
-    ServiceDescription(const cxx::Serialization& f_serial) noexcept;
+    ServiceDescription(const cxx::Serialization& serial) noexcept;
 
     /// @brief default C'tor
     ServiceDescription() noexcept;
@@ -102,14 +103,10 @@ class ServiceDescription
     ServiceDescription(ServiceDescription&&) noexcept = default;
     ~ServiceDescription() noexcept = default;
 
-    /// @brief construction of the capro service description using fixed strings to create a service service description
-    /// @todo remove
-    ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept;
-
     /// @brief construction of the capro service description using fixed strings to create an event service description
-    ServiceDescription(const IdString_t& f_service,
-                       const IdString_t& f_instance,
-                       const IdString_t& f_event,
+    ServiceDescription(const IdString_t& service,
+                       const IdString_t& instance,
+                       const IdString_t& event,
                        ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
@@ -130,10 +127,6 @@ class ServiceDescription
     /// @brief serialization of the capro description.
     operator cxx::Serialization() const;
 
-    /// @brief Returns true if it contains a service description which does not have
-    ///             events, otherwise it returns false
-    bool hasServiceOnlyDescription() const noexcept;
-
     // @brief Returns if this service description is used for an RouDi-internal channel
     bool isInternal() const noexcept;
     // @brief Set this service description to be is used for an RouDi-internal channel
@@ -141,6 +134,7 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() noexcept;
 
+    /// @todo remove any*string from doxygen?
     ///@brief Returns true for valid ServiceDescription
     /// false for ServiceDescription that contains either of InvalidID/InvalidIDString  AnyService/AnyServiceString,
     /// AnyInstance/AnyInstanceString, AnyEvent/AnyEventString.
@@ -169,7 +163,6 @@ class ServiceDescription
     /// @brief string representation of the event
     IdString_t m_eventString{InvalidString};
 
-    bool m_hasServiceOnlyDescription = false;
     /// @brief 128-Bit class hash (32-Bit * 4)
     ClassHash m_classHash{0, 0, 0, 0};
 
