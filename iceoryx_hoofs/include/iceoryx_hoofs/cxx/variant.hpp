@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <iostream>
 #include <limits>
-#include <type_traits.hpp>
+#include <type_traits>
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 
@@ -138,7 +138,8 @@ class variant
     /// @brief creates a variant
     /// @tparam[in] T
     /// @param[in] T
-    template <typename T, typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>>
+    template <typename T,
+              typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>>
     variant(T&& value) noexcept;
 
     /// @brief if the variant contains an element the elements copy constructor is called
