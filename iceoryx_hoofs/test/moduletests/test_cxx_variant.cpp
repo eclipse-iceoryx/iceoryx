@@ -509,7 +509,7 @@ TEST_F(variant_Test, ComplexDTorUsingCorrectTypeWithInPlace)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
+        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
     }
 
     EXPECT_THAT(DoubleDelete::ctorCalls, Eq(1));
@@ -521,7 +521,7 @@ TEST_F(variant_Test, ComplexDTorWithCopyCTor)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
+        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
         iox::cxx::variant<int, DoubleDelete> sut{schlomo};
     }
 
@@ -534,8 +534,8 @@ TEST_F(variant_Test, ComplexDTorWithCopyAssignmentTwoVariantsWithValue)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
-        iox::cxx::variant<int, DoubleDelete> sut{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
+        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
+        iox::cxx::variant<int, DoubleDelete> sut{iox::cxx::in_place_type<DoubleDelete>()};
         sut = schlomo;
     }
 
@@ -548,7 +548,7 @@ TEST_F(variant_Test, ComplexDTorWithMove)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
+        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
         iox::cxx::variant<int, DoubleDelete> sut = std::move(schlomo);
     }
 
@@ -562,7 +562,7 @@ TEST_F(variant_Test, ComplexDTorWithMoveAssignment)
     DoubleDelete::dtorCalls = 0;
     {
         iox::cxx::variant<int, DoubleDelete> sut;
-        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
+        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
         sut = std::move(schlomo);
     }
 
@@ -575,8 +575,8 @@ TEST_F(variant_Test, ComplexDTorWithMoveAssignmentTwoVariantsWithValue)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::cxx::variant<int, DoubleDelete> sut{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
-        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>(), DoubleDelete()};
+        iox::cxx::variant<int, DoubleDelete> sut{iox::cxx::in_place_type<DoubleDelete>()};
+        iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
         sut = std::move(schlomo);
     }
 
@@ -610,13 +610,9 @@ TEST_F(variant_Test, CopyVariantIntoVariantOfDifferentType)
     EXPECT_THAT(DoubleDelete::dtorCalls, Eq(1));
 }
 
-void foobar(iox::cxx::variant<variant_Test::ComplexClass, float> blubb IOX_MAYBE_UNUSED)
-{
-}
-
 TEST_F(variant_Test, CreatingVariantFromPlainTypeWorks)
 {
-    foobar(3.14F);
-    foobar(ComplexClass(2, 3));
+    iox::cxx::variant<variant_Test::ComplexClass, float> blubb{3.14F};
+    iox::cxx::variant<variant_Test::ComplexClass, float> foobar(ComplexClass(2, 3));
 }
 } // namespace

@@ -20,7 +20,6 @@
 
 #include "iceoryx_hoofs/cxx/variant.hpp"
 
-
 /// @todo #415 remove f_*
 
 namespace iox
@@ -53,7 +52,10 @@ inline variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... f_
 }
 
 template <typename... Types>
-template <typename T, typename>
+template <typename T,
+          typename,
+          typename std::enable_if_t<!is_in_place_index<std::decay_t<T>>::value, bool>,
+          typename std::enable_if_t<!is_in_place_type<std::decay_t<T>>::value, bool>>
 inline variant<Types...>::variant(T&& value) noexcept
     : variant(in_place_type<T>(), std::forward<T>(value))
 {

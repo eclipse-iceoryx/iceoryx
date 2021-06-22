@@ -55,6 +55,26 @@ struct in_place_type
     using type = T;
 };
 
+template <typename N>
+struct is_in_place_index : std::false_type
+{
+};
+
+template <uint64_t N>
+struct is_in_place_index<in_place_index<N>> : std::true_type
+{
+};
+
+template <typename T>
+struct is_in_place_type : std::false_type
+{
+};
+
+template <typename T>
+struct is_in_place_type<in_place_type<T>> : std::true_type
+{
+};
+
 /// @brief value which an invalid variant index occupies
 /// @code
 ///     cxx::variant<int, float> someVariant;
@@ -139,7 +159,9 @@ class variant
     /// @tparam[in] T
     /// @param[in] T
     template <typename T,
-              typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>>
+              typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
+              typename std::enable_if_t<!is_in_place_index<std::decay_t<T>>::value, bool> = false,
+              typename std::enable_if_t<!is_in_place_type<std::decay_t<T>>::value, bool> = false>
     variant(T&& value) noexcept;
 
     /// @brief if the variant contains an element the elements copy constructor is called
