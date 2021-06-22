@@ -130,9 +130,9 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() noexcept;
 
-    /// @todo remove any*string from doxygen?
-    ///@brief Returns true for valid ServiceDescription
+    /// @brief Returns true for valid ServiceDescription
     /// false for ServiceDescription that contain InvalidStrings.
+    /// @return bool, true if ServiceDescription is valid, false otherwise
     bool isValid() const noexcept;
 
     ///@{
