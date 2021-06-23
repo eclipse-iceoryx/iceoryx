@@ -1,0 +1,35 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class UntypedClient {
+  Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  connect(): void
+  disconnect(): void
+  getConnectionState(): ConnectionState
+  loan(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
+  send(request: void*): void
+  release(request: void*): void
+  hasResponses(): bool
+  take(): expected<void*, Error>
+  release(response: void*): void
+  releaseQueuedResponses(): void
+  hasMissedResponses(): bool
+}
+
+class UntypedServer {
+  Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  offer(): void
+  stopOffer():void
+  isOffered(): bool
+  hasClients(): bool
+  hasRequests(): bool
+  take(): expected<void*, Error>
+  release(request: void*): void
+  releaseQueuedRequests(): void
+  hasMissedRequests(): bool
+  loan(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
+  send(response: void*): void
+  release(response: void*): void
+}
+
+@enduml
