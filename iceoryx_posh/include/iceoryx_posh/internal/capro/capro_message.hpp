@@ -32,6 +32,9 @@ enum class CaproMessageType : uint8_t
     STOP_OFFER,
     SUB,
     UNSUB,
+    CONNECT,
+    DISCONNECT,
+    HANDSHAKE,
     ACK,
     NACK,
     PUB,
@@ -42,10 +45,7 @@ enum class CaproMessageType : uint8_t
     MESSGAGE_TYPE_END
 };
 
-constexpr int32_t MAX_ENUM_STRING_SIZE = 64;
-constexpr char CaproMessageTypeString[][MAX_ENUM_STRING_SIZE] = {
-    "NOTYPE", "FIND", "OFFER", "STOP_OFFER", "SUB", "UNSUB", "ACK", "NACK", "PUB", "REQ", "RES", "PING", "PONG"};
-
+inline constexpr const char* caproMessageTypeString(CaproMessageType messageType) noexcept;
 
 enum class CaproMessageSubType : uint8_t
 {
@@ -82,5 +82,7 @@ class CaproMessage
 
 } // namespace capro
 } // namespace iox
+
+#include "iceoryx_posh/internal/capro/capro_message.inl"
 
 #endif // IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
