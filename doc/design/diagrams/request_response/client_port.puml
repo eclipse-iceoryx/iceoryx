@@ -24,6 +24,7 @@ class ClientPortUser {
 }
 
 class ClientPortRouDi {
+  getResponseQueueFullPolicy: QueueFullPolicy
   tryGetCaProMessage(): optional<CaProMessage>
   dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage): optional<CaProMessage>
   releaseAllChunks(): void
