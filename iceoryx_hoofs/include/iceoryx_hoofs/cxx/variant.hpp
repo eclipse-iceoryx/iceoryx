@@ -33,7 +33,7 @@ namespace cxx
 {
 /// @brief helper struct to perform an emplacement at a predefined index
 ///        in the constructor of a variant
-/// @param[in] N index where to perform the placement new
+/// @tparam[in] N index where to perform the placement new
 /// @code
 ///     cxx::variant<int, float, int> someVariant(cxx::in_place_index<2>(), 42);
 /// @endcode
@@ -45,7 +45,7 @@ struct in_place_index
 
 /// @brief helper struct to perform an emplacement of a predefined type in
 ///        in the constructor of a variant
-/// @param[in] T type which should be created
+/// @tparam[in] T type which should be created
 /// @code
 ///     cxx::variant<int, float, double> someVariant(cxx::in_place_type<float>(), 123.456f);
 /// @endcode
@@ -137,8 +137,8 @@ class variant
     /// @brief creates a variant and perform an in place construction of the type
     ///         stored at index N. If the index N is out of bounds you get a compiler
     ///         error.
-    /// @tparam[in]
-    /// @tparam[in]
+    /// @tparam[in] N index where to perform the placement new
+    /// @tparam[in] CTorArguments variadic types of the c'tor arguments
     /// @param[in] index index of the type which should be constructed
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type at index
@@ -147,17 +147,17 @@ class variant
 
     /// @brief creates a variant and perform an in place construction of the type T.
     ///         If T is not part of the variant you get a compiler error.
-    /// @tparam[in]
-    /// @tparam[in]
+    /// @tparam[in] T type which should be created inside the variant
+    /// @tparam[in] CTorArguments variadic types of the c'tor arguments
     /// @param[in] type type which should be created inside the variant
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type
     template <typename T, typename... CTorArguments>
     variant(const in_place_type<T>& type, CTorArguments&&... args) noexcept;
 
-    /// @brief creates a variant
-    /// @tparam[in] T
-    /// @param[in] T
+    /// @brief creates a variant from a user supplied value
+    /// @tparam[in] T type of the value to be stored in the variant
+    /// @param[in] value value to be stored in the variant
     template <typename T,
               typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
               typename std::enable_if_t<!is_in_place_index<std::decay_t<T>>::value, bool> = false,
@@ -193,7 +193,7 @@ class variant
     /// @brief if the variant contains an element the elements assignment operator is called otherwise
     ///         we have undefined behavior. It is important that you make sure that the variant really
     ///         contains that type T.
-    /// @tparam[in] T
+    /// @tparam[in] T Type of the rhs
     /// @param[in] rhs source object for the underlying move assignment
     /// @return reference to the variant itself
     template <typename T>
@@ -202,7 +202,8 @@ class variant
 
     /// @brief calls the constructor of the type at index TypeIndex and perfectly forwards the arguments
     ///         to this constructor. (not stl compliant)
-    /// @param TypeIndex index of the type which will be created
+    /// @tparam TypeIndex index of the type which will be created
+    /// @tparam CTorArguments variadic types of the c'tor arguments
     /// @param[in] args arguments which will be forwarded to the constructor to the type at TypeIndex
     /// @return if the variant already contains a different type it returns false, if the construction
     ///         was successful it returns true
@@ -211,14 +212,15 @@ class variant
 
     /// @brief calls the constructor of the type T and perfectly forwards the arguments
     ///         to the constructor of T.
-    /// @tparam[in] T
-    /// @tparam[in] T
+    /// @tparam[in] T type which is created inside the variant
+    /// @tparam[in] CTorArguments variadic types of the c'tor arguments
     /// @return if the variant already contains a different type it returns false, if the construction
     ///         was successful it returns true
     template <typename T, typename... CTorArguments>
     bool emplace(CTorArguments&&... args) noexcept;
 
     /// @brief returns a pointer to the type stored at index TypeIndex. (not stl compliant)
+    /// @tparam[in] TypeIndex index of the stored type
     /// @return if the variant does contain the type at index TypeIndex it returns a valid
     ///             pointer, if it does contain no type at all or a different type it returns
     ///             nullptr.
@@ -230,6 +232,7 @@ class variant
     typename internal::get_type_at_index<0, TypeIndex, Types...>::type* get_at_index() noexcept;
 
     /// @brief returns a pointer to the type stored at index TypeIndex. (not stl compliant)
+    /// @tparam[in] TypeIndex index of the stored type
     /// @return if the variant does contain the type at index TypeIndex it returns a valid
     ///             pointer, if it does contain no type at all or a different type it returns
     ///             nullptr.
@@ -241,6 +244,7 @@ class variant
     const typename internal::get_type_at_index<0, TypeIndex, Types...>::type* get_at_index() const noexcept;
 
     /// @brief returns a pointer to the type T stored in the variant. (not stl compliant)
+    /// @tparam[in] T type of the returned pointer
     /// @return if the variant does contain the type T it returns a valid pointer otherwise
     ///         if the variant does contain no type at all or a different type it returns
     ///         nullptr
@@ -248,6 +252,7 @@ class variant
     const T* get() const noexcept;
 
     /// @brief returns a pointer to the type T stored in the variant. (not stl compliant)
+    /// @tparam[in] T type of the returned pointer
     /// @return if the variant does contain the type T it returns a valid pointer otherwise
     ///         if the variant does contain no type at all or a different type it returns
     ///         nullptr
@@ -262,6 +267,8 @@ class variant
 
     /// @brief returns a pointer to the type T if its stored in the variant otherwise
     ///         it returns the provided defaultValue
+    /// @tparam[in] T type of the returned pointer
+    /// @param[in] defaultValue value which is returned in case of empty or different type in variant
     /// @return pointer to the stored value if it is of type T, otherwise defaultValue
     template <typename T>
     const T* get_if(const T* defaultValue) const noexcept;
