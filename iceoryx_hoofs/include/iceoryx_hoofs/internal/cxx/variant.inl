@@ -55,7 +55,7 @@ template <typename T,
           typename std::enable_if_t<!is_in_place_index<std::decay_t<T>>::value, bool>,
           typename std::enable_if_t<!is_in_place_type<std::decay_t<T>>::value, bool>>
 inline variant<Types...>::variant(T&& arg) noexcept
-    : variant(in_place_type<T>(), std::forward<T>(arg))
+    : variant(in_place_type<std::decay_t<T>>(), std::forward<T>(arg))
 {
 }
 

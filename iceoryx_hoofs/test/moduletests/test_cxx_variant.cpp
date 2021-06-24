@@ -19,7 +19,6 @@
 #include "test.hpp"
 
 #include <string>
-
 namespace
 {
 using namespace testing;
@@ -149,9 +148,10 @@ TEST_F(variant_Test, CreatingVariantFromPlainTypeReturnsProvidedValueAndCorrectI
     EXPECT_THAT(sut2.index(), Eq(1U));
 }
 
-TEST_F(variant_Test, CreatingVariantFromComplexTypeReturnsProvidedValueAndCorrectIndex)
+TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValueAndCorrectIndex)
 {
-    iox::cxx::variant<std::string, float> sut2{std::string("Buhh")};
+    std::string string("Buhh");
+    iox::cxx::variant<std::string, float> sut2{string};
     EXPECT_THAT(sut2.get<std::string>()->c_str(), StrEq("Buhh"));
     EXPECT_THAT(sut2.index(), Eq(0U));
 }
