@@ -157,12 +157,12 @@ class variant
 
     /// @brief creates a variant from a user supplied value
     /// @tparam[in] T type of the value to be stored in the variant
-    /// @param[in] value value to be stored in the variant
+    /// @param[in] arg arg to be forwared to the c'tor of T
     template <typename T,
               typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
               typename std::enable_if_t<!is_in_place_index<std::decay_t<T>>::value, bool> = false,
               typename std::enable_if_t<!is_in_place_type<std::decay_t<T>>::value, bool> = false>
-    variant(T&& value) noexcept;
+    variant(T&& arg) noexcept;
 
     /// @brief if the variant contains an element the elements copy constructor is called
     ///     otherwise an empty variant is copied
