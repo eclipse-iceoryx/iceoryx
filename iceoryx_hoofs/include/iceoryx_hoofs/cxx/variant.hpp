@@ -278,14 +278,14 @@ class variant
   private:
     template <typename T>
     bool has_bad_variant_element_access() const noexcept;
-    static void error_message(const char* f_source, const char* f_msg) noexcept;
+    static void error_message(const char* source, const char* msg) noexcept;
 
     void call_element_destructor() noexcept;
 };
 
 /// @brief returns true if the variant holds a given type T, otherwise false
 template <typename T, typename... Types>
-constexpr bool holds_alternative(const variant<Types...>& f_variant) noexcept;
+constexpr bool holds_alternative(const variant<Types...>& variant) noexcept;
 
 } // namespace cxx
 } // namespace iox
