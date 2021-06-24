@@ -32,13 +32,13 @@
 
 namespace iox
 {
-template <typename T, uint32_t Capacity, uint32_t MaxKeyLength = 128>
+template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength = 128>
 class PrefixTree
 {
   public:
-    // using string_t = std::string;
+    // using Key = std::string;
     // rename to Key
-    using string_t = cxx::string<MaxKeyLength>;
+    using Key = cxx::string<MaxKeyLength>;
 
   private:
     // TODO: choose these values (requires space estimation for the structure)
@@ -57,10 +57,15 @@ class PrefixTree
     struct DataNode
     {
         DataNode* next{nullptr};
-        T value; // todo: no default ctor requirement
+        Value value; // todo: no default ctor requirement
     };
 
     // follow a de la briandais tree approach to save memory at cost of traversal time
+    // note: the children could be managed by a hashmap if it was available (faster but more memory)
+    // The data could be managed in another container as well, but this would be problematic with static memory again
+    // We assume we usually have few data items per key, and hence a linked list is ok.
+    // In the unique key case we have at most one data item, i.e. data is nullptr for non-keys
+    // or the list contains exactly one item for a key in the prefix-tree.
     struct Node;
     struct Node
     {
@@ -78,7 +83,7 @@ class PrefixTree
     uint32_t m_size{0U};
 
   public:
-    PrefixTree()
+    PrefixTree() noexcept
     {
         m_root = allocateNode();
     }
@@ -89,9 +94,9 @@ class PrefixTree
     }
 
     // TODO: do we want to eliminate duplicate values?
-    // do we want to distinguihs error cases? I do not think we should, failing to insert is
+    // do we want to distinguish error cases? I do not think we should, failing to insert is
     // due to resources (Capacity) being exhausted (if we allow duplicates)
-    bool insert(const string_t& key, const T& value)
+    bool insert(const Key& key, const Value& value) noexcept
     {
         uint32_t length = key.size();
         if (length > MaxKeyLength)
@@ -111,17 +116,19 @@ class PrefixTree
 
         auto node = findPrefix(letters, length, prefixLength);
 
-        // will be at least the root node (if there is no prefix in the tree)
+        // node will be at least the root node (if there is no prefix in the tree)
 
         if (prefixLength == length)
         {
-            // entry data already exists, we add our value to the list
+            // the full string is already in the tree (either as a prefix of some other string or as a key itself)
             if (!node->data)
             {
                 node->data = data;
             }
             else
             {
+                // entry data already exists, we add our value to the list
+                // we could check for duplicates here, but would need to traverse the list
                 data->next = node->data;
                 node->data = data;
             }
@@ -129,6 +136,7 @@ class PrefixTree
             return true;
         }
 
+        // only a strict prefix is already in the tree
         // we need to create the suffix path beyond node and then add our value to the final node
 
         const char* suffix = &letters[prefixLength];
@@ -139,7 +147,7 @@ class PrefixTree
         if (!node)
         {
             return false; // no memory - should not happen in the pool version later? TODO: cleanup unused
-                          // intermediate nodes
+                          // intermediate nodes in failure case
         }
 
         node->data = data;
@@ -147,13 +155,14 @@ class PrefixTree
         return &data->value;
     }
 
+    // TODO: do we want a value version? - findValues (can just copy the data out)
     // container can be changed or be a reference input (with fixed size)
     // can also return them by value ... inefficient
-    cxx::vector<const T*, Capacity> find(const string_t& key)
+    cxx::vector<const Value*, Capacity> find(const Key& key) noexcept
     {
         auto node = findNode(key);
 
-        cxx::vector<const T*, Capacity> result;
+        cxx::vector<const Value*, Capacity> result;
 
         if (!node)
         {
@@ -169,15 +178,16 @@ class PrefixTree
         return result;
     }
 
-    bool remove(const string_t& key)
+    bool remove(const Key& key) noexcept
     {
         auto node = findNode(key);
-        if (!node)
+        if (!node || !node->data)
         {
             return false;
         }
 
-        deleteData(node); // delete all data at this node
+        // delete all data at key
+        deleteData(node);
 
         if (node->child)
         {
@@ -185,62 +195,60 @@ class PrefixTree
             return true;
         }
 
-        // in theory we need to go up to the first node with data and only one child and delete all nodes on the way
-        // however, we want to save the parent pointer and traverse again from the root instead
+        // In theory we need to go up to the first node with data and only one child and delete all nodes on the way
+        // However, we want to save the parent pointer and hence traverse again from the root instead
+        // we could also optimize this to do it in the first downward path (where we are not sure if we find anything to
+        // delete)
 
-        uint32_t length = key.size();
-        uint32_t prefix_len;
-        const char* letters = key.c_str();
-        Node* parent;
-
-        // this is the node closest to the root from which we can sefaly delete the path downwards
-        // since it will not be used to store data
-        // (i.e. all higher nodes are on paths to actual data and cannot be deleted)
-        node = findNodeClosestNodeToRootToDelete(letters, length - 1, &parent);
-
-        if (node)
-        {
-            // remove from child list of parent
-            auto child = parent->child;
-            if (child == node)
-            {
-                parent->child = child->sibling;
-            }
-            else
-            {
-                while (child)
-                {
-                    if (child->sibling == node)
-                    {
-                        child->sibling = node->sibling;
-                        break;
-                    }
-                    child = child->sibling;
-                }
-            }
-            deleteRecursively(node);
-        }
+        removeNodes(key);
 
         return true;
     }
 
-    uint32_t size()
+    bool remove(const Key& key, const Value& value) noexcept
+    {
+        auto node = findNode(key);
+        if (!node || !node->data)
+        {
+            return false;
+        }
+        
+        // if value does not exist at key, we cannot remove it
+        auto removed = deleteValue(node, value);
+
+        if (node->child)
+        {
+            // the node is needed since it has children (which lead to data otherwise they would not exist)
+            return removed;
+        }
+
+        removeNodes(key);
+
+        return removed;
+    }
+
+    uint32_t capacity() noexcept
+    {
+        return Capacity;
+    }
+
+    uint32_t size() noexcept
     {
         return m_size;
     }
 
-    bool empty()
+    bool empty() noexcept
     {
         return size() == 0;
     }
 
   private:
-    Node* allocateNode()
+    Node* allocateNode() noexcept
     {
         return new Node; // later allocate from a preallocated pool belonging to the object itself
     }
 
-    void deallocateNode(Node* node)
+    void deallocateNode(Node* node) noexcept
     {
         auto data = node->data;
         while (data)
@@ -252,7 +260,7 @@ class PrefixTree
         delete node;
     }
 
-    DataNode* allocateDataNode()
+    DataNode* allocateDataNode() noexcept
     {
         if (m_size < Capacity)
         {
@@ -266,13 +274,13 @@ class PrefixTree
         return nullptr;
     }
 
-    void deallocateDataNode(DataNode* node)
+    void deallocateDataNode(DataNode* node) noexcept
     {
         --m_size;
         delete node;
     }
 
-    Node* findInChildren(Node* node, char letter)
+    Node* findInChildren(Node* node, char letter) noexcept
     {
         node = node->child;
         while (node)
@@ -287,7 +295,7 @@ class PrefixTree
     }
 
     // prefixLength will return the length of the existing maximum prefix in the tree
-    Node* findPrefix(const char* letters, uint32_t length, uint32_t& prefixLength)
+    Node* findPrefix(const char* letters, uint32_t length, uint32_t& prefixLength) noexcept
     {
         prefixLength = 0;
         auto node = m_root;
@@ -306,7 +314,7 @@ class PrefixTree
         return node;
     }
 
-    Node* addSuffix(Node* node, const char* suffix, uint32_t length)
+    Node* addSuffix(Node* node, const char* suffix, uint32_t length) noexcept
     {
         uint32_t i = 0;
         while (i < length)
@@ -325,7 +333,7 @@ class PrefixTree
         return node;
     }
 
-    Node* addSibling(Node* node, char letter)
+    Node* addSibling(Node* node, char letter) noexcept
     {
         auto sibling = allocateNode();
         if (!sibling)
@@ -338,7 +346,7 @@ class PrefixTree
         return sibling;
     }
 
-    Node* addChild(Node* node, char letter)
+    Node* addChild(Node* node, char letter) noexcept
     {
         if (!node->child)
         {
@@ -356,7 +364,7 @@ class PrefixTree
         return addSibling(node->child, letter);
     }
 
-    Node* findNode(const string_t& key)
+    Node* findNode(const Key& key) noexcept
     {
         const char* letters = key.c_str();
         uint32_t prefixLength;
@@ -369,7 +377,7 @@ class PrefixTree
         return node;
     }
 
-    void deleteData(Node* node)
+    void deleteData(Node* node) noexcept
     {
         auto data = node->data;
         while (data)
@@ -381,7 +389,58 @@ class PrefixTree
         node->data = nullptr;
     }
 
-    void deleteRecursively(Node* node)
+    bool deleteValue(Node* node, const Value& value)
+    {
+        auto data = node->data;
+        if (!data)
+        {
+            return false;
+        }
+
+        bool deleted = false;
+
+        // assume that value can occur multiple times
+
+        // delete front values if equal to value
+        while (data && data->value == value)
+        {
+            node->data = data->next;
+            deallocateDataNode(data);
+            deleted = true;
+            data = node->data;
+        }
+
+        node->data = data;
+        if (!data)
+        {
+            // no values left
+            return deleted;
+        }
+
+        // front is not value
+        auto prev = data;
+        data = prev->next;
+
+        while (data)
+        {
+            auto next = data->next;
+            if (data->value == value)
+            {
+                // unlink data and delete it
+                deallocateDataNode(data);
+                deleted = true;
+                prev->next = next;
+            }
+            else
+            {
+                prev = data;
+            }
+            data = next;
+        }
+        return deleted;
+    }
+
+    void deleteRecursively(Node* node) noexcept
     {
         if (node)
         {
@@ -396,7 +455,7 @@ class PrefixTree
         }
     }
 
-    Node* findNodeClosestNodeToRootToDelete(const char* letters, uint32_t length, Node** parent)
+    Node* findClosestNodeToRootToDelete(const char* letters, uint32_t length, Node** parent) noexcept
     {
         uint32_t prefix = 0;
         auto node = m_root;
@@ -407,7 +466,8 @@ class PrefixTree
             char letter = letters[prefix];
             auto next = findInChildren(node, letter);
 
-            // TODO: improve logic (or refactor to do this in the first downward pass of the search already)
+            // Note: we could do this in the first downward pass of a search implementation for remove (but not the one
+            // for find, there it is not needed)
             if (next->data)
             {
                 deleteableNode = nullptr;
@@ -432,6 +492,41 @@ class PrefixTree
         }
 
         return deleteableNode;
+    }
+
+    void removeNodes(const Key& key)
+    {
+        uint32_t length = key.size();
+        const char* letters = key.c_str();
+        Node* parent;
+
+        // this is the node closest to the root from which we can safely delete the path downwards
+        // since it will not be used to store data
+        // (i.e. all higher nodes are on paths to actual data and cannot be deleted)
+        auto node = findClosestNodeToRootToDelete(letters, length - 1, &parent);
+
+        if (node)
+        {
+            // remove from child list of parent
+            auto child = parent->child;
+            if (child == node)
+            {
+                parent->child = child->sibling;
+            }
+            else
+            {
+                while (child)
+                {
+                    if (child->sibling == node)
+                    {
+                        child->sibling = node->sibling;
+                        break;
+                    }
+                    child = child->sibling;
+                }
+            }
+            deleteRecursively(node);
+        }
     }
 };
 
