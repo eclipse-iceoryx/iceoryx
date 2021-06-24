@@ -41,6 +41,8 @@ class ClientPortUser : public BasePort
   public:
     using MemberType_t = ClientPortData;
 
+    /// @brief Creates a ClientPortUser from ClientPortData which are shared with ClientPortRouDi
+    /// @param[in] clientPortData to be are accessed by the ClientPortUser interface
     explicit ClientPortUser(MemberType_t& clientPortData) noexcept;
 
     ClientPortUser(const ClientPortUser& other) = delete;

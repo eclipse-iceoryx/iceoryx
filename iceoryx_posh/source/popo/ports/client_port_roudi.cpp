@@ -22,8 +22,8 @@ namespace iox
 {
 namespace popo
 {
-ClientPortRouDi::ClientPortRouDi(cxx::not_null<MemberType_t* const> clientPortDataPtr) noexcept
-    : BasePort(clientPortDataPtr)
+ClientPortRouDi::ClientPortRouDi(MemberType_t& clientPortData) noexcept
+    : BasePort(&clientPortData)
     , m_chunkSender(&getMembers()->m_chunkSenderData)
     , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 

@@ -36,7 +36,9 @@ class ClientPortRouDi : public BasePort
   public:
     using MemberType_t = ClientPortData;
 
-    explicit ClientPortRouDi(cxx::not_null<MemberType_t* const> clientPortDataPtr) noexcept;
+    /// @brief Creates a ClientPortRouDi from ClientPortData which are shared with ClientPortUser
+    /// @param[in] clientPortData to be are accessed by the ClientPortRouDi interface
+    explicit ClientPortRouDi(MemberType_t& clientPortData) noexcept;
 
     ClientPortRouDi(const ClientPortRouDi& other) = delete;
     ClientPortRouDi& operator=(const ClientPortRouDi&) = delete;
