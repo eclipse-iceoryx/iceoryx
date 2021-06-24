@@ -64,26 +64,26 @@ TEST_F(PrefixTree_test, ctorConstructsEmptyTree)
 TEST_F(PrefixTree_test, insertionInEmptyTreeWorks)
 {
     auto result = sut.insert("abc", Integer{73});
-    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result);
     EXPECT_EQ(sut.size(), 1U);
 }
 
 TEST_F(PrefixTree_test, insertionUpToCapacityWorks)
 {
     auto result = sut.insert("abc", Integer{73});
-    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result);
     result = sut.insert("acb", Integer{37});
-    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result);
     result = sut.insert("abb", Integer{42});
-    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result);
     result = sut.insert("bbc", Integer{66});
-    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result);
 
     // add remaining elements up to capacity for a duplicate key
     for (uint i = 4; i < TEST_CAPACITY; ++i)
     {
         result = sut.insert("abcd", Integer{i});
-        EXPECT_NE(result, nullptr);
+        EXPECT_TRUE(result);
     }
 
     EXPECT_EQ(sut.size(), TEST_CAPACITY);
@@ -104,7 +104,7 @@ TEST_F(PrefixTree_test, insertionIntoFullTreeDoesNotWork)
     EXPECT_EQ(sut.size(), TEST_CAPACITY);
 
     auto result = sut.insert("cab", Integer{21});
-    EXPECT_EQ(result, nullptr);
+    EXPECT_FALSE(result);
 }
 
 TEST_F(PrefixTree_test, insertionWithMaximumKeyLengthWorks)

@@ -35,10 +35,13 @@ namespace iox
 template <typename T, uint32_t Capacity, uint32_t MaxKeyLength = 128>
 class PrefixTree
 {
+  public:
     // using string_t = std::string;
+    // rename to Key
     using string_t = cxx::string<MaxKeyLength>;
 
-    // TODO: chose these values (requires space estimation for the structure)
+  private:
+    // TODO: choose these values (requires space estimation for the structure)
     static constexpr uint32_t CAPACITY_LIMIT = 1 << 14;
     static constexpr uint32_t MAX_KEY_LENGTH_LIMIT = 1 << 8;
     static_assert(Capacity <= CAPACITY_LIMIT);
@@ -86,18 +89,20 @@ class PrefixTree
     }
 
     // TODO: do we want to eliminate duplicate values?
-    const T* insert(const string_t& key, const T& value)
+    // do we want to distinguihs error cases? I do not think we should, failing to insert is
+    // due to resources (Capacity) being exhausted (if we allow duplicates)
+    bool insert(const string_t& key, const T& value)
     {
         uint32_t length = key.size();
         if (length > MaxKeyLength)
         {
-            return nullptr;
+            return false;
         }
 
         auto data = allocateDataNode();
         if (!data)
         {
-            return nullptr;
+            return false;
         }
         data->value = value;
 
@@ -121,7 +126,7 @@ class PrefixTree
                 node->data = data;
             }
 
-            return &data->value;
+            return true;
         }
 
         // we need to create the suffix path beyond node and then add our value to the final node
@@ -133,8 +138,8 @@ class PrefixTree
 
         if (!node)
         {
-            return nullptr; // no memory - should not happen in the pool version later? TODO: cleanup unused
-                            // intermediate nodes
+            return false; // no memory - should not happen in the pool version later? TODO: cleanup unused
+                          // intermediate nodes
         }
 
         node->data = data;
