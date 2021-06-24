@@ -16,7 +16,6 @@
 #ifndef IOX_POSH_POPO_PORTS_CLIENT_SERVER_PORT_TYPES_HPP
 #define IOX_POSH_POPO_PORTS_CLIENT_SERVER_PORT_TYPES_HPP
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
@@ -67,111 +66,6 @@ using ServerChunkReceiverData_t = ChunkReceiverData<MAX_REQUESTS_PROCESSED_SIMUL
 using ClientChunkSenderData_t = ChunkSenderData<MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY, ClientChunkDistributorData_t>;
 
 using ServerChunkSenderData_t = ChunkSenderData<MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY, ServerChunkDistributorData_t>;
-
-class RPCBaseHeader
-{
-  public:
-    explicit RPCBaseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr, const int64_t sequenceNumber)
-        : m_clientQueueDataPtr(chunkQueueDataPtr)
-        , m_sequenceNumber(sequenceNumber)
-    {
-    }
-
-    RPCBaseHeader(const RPCBaseHeader& other) = delete;
-    RPCBaseHeader& operator=(const RPCBaseHeader&) = delete;
-    RPCBaseHeader(RPCBaseHeader&& rhs) = default;
-    RPCBaseHeader& operator=(RPCBaseHeader&& rhs) = default;
-    virtual ~RPCBaseHeader() = default;
-
-    int64_t getSequenceNumber() const noexcept
-    {
-        return m_sequenceNumber;
-    }
-
-  protected:
-    rp::RelativePointer<ClientChunkQueueData_t> m_clientQueueDataPtr;
-    int64_t m_sequenceNumber{0};
-};
-
-class RequestHeader : public RPCBaseHeader
-{
-  public:
-    explicit RequestHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr) noexcept
-        : RPCBaseHeader(chunkQueueDataPtr, 0)
-    {
-    }
-
-    RequestHeader(const RequestHeader& other) = delete;
-    RequestHeader& operator=(const RequestHeader&) = delete;
-    RequestHeader(RequestHeader&& rhs) = default;
-    RequestHeader& operator=(RequestHeader&& rhs) = default;
-    virtual ~RequestHeader() = default;
-
-    void setSequenceNumber(const int64_t sequenceNumber) noexcept
-    {
-        this->m_sequenceNumber = sequenceNumber;
-    }
-
-    void setFireAndForget(const bool fireAndForget) noexcept
-    {
-        m_isFireAndForget = fireAndForget;
-    }
-
-    mepoo::ChunkHeader* getChunkHeader() const noexcept
-    {
-        /// todo
-        return nullptr;
-    }
-    void* getUserPayload() noexcept
-    {
-        /// todo
-        return nullptr;
-    }
-
-  private:
-    bool m_isFireAndForget{false};
-};
-
-class ResponseHeader : public RPCBaseHeader
-{
-  public:
-    ResponseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr,
-                   const int64_t sequenceNumber) noexcept
-        : RPCBaseHeader(chunkQueueDataPtr, sequenceNumber)
-    {
-    }
-
-    ResponseHeader(const ResponseHeader& other) = delete;
-    ResponseHeader& operator=(const ResponseHeader&) = delete;
-    ResponseHeader(ResponseHeader&& rhs) = default;
-    ResponseHeader& operator=(ResponseHeader&& rhs) = default;
-    virtual ~ResponseHeader() = default;
-
-    void setServerError(bool serverError) noexcept
-    {
-        m_hasServerError = serverError;
-    }
-
-    bool hasServerError() const noexcept
-    {
-        return m_hasServerError;
-    }
-
-    const mepoo::ChunkHeader* getChunkHeader() const noexcept
-    {
-        /// todo
-        return nullptr;
-    }
-    const void* getUserPayload() const noexcept
-    {
-        /// todo
-        return nullptr;
-    }
-
-  private:
-    bool m_hasServerError{false};
-};
-
 
 } // namespace popo
 } // namespace iox
