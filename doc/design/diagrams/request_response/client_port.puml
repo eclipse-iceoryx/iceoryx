@@ -1,5 +1,4 @@
 @startuml
-skinparam backgroundColor #EEEBDC
 
 class ClientPortData {
   chunkSenderData: ChunkSenderData

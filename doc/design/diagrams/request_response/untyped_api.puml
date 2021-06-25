@@ -1,5 +1,4 @@
 @startuml
-skinparam backgroundColor #EEEBDC
 
 class UntypedClient {
   Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)

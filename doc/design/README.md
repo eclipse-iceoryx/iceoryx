@@ -23,14 +23,7 @@ The integration of the generated PlantUML into your design documents is done via
 You need to create a .puml file and export it to .svg afterwards for linking it with the markdown. In the tools folder is a helper script for that provided which downloads a defined version of PlantUML to export the vector graphics.
 These steps are necessary due to the current support of PlantUML in [Github](https://github.community/t/support-uml-diagrams-in-markdown-with-plantuml-syntax/626).
 
-**NOTE:** Please set in the PlantUML code the background manually to make all textboxes visible to users with dark-mode enabled in the Github-UI.
-
-```plantuml
-@startuml
-skinparam backgroundColor #EEEBDC
-...
-@enduml
-```
+**NOTE:** Don't set parameter for theming (like background color) directly in individual puml files but use the central `doc/iceoryx-plantuml-config.puml` which is shared with all diagrams.
 
 This is an example how to render PlantUML in Github:
 

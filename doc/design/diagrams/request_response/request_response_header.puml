@@ -1,5 +1,4 @@
 @startuml
-skinparam backgroundColor #EEEBDC
 
 class RpcBaseHeader {
   + RpcBaseHeader(clientQueueUniqueuePortId: UniqueuePortId, lastKnownQueueIndex: uint64_t, sequenceId: uint64_t, rpcHeaderVersion: uint8_t)
