@@ -73,7 +73,6 @@ class PortManager_test : public Test
 
     void SetUp() override
     {
-        // testing::internal::CaptureStderr();
         m_instIdCounter = m_sIdCounter = 1U;
         m_eventIdCounter = 0;
         // starting at {1,1,1}
@@ -100,15 +99,6 @@ class PortManager_test : public Test
         delete m_portManager;
         delete m_roudiMemoryManager;
         iox::rp::BaseRelativePointer::unregisterAll();
-
-        if (Test::HasFailure())
-        {
-            // std::cout << testing::internal::GetCapturedStderr() << std::endl;
-        }
-        else
-        {
-            //(void)testing::internal::GetCapturedStderr();
-        }
     }
     iox::capro::ServiceDescription getUniqueSD()
     {
