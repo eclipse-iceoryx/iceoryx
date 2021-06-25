@@ -106,6 +106,13 @@ class Serialization
     template <typename T>
     bool getNth(const unsigned int index, T& t) const noexcept;
 
+    /// @brief This is an error which can be used for `cxx::expected` on a custom deserialization when `extract` fails
+    enum class Error
+    {
+        DESERIALIZATION_FAILED, ///< indicates a failed deserialization
+        INVALID_STATE,          ///< required to set a moved `cxx::expected` to a defined state
+    };
+
   private:
     std::string m_value;
     static constexpr char separator = ':';

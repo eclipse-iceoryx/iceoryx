@@ -122,7 +122,7 @@ void* ChunkHeader::userHeader() noexcept
     {
         return nullptr;
     }
-    // the UserHeader is always located relative to "this" in this way
+    // the UserHeader is always adjacent to the ChunkHeader
     return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
 }
 
@@ -158,6 +158,21 @@ ChunkHeader* ChunkHeader::fromUserPayload(void* const userPayload) noexcept
 const ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcept
 {
     return ChunkHeader::fromUserPayload(const_cast<void*>(userPayload));
+}
+
+ChunkHeader* ChunkHeader::fromUserHeader(void* const userHeader) noexcept
+{
+    if (userHeader == nullptr)
+    {
+        return nullptr;
+    }
+    // the UserHeader is always adjacent to the ChunkHeader
+    return reinterpret_cast<ChunkHeader*>(reinterpret_cast<uint64_t>(userHeader) - sizeof(ChunkHeader));
+}
+
+const ChunkHeader* ChunkHeader::fromUserHeader(const void* const userHeader) noexcept
+{
+    return ChunkHeader::fromUserHeader(const_cast<void*>(userHeader));
 }
 
 uint32_t ChunkHeader::usedSizeOfChunk() const noexcept

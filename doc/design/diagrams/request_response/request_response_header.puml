@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class RpcBaseHeader {
+  + RpcBaseHeader(clientQueueUniqueuePortId: UniqueuePortId, lastKnownQueueIndex: uint64_t, sequenceId: uint64_t, rpcHeaderVersion: uint8_t)
+  + getRpcHeaderVersion(): uint8_t
+  + getSequenceId(): int64_t
+  + getChunkHeader(): ChunkHeader*
+  + getUserPayload(): void*
+  # m_rpcHeaderVersion: uint8_t
+  # m_lastKnownClientQueueIndex: uint32_t
+  # m_clientQueueUniqueuePortId: UniqueuePortId
+  # m_sequenceId: int64_t
+}
+
+class RequestHeader {
+  + RequestHeader(clientQueueUniqueuePortId: UniqueuePortId, lastKnownQueueIndex: uint64_t)
+  + setSequenceId(sequenceId: int64_t): void
+  + setFireAndForget(): void
+  + isFireAndForget(): bool
+  - m_isFireAndForget: bool
+}
+
+class ResponseHeader {
+  + ResponseHeader(clientQueueUniqueuePortId: UniqueuePortId, lastKnownQueueIndex: uint64_t, sequenceId: uint64_t)
+  + setServerError(): void
+  + hasServerError(): bool
+  - m_hasServerError: bool
+}
+
+RequestHeader --> RpcBaseHeader
+ResponseHeader --> RpcBaseHeader
+
+@enduml

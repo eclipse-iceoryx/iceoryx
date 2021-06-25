@@ -25,11 +25,13 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
 
-# set rpath for finding shared libraries outside of the build-tree
-# see https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling#cmake-and-the-rpath
-list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+if(BUILD_SHARED_LIBS)
+    # set rpath for finding shared libraries outside of the build-tree
+    # see https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling#cmake-and-the-rpath
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+    if("${isSystemDir}" STREQUAL "-1")
+        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    endif()
 endif()
 
 # ===== Core

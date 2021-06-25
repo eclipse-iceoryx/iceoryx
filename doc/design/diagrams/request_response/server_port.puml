@@ -1,0 +1,37 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+
+class ServerPortData {
+  chunkSenderData: ChunkSenderData
+  chunkReceiverData: ChunkReceiverData
+  offeringRequested: atomic<bool>
+  offered: atomic<bool>
+}
+
+class ServerPortUser {
+  offer(): void
+  stopOffer(): void
+  isOffered(): bool
+  hasClients(): bool
+  getRequest(): expected<const RequestHeader*, ChunkReceiveResult>
+  releaseRequest(requestHeader: const RequestHeader*): void
+  hasNewRequests(): void
+  hasLostRequestsSinceLastCall(): bool
+  allocateResponse(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
+  sendResponse(responseHeader: ResponseHeader*): void
+  freeResponse(responseHeader: ResponseHeader*): void
+  setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
+  unsetConditionVariable: void
+  isConditionVariableSet(): bool
+}
+
+class ServerPortRouDi {
+  tryGetCaProMessage(): optional<CaProMessage>
+  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage): optional<CaProMessage>
+  releaseAllChunks(): void
+}
+
+ServerPortUser o-- ServerPortData
+ServerPortData --o ServerPortRouDi
+
+@enduml

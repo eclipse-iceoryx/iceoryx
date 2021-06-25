@@ -158,7 +158,7 @@ enum class ConnectionState : uint32_t
 {
     NOT_CONNECTED = 0,
     CONNECT_REQUESTED,
-    CONNNECTED,
+    CONNECTED,
     DISCONNECT_REQUESTED,
     WAIT_FOR_OFFER
 };
