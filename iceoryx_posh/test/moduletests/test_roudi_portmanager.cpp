@@ -73,7 +73,7 @@ class PortManager_test : public Test
 
     void SetUp() override
     {
-        testing::internal::CaptureStderr();
+        // testing::internal::CaptureStderr();
         m_instIdCounter = m_sIdCounter = 1U;
         m_eventIdCounter = 0;
         // starting at {1,1,1}
@@ -103,11 +103,11 @@ class PortManager_test : public Test
 
         if (Test::HasFailure())
         {
-            std::cout << testing::internal::GetCapturedStderr() << std::endl;
+            // std::cout << testing::internal::GetCapturedStderr() << std::endl;
         }
         else
         {
-            (void)testing::internal::GetCapturedStderr();
+            //(void)testing::internal::GetCapturedStderr();
         }
     }
     iox::capro::ServiceDescription getUniqueSD()
@@ -235,23 +235,8 @@ TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionLeadsToTerminat
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
-    // no doDiscovery() at this position is intentional
 
-    SubscriberPortUser subscriber(
-        m_portManager
-            ->acquireSubscriberPortData(
-                {iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString},
-                subscriberOptions,
-                "schlomo",
-                PortConfigInfo())
-            .value());
-    ASSERT_TRUE(subscriber);
-    subscriber.subscribe();
-
-    m_portManager->doDiscovery();
-
-    ASSERT_FALSE(publisher.hasSubscribers());
-    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+    EXPECT_DEATH({ m_portManager->doDiscovery(); }, ".*");
 }
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
