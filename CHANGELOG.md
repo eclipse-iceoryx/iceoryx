@@ -90,6 +90,18 @@ iox::posix::posixCall(unlink)(sockAddrPublisher.sun_path)
     });
 ```
 
+Service Description is only string-based and well defined:
+
+```cpp
+// before
+ServiceDescription(1U, 2U, 3U) myServiceDescription1;
+ServiceDescription("First", "Second") myServiceDescription2;
+
+// after
+ServiceDescription("Foo", "Bar", "Baz") myServiceDescription1;
+ServiceDescription("First", "Second", "DontCare") myServiceDescription2;
+```
+
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.0...v1.0.1)
