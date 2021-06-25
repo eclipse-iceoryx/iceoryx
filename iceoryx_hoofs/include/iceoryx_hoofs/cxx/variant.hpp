@@ -112,7 +112,7 @@ class variant
   public:
     /// @brief the default constructor constructs a variant which does not contain
     ///     an element and returns INVALID_VARIANT_INDEX when .index() is called
-    variant() = default;
+    constexpr variant() = default;
 
     /// @brief creates a variant and perform an in place construction of the type
     ///         stored at index N. If the index N is out of bounds you get a compiler
@@ -123,7 +123,7 @@ class variant
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type at index
     template <uint64_t N, typename... CTorArguments>
-    variant(const in_place_index<N>& index, CTorArguments&&... args) noexcept;
+    constexpr variant(const in_place_index<N>& index, CTorArguments&&... args) noexcept;
 
     /// @brief creates a variant and perform an in place construction of the type T.
     ///         If T is not part of the variant you get a compiler error.
@@ -133,7 +133,7 @@ class variant
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type
     template <typename T, typename... CTorArguments>
-    variant(const in_place_type<T>& type, CTorArguments&&... args) noexcept;
+    constexpr variant(const in_place_type<T>& type, CTorArguments&&... args) noexcept;
 
     /// @brief creates a variant from a user supplied value
     /// @tparam[in] T type of the value to be stored in the variant
@@ -142,29 +142,29 @@ class variant
               typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
               typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool> = false,
               typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool> = false>
-    variant(T&& arg) noexcept;
+    constexpr variant(T&& arg) noexcept;
 
     /// @brief if the variant contains an element the elements copy constructor is called
     ///     otherwise an empty variant is copied
     /// @param[in] rhs source of the copy
-    variant(const variant& rhs) noexcept;
+    constexpr variant(const variant& rhs) noexcept;
 
     /// @brief if the variant contains an element the elements copy assignment operator is called
     ///     otherwise an empty variant is copied
     /// @param[in] rhs source of the copy assignment
     /// @return reference to the variant itself
-    variant& operator=(const variant& rhs) noexcept;
+    constexpr variant& operator=(const variant& rhs) noexcept;
 
     /// @brief if the variant contains an element the elements move constructor is called
     ///     otherwise an empty variant is moved
     /// @param[in] rhs source of the move
-    variant(variant&& rhs) noexcept;
+    constexpr variant(variant&& rhs) noexcept;
 
     /// @brief if the variant contains an element the elements move assignment operator is called
     ///     otherwise an empty variant is moved
     /// @param[in] rhs source of the move assignment
     /// @return reference to the variant itself
-    variant& operator=(variant&& rhs) noexcept;
+    constexpr variant& operator=(variant&& rhs) noexcept;
 
     /// @brief if the variant contains an element the elements destructor is called otherwise
     ///         nothing happens

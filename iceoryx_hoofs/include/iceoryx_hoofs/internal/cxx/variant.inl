@@ -25,7 +25,7 @@ namespace iox
 namespace cxx
 {
 template <typename... Types>
-inline variant<Types...>::variant(const variant& rhs) noexcept
+inline constexpr variant<Types...>::variant(const variant& rhs) noexcept
     : m_type_index(rhs.m_type_index)
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
@@ -37,14 +37,14 @@ inline variant<Types...>::variant(const variant& rhs) noexcept
 
 template <typename... Types>
 template <uint64_t N, typename... CTorArguments>
-inline variant<Types...>::variant(const in_place_index<N>&, CTorArguments&&... args) noexcept
+inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArguments&&... args) noexcept
 {
     emplace_at_index<N>(std::forward<CTorArguments>(args)...);
 }
 
 template <typename... Types>
 template <typename T, typename... CTorArguments>
-inline variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... args) noexcept
+inline constexpr variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... args) noexcept
 {
     emplace<T>(std::forward<CTorArguments>(args)...);
 }
@@ -54,13 +54,13 @@ template <typename T,
           typename,
           typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool>,
           typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool>>
-inline variant<Types...>::variant(T&& arg) noexcept
+inline constexpr variant<Types...>::variant(T&& arg) noexcept
     : variant(in_place_type<std::decay_t<T>>(), std::forward<T>(arg))
 {
 }
 
 template <typename... Types>
-variant<Types...>& variant<Types...>::operator=(const variant& rhs) noexcept
+inline constexpr variant<Types...>& variant<Types...>::operator=(const variant& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -88,7 +88,7 @@ variant<Types...>& variant<Types...>::operator=(const variant& rhs) noexcept
 }
 
 template <typename... Types>
-variant<Types...>::variant(variant&& rhs) noexcept
+inline constexpr variant<Types...>::variant(variant&& rhs) noexcept
     : m_type_index{std::move(rhs.m_type_index)}
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
@@ -98,7 +98,7 @@ variant<Types...>::variant(variant&& rhs) noexcept
 }
 
 template <typename... Types>
-variant<Types...>& variant<Types...>::operator=(variant&& rhs) noexcept
+inline constexpr variant<Types...>& variant<Types...>::operator=(variant&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -129,7 +129,7 @@ inline variant<Types...>::~variant() noexcept
 }
 
 template <typename... Types>
-void variant<Types...>::call_element_destructor() noexcept
+inline void variant<Types...>::call_element_destructor() noexcept
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
     {
