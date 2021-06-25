@@ -52,8 +52,8 @@ inline variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... ar
 template <typename... Types>
 template <typename T,
           typename,
-          typename std::enable_if_t<!is_in_place_index<std::decay_t<T>>::value, bool>,
-          typename std::enable_if_t<!is_in_place_type<std::decay_t<T>>::value, bool>>
+          typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool>,
+          typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool>>
 inline variant<Types...>::variant(T&& arg) noexcept
     : variant(in_place_type<std::decay_t<T>>(), std::forward<T>(arg))
 {
