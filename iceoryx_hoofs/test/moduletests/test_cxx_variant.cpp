@@ -140,7 +140,7 @@ TEST_F(variant_Test, InitializedVariantReturnsCorrectIndex)
     EXPECT_THAT(sut.index(), Eq(1U));
 }
 
-TEST_F(variant_Test, CreatingVariantFromPlainTypeReturnsProvidedValue)
+TEST_F(variant_Test, CreatingVariantFromPODTypeReturnsProvidedValue)
 {
     iox::cxx::variant<ComplexClass, float> sut2{42.42F};
 
@@ -156,6 +156,15 @@ TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValue)
     ASSERT_THAT(sut2.index(), Eq(0U));
     ASSERT_THAT(sut2.get<std::string>(), Ne(nullptr));
     EXPECT_THAT(sut2.get<std::string>()->c_str(), StrEq("Buhh"));
+}
+
+TEST_F(variant_Test, CreatingVariantWithSameTypeChoosesFirstFittingType)
+{
+    iox::cxx::variant<float, float> sut2{73.73F};
+
+    ASSERT_THAT(sut2.index(), Eq(0U));
+    ASSERT_THAT(sut2.get<float>(), Ne(nullptr));
+    EXPECT_THAT(*sut2.get<float>(), Eq(73.73F));
 }
 
 TEST_F(variant_Test, EmplaceValidElementWorks)
