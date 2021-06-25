@@ -140,20 +140,22 @@ TEST_F(variant_Test, InitializedVariantReturnsCorrectIndex)
     EXPECT_THAT(sut.index(), Eq(1U));
 }
 
-TEST_F(variant_Test, CreatingVariantFromPlainTypeReturnsProvidedValueAndCorrectIndex)
+TEST_F(variant_Test, CreatingVariantFromPlainTypeReturnsProvidedValue)
 {
     iox::cxx::variant<ComplexClass, float> sut2{42.42F};
 
+    ASSERT_THAT(sut2.index(), Eq(1U));
+    ASSERT_THAT(sut2.get<float>(), Ne(nullptr));
     EXPECT_THAT(*sut2.get<float>(), Eq(42.42F));
-    EXPECT_THAT(sut2.index(), Eq(1U));
 }
 
-TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValueAndCorrectIndex)
+TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValue)
 {
     std::string string("Buhh");
     iox::cxx::variant<std::string, float> sut2{string};
+    ASSERT_THAT(sut2.index(), Eq(0U));
+    ASSERT_THAT(sut2.get<std::string>(), Ne(nullptr));
     EXPECT_THAT(sut2.get<std::string>()->c_str(), StrEq("Buhh"));
-    EXPECT_THAT(sut2.index(), Eq(0U));
 }
 
 TEST_F(variant_Test, EmplaceValidElementWorks)
@@ -446,7 +448,7 @@ TEST_F(variant_Test, SameTypeVariantAndEmplaceWithIndexResultsInCorrectValue)
 {
     iox::cxx::variant<int, float, int> schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
+    ASSERT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
     EXPECT_THAT(*schlomo.get_at_index<2>(), Eq(123));
 }
 
@@ -462,7 +464,7 @@ TEST_F(variant_Test, SameTypeVariantReturnsNothingForIncorrectIndex)
 {
     iox::cxx::variant<int, float, int> schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
+    ASSERT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
     EXPECT_THAT(schlomo.get_at_index<1>(), Eq(nullptr));
 }
 
@@ -471,7 +473,7 @@ TEST_F(variant_Test, ConstSameTypeVariantAndEmplaceWithIndexResultsInCorrectValu
     iox::cxx::variant<int, float, int> schlomo;
     const iox::cxx::variant<int, float, int>* ignatz = &schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<2>(4123), Eq(true));
+    ASSERT_THAT(schlomo.emplace_at_index<2>(4123), Eq(true));
     EXPECT_THAT(*ignatz->get_at_index<2>(), Eq(4123));
 }
 
