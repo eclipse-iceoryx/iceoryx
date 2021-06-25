@@ -1,7 +1,5 @@
 @startuml
 
-skinparam backgroundColor #EEEBDC
-
 left to right direction
 
 actor Iceoryx_Contributor

@@ -1,5 +1,4 @@
 @startuml
-skinparam backgroundColor #EEEBDC
 
 together Group1 {
 class Client<Req, Res> {

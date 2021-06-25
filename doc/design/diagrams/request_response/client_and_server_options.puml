@@ -1,5 +1,4 @@
 @startuml
-skinparam backgroundColor #EEEBDC
 
 class ClientOptions {
   responseQueueCapacity: uint64_t

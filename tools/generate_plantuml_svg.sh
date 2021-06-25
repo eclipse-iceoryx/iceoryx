@@ -54,6 +54,11 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 echo " [i] Generating with $NUM_THREADS threads"
 
-java -jar $PLANTUML_DIR/plantuml.jar -nometadata -nbthread $NUM_THREADS -tsvg -I "$EXPORT_DIR/**.puml"
+java -jar $PLANTUML_DIR/plantuml.jar \
+     -config "$WORKSPACE/doc/iceoryx-plantuml-config.puml" \
+     -nometadata \
+     -nbthread $NUM_THREADS \
+     -tsvg \
+     -I "$EXPORT_DIR/**.puml"
 
 echo " [i] Finished"
