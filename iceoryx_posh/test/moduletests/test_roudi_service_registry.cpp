@@ -44,6 +44,7 @@ class ServiceRegistry_test : public Test
     iox::roudi::ServiceRegistry registry;
     iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
 
+    /// @todo #415 Replace this once service registry has its new data structure
     iox::capro::IdString_t Wildcard{iox::roudi::Wildcard};
 };
 

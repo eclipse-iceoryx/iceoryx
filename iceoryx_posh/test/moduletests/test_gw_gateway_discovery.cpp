@@ -43,7 +43,7 @@ class InterfacePort_mock
   public:
     bool getCaProMessage(CaproMessage& f_message)
     {
-        f_message.m_serviceDescription = iox::capro::ServiceDescription();
+        f_message.m_serviceDescription = iox::capro::ServiceDescription("F", "o", "o");
         f_message.m_type = iox::capro::CaproMessageType::ACK;
         return true;
     }
@@ -65,7 +65,7 @@ TEST_F(GatewayDiscovery_test, GetCaproMessage)
     CaproMessage msg;
     GatewayDiscovery.getCaproMessage(msg);
     EXPECT_EQ(iox::capro::CaproMessageType::ACK, msg.m_type);
-    EXPECT_EQ(iox::capro::ServiceDescription(), msg.m_serviceDescription);
+    EXPECT_EQ(iox::capro::ServiceDescription("F", "o", "o"), msg.m_serviceDescription);
 }
 
 } // namespace

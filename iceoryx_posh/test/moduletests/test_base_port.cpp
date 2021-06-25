@@ -104,12 +104,12 @@ const ServiceDescription& expectedServiceDescription()
 template <>
 const ServiceDescription& expectedServiceDescription<PublisherPortData>()
 {
-    return SERVICE_DESCRIPTION_VALID;
+    return SERVICE_DESCRIPTION_EMPTY;
 }
 template <>
 const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
 {
-    return SERVICE_DESCRIPTION_VALID;
+    return SERVICE_DESCRIPTION_EMPTY;
 }
 
 // expected ProcessName factories
@@ -169,7 +169,7 @@ class BasePort_test : public Test
 TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
-    EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
+    EXPECT_THAT(this->sut.getCaProServiceDescription(), Ne(expectedServiceDescription<PortData_t>()));
 }
 
 TYPED_TEST(BasePort_test, CallingGetRuntimeNameWorks)
