@@ -181,7 +181,7 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
 
     auto instanceContainer = receiverRuntime->findService(
         {iox::cxx::in_place_type<IdString_t>(), "service1"},
-        {iox::cxx::in_place_type<iox::runtime::SearchMode>(), iox::runtime::SearchMode::WILDCARD});
+        {iox::cxx::in_place_type<iox::runtime::Any_t>(), iox::runtime::Any_t()});
 
 
     ASSERT_THAT(instanceContainer.value().size(), Eq(3u));
@@ -385,7 +385,7 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
 
     auto instanceContainer = receiverRuntime->findService(
         {iox::cxx::in_place_type<IdString_t>(), "s"},
-        {iox::cxx::in_place_type<iox::runtime::SearchMode>(), iox::runtime::SearchMode::WILDCARD});
+        {iox::cxx::in_place_type<iox::runtime::Any_t>(), iox::runtime::Any_t()});
 
     EXPECT_THAT(instanceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
@@ -406,7 +406,7 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
 
     auto instanceContainer = receiverRuntime->findService(
         {iox::cxx::in_place_type<IdString_t>(), "s"},
-        {iox::cxx::in_place_type<iox::runtime::SearchMode>(), iox::runtime::SearchMode::WILDCARD});
+        {iox::cxx::in_place_type<iox::runtime::Any_t>(), iox::runtime::Any_t()});
 
     ASSERT_THAT(instanceContainer.has_error(), Eq(true));
 }

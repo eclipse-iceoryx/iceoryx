@@ -673,9 +673,9 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
 
     m_runtime->offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
-    auto instanceContainer = m_receiverRuntime->findService(
-        {iox::cxx::in_place_type<iox::runtime::SearchMode>(), iox::runtime::SearchMode::WILDCARD},
-        {iox::cxx::in_place_type<iox::runtime::SearchMode>(), iox::runtime::SearchMode::WILDCARD});
+    auto instanceContainer =
+        m_receiverRuntime->findService({iox::cxx::in_place_type<iox::runtime::Any_t>(), iox::runtime::Any_t()},
+                                       {iox::cxx::in_place_type<iox::runtime::Any_t>(), iox::runtime::Any_t()});
 
     EXPECT_THAT(0u, instanceContainer.value().size());
 }

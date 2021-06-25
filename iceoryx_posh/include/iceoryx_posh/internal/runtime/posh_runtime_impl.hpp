@@ -45,8 +45,8 @@ class PoshRuntimeImpl : public PoshRuntime
 
     /// @copydoc PoshRuntime::findService
     cxx::expected<InstanceContainer, FindServiceError>
-    findService(const cxx::variant<SearchMode, capro::IdString_t> service,
-                const cxx::variant<SearchMode, capro::IdString_t> instance) noexcept override;
+    findService(const cxx::variant<Any_t, capro::IdString_t> service,
+                const cxx::variant<Any_t, capro::IdString_t> instance) noexcept override;
 
     /// @copydoc PoshRuntime::offerService
     bool offerService(const capro::ServiceDescription& serviceDescription) noexcept override;

@@ -51,9 +51,9 @@ enum class FindServiceError
     INSTANCE_CONTAINER_OVERFLOW
 };
 
-enum class SearchMode : uint8_t
+/// @brief Used to search for any string (wildcard)
+struct Any_t
 {
-    WILDCARD
 };
 
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
@@ -93,8 +93,8 @@ class PoshRuntime
     /// InstanceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
     virtual cxx::expected<InstanceContainer, FindServiceError>
-    findService(const cxx::variant<SearchMode, capro::IdString_t> service,
-                const cxx::variant<SearchMode, capro::IdString_t> instance) noexcept = 0;
+    findService(const cxx::variant<Any_t, capro::IdString_t> service,
+                const cxx::variant<Any_t, capro::IdString_t> instance) noexcept = 0;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] service valid ServiceDescription to offer

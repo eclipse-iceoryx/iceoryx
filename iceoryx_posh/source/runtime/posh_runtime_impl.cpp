@@ -381,8 +381,8 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 }
 
 cxx::expected<InstanceContainer, FindServiceError>
-PoshRuntimeImpl::findService(const cxx::variant<SearchMode, capro::IdString_t> service,
-                             const cxx::variant<SearchMode, capro::IdString_t> instance) noexcept
+PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> service,
+                             const cxx::variant<Any_t, capro::IdString_t> instance) noexcept
 {
     /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;
