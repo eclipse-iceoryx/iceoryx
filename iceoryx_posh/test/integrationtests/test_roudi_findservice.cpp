@@ -72,7 +72,7 @@ TEST_F(RoudiFindService_test, OfferServiceWithValidEventIdSucessfull)
 TEST_F(RoudiFindService_test, OfferServiceWithInvalidEventIdFails)
 {
     auto isServiceOffered =
-        senderRuntime->offerService({"service1", iox::capro::InvalidString, iox::capro::InvalidString});
+        senderRuntime->offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -255,7 +255,7 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceMultiInstance)
 TEST_F(RoudiFindService_test, StopOfferWithInvalidServiceDescriptionFails)
 {
     EXPECT_FALSE(senderRuntime->stopOfferService(
-        {iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString}));
+        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString}));
 }
 
 TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)

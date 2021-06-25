@@ -253,7 +253,8 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithInvalidServiceDescriptionFail
     publisherOptions.historyCapacity = 13U;
     publisherOptions.nodeName = m_nodeName;
     const auto publisherPort = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString),
+        iox::capro::ServiceDescription(
+            iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString),
         publisherOptions,
         iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
@@ -429,7 +430,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithInvalidServiceDescriptionFai
     subscriberOptions.nodeName = m_nodeName;
 
     const auto subscriberPort = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(iox::capro::InvalidString, iox::capro::InvalidString, iox::capro::InvalidString),
+        iox::capro::ServiceDescription(
+            iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString),
         subscriberOptions,
         iox::runtime::PortConfigInfo(11U, 22U, 33U));
 

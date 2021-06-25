@@ -217,9 +217,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsT
 {
     ServiceDescription serviceDescription1 = ServiceDescription();
 
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(InvalidString));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(InvalidString));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(InvalidString));
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(InvalidIdString));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(InvalidIdString));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(InvalidIdString));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScopeToWorldWide)
@@ -371,7 +371,7 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvalid)
 {
-    IdString_t testServiceID = InvalidString;
+    IdString_t testServiceID = InvalidIdString;
     IdString_t testEventID = "1";
     IdString_t testInstanceID = "1";
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
@@ -383,7 +383,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInval
 {
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
-    IdString_t testInstanceID = InvalidString;
+    IdString_t testInstanceID = InvalidIdString;
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
     EXPECT_FALSE(serviceDescription1.isValid());
@@ -392,7 +392,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInval
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
 {
     IdString_t testServiceID = "1";
-    IdString_t testEventID = InvalidString;
+    IdString_t testEventID = InvalidIdString;
     IdString_t testInstanceID = "1";
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 

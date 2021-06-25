@@ -102,7 +102,7 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcep
 }
 
 ServiceDescription::ServiceDescription() noexcept
-    : ServiceDescription(InvalidString, InvalidString, InvalidString)
+    : ServiceDescription(InvalidIdString, InvalidIdString, InvalidIdString)
 {
 }
 
@@ -224,8 +224,8 @@ Interfaces ServiceDescription::getSourceInterface() const noexcept
 
 bool ServiceDescription::isValid() const noexcept
 {
-    return !(m_serviceString == iox::capro::InvalidString || m_instanceString == iox::capro::InvalidString
-             || m_eventString == iox::capro::InvalidString);
+    return !(m_serviceString == iox::capro::InvalidIdString || m_instanceString == iox::capro::InvalidIdString
+             || m_eventString == iox::capro::InvalidIdString);
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept
