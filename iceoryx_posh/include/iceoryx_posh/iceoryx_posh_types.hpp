@@ -46,10 +46,6 @@ namespace capro
 {
 class ServiceDescription;
 }
-namespace posix
-{
-class UnixDomainSocket;
-} // namespace posix
 
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
