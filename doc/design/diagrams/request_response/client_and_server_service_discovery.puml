@@ -25,7 +25,7 @@ return
 
 ...
 
-== Client tries to connect (Server preset) ==
+== Client tries to connect (Server present) ==
 
 PortManager -> ClientPortRouDi ++ : tryGetCaProMessage
 return CaproMessageType::CONNECT

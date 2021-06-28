@@ -32,14 +32,14 @@ using namespace iox::popo;
 class ClientPort_test : public Test
 {
     // keep this the very first and also private
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0U); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
   public:
     ClientPort_test()
     {
-        constexpr uint32_t NUM_CHUNKS = 20;
-        constexpr uint32_t CHUNK_SIZE = 128;
+        constexpr uint32_t NUM_CHUNKS = 20U;
+        constexpr uint32_t CHUNK_SIZE = 128U;
         iox::mepoo::MePooConfig mempoolconf;
         mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS});
         m_memoryManager.configureMemoryManager(mempoolconf, m_memoryAllocator, m_memoryAllocator);
@@ -98,14 +98,14 @@ class ClientPort_test : public Test
 
     uint32_t getNumberOfUsedChunks() const
     {
-        return m_memoryManager.getMemPoolInfo(0).m_usedChunks;
+        return m_memoryManager.getMemPoolInfo(0U).m_usedChunks;
     }
 
   private:
     static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
 
-    static constexpr size_t MEMORY_SIZE = 1024 * 1024;
+    static constexpr size_t MEMORY_SIZE = 1024U * 1024U;
     uint8_t m_memory[MEMORY_SIZE];
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MemoryManager m_memoryManager;
@@ -125,8 +125,8 @@ class ClientPort_test : public Test
     }();
 
   public:
-    static constexpr uint32_t USER_PAYLOAD_SIZE{32};
-    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{32U};
+    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
     ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                                 iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
@@ -169,9 +169,9 @@ TEST_F(ClientPort_test, FreeRequestWorksAndReleasesTheChunkToTheMempool)
 {
     clientPortUserWithConnectOnCreate.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) {
-            EXPECT_THAT(getNumberOfUsedChunks(), Eq(1U));
+            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
             clientPortUserWithConnectOnCreate.freeRequest(requestHeader);
-            EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
+            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
