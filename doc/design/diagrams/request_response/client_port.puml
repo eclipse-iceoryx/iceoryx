@@ -19,7 +19,7 @@ class ClientPortUser {
   hasNewResponses(): void
   hasLostResponsesSinceLastCall(): bool
   setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
-  unsetConditionVariable: void
+  unsetConditionVariable(): void
   isConditionVariableSet(): bool
 }
 

@@ -145,6 +145,8 @@ class ClientPort_test : public Test
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
+// BEGIN ClientPortUser tests
+
 TEST_F(ClientPort_test, InitialConnectionStateOnPortWithConnectOnCreateIs_CONNECTED)
 {
     EXPECT_THAT(clientPortUserWithConnectOnCreate.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
@@ -178,5 +180,162 @@ TEST_F(ClientPort_test, FreeRequestWorksAndReleasesTheChunkToTheMempool)
             EXPECT_TRUE(UNREACHABLE);
         });
 }
+
+TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+/// @todo send to full server queue ... should this be done in an integration test with a real ServerPort?
+
+TEST_F(ClientPort_test, SendRequestOnNotConnectedClientPortDoesNotEnqueuesRequestToServerQueue)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+/// @todo iox-#27 this might be due to the history capacity of 1 which will change once the cxx::vector supports
+/// capacities of 0
+TEST_F(ClientPort_test, ConnectAfterPreviousSendRequestCallDoesEnqueuesRequestToServerQueue)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+/// @todo iox-#27 this might be obsolete with history capacity of 0; see previous test
+TEST_F(ClientPort_test, DisconnectWithPreviousSendRequestOnNotConnectedClientPortDiscardsRequest)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, GetResponseOnNotConnectedClientPortHasNoResponse)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHasNoResponse)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueueHasResponse)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsGracefullyHandled)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, ReleaseResponseWithNullptrValidResponseReleasesChunkToTheMempool)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, HasResponseOnEmptyResponseQueueReturnsFalse)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, HasResponseOnNonEmptyResponseQueueReturnsTrue)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, HasResponseOnEmptyResponseQueueAfterPreviouslyNotEmptyReturnsFalse)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesReturnsFalse)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithLosingResponsesReturnsTrue)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, HasLostResponsesSinceLastCallReturnsFalseAfterPreviouslyReturningTrue)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, ConditionVariableInitiallyNotSet)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentWorks)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, SettingConditionVariableWithConditionVariablePresentWorks)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWorks)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, UnsettingConditionVariableWithoutConditionVariablePresentIsHandledGracefully)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, ConnectOnNotConnectedClientPortResultsInStateChange)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, ConnectOnConnectedClientPortResultsInNoStateChange)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, DisconnectOnConnectedClientPortResultsInStateChange)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange)
+{
+    constexpr bool UNIMPLEMENTED{true};
+    EXPECT_FALSE(UNIMPLEMENTED);
+}
+
+// END ClientPortUser tests
+
+// BEGIN ClientPortRouDi tests
+
+/// @todo state machine test
+
+// END ClientPortRouDi tests
 
 } // namespace
