@@ -23,7 +23,8 @@
 namespace
 {
 using namespace ::testing;
-
+using namespace iox::roudi;
+/// @todo #415 Replace Wildcards once service registry has its new data structure
 class ServiceRegistry_test : public Test
 {
   public:
@@ -43,9 +44,6 @@ class ServiceRegistry_test : public Test
     }
     iox::roudi::ServiceRegistry registry;
     iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
-
-    /// @todo #415 Replace this once service registry has its new data structure
-    iox::capro::IdString_t Wildcard{iox::roudi::Wildcard};
 };
 
 TEST_F(ServiceRegistry_test, SingleAdd)
