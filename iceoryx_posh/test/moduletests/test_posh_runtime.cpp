@@ -146,7 +146,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 
     ASSERT_NE(nullptr, applicationPortData);
     EXPECT_EQ(m_runtimeName, applicationPortData->m_runtimeName);
-    EXPECT_NE(iox::capro::ServiceDescription(), applicationPortData->m_serviceDescription);
+    EXPECT_FALSE(applicationPortData->m_serviceDescription.isValid());
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
 
@@ -252,13 +252,16 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithInvalidServiceDescriptionFail
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 13U;
     publisherOptions.nodeName = m_nodeName;
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(
-            iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString),
-        publisherOptions,
-        iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
-    ASSERT_EQ(nullptr, publisherPort);
+    EXPECT_DEATH(
+        {
+            m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(iox::capro::InvalidIdString,
+                                                                             iox::capro::InvalidIdString,
+                                                                             iox::capro::InvalidIdString),
+                                              publisherOptions,
+                                              iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        },
+        ".*");
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
@@ -429,13 +432,15 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithInvalidServiceDescriptionFai
     subscriberOptions.queueCapacity = 42U;
     subscriberOptions.nodeName = m_nodeName;
 
-    const auto subscriberPort = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(
-            iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString),
-        subscriberOptions,
-        iox::runtime::PortConfigInfo(11U, 22U, 33U));
-
-    ASSERT_EQ(nullptr, subscriberPort);
+    EXPECT_DEATH(
+        {
+            m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(iox::capro::InvalidIdString,
+                                                                              iox::capro::InvalidIdString,
+                                                                              iox::capro::InvalidIdString),
+                                               subscriberOptions,
+                                               iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        },
+        ".*");
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)

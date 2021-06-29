@@ -234,6 +234,8 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
+            cxx::Expects(service.isValid() && "invalid service description!");
+
             popo::PublisherOptions options;
             uint64_t historyCapacity{};
             if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
@@ -280,6 +282,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
+            cxx::Expects(service.isValid() && "invalid service description!");
 
             popo::SubscriberOptions options;
             uint64_t historyRequest;

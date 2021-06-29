@@ -109,11 +109,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
     constexpr uint64_t MAX_HISTORY_CAPACITY =
         PublisherPortUserType::MemberType_t::ChunkSenderData_t::ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
 
-    if (!service.isValid())
-    {
-        LogWarn() << "Could not create publisher, invalid service description provided";
-        return nullptr;
-    }
+    cxx::Expects(service.isValid() && "Could not create publisher, invalid service description provided");
 
     auto options = publisherOptions;
     if (options.historyCapacity > MAX_HISTORY_CAPACITY)
@@ -220,11 +216,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
 
-    if (!service.isValid())
-    {
-        LogWarn() << "Could not create subscriber, invalid service description provided";
-        return nullptr;
-    }
+    cxx::Expects(service.isValid() && "Could not create subscriber, invalid service description provided");
 
     auto options = subscriberOptions;
     if (options.queueCapacity > MAX_QUEUE_CAPACITY)
