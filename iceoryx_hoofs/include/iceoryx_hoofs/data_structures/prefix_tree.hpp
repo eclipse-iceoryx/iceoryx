@@ -29,6 +29,7 @@
 
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/data_structures/typed_allocator.hpp"
 
 namespace iox
 {
@@ -44,13 +45,20 @@ class PrefixTree
     // TODO: choose these values (requires space estimation for the structure)
     static constexpr uint32_t CAPACITY_LIMIT = 1 << 14;
     static constexpr uint32_t MAX_KEY_LENGTH_LIMIT = 1 << 8;
+
+    // Number of internal nodes that can be allocated by the tree (for the serach structure)
+    // these are enough to store Capacity data elements in the worst case (no shared prefixes),
+    // but this will waste a lot of memory.
+    // This is also responsible for a large part of the size of the data structure itself.
+    // We can improve this estimate somewhat by noticing that with a limited alphabet we
+    // will share nodes close to the root (pigeon hole principle).
+    // However, this will not help much.
+    // On average only a small fraction of these nodes will be needed.
+    // We may use this and not prepare for the worst case but make this number configruable in a reasonable way.
+    static constexpr uint64_t NUMBER_OF_ALLOCATABLE_NODES = Capacity * MaxKeyLength;
+
     static_assert(Capacity <= CAPACITY_LIMIT);
     static_assert(MaxKeyLength <= MAX_KEY_LENGTH_LIMIT);
-
-    // TODO: allocation must be index based without dynamic memory.
-    // This will be done after the functionality is complete.
-    // 1) change to static allocator - no dynamic memory
-    // 2) change to index based structures - relocatable
 
     // order matters in those structs due to padding
     struct DataNode;
@@ -78,9 +86,15 @@ class PrefixTree
         char letter;
     };
 
+    using NodeAllocator = typed_allocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
+    using DataNodeAllocator = typed_allocator<DataNode, Capacity>;
+
   private:
     Node* m_root{nullptr};
     uint32_t m_size{0U};
+
+    DataNodeAllocator dataNodeAllocator;
+    NodeAllocator nodeAllocator;
 
   public:
     PrefixTree() noexcept
@@ -127,8 +141,9 @@ class PrefixTree
             }
             else
             {
-                // entry data already exists, we add our value to the list
+                // data already exists for this key, we add our value to the list
                 // we could check for duplicates here, but would need to traverse the list
+                // TODO: do we want to allow duplicates?
                 data->next = node->data;
                 node->data = data;
             }
@@ -142,17 +157,24 @@ class PrefixTree
         const char* suffix = &letters[prefixLength];
         uint32_t suffix_len = length - prefixLength;
 
-        node = addSuffix(node, suffix, suffix_len);
+        auto suffixEndNode = addSuffix(node, suffix, suffix_len);
 
-        if (!node)
+        if (!suffixEndNode)
         {
-            return false; // no memory - should not happen in the pool version later? TODO: cleanup unused
-                          // intermediate nodes in failure case
+            // adding the suffix failed, clean up structure to restore state before insertion
+            // if the node exists, we added it as the first node of the suffix path
+            // but somehow failed adding the full suffix - remove these nodes since they are not needed
+            // (otherwise we would not have tried to add the suffix)
+            node = findInChildren(node, letters[prefixLength]);
+            deleteRecursively(node);
+
+            deallocateDataNode(data); // could not insert data, clean up prepared data node and return
+            return false;
         }
 
-        node->data = data;
-
-        return &data->value;
+        // created the suffix and can insert data at this node
+        suffixEndNode->data = data;
+        return true;
     }
 
     // TODO: do we want a value version? - findValues (can just copy the data out)
@@ -245,7 +267,7 @@ class PrefixTree
   private:
     Node* allocateNode() noexcept
     {
-        return new Node; // later allocate from a preallocated pool belonging to the object itself
+        return nodeAllocator.create();
     }
 
     void deallocateNode(Node* node) noexcept
@@ -257,27 +279,28 @@ class PrefixTree
             deallocateDataNode(data);
             data = next;
         }
-        delete node;
+        nodeAllocator.destroy(node);
     }
 
     DataNode* allocateDataNode() noexcept
     {
         if (m_size < Capacity)
         {
-            auto node = new DataNode; // later from a pool
+            auto node = dataNodeAllocator.create();
+
             if (node)
             {
                 ++m_size;
+                return node;
             }
-            return node;
         }
         return nullptr;
     }
 
     void deallocateDataNode(DataNode* node) noexcept
     {
-        --m_size;
-        delete node;
+        --m_size;        
+        dataNodeAllocator.destroy(node);
     }
 
     Node* findInChildren(Node* node, char letter) noexcept

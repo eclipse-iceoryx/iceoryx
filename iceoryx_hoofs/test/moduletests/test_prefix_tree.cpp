@@ -356,4 +356,21 @@ TEST_F(PrefixTree_test, removingValueFromNonExistingKeyDoesNothing)
     EXPECT_EQ(sut.size(), previousSize);
 }
 
+TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements)
+{
+    std::cout << "size " << sizeof(sut);
+    insertTreeDefault();
+    for (uint i = 4; i < TEST_CAPACITY; ++i)
+    {
+        sut.insert("abcd", Integer{i});
+    }
+
+    EXPECT_EQ(sut.size(), TEST_CAPACITY);
+    sut.remove("abc");
+    EXPECT_EQ(sut.size(), TEST_CAPACITY - 1);
+
+    // essentially a check whether the internal allocator can reuse the memory for the data
+    EXPECT_TRUE(sut.insert("cab", Integer{21}));
+}
+
 } // namespace
