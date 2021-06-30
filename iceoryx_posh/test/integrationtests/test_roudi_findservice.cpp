@@ -332,7 +332,7 @@ TEST_F(RoudiFindService_test, InterfacePort)
         auto caproMessage = maybeCaProMessage.value();
         if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString_t("service1"))
             && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString_t("instance1"))
-            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString_t(iox::roudi::Wildcard))))
+            && ((caproMessage.m_serviceDescription.getEventIDString() == iox::roudi::Wildcard)))
         {
             serviceFound = true;
             break;
