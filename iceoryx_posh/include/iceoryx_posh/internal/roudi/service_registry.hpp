@@ -44,11 +44,26 @@ class ServiceRegistry
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
     using ServiceDescriptionVector_t = cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS>;
 
+    /// @brief Adds given service description to registry
+    /// @param[in] serviceDescription, service to be added
+    /// @return ServiceRegistryError, error wrapped in cxx::expected
     cxx::expected<ServiceRegistryError> add(const capro::ServiceDescription& serviceDescription);
+
+    /// @brief Removes given service description from registry
+    /// @param[in] serviceDescription, service to be removed
+    /// @return true, if service description was removed, false otherwise
     bool remove(const capro::ServiceDescription& serviceDescription);
+
+    /// @brief Removes given service description from registry
+    /// @param[in] searchResult, reference to the vector which will be filled with the results
+    /// @param[in] service, string or wildcard to search for
+    /// @param[in] service, string or wildcard to search for
     void find(ServiceDescriptionVector_t& searchResult,
               const capro::IdString_t& service = Wildcard,
               const capro::IdString_t& instinstanceance = Wildcard) const;
+
+    /// @brief Returns all service descriptions as copy
+    /// @return ServiceDescriptionVector_t, copy of complete service registry
     const ServiceDescriptionVector_t getAllServices() const;
 
   private:

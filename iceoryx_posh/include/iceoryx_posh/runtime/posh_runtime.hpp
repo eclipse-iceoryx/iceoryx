@@ -89,8 +89,8 @@ class PoshRuntime
     /// @brief find all services that match the provided service description
     /// @param[in] service service string to search for (wildcards allowed)
     /// @param[in] instance instance string to search for (wildcards allowed)
-    /// @return cxx::expected<InstanceContainer, FindServiceError>
-    /// InstanceContainer: on success, container that is filled with all matching instances
+    /// @return cxx::expected<ServiceContainer, FindServiceError>
+    /// ServiceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
     virtual cxx::expected<ServiceContainer, FindServiceError>
     findService(const cxx::variant<Any_t, capro::IdString_t> service,
