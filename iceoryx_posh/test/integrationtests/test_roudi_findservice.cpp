@@ -166,7 +166,7 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceWithDistinctSingleInstance)
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance2"));
     ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
-    ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event1"}));
+    ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event2"}));
 }
 
 TEST_F(RoudiFindService_test, SubscribeAnyInstance)
@@ -355,7 +355,7 @@ TEST_F(RoudiFindService_test, InterfacePort)
         auto caproMessage = maybeCaProMessage.value();
         if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString_t("service1"))
             && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString_t("instance1"))
-            && ((caproMessage.m_serviceDescription.getEventIDString() == iox::roudi::Wildcard)))
+            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString_t("event1"))))
         {
             serviceFound = true;
             break;
