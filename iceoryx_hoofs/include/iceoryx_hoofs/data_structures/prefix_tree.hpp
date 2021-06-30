@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_DATA_STRUCTURES_PREFIX_TREE_HPP
 #define IOX_HOOFS_DATA_STRUCTURES_PREFIX_TREE_HPP
 
-// TODO Decide on location, cxx does not fit since it has no STL counterpart
+// TODO: Decide on location, cxx does not fit since it has no STL counterpart
 //      neither is it concurrent
 //      It should be available publicly.
 //      Decide on namespace.
@@ -29,6 +29,7 @@
 
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/data_structures/relocatable_ptr.hpp"
 #include "iceoryx_hoofs/data_structures/typed_allocator.hpp"
 
 namespace iox
@@ -60,12 +61,22 @@ class PrefixTree
     static_assert(Capacity <= CAPACITY_LIMIT);
     static_assert(MaxKeyLength <= MAX_KEY_LENGTH_LIMIT);
 
+    template <typename T>
+    using raw_ptr = T*;
+
+    // used for storage but not local calculations (for this raw pointers are sufficient)
+    // could be made available in a template argument and set raw_ptr by default
+    template <typename T>
+    // using ptr_t = raw_ptr<T>;
+    using ptr_t = relocatable_ptr<T>;
+
     // order matters in those structs due to padding
     struct DataNode;
+    using data_node_ptr_t = ptr_t<DataNode>;
     struct DataNode
     {
-        DataNode* next{nullptr};
-        Value value; // todo: no default ctor requirement
+        data_node_ptr_t next{nullptr}; // needed since we may have more than one entry per key (as in a multimap)
+        Value value;                   // todo: no default ctor requirement on Value
     };
 
     // follow a de la briandais tree approach to save memory at cost of traversal time
@@ -75,22 +86,30 @@ class PrefixTree
     // In the unique key case we have at most one data item, i.e. data is nullptr for non-keys
     // or the list contains exactly one item for a key in the prefix-tree.
     struct Node;
+    using node_ptr_t = ptr_t<Node>;
+
+
     struct Node
     {
         // 3 pointers on 64 Bit systems - 24 Bytes
-        Node* child{nullptr};
-        Node* sibling{nullptr};
-        DataNode* data{nullptr};
+        node_ptr_t child{nullptr};     // needed to find the first child one level below
+        node_ptr_t sibling{nullptr};   // needed to find its sibling on the same level
+        data_node_ptr_t data{nullptr}; // needed to locate corresponding data
 
         // actual content 1 Byte, but due to alignment the size of the struct is 32 Byte
-        char letter;
+        char letter; // the letter as part of a key in te path downward
     };
+
+    // Remark: We can compress multiple Nodes to e.g. represent not just one letter but multiple letters,
+    //         but only in certain cases and during insertion uncompressing/splitting may be required
+    // This is left as a space optimization in the future, but with static memory we cannot really benefit
+    // since we need to be prepared for single letter nodes anyway.
 
     using NodeAllocator = typed_allocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
     using DataNodeAllocator = typed_allocator<DataNode, Capacity>;
 
   private:
-    Node* m_root{nullptr};
+    node_ptr_t m_root{nullptr};
     uint32_t m_size{0U};
 
     DataNodeAllocator dataNodeAllocator;
@@ -104,8 +123,12 @@ class PrefixTree
 
     ~PrefixTree()
     {
-        deleteRecursively(m_root);
+        deleteTree(m_root);
     }
+
+    // TODO: implement later
+    PrefixTree(const PrefixTree& other) = delete;
+    PrefixTree(PrefixTree&& other) = delete;
 
     // TODO: do we want to eliminate duplicate values?
     // do we want to distinguish error cases? I do not think we should, failing to insert is
@@ -135,7 +158,7 @@ class PrefixTree
         if (prefixLength == length)
         {
             // the full string is already in the tree (either as a prefix of some other string or as a key itself)
-            if (!node->data)
+            if (node->data == nullptr)
             {
                 node->data = data;
             }
@@ -144,6 +167,7 @@ class PrefixTree
                 // data already exists for this key, we add our value to the list
                 // we could check for duplicates here, but would need to traverse the list
                 // TODO: do we want to allow duplicates?
+
                 data->next = node->data;
                 node->data = data;
             }
@@ -162,11 +186,11 @@ class PrefixTree
         if (!suffixEndNode)
         {
             // adding the suffix failed, clean up structure to restore state before insertion
-            // if the node exists, we added it as the first node of the suffix path
+            // if node exists, we added it as the first node of the suffix path
             // but somehow failed adding the full suffix - remove these nodes since they are not needed
             // (otherwise we would not have tried to add the suffix)
             node = findInChildren(node, letters[prefixLength]);
-            deleteRecursively(node);
+            deleteTree(node);
 
             deallocateDataNode(data); // could not insert data, clean up prepared data node and return
             return false;
@@ -174,6 +198,7 @@ class PrefixTree
 
         // created the suffix and can insert data at this node
         suffixEndNode->data = data;
+
         return true;
     }
 
@@ -267,15 +292,18 @@ class PrefixTree
   private:
     Node* allocateNode() noexcept
     {
-        return nodeAllocator.create();
+        auto node = nodeAllocator.create();
+        return node;
     }
 
     void deallocateNode(Node* node) noexcept
     {
-        auto data = node->data;
+        // we cannot use auto here since we want a raw pointer (local computation, efficiency)
+        // node->data may be a smart pointer type (e.g. relocatable_ptr)
+        DataNode* data = node->data;
         while (data)
         {
-            auto next = data->next;
+            DataNode* next = data->next;
             deallocateDataNode(data);
             data = next;
         }
@@ -402,10 +430,10 @@ class PrefixTree
 
     void deleteData(Node* node) noexcept
     {
-        auto data = node->data;
+        DataNode* data = node->data;
         while (data)
         {
-            auto next = data->next;
+            DataNode* next = data->next;
             deallocateDataNode(data);
             data = next;
         }
@@ -414,7 +442,7 @@ class PrefixTree
 
     bool deleteValue(Node* node, const Value& value)
     {
-        auto data = node->data;
+        DataNode* data = node->data;
         if (!data)
         {
             return false;
@@ -441,12 +469,12 @@ class PrefixTree
         }
 
         // front is not value
-        auto prev = data;
+        DataNode* prev = data;
         data = prev->next;
 
         while (data)
         {
-            auto next = data->next;
+            DataNode* next = data->next;
             if (data->value == value)
             {
                 // unlink data and delete it
@@ -463,15 +491,15 @@ class PrefixTree
         return deleted;
     }
 
-    void deleteRecursively(Node* node) noexcept
+    void deleteTree(Node* node) noexcept
     {
         if (node)
         {
-            auto child = node->child;
+            Node* child = node->child;
             while (child)
             {
-                auto sibling = child->sibling;
-                deleteRecursively(child);
+                Node* sibling = child->sibling;
+                deleteTree(child);
                 child = sibling;
             }
             deallocateNode(node);
@@ -521,7 +549,7 @@ class PrefixTree
     {
         uint32_t length = key.size();
         const char* letters = key.c_str();
-        Node* parent;
+        Node* parent{nullptr};
 
         // this is the node closest to the root from which we can safely delete the path downwards
         // since it will not be used to store data
@@ -548,7 +576,7 @@ class PrefixTree
                     child = child->sibling;
                 }
             }
-            deleteRecursively(node);
+            deleteTree(node);
         }
     }
 };

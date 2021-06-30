@@ -85,6 +85,8 @@ class typed_allocator
 
 
   private:
+    // TODO: correct alignas usage
+    // if individual alignment is not possible use overallocation by alignof(T)
     using block = alignas(alignof(T)) uint8_t[sizeof(T)];
 
     block blocks[Capacity];

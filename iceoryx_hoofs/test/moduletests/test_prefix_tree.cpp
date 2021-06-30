@@ -358,7 +358,6 @@ TEST_F(PrefixTree_test, removingValueFromNonExistingKeyDoesNothing)
 
 TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements)
 {
-    std::cout << "size " << sizeof(sut);
     insertTreeDefault();
     for (uint i = 4; i < TEST_CAPACITY; ++i)
     {
@@ -371,6 +370,56 @@ TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements
 
     // essentially a check whether the internal allocator can reuse the memory for the data
     EXPECT_TRUE(sut.insert("cab", Integer{21}));
+}
+
+// this test requires relocate_ptr to be used internally
+TEST_F(PrefixTree_test, relocatedTreeIsAnIndependentLogicalCopy)
+{
+    // we want to zero out the memory after copy (and have to own it to do so)
+    using Tree = TestPrefixTree<>;
+    uint8_t originalMemory[sizeof(Tree)] alignas(alignof(Tree));
+
+    // create and populate original tree
+    auto original = new (&originalMemory) Tree;
+    ASSERT_NE(original, nullptr);
+
+    original->insert("abc", Integer{73});
+    original->insert("acb", Integer{37});
+    original->insert("abb", Integer{42});
+    original->insert("bbc", Integer{66});
+
+    // relocate memory by bitwise copy
+    uint8_t relocationMemory[sizeof(Tree)] alignas(alignof(Tree));
+    std::memcpy(&relocationMemory, original, sizeof(Tree));
+
+    // zero original memory - we do not want a false positive test result
+    // if the relocated class references this memory accidentally
+    original->~Tree(); // technically not required since PrefixTree is self-contained (hence cannot leak anything)
+    std::memset(&originalMemory, 0, sizeof(Tree));
+
+    // relocated version should behave like the original
+    // Note that this would also be true if it uses pointers to dynamic memory (which it does not).
+    // This kind of relocation works in shared memory as well (with dynamic meory it would not).
+    Tree* relocated = reinterpret_cast<Tree*>(&relocationMemory);
+    EXPECT_EQ(relocated->size(), 4);
+
+    auto result = relocated->find("abb");
+    ASSERT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->value, 42);
+
+    // operations on relocated version should work as usual
+    relocated->remove("abb");
+    EXPECT_EQ(relocated->size(), 3);
+    result = relocated->find("abb");
+    EXPECT_EQ(result.size(), 0);
+
+    relocated->insert("abcd", Integer{24});
+
+    result = relocated->find("abcd");
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->value, 24);
+
+    relocated->~Tree();
 }
 
 } // namespace
