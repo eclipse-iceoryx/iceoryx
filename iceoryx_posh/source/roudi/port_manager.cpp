@@ -155,11 +155,13 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         m_portIntrospection.reportMessage(caproMessage);
         if (capro::CaproMessageType::OFFER == caproMessage.m_type)
         {
+            /// @todo add here the full capro message
             this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
                                             caproMessage.m_serviceDescription.getInstanceIDString());
         }
         else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
         {
+            /// @todo add here the full capro message
             this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
                                                  caproMessage.m_serviceDescription.getInstanceIDString());
         }
@@ -268,23 +270,25 @@ void PortManager::handleInterfaces() noexcept
             }
         }
         // also forward services from service registry
-        auto serviceMap = m_serviceRegistry.getServiceMap();
+        /// @todo do we still need this? yes but return a copy here to be stored in shared memory
+        // auto serviceMap = m_serviceRegistry.getServiceMap();
 
-        caproMessage.m_subType = capro::CaproMessageSubType::SERVICE;
+        // caproMessage.m_subType = capro::CaproMessageSubType::SERVICE;
 
-        for (auto const& x : serviceMap)
-        {
-            for (auto& instance : x.second.instanceSet)
-            {
-                caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance, roudi::Wildcard);
+        // for (auto const& x : serviceMap)
+        // {
+        //     for (auto& instance : x.second.instanceSet)
+        //     {
+        //         caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance,
+        //         roudi::Wildcard);
 
-                for (auto& interfacePortData : interfacePortsForInitialForwarding)
-                {
-                    auto interfacePort = popo::InterfacePort(interfacePortData);
-                    interfacePort.dispatchCaProMessage(caproMessage);
-                }
-            }
-        }
+        //         for (auto& interfacePortData : interfacePortsForInitialForwarding)
+        //         {
+        //             auto interfacePort = popo::InterfacePort(interfacePortData);
+        //             interfacePort.dispatchCaProMessage(caproMessage);
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -600,17 +604,17 @@ runtime::IpcMessage PortManager::findService(const capro::IdString_t& service,
         interfacePort.dispatchCaProMessage(caproMessage);
     }
 
-    // add all found instances to instanceString
-    runtime::IpcMessage instanceMessage;
+    // add all found events to eventString
+    runtime::IpcMessage eventMessage;
 
-    ServiceRegistry::InstanceSet_t instances;
-    m_serviceRegistry.find(instances, service, instance);
-    for (auto& instance : instances)
+    ServiceRegistry::ServiceDescriptionVector_t services;
+    m_serviceRegistry.find(services, service, instance);
+    for (auto& service : services)
     {
-        instanceMessage << instance;
+        eventMessage << service.getEventIDString();
     }
 
-    return instanceMessage;
+    return eventMessage;
 }
 
 const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcept
@@ -721,17 +725,17 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Runtime
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service,
-                                            const capro::IdString_t& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service IOX_MAYBE_UNUSED,
+                                            const capro::IdString_t& instance IOX_MAYBE_UNUSED) noexcept
 {
-    m_serviceRegistry.add(service, instance);
+    // m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& service,
-                                                 const capro::IdString_t& instance) noexcept
+void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& service IOX_MAYBE_UNUSED,
+                                                 const capro::IdString_t& instance IOX_MAYBE_UNUSED) noexcept
 {
-    m_serviceRegistry.remove(service, instance);
+    // m_serviceRegistry.remove(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 

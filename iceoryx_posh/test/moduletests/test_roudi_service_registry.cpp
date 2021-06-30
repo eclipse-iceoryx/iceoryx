@@ -43,7 +43,8 @@ class ServiceRegistry_test : public Test
         }
     }
     iox::roudi::ServiceRegistry registry;
-    iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
+
+    iox::roudi::ServiceRegistry::ServiceDescriptionVector_t searchResults;
 };
 
 TEST_F(ServiceRegistry_test, SingleAdd)
@@ -52,7 +53,7 @@ TEST_F(ServiceRegistry_test, SingleAdd)
     registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("b")));
+    EXPECT_THAT(searchResults[0], Eq(capro::IdString_t("b")));
 }
 
 TEST_F(ServiceRegistry_test, SingleMultiAdd)
@@ -70,11 +71,11 @@ TEST_F(ServiceRegistry_test, SingleMultiAdd)
 
     for (auto& e : searchResults)
     {
-        if (e == iox::cxx::string<100>("b"))
+        if (e == capro::IdString_t("b"))
             hasFoundB = true;
-        if (e == iox::cxx::string<100>("c"))
+        if (e == capro::IdString_t("c"))
             hasFoundC = true;
-        if (e == iox::cxx::string<100>("d"))
+        if (e == capro::IdString_t("d"))
             hasFoundD = true;
     }
 
@@ -88,12 +89,12 @@ TEST_F(ServiceRegistry_test, SingleAddMultiService)
     registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("b")));
+    EXPECT_THAT(searchResults[0], Eq(capro::IdString_t("b")));
     searchResults.clear();
 
     registry.find(searchResults, "c", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("d")));
+    EXPECT_THAT(searchResults[0], Eq(capro::IdString_t("d")));
 }
 
 TEST_F(ServiceRegistry_test, FindSpecificInstance)
@@ -104,7 +105,7 @@ TEST_F(ServiceRegistry_test, FindSpecificInstance)
     registry.find(searchResults, "a", "c");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("c")));
+    EXPECT_THAT(searchResults[0], Eq(capro::IdString_t("c")));
 }
 
 TEST_F(ServiceRegistry_test, FindSpecificNonExistingInstance)
@@ -173,20 +174,22 @@ TEST_F(ServiceRegistry_test, GetServiceMap)
 
     for (auto const& x : serviceMap)
     {
-        if (x.first == iox::cxx::string<100>("a"))
+        if (x.first == capro::IdString_t("a"))
         {
             ASSERT_THAT(x.second.instanceSet.size(), Eq(3));
             mapA = true;
-            EXPECT_THAT(x.second.instanceSet[0], Eq(iox::cxx::string<100>("b")));
-            EXPECT_THAT(x.second.instanceSet[1], Eq(iox::cxx::string<100>("c")));
-            EXPECT_THAT(x.second.instanceSet[2], Eq(iox::cxx::string<100>("d")));
+            EXPECT_THAT(x.second.instanceSet[0], Eq(capro::IdString_t("b")));
+            EXPECT_THAT(x.second.instanceSet[1], Eq(capro::IdString_t("c")));
+            EXPECT_THAT(x.second.instanceSet[2], Eq(capro::IdString_t("d")));
         }
 
-        if (x.first == iox::cxx::string<100>("e"))
+        if (x.first == capro::IdString_t("e"))
             mapE = true;
     }
 
     EXPECT_THAT(mapA && mapE, Eq(true));
 }
+
+/// @todo implement missing tests
 
 } // namespace

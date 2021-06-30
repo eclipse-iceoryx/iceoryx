@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include <map>
+#include <utility>
 
 namespace iox
 {
@@ -32,23 +33,28 @@ static const capro::IdString_t Wildcard{"*"};
 class ServiceRegistry
 {
   public:
-    static constexpr uint32_t MAX_INSTANCES_PER_SERVICE = 100u;
-    using InstanceSet_t = cxx::vector<capro::IdString_t, MAX_INSTANCES_PER_SERVICE>;
-    struct instance_t
-    {
-        InstanceSet_t instanceSet;
-    };
-    using serviceMap_t = std::map<capro::IdString_t, instance_t>;
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
+    using ServiceDescriptionVector_t = cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS>;
 
-    void add(const capro::IdString_t& service, const capro::IdString_t& instance);
-    void remove(const capro::IdString_t& service, const capro::IdString_t& instance);
-    void find(InstanceSet_t& instances,
-              const capro::IdString_t& service,
+    /// @todo Switch to a dictionary approach
+    using serviceMap_t = std::multimap<std::pair<capro::IdString_t, capro::IdString_t>, capro::IdString_t>;
+
+    void add(const capro::ServiceDescription& serviceDescription);
+    void remove(const capro::ServiceDescription& serviceDescription);
+    void find(ServiceDescriptionVector_t& searchResult,
+              const capro::IdString_t& service = Wildcard,
               const capro::IdString_t& instance = Wildcard) const;
+    /// @todo remove handing out a ref to map, provide a copy of the service registry object instead
     const serviceMap_t& getServiceMap() const;
 
   private:
-    mutable serviceMap_t m_serviceMap;
+    // Attempt A
+    mutable serviceMap_t m_serviceMapOld;
+
+    // Attempt B
+    std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
+    std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
+    cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS> m_realServiceDescriptionVector;
 };
 } // namespace roudi
 } // namespace iox

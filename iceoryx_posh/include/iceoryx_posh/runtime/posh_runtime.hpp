@@ -96,11 +96,15 @@ class PoshRuntime
     findService(const cxx::variant<Any_t, capro::IdString_t> service,
                 const cxx::variant<Any_t, capro::IdString_t> instance) noexcept = 0;
 
+    /// @todo this shall offer all services with the provided services name
+    ///       param should just be a string
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] service valid ServiceDescription to offer
     /// @return bool, if service is offered returns true else false
     virtual bool offerService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
 
+    /// @todo this shall stopOffer all services with the provided services name
+    ///       param should just be a string
     /// @brief stop offering the provided service
     /// @param[in] service valid ServiceDescription that shall be no more offered
     /// @return bool, if service is not offered anymore returns true else false
