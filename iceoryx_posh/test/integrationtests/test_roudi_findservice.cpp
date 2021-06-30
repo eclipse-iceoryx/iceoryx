@@ -47,6 +47,7 @@ TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
 
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
     ASSERT_EQ(true, isServiceOffered);
@@ -89,6 +90,7 @@ TEST_F(RoudiFindService_test, ReofferedServiceWithValidServiceDescriptionCanBeFo
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
 
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 }
@@ -102,6 +104,7 @@ TEST_F(RoudiFindService_test, OfferExsistingServiceMultipleTimesIsRedundant)
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
 
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 }
@@ -112,10 +115,12 @@ TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesReturnsSingleInstance)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 }
@@ -128,14 +133,17 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceSingleInstance)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service3"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service3", "instance1", "event1"}));
 }
@@ -147,13 +155,16 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceWithDistinctSingleInstance)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance2"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event1"}));
 }
@@ -170,8 +181,7 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     instanceContainerExp.push_back({"service1", "instance3", "event3"});
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), iox::runtime::Any_t());
-
-
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(3u));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
 }
@@ -184,14 +194,17 @@ TEST_F(RoudiFindService_test, OfferSingleMethodServiceMultiInstance)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance2"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance2", "event2"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance3"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance3", "event3"}));
 }
@@ -207,26 +220,32 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceMultiInstance)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance2"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance2", "event2"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance3"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance3", "event3"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance2"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event2"}));
 
     instanceContainer = receiverRuntime->findService(IdString_t("service2"), IdString_t("instance3"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance3", "event3"}));
 }
@@ -245,6 +264,7 @@ TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 }
 
@@ -282,7 +302,7 @@ TEST_F(RoudiFindService_test, StopOfferServiceRedundantCall)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
-
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 }
 
@@ -295,7 +315,7 @@ TEST_F(RoudiFindService_test, StopNonExistingService)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("instance1"));
-
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(1));
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 }
@@ -308,12 +328,15 @@ TEST_F(RoudiFindService_test, FindNonExistingServices)
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), IdString_t("schlomo"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 
     instanceContainer = receiverRuntime->findService(IdString_t("ignatz"), IdString_t("instance1"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 
     instanceContainer = receiverRuntime->findService(IdString_t("ignatz"), IdString_t("schlomo"));
+    ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(0u));
 }
 
@@ -342,11 +365,10 @@ TEST_F(RoudiFindService_test, InterfacePort)
     EXPECT_THAT(serviceFound, Eq(true));
 }
 
-TEST_F(RoudiFindService_test, findServiceMaxInstances)
+TEST_F(RoudiFindService_test, findServiceMaxServices)
 {
-    size_t noOfInstances = iox::MAX_NUMBER_OF_INSTANCES;
     ServiceContainer instanceContainerExp;
-    for (size_t i = 0; i < noOfInstances; i++)
+    for (size_t i = 0; i < iox::MAX_NUMBER_OF_SERVICES; i++)
     {
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
@@ -358,14 +380,14 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
 
     auto instanceContainer = receiverRuntime->findService(IdString_t("s"), iox::runtime::Any_t());
 
-    EXPECT_THAT(instanceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
+    ASSERT_FALSE(instanceContainer.has_error());
+    EXPECT_THAT(instanceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
-    ASSERT_THAT(instanceContainer.has_error(), Eq(false));
-} // namespace
+}
 
 TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
 {
-    size_t noOfInstances = (iox::MAX_NUMBER_OF_INSTANCES + 1);
+    size_t noOfInstances = (iox::MAX_NUMBER_OF_SERVICES + 1);
     ServiceContainer instanceContainerExp;
     for (size_t i = 0; i < noOfInstances; i++)
     {

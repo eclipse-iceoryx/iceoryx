@@ -40,6 +40,7 @@ class ServiceRegistry
         SERVICE_DESCRIPTION_ALREADY_ADDED,
         SERVICE_REGISTRY_FULL,
     };
+    /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
     using ServiceDescriptionVector_t = cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS>;
 
@@ -51,6 +52,7 @@ class ServiceRegistry
     const ServiceDescriptionVector_t getAllServices() const;
 
   private:
+    /// @todo #859 replace std::map with prefix tree
     ::std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
     ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
     ServiceDescriptionVector_t m_serviceDescriptionVector;

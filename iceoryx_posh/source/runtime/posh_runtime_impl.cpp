@@ -425,7 +425,7 @@ PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> servic
     if (numberOfElements > capacity)
     {
         LogWarn() << numberOfElements << " instances found for service \"" << serviceString
-                  << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
+                  << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_SERVICES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
     }

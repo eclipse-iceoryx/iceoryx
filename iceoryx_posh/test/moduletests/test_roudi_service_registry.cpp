@@ -48,15 +48,13 @@ class ServiceRegistry_test : public Test
     iox::roudi::ServiceRegistry::ServiceDescriptionVector_t searchResults;
 };
 
-/// @todo Add EXPECT_THAT(add(), Eq(ExpectedError::FOO))
-
+/// @todo #415 implement missing tests
 // TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 // TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 // TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 // TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWork)
 // TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsFails)
 // TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
-
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFound)
 {
@@ -239,7 +237,5 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetAllServicesDoe
     EXPECT_THAT(serviceDescriptionVector.size(), Eq(4));
     EXPECT_THAT(service1Found && service2Found && service4Found, Eq(true));
 }
-
-/// @todo implement missing tests
 
 } // namespace
