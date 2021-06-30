@@ -637,6 +637,11 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
+    if (!service.isValid())
+    {
+        return cxx::error<PortPoolError>(PortPoolError::SERVICE_DESCRIPTION_INVALID);
+    }
+
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
         service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
@@ -662,6 +667,11 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const RuntimeName_t& runtimeName,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
+    if (!service.isValid())
+    {
+        return cxx::error<PortPoolError>(PortPoolError::SERVICE_DESCRIPTION_INVALID);
+    }
+
     auto maybeSubscriberPortData =
         m_portPool->addSubscriberPort(service, runtimeName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())

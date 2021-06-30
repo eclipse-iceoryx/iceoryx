@@ -210,23 +210,33 @@ void setDestroyFlagAndClearContainer(vector& container)
     container.clear();
 }
 
-TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionLeadsToTermination)
+TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
 {
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
 
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
-                publisherOptions,
-                "guiseppe",
-                m_payloadDataSegmentMemoryManager,
-                PortConfigInfo())
-            .value());
-    ASSERT_TRUE(publisher);
-    publisher.offer();
+    auto result = m_portManager->acquirePublisherPortData(
+        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
+        publisherOptions,
+        "guiseppe",
+        m_payloadDataSegmentMemoryManager,
+        PortConfigInfo());
 
-    EXPECT_DEATH({ m_portManager->doDiscovery(); }, ".*");
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(result.get_error(), PortPoolError::SERVICE_DESCRIPTION_INVALID);
+}
+
+TEST_F(PortManager_test, AcquireSubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
+{
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+
+    auto result = m_portManager->acquireSubscriberPortData(
+        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
+        subscriberOptions,
+        "guiseppe",
+        PortConfigInfo());
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(result.get_error(), PortPoolError::SERVICE_DESCRIPTION_INVALID);
 }
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
