@@ -414,9 +414,9 @@ PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> servic
     uint32_t numberOfElements = requestResponse.getNumberOfElements();
     uint32_t capacity = static_cast<uint32_t>(serviceContainer.capacity());
 
-    // Limit the instances (max value is the capacity of serviceContainer)
-    uint32_t numberOfInstances = ((numberOfElements > capacity) ? capacity : numberOfElements);
-    for (uint32_t i = 0; i < numberOfInstances; ++i)
+    // Limit the services (max value is the capacity of serviceContainer)
+    uint32_t numberOfServices = ((numberOfElements > capacity) ? capacity : numberOfElements);
+    for (uint32_t i = 0; i < numberOfServices; ++i)
     {
         capro::ServiceDescription service(cxx::Serialization(requestResponse.getElementAtIndex(i)));
         serviceContainer.push_back(service);
@@ -425,7 +425,7 @@ PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> servic
     if (numberOfElements > capacity)
     {
         LogWarn() << numberOfElements << " instances found for service \"" << serviceString
-                  << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_SERVICES << "\n";
+                  << "\" which is more than supported number of services(" << MAX_NUMBER_OF_SERVICES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
     }
