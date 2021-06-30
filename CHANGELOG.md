@@ -90,7 +90,8 @@ iox::posix::posixCall(unlink)(sockAddrPublisher.sun_path)
     });
 ```
 
-Service Description is only string-based and well defined:
+A `ServiceDescription` is now only string-based and no more wildcards are allowed.
+A well-defined `ServiceDescription` consists of three non-empty strings.
 
 ```cpp
 // before
