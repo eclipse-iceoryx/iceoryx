@@ -139,7 +139,7 @@ constexpr uint32_t APP_MESSAGE_SIZE = 512U;
 
 // Processes
 constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
-/// Maximum number of service, which can be found.
+/// Maximum number of services, which can be found.
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
 /// @todo #415 increase number back to 50 once service registry is available via shared memory

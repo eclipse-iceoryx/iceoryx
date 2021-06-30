@@ -29,7 +29,6 @@ class ServiceRegistry_test : public Test
 {
   public:
     using ServiceDescription = iox::capro::ServiceDescription;
-
     virtual void SetUp()
     {
         internal::CaptureStdout();
@@ -49,14 +48,17 @@ class ServiceRegistry_test : public Test
 };
 
 /// @todo #415 implement missing tests
+// TEST_F(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
+// TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
+// TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
 // TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
-// TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 // TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 // TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWork)
 // TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsFails)
 // TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
+// TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsFails)
 
-TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFound)
+TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
 {
     iox::capro::ServiceDescription service1("a", "b", "c");
     ASSERT_FALSE(registry.add(service1).has_error());
