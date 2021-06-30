@@ -50,6 +50,14 @@ class ServiceRegistry_test : public Test
 
 /// @todo Add EXPECT_THAT(add(), Eq(ExpectedError::FOO))
 
+// TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
+// TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
+// TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
+// TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWork)
+// TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsFails)
+// TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
+
+
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFound)
 {
     iox::capro::ServiceDescription service1("a", "b", "c");

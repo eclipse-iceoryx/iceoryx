@@ -372,7 +372,7 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
     return nullptr;
 }
 
-cxx::expected<InstanceContainer, FindServiceError>
+cxx::expected<ServiceContainer, FindServiceError>
 PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> service,
                              const cxx::variant<Any_t, capro::IdString_t> instance) noexcept
 {
@@ -410,16 +410,16 @@ PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> servic
         return cxx::error<FindServiceError>(FindServiceError::UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
     }
 
-    InstanceContainer instanceContainer;
+    ServiceContainer serviceContainer;
     uint32_t numberOfElements = requestResponse.getNumberOfElements();
-    uint32_t capacity = static_cast<uint32_t>(instanceContainer.capacity());
+    uint32_t capacity = static_cast<uint32_t>(serviceContainer.capacity());
 
-    // Limit the instances (max value is the capacity of instanceContainer)
+    // Limit the instances (max value is the capacity of serviceContainer)
     uint32_t numberOfInstances = ((numberOfElements > capacity) ? capacity : numberOfElements);
     for (uint32_t i = 0; i < numberOfInstances; ++i)
     {
-        capro::IdString_t instance(iox::cxx::TruncateToCapacity, requestResponse.getElementAtIndex(i).c_str());
-        instanceContainer.push_back(instance);
+        capro::ServiceDescription service(cxx::Serialization(requestResponse.getElementAtIndex(i)));
+        serviceContainer.push_back(service);
     }
 
     if (numberOfElements > capacity)
@@ -429,7 +429,7 @@ PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> servic
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
     }
-    return {cxx::success<InstanceContainer>(instanceContainer)};
+    return {cxx::success<ServiceContainer>(serviceContainer)};
 }
 
 

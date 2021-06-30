@@ -57,7 +57,8 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
             {
                 if (it->second == index)
                 {
-                    m_serviceMap.erase(it);
+                    it = m_serviceMap.erase(it);
+                    continue;
                 }
                 else
                 {
@@ -71,7 +72,8 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
             {
                 if (it->second == index)
                 {
-                    m_instanceMap.erase(it);
+                    it = m_instanceMap.erase(it);
+                    continue;
                 }
                 else
                 {

@@ -92,7 +92,7 @@ class PoshRuntime
     /// @return cxx::expected<InstanceContainer, FindServiceError>
     /// InstanceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
-    virtual cxx::expected<InstanceContainer, FindServiceError>
+    virtual cxx::expected<ServiceContainer, FindServiceError>
     findService(const cxx::variant<Any_t, capro::IdString_t> service,
                 const cxx::variant<Any_t, capro::IdString_t> instance) noexcept = 0;
 
