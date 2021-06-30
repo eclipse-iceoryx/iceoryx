@@ -715,8 +715,9 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Runtime
 
 void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.add(service).or_else([](auto&) {
-        /// @todo #415 return something?
+    m_serviceRegistry.add(service).or_else([&](auto&) {
+        LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
+        errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
