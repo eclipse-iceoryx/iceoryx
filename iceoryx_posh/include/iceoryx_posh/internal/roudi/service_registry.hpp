@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/cxx/set.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
@@ -33,28 +34,26 @@ static const capro::IdString_t Wildcard{"*"};
 class ServiceRegistry
 {
   public:
+    enum class ServiceRegistryError
+    {
+        INVALID_STATE,
+        SERVICE_DESCRIPTION_ALREADY_ADDED,
+        SERVICE_REGISTRY_FULL,
+    };
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
     using ServiceDescriptionVector_t = cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS>;
 
-    /// @todo Switch to a dictionary approach
-    using serviceMap_t = std::multimap<std::pair<capro::IdString_t, capro::IdString_t>, capro::IdString_t>;
-
-    void add(const capro::ServiceDescription& serviceDescription);
-    void remove(const capro::ServiceDescription& serviceDescription);
+    cxx::expected<ServiceRegistryError> add(const capro::ServiceDescription& serviceDescription);
+    bool remove(const capro::ServiceDescription& serviceDescription);
     void find(ServiceDescriptionVector_t& searchResult,
               const capro::IdString_t& service = Wildcard,
-              const capro::IdString_t& instance = Wildcard) const;
-    /// @todo remove handing out a ref to map, provide a copy of the service registry object instead
-    const serviceMap_t& getServiceMap() const;
+              const capro::IdString_t& instinstanceance = Wildcard) const;
+    const ServiceDescriptionVector_t getAllServices() const;
 
   private:
-    // Attempt A
-    mutable serviceMap_t m_serviceMapOld;
-
-    // Attempt B
-    std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
-    std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
-    cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS> m_realServiceDescriptionVector;
+    ::std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
+    ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
+    ServiceDescriptionVector_t m_serviceDescriptionVector;
 };
 } // namespace roudi
 } // namespace iox
