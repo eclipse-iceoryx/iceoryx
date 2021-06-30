@@ -34,7 +34,7 @@ static const capro::IdString_t Wildcard{"*"};
 class ServiceRegistry
 {
   public:
-    enum class ServiceRegistryError
+    enum class Error
     {
         INVALID_STATE,
         SERVICE_DESCRIPTION_ALREADY_ADDED,
@@ -47,12 +47,12 @@ class ServiceRegistry
     /// @brief Adds given service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in cxx::expected
-    cxx::expected<ServiceRegistryError> add(const capro::ServiceDescription& serviceDescription);
+    cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes given service description from registry
     /// @param[in] serviceDescription, service to be removed
     /// @return true, if service description was removed, false otherwise
-    bool remove(const capro::ServiceDescription& serviceDescription);
+    bool remove(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes given service description from registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
@@ -60,11 +60,11 @@ class ServiceRegistry
     /// @param[in] service, string or wildcard to search for
     void find(ServiceDescriptionVector_t& searchResult,
               const capro::IdString_t& service = Wildcard,
-              const capro::IdString_t& instinstanceance = Wildcard) const;
+              const capro::IdString_t& instinstanceance = Wildcard) const noexcept;
 
     /// @brief Returns all service descriptions as copy
     /// @return ServiceDescriptionVector_t, copy of complete service registry
-    const ServiceDescriptionVector_t getAllServices() const;
+    const ServiceDescriptionVector_t getServices() const noexcept;
 
   private:
     /// @todo #859 replace std::map with prefix tree

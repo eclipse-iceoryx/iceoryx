@@ -196,7 +196,7 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllDoesN
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
-TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetAllServicesDoesNotReturnDuplicate)
+TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNotReturnDuplicate)
 {
     iox::capro::ServiceDescription service1("a", "b", "b");
     iox::capro::ServiceDescription service2("a", "c", "c");
@@ -208,12 +208,11 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetAllServicesDoe
     ASSERT_FALSE(registry.add(service2).has_error());
     auto result = registry.add(service2);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(),
-                Eq(iox::roudi::ServiceRegistry::ServiceRegistryError::SERVICE_DESCRIPTION_ALREADY_ADDED));
+    EXPECT_THAT(result.get_error(), Eq(iox::roudi::ServiceRegistry::Error::SERVICE_DESCRIPTION_ALREADY_ADDED));
     ASSERT_FALSE(registry.add(service3).has_error());
     ASSERT_FALSE(registry.add(service4).has_error());
 
-    auto serviceDescriptionVector = registry.getAllServices();
+    auto serviceDescriptionVector = registry.getServices();
 
     bool service1Found = false;
     bool service2Found = false;

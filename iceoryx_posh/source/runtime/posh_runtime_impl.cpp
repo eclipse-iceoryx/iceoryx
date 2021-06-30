@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/variant.hpp"
@@ -415,7 +416,7 @@ PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> servic
     uint32_t capacity = static_cast<uint32_t>(serviceContainer.capacity());
 
     // Limit the services (max value is the capacity of serviceContainer)
-    uint32_t numberOfServices = ((numberOfElements > capacity) ? capacity : numberOfElements);
+    uint32_t numberOfServices = algorithm::min(capacity, numberOfElements);
     for (uint32_t i = 0; i < numberOfServices; ++i)
     {
         capro::ServiceDescription service(cxx::Serialization(requestResponse.getElementAtIndex(i)));

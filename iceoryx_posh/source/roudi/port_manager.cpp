@@ -268,7 +268,7 @@ void PortManager::handleInterfaces() noexcept
         // also forward services from service registry
         /// @todo #415 do we still need this? yes but return a copy here to be stored in shared memory via new
         /// StatusPort's
-        auto serviceVector = m_serviceRegistry.getAllServices();
+        auto serviceVector = m_serviceRegistry.getServices();
 
         caproMessage.m_subType = capro::CaproMessageSubType::SERVICE;
 
@@ -278,8 +278,7 @@ void PortManager::handleInterfaces() noexcept
 
             for (auto& interfacePortData : interfacePortsForInitialForwarding)
             {
-                auto interfacePort = popo::InterfacePort(interfacePortData);
-                interfacePort.dispatchCaProMessage(caproMessage);
+                popo::InterfacePort(interfacePortData).dispatchCaProMessage(caproMessage);
             }
         }
     }
@@ -303,15 +302,12 @@ void PortManager::handleApplications() noexcept
             {
             case capro::CaproMessageType::OFFER:
             {
-                auto serviceDescription = caproMessage.m_serviceDescription;
-                addEntryToServiceRegistry(serviceDescription);
+                addEntryToServiceRegistry(caproMessage.m_serviceDescription);
                 break;
             }
             case capro::CaproMessageType::STOP_OFFER:
             {
-                auto serviceDescription = caproMessage.m_serviceDescription;
-                removeEntryFromServiceRegistry(serviceDescription);
-
+                removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
                 break;
             }
             default:

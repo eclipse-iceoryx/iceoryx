@@ -23,28 +23,27 @@ namespace iox
 {
 namespace roudi
 {
-cxx::expected<ServiceRegistry::ServiceRegistryError>
-ServiceRegistry::add(const capro::ServiceDescription& serviceDescription)
+cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription) noexcept
 {
     // Forbid duplicate service descriptions entries
     for (auto& element : m_serviceDescriptionVector)
     {
         if (element == serviceDescription)
         {
-            return cxx::error<ServiceRegistryError>(ServiceRegistryError::SERVICE_DESCRIPTION_ALREADY_ADDED);
+            return cxx::error<Error>(Error::SERVICE_DESCRIPTION_ALREADY_ADDED);
         }
     }
 
     if (!m_serviceDescriptionVector.push_back(serviceDescription))
     {
-        return cxx::error<ServiceRegistryError>(ServiceRegistryError::SERVICE_REGISTRY_FULL);
+        return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
     }
     m_serviceMap.insert({serviceDescription.getServiceIDString(), m_serviceDescriptionVector.size() - 1});
     m_instanceMap.insert({serviceDescription.getInstanceIDString(), m_serviceDescriptionVector.size() - 1});
     return cxx::success<>();
 }
 
-bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription)
+bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
 {
     bool removedElement{false};
 
@@ -104,7 +103,7 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
 
 void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const capro::IdString_t& service,
-                           const capro::IdString_t& instance) const
+                           const capro::IdString_t& instance) const noexcept
 {
     cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
 
@@ -169,7 +168,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
     }
 }
 
-const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getAllServices() const
+const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getServices() const noexcept
 {
     return m_serviceDescriptionVector;
 }
