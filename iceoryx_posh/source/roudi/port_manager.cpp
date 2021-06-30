@@ -174,7 +174,7 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         // forward to interfaces
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
-} // namespace roudi
+}
 
 void PortManager::handleSubscriberPorts() noexcept
 {
