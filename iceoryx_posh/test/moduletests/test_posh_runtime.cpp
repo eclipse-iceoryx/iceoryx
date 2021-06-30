@@ -146,7 +146,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 
     ASSERT_NE(nullptr, applicationPortData);
     EXPECT_EQ(m_runtimeName, applicationPortData->m_runtimeName);
-    EXPECT_EQ(iox::capro::ServiceDescription(), applicationPortData->m_serviceDescription);
+    EXPECT_FALSE(applicationPortData->m_serviceDescription.isValid());
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
 
@@ -196,7 +196,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 
     ASSERT_NE(nullptr, interfacePortData);
     EXPECT_EQ(m_runtimeName, interfacePortData->m_runtimeName);
-    EXPECT_EQ(iox::capro::ServiceDescription(), interfacePortData->m_serviceDescription);
+    EXPECT_FALSE(interfacePortData->m_serviceDescription.isValid());
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
 }
@@ -245,6 +245,23 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
     EXPECT_FALSE(successfullySent);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithInvalidServiceDescriptionFails)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.historyCapacity = 13U;
+    publisherOptions.nodeName = m_nodeName;
+
+    EXPECT_DEATH(
+        {
+            m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(iox::capro::InvalidIdString,
+                                                                             iox::capro::InvalidIdString,
+                                                                             iox::capro::InvalidIdString),
+                                              publisherOptions,
+                                              iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        },
+        ".*");
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
@@ -406,6 +423,24 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSu
 
     EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
                 Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithInvalidServiceDescriptionFails)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.historyRequest = 13U;
+    subscriberOptions.queueCapacity = 42U;
+    subscriberOptions.nodeName = m_nodeName;
+
+    EXPECT_DEATH(
+        {
+            m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(iox::capro::InvalidIdString,
+                                                                              iox::capro::InvalidIdString,
+                                                                              iox::capro::InvalidIdString),
+                                               subscriberOptions,
+                                               iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        },
+        ".*");
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
@@ -637,30 +672,13 @@ TEST_F(PoshRuntime_test, OfferEmptyServiceIsInvalid)
     EXPECT_FALSE(isServiceOffered);
 }
 
-TEST_F(PoshRuntime_test, OfferAnyServiceStringIsInvalid)
-{
-    auto isServiceOffered = m_runtime->offerService(
-        {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
-
-    EXPECT_FALSE(isServiceOffered);
-}
-
-TEST_F(PoshRuntime_test, OfferAnyServiceIdIsInvalid)
-{
-    auto isServiceOffered = m_runtime->offerService(
-        {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
-
-    EXPECT_FALSE(isServiceOffered);
-}
-
 TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
 {
     PoshRuntime* m_receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("subscriber")};
 
     m_runtime->offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
-    auto instanceContainer =
-        m_receiverRuntime->findService(iox::capro::AnyServiceString, iox::capro::AnyInstanceString);
+    auto instanceContainer = m_receiverRuntime->findService(iox::runtime::Any_t(), iox::runtime::Any_t());
 
     EXPECT_THAT(0u, instanceContainer.value().size());
 }

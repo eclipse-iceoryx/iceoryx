@@ -151,6 +151,7 @@ void PortManager::handlePublisherPorts() noexcept
 void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherPort) noexcept
 {
     publisherPort.tryGetCaProMessage().and_then([this, &publisherPort](auto caproMessage) {
+        cxx::Expects(caproMessage.m_serviceDescription.isValid() && "invalid service description!");
         m_portIntrospection.reportMessage(caproMessage);
         if (capro::CaproMessageType::OFFER == caproMessage.m_type)
         {
@@ -195,6 +196,7 @@ void PortManager::handleSubscriberPorts() noexcept
 void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept
 {
     subscriberPort.tryGetCaProMessage().and_then([this, &subscriberPort](auto caproMessage) {
+        cxx::Expects(caproMessage.m_serviceDescription.isValid() && "invalid service description!");
         if ((capro::CaproMessageType::SUB == caproMessage.m_type)
             || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
         {
@@ -274,7 +276,7 @@ void PortManager::handleInterfaces() noexcept
         {
             for (auto& instance : x.second.instanceSet)
             {
-                caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance, capro::AnyEventString);
+                caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance, roudi::Wildcard);
 
                 for (auto& interfacePortData : interfacePortsForInitialForwarding)
                 {
@@ -297,21 +299,21 @@ void PortManager::handleApplications() noexcept
         while (auto maybeCaproMessage = applicationPort.tryGetCaProMessage())
         {
             auto& caproMessage = maybeCaproMessage.value();
+            auto& serviceDescription = caproMessage.m_serviceDescription;
+
+            cxx::Expects(serviceDescription.isValid() && "invalid service description!");
             switch (caproMessage.m_type)
             {
             case capro::CaproMessageType::OFFER:
             {
-                auto serviceDescription = caproMessage.m_serviceDescription;
                 addEntryToServiceRegistry(serviceDescription.getServiceIDString(),
                                           serviceDescription.getInstanceIDString());
                 break;
             }
             case capro::CaproMessageType::STOP_OFFER:
             {
-                auto serviceDescription = caproMessage.m_serviceDescription;
                 removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
                                                serviceDescription.getInstanceIDString());
-
                 break;
             }
             default:
@@ -590,7 +592,7 @@ runtime::IpcMessage PortManager::findService(const capro::IdString_t& service,
                                              const capro::IdString_t& instance) noexcept
 {
     // send find to all interfaces
-    capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, {service, instance, capro::AnyEventString});
+    capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, {service, instance, roudi::Wildcard});
 
     for (auto interfacePortData : m_portPool->getInterfacePortDataList())
     {
@@ -635,6 +637,11 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
+    if (!service.isValid())
+    {
+        return cxx::error<PortPoolError>(PortPoolError::SERVICE_DESCRIPTION_INVALID);
+    }
+
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
         service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
@@ -660,6 +667,11 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const RuntimeName_t& runtimeName,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
+    if (!service.isValid())
+    {
+        return cxx::error<PortPoolError>(PortPoolError::SERVICE_DESCRIPTION_INVALID);
+    }
+
     auto maybeSubscriberPortData =
         m_portPool->addSubscriberPort(service, runtimeName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())

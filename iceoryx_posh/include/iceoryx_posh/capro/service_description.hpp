@@ -30,11 +30,7 @@ namespace iox
 {
 namespace capro
 {
-/// @todo remove
-static const IdString_t InvalidString{"INVALID"};
-static constexpr char AnyServiceString[]{"65535"};
-static constexpr char AnyInstanceString[]{"65535"};
-static constexpr char AnyEventString[]{"65535"};
+static const IdString_t InvalidIdString{""};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
 
@@ -134,10 +130,9 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() noexcept;
 
-    /// @todo remove any*string from doxygen?
-    ///@brief Returns true for valid ServiceDescription
-    /// false for ServiceDescription that contains either of InvalidID/InvalidIDString  AnyService/AnyServiceString,
-    /// AnyInstance/AnyInstanceString, AnyEvent/AnyEventString.
+    /// @brief Returns true for valid ServiceDescription
+    /// false for ServiceDescription that contain InvalidStrings.
+    /// @return bool, true if ServiceDescription is valid, false otherwise
     bool isValid() const noexcept;
 
     ///@{
@@ -157,11 +152,11 @@ class ServiceDescription
 
   private:
     /// @brief string representation of the service
-    IdString_t m_serviceString{InvalidString};
+    IdString_t m_serviceString{InvalidIdString};
     /// @brief string representation of the instance
-    IdString_t m_instanceString{InvalidString};
+    IdString_t m_instanceString{InvalidIdString};
     /// @brief string representation of the event
-    IdString_t m_eventString{InvalidString};
+    IdString_t m_eventString{InvalidIdString};
 
     /// @brief 128-Bit class hash (32-Bit * 4)
     ClassHash m_classHash{0, 0, 0, 0};

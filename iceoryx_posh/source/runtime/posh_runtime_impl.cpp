@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -108,7 +109,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
     constexpr uint64_t MAX_HISTORY_CAPACITY =
         PublisherPortUserType::MemberType_t::ChunkSenderData_t::ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
 
-    /// @todo call service.isValid()
+    cxx::Expects(service.isValid() && "Could not create publisher, invalid service description provided");
 
     auto options = publisherOptions;
     if (options.historyCapacity > MAX_HISTORY_CAPACITY)
@@ -215,7 +216,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
 
-    /// @todo call service.isValid()
+    cxx::Expects(service.isValid() && "Could not create subscriber, invalid service description provided");
 
     auto options = subscriberOptions;
     if (options.queueCapacity > MAX_QUEUE_CAPACITY)
@@ -372,10 +373,33 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 }
 
 cxx::expected<InstanceContainer, FindServiceError>
-PoshRuntimeImpl::findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
+PoshRuntimeImpl::findService(const cxx::variant<Any_t, capro::IdString_t> service,
+                             const cxx::variant<Any_t, capro::IdString_t> instance) noexcept
 {
+    /// @todo #415 remove the string mapping, once the find call is done via shared memory
+    capro::IdString_t serviceString;
+    capro::IdString_t instanceString;
+
+    if (service.index() == 0U)
+    {
+        serviceString = "*";
+    }
+    else
+    {
+        serviceString = *service.get_at_index<1U>();
+    }
+
+    if (instance.index() == 0U)
+    {
+        instanceString = "*";
+    }
+    else
+    {
+        instanceString = *instance.get_at_index<1U>();
+    }
+
     IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName << service << instance;
+    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName << serviceString << instanceString;
 
     IpcMessage requestResponse;
 
@@ -400,7 +424,7 @@ PoshRuntimeImpl::findService(const capro::IdString_t& service, const capro::IdSt
 
     if (numberOfElements > capacity)
     {
-        LogWarn() << numberOfElements << " instances found for service \"" << service
+        LogWarn() << numberOfElements << " instances found for service \"" << serviceString
                   << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
@@ -423,11 +447,18 @@ bool PoshRuntimeImpl::offerService(const capro::ServiceDescription& serviceDescr
     return false;
 }
 
-void PoshRuntimeImpl::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
+bool PoshRuntimeImpl::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    capro::CaproMessage msg(
-        capro::CaproMessageType::STOP_OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
-    m_applicationPort.dispatchCaProMessage(msg);
+    if (serviceDescription.isValid())
+    {
+        capro::CaproMessage msg(
+            capro::CaproMessageType::STOP_OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
+        m_applicationPort.dispatchCaProMessage(msg);
+        return true;
+    }
+    LogWarn() << "Could not stopOffer service " << serviceDescription.getServiceIDString() << ","
+              << " ServiceDescription is invalid\n";
+    return false;
 }
 
 popo::ApplicationPortData* PoshRuntimeImpl::getMiddlewareApplication() noexcept

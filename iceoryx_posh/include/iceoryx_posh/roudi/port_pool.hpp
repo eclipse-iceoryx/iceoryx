@@ -49,6 +49,7 @@ enum class PortPoolError : uint8_t
     NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
     EVENT_VARIABLE_LIST_FULL,
+    SERVICE_DESCRIPTION_INVALID,
 };
 
 class PortPool

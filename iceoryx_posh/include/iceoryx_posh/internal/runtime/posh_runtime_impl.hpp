@@ -44,14 +44,15 @@ class PoshRuntimeImpl : public PoshRuntime
     virtual ~PoshRuntimeImpl() noexcept;
 
     /// @copydoc PoshRuntime::findService
-    cxx::expected<InstanceContainer, FindServiceError> findService(const capro::IdString_t& service,
-                                                                   const capro::IdString_t& instance) noexcept override;
+    cxx::expected<InstanceContainer, FindServiceError>
+    findService(const cxx::variant<Any_t, capro::IdString_t> service,
+                const cxx::variant<Any_t, capro::IdString_t> instance) noexcept override;
 
     /// @copydoc PoshRuntime::offerService
     bool offerService(const capro::ServiceDescription& serviceDescription) noexcept override;
 
     /// @copydoc PoshRuntime::stopOfferService
-    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept override;
+    bool stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept override;
 
     /// @copydoc PoshRuntime::getMiddlewarePublisher
     PublisherPortUserType::MemberType_t*
