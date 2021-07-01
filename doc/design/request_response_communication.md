@@ -116,10 +116,8 @@ The client is guided by the following state machine.
 
 ![client state machine](diagrams/request_response/client_state_machine.svg)
 
-Contrary to the subscriber state machine, the client doesn't pass it's response queue with the `CONNECT` CaPro message but with the `HANDSHAKE` message.
-The server will pass its request queue with the `OFFER` CaPro message.
-This is done to have the same state transitions for the case when the server is already present
-as well as when the server offers its service after the client initially tried to connect.
+Similar to the subscriber state machine, the client passes it's response queue with the `CONNECT` CaPro message to the server.
+The server will pass its request queue with the `ACK` CaPro message to the client.
 
 Following is a sequence diagram which shows all this cases
 

@@ -33,12 +33,6 @@ return CaproMessageType::CONNECT
 PortManager -> PortManager ++ : sendToAllMatchingServerPorts
 
 PortManager -> ServerPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::CONNECT)
-return CaproMessageType::OFFER
-
-PortManager -> ClientPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::OFFER)
-return CaproMessageType::HANDSHAKE
-
-PortManager -> ServerPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::HANDSHAKE)
 return CaproMessageType::ACK
 
 PortManager -> ClientPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::ACK)
@@ -56,9 +50,9 @@ return CaproMessageType::OFFER
 PortManager -> PortManager ++ : sendToAllMatchingClientPorts
 
 PortManager -> ClientPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::OFFER)
-return CaproMessageType::HANDSHAKE
+return CaproMessageType::CONNECT
 
-PortManager -> ServerPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::HANDSHAKE)
+PortManager -> ServerPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::CONNECT)
 return CaproMessageType::ACK
 
 PortManager -> ClientPortRouDi ++ : dispatchCaProMessageAndGetPossibleResponse(CaproMessageType::ACK)
