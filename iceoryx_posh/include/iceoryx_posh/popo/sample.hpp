@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,10 +39,11 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
                   "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the sample data!");
 
+    /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
     using ForProducerOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
 
-    /// @brief Helper type to enable the constructor for the subscriber, i.e. when T has a const qualifier
+    /// @brief Helper type to enable the constructor for the consumer, i.e. when T has a const qualifier
     template <typename S, typename TT>
     using ForConsumerOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
@@ -93,7 +95,6 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
     ///
     template <typename S = T, typename = ForProducerOnly<S, T>>
     void publish() noexcept;
-
 };
 
 } // namespace popo

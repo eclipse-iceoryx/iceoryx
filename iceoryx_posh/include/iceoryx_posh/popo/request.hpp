@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,10 +39,11 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
                   "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the request data!");
 
-      template <typename S, typename TT>
+    /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
+    template <typename S, typename TT>
     using ForProducerOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
 
-    /// @brief Helper type to enable the constructor for the subscriber, i.e. when T has a const qualifier
+    /// @brief Helper type to enable the constructor for the consumer, i.e. when T has a const qualifier
     template <typename S, typename TT>
     using ForConsumerOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
@@ -49,13 +51,14 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
     template <typename R, typename HH>
     using HasUserHeader =
         std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
+
   public:
-    /// @brief Constructor for a Request used by the Publisher
+    /// @brief Constructor for a Request used by the producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param requestUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
+    /// @param producer is a reference to the producer to be able to use the `publish` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T, H>& publisher) noexcept;
+    Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T, H>& producer) noexcept;
 
     /// @brief Constructor for a Request used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
@@ -86,7 +89,7 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
     const R& getRequestHeader() const noexcept;
 
     ///
-    /// @brief Publish the request via the publisher from which it was loaned and automatically
+    /// @brief send the request via the producer from which it was loaned and automatically
     /// release ownership to it.
     /// @details Only available for non-const type T.
     ///

@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +23,6 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename T, typename H>
 template <typename S, typename>
 inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept
@@ -41,7 +41,9 @@ template <typename T, typename H>
 template <typename R, typename>
 inline R& Sample<T, H>::getUserHeader() noexcept
 {
-    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(SmartChunk<PublisherInterface<T, H>, T, H>::m_members.smartchunkUniquePtr.get())->userHeader());
+    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(
+                                SmartChunk<PublisherInterface<T, H>, T, H>::m_members.smartchunkUniquePtr.get())
+                                ->userHeader());
 }
 
 template <typename T, typename H>
@@ -57,7 +59,7 @@ inline void Sample<T, H>::publish() noexcept
 {
     if (SmartChunk<PublisherInterface<T, H>, T, H>::m_members.smartchunkUniquePtr)
     {
-        SmartChunk<PublisherInterface<T, H>, T, H>::m_members.publisherRef.get().publish(std::move(*this));
+        SmartChunk<PublisherInterface<T, H>, T, H>::m_members.transmitterRef.get().publish(std::move(*this));
     }
     else
     {

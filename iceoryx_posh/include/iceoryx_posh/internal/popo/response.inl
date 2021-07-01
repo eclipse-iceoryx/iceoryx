@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,11 +23,10 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename T, typename H>
 template <typename S, typename>
-inline Response<T, H>::Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& publisher) noexcept
-    : SmartChunk<RpcInterface<T, H>, T, H>(std::move(responseUniquePtr), publisher)
+inline Response<T, H>::Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& producer) noexcept
+    : SmartChunk<RpcInterface<T, H>, T, H>(std::move(responseUniquePtr), producer)
 {
 }
 
@@ -57,7 +57,7 @@ inline void Response<T, H>::send() noexcept
 {
     if (m_members.smartchunkUniquePtr)
     {
-        m_members.publisherRef.get().sendResponse(std::move(*this));
+        m_members.producerRef.get().sendResponse(std::move(*this));
     }
     else
     {

@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,10 +39,11 @@ class Response : public SmartChunk<RpcInterface<T, H>, T, H>
                   "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the response data!");
 
+    /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
     using ForProducerOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
 
-    /// @brief Helper type to enable the constructor for the subscriber, i.e. when T has a const qualifier
+    /// @brief Helper type to enable the constructor for the consumer, i.e. when T has a const qualifier
     template <typename S, typename TT>
     using ForConsumerOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
@@ -51,12 +53,12 @@ class Response : public SmartChunk<RpcInterface<T, H>, T, H>
         std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
 
   public:
-    /// @brief Constructor for a Response used by the Publisher
+    /// @brief Constructor for a Response used by the Producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param responseUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
+    /// @param producer is a reference to the producer to be able to use the `publish` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& publisher) noexcept;
+    Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& Producer) noexcept;
 
     /// @brief Constructor for a Response used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
@@ -87,13 +89,12 @@ class Response : public SmartChunk<RpcInterface<T, H>, T, H>
     const R& getResponseHeader() const noexcept;
 
     ///
-    /// @brief Publish the response via the publisher from which it was loaned and automatically
+    /// @brief send the response via the producer from which it was loaned and automatically
     /// release ownership to it.
     /// @details Only available for non-const type T.
     ///
     template <typename S = T, typename = ForProducerOnly<S, T>>
     void send() noexcept;
-    
 };
 
 } // namespace popo

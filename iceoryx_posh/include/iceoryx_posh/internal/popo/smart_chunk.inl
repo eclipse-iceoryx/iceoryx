@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,15 +26,16 @@ namespace popo
 namespace internal
 {
 template <typename TransmissionInterface, typename T, typename H>
-inline SmartChunkPrivateData<TransmissionInterface, T, H>::SmartChunkPrivateData(cxx::unique_ptr<T>&& smartchunkUniquePtr,
-                                                  TransmissionInterface& publisher) noexcept
+inline SmartChunkPrivateData<TransmissionInterface, T, H>::SmartChunkPrivateData(
+    cxx::unique_ptr<T>&& smartchunkUniquePtr, TransmissionInterface& transmitter) noexcept
     : smartchunkUniquePtr(std::move(smartchunkUniquePtr))
-    , publisherRef(publisher)
+    , transmitterRef(transmitter)
 {
 }
 
 template <typename TransmissionInterface, typename T, typename H>
-inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPrivateData(cxx::unique_ptr<const T>&& smartchunkUniquePtr) noexcept
+inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPrivateData(
+    cxx::unique_ptr<const T>&& smartchunkUniquePtr) noexcept
     : smartchunkUniquePtr(std::move(smartchunkUniquePtr))
 {
 }
@@ -42,8 +44,9 @@ inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPriva
 
 template <typename TransmissionInterface, typename T, typename H>
 template <typename S, typename>
-inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartchunkUniquePtr, TransmissionInterface& publisher) noexcept
-    : m_members({std::move(smartchunkUniquePtr), publisher})
+inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartchunkUniquePtr,
+                                                           TransmissionInterface& transmitter) noexcept
+    : m_members({std::move(smartchunkUniquePtr), transmitter})
 {
 }
 
@@ -97,7 +100,8 @@ inline const T* SmartChunk<TransmissionInterface, T, H>::get() const noexcept
 }
 
 template <typename TransmissionInterface, typename T, typename H>
-inline typename SmartChunk<TransmissionInterface, T, H>::ConditionalConstChunkHeader_t* SmartChunk<TransmissionInterface, T, H>::getChunkHeader() noexcept
+inline typename SmartChunk<TransmissionInterface, T, H>::ConditionalConstChunkHeader_t*
+SmartChunk<TransmissionInterface, T, H>::getChunkHeader() noexcept
 {
     return mepoo::ChunkHeader::fromUserPayload(m_members.smartchunkUniquePtr.get());
 }

@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by AVIN Systems Pvt Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,17 +19,17 @@
 #ifndef IOX_POSH_POPO_SMARTCHUNK_HPP
 #define IOX_POSH_POPO_SMARTCHUNK_HPP
 
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
-class SubscriberInterface;
+// template <typename T, typename H>
+// class SubscriberInterface;
 
 
 namespace internal
@@ -37,7 +38,7 @@ namespace internal
 template <typename TransmissionInterface, typename T, typename H>
 struct SmartChunkPrivateData
 {
-    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartchunkUniquePtr, TransmissionInterface& publisher) noexcept;
+    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartchunkUniquePtr, TransmissionInterface& transmitter) noexcept;
 
     SmartChunkPrivateData(SmartChunkPrivateData&& rhs) noexcept = default;
     SmartChunkPrivateData& operator=(SmartChunkPrivateData&& rhs) noexcept = default;
@@ -46,7 +47,7 @@ struct SmartChunkPrivateData
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
 
     cxx::unique_ptr<T> smartchunkUniquePtr;
-    std::reference_wrapper<TransmissionInterface> publisherRef;
+    std::reference_wrapper<TransmissionInterface> transmitterRef;
 };
 
 /// @brief specialization of helper struct for smartchunk for const T
@@ -67,21 +68,23 @@ struct SmartChunkPrivateData<TransmissionInterface, const T, H>
 
 ///
 /// @brief The SmartChunk class is a mutable abstraction over types which are written to loaned shared memory.
-/// These smartchunks are publishable to the iceoryx system.
+/// These smartchunks are transferable to the iceoryx system.
 ///
-template <typename TransmissionInterface, typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
+template <typename TransmissionInterface,
+          typename T,
+          typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class SmartChunk
 {
     static_assert(std::is_const<T>::value == std::is_const<H>::value,
                   "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the smartchunk data!");
 
-  // protected:
-    /// @brief Helper type to enable the constructor for the publisher, i.e. when T has no const qualifier
+  protected:
+    /// @brief Helper type to enable the constructor for the producer, i.e. when T has no const qualifier
     template <typename S, typename TT>
     using ForProducerOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
 
-    /// @brief Helper type to enable the constructor for the subscriber, i.e. when T has a const qualifier
+    /// @brief Helper type to enable the constructor for the consumer, i.e. when T has a const qualifier
     template <typename S, typename TT>
     using ForConsumerOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
@@ -91,14 +94,15 @@ class SmartChunk
         std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
 
   public:
-    /// @brief Constructor for a SmartChunk used by the Publisher
+    /// @brief Constructor for a SmartChunk used by the transmitter
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param smartchunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
+    /// @param transmitter is a reference to the transmitter to be able to use the `publish`, `send` and `release`
+    /// methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    SmartChunk(cxx::unique_ptr<T>&& smartchunkUniquePtr, TransmissionInterface& publisher) noexcept;
+    SmartChunk(cxx::unique_ptr<T>&& smartchunkUniquePtr, TransmissionInterface& transmitter) noexcept;
 
-    /// @brief Constructor for a SmartChunk used by the Subscriber
+    /// @brief Constructor for a SmartChunk used by the consumer
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param smartchunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
@@ -106,7 +110,8 @@ class SmartChunk
 
     ~SmartChunk() noexcept = default;
 
-    SmartChunk<TransmissionInterface, T, H>& operator=(SmartChunk<TransmissionInterface, T, H>&& rhs) noexcept = default;
+    SmartChunk<TransmissionInterface, T, H>&
+    operator=(SmartChunk<TransmissionInterface, T, H>&& rhs) noexcept = default;
     SmartChunk(SmartChunk<TransmissionInterface, T, H>&& rhs) noexcept = default;
 
     SmartChunk(const SmartChunk<TransmissionInterface, T, H>&) = delete;
@@ -180,7 +185,7 @@ class SmartChunk
     friend class ServerImpl;
 
   protected:
-    /// @note used by the publisher to release the chunk ownership from the `SmartChunk` after publishing the chunk and
+    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
     T* release() noexcept;
 
