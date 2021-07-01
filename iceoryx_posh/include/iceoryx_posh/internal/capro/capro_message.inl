@@ -57,7 +57,7 @@ inline constexpr const char* asStringLiteral(CaproMessageType value) noexcept
         return "CaproMessageType::MESSGAGE_TYPE_END";
     }
 
-    return "[Unknown CaproMessageType]";
+    return "[Undefined CaproMessageType]";
 }
 
 inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value)
