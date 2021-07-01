@@ -68,7 +68,7 @@ class ServiceRegistry
     const ServiceDescriptionVector_t getServices() const noexcept;
 
   private:
-    /// @todo #859 replace std::map with prefix tree
+    /// @todo #859 replace std::multimap with prefix tree
     ::std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
     ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
     ServiceDescriptionVector_t m_serviceDescriptionVector;
