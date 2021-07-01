@@ -131,34 +131,31 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
             searchResult.push_back(m_serviceDescriptionVector[value]);
         }
     }
+    // Find (*, K2)
+    // O(log n + #result)
+    else if (service == Wildcard && instance != Wildcard)
+    {
+        auto range = m_instanceMap.equal_range(instance);
+        for (auto entry = range.first; entry != range.second; ++entry)
+        {
+            searchResult.push_back(m_serviceDescriptionVector[entry->second]);
+        }
+    }
+    // Find (K1, *)
+    // O(log n + #result)
+    else if (instance == Wildcard && service != Wildcard)
+    {
+        auto range = m_serviceMap.equal_range(service);
+        for (auto entry = range.first; entry != range.second; ++entry)
+        {
+            searchResult.push_back(m_serviceDescriptionVector[entry->second]);
+        }
+    }
     else
     {
-        // Find (*, K2)
-        // O(log n + #result)
-        if (service == Wildcard && instance != Wildcard)
-        {
-            auto range = m_instanceMap.equal_range(instance);
-            for (auto entry = range.first; entry != range.second; ++entry)
-            {
-                searchResult.push_back(m_serviceDescriptionVector[entry->second]);
-            }
-        }
-        // Find (K1, *)
-        // O(log n + #result)
-        else if (instance == Wildcard && service != Wildcard)
-        {
-            auto range = m_serviceMap.equal_range(service);
-            for (auto entry = range.first; entry != range.second; ++entry)
-            {
-                searchResult.push_back(m_serviceDescriptionVector[entry->second]);
-            }
-        }
-        else
-        {
-            // Find (*, *)
-            // O(1)
-            searchResult = m_serviceDescriptionVector;
-        }
+        // Find (*, *)
+        // O(1)
+        searchResult = m_serviceDescriptionVector;
     }
 }
 
