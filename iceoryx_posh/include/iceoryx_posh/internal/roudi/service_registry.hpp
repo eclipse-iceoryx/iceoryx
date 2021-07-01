@@ -39,6 +39,7 @@ class ServiceRegistry
         INVALID_STATE,
         SERVICE_DESCRIPTION_ALREADY_ADDED,
         SERVICE_REGISTRY_FULL,
+        SERVICE_DESCRIPTION_INVALID,
     };
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;

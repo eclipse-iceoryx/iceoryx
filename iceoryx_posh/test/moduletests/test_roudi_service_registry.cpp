@@ -47,16 +47,94 @@ class ServiceRegistry_test : public Test
     iox::roudi::ServiceRegistry::ServiceDescriptionVector_t searchResults;
 };
 
-/// @todo #415 implement missing tests
-// TEST_F(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
-// TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
-// TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
-// TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
-// TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
-// TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWork)
-// TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsFails)
-// TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
-// TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsFails)
+TEST_F(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
+{
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(0));
+}
+TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
+{
+    auto result = registry.add(ServiceDescription("Foo", "Bar", "Baz"));
+    ASSERT_FALSE(result.has_error());
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Foo", "Bar", "Baz")));
+}
+TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
+{
+    auto result = registry.add(ServiceDescription("Foo", "Bar", "Baz"));
+    ASSERT_FALSE(result.has_error());
+    registry.find(searchResults, Wildcard, "Bar");
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Foo", "Bar", "Baz")));
+}
+TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
+{
+    iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
+
+    for (uint64_t i = 0U; i < ServiceRegistry::MAX_SERVICE_DESCRIPTIONS; i++)
+    {
+        services.push_back(iox::capro::ServiceDescription(
+            "Foo", "Bar", iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))));
+    }
+
+    for (auto& service : services)
+    {
+        auto result = registry.add(service);
+        ASSERT_FALSE(result.has_error());
+    }
+}
+
+TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
+{
+    iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
+
+    for (uint64_t i = 0U; i < ServiceRegistry::MAX_SERVICE_DESCRIPTIONS; i++)
+    {
+        services.push_back(iox::capro::ServiceDescription(
+            "Foo", "Bar", iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))));
+    }
+
+    for (auto& service : services)
+    {
+        auto result = registry.add(service);
+        ASSERT_FALSE(result.has_error());
+    }
+
+    auto result = registry.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
+}
+
+TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWork)
+{
+    auto result1 = registry.add(ServiceDescription("Li", "La", "Launebaer"));
+    ASSERT_FALSE(result1.has_error());
+
+    auto result2 = registry.add(ServiceDescription("Li", "La", "Launebaer"));
+    ASSERT_TRUE(result2.has_error());
+    EXPECT_THAT(result2.get_error(), Eq(ServiceRegistry::Error::SERVICE_DESCRIPTION_ALREADY_ADDED));
+}
+
+TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsFails)
+{
+    auto result = registry.add(ServiceDescription());
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_DESCRIPTION_INVALID));
+}
+
+TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
+{
+    EXPECT_FALSE(registry.remove(ServiceDescription("Sim", "Sa", "Lambim")));
+}
+
+TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsFails)
+{
+    EXPECT_FALSE(registry.remove(ServiceDescription()));
+}
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
 {
