@@ -53,24 +53,7 @@ TEST_F(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNot
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
-TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
-{
-    auto result = registry.add(ServiceDescription("Foo", "Bar", "Baz"));
-    ASSERT_FALSE(result.has_error());
-    registry.find(searchResults, Wildcard, Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Foo", "Bar", "Baz")));
-}
-TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
-{
-    auto result = registry.add(ServiceDescription("Foo", "Bar", "Baz"));
-    ASSERT_FALSE(result.has_error());
-    registry.find(searchResults, Wildcard, "Bar");
-
-    EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Foo", "Bar", "Baz")));
-}
 TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 {
     iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
@@ -134,6 +117,26 @@ TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
 TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsFails)
 {
     EXPECT_FALSE(registry.remove(ServiceDescription()));
+}
+
+TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
+{
+    auto result = registry.add(ServiceDescription("Foo", "Bar", "Baz"));
+    ASSERT_FALSE(result.has_error());
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Foo", "Bar", "Baz")));
+}
+
+TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
+{
+    auto result = registry.add(ServiceDescription("Baz", "Bar", "Foo"));
+    ASSERT_FALSE(result.has_error());
+    registry.find(searchResults, Wildcard, "Bar");
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Baz", "Bar", "Foo")));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
