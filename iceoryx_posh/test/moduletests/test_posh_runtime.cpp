@@ -679,7 +679,7 @@ TEST_F(PoshRuntime_test, FindServiceWithWildcardsReturnsOnlyIntrospectionService
     EXPECT_FALSE(m_runtime->offerService(iox::capro::ServiceDescription()));
     this->InterOpWait();
 
-    auto serviceContainer = m_receiverRuntime->findService(iox::runtime::Any_t(), iox::runtime::Any_t());
+    auto serviceContainer = m_receiverRuntime->findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
 
     auto searchResult = serviceContainer.value();

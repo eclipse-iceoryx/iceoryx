@@ -180,7 +180,7 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     instanceContainerExp.push_back({"service1", "instance2", "event2"});
     instanceContainerExp.push_back({"service1", "instance3", "event3"});
 
-    auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), iox::runtime::Any_t());
+    auto instanceContainer = receiverRuntime->findService(IdString_t("service1"), iox::runtime::Wildcard_t());
     ASSERT_FALSE(instanceContainer.has_error());
     ASSERT_THAT(instanceContainer.value().size(), Eq(3u));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
@@ -378,7 +378,7 @@ TEST_F(RoudiFindService_test, findServiceMaxServices)
         this->InterOpWait();
     }
 
-    auto instanceContainer = receiverRuntime->findService(IdString_t("s"), iox::runtime::Any_t());
+    auto instanceContainer = receiverRuntime->findService(IdString_t("s"), iox::runtime::Wildcard_t());
 
     ASSERT_FALSE(instanceContainer.has_error());
     EXPECT_THAT(instanceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
@@ -397,7 +397,7 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
         this->InterOpWait();
     }
 
-    auto instanceContainer = receiverRuntime->findService(IdString_t("s"), iox::runtime::Any_t());
+    auto instanceContainer = receiverRuntime->findService(IdString_t("s"), iox::runtime::Wildcard_t());
 
     ASSERT_THAT(instanceContainer.has_error(), Eq(true));
 }
