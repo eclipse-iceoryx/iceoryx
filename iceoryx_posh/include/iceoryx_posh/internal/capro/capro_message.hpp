@@ -20,6 +20,10 @@
 
 namespace iox
 {
+namespace log
+{
+class LogStream;
+}
 namespace capro
 {
 /// @brief Enum for service message types which are used in CaPro for
@@ -44,7 +48,22 @@ enum class CaproMessageType : uint8_t
     MESSGAGE_TYPE_END
 };
 
-inline constexpr const char* caproMessageTypeString(CaproMessageType messageType) noexcept;
+/// @brief Converts the CaproMessageType to a string literal
+/// @param[in] value to convert to a string literal
+/// @return pointer to a string literal
+inline constexpr const char* asStringLiteral(CaproMessageType value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value);
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value);
 
 enum class CaproMessageSubType : uint8_t
 {

@@ -68,6 +68,19 @@ class ClientPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
+    void handleCaProProtocollViolation(iox::capro::CaproMessageType messageType) noexcept;
+
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateNotConnected(const capro::CaproMessage& caProMessage) noexcept;
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateConnectRequested(const capro::CaproMessage& caProMessage) noexcept;
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateWaitForOffer(const capro::CaproMessage& caProMessage) noexcept;
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateConnected(const capro::CaproMessage& caProMessage) noexcept;
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateDisconnectRequesteded(const capro::CaproMessage& caProMessage) noexcept;
+
     ChunkSender<ClientChunkSenderData_t> m_chunkSender;
     ChunkReceiver<ClientChunkReceiverData_t> m_chunkReceiver;
 };

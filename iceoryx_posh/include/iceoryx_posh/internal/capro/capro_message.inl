@@ -19,46 +19,57 @@ namespace iox
 {
 namespace capro
 {
-inline constexpr const char* caproMessageTypeString(CaproMessageType messageType) noexcept
+inline constexpr const char* asStringLiteral(CaproMessageType value) noexcept
 {
-    switch (messageType)
+    switch (value)
     {
     case CaproMessageType::NOTYPE:
-        return "NOTYPE";
+        return "CaproMessageType::NOTYPE";
     case CaproMessageType::FIND:
-        return "FIND";
+        return "CaproMessageType::FIND";
     case CaproMessageType::OFFER:
-        return "OFFER";
+        return "CaproMessageType::OFFER";
     case CaproMessageType::STOP_OFFER:
-        return "STOP_OFFER";
+        return "CaproMessageType::STOP_OFFER";
     case CaproMessageType::SUB:
-        return "SUB";
+        return "CaproMessageType::SUB";
     case CaproMessageType::UNSUB:
-        return "UNSUB";
+        return "CaproMessageType::UNSUB";
     case CaproMessageType::CONNECT:
-        return "CONNECT";
+        return "CaproMessageType::CONNECT";
     case CaproMessageType::DISCONNECT:
-        return "DISCONNECT";
+        return "CaproMessageType::DISCONNECT";
     case CaproMessageType::ACK:
-        return "ACK";
+        return "CaproMessageType::ACK";
     case CaproMessageType::NACK:
-        return "NACK";
+        return "CaproMessageType::NACK";
     case CaproMessageType::PUB:
-        return "PUB";
+        return "CaproMessageType::PUB";
     case CaproMessageType::REQ:
-        return "REQ";
+        return "CaproMessageType::REQ";
     case CaproMessageType::RES:
-        return "RES";
+        return "CaproMessageType::RES";
     case CaproMessageType::PING:
-        return "PING";
+        return "CaproMessageType::PING";
     case CaproMessageType::PONG:
-        return "PONG";
+        return "CaproMessageType::PONG";
     case CaproMessageType::MESSGAGE_TYPE_END:
-        return "MESSGAGE_TYPE_END";
+        return "CaproMessageType::MESSGAGE_TYPE_END";
     }
 
-    return "UNKNOWN_TYPE";
+    return "[Unknown CaproMessageType]";
 }
 
+inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value)
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
+inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value)
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
 } // namespace capro
 } // namespace iox
