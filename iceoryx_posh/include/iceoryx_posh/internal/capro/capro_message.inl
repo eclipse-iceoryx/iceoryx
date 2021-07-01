@@ -39,8 +39,6 @@ inline constexpr const char* caproMessageTypeString(CaproMessageType messageType
         return "CONNECT";
     case CaproMessageType::DISCONNECT:
         return "DISCONNECT";
-    case CaproMessageType::HANDSHAKE:
-        return "HANDSHAKE";
     case CaproMessageType::ACK:
         return "ACK";
     case CaproMessageType::NACK:

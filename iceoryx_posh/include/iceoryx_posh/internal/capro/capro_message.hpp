@@ -34,7 +34,6 @@ enum class CaproMessageType : uint8_t
     UNSUB,
     CONNECT,
     DISCONNECT,
-    HANDSHAKE,
     ACK,
     NACK,
     PUB,

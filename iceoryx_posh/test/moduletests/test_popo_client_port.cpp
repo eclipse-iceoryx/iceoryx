@@ -74,17 +74,8 @@ class ClientPort_test : public Test
         }
 
         iox::capro::CaproMessage serverMessage{
-            iox::capro::CaproMessageType::OFFER, m_serviceDescription, iox::capro::CaproMessageSubType::NOSUBTYPE};
-        serverMessage.m_chunkQueueData = &serverChunkQueueData;
-        clientPortRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessage);
-        ASSERT_THAT(clientPortData.m_connectionState, Eq(iox::ConnectionState::CONNECT_HANDSHAKE));
-        if (clientPortData.m_connectionState == state)
-        {
-            return;
-        }
-
-        serverMessage = iox::capro::CaproMessage{
             iox::capro::CaproMessageType::ACK, m_serviceDescription, iox::capro::CaproMessageSubType::NOSUBTYPE};
+        serverMessage.m_chunkQueueData = &serverChunkQueueData;
         clientPortRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessage);
         ASSERT_THAT(clientPortData.m_connectionState, Eq(iox::ConnectionState::CONNECTED));
         if (clientPortData.m_connectionState == state)

@@ -158,9 +158,9 @@ enum class ConnectionState : uint32_t
 {
     NOT_CONNECTED = 0,
     CONNECT_REQUESTED,
-    CONNECT_HANDSHAKE,
     CONNECTED,
-    DISCONNECT_REQUESTED
+    DISCONNECT_REQUESTED,
+    WAIT_FOR_OFFER
 };
 
 // Default properties of ChunkDistributorData
