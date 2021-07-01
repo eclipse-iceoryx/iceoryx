@@ -21,6 +21,7 @@
 //      neither is it concurrent
 //      It should be available publicly.
 //      Decide on namespace.
+//      Maybe add a folder relocatable structures ? (but list and vector presumably are also relocatable)
 
 #include <iostream>
 #include <stdint.h>
@@ -39,7 +40,6 @@ class PrefixTree
 {
   public:
     // using Key = std::string;
-    // rename to Key
     using Key = cxx::string<MaxKeyLength>;
 
   private:
@@ -69,6 +69,13 @@ class PrefixTree
     template <typename T>
     // using ptr_t = raw_ptr<T>;
     using ptr_t = relocatable_ptr<T>;
+
+    // The advantage of using relocatble_ptrs is that we can switch hem of when we do not need
+    // the feature but can develop structures (almost) as with normal pointers
+    // instead of a much different implementation based purely on internal indices
+    // The price is some small overhead in the pointer lookup, but this is comparable
+    // to the index indirection required that would be required as well:
+    // compute the pointer from index and access it, instead of directly accessing the pointer.
 
     // order matters in those structs due to padding
     struct DataNode;
@@ -105,8 +112,8 @@ class PrefixTree
     // This is left as a space optimization in the future, but with static memory we cannot really benefit
     // since we need to be prepared for single letter nodes anyway.
 
-    using NodeAllocator = typed_allocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
-    using DataNodeAllocator = typed_allocator<DataNode, Capacity>;
+    using NodeAllocator = relocatable_allocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
+    using DataNodeAllocator = relocatable_allocator<DataNode, Capacity>;
 
   private:
     node_ptr_t m_root{nullptr};
@@ -126,7 +133,10 @@ class PrefixTree
         deleteTree(m_root);
     }
 
-    // TODO: implement later
+    // TODO: implement later - must perform a logical copy but in the relocatable case a memcpy
+    // suffices (how do we optimize this?)
+    // Care must be taken, the allocators must be relocatable as well which they are currently not
+    // (to achieve this, they need to be index based internally)
     PrefixTree(const PrefixTree& other) = delete;
     PrefixTree(PrefixTree&& other) = delete;
 

@@ -373,7 +373,7 @@ TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements
 }
 
 // this test requires relocate_ptr to be used internally
-TEST_F(PrefixTree_test, relocatedTreeIsAnIndependentLogicalCopy)
+TEST(PrefixTreeRelocation_test, relocatedTreeIsAnIndependentLogicalCopy)
 {
     // we want to zero out the memory after copy (and have to own it to do so)
     using Tree = TestPrefixTree<>;
@@ -397,6 +397,9 @@ TEST_F(PrefixTree_test, relocatedTreeIsAnIndependentLogicalCopy)
     original->~Tree(); // technically not required since PrefixTree is self-contained (hence cannot leak anything)
     std::memset(&originalMemory, 0, sizeof(Tree));
 
+    uint8_t zeroedMemory[sizeof(Tree)] alignas(alignof(Tree));
+    std::memset(&zeroedMemory, 0, sizeof(Tree));
+
     // relocated version should behave like the original
     // Note that this would also be true if it uses pointers to dynamic memory (which it does not).
     // This kind of relocation works in shared memory as well (with dynamic meory it would not).
@@ -419,7 +422,19 @@ TEST_F(PrefixTree_test, relocatedTreeIsAnIndependentLogicalCopy)
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->value, 24);
 
+    // operations should not have any effect on original memory
+    // (or other memory, but we cannot check this)
+    auto cmp = std::memcmp(&zeroedMemory, &originalMemory, sizeof(Tree));
+    EXPECT_EQ(cmp, 0);
+
     relocated->~Tree();
+
+    // dtor has no effect on original memory either
+    // (we do not need to reset it to zero, test would have already failed
+    // if this was needed)
+
+    cmp = std::memcmp(&zeroedMemory, &originalMemory, sizeof(Tree));
+    EXPECT_EQ(cmp, 0);
 }
 
 } // namespace

@@ -87,15 +87,102 @@ class typed_allocator
   private:
     // TODO: correct alignas usage
     // if individual alignment is not possible use overallocation by alignof(T)
-    using block = alignas(alignof(T)) uint8_t[sizeof(T)];
+    using block_t = alignas(alignof(T)) uint8_t[sizeof(T)];
 
-    block blocks[Capacity];
+    block_t blocks[Capacity];
 
     // actually we just need a non-concurrent queue but do not have one
     // (if the allocator is just used inside non-concurrent classes)
     /// @todo simple non-concurrent queue?
     // could make queue template argument and have a concurrent and non-concurrent version
     iox::concurrent::FiFo<T*, Capacity> freeElements;
+};
+
+
+template <typename T, uint64_t Capacity>
+class relocatable_allocator
+{
+    using index_t = decltype(Capacity);
+
+    static constexpr index_t INVALID_INDEX = Capacity;
+
+  public:
+    relocatable_allocator()
+    {
+        for (uint64_t i = 0; i < Capacity; ++i)
+        {
+            freeIndices.push(i);
+        }
+    }
+
+    // we do not need a specific dtor
+    // The dtor does not check whether all pointers were deallocated
+    // (the memory will just be gone)
+    // This is ok since for regular memory allocation it is also an error not to free
+    // something allocated etc and the user must ensure the allocator outlives any allocation.
+
+    template <typename... Args>
+    T* create(Args&&... args)
+    {
+        auto element = allocate();
+        if (element)
+        {
+            return new (element) T(std::forward<Args>(args)...);
+        }
+
+        return nullptr;
+    }
+
+    void destroy(T* element)
+    {
+        if (element)
+        {
+            element->~T();
+            deallocate(element);
+        }
+    }
+
+    T* allocate()
+    {
+        auto maybeIndex = freeIndices.pop();
+        if (maybeIndex.has_value())
+        {
+            return toPtr(*maybeIndex);
+        }
+        return nullptr;
+    }
+
+    void deallocate(T* element)
+    {
+        // no checking whether this is a pointer allocated by this allocator (
+        // (not possible without serious overhead)
+        freeIndices.push(toIndex(element));
+    }
+
+
+  private:
+    using block_t = alignas(alignof(T)) uint8_t[sizeof(T)];
+
+    block_t blocks[Capacity];
+
+    // must be relocatable
+    // cannot store pointers if we want the allocator to be relocatable
+    // this adds some conversion overhead (pointer to index and vice versa)
+    iox::concurrent::FiFo<index_t, Capacity> freeIndices;
+
+    T* toPtr(index_t index)
+    {
+        return reinterpret_cast<T*>(&blocks[index]);
+    }
+
+    index_t toIndex(void* ptr)
+    {
+        // sanity check (is it a valid multiple etc.) - cost vs. efficiency
+        // not worth it for internal use
+        block_t* block = reinterpret_cast<block_t*>(ptr);
+        index_t index = block - &blocks[0];
+        return index;
+    }
 };
 
 } // namespace iox
