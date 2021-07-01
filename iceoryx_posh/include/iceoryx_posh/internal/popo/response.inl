@@ -57,7 +57,7 @@ inline void Response<T, H>::send() noexcept
 {
     if (m_members.smartchunkUniquePtr)
     {
-        m_members.producerRef.get().sendResponse(std::move(*this));
+        m_members.transmitterRef.get().sendResponse(std::move(*this));
     }
     else
     {
