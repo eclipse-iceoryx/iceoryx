@@ -25,6 +25,11 @@ namespace roudi
 {
 cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription) noexcept
 {
+    if (!serviceDescription.isValid())
+    {
+        return cxx::error<Error>(Error::SERVICE_DESCRIPTION_INVALID);
+    }
+
     // Forbid duplicate service descriptions entries
     for (auto& element : m_serviceDescriptionVector)
     {
@@ -45,8 +50,13 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
 
 bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    bool removedElement{false};
+    if (!serviceDescription.isValid())
+    {
+        return false;
+    }
 
+
+    bool removedElement{false};
     uint64_t index = 0U;
     for (auto iterator = m_serviceDescriptionVector.begin(); iterator != m_serviceDescriptionVector.end();)
     {
