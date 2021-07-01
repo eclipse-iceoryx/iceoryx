@@ -55,50 +55,12 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
         return false;
     }
 
-
     bool removedElement{false};
     uint64_t index = 0U;
     for (auto iterator = m_serviceDescriptionVector.begin(); iterator != m_serviceDescriptionVector.end();)
     {
         if (m_serviceDescriptionVector[index] == serviceDescription)
         {
-            uint64_t removedValue{0U};
-            bool removedEntry{false};
-            for (auto it = m_serviceMap.begin(); it != m_serviceMap.end();)
-            {
-                if (it->second == index)
-                {
-                    removedValue = it->second;
-                    it = m_serviceMap.erase(it);
-                    removedEntry = true;
-                    continue;
-                }
-                else if (removedEntry && it->second > removedValue)
-                {
-                    // update index due to removed element
-                    it->second--;
-                }
-                it++;
-            }
-
-            removedValue = 0U;
-            removedEntry = false;
-            for (auto it = m_instanceMap.begin(); it != m_instanceMap.end();)
-            {
-                if (it->second == index)
-                {
-                    removedValue = it->second;
-                    it = m_instanceMap.erase(it);
-                    removedEntry = true;
-                    continue;
-                }
-                else if (removedEntry && it->second > removedValue)
-                {
-                    // update index due to removed element
-                    it->second--;
-                }
-                it++;
-            }
             m_serviceDescriptionVector.erase(iterator);
             removedElement = true;
             // There can be not more than one element
@@ -107,6 +69,28 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
         index++;
         iterator++;
     }
+
+    auto removeIndexFromMap = [](std::multimap<capro::IdString_t, uint64_t>& map, uint64_t index) {
+        bool removedEntry{false};
+        for (auto it = map.begin(); it != map.end();)
+        {
+            if (it->second == index)
+            {
+                it = map.erase(it);
+                removedEntry = true;
+                continue;
+            }
+            else if (removedEntry && it->second > index)
+            {
+                // update index due to removed element
+                it->second--;
+            }
+            it++;
+        }
+    };
+
+    removeIndexFromMap(m_serviceMap, index);
+    removeIndexFromMap(m_instanceMap, index);
 
     return removedElement;
 }
