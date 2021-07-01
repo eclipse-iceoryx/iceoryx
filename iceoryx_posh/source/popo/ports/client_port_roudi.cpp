@@ -97,7 +97,7 @@ ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
     case ConnectionState::CONNECTED:
         return handleCaProMessageForStateConnected(caProMessage);
     case ConnectionState::DISCONNECT_REQUESTED:
-        handleCaProMessageForStateDisconnectRequesteded(caProMessage);
+        return handleCaProMessageForStateDisconnectRequesteded(caProMessage);
     }
 
     handleCaProProtocollViolation(caProMessage.m_type);
