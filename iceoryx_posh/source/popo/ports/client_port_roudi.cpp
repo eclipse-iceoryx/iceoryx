@@ -65,7 +65,7 @@ cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcep
     case ConnectionState::WAIT_FOR_OFFER:
         IOX_FALLTHROUGH;
     case ConnectionState::CONNECTED:
-        if (currentConnectRequest)
+        if (!currentConnectRequest)
         {
             capro::CaproMessage caproMessage(capro::CaproMessageType::DISCONNECT,
                                              BasePort::getMembers()->m_serviceDescription);

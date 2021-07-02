@@ -481,26 +481,42 @@ TEST_F(ClientPort_test, UnsettingConditionVariableWithoutConditionVariablePresen
 
 TEST_F(ClientPort_test, ConnectOnNotConnectedClientPortResultsInStateChange)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    auto& sutUser = clientPortUserWithoutConnectOnCreate;
+    auto& sutRouDi = clientPortRouDiWithoutConnectOnCreate;
+
+    sutUser.connect();
+
+    EXPECT_TRUE(sutRouDi.tryGetCaProMessage().has_value());
 }
 
 TEST_F(ClientPort_test, ConnectOnConnectedClientPortResultsInNoStateChange)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    auto& sutUser = clientPortUserWithConnectOnCreate;
+    auto& sutRouDi = clientPortRouDiWithConnectOnCreate;
+
+    sutUser.connect();
+
+    EXPECT_FALSE(sutRouDi.tryGetCaProMessage().has_value());
 }
 
 TEST_F(ClientPort_test, DisconnectOnConnectedClientPortResultsInStateChange)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    auto& sutUser = clientPortUserWithConnectOnCreate;
+    auto& sutRouDi = clientPortRouDiWithConnectOnCreate;
+
+    sutUser.disconnect();
+
+    EXPECT_TRUE(sutRouDi.tryGetCaProMessage().has_value());
 }
 
 TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    auto& sutUser = clientPortUserWithoutConnectOnCreate;
+    auto& sutRouDi = clientPortRouDiWithoutConnectOnCreate;
+
+    sutUser.disconnect();
+
+    EXPECT_FALSE(sutRouDi.tryGetCaProMessage().has_value());
 }
 
 // END ClientPortUser tests
