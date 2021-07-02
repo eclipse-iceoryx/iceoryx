@@ -198,7 +198,7 @@ TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
     sut.freeRequest(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
@@ -235,7 +235,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
         });
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER);
 }
 
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
@@ -349,7 +349,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
     sut.releaseResponse(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempool)
