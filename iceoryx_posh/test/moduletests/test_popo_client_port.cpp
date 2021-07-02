@@ -365,9 +365,9 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
 
     sut.getResponse()
         .and_then([&](auto& responseHeader) {
-            EXPECT_THAT(getNumberOfUsedChunks(), Eq(1U));
+            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
             sut.releaseResponse(responseHeader);
-            EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
+            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
