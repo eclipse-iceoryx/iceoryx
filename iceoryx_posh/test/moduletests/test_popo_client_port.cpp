@@ -449,26 +449,34 @@ TEST_F(ClientPort_test, ConditionVariableInitiallyNotSet)
 
 TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentWorks)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
-}
+    iox::popo::ConditionVariableData condVar{"hypnotoad"};
+    constexpr uint32_t NOTIFICATION_INDEX{1};
 
-TEST_F(ClientPort_test, SettingConditionVariableWithConditionVariablePresentWorks)
-{
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    auto& sut = clientPortUserWithConnectOnCreate;
+    sut.setConditionVariable(condVar, NOTIFICATION_INDEX);
+
+    EXPECT_TRUE(sut.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWorks)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    iox::popo::ConditionVariableData condVar{"brain slug"};
+    constexpr uint32_t NOTIFICATION_INDEX{2};
+
+    auto& sut = clientPortUserWithConnectOnCreate;
+    sut.setConditionVariable(condVar, NOTIFICATION_INDEX);
+
+    sut.unsetConditionVariable();
+
+    EXPECT_FALSE(sut.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, UnsettingConditionVariableWithoutConditionVariablePresentIsHandledGracefully)
 {
-    constexpr bool UNIMPLEMENTED{true};
-    EXPECT_FALSE(UNIMPLEMENTED);
+    auto& sut = clientPortUserWithConnectOnCreate;
+    sut.unsetConditionVariable();
+
+    EXPECT_FALSE(sut.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, ConnectOnNotConnectedClientPortResultsInStateChange)
