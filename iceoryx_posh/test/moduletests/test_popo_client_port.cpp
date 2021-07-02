@@ -35,6 +35,9 @@ class ClientPort_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0U); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
+
   public:
     ClientPort_test()
     {
@@ -45,8 +48,7 @@ class ClientPort_test : public Test
 
     void SetUp() override
     {
-        deadlockWatchdog.emplace(DEADLOCK_TIMEOUT);
-        deadlockWatchdog->watchAndActOnFailure([] { std::terminate(); });
+        m_deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
         // this is basically what RouDi does when a client is requested
         tryAdvanceToState(clientPortDataWithConnectOnCreate, iox::ConnectionState::CONNECTED);
@@ -134,9 +136,6 @@ class ClientPort_test : public Test
                                                 iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
 
   public:
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    iox::cxx::optional<Watchdog> deadlockWatchdog;
-
     static constexpr uint32_t USER_PAYLOAD_SIZE{32U};
     static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
@@ -185,13 +184,21 @@ TEST_F(ClientPort_test, AllocateRequestDoesNotFailAndUsesTheMempool)
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(1U));
 }
 
-TEST_F(ClientPort_test, FreeRequestWithNullptrTerminates)
+TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
 {
     auto& sut = clientPortUserWithConnectOnCreate;
 
-    // stop all threads before death test
-    deadlockWatchdog.reset();
-    EXPECT_DEATH({ sut.freeRequest(nullptr); }, ".*");
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
+        });
+
+    sut.freeRequest(nullptr);
+
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
@@ -212,16 +219,23 @@ TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToThe
 TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
 {
     auto& sut = clientPortUserWithConnectOnCreate;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
+        });
+
     sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto&) {
-            // stop all threads before death test
-            deadlockWatchdog.reset();
-            EXPECT_DEATH({ sut.sendRequest(nullptr); }, ".*");
-        })
+        .and_then([&](auto&) { sut.sendRequest(nullptr); })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);
         });
+
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER);
 }
 
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
@@ -325,9 +339,17 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
 {
     auto& sut = clientPortUserWithConnectOnCreate;
 
-    // stop all threads before death test
-    deadlockWatchdog.reset();
-    EXPECT_DEATH({ sut.releaseResponse(nullptr); }, ".*");
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
+        });
+
+    sut.releaseResponse(nullptr);
+
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempool)
