@@ -173,6 +173,12 @@ enum class Error : uint32_t
     ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
+/// @brief Convenience stream operator to easily use the Error enum with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+std::ostream& operator<<(std::ostream& stream, Error value);
+
 /// @brief the available error levels
 /// FATAL
 /// - Log message with FATAL
