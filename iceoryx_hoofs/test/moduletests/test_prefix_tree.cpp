@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/data_structures/prefix_tree.hpp"
 
 #include <set>
+#include <vector>
 
 namespace
 {
@@ -399,6 +400,35 @@ TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements
 
     // essentially a check whether the internal allocator can reuse the memory for the data
     EXPECT_TRUE(sut.insert("cab", Integer{21}));
+}
+
+// TODO: fails, we need to extract keys differently
+TEST_F(PrefixTree_test, collectingAllKeysInTreeReturnsAllKeysInLexigographicalOrder)
+{
+    sut.insert("abc", Integer{73});
+    sut.insert("acb", Integer{37});
+    sut.insert("abb", Integer{42});
+    sut.insert("bbc", Integer{66});
+    sut.insert("c", Integer{10});
+    sut.insert("ab", Integer{21});
+    sut.insert("", Integer{0});
+    sut.insert("abcd", Integer{12});
+
+    // we can compare and initialize std::vector, but not cxx::vector...
+    std::vector<TestPrefixTree<>::Key> expectedKeyOrder({"", "c", "ab", "abb", "abc", "acb", "bbc", "abcd"});
+    std::vector<TestPrefixTree<>::Key> actualKeyOrder;
+
+    auto keys = sut.keys();
+    for (auto& key : keys)
+    {
+        std::cout << "<" << key << "> ";
+        actualKeyOrder.push_back(key);
+    }
+    std::cout << std::endl;
+
+    // check element-wise equality
+    EXPECT_EQ(expectedKeyOrder.size(), actualKeyOrder.size());
+    EXPECT_EQ(expectedKeyOrder, actualKeyOrder);
 }
 
 // this test requires relocate_ptr to be used internally

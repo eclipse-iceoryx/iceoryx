@@ -310,6 +310,30 @@ class PrefixTree
         return size() == 0;
     }
 
+    // TODO: key value pairs
+    cxx::vector<Key, Capacity> keys()
+    {
+        cxx::vector<Key, Capacity> result;
+        char currentString[MaxKeyLength + 1];
+        currentString[MaxKeyLength] = '\0';
+
+        // root must be handled differently, it represents the empty string key
+
+        if (m_root->data)
+        {
+            result.emplace_back("");
+        }
+
+        Node* child = m_root->child;
+        while (child)
+        {
+            getKeys(child, 1, currentString, result);
+            child = child->sibling;
+        }
+
+        return result;
+    }
+
   private:
     Node* allocateNode() noexcept
     {
@@ -397,7 +421,7 @@ class PrefixTree
             node = addChild(node, letter);
             if (!node)
             {
-                return nullptr; // no nodes / memory left
+                return nullptr; // no nodes (memory) left
             }
             ++i;
         }
@@ -413,6 +437,13 @@ class PrefixTree
             return nullptr;
         }
         sibling->letter = letter;
+
+        // add the sibling sorted (allows lexicographic enumeration)
+        while (node->sibling && letter > node->letter)
+        {
+            node = node->sibling;
+        }
+
         sibling->sibling = node->sibling;
         node->sibling = sibling;
         return sibling;
@@ -432,6 +463,26 @@ class PrefixTree
 
             return child;
         }
+
+        // there exists a first child but it has a greater letter value,
+        // add the letter as new first child (i.e. sorted)
+
+        if (letter < node->child->letter)
+        {
+            auto child = allocateNode();
+            if (!child)
+            {
+                return nullptr;
+            }
+            child->letter = letter;
+            child->sibling = node->child;
+            node->child = child;
+
+            return child;
+        }
+
+        // there already exist children and the first one has a smaller letter,
+        // add the new letter sorted to the children
 
         return addSibling(node->child, letter);
     }
@@ -619,6 +670,30 @@ class PrefixTree
         while (child)
         {
             getValuesFromSubTree(child, result);
+            child = child->sibling;
+        }
+    }
+
+    void getKeys(Node* node, uint32_t depth, char* currentString, cxx::vector<Key, Capacity>& result)
+    {
+        if (!node)
+        {
+            return;
+        }
+
+        currentString[depth - 1] = node->letter;
+
+        if (node->data)
+        {
+            currentString[depth] = '\0';
+            Key key(iox::cxx::TruncateToCapacity, currentString);
+            result.push_back(key);
+        }
+
+        Node* child = node->child;
+        while (child)
+        {
+            getKeys(child, depth + 1, currentString, result);
             child = child->sibling;
         }
     }

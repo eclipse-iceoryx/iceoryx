@@ -9,7 +9,7 @@ namespace iox
 template <typename T>
 class relocatable_ptr
 {
-    using offset_t = int64_t;
+    using offset_t = uint64_t;
 
     // we can do this since the value at the reference address has size > 1 Byte (meaning the address is unusable)
     static constexpr offset_t NULL_POINTER_OFFSET = 1;
