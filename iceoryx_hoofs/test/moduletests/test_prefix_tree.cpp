@@ -18,6 +18,8 @@
 
 #include "iceoryx_hoofs/data_structures/prefix_tree.hpp"
 
+#include <set>
+
 namespace
 {
 using namespace ::testing;
@@ -160,17 +162,20 @@ TEST_F(PrefixTree_test, searchingKeyWithMultipleValuesReturnsAllValues)
     sut.insert("ab", Integer{2});
 
     auto searchResult = sut.find("ab");
-    ASSERT_EQ(searchResult.size(), 2);
-    auto value1 = searchResult[0]->value;
-    auto value2 = searchResult[1]->value;
 
-    // we do not know in which order we find the values
-    bool found1 = value1 == 1 || value2 == 1;
-    bool found2 = value1 == 2 || value2 == 2;
-    EXPECT_TRUE(found1 && found2);
+    std::set<int> valuesExpected{1, 2};
+    EXPECT_EQ(searchResult.size(), valuesExpected.size());
+
+    std::set<int> valuesFound;
+    for (auto element : searchResult)
+    {
+        valuesFound.insert(element->value);
+    }
+    
+    EXPECT_EQ(valuesFound, valuesExpected);
 }
 
-// TODO: do we want this? - probably not
+// TODO: do we want this?
 TEST_F(PrefixTree_test, searchingKeyWithDuplicateValuesReturnsDuplicateValues)
 {
     insertTreeDefault();
@@ -188,6 +193,30 @@ TEST_F(PrefixTree_test, searchingKeyWithDuplicateValuesReturnsDuplicateValues)
     EXPECT_EQ(value1, 21);
     EXPECT_EQ(value2, 21);
     EXPECT_EQ(value3, 21);
+}
+
+TEST_F(PrefixTree_test, searchingPrefixReturnsAllValues)
+{
+    sut.insert("abc", Integer{73});
+    sut.insert("acb", Integer{37});
+    sut.insert("abb", Integer{42});
+    sut.insert("bbc", Integer{66});
+    sut.insert("ab", Integer{11});
+    sut.insert("abdd", Integer{22});
+
+    auto searchResult = sut.findPrefix("ab");
+
+    std::set<int> valuesExpected{73, 42, 11, 22};
+    EXPECT_EQ(searchResult.size(), valuesExpected.size());
+
+    std::set<int> valuesFound;
+    for (auto element : searchResult)
+    {
+        valuesFound.insert(element->value);
+    }
+
+
+    EXPECT_EQ(valuesFound, valuesExpected);
 }
 
 TEST_F(PrefixTree_test, removingKeyRemovesAllItsAssociatedValues)
@@ -375,7 +404,9 @@ TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements
 // this test requires relocate_ptr to be used internally
 TEST(PrefixTreeRelocation_test, relocatedTreeIsAnIndependentLogicalCopy)
 {
+    // TODO: we can use an optional<Tree> to simplify this
     // we want to zero out the memory after copy (and have to own it to do so)
+    // we can get the memory from heap as well / + address sanitizer
     using Tree = TestPrefixTree<>;
     uint8_t originalMemory[sizeof(Tree)] alignas(alignof(Tree));
 
@@ -396,9 +427,6 @@ TEST(PrefixTreeRelocation_test, relocatedTreeIsAnIndependentLogicalCopy)
     // if the relocated class references this memory accidentally
     original->~Tree(); // technically not required since PrefixTree is self-contained (hence cannot leak anything)
     std::memset(&originalMemory, 0, sizeof(Tree));
-
-    uint8_t zeroedMemory[sizeof(Tree)] alignas(alignof(Tree));
-    std::memset(&zeroedMemory, 0, sizeof(Tree));
 
     // relocated version should behave like the original
     // Note that this would also be true if it uses pointers to dynamic memory (which it does not).
@@ -424,6 +452,10 @@ TEST(PrefixTreeRelocation_test, relocatedTreeIsAnIndependentLogicalCopy)
 
     // operations should not have any effect on original memory
     // (or other memory, but we cannot check this)
+
+    uint8_t zeroedMemory[sizeof(Tree)] alignas(alignof(Tree));
+    std::memset(&zeroedMemory, 0, sizeof(Tree));
+
     auto cmp = std::memcmp(&zeroedMemory, &originalMemory, sizeof(Tree));
     EXPECT_EQ(cmp, 0);
 

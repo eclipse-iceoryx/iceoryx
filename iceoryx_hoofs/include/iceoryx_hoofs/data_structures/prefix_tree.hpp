@@ -83,7 +83,7 @@ class PrefixTree
     struct DataNode
     {
         data_node_ptr_t next{nullptr}; // needed since we may have more than one entry per key (as in a multimap)
-        Value value;                   // todo: no default ctor requirement on Value
+        Value value;                   // todo: no default ctor requirement on Value - optional
     };
 
     // follow a de la briandais tree approach to save memory at cost of traversal time
@@ -226,12 +226,23 @@ class PrefixTree
             return result;
         }
 
-        auto data = node->data;
-        while (data)
+        getValuesFromNode(node, result);
+        return result;
+    }
+
+    cxx::vector<const Value*, Capacity> findPrefix(const Key& prefix) noexcept
+    {
+        auto node = findNode(prefix);
+
+        cxx::vector<const Value*, Capacity> result;
+
+        if (!node)
         {
-            result.push_back(&data->value);
-            data = data->next;
+            return result;
         }
+
+        getValuesFromSubTree(node, result);
+
         return result;
     }
 
@@ -587,6 +598,28 @@ class PrefixTree
                 }
             }
             deleteTree(node);
+        }
+    }
+
+    void getValuesFromNode(Node* node, cxx::vector<const Value*, Capacity>& result)
+    {
+        auto data = node->data;
+        while (data)
+        {
+            result.push_back(&data->value);
+            data = data->next;
+        }
+    }
+
+    void getValuesFromSubTree(Node* node, cxx::vector<const Value*, Capacity>& result)
+    {
+        getValuesFromNode(node, result);
+
+        Node* child = node->child;
+        while (child)
+        {
+            getValuesFromSubTree(child, result);
+            child = child->sibling;
         }
     }
 };
