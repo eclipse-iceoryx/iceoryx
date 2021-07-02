@@ -71,16 +71,14 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     }
 
     auto removeIndexFromMap = [](std::multimap<capro::IdString_t, uint64_t>& map, uint64_t index) {
-        bool removedEntry{false};
         for (auto it = map.begin(); it != map.end();)
         {
             if (it->second == index)
             {
                 it = map.erase(it);
-                removedEntry = true;
                 continue;
             }
-            else if (removedEntry && it->second > index)
+            else if (it->second > index)
             {
                 // update index due to removed element
                 it->second--;
