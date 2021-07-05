@@ -39,18 +39,20 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
                   "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the request data!");
 
+    using Base_t = SmartChunk<RpcInterface<T, H>, T, H>;
+
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
-    using ForProducerOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
+    using ForProducerOnly = typename Base_t::template ForProducerOnly<S, TT>;
 
     /// @brief Helper type to enable the constructor for the consumer, i.e. when T has a const qualifier
     template <typename S, typename TT>
-    using ForConsumerOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
+    using ForConsumerOnly = typename Base_t::template ForConsumerOnly<S, TT>;
 
     /// @brief Helper type to enable some methods only if a user-header is used
     template <typename R, typename HH>
-    using HasUserHeader =
-        std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
+    using HasUserHeader = typename Base_t::template HasUserHeader<R, HH>;
+
 
   public:
     /// @brief Constructor for a Request used by the producer
