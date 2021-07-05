@@ -99,11 +99,28 @@ class ClientPort_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager(uint32_t userPayloadSize, uint32_t userHeaderSize)
     {
-        return m_memoryManager.getChunk(iox::mepoo::ChunkSettings::create(userPayloadSize,
-                                                                          iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
-                                                                          userHeaderSize,
-                                                                          iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
-                                            .value());
+        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(userPayloadSize,
+                                                                     iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+                                                                     userHeaderSize,
+                                                                     iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+        iox::cxx::Expects(!chunkSettingsResult.has_error());
+        return m_memoryManager.getChunk(chunkSettingsResult.value());
+    }
+
+    /// @return true if all pushes succeed, false if a push failed and a chunk was lost
+    bool pushResponses(ChunkQueuePusher<ClientChunkQueueData_t>& chunkQueuePusher, uint64_t numberOfPushes)
+    {
+        for (auto i = 0U; i < numberOfPushes; ++i)
+        {
+            constexpr uint32_t USER_PAYLOAD_SIZE{10};
+            auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
+            if (!chunkQueuePusher.push(sharedChunk))
+            {
+                chunkQueuePusher.lostAChunk();
+                return false;
+            }
+        }
+        return true;
     }
 
     static constexpr uint64_t QUEUE_CAPACITY{4};
@@ -415,16 +432,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesAndQu
 {
     auto& sut = clientPortUserWithConnectOnCreate;
 
-    for (auto i = 0U; i < QUEUE_CAPACITY; ++i)
-    {
-        constexpr uint32_t USER_PAYLOAD_SIZE{10};
-        auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-        if (!chunkQueuePusherWithConnectOnCreate.push(sharedChunk))
-        {
-            chunkQueuePusherWithConnectOnCreate.lostAChunk();
-        }
-    }
-
+    EXPECT_TRUE(pushResponses(chunkQueuePusherWithConnectOnCreate, QUEUE_CAPACITY));
     EXPECT_FALSE(sut.hasLostResponsesSinceLastCall());
 }
 
@@ -432,16 +440,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithLosingResponsesReturnsT
 {
     auto& sut = clientPortUserWithConnectOnCreate;
 
-    for (auto i = 0U; i < QUEUE_CAPACITY + 1; ++i)
-    {
-        constexpr uint32_t USER_PAYLOAD_SIZE{10};
-        auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-        if (!chunkQueuePusherWithConnectOnCreate.push(sharedChunk))
-        {
-            chunkQueuePusherWithConnectOnCreate.lostAChunk();
-        }
-    }
-
+    EXPECT_FALSE(pushResponses(chunkQueuePusherWithConnectOnCreate, QUEUE_CAPACITY + 1U));
     EXPECT_TRUE(sut.hasLostResponsesSinceLastCall());
 }
 
@@ -449,16 +448,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallReturnsFalseAfterPreviously
 {
     auto& sut = clientPortUserWithConnectOnCreate;
 
-    for (auto i = 0U; i < QUEUE_CAPACITY + 1; ++i)
-    {
-        constexpr uint32_t USER_PAYLOAD_SIZE{10};
-        auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-        if (!chunkQueuePusherWithConnectOnCreate.push(sharedChunk))
-        {
-            chunkQueuePusherWithConnectOnCreate.lostAChunk();
-        }
-    }
-
+    EXPECT_FALSE(pushResponses(chunkQueuePusherWithConnectOnCreate, QUEUE_CAPACITY + 1U));
     EXPECT_TRUE(sut.hasLostResponsesSinceLastCall());
     EXPECT_FALSE(sut.hasLostResponsesSinceLastCall());
 }
