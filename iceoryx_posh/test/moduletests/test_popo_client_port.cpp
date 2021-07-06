@@ -51,7 +51,7 @@ class ClientPort_test : public Test
         ClientPortData portData;
         ClientPortUser portUser{portData};
         ClientPortRouDi portRouDi{portData};
-        ChunkQueuePusher<ClientChunkQueueData_t> chunkQueuePusher{&portData.m_chunkReceiverData};
+        ChunkQueuePusher<ClientChunkQueueData_t> responseQueuePusher{&portData.m_chunkReceiverData};
     };
 
   public:
@@ -151,23 +151,23 @@ class ClientPort_test : public Test
     iox::capro::ServiceDescription m_serviceDescription{"hyp", "no", "toad"};
     iox::RuntimeName_t m_runtimeName{"hypnotoad"};
 
-    ClientOptions m_withConnectOnCreate = [&] {
+    ClientOptions m_clientOptionsWithConnectOnCreate = [&] {
         ClientOptions options;
         options.connectOnCreate = true;
         options.responseQueueCapacity = QUEUE_CAPACITY;
         return options;
     }();
-    ClientOptions m_withoutConnectOnCreate = [] {
+    ClientOptions m_clientOptionsWithoutConnectOnCreate = [] {
         ClientOptions options;
         options.connectOnCreate = false;
         options.responseQueueCapacity = QUEUE_CAPACITY;
         return options;
     }();
 
-    ClientOptions m_clientOptionWith = [&] {
+    ClientOptions m_clientOptionsWithBlockProducerResponseQeueuFullPolicy = [&] {
         ClientOptions options;
-        options.connectOnCreate = true;
         options.responseQueueCapacity = QUEUE_CAPACITY;
+        options.responseQueueFullPolicy = QueueFullPolicy2::BLOCK_PRODUCER;
         return options;
     }();
 
@@ -181,9 +181,11 @@ class ClientPort_test : public Test
     ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
     SutClientPort clientPortWithConnectOnCreate{
-        m_serviceDescription, m_runtimeName, m_withConnectOnCreate, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithConnectOnCreate, m_memoryManager};
     SutClientPort clientPortWithoutConnectOnCreate{
-        m_serviceDescription, m_runtimeName, m_withoutConnectOnCreate, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithoutConnectOnCreate, m_memoryManager};
+    SutClientPort clientPortWithBlockProducerResponseQueuePolicy{
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithBlockProducerResponseQeueuFullPolicy, m_memoryManager};
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
@@ -355,7 +357,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     new (sharedChunk.getChunkHeader()->userHeader())
         ResponseHeader(iox::UniquePortId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
-    sut.chunkQueuePusher.push(sharedChunk);
+    sut.responseQueuePusher.push(sharedChunk);
 
     sut.portUser.getResponse()
         .and_then([&](auto& responseHeader) { EXPECT_THAT(responseHeader->getSequenceId(), Eq(SEQUENCE_ID)); })
@@ -390,7 +392,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
 
     iox::cxx::optional<iox::mepoo::SharedChunk> sharedChunk{
         getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
-    sut.chunkQueuePusher.push(sharedChunk.value());
+    sut.responseQueuePusher.push(sharedChunk.value());
     sharedChunk.reset();
 
     sut.portUser.getResponse()
@@ -417,7 +419,7 @@ TEST_F(ClientPort_test, HasNewResponseOnNonEmptyResponseQueueReturnsTrue)
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-    sut.chunkQueuePusher.push(sharedChunk);
+    sut.responseQueuePusher.push(sharedChunk);
 
     EXPECT_TRUE(sut.portUser.hasNewResponses());
 }
@@ -428,7 +430,7 @@ TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueAfterPreviouslyNotEmpt
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-    sut.chunkQueuePusher.push(sharedChunk);
+    sut.responseQueuePusher.push(sharedChunk);
 
     EXPECT_FALSE(sut.portUser.getResponse().has_error());
 
@@ -445,7 +447,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesAndQu
 {
     auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_TRUE(pushResponses(sut.chunkQueuePusher, QUEUE_CAPACITY));
+    EXPECT_TRUE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY));
     EXPECT_FALSE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
@@ -453,7 +455,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithLosingResponsesReturnsT
 {
     auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_FALSE(pushResponses(sut.chunkQueuePusher, QUEUE_CAPACITY + 1U));
+    EXPECT_FALSE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY + 1U));
     EXPECT_TRUE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
@@ -461,7 +463,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallReturnsFalseAfterPreviously
 {
     auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_FALSE(pushResponses(sut.chunkQueuePusher, QUEUE_CAPACITY + 1U));
+    EXPECT_FALSE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY + 1U));
     EXPECT_TRUE(sut.portUser.hasLostResponsesSinceLastCall());
     EXPECT_FALSE(sut.portUser.hasLostResponsesSinceLastCall());
 }
@@ -542,10 +544,75 @@ TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange
 
 // END ClientPortUser tests
 
+
 // BEGIN ClientPortRouDi tests
+
+TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithDefaultOptionIsDiscardOldesData)
+{
+    auto& sut = clientPortWithConnectOnCreate;
+
+    EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy2::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithBlockProducerOptionIsBlockProducer)
+{
+    auto& sut = clientPortWithBlockProducerResponseQueuePolicy;
+
+    EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy2::BLOCK_PRODUCER));
+}
+
+TEST_F(ClientPort_test, TryGetCaProMessageOnConnectHasCaProMessageTypeConnect)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+
+    sut.portUser.connect();
+
+    auto caproMessage = sut.portRouDi.tryGetCaProMessage();
+
+    ASSERT_TRUE(caproMessage.has_value());
+    EXPECT_THAT(caproMessage->m_type, Eq(iox::capro::CaproMessageType::CONNECT));
+}
+
+TEST_F(ClientPort_test, TryGetCaProMessageOnDisconnectHasCaProMessageTypeDisconnect)
+{
+    auto& sut = clientPortWithConnectOnCreate;
+
+    sut.portUser.disconnect();
+
+    auto caproMessage = sut.portRouDi.tryGetCaProMessage();
+
+    ASSERT_TRUE(caproMessage.has_value());
+    EXPECT_THAT(caproMessage->m_type, Eq(iox::capro::CaproMessageType::DISCONNECT));
+}
+
+TEST_F(ClientPort_test, ReleaseAllChunksWorks)
+{
+    auto& sut = clientPortWithConnectOnCreate;
+
+    // produce chunks for the chunk sender
+    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+        .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
+        .or_else([&](auto&) {
+            constexpr bool UNREACHABLE{false};
+            EXPECT_TRUE(UNREACHABLE);
+        });
+
+    // produce chunks for the chunk receiver
+    EXPECT_TRUE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY));
+
+    EXPECT_THAT(getNumberOfUsedChunks(), Ne(0U));
+
+    sut.portRouDi.releaseAllChunks();
+
+    // this is not part of the client port but holds the chunk from `sendRequest`
+    serverRequestQueue.clear();
+
+    EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
+}
 
 // BEGIN Valid transitions
 
+/// @todo
 
 // END Valid transitions
 
