@@ -27,6 +27,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::capro;
 using namespace iox::popo;
 
 class ClientPort_test : public Test
@@ -40,7 +41,7 @@ class ClientPort_test : public Test
 
     struct SutClientPort
     {
-        SutClientPort(const iox::capro::ServiceDescription& serviceDescription,
+        SutClientPort(const ServiceDescription& serviceDescription,
                       const iox::RuntimeName_t& runtimeName,
                       const ClientOptions& clientOptions,
                       iox::mepoo::MemoryManager& memoryManager)
@@ -75,30 +76,45 @@ class ClientPort_test : public Test
     {
     }
 
-    void tryAdvanceToState(SutClientPort& clientPort, const iox::ConnectionState state)
+    void tryAdvanceToState(SutClientPort& clientPort, const iox::ConnectionState targetState)
     {
         auto maybeCaProMessage = clientPort.portRouDi.tryGetCaProMessage();
-        if (state == iox::ConnectionState::NOT_CONNECTED && clientPort.portData.m_connectionState == state)
+        if (targetState == iox::ConnectionState::NOT_CONNECTED && clientPort.portData.m_connectionState == targetState)
         {
             return;
         }
 
         ASSERT_TRUE(maybeCaProMessage.has_value());
         auto& clientMessage = maybeCaProMessage.value();
-        ASSERT_THAT(clientMessage.m_type, Eq(iox::capro::CaproMessageType::CONNECT));
+        ASSERT_THAT(clientMessage.m_type, Eq(CaproMessageType::CONNECT));
         ASSERT_THAT(clientMessage.m_chunkQueueData, Ne(nullptr));
         ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECT_REQUESTED));
-        if (clientPort.portData.m_connectionState == state)
+        if (clientPort.portData.m_connectionState == targetState)
         {
             return;
         }
 
-        iox::capro::CaproMessage serverMessage{
-            iox::capro::CaproMessageType::ACK, m_serviceDescription, iox::capro::CaproMessageSubType::NOSUBTYPE};
-        serverMessage.m_chunkQueueData = &serverChunkQueueData;
-        clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessage);
+        if (targetState == iox::ConnectionState::WAIT_FOR_OFFER)
+        {
+            CaproMessage serverMessageNack{CaproMessageType::NACK, m_serviceDescription};
+            clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageNack);
+            ASSERT_THAT(clientPort.portData.m_connectionState, Eq(targetState));
+            return;
+        }
+
+        CaproMessage serverMessageAck{CaproMessageType::ACK, m_serviceDescription};
+        serverMessageAck.m_chunkQueueData = &serverChunkQueueData;
+        clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageAck);
         ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECTED));
-        if (clientPort.portData.m_connectionState == state)
+        if (clientPort.portData.m_connectionState == targetState)
+        {
+            return;
+        }
+
+        CaproMessage serverMessageDisconnect{CaproMessageType::DISCONNECT, m_serviceDescription};
+        clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageDisconnect);
+        ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::DISCONNECT_REQUESTED));
+        if (clientPort.portData.m_connectionState == targetState)
         {
             return;
         }
@@ -148,7 +164,7 @@ class ClientPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MemoryManager m_memoryManager;
 
-    iox::capro::ServiceDescription m_serviceDescription{"hyp", "no", "toad"};
+    ServiceDescription m_serviceDescription{"hyp", "no", "toad"};
     iox::RuntimeName_t m_runtimeName{"hypnotoad"};
 
     ClientOptions m_clientOptionsWithConnectOnCreate = [&] {
@@ -171,13 +187,12 @@ class ClientPort_test : public Test
         return options;
     }();
 
-    ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
-
   public:
     static constexpr uint32_t USER_PAYLOAD_SIZE{32U};
     static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
+    ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
     ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
     SutClientPort clientPortWithConnectOnCreate{
@@ -570,7 +585,7 @@ TEST_F(ClientPort_test, TryGetCaProMessageOnConnectHasCaProMessageTypeConnect)
     auto caproMessage = sut.portRouDi.tryGetCaProMessage();
 
     ASSERT_TRUE(caproMessage.has_value());
-    EXPECT_THAT(caproMessage->m_type, Eq(iox::capro::CaproMessageType::CONNECT));
+    EXPECT_THAT(caproMessage->m_type, Eq(CaproMessageType::CONNECT));
 }
 
 TEST_F(ClientPort_test, TryGetCaProMessageOnDisconnectHasCaProMessageTypeDisconnect)
@@ -582,7 +597,7 @@ TEST_F(ClientPort_test, TryGetCaProMessageOnDisconnectHasCaProMessageTypeDisconn
     auto caproMessage = sut.portRouDi.tryGetCaProMessage();
 
     ASSERT_TRUE(caproMessage.has_value());
-    EXPECT_THAT(caproMessage->m_type, Eq(iox::capro::CaproMessageType::DISCONNECT));
+    EXPECT_THAT(caproMessage->m_type, Eq(CaproMessageType::DISCONNECT));
 }
 
 TEST_F(ClientPort_test, ReleaseAllChunksWorks)
@@ -612,9 +627,153 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 
 // BEGIN Valid transitions
 
-/// @todo
+TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeOfferRemainsInStateNotConnected)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+
+    auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
+
+TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeConnectTransitionsToStateConnectRequested)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+
+    auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECT_REQUESTED));
+    ASSERT_TRUE(responseCaproMessage.has_value());
+    EXPECT_THAT(responseCaproMessage->m_serviceDescription, Eq(sut.portData.m_serviceDescription));
+    EXPECT_THAT(responseCaproMessage->m_type, Eq(iox::capro::CaproMessageType::CONNECT));
+    EXPECT_THAT(responseCaproMessage->m_chunkQueueData, Eq(&sut.portData.m_chunkReceiverData));
+}
+
+TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeNackTransitionsToStateWaitForOffer)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
+
+    auto caproMessage = CaproMessage{CaproMessageType::NACK, sut.portData.m_serviceDescription};
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::WAIT_FOR_OFFER));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
+
+TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeAckTransitionsToStateConnected)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
+
+    auto caproMessage = CaproMessage{CaproMessageType::ACK, sut.portData.m_serviceDescription};
+    caproMessage.m_chunkQueueData = &serverChunkQueueData;
+
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
+
+TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeDisconnetTransitionsToStateNotConnected)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
+
+    auto caproMessage = CaproMessage{CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription};
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
+
+TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeOfferTransitionsToStateConnectRequested)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
+
+    auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECT_REQUESTED));
+    ASSERT_TRUE(responseCaproMessage.has_value());
+    EXPECT_THAT(responseCaproMessage->m_serviceDescription, Eq(sut.portData.m_serviceDescription));
+    EXPECT_THAT(responseCaproMessage->m_type, Eq(iox::capro::CaproMessageType::CONNECT));
+    EXPECT_THAT(responseCaproMessage->m_chunkQueueData, Eq(&sut.portData.m_chunkReceiverData));
+}
+
+TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeStopOfferTransitionsToStateWaitForOffer)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
+
+    auto caproMessage = CaproMessage{CaproMessageType::STOP_OFFER, sut.portData.m_serviceDescription};
+    caproMessage.m_chunkQueueData = &serverChunkQueueData;
+
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::WAIT_FOR_OFFER));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
+
+TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeDisconnectTransitionsToStateDisconnectRequested)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
+
+    auto caproMessage = CaproMessage{CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription};
+    caproMessage.m_chunkQueueData = &serverChunkQueueData;
+
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::DISCONNECT_REQUESTED));
+    ASSERT_TRUE(responseCaproMessage.has_value());
+    EXPECT_THAT(responseCaproMessage->m_serviceDescription, Eq(sut.portData.m_serviceDescription));
+    EXPECT_THAT(responseCaproMessage->m_type, Eq(iox::capro::CaproMessageType::DISCONNECT));
+    EXPECT_THAT(responseCaproMessage->m_chunkQueueData, Eq(&sut.portData.m_chunkReceiverData));
+}
+
+TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeAckTransitionsToStateNotConnected)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
+
+    auto caproMessage = CaproMessage{CaproMessageType::ACK, sut.portData.m_serviceDescription};
+    caproMessage.m_chunkQueueData = &serverChunkQueueData;
+
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
+
+TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransitionsToStateNotConnected)
+{
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
+
+    auto caproMessage = CaproMessage{CaproMessageType::NACK, sut.portData.m_serviceDescription};
+    caproMessage.m_chunkQueueData = &serverChunkQueueData;
+
+    auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
+    ASSERT_FALSE(responseCaproMessage.has_value());
+}
 
 // END Valid transitions
+
 
 // BEGIN Invalid transitions
 
