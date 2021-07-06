@@ -123,6 +123,14 @@ class ClientPort_test : public Test
         ASSERT_FALSE(NOT_IMPLEMENTED);
     }
 
+    SutClientPort& initAndGetClientPortForStateTransitionTests()
+    {
+        clientPortForStateTransitionTests.reset();
+        clientPortForStateTransitionTests.emplace(
+            m_serviceDescription, m_runtimeName, m_clientOptionsWithoutConnectOnCreate, m_memoryManager);
+        return clientPortForStateTransitionTests.value();
+    }
+
     uint32_t getNumberOfUsedChunks() const
     {
         return m_memoryManager.getMemPoolInfo(0U).m_usedChunks;
@@ -186,6 +194,8 @@ class ClientPort_test : public Test
         options.responseQueueFullPolicy = QueueFullPolicy2::BLOCK_PRODUCER;
         return options;
     }();
+
+    iox::cxx::optional<SutClientPort> clientPortForStateTransitionTests;
 
   public:
     static constexpr uint32_t USER_PAYLOAD_SIZE{32U};
@@ -629,7 +639,7 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 
 TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeOfferRemainsInStateNotConnected)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
 
     auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -640,7 +650,7 @@ TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeOfferRemainsInState
 
 TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeConnectTransitionsToStateConnectRequested)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
 
     auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -654,7 +664,7 @@ TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeConnectTransitionsT
 
 TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeNackTransitionsToStateWaitForOffer)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
 
@@ -667,7 +677,7 @@ TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeNackTransitions
 
 TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeAckTransitionsToStateConnected)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
 
@@ -682,7 +692,7 @@ TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeAckTransitionsT
 
 TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeDisconnetTransitionsToStateNotConnected)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
 
@@ -695,7 +705,7 @@ TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeDisconnetTransition
 
 TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeOfferTransitionsToStateConnectRequested)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
 
@@ -711,7 +721,7 @@ TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeOfferTransitionsToS
 
 TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeStopOfferTransitionsToStateWaitForOffer)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
 
@@ -726,7 +736,7 @@ TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeStopOfferTransitionsTo
 
 TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeDisconnectTransitionsToStateDisconnectRequested)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
 
@@ -744,7 +754,7 @@ TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeDisconnectTransitionsT
 
 TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeAckTransitionsToStateNotConnected)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
 
@@ -759,7 +769,7 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeAckTransitio
 
 TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransitionsToStateNotConnected)
 {
-    auto& sut = clientPortWithoutConnectOnCreate;
+    auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
 
@@ -777,7 +787,81 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransiti
 
 // BEGIN Invalid transitions
 
-/// @todo
+TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
+{
+    constexpr iox::ConnectionState ALL_STATES[]{iox::ConnectionState::NOT_CONNECTED,
+                                                iox::ConnectionState::CONNECT_REQUESTED,
+                                                iox::ConnectionState::WAIT_FOR_OFFER,
+                                                iox::ConnectionState::CONNECTED,
+                                                iox::ConnectionState::DISCONNECT_REQUESTED};
+
+    for (auto targetState : ALL_STATES)
+    {
+        for (int32_t i = 0; i < static_cast<int32_t>(CaproMessageType::MESSGAGE_TYPE_END); ++i)
+        {
+            auto caproMessageType = static_cast<CaproMessageType>(i);
+            SCOPED_TRACE(std::string("Invalid transition test from ")
+                         + iox::cxx::convert::toString(asStringLiteral(targetState)) + std::string(" with ")
+                         + iox::cxx::convert::toString(asStringLiteral(caproMessageType)));
+
+            // skip for valid transitions
+            switch (targetState)
+            {
+            case iox::ConnectionState::NOT_CONNECTED:
+                if (caproMessageType == CaproMessageType::CONNECT || caproMessageType == CaproMessageType::OFFER)
+                {
+                    continue;
+                }
+                break;
+            case iox::ConnectionState::CONNECT_REQUESTED:
+                if (caproMessageType == CaproMessageType::ACK || caproMessageType == CaproMessageType::NACK)
+                {
+                    continue;
+                }
+                break;
+            case iox::ConnectionState::WAIT_FOR_OFFER:
+                if (caproMessageType == CaproMessageType::DISCONNECT || caproMessageType == CaproMessageType::OFFER)
+                {
+                    continue;
+                }
+                break;
+            case iox::ConnectionState::CONNECTED:
+                if (caproMessageType == CaproMessageType::STOP_OFFER
+                    || caproMessageType == CaproMessageType::DISCONNECT)
+                {
+                    continue;
+                }
+                break;
+            case iox::ConnectionState::DISCONNECT_REQUESTED:
+                if (caproMessageType == CaproMessageType::ACK || caproMessageType == CaproMessageType::NACK)
+                {
+                    continue;
+                }
+                break;
+            }
+
+            auto& sut = initAndGetClientPortForStateTransitionTests();
+            if (targetState != iox::ConnectionState::NOT_CONNECTED)
+            {
+                sut.portUser.connect();
+                tryAdvanceToState(sut, targetState);
+            }
+
+            iox::cxx::optional<iox::Error> detectedError;
+            auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+                [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+                    detectedError.emplace(error);
+                    EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
+                });
+
+            auto caproMessage = CaproMessage{caproMessageType, sut.portData.m_serviceDescription};
+            auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+            ASSERT_FALSE(responseCaproMessage.has_value());
+            ASSERT_TRUE(detectedError.has_value());
+            EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR);
+        }
+    }
+}
 
 // END Invalid transitions
 
