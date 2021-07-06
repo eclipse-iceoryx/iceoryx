@@ -795,6 +795,9 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
                                                 iox::ConnectionState::CONNECTED,
                                                 iox::ConnectionState::DISCONNECT_REQUESTED};
 
+    // disable logging to prevent spamming the console with LogFatal outputs
+    auto logLevelScopeGuard = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
+
     for (auto targetState : ALL_STATES)
     {
         for (int32_t i = 0; i < static_cast<int32_t>(CaproMessageType::MESSGAGE_TYPE_END); ++i)

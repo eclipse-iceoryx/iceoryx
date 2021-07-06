@@ -152,7 +152,6 @@ ClientPortRouDi::handleCaProMessageForStateConnectRequested(const capro::CaproMe
 
         getMembers()->m_connectionState.store(ConnectionState::CONNECTED, std::memory_order_relaxed);
         return cxx::nullopt_t();
-
     case capro::CaproMessageType::NACK:
         getMembers()->m_connectionState.store(ConnectionState::WAIT_FOR_OFFER, std::memory_order_relaxed);
         return cxx::nullopt_t();
@@ -180,7 +179,6 @@ ClientPortRouDi::handleCaProMessageForStateWaitForOffer(const capro::CaproMessag
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
-    break;
     case capro::CaproMessageType::DISCONNECT:
         getMembers()->m_connectionState.store(ConnectionState::NOT_CONNECTED, std::memory_order_relaxed);
         return cxx::nullopt_t();
