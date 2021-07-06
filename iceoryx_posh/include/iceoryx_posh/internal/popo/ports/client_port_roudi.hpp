@@ -31,7 +31,8 @@ namespace popo
 /// @brief The ClientPortRouDi provides the API for accessing a client port from the RouDi middleware daemon side.
 /// The client port is divided in the three parts ClientPortData, ClientPortRouDi and ClientPortUser.
 /// The ClientPortRouDi provides service discovery functionality that is based on CaPro messages. With this API the
-/// dynamic connections between clients and servers ports can be established
+/// dynamic connections between clients and servers ports can be established.
+/// @note This class is not thread-safe and must be guarded by a mutex if used in a multithreaded context.
 class ClientPortRouDi : public BasePort
 {
   public:
@@ -62,7 +63,7 @@ class ClientPortRouDi : public BasePort
     dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept;
 
     /// @brief cleanup the client and release all the chunks it currently holds
-    /// Caution: Contract is that user process is no more running when cleanup is called
+    /// @attention Contract is that user process is no more running when cleanup is called
     void releaseAllChunks() noexcept;
 
   private:
