@@ -38,6 +38,22 @@ class ClientPort_test : public Test
     static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
 
+    struct SutClientPort
+    {
+        SutClientPort(const iox::capro::ServiceDescription& serviceDescription,
+                      const iox::RuntimeName_t& runtimeName,
+                      const ClientOptions& clientOptions,
+                      iox::mepoo::MemoryManager& memoryManager)
+            : portData(serviceDescription, runtimeName, clientOptions, &memoryManager)
+        {
+        }
+
+        ClientPortData portData;
+        ClientPortUser portUser{portData};
+        ClientPortRouDi portRouDi{portData};
+        ChunkQueuePusher<ClientChunkQueueData_t> chunkQueuePusher{&portData.m_chunkReceiverData};
+    };
+
   public:
     ClientPort_test()
     {
@@ -51,19 +67,18 @@ class ClientPort_test : public Test
         m_deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
         // this is basically what RouDi does when a client is requested
-        tryAdvanceToState(clientPortDataWithConnectOnCreate, iox::ConnectionState::CONNECTED);
-        tryAdvanceToState(clientPortDataWithoutConnectOnCreate, iox::ConnectionState::NOT_CONNECTED);
+        tryAdvanceToState(clientPortWithConnectOnCreate, iox::ConnectionState::CONNECTED);
+        tryAdvanceToState(clientPortWithoutConnectOnCreate, iox::ConnectionState::NOT_CONNECTED);
     }
 
     void TearDown() override
     {
     }
 
-    void tryAdvanceToState(ClientPortData& clientPortData, const iox::ConnectionState state)
+    void tryAdvanceToState(SutClientPort& clientPort, const iox::ConnectionState state)
     {
-        ClientPortRouDi clientPortRouDi{clientPortData};
-        auto maybeCaProMessage = clientPortRouDi.tryGetCaProMessage();
-        if (state == iox::ConnectionState::NOT_CONNECTED && clientPortData.m_connectionState == state)
+        auto maybeCaProMessage = clientPort.portRouDi.tryGetCaProMessage();
+        if (state == iox::ConnectionState::NOT_CONNECTED && clientPort.portData.m_connectionState == state)
         {
             return;
         }
@@ -72,8 +87,8 @@ class ClientPort_test : public Test
         auto& clientMessage = maybeCaProMessage.value();
         ASSERT_THAT(clientMessage.m_type, Eq(iox::capro::CaproMessageType::CONNECT));
         ASSERT_THAT(clientMessage.m_chunkQueueData, Ne(nullptr));
-        ASSERT_THAT(clientPortData.m_connectionState, Eq(iox::ConnectionState::CONNECT_REQUESTED));
-        if (clientPortData.m_connectionState == state)
+        ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECT_REQUESTED));
+        if (clientPort.portData.m_connectionState == state)
         {
             return;
         }
@@ -81,9 +96,9 @@ class ClientPort_test : public Test
         iox::capro::CaproMessage serverMessage{
             iox::capro::CaproMessageType::ACK, m_serviceDescription, iox::capro::CaproMessageSubType::NOSUBTYPE};
         serverMessage.m_chunkQueueData = &serverChunkQueueData;
-        clientPortRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessage);
-        ASSERT_THAT(clientPortData.m_connectionState, Eq(iox::ConnectionState::CONNECTED));
-        if (clientPortData.m_connectionState == state)
+        clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessage);
+        ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECTED));
+        if (clientPort.portData.m_connectionState == state)
         {
             return;
         }
@@ -149,6 +164,13 @@ class ClientPort_test : public Test
         return options;
     }();
 
+    ClientOptions m_clientOptionWith = [&] {
+        ClientOptions options;
+        options.connectOnCreate = true;
+        options.responseQueueCapacity = QUEUE_CAPACITY;
+        return options;
+    }();
+
     ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                                 iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
 
@@ -158,44 +180,37 @@ class ClientPort_test : public Test
 
     ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
-    // client port with connect on create
-    ClientPortData clientPortDataWithConnectOnCreate{
-        m_serviceDescription, m_runtimeName, m_withConnectOnCreate, &m_memoryManager};
-    ClientPortUser clientPortUserWithConnectOnCreate{clientPortDataWithConnectOnCreate};
-    ClientPortRouDi clientPortRouDiWithConnectOnCreate{clientPortDataWithConnectOnCreate};
-    ChunkQueuePusher<ClientChunkQueueData_t> chunkQueuePusherWithConnectOnCreate{
-        &clientPortDataWithConnectOnCreate.m_chunkReceiverData};
-
-    // client port without connect on create
-    ClientPortData clientPortDataWithoutConnectOnCreate{
-        m_serviceDescription, m_runtimeName, m_withoutConnectOnCreate, &m_memoryManager};
-    ClientPortUser clientPortUserWithoutConnectOnCreate{clientPortDataWithoutConnectOnCreate};
-    ClientPortRouDi clientPortRouDiWithoutConnectOnCreate{clientPortDataWithoutConnectOnCreate};
-    ChunkQueuePusher<ClientChunkQueueData_t> chunkQueuePusherWithoutConnectOnCreate{
-        &clientPortDataWithoutConnectOnCreate.m_chunkReceiverData};
+    SutClientPort clientPortWithConnectOnCreate{
+        m_serviceDescription, m_runtimeName, m_withConnectOnCreate, m_memoryManager};
+    SutClientPort clientPortWithoutConnectOnCreate{
+        m_serviceDescription, m_runtimeName, m_withoutConnectOnCreate, m_memoryManager};
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
+
+
+/// @todo iox-#27 do tests related to QueueFullPolicy in integration test with a real ServerPort and add a note in this
+/// file that those tests are part of the integration test
 
 // BEGIN ClientPortUser tests
 
 TEST_F(ClientPort_test, InitialConnectionStateOnPortWithConnectOnCreateIs_CONNECTED)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    EXPECT_THAT(sut.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
+    auto& sut = clientPortWithConnectOnCreate;
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 }
 
 TEST_F(ClientPort_test, InitialConnectionStateOnPortWithoutConnectOnCreateIs_NOT_CONNECTED)
 {
-    auto& sut = clientPortUserWithoutConnectOnCreate;
-    EXPECT_THAT(sut.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
+    auto& sut = clientPortWithoutConnectOnCreate;
+    EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
 }
 
 TEST_F(ClientPort_test, AllocateRequestDoesNotFailAndUsesTheMempool)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
 
-    auto maybeRequest = sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
+    auto maybeRequest = sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(maybeRequest.has_error());
 
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(1U));
@@ -203,7 +218,7 @@ TEST_F(ClientPort_test, AllocateRequestDoesNotFailAndUsesTheMempool)
 
 TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -212,7 +227,7 @@ TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    sut.freeRequest(nullptr);
+    sut.portUser.freeRequest(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
@@ -220,11 +235,11 @@ TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
 
 TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+    auto& sut = clientPortWithConnectOnCreate;
+    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) {
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
-            sut.freeRequest(requestHeader);
+            sut.portUser.freeRequest(requestHeader);
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {
@@ -235,7 +250,7 @@ TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToThe
 
 TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -244,8 +259,8 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto&) { sut.sendRequest(nullptr); })
+    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+        .and_then([&](auto&) { sut.portUser.sendRequest(nullptr); })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);
@@ -258,11 +273,11 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
 {
     constexpr int64_t SEQUENCE_ID{42U};
-    auto& sut = clientPortUserWithConnectOnCreate;
-    sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+    auto& sut = clientPortWithConnectOnCreate;
+    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) {
             requestHeader->setSequenceId(SEQUENCE_ID);
-            sut.sendRequest(requestHeader);
+            sut.portUser.sendRequest(requestHeader);
         })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
@@ -280,13 +295,11 @@ TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQ
         });
 }
 
-/// @todo send to full server queue ... should this be done in an integration test with a real ServerPort?
-
 TEST_F(ClientPort_test, SendRequestOnNotConnectedClientPortDoesNotEnqueuesRequestToServerQueue)
 {
-    auto& sut = clientPortUserWithoutConnectOnCreate;
-    sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) { sut.sendRequest(requestHeader); })
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+        .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);
@@ -297,24 +310,24 @@ TEST_F(ClientPort_test, SendRequestOnNotConnectedClientPortDoesNotEnqueuesReques
 
 TEST_F(ClientPort_test, ConnectAfterPreviousSendRequestCallDoesNotEnqueuesRequestToServerQueue)
 {
-    auto& sut = clientPortUserWithoutConnectOnCreate;
-    sut.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) { sut.sendRequest(requestHeader); })
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+        .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);
         });
 
-    sut.connect();
-    tryAdvanceToState(clientPortDataWithoutConnectOnCreate, iox::ConnectionState::CONNECTED);
+    sut.portUser.connect();
+    tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
 
     EXPECT_FALSE(serverRequestQueue.tryPop().has_value());
 }
 
 TEST_F(ClientPort_test, GetResponseOnNotConnectedClientPortHasNoResponse)
 {
-    auto& sut = clientPortUserWithoutConnectOnCreate;
-    sut.getResponse()
+    auto& sut = clientPortWithoutConnectOnCreate;
+    sut.portUser.getResponse()
         .and_then([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);
@@ -324,8 +337,8 @@ TEST_F(ClientPort_test, GetResponseOnNotConnectedClientPortHasNoResponse)
 
 TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHasNoResponse)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    sut.getResponse()
+    auto& sut = clientPortWithConnectOnCreate;
+    sut.portUser.getResponse()
         .and_then([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);
@@ -336,15 +349,15 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHa
 TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueueHasResponse)
 {
     constexpr int64_t SEQUENCE_ID{13U};
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     new (sharedChunk.getChunkHeader()->userHeader())
         ResponseHeader(iox::UniquePortId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
-    chunkQueuePusherWithConnectOnCreate.push(sharedChunk);
+    sut.chunkQueuePusher.push(sharedChunk);
 
-    sut.getResponse()
+    sut.portUser.getResponse()
         .and_then([&](auto& responseHeader) { EXPECT_THAT(responseHeader->getSequenceId(), Eq(SEQUENCE_ID)); })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
@@ -354,7 +367,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
 
 TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -363,7 +376,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    sut.releaseResponse(nullptr);
+    sut.portUser.releaseResponse(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER);
@@ -371,19 +384,19 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
 
 TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempool)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
 
     iox::cxx::optional<iox::mepoo::SharedChunk> sharedChunk{
         getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
-    chunkQueuePusherWithConnectOnCreate.push(sharedChunk.value());
+    sut.chunkQueuePusher.push(sharedChunk.value());
     sharedChunk.reset();
 
-    sut.getResponse()
+    sut.portUser.getResponse()
         .and_then([&](auto& responseHeader) {
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
-            sut.releaseResponse(responseHeader);
+            sut.portUser.releaseResponse(responseHeader);
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {
@@ -394,69 +407,69 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
 
 TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueReturnsFalse)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    EXPECT_FALSE(sut.hasNewResponses());
+    auto& sut = clientPortWithConnectOnCreate;
+    EXPECT_FALSE(sut.portUser.hasNewResponses());
 }
 
 TEST_F(ClientPort_test, HasNewResponseOnNonEmptyResponseQueueReturnsTrue)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-    chunkQueuePusherWithConnectOnCreate.push(sharedChunk);
+    sut.chunkQueuePusher.push(sharedChunk);
 
-    EXPECT_TRUE(sut.hasNewResponses());
+    EXPECT_TRUE(sut.portUser.hasNewResponses());
 }
 
 TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueAfterPreviouslyNotEmptyReturnsFalse)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
-    chunkQueuePusherWithConnectOnCreate.push(sharedChunk);
+    sut.chunkQueuePusher.push(sharedChunk);
 
-    EXPECT_FALSE(sut.getResponse().has_error());
+    EXPECT_FALSE(sut.portUser.getResponse().has_error());
 
-    EXPECT_FALSE(sut.hasNewResponses());
+    EXPECT_FALSE(sut.portUser.hasNewResponses());
 }
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesReturnsFalse)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    EXPECT_FALSE(sut.hasLostResponsesSinceLastCall());
+    auto& sut = clientPortWithConnectOnCreate;
+    EXPECT_FALSE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesAndQueueFullReturnsFalse)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_TRUE(pushResponses(chunkQueuePusherWithConnectOnCreate, QUEUE_CAPACITY));
-    EXPECT_FALSE(sut.hasLostResponsesSinceLastCall());
+    EXPECT_TRUE(pushResponses(sut.chunkQueuePusher, QUEUE_CAPACITY));
+    EXPECT_FALSE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithLosingResponsesReturnsTrue)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_FALSE(pushResponses(chunkQueuePusherWithConnectOnCreate, QUEUE_CAPACITY + 1U));
-    EXPECT_TRUE(sut.hasLostResponsesSinceLastCall());
+    EXPECT_FALSE(pushResponses(sut.chunkQueuePusher, QUEUE_CAPACITY + 1U));
+    EXPECT_TRUE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallReturnsFalseAfterPreviouslyReturningTrue)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_FALSE(pushResponses(chunkQueuePusherWithConnectOnCreate, QUEUE_CAPACITY + 1U));
-    EXPECT_TRUE(sut.hasLostResponsesSinceLastCall());
-    EXPECT_FALSE(sut.hasLostResponsesSinceLastCall());
+    EXPECT_FALSE(pushResponses(sut.chunkQueuePusher, QUEUE_CAPACITY + 1U));
+    EXPECT_TRUE(sut.portUser.hasLostResponsesSinceLastCall());
+    EXPECT_FALSE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
 TEST_F(ClientPort_test, ConditionVariableInitiallyNotSet)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    EXPECT_FALSE(sut.isConditionVariableSet());
+    auto& sut = clientPortWithConnectOnCreate;
+    EXPECT_FALSE(sut.portUser.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentWorks)
@@ -464,10 +477,10 @@ TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentW
     iox::popo::ConditionVariableData condVar{"hypnotoad"};
     constexpr uint32_t NOTIFICATION_INDEX{1};
 
-    auto& sut = clientPortUserWithConnectOnCreate;
-    sut.setConditionVariable(condVar, NOTIFICATION_INDEX);
+    auto& sut = clientPortWithConnectOnCreate;
+    sut.portUser.setConditionVariable(condVar, NOTIFICATION_INDEX);
 
-    EXPECT_TRUE(sut.isConditionVariableSet());
+    EXPECT_TRUE(sut.portUser.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWorks)
@@ -475,67 +488,72 @@ TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWo
     iox::popo::ConditionVariableData condVar{"brain slug"};
     constexpr uint32_t NOTIFICATION_INDEX{2};
 
-    auto& sut = clientPortUserWithConnectOnCreate;
-    sut.setConditionVariable(condVar, NOTIFICATION_INDEX);
+    auto& sut = clientPortWithConnectOnCreate;
+    sut.portUser.setConditionVariable(condVar, NOTIFICATION_INDEX);
 
-    sut.unsetConditionVariable();
+    sut.portUser.unsetConditionVariable();
 
-    EXPECT_FALSE(sut.isConditionVariableSet());
+    EXPECT_FALSE(sut.portUser.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, UnsettingConditionVariableWithoutConditionVariablePresentIsHandledGracefully)
 {
-    auto& sut = clientPortUserWithConnectOnCreate;
-    sut.unsetConditionVariable();
+    auto& sut = clientPortWithConnectOnCreate;
+    sut.portUser.unsetConditionVariable();
 
-    EXPECT_FALSE(sut.isConditionVariableSet());
+    EXPECT_FALSE(sut.portUser.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, ConnectOnNotConnectedClientPortResultsInStateChange)
 {
-    auto& sutUser = clientPortUserWithoutConnectOnCreate;
-    auto& sutRouDi = clientPortRouDiWithoutConnectOnCreate;
+    auto& sut = clientPortWithoutConnectOnCreate;
 
-    sutUser.connect();
+    sut.portUser.connect();
 
-    EXPECT_TRUE(sutRouDi.tryGetCaProMessage().has_value());
+    EXPECT_TRUE(sut.portRouDi.tryGetCaProMessage().has_value());
 }
 
 TEST_F(ClientPort_test, ConnectOnConnectedClientPortResultsInNoStateChange)
 {
-    auto& sutUser = clientPortUserWithConnectOnCreate;
-    auto& sutRouDi = clientPortRouDiWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
-    sutUser.connect();
+    sut.portUser.connect();
 
-    EXPECT_FALSE(sutRouDi.tryGetCaProMessage().has_value());
+    EXPECT_FALSE(sut.portRouDi.tryGetCaProMessage().has_value());
 }
 
 TEST_F(ClientPort_test, DisconnectOnConnectedClientPortResultsInStateChange)
 {
-    auto& sutUser = clientPortUserWithConnectOnCreate;
-    auto& sutRouDi = clientPortRouDiWithConnectOnCreate;
+    auto& sut = clientPortWithConnectOnCreate;
 
-    sutUser.disconnect();
+    sut.portUser.disconnect();
 
-    EXPECT_TRUE(sutRouDi.tryGetCaProMessage().has_value());
+    EXPECT_TRUE(sut.portRouDi.tryGetCaProMessage().has_value());
 }
 
 TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange)
 {
-    auto& sutUser = clientPortUserWithoutConnectOnCreate;
-    auto& sutRouDi = clientPortRouDiWithoutConnectOnCreate;
+    auto& sut = clientPortWithoutConnectOnCreate;
 
-    sutUser.disconnect();
+    sut.portUser.disconnect();
 
-    EXPECT_FALSE(sutRouDi.tryGetCaProMessage().has_value());
+    EXPECT_FALSE(sut.portRouDi.tryGetCaProMessage().has_value());
 }
 
 // END ClientPortUser tests
 
 // BEGIN ClientPortRouDi tests
 
-/// @todo state machine test
+// BEGIN Valid transitions
+
+
+// END Valid transitions
+
+// BEGIN Invalid transitions
+
+/// @todo
+
+// END Invalid transitions
 
 // END ClientPortRouDi tests
 
