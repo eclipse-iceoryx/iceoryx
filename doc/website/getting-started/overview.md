@@ -251,20 +251,23 @@ indeterminate order between different publishers).
 
 ## Avoid polling
 
-The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
-cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data. An alternative
-approach to receive data is to wait for user-defined events to occur. This is provided by our `WaitSet` and
-`Listener` which are introduced in the following sections.
+The easiest way to receive data is to periodically poll whether data is available as depicted on the left side of
+picture below. This is sufficient for simple use cases but inefficient in general, as it often leads to unnecessary
+latency and wake-ups without data. An alternative approach to receive data is to wait for user-defined events to occur.
+This is provided by our `WaitSet` and `Listener` which are introduced in the following sections.
+
+![Polling alternatives](../images/avoid-polling.svg)
 
 ### WaitSet
 
-The WaitSet can be used to relinquish control (putting the thread to sleep) and wait for user-defined events
-to occur. Usually, these events correspond to the availability of data at specific subscribers. This way we can
-immediately wake up when data is available and avoid unnecessary wake-ups if no data is available.
+The `WaitSet` can be used to relinquish control by putting the thread to sleep with a non-busy wait and wait for
+user-defined events to occur. Usually, these events correspond to the availability of data at specific subscribers.
+This way we can immediately wake up when data is available and avoid unnecessary wake-ups if no data is available.
 
-One typical use case is to create a WaitSet, attach multiple subscribers and user triggers and then wait until one
-or many of the attached objects signal an event. If this happens one receives a list of all occured events. This makes
-it possible to collect data directly from the subscriber when it signals the WaitSet that new data is available.
+One typical use case is to create a `WaitSet`, attach multiple subscribers and user triggers and then wait until one
+or many of the attached objects signal an event. If this happens one receives a list of all occured events called
+`notificationVector`. This makes it possible to collect data directly from the subscriber when it signals the WaitSet
+that new data is available.
 
 The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern) and is informed with a push
 strategy that one of the attached events occured at which it informs the user.
@@ -274,8 +277,9 @@ For more information on how to use the WaitSet see our
 
 ### Listener
 
-The Listener can be used to connect custom callbacks to user-defined events. Unlike the WaitSet, it reacts to those
-events by executing the connected custom callbacks in a background thread.
+The `Listener` can be used to connect custom callbacks to user-defined events. Unlike the WaitSet, it reacts to those
+events by executing the connected custom callbacks in a background thread, that will be created by the `Listener`.
+As with the `WaitSet` the background thread waits non-busy on the reception of new data.
 
 !!! note
     The Listener is completely thread-safe but please be aware that most of the objects which can be attached to the
@@ -284,7 +288,7 @@ events by executing the connected custom callbacks in a background thread.
     a thread-safe class.
 
 One use case could be that one creates a Listener and attaches multiple subscribers. Every time new data is available,
-the corresponding connected callback will be executed, e.g. print something to the console or calculate something.
+the corresponding connected callback will be executed, e.g. print something to the console or calculate an algorithm.
 
 Like the WaitSet, the Listener uses the reactor pattern.
 
