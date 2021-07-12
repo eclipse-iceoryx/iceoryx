@@ -188,7 +188,7 @@ class ClientPort_test : public Test
         return options;
     }();
 
-    ClientOptions m_clientOptionsWithBlockProducerResponseQeueuFullPolicy = [&] {
+    ClientOptions m_clientOptionsWithBlockProducerResponseQueueFullPolicy = [&] {
         ClientOptions options;
         options.responseQueueCapacity = QUEUE_CAPACITY;
         options.responseQueueFullPolicy = QueueFullPolicy2::BLOCK_PRODUCER;
@@ -210,7 +210,7 @@ class ClientPort_test : public Test
     SutClientPort clientPortWithoutConnectOnCreate{
         m_serviceDescription, m_runtimeName, m_clientOptionsWithoutConnectOnCreate, m_memoryManager};
     SutClientPort clientPortWithBlockProducerResponseQueuePolicy{
-        m_serviceDescription, m_runtimeName, m_clientOptionsWithBlockProducerResponseQeueuFullPolicy, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithBlockProducerResponseQueueFullPolicy, m_memoryManager};
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
