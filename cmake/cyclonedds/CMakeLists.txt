@@ -93,5 +93,5 @@ endfunction()
 
 # ===== Install
 
-fetch_and_install(cyclonedds -DBUILD_IDLC=OFF)
+fetch_and_install(cyclonedds -DBUILD_IDLC=ON)
 fetch_and_install(cyclonedds-cxx)
