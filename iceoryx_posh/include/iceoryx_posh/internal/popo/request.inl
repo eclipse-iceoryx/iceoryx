@@ -62,7 +62,7 @@ inline void Request<T, H>::send() noexcept
     else
     {
         LogError() << "Tried to send empty Request! Might be an already sent or moved Request!";
-        errorHandler(Error::kPOSH__PUBLISHING_EMPTY_REQUEST, nullptr, ErrorLevel::MODERATE);
+        errorHandler(Error::kPOSH__SENDING_EMPTY_REQUEST, nullptr, ErrorLevel::MODERATE);
     }
 }
 

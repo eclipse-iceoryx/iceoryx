@@ -62,7 +62,7 @@ inline void Response<T, H>::send() noexcept
     else
     {
         LogError() << "Tried to send empty Response! Might be an already sent or moved Response!";
-        errorHandler(Error::kPOSH__PUBLISHING_EMPTY_RESPONSE, nullptr, ErrorLevel::MODERATE);
+        errorHandler(Error::kPOSH__SENDING_EMPTY_RESPONSE, nullptr, ErrorLevel::MODERATE);
     }
 }
 
