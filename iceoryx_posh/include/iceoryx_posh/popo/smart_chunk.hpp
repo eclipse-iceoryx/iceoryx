@@ -28,8 +28,6 @@ namespace iox
 {
 namespace popo
 {
-// template <typename T, typename H>
-// class SubscriberInterface;
 
 
 namespace internal
@@ -93,7 +91,7 @@ class SmartChunk
     using HasUserHeader =
         std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
 
-  public:
+  protected:
     /// @brief Constructor for a SmartChunk used by the transmitter
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param smartchunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
@@ -106,7 +104,7 @@ class SmartChunk
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param smartchunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
-    SmartChunk(cxx::unique_ptr<const T>&& smartchunkUniquePtr) noexcept;
+    SmartChunk(cxx::unique_ptr<T>&& smartchunkUniquePtr) noexcept;
 
     ~SmartChunk() noexcept = default;
 
@@ -117,6 +115,7 @@ class SmartChunk
     SmartChunk(const SmartChunk<TransmissionInterface, T, H>&) = delete;
     SmartChunk<TransmissionInterface, T, H>& operator=(const SmartChunk<TransmissionInterface, T, H>&) = delete;
 
+  public:
     ///
     /// @brief Transparent access to the encapsulated type.
     /// @return a pointer to the encapsulated type.
@@ -174,6 +173,10 @@ class SmartChunk
     ///
     const mepoo::ChunkHeader* getChunkHeader() const noexcept;
 
+    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
+    /// therefore preventing the invocation of the custom deleter
+    T* release() noexcept;
+
   private:
     template <typename, typename, typename>
     friend class PublisherImpl;
@@ -185,9 +188,6 @@ class SmartChunk
     friend class ServerImpl;
 
   protected:
-    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
-    /// therefore preventing the invocation of the custom deleter
-    T* release() noexcept;
 
     internal::SmartChunkPrivateData<TransmissionInterface, T, H> m_members;
 };

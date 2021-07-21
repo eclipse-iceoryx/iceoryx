@@ -26,14 +26,14 @@ namespace popo
 template <typename T, typename H>
 template <typename S, typename>
 inline Response<T, H>::Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& producer) noexcept
-    : SmartChunk<RpcInterface<T, H>, T, H>(std::move(responseUniquePtr), producer)
+    : Base_t(std::move(responseUniquePtr), producer)
 {
 }
 
 template <typename T, typename H>
 template <typename S, typename>
-inline Response<T, H>::Response(cxx::unique_ptr<const T>&& responseUniquePtr) noexcept
-    : SmartChunk<RpcInterface<T, H>, T, H>(std::move(responseUniquePtr))
+inline Response<T, H>::Response(cxx::unique_ptr<T>&& responseUniquePtr) noexcept
+    : Base_t(std::move(responseUniquePtr))
 {
 }
 
@@ -57,7 +57,7 @@ inline void Response<T, H>::send() noexcept
 {
     if (m_members.smartchunkUniquePtr)
     {
-        m_members.producerRef.get().sendResponse(std::move(*this));
+        m_members.transmitterRef.get().sendResponse(std::move(*this));
     }
     else
     {

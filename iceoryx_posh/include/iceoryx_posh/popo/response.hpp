@@ -30,14 +30,11 @@ class RpcInterface;
 
 ///
 /// @brief The Response class is a mutable abstraction over types which are written to loaned shared memory.
-/// These responses are publishable to the iceoryx system.
+/// These responses are transmittable to the iceoryx system.
 ///
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class Response : public SmartChunk<RpcInterface<T, H>, T, H>
 {
-    static_assert(std::is_const<T>::value == std::is_const<H>::value,
-                  "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
-                  "access restrictions for the user-header as for the response data!");
 
     using Base_t =  SmartChunk<RpcInterface<T, H>, T, H>;
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
@@ -56,7 +53,7 @@ class Response : public SmartChunk<RpcInterface<T, H>, T, H>
     /// @brief Constructor for a Response used by the Producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param responseUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    /// @param producer is a reference to the producer to be able to use the `publish` and `release` methods
+    /// @param producer is a reference to the producer to be able to use the `send` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
     Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& Producer) noexcept;
 

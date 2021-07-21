@@ -52,7 +52,7 @@ inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& 
 
 template <typename TransmissionInterface, typename T, typename H>
 template <typename S, typename>
-inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<const T>&& smartchunkUniquePtr) noexcept
+inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartchunkUniquePtr) noexcept
     : m_members(std::move(smartchunkUniquePtr))
 {
 }

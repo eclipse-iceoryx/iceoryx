@@ -30,15 +30,11 @@ class RpcInterface;
 
 ///
 /// @brief The Request class is a mutable abstraction over types which are written to loaned shared memory.
-/// These requests are publishable to the iceoryx system.
+/// These requests are transmittable to the iceoryx system.
 ///
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class Request : public SmartChunk<RpcInterface<T, H>, T, H>
 {
-    static_assert(std::is_const<T>::value == std::is_const<H>::value,
-                  "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
-                  "access restrictions for the user-header as for the request data!");
-
     using Base_t =  SmartChunk<RpcInterface<T, H>, T, H>;
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
@@ -56,7 +52,7 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
     /// @brief Constructor for a Request used by the producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param requestUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    /// @param producer is a reference to the producer to be able to use the `publish` and `release` methods
+    /// @param producer is a reference to the producer to be able to use the `send` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
     Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T, H>& producer) noexcept;
 
@@ -64,7 +60,7 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param requestUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
-    Request(cxx::unique_ptr<const T>&& requestUniquePtr) noexcept;
+    Request(cxx::unique_ptr<T>&& requestUniquePtr) noexcept;
 
     ~Request() noexcept = default;
 

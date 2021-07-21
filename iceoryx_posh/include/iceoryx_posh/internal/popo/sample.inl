@@ -26,14 +26,14 @@ namespace popo
 template <typename T, typename H>
 template <typename S, typename>
 inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept
-    : SmartChunk<PublisherInterface<T, H>, T, H>(std::move(sampleUniquePtr), publisher)
+    : Base_t(std::move(sampleUniquePtr), publisher)
 {
 }
 
 template <typename T, typename H>
 template <typename S, typename>
-inline Sample<T, H>::Sample(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept
-    : SmartChunk<PublisherInterface<T, H>, T, H>(std::move(sampleUniquePtr))
+inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept
+    : Base_t(std::move(sampleUniquePtr))
 {
 }
 
@@ -41,9 +41,7 @@ template <typename T, typename H>
 template <typename R, typename>
 inline R& Sample<T, H>::getUserHeader() noexcept
 {
-    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(
-                                SmartChunk<PublisherInterface<T, H>, T, H>::m_members.smartchunkUniquePtr.get())
-                                ->userHeader());
+    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(Base_t::m_members.smartchunkUniquePtr.get())->userHeader());
 }
 
 template <typename T, typename H>
@@ -57,9 +55,9 @@ template <typename T, typename H>
 template <typename S, typename>
 inline void Sample<T, H>::publish() noexcept
 {
-    if (SmartChunk<PublisherInterface<T, H>, T, H>::m_members.smartchunkUniquePtr)
+    if (Base_t::m_members.smartchunkUniquePtr)
     {
-        SmartChunk<PublisherInterface<T, H>, T, H>::m_members.transmitterRef.get().publish(std::move(*this));
+        Base_t::m_members.transmitterRef.get().publish(std::move(*this));
     }
     else
     {

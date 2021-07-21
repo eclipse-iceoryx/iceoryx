@@ -26,14 +26,14 @@ namespace popo
 template <typename T, typename H>
 template <typename S, typename>
 inline Request<T, H>::Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T, H>& producer) noexcept
-    : SmartChunk<RpcInterface<T, H>, T, H>(std::move(requestUniquePtr), producer)
+    : Base_t(std::move(requestUniquePtr), producer)
 {
 }
 
 template <typename T, typename H>
 template <typename S, typename>
-inline Request<T, H>::Request(cxx::unique_ptr<const T>&& requestUniquePtr) noexcept
-    : SmartChunk<RpcInterface<T, H>, T, H>(std::move(requestUniquePtr))
+inline Request<T, H>::Request(cxx::unique_ptr<T>&& requestUniquePtr) noexcept
+    : Base_t(std::move(requestUniquePtr))
 {
 }
 

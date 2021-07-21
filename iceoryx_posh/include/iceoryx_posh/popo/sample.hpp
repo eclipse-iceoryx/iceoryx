@@ -35,11 +35,8 @@ class PublisherInterface;
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
 {
-    static_assert(std::is_const<T>::value == std::is_const<H>::value,
-                  "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
-                  "access restrictions for the user-header as for the sample data!");
 
-    using Base_t =  SmartChunk<PublisherInterface<T, H>, T, H>;
+    using Base_t = SmartChunk<PublisherInterface<T, H>, T, H>;
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
     using ForProducerOnly = typename Base_t::template ForProducerOnly<S, TT>;
@@ -64,7 +61,7 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param sampleUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
-    Sample(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept;
+    Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept;
 
     ~Sample() noexcept = default;
 
