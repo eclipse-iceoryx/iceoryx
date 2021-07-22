@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,21 +21,21 @@ namespace iox
 {
 namespace roudi
 {
-void ServiceRegistry::add(const CaproIdString_t& service, const CaproIdString_t& instance)
+void ServiceRegistry::add(const capro::IdString_t& service, const capro::IdString_t& instance)
 {
     cxx::set::add(m_serviceMap[service].instanceSet, instance);
 }
 
-void ServiceRegistry::remove(const CaproIdString_t& service, const CaproIdString_t& instance)
+void ServiceRegistry::remove(const capro::IdString_t& service, const capro::IdString_t& instance)
 {
     cxx::set::remove(m_serviceMap[service].instanceSet, instance);
 }
 
 void ServiceRegistry::find(InstanceSet_t& instances,
-                           const CaproIdString_t& service,
-                           const CaproIdString_t& instance) const
+                           const capro::IdString_t& service,
+                           const capro::IdString_t& instance) const
 {
-    if (instance == iox::cxx::string<100>(capro::AnyInstanceString))
+    if (instance == Wildcard)
     {
         for (auto& instance : m_serviceMap[service].instanceSet)
         {

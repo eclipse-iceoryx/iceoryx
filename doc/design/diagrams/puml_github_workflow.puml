@@ -1,12 +1,10 @@
 @startuml
 
-skinparam backgroundColor #EEEBDC
-
 left to right direction
 
 actor Iceoryx_Contributor
 
-Iceoryx_Contributor --> (1. Create Diagram in PlanUML Editor)
+Iceoryx_Contributor --> (1. Create Diagram in PlantUML Editor)
 Iceoryx_Contributor --> (2. Save it as new .puml file in iceoryx/doc/design/puml)
 Iceoryx_Contributor --> (3. Export svg files via script in iceoryx/tools/ folder)
 Iceoryx_Contributor --> (4. Create a Link in the Markdown file)

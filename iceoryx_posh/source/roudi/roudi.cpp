@@ -234,6 +234,12 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
+            if (!service.isValid())
+            {
+                LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
+                break;
+            }
+
             popo::PublisherOptions options;
             uint64_t historyCapacity{};
             if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
@@ -280,6 +286,11 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
+            if (!service.isValid())
+            {
+                LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
+                break;
+            }
 
             popo::SubscriberOptions options;
             uint64_t historyRequest;
@@ -382,16 +393,17 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::FIND_SERVICE:
     {
-        if (message.getNumberOfElements() != 3)
+        if (message.getNumberOfElements() != 4)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
+            capro::IdString_t service{cxx::TruncateToCapacity, message.getElementAtIndex(2)};
+            capro::IdString_t instance{cxx::TruncateToCapacity, message.getElementAtIndex(3)};
 
-            m_prcMgr->findServiceForProcess(runtimeName, service);
+            m_prcMgr->findServiceForProcess(runtimeName, service, instance);
         }
         break;
     }

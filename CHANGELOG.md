@@ -90,6 +90,21 @@ iox::posix::posixCall(unlink)(sockAddrPublisher.sun_path)
     });
 ```
 
+A `ServiceDescription` is now only string-based and no more wildcards are allowed.
+A well-defined `ServiceDescription` consists of three non-empty strings.
+
+```cpp
+// before
+ServiceDescription(1U, 2U, 3U) myServiceDescription1;
+ServiceDescription("First", "Second") myServiceDescription3;
+ServiceDescription(iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString) myServiceDescription3;
+
+// after
+ServiceDescription("Foo", "Bar", "Baz") myServiceDescription1;
+ServiceDescription("First", "Second", "DontCare") myServiceDescription2;
+ServiceDescription("Foo", "Bar", "Baz") myServiceDescription3;
+```
+
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.0...v1.0.1)

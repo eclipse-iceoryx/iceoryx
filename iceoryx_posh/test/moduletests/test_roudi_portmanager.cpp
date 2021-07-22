@@ -73,7 +73,6 @@ class PortManager_test : public Test
 
     void SetUp() override
     {
-        testing::internal::CaptureStderr();
         m_instIdCounter = m_sIdCounter = 1U;
         m_eventIdCounter = 0;
         // starting at {1,1,1}
@@ -100,15 +99,6 @@ class PortManager_test : public Test
         delete m_portManager;
         delete m_roudiMemoryManager;
         iox::rp::BaseRelativePointer::unregisterAll();
-
-        if (Test::HasFailure())
-        {
-            std::cout << testing::internal::GetCapturedStderr() << std::endl;
-        }
-        else
-        {
-            (void)testing::internal::GetCapturedStderr();
-        }
     }
     iox::capro::ServiceDescription getUniqueSD()
     {
@@ -218,6 +208,35 @@ void setDestroyFlagAndClearContainer(vector& container)
         item->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     }
     container.clear();
+}
+
+TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+
+    auto result = m_portManager->acquirePublisherPortData(
+        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
+        publisherOptions,
+        "guiseppe",
+        m_payloadDataSegmentMemoryManager,
+        PortConfigInfo());
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(result.get_error(), PortPoolError::SERVICE_DESCRIPTION_INVALID);
+}
+
+TEST_F(PortManager_test, AcquireSubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
+{
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+
+    auto result = m_portManager->acquireSubscriberPortData(
+        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
+        subscriberOptions,
+        "guiseppe",
+        PortConfigInfo());
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(result.get_error(), PortPoolError::SERVICE_DESCRIPTION_INVALID);
 }
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
@@ -600,6 +619,20 @@ TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquir
 
     // so we should able to get some more now
     acquireMaxNumberOfInterfaces(runtimeName);
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionInApplicationPortLeadsToTermination)
+{
+    auto applicationPortData = m_portManager->acquireApplicationPortData(iox::RuntimeName_t("OhWieSchoenIsPanama"));
+    ASSERT_NE(applicationPortData, nullptr);
+
+    iox::capro::CaproMessage request{
+        iox::capro::CaproMessageType::OFFER,
+        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString}};
+
+    iox::popo::ApplicationPort{applicationPortData}.dispatchCaProMessage(request);
+
+    EXPECT_DEATH({ m_portManager->doDiscovery(); }, ".*");
 }
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)

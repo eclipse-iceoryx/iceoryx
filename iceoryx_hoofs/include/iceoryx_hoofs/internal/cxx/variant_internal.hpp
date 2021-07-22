@@ -26,8 +26,33 @@ namespace iox
 {
 namespace cxx
 {
+template <uint64_t N>
+struct in_place_index;
+
+template <typename T>
+struct in_place_type;
 namespace internal
 {
+template <typename N>
+struct is_in_place_index : std::false_type
+{
+};
+
+template <uint64_t N>
+struct is_in_place_index<in_place_index<N>> : std::true_type
+{
+};
+
+template <typename T>
+struct is_in_place_type : std::false_type
+{
+};
+
+template <typename T>
+struct is_in_place_type<in_place_type<T>> : std::true_type
+{
+};
+
 using byte_t = uint8_t;
 template <typename TypeToCheck, typename T, typename... Targs>
 struct does_contain_type

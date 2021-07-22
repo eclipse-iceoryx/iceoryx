@@ -1,0 +1,97 @@
+@startuml
+
+together Group1 {
+class Client<Req, Res> {
+  Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  connect(): void
+  disconnect(): void
+  getConnectionState(): ConnectionState
+  loan(): expected<Request<Req>, Error>
+  send(request: Request<Req>): void
+  hasResponses(): bool
+  take(): expected<Response<Res>, Error>
+  releaseQueuedResponses(): void
+  hasMissedResponses(): bool
+}
+
+class Server<Req, Res> {
+  Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  offer(): void
+  stopOffer(): void
+  isOffered(): bool
+  hasClients(): bool
+  hasRequests(): bool
+  take(): expected<Request<Req>, Error>
+  releaseQueuedRequests(): void
+  hasMissedRequests(): bool
+  loan(request: Request<Req>&): expected<Response<Res>, Error>
+  send(response: Response<Res>): void
+}
+
+class Publisher {
+}
+}
+
+class SmartChunk<TransmissionInterface, T, H> {
+  SmartChunk(chunkUniquePtr: unique_ptr<T>&&, sender: TransmissionInterface&)
+  SmartChunk(chunkUniquePtr: unique_ptr<const T>&&)
+  operator->(): T*
+  operator->() const: const T*
+  operator*(): T&
+  operator*() const: const T&
+  operator bool() const
+  get(): T*
+  get() const: const T*
+  getChunkHeader(): ChunkHeader*
+  getChunkHeader() const: const ChunkHeader*
+}
+
+note right of SmartChunk: ForProducerOnly and ForConsumerOnly type traits\nrestrict access to some ctors and methods,\nlike no non-const access to payload
+
+interface PublisherInterface<T, H> {
+  publish(sample: Sample<T, H>): void
+}
+
+interface RpcInterface <RpcType> {
+  send(rpc: RpcType): void
+}
+
+together Group2 {
+class Sample<T, H> {
+  Sample(sampleUniquePtr: unique_ptr<T>&&, publisher: PublisherInterface<T, H>&)
+  Sample(sampleUniquePtr: unique_ptr<const T>&&)
+  getUserHeader(): H*
+  getUserHeader() const: const H*
+  publish(): void
+}
+
+class Request<Req> {
+  Request(requestUniquePtr: unique_ptr<Req>&&, client: RpcInterface<Request<Req>>&)
+  Request(requestUniquePtr: unique_ptr<const Req>&&)
+  getRequestHeader(): RequestHeader*
+  getRequestHeader() const: const RequestHeader*
+  send(): void
+}
+
+class Response<Res> {
+  Response(responseUniquePtr: unique_ptr<Res>&&, server: RpcInterface<Response<Res>>&)
+  Response(responseUniquePtr: unique_ptr<const Res>&&)
+  getResponseHeader(): ResponseHeader*
+  getResponseHeader() const: const ResponseHeader*
+  send(): void
+}
+}
+
+note top of Publisher: This is not used by request-response\nand just added to show the similar concepts in the API.
+
+Publisher --> PublisherInterface
+Client --> RpcInterface
+Server --> RpcInterface
+
+Group1 -[hidden]--- Group2
+
+Sample --> SmartChunk
+Request --> SmartChunk
+Response --> SmartChunk
+
+@enduml

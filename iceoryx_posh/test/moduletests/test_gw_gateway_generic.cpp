@@ -91,11 +91,10 @@ TEST_F(GatewayGenericTest, DoesNotAddDuplicateChannels)
 TEST_F(GatewayGenericTest, IgnoresWildcardServices)
 {
     // ===== Setup
-    auto completeWildcardService = iox::capro::ServiceDescription(
-        iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString);
-    auto wildcardServiceService = iox::capro::ServiceDescription(iox::capro::AnyServiceString, "instance", "event");
-    auto wildcardInstanceService = iox::capro::ServiceDescription("service", iox::capro::AnyInstanceString, "event");
-    auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", iox::capro::AnyEventString);
+    auto completeWildcardService = iox::capro::ServiceDescription("*", "*", "*");
+    auto wildcardServiceService = iox::capro::ServiceDescription("*", "instance", "event");
+    auto wildcardInstanceService = iox::capro::ServiceDescription("service", "*", "event");
+    auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", "*");
 
     TestGatewayGeneric gw{};
 

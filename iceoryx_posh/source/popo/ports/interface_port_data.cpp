@@ -23,7 +23,7 @@ namespace popo
 {
 InterfacePortData::InterfacePortData(const RuntimeName_t& runtimeName, const capro::Interfaces interface) noexcept
     : BasePortData(capro::ServiceDescription(
-                       capro::InvalidString, capro::InvalidString, capro::InvalidString, {0, 0, 0, 0}, interface),
+                       capro::InvalidIdString, capro::InvalidIdString, capro::InvalidIdString, {0, 0, 0, 0}, interface),
                    runtimeName,
                    "")
 {

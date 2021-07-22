@@ -1,0 +1,24 @@
+@startuml
+
+class Client {
+}
+
+class Server {
+}
+
+class ClientPortUser {
+}
+
+class ServerPortUser {
+}
+
+Client o-- ClientPortUser
+Server o-- ServerPortUser
+
+ClientPortUser o-- ChunkSender
+ClientPortUser o-- ChunkReceiver
+
+ServerPortUser o-- ChunkSender
+ServerPortUser o-- ChunkReceiver
+
+@enduml

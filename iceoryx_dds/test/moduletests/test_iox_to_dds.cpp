@@ -107,8 +107,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
 {
     // === Setup
     TestGateway gw{};
-    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER,
-                                        {"Introspection", iox::capro::AnyInstanceString, iox::capro::AnyEventString});
+    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Introspection", "Foo", "Bar"});
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     EXPECT_CALL(gw, addChannel(_, _)).Times(0);
@@ -121,9 +120,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 {
     // === Setup
     TestGateway gw{};
-    auto msg = iox::capro::CaproMessage(
-        iox::capro::CaproMessageType::OFFER,
-        {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
+    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Foo", "Bar", "Baz"});
     msg.m_subType = iox::capro::CaproMessageSubType::SERVICE;
 
     EXPECT_CALL(gw, addChannel(_, _)).Times(0);

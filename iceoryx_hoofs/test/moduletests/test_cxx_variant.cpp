@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/cxx/variant.hpp"
 #include "test.hpp"
 
+#include <string>
 namespace
 {
 using namespace testing;
@@ -128,26 +129,59 @@ bool variant_Test::DTorTest::dtorWasCalled = false;
 int variant_Test::DoubleDelete::dtorCalls = 0;
 int variant_Test::DoubleDelete::ctorCalls = 0;
 
-TEST_F(variant_Test, DefaultCTor)
+TEST_F(variant_Test, DefaultCTorCreatesInvalidVariant)
 {
     EXPECT_THAT(sut.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
 }
 
-TEST_F(variant_Test, emplaceValidElement)
+TEST_F(variant_Test, InitializedVariantReturnsCorrectIndex)
 {
-    ASSERT_THAT(sut.emplace<ComplexClass>(123, 456.789f), Eq(true));
-    ASSERT_THAT(sut.get<ComplexClass>(), Ne(nullptr));
-    EXPECT_THAT(sut.get<ComplexClass>()->a, Eq(123));
-    EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(456.789f));
+    sut.emplace<float>(1231.22F);
+    EXPECT_THAT(sut.index(), Eq(1U));
 }
 
-TEST_F(variant_Test, emplaceSecondValidElement)
+TEST_F(variant_Test, CreatingVariantFromPODTypeReturnsProvidedValue)
+{
+    iox::cxx::variant<ComplexClass, float> sut2{42.42F};
+
+    ASSERT_THAT(sut2.index(), Eq(1U));
+    ASSERT_THAT(sut2.get<float>(), Ne(nullptr));
+    EXPECT_THAT(*sut2.get<float>(), Eq(42.42F));
+}
+
+TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValue)
+{
+    std::string string("Buhh");
+    iox::cxx::variant<std::string, float> sut2{string};
+    ASSERT_THAT(sut2.index(), Eq(0U));
+    ASSERT_THAT(sut2.get<std::string>(), Ne(nullptr));
+    EXPECT_THAT(sut2.get<std::string>()->c_str(), StrEq("Buhh"));
+}
+
+TEST_F(variant_Test, CreatingVariantWithSameTypeChoosesFirstFittingType)
+{
+    iox::cxx::variant<float, float> sut2{73.73F};
+
+    ASSERT_THAT(sut2.index(), Eq(0U));
+    ASSERT_THAT(sut2.get<float>(), Ne(nullptr));
+    EXPECT_THAT(*sut2.get<float>(), Eq(73.73F));
+}
+
+TEST_F(variant_Test, EmplaceValidElementWorks)
+{
+    ASSERT_THAT(sut.emplace<ComplexClass>(123, 456.789F), Eq(true));
+    ASSERT_THAT(sut.get<ComplexClass>(), Ne(nullptr));
+    EXPECT_THAT(sut.get<ComplexClass>()->a, Eq(123));
+    EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(456.789F));
+}
+
+TEST_F(variant_Test, EmplaceSecondValidElementWorks)
 {
     sut.emplace<ComplexClass>(123, 456.789f);
-    ASSERT_THAT(sut.emplace<ComplexClass>(912, 65.03f), Eq(true));
+    ASSERT_THAT(sut.emplace<ComplexClass>(912, 65.03F), Eq(true));
     ASSERT_THAT(sut.get<ComplexClass>(), Ne(nullptr));
     EXPECT_THAT(sut.get<ComplexClass>()->a, Eq(912));
-    EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(65.03f));
+    EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(65.03F));
 }
 
 TEST_F(variant_Test, DISABLED_emplaceInvalidElement)
@@ -157,73 +191,62 @@ TEST_F(variant_Test, DISABLED_emplaceInvalidElement)
     //    EXPECT_THAT(sut.emplace< unsigned int >(0), Eq(false));
 }
 
-TEST_F(variant_Test, emplaceWhenAlreadyDifferentTypeAssigned)
+TEST_F(variant_Test, EmplaceWhenAlreadyDifferentTypeAssignedDoesNotWork)
 {
     sut.emplace<int>(123);
-    EXPECT_THAT(sut.emplace<float>(123.f), Eq(false));
+    EXPECT_THAT(sut.emplace<float>(123.F), Eq(false));
 }
 
-TEST_F(variant_Test, getOnUninitializedVariant)
+TEST_F(variant_Test, GetOnUninitializedVariantFails)
 {
     EXPECT_THAT(sut.get<float>(), Eq(nullptr));
 }
 
-TEST_F(variant_Test, getVariantWithCorrectValue)
+TEST_F(variant_Test, GetVariantWithCorrectValueWorks)
 {
-    sut.emplace<float>(123.12f);
+    sut.emplace<float>(123.12F);
     EXPECT_THAT(sut.get<float>(), Ne(nullptr));
 }
 
-TEST_F(variant_Test, getVariantWithIncorrectValue)
+TEST_F(variant_Test, GetVariantWithIncorrectValueFails)
 {
-    sut.emplace<float>(123.12f);
+    sut.emplace<float>(123.12F);
     EXPECT_THAT(sut.get<int>(), Eq(nullptr));
 }
 
-TEST_F(variant_Test, constGetOnUninitializedVariant)
+TEST_F(variant_Test, ConstGetOnUninitializedVariantFails)
 {
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<float>(), Eq(nullptr));
 }
 
 TEST_F(variant_Test, constGetVariantWithCorrectValue)
 {
-    sut.emplace<float>(123.12f);
+    sut.emplace<float>(123.12F);
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<float>(), Ne(nullptr));
 }
 
-TEST_F(variant_Test, constGetVariantWithIncorrectValue)
+TEST_F(variant_Test, ConstGetVariantWithIncorrectValueFails)
 {
-    sut.emplace<float>(123.12f);
+    sut.emplace<float>(123.12F);
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<int>(), Eq(nullptr));
 }
 
-TEST_F(variant_Test, indexWhenUninitialized)
-{
-    EXPECT_THAT(sut.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
-}
-
-TEST_F(variant_Test, indexWhenInitialized)
-{
-    sut.emplace<float>(1231.22f);
-    EXPECT_THAT(sut.index(), Eq(1U));
-}
-
-TEST_F(variant_Test, get_ifWhenUninitialized)
+TEST_F(variant_Test, Get_ifWhenUninitializedReturnsProvidedValue)
 {
     float bla;
     EXPECT_THAT(sut.get_if<float>(&bla), Eq(&bla));
 }
 
-TEST_F(variant_Test, get_ifInitializedWithCorrectValue)
+TEST_F(variant_Test, Get_ifInitializedWithCorrectValueWorks)
 {
-    sut.emplace<float>(12.1f);
+    sut.emplace<float>(12.1F);
     float bla;
     EXPECT_THAT(sut.get_if<float>(&bla), Ne(&bla));
 }
 
-TEST_F(variant_Test, get_ifInitializedWithIncorrectValue)
+TEST_F(variant_Test, Get_ifInitializedWithIncorrectValueReturnsProvidedValue)
 {
-    sut.emplace<float>(12.1f);
+    sut.emplace<float>(12.1F);
     int bla;
     EXPECT_THAT(sut.get_if<int>(&bla), Eq(&bla));
 }
@@ -248,7 +271,7 @@ TEST_F(variant_Test, DTorIsCalledAfterEmplace)
     EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
-TEST_F(variant_Test, CopyCTorWithValue)
+TEST_F(variant_Test, CopyCTorWithValueLeadsToSameValue)
 {
     iox::cxx::variant<int, char> schlomo;
     schlomo.emplace<int>(123);
@@ -257,14 +280,14 @@ TEST_F(variant_Test, CopyCTorWithValue)
     EXPECT_THAT(*ignatz.get<int>(), Eq(123));
 }
 
-TEST_F(variant_Test, CopyCTorWithoutValue)
+TEST_F(variant_Test, CopyCTorWithoutValueResultsInInvalidVariant)
 {
     iox::cxx::variant<int, char> schlomo;
     iox::cxx::variant<int, char> ignatz(schlomo);
     ASSERT_THAT(ignatz.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
 }
 
-TEST_F(variant_Test, CopyAssignmentWithValue)
+TEST_F(variant_Test, CopyAssignmentWithValueLeadsToSameValue)
 {
     iox::cxx::variant<int, char> ignatz;
     ignatz.emplace<char>('c');
@@ -277,7 +300,7 @@ TEST_F(variant_Test, CopyAssignmentWithValue)
     ASSERT_THAT(*ignatz.get<int>(), Eq(447));
 }
 
-TEST_F(variant_Test, CopyAssignmentWithoutValue)
+TEST_F(variant_Test, CopyAssignmentWithoutValueResultsInInvalidVariant)
 {
     iox::cxx::variant<int, char> ignatz;
     ignatz.emplace<char>('c');
@@ -289,7 +312,7 @@ TEST_F(variant_Test, CopyAssignmentWithoutValue)
     ASSERT_THAT(ignatz.get<char>(), Eq(nullptr));
 }
 
-TEST_F(variant_Test, MoveCTorWithValue)
+TEST_F(variant_Test, MoveCTorWithValueLeadsToSameValue)
 {
     iox::cxx::variant<int, char> schlomo;
     schlomo.emplace<int>(123);
@@ -299,14 +322,14 @@ TEST_F(variant_Test, MoveCTorWithValue)
     EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
-TEST_F(variant_Test, MoveCTorWithoutValue)
+TEST_F(variant_Test, MoveCTorWithoutValueResultsInInvalidVariant)
 {
     iox::cxx::variant<int, char> schlomo;
     iox::cxx::variant<int, char> ignatz(std::move(schlomo));
     ASSERT_THAT(ignatz.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
 }
 
-TEST_F(variant_Test, MoveAssignmentWithValue)
+TEST_F(variant_Test, MoveAssignmentWithValueLeadsToSameValue)
 {
     iox::cxx::variant<int, char> ignatz;
     ignatz.emplace<char>('c');
@@ -319,7 +342,7 @@ TEST_F(variant_Test, MoveAssignmentWithValue)
     ASSERT_THAT(*ignatz.get<int>(), Eq(447));
 }
 
-TEST_F(variant_Test, MoveAssignmentWithoutValue)
+TEST_F(variant_Test, MoveAssignmentWithoutValueResultsInInvalidVariant)
 {
     iox::cxx::variant<int, char> ignatz;
     ignatz.emplace<char>('c');
@@ -331,7 +354,7 @@ TEST_F(variant_Test, MoveAssignmentWithoutValue)
     ASSERT_THAT(ignatz.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
 }
 
-TEST_F(variant_Test, DTorOnCopyCTor)
+TEST_F(variant_Test, CreatingSecondObjectViaCopyCTorResultsInTwoDTorCalls)
 {
     {
         iox::cxx::variant<int, DTorTest> ignatz;
@@ -347,7 +370,7 @@ TEST_F(variant_Test, DTorOnCopyCTor)
     EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
-TEST_F(variant_Test, DTorOnCopyAssignment)
+TEST_F(variant_Test, CreatingSecondObjectViaCopyAssignmentResultsInTwoDTorCalls)
 {
     {
         iox::cxx::variant<int, DTorTest> ignatz;
@@ -365,7 +388,7 @@ TEST_F(variant_Test, DTorOnCopyAssignment)
     EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
-TEST_F(variant_Test, DTorOnMoveCTor)
+TEST_F(variant_Test, CreatingSecondObjectViaMoveCTorResultsInTwoDTorCalls)
 {
     {
         iox::cxx::variant<int, DTorTest> ignatz;
@@ -382,7 +405,7 @@ TEST_F(variant_Test, DTorOnMoveCTor)
     EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
-TEST_F(variant_Test, DTorOnMoveAssignment)
+TEST_F(variant_Test, CreatingSecondObjectViaMoveAssignmentResultsInTwoDTorCalls)
 {
     {
         iox::cxx::variant<int, DTorTest> ignatz;
@@ -401,7 +424,7 @@ TEST_F(variant_Test, DTorOnMoveAssignment)
     EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
-TEST_F(variant_Test, DirectValueAssignment)
+TEST_F(variant_Test, DirectValueAssignmentResultsInCorrectIndex)
 {
     iox::cxx::variant<int, float> schlomo;
     schlomo = 123;
@@ -412,7 +435,7 @@ TEST_F(variant_Test, DirectValueAssignmentWhenAlreadyAssignedWithDifferentType)
 {
     iox::cxx::variant<int, float> schlomo;
     schlomo = 123;
-    schlomo = 123.01f;
+    schlomo = 123.01F;
     EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
@@ -430,40 +453,40 @@ TEST_F(variant_Test, HoldsAlternativeForIncorrectType)
     EXPECT_THAT(iox::cxx::holds_alternative<float>(schlomo), Eq(false));
 }
 
-TEST_F(variant_Test, SameTypeVariantAndEmplaceWithIndex)
+TEST_F(variant_Test, SameTypeVariantAndEmplaceWithIndexResultsInCorrectValue)
 {
     iox::cxx::variant<int, float, int> schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
+    ASSERT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
     EXPECT_THAT(*schlomo.get_at_index<2>(), Eq(123));
 }
 
-TEST_F(variant_Test, SameTypeVariantIndex)
+TEST_F(variant_Test, SameTypeVariantResultsInCorrectIndex)
 {
     iox::cxx::variant<int, float, int> schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<1>(1.23f), Eq(true));
+    EXPECT_THAT(schlomo.emplace_at_index<1>(1.23F), Eq(true));
     EXPECT_THAT(schlomo.index(), Eq(1U));
 }
 
-TEST_F(variant_Test, GetInvalidIndex)
+TEST_F(variant_Test, SameTypeVariantReturnsNothingForIncorrectIndex)
 {
     iox::cxx::variant<int, float, int> schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
+    ASSERT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
     EXPECT_THAT(schlomo.get_at_index<1>(), Eq(nullptr));
 }
 
-TEST_F(variant_Test, ConstGetValidIndex)
+TEST_F(variant_Test, ConstSameTypeVariantAndEmplaceWithIndexResultsInCorrectValue)
 {
     iox::cxx::variant<int, float, int> schlomo;
     const iox::cxx::variant<int, float, int>* ignatz = &schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<2>(4123), Eq(true));
+    ASSERT_THAT(schlomo.emplace_at_index<2>(4123), Eq(true));
     EXPECT_THAT(*ignatz->get_at_index<2>(), Eq(4123));
 }
 
-TEST_F(variant_Test, InPlaceAtIndexCTorEmplace)
+TEST_F(variant_Test, InPlaceAtIndexCTorResultsInCorrectIndexAndValue)
 {
     iox::cxx::variant<int, float, int> schlomo(iox::cxx::in_place_index<0>(), 445);
 
@@ -471,7 +494,7 @@ TEST_F(variant_Test, InPlaceAtIndexCTorEmplace)
     EXPECT_THAT(*schlomo.get_at_index<0>(), Eq(445));
 }
 
-TEST_F(variant_Test, InPlaceAtTypeCTorEmplace)
+TEST_F(variant_Test, InPlaceAtTypeCTorResultsInCorrectIndexAndValue)
 {
     iox::cxx::variant<int, float, double> schlomo(iox::cxx::in_place_type<double>(), 90.12);
 
@@ -479,7 +502,7 @@ TEST_F(variant_Test, InPlaceAtTypeCTorEmplace)
     EXPECT_THAT(*schlomo.get_at_index<2>(), Eq(90.12));
 }
 
-TEST_F(variant_Test, ComplexDTorDeleteUsingWrongType)
+TEST_F(variant_Test, ComplexDTorUsingWrongTypeResultsInNoDTorCall)
 {
     DoubleDelete::dtorCalls = 0;
     {
@@ -588,7 +611,7 @@ TEST_F(variant_Test, MoveVariantIntoVariantOfDifferentType)
     DoubleDelete::dtorCalls = 0;
     iox::cxx::variant<DoubleDelete, ComplexClass> sut1, sut2;
     sut1.emplace<DoubleDelete>();
-    sut2.emplace<ComplexClass>(12, 12.12f);
+    sut2.emplace<ComplexClass>(12, 12.12F);
 
     sut1 = std::move(sut2);
 
@@ -601,7 +624,7 @@ TEST_F(variant_Test, CopyVariantIntoVariantOfDifferentType)
     DoubleDelete::dtorCalls = 0;
     iox::cxx::variant<DoubleDelete, ComplexClass> sut1, sut2;
     sut1.emplace<DoubleDelete>();
-    sut2.emplace<ComplexClass>(12, 12.12f);
+    sut2.emplace<ComplexClass>(12, 12.12F);
 
     sut1 = sut2;
 
