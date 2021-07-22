@@ -50,6 +50,8 @@ class JsonConfig_test : public Test
                      "\t},"
                      "\t\"segment\":[\n"
                      "\t\t{\n"
+                     "\t\t\t\"writer\":\"foo\",\n"
+                     "\t\t\t\"reader\":\"bar\",\n"
                      "\t\t\t\"mempool\":[\n"
                      "\t\t\t\t{\n"
                      "\t\t\t\t\t\"size\":32,\n"
@@ -130,6 +132,8 @@ TEST_F(JsonConfig_test, TestReader)
     iox::RouDiConfig_t roudiConf = config.value();
     ASSERT_EQ(roudiConf.m_sharedMemorySegments.size(), 1);
     iox::mepoo::SegmentConfig::SegmentEntry segmentEntry = roudiConf.m_sharedMemorySegments[0];
+    ASSERT_EQ(iox::posix::PosixGroup::string_t("bar"), segmentEntry.m_readerGroup);
+    ASSERT_EQ(iox::posix::PosixGroup::string_t("foo"), segmentEntry.m_writerGroup);
     ASSERT_EQ(segmentEntry.m_mempoolConfig.m_mempoolConfig.size(), 2);
     iox::mepoo::MePooConfig::Entry entry1 = segmentEntry.m_mempoolConfig.m_mempoolConfig[0];
     ASSERT_EQ(entry1.m_size, 32);
@@ -212,12 +216,12 @@ TEST_F(JsonConfig_Failure_test, Wrong_Version_Wrong_Type_test)
     ASSERT_EQ(iox::roudi::RouDiConfigFileParseError::INVALID_CONFIG_FILE_VERSION, parseJson(str).get_error());
 }
 
-TEST_F(JsonConfig_Failure_test, To_Many_Segments_test)
+TEST_F(JsonConfig_Failure_test, Too_Many_Segments_test)
 {
     std::string config = "{\n"
                          "\t\"general\":{\n"
-                         "\t\t\"version\" : 1\n"
-                         "\t},"
+                         "\t\t\"version\": 1\n"
+                         "\t},\n"
                          "\t\"segment\":[\n";
 
     for (std::uint32_t i = 0; i < MAX_SHM_SEGMENTS + 1; ++i)
@@ -244,12 +248,12 @@ TEST_F(JsonConfig_Failure_test, To_Many_Segments_test)
     ASSERT_EQ(iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED, parseJson(config).get_error());
 }
 
-TEST_F(JsonConfig_Failure_test, To_Many_Nodes_test)
+TEST_F(JsonConfig_Failure_test, Too_Many_Nodes_test)
 {
     std::string config = "{\n"
                          "\t\"general\":{\n"
-                         "\t\t\"version\" : 1\n"
-                         "\t},"
+                         "\t\t\"version\": 1\n"
+                         "\t},\n"
                          "\t\"segment\":[\n";
 
     for (std::uint32_t i = 0; i < MAX_SHM_SEGMENTS + 1; ++i)
@@ -259,6 +263,8 @@ TEST_F(JsonConfig_Failure_test, To_Many_Nodes_test)
             config += ",";
         }
         config += "\t\t{\n"
+                  "\t\t\t\"writer\":\"dummy\",\n"
+                  "\t\t\t\"reader\":\"reader\",\n"
                   "\t\t\t\"mempool\":[\n";
         for (std::uint32_t j = 0; j < MAX_NUMBER_OF_MEMPOOLS; ++j)
         {

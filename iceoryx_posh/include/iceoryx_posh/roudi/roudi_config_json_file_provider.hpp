@@ -35,7 +35,6 @@ static constexpr char defaultConfigJsonPath[] = "/etc/iceoryx/roudi_config.json"
 class JsonRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
 {
   private:
-    constexpr static uint32_t NUMBER_OF_JSON_NODES = 1024;
 
     /// @brief reads a mempool configuration from a segment
     /// @return the Mempool configuration or a helpful error when it is misconfigured

@@ -100,7 +100,12 @@ JsonRouDiConfigFileProvider::getMempool(json_t const* segment)
 
 iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> JsonRouDiConfigFileProvider::parse()
 {
-	constexpr static uint32_t NUMBER_OF_JSON_NODES = MAX_SHM_SEGMENTS * ( 2 + MAX_NUMBER_OF_MEMPOOLS * 3 ) + 11;
+    // 11 Nodes are required for the one time nodes in configuration like parallelism etc.
+    // 3 Nodes are required per Mempool (one for the mempool object, one for the number of elements and one for its
+    // size).
+    // 4 Nodes are required per Segment (one for the Segment object, one for writer and reader and one for the
+    // mempool  array).
+    constexpr static uint32_t NUMBER_OF_JSON_NODES = MAX_SHM_SEGMENTS * (4 + MAX_NUMBER_OF_MEMPOOLS * 3) + 11;
 
     json_t mem[NUMBER_OF_JSON_NODES];
     std::string content, line;
