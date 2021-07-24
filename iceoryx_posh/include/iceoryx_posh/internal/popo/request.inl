@@ -23,41 +23,39 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
+template <typename T>
 template <typename S, typename>
-inline Request<T, H>::Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T, H>& producer) noexcept
+inline Request<T>::Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T>& producer) noexcept
     : Base_t(std::move(requestUniquePtr), producer)
 {
 }
 
-template <typename T, typename H>
+template <typename T>
 template <typename S, typename>
-inline Request<T, H>::Request(cxx::unique_ptr<T>&& requestUniquePtr) noexcept
+inline Request<T>::Request(cxx::unique_ptr<T>&& requestUniquePtr) noexcept
     : Base_t(std::move(requestUniquePtr))
 {
 }
 
-template <typename T, typename H>
-template <typename R, typename>
-inline R& Request<T, H>::getRequestHeader() noexcept
+template <typename T>
+inline RequestHeader& Request<T>::getRequestHeader() noexcept
 {
-    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.smartchunkUniquePtr.get())->userHeader());
+    return *static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(Base_t::m_members.smartchunkUniquePtr.get())->userHeader());
 }
 
-template <typename T, typename H>
-template <typename R, typename>
-inline const R& Request<T, H>::getRequestHeader() const noexcept
+template <typename T>
+inline const RequestHeader& Request<T>::getRequestHeader() const noexcept
 {
-    return const_cast<Request<T, H>*>(this)->getRequestHeader();
+    return const_cast<Request<T>*>(this)->getRequestHeader();
 }
 
-template <typename T, typename H>
+template <typename T>
 template <typename S, typename>
-inline void Request<T, H>::send() noexcept
+inline void Request<T>::send() noexcept
 {
-    if (m_members.smartchunkUniquePtr)
+    if (Base_t::m_members.smartchunkUniquePtr)
     {
-        m_members.transmitterRef.get().sendRequest(std::move(*this));
+        Base_t::m_members.transmitterRef.get().send(std::move(*this));
     }
     else
     {

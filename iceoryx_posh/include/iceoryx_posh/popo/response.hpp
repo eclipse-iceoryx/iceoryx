@@ -25,18 +25,18 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
+template <typename T>
 class RpcInterface;
 
 ///
 /// @brief The Response class is a mutable abstraction over types which are written to loaned shared memory.
 /// These responses are transmittable to the iceoryx system.
 ///
-template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
-class Response : public SmartChunk<RpcInterface<T, H>, T, H>
+template <typename T>
+class Response : public SmartChunk<RpcInterface<Response<T>>, T, ResponseHeader>
 {
 
-    using Base_t =  SmartChunk<RpcInterface<T, H>, T, H>;
+    using Base_t =  SmartChunk<RpcInterface<Response<T>>, T, ResponseHeader>;
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
     using ForProducerOnly = typename Base_t::template ForProducerOnly<S, TT>;
@@ -45,45 +45,39 @@ class Response : public SmartChunk<RpcInterface<T, H>, T, H>
     template <typename S, typename TT>
     using ForConsumerOnly = typename Base_t::template ForConsumerOnly<S, TT>;
 
-    /// @brief Helper type to enable some methods only if a user-header is used
-    template <typename R, typename HH>
-    using HasUserHeader = typename Base_t::template HasUserHeader<R, HH>;
-
   public:
     /// @brief Constructor for a Response used by the Producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param responseUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer is a reference to the producer to be able to use the `send` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T, H>& Producer) noexcept;
+    Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T>& Producer) noexcept;
 
     /// @brief Constructor for a Response used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param responseUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
-    Response(cxx::unique_ptr<const T>&& responseUniquePtr) noexcept;
+    Response(cxx::unique_ptr<T>&& responseUniquePtr) noexcept;
 
     ~Response() noexcept = default;
 
-    Response<T, H>& operator=(Response<T, H>&& rhs) noexcept = default;
-    Response(Response<T, H>&& rhs) noexcept = default;
+    Response<T>& operator=(Response<T>&& rhs) noexcept = default;
+    Response(Response<T>&& rhs) noexcept = default;
 
-    Response(const Response<T, H>&) = delete;
-    Response<T, H>& operator=(const Response<T, H>&) = delete;
-
-    ///
-    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the response.
-    /// @return The user-header of the underlying memory chunk.
-    ///
-    template <typename R = H, typename = HasUserHeader<R, H>>
-    R& getResponseHeader() noexcept;
+    Response(const Response<T>&) = delete;
+    Response<T>& operator=(const Response<T>&) = delete;
 
     ///
-    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the response.
-    /// @return The user-header of the underlying memory chunk.
+    /// @brief Retrieve the response header of the underlying memory chunk loaned to the response.
+    /// @return The response header of the underlying memory chunk.
     ///
-    template <typename R = H, typename = HasUserHeader<R, H>>
-    const R& getResponseHeader() const noexcept;
+    ResponseHeader& getResponseHeader() noexcept;
+
+    ///
+    /// @brief Retrieve the response header of the underlying memory chunk loaned to the response.
+    /// @return The response header of the underlying memory chunk.
+    ///
+    const ResponseHeader& getResponseHeader() const noexcept;
 
     ///
     /// @brief send the response via the producer from which it was loaned and automatically

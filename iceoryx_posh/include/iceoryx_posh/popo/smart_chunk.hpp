@@ -23,6 +23,7 @@
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/rpc_header.hpp"
 
 namespace iox
 {
@@ -173,22 +174,22 @@ class SmartChunk
     ///
     const mepoo::ChunkHeader* getChunkHeader() const noexcept;
 
-    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
-    /// therefore preventing the invocation of the custom deleter
-    T* release() noexcept;
-
   private:
     template <typename, typename, typename>
     friend class PublisherImpl;
 
-    template <typename, typename, typename, typename>
+    template <typename, typename, typename>
     friend class ClientImpl;
 
-    template <typename, typename, typename, typename>
+    template <typename, typename, typename>
     friend class ServerImpl;
 
   protected:
 
+    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
+    /// therefore preventing the invocation of the custom deleter
+    T* release() noexcept;
+    
     internal::SmartChunkPrivateData<TransmissionInterface, T, H> m_members;
 };
 

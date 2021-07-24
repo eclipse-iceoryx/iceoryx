@@ -25,17 +25,17 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
+template <typename T>
 class RpcInterface;
 
 ///
 /// @brief The Request class is a mutable abstraction over types which are written to loaned shared memory.
 /// These requests are transmittable to the iceoryx system.
 ///
-template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
-class Request : public SmartChunk<RpcInterface<T, H>, T, H>
+template <typename T>
+class Request : public SmartChunk<RpcInterface<Request<T>>, T, RequestHeader>
 {
-    using Base_t =  SmartChunk<RpcInterface<T, H>, T, H>;
+    using Base_t =  SmartChunk<RpcInterface<Request<T>>, T, RequestHeader>;
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has a non const qualifier
     template <typename S, typename TT>
     using ForProducerOnly = typename Base_t::template ForProducerOnly<S, TT>;
@@ -44,17 +44,13 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
     template <typename S, typename TT>
     using ForConsumerOnly = typename Base_t::template ForConsumerOnly<S, TT>;
 
-    /// @brief Helper type to enable some methods only if a user-header is used
-    template <typename R, typename HH>
-    using HasUserHeader = typename Base_t::template HasUserHeader<R, HH>;
-
   public:
     /// @brief Constructor for a Request used by the producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param requestUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer is a reference to the producer to be able to use the `send` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T, H>& producer) noexcept;
+    Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T>& producer) noexcept;
 
     /// @brief Constructor for a Request used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
@@ -64,25 +60,23 @@ class Request : public SmartChunk<RpcInterface<T, H>, T, H>
 
     ~Request() noexcept = default;
 
-    Request<T, H>& operator=(Request<T, H>&& rhs) noexcept = default;
-    Request(Request<T, H>&& rhs) noexcept = default;
+    Request<T>& operator=(Request<T>&& rhs) noexcept = default;
+    Request(Request<T>&& rhs) noexcept = default;
 
-    Request(const Request<T, H>&) = delete;
-    Request<T, H>& operator=(const Request<T, H>&) = delete;
-
-    ///
-    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the request.
-    /// @return The user-header of the underlying memory chunk.
-    ///
-    template <typename R = H, typename = HasUserHeader<R, H>>
-    R& getRequestHeader() noexcept;
+    Request(const Request<T>&) = delete;
+    Request<T>& operator=(const Request<T>&) = delete;
 
     ///
-    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the request.
-    /// @return The user-header of the underlying memory chunk.
+    /// @brief Retrieve the request header of the underlying memory chunk loaned to the request.
+    /// @return The request header of the underlying memory chunk.
     ///
-    template <typename R = H, typename = HasUserHeader<R, H>>
-    const R& getRequestHeader() const noexcept;
+    RequestHeader& getRequestHeader() noexcept;
+
+    ///
+    /// @brief Retrieve the request header of the underlying memory chunk loaned to the request.
+    /// @return The request header of the underlying memory chunk.
+    ///
+    const RequestHeader& getRequestHeader() const noexcept;
 
     ///
     /// @brief send the request via the producer from which it was loaned and automatically
