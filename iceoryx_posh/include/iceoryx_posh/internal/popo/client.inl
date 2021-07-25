@@ -41,8 +41,6 @@ inline cxx::expected<Request<RequestType>, AllocationError> ClientImpl<RequestTy
 template <typename RequestType, typename ResponseType, typename BaseClient_t>
 inline cxx::expected<Request<RequestType>, AllocationError> ClientImpl<RequestType, ResponseType, BaseClient_t>::loanRequest() noexcept
 {
-    static constexpr uint32_t USER_HEADER_SIZE{};
-
     auto result = port().allocateRequest(sizeof(RequestType), alignof(RequestType), sizeof(RequestHeader), alignof(RequestHeader));
     if (result.has_error())
     {
