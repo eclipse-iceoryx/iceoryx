@@ -81,7 +81,7 @@ class ClientPortRouDi : public BasePort
     cxx::optional<capro::CaproMessage>
     handleCaProMessageForStateConnected(const capro::CaproMessage& caProMessage) noexcept;
     cxx::optional<capro::CaproMessage>
-    handleCaProMessageForStateDisconnectRequesteded(const capro::CaproMessage& caProMessage) noexcept;
+    handleCaProMessageForStateDisconnectRequested(const capro::CaproMessage& caProMessage) noexcept;
 
     ChunkSender<ClientChunkSenderData_t> m_chunkSender;
     ChunkReceiver<ClientChunkReceiverData_t> m_chunkReceiver;

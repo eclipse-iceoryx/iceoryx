@@ -47,7 +47,7 @@ QueueFullPolicy2 ClientPortRouDi::getResponseQueueFullPolicy() const noexcept
 
 cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcept
 {
-    // get subscribe request from user side
+    // get connect request from user side
     const auto currentConnectRequest = getMembers()->m_connectRequested.load(std::memory_order_relaxed);
 
     const auto currentConnectionState = getMembers()->m_connectionState.load(std::memory_order_relaxed);
@@ -97,7 +97,7 @@ ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
     case ConnectionState::CONNECTED:
         return handleCaProMessageForStateConnected(caProMessage);
     case ConnectionState::DISCONNECT_REQUESTED:
-        return handleCaProMessageForStateDisconnectRequesteded(caProMessage);
+        return handleCaProMessageForStateDisconnectRequested(caProMessage);
     }
 
     handleCaProProtocollViolation(caProMessage.m_type);
@@ -219,7 +219,7 @@ ClientPortRouDi::handleCaProMessageForStateConnected(const capro::CaproMessage& 
 }
 
 cxx::optional<capro::CaproMessage>
-ClientPortRouDi::handleCaProMessageForStateDisconnectRequesteded(const capro::CaproMessage& caProMessage) noexcept
+ClientPortRouDi::handleCaProMessageForStateDisconnectRequested(const capro::CaproMessage& caProMessage) noexcept
 {
     switch (caProMessage.m_type)
     {
