@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: |
           sudo $GITHUB_WORKSPACE/tools/add_test_users.sh
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize test-add-user
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all clang sanitize test-add-user
 
       - name: Run tests
         run: |

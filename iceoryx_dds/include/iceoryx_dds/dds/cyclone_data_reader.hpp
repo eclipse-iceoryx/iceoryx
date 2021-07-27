@@ -18,9 +18,9 @@
 #ifndef IOX_DDS_DDS_CYCLONE_DATA_READER_HPP
 #define IOX_DDS_DDS_CYCLONE_DATA_READER_HPP
 
+#include "iceoryx_dds/Mempool.hpp"
 #include "iceoryx_dds/dds/data_reader.hpp"
 
-#include <Mempool.hpp>
 #include <atomic>
 #include <dds/dds.hpp>
 

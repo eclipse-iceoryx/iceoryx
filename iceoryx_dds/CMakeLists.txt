@@ -94,30 +94,30 @@ if(USE_CYCLONE_DDS)
     )
 
     # Generate IDL at configure time
-    set(IDLCXX_GENERATE_DIR ${CMAKE_BINARY_DIR}/iceoryx_dds_messages)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/idlcxx-generate.cmake.in ${IDLCXX_GENERATE_DIR}/CMakeLists.txt COPYONLY)
-    execute_process(COMMAND ${CMAKE_COMMAND} "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}" -DMESSAGE_DEFINITION_DIR=${CMAKE_CURRENT_SOURCE_DIR}/msg/ "${IDLCXX_GENERATE_DIR}"
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${IDLCXX_GENERATE_DIR} )
-    if(result)
-        message(FATAL_ERROR "Unable to configure IDL.")
-    endif()
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${IDLCXX_GENERATE_DIR})
-    if(result)
-        message(FATAL_ERROR "Unable to generate IDL.")
-    endif()
+    set(MESSAGE_DEFINITION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/msg")
+    get_filename_component(MEMPOOL_IDL "${MESSAGE_DEFINITION_DIR}/Mempool.idl" ABSOLUTE)
+
+    add_custom_command(
+        OUTPUT "Mempool.hpp"
+        COMMAND CycloneDDS::idlc
+        ARGS -l $<TARGET_FILE:CycloneDDS-CXX::idlcxx> ${MEMPOOL_IDL}
+        DEPENDS CycloneDDS::idlc CycloneDDS-CXX::idlcxx
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating serialization for Mempool bytestream"
+        VERBATIM
+    )
+
+    add_custom_target(mempool_header ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Mempool.hpp)
+
+    target_include_directories(iceoryx_dds PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
 
     target_compile_definitions(iceoryx_dds PUBLIC -DUSE_CYCLONE_DDS)
-    target_include_directories(iceoryx_dds
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/iceoryx_dds_messages>
-    )
     target_link_libraries(iceoryx_dds
         PUBLIC
         CycloneDDS-CXX::ddscxx
-        ${IDLCXX_GENERATE_DIR}/libiceoryx_dds_messages.a
     )
 endif()
 

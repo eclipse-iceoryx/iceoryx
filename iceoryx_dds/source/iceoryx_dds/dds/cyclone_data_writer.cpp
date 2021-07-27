@@ -16,11 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
+#include "iceoryx_dds/Mempool.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
-#include <Mempool.hpp>
 #include <string>
 
 iox::dds::CycloneDataWriter::CycloneDataWriter(const capro::IdString_t serviceId,
