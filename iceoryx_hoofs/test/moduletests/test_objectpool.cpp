@@ -15,11 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if !defined(_WIN32)
-
-#define private public
 #include "iceoryx_hoofs/internal/objectpool/objectpool.hpp"
-#undef private
 
 #include <vector>
 
@@ -93,6 +89,12 @@ using FooPool = iox::cxx::ObjectPool<Foo, CAPACITY>;
 using Index_t = FooPool::Index_t;
 constexpr int NO_INDEX = FooPool::NO_INDEX;
 
+struct FooPoolWithPrivateMembersAccess : FooPool
+{
+    using FooPool::getFirstPtr;
+    using FooPool::getLastPtr;
+    using FooPool::nextFree;
+};
 
 class ObjectPool_test : public Test
 {
@@ -117,8 +119,8 @@ class ObjectPool_test : public Test
     int data2;
     int data3;
     FooPool pool;
+    FooPoolWithPrivateMembersAccess poolExposed;
 };
-
 
 // check whether the constructed pool objects (of type Foo) have the intended data and construction/destruction
 // behaviour  many other tests depend on this behaviour to track construction/destruction and associated data
@@ -250,7 +252,6 @@ TEST_F(ObjectPool_test, add)
     EXPECT_THAT(index, Eq(NO_INDEX));
     EXPECT_THAT(pool.size(), Eq(CAPACITY_UNSIGNED));
 }
-
 
 TEST_F(ObjectPool_test, size_and_remove)
 {
@@ -570,53 +571,64 @@ TEST_F(ObjectPool_test, pointerToIndexConversion)
     // conversion does not care about valid data, index1 still corresponds to ptr1
     EXPECT_THAT(pool.pointerToIndex(ptr1), Eq(index1));
     EXPECT_THAT(pool.indexToPointer(index1), Eq(ptr1));
+}
 
-    // legal pointer checks
-    auto first = reinterpret_cast<Foo*>(pool.m_first);
-    auto last = reinterpret_cast<Foo*>(pool.m_last);
-    auto alignedPtr = reinterpret_cast<Foo*>(pool.m_first + sizeof(Foo));
+TEST_F(ObjectPool_test, pointerToIndexLegalPointerConversion)
+{
+    data = 0;
+    EXPECT_THAT(poolExposed.construct(data), Ne(NO_INDEX));
 
-    EXPECT_THAT(pool.pointerToIndex(first), Eq(0));
-    EXPECT_THAT(pool.pointerToIndex(last), Eq(CAPACITY - 1));
-    EXPECT_THAT(pool.pointerToIndex(alignedPtr), Eq(1));
+    auto first = reinterpret_cast<Foo*>(poolExposed.getFirstPtr());
+    auto last = reinterpret_cast<Foo*>(poolExposed.getLastPtr());
+    auto alignedPtr = reinterpret_cast<Foo*>(poolExposed.getFirstPtr() + sizeof(Foo));
 
+    EXPECT_THAT(poolExposed.pointerToIndex(first), Eq(0));
+    EXPECT_THAT(poolExposed.pointerToIndex(last), Eq(CAPACITY - 1));
+    EXPECT_THAT(poolExposed.pointerToIndex(alignedPtr), Eq(1));
+}
 
-    // illegal pointer checks
-    auto lowPtr = reinterpret_cast<Foo*>(pool.m_first - 1);  // out of reserved memory ranged (too small)
-    auto highPtr = reinterpret_cast<Foo*>(pool.m_first + 1); // out of reserved memory range (too large)
-    // pointer - first is divisable by sizeof(Foo),  assumes Foo is larger than one byte
-    auto nonalignedPtr = reinterpret_cast<Foo*>(pool.m_first + sizeof(Foo) + 1);
+TEST_F(ObjectPool_test, pointerToIndexIllegalPointerConversion)
+{
+    data = 0;
+    EXPECT_THAT(poolExposed.construct(data), Ne(NO_INDEX));
 
-    EXPECT_THAT(pool.pointerToIndex(lowPtr), Eq(NO_INDEX));
-    EXPECT_THAT(pool.pointerToIndex(highPtr), Eq(NO_INDEX));
-    EXPECT_THAT(pool.pointerToIndex(nonalignedPtr), Eq(NO_INDEX));
+    auto lowOutOfMemoryPtr = reinterpret_cast<Foo*>(poolExposed.getFirstPtr() - 1);
+    auto highOutOfMemoryPtr = reinterpret_cast<Foo*>(poolExposed.getLastPtr() + 1);
+
+    constexpr size_t ONE_BYTE{1};
+    ASSERT_THAT(sizeof(Foo), Gt(ONE_BYTE));
+    auto nonAlignedPtr = reinterpret_cast<Foo*>(poolExposed.getFirstPtr() + sizeof(Foo) + ONE_BYTE);
+
+    EXPECT_THAT(poolExposed.pointerToIndex(lowOutOfMemoryPtr), Eq(NO_INDEX));
+    EXPECT_THAT(poolExposed.pointerToIndex(highOutOfMemoryPtr), Eq(NO_INDEX));
+    EXPECT_THAT(poolExposed.pointerToIndex(nonAlignedPtr), Eq(NO_INDEX));
 }
 
 // private API, important for correct behaviour of all other functions
 // also test whether finding the next free cell (if it exists) works correctly
 TEST_F(ObjectPool_test, nextFree)
 {
-    EXPECT_THAT(pool.size(), Eq(0U));
-    EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
-    EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
+    EXPECT_THAT(poolExposed.size(), Eq(0U));
+    EXPECT_THAT(poolExposed.capacity(), Eq(CAPACITY_UNSIGNED));
+    EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by poolExposed
 
     for (int i = 1; i <= CAPACITY; ++i)
     {
         // changes object state but does not matter, if there is some free cell it has to be found
-        EXPECT_THAT(pool.nextFree(), Ne(NO_INDEX));
+        EXPECT_THAT(poolExposed.nextFree(), Ne(NO_INDEX));
 
-        // populate pool
-        auto index = pool.reserve();
+        // populate poolExposed
+        auto index = poolExposed.reserve();
         EXPECT_THAT(index, Ne(NO_INDEX));
     }
-    EXPECT_THAT(pool.size(), Eq(CAPACITY_UNSIGNED));
+    EXPECT_THAT(poolExposed.size(), Eq(CAPACITY_UNSIGNED));
 
-    // pool is full
-    auto index = pool.reserve();
+    // poolExposed is full
+    auto index = poolExposed.reserve();
     EXPECT_THAT(index, Eq(NO_INDEX));
-    EXPECT_THAT(pool.size(), Eq(CAPACITY_UNSIGNED));
+    EXPECT_THAT(poolExposed.size(), Eq(CAPACITY_UNSIGNED));
 
-    EXPECT_THAT(pool.nextFree(), Eq(NO_INDEX));
+    EXPECT_THAT(poolExposed.nextFree(), Eq(NO_INDEX));
 }
 
 TEST_F(ObjectPool_test, destructor)
@@ -921,5 +933,3 @@ TEST_F(ObjectPool_test, iterator)
     EXPECT_THAT(pool.begin(), Eq(pool.end()));
 }
 } // namespace
-
-#endif
