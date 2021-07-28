@@ -20,8 +20,6 @@
 #include "stubs/stub_toml_gateway_config_parser.hpp"
 #include "test.hpp"
 
-namespace
-{
 using namespace ::testing;
 using ::testing::_;
 
@@ -31,18 +29,8 @@ using namespace iox::config;
 namespace
 {
 using ParseErrorInputFile_t = std::pair<iox::config::TomlGatewayConfigParseError, iox::roudi::ConfigFilePathString_t>;
-
-using CheckCharactersValidity_t = std::tuple<std::string, bool>;
+using CheckCharactersValidity_t = std::pair<std::string, bool>;
 }; // namespace
-
-const std::string TestFile = "gwconfig_test.tmp";
-#ifndef _WIN32
-const std::string TempPath = "/tmp";
-const std::string TestFilePath = TempPath + "/" + TestFile;
-#else
-const std::string TempPath = std::getenv("TEMP");
-const std::string TestFilePath = TempPath + "\\" + TestFile;
-#endif
 
 // ======================================== Fixture ======================================== //
 class TomlGatewayConfigParserTest : public TestWithParam<ParseErrorInputFile_t>
@@ -61,18 +49,18 @@ class TomlGatewayConfigParserTest : public TestWithParam<ParseErrorInputFile_t>
 class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersValidity_t>
 {
   public:
-    void SetUp(){};
-    void TearDown()
+    void SetUp()
     {
-        if (std::remove(TestFilePath.c_str()) != 0)
-        {
-            std::cerr << "Failed to remove temporary file '" << TestFilePath
-                      << "'. You'll have to remove it by yourself." << std::endl;
-        }
+        // get file path via cmake
+        m_configFilePath = iox::testing::TEST_INPUT_PATH;
     };
+    void TearDown(){};
+
+    iox::roudi::ConfigFilePathString_t m_configFilePath;
     void CreateTmpTomlFile(std::shared_ptr<cpptoml::table> toml)
     {
-        std::fstream fs(TestFilePath, std::fstream::out | std::fstream::trunc);
+        m_configFilePath.append(iox::cxx::TruncateToCapacity, "popo_toml_gateway_config.toml");
+        std::fstream fs(m_configFilePath, std::fstream::out | std::fstream::trunc);
         if (fs.std::fstream::is_open())
         {
             fs << *toml;
@@ -92,14 +80,16 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
 
 INSTANTIATE_TEST_CASE_P(ValidTest,
                         TomlGatewayConfigParserSuiteTest,
-                        ::testing::Values(CheckCharactersValidity_t{std::make_tuple("validcharacters", false)},
-                                          CheckCharactersValidity_t{std::make_tuple("UPPERCASECHARACTERS", false)},
-                                          CheckCharactersValidity_t{std::make_tuple("lowercasecharacters", false)},
-                                          CheckCharactersValidity_t{std::make_tuple("Number1234567890", false)},
-                                          CheckCharactersValidity_t{std::make_tuple("Under_score_Characters", false)},
-                                          CheckCharactersValidity_t{std::make_tuple("_BeginsWithUnderscore", false)},
-                                          CheckCharactersValidity_t{std::make_tuple("Hyphen-InService", true)},
-                                          CheckCharactersValidity_t{std::make_tuple("1234567890", true)}));
+                        ::testing::Values(CheckCharactersValidity_t{"validcharacters", false},
+                                          CheckCharactersValidity_t{"UPPERCASECHARACTERS", false},
+                                          CheckCharactersValidity_t{"lowercasecharacters", false},
+                                          CheckCharactersValidity_t{"Number1234567890", false},
+                                          CheckCharactersValidity_t{"Under_score_Characters", false},
+                                          CheckCharactersValidity_t{"_BeginsWithUnderscore", false},
+                                          CheckCharactersValidity_t{"Hyphen-InService", true},
+                                          CheckCharactersValidity_t{"1234567890", true},
+                                          CheckCharactersValidity_t{"這場考試_!*#:", true}));
+
 
 #pragma GCC diagnostic pop
 
@@ -109,7 +99,9 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription
     auto serviceArray = cpptoml::make_table_array();
 
     auto serviceEntry = cpptoml::make_table();
-    std::string stringentry = std::get<0>(GetParam());
+    const auto charactersValidity = GetParam();
+
+    std::string stringentry = charactersValidity.first;
     serviceEntry->insert("service", stringentry);
     serviceEntry->insert("instance", stringentry);
     serviceEntry->insert("event", stringentry);
@@ -117,7 +109,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription
     toml->insert("services", serviceArray);
 
     auto result = StubbedTomlGatewayConfigParser::validate(*toml);
-    ASSERT_EQ(std::get<1>(GetParam()), result.has_error());
+    ASSERT_EQ(charactersValidity.second, result.has_error());
     if (result.has_error())
     {
         EXPECT_EQ(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
@@ -130,7 +122,9 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
     auto serviceArray = cpptoml::make_table_array();
 
     auto serviceEntry = cpptoml::make_table();
-    std::string stringentry = std::get<0>(GetParam());
+    const auto charactersValidity = GetParam();
+
+    std::string stringentry = charactersValidity.first;
     serviceEntry->insert("service", stringentry);
     serviceEntry->insert("instance", stringentry);
     serviceEntry->insert("event", stringentry);
@@ -138,11 +132,9 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
 
-    ASSERT_EQ(std::get<1>(GetParam()), result.has_error());
+    ASSERT_EQ(charactersValidity.second, result.has_error());
     if (!result.has_error())
     {
         GatewayConfig config = result.value();
@@ -245,9 +237,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
@@ -266,9 +256,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
@@ -287,9 +275,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
@@ -301,39 +287,11 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto toml = cpptoml::make_table();
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
 }
-
-/// we require INSTANTIATE_TEST_CASE_P since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(ParseAllMalformedInputConfigFiles,
-                        TomlGatewayConfigParserTest,
-                        Values(ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION,
-                                                     "popo_toml_gateway_error_incomplete_configuration.toml"},
-                               ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
-                                                     "toml_parser_exception.toml"}));
-
-
-#pragma GCC diagnostic pop
-
-TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
-{
-    const auto parseErrorInputFile = GetParam();
-
-    m_configFilePath.append(iox::cxx::TruncateToCapacity, parseErrorInputFile.second);
-
-    auto result = iox::config::TomlGatewayConfigParser::parse(m_configFilePath);
-
-    ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(parseErrorInputFile.first, result.get_error());
-}
-
 
 TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFileReturnOnlyOneEntry)
 {
@@ -354,9 +312,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFile
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
     GatewayConfig config = result.value();
     EXPECT_FALSE(result.has_error());
     EXPECT_FALSE(config.m_configuredServices.empty());
@@ -381,9 +337,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
     GatewayConfig config = result.value();
 
     EXPECT_EQ(config.m_configuredServices.size(), iox::MAX_GATEWAY_SERVICES);
@@ -420,9 +374,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    iox::roudi::ConfigFilePathString_t Path =
-        iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
-    auto result = TomlGatewayConfigParser::parse(Path);
+    auto result = TomlGatewayConfigParser::parse(m_configFilePath);
     GatewayConfig config = result.value();
     ASSERT_FALSE(result.has_error());
 
@@ -435,10 +387,34 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
-    result = TomlGatewayConfigParser::parse(Path);
+    result = TomlGatewayConfigParser::parse(m_configFilePath);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(result.get_error(), MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
 }
 
-} // namespace
+/// we require INSTANTIATE_TEST_CASE_P since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+INSTANTIATE_TEST_CASE_P(
+    ParseAllMalformedInputConfigFiles,
+    TomlGatewayConfigParserTest,
+    Values(ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION,
+                                 "popo_toml_gateway_config.toml"},
+           ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
+                                 "toml_parser_exception.toml"}));
+
+
+#pragma GCC diagnostic pop
+
+TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
+{
+    const auto parseErrorInputFile = GetParam();
+
+    m_configFilePath.append(iox::cxx::TruncateToCapacity, parseErrorInputFile.second);
+
+    auto result = iox::config::TomlGatewayConfigParser::parse(m_configFilePath);
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(parseErrorInputFile.first, result.get_error());
+}
