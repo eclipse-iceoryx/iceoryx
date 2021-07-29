@@ -423,7 +423,8 @@ class ObjectPool
         return m_cellInfo[index].data;
     }
 
-  private:
+  protected:
+    // protected for unit tests
     // TODO: use fifo/index set for efficient search of free elements
     Index_t nextFree()
     {
@@ -434,6 +435,17 @@ class ObjectPool
             ;
 
         return m_freeIndex;
+    }
+
+    // private member accessors for unit tests
+    char* getFirstPtr() const
+    {
+        return m_first;
+    }
+
+    char* getLastPtr() const
+    {
+        return m_last;
     }
 };
 } // namespace cxx
