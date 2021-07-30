@@ -1,0 +1,13 @@
+name: Check Formatting
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master, release* ]
+
+jobs:
+  check-formatting:
+     runs-on: ubuntu-20.04
+     steps:
+       - uses: actions/checkout@v2
+       - run: ./tools/check_formatting.sh
