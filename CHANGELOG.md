@@ -111,12 +111,12 @@ The service-related methods have been move from `PoshRuntime` to a separate clas
 // before
 poshRuntime.offerService(myServiceDescription);
 poshRuntime.stopOfferService(myServiceDescription);
-poshRuntime.findService(myServiceDescription);
+poshRuntime.findService({"ServiceA", iox::capro::AnyInstanceString});
 
 // after
 discoveryInfo.offerService(myServiceDescription);
 discoveryInfo.stopOfferService(myServiceDescription);
-discoveryInfo.findService("ServiceA", Wildcard_t);
+discoveryInfo.findService("ServiceA", Wildcard);
 ```
 
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
