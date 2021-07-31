@@ -6,7 +6,7 @@
 # - performance-move-const-arg (duplicate of hicpp-move-const-arg)
 # - bugprone-use-after-move (duplicate of hicpp-move-const-arg)
 
-Checks: '
+WarningsAsErrors: '
 -*,
 readability-*,
 clang-analyzer-*,
