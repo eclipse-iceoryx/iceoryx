@@ -21,13 +21,13 @@ namespace iox
 {
 namespace popo
 {
-RpcBaseHeader::RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
+RpcBaseHeader::RpcBaseHeader(const cxx::UniqueId& uniqueClientQueueId,
                              const uint32_t lastKnownClientQueueIndex,
                              const int64_t sequenceId,
                              const uint8_t rpcHeaderVersion) noexcept
     : m_rpcHeaderVersion(rpcHeaderVersion)
     , m_lastKnownClientQueueIndex(lastKnownClientQueueIndex)
-    , m_clientQueueUniquePortId(clientQueueUniquePortId)
+    , m_uniqueClientQueueId(uniqueClientQueueId)
     , m_sequenceId(sequenceId)
 {
 }
@@ -62,9 +62,9 @@ const void* RpcBaseHeader::getUserPayload() const noexcept
     return mepoo::ChunkHeader::fromUserHeader(this)->userPayload();
 }
 
-RequestHeader::RequestHeader(const UniquePortId& clientQueueUniquePortId,
+RequestHeader::RequestHeader(const cxx::UniqueId& uniqueClientQueueId,
                              const uint32_t lastKnownClientQueueIndex) noexcept
-    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, START_SEQUENCE_ID, RPC_HEADER_VERSION)
+    : RpcBaseHeader(uniqueClientQueueId, lastKnownClientQueueIndex, START_SEQUENCE_ID, RPC_HEADER_VERSION)
 {
 }
 
@@ -83,10 +83,10 @@ bool RequestHeader::isFireAndForget() const noexcept
     return m_isFireAndForget;
 }
 
-ResponseHeader::ResponseHeader(const UniquePortId& clientQueueUniquePortId,
+ResponseHeader::ResponseHeader(const cxx::UniqueId& uniqueClientQueueId,
                                const uint32_t lastKnownClientQueueIndex,
                                const int64_t sequenceId) noexcept
-    : RpcBaseHeader(clientQueueUniquePortId, lastKnownClientQueueIndex, sequenceId, RPC_HEADER_VERSION)
+    : RpcBaseHeader(uniqueClientQueueId, lastKnownClientQueueIndex, sequenceId, RPC_HEADER_VERSION)
 {
 }
 

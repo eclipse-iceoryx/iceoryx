@@ -24,11 +24,13 @@ namespace
 using namespace ::testing;
 using namespace iox::popo;
 
+using iox::cxx::UniqueId;
+
 class RpcBaseHeaderAccess : public RpcBaseHeader
 {
   public:
-    using RpcBaseHeader::m_clientQueueUniquePortId;
     using RpcBaseHeader::m_lastKnownClientQueueIndex;
+    using RpcBaseHeader::m_uniqueClientQueueId;
 };
 
 class RpcBaseHeader_test : public Test
@@ -46,17 +48,17 @@ class RpcBaseHeader_test : public Test
     static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{73};
     static constexpr int64_t SEQUENCE_ID{37};
     RpcBaseHeader* sut{new (chunk.userHeader()) RpcBaseHeader(
-        iox::UniquePortId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID, RpcBaseHeader::RPC_HEADER_VERSION)};
+        UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID, RpcBaseHeader::RPC_HEADER_VERSION)};
 };
 
 void checkRpcBaseHeader(const RpcBaseHeaderAccess* sut,
-                        const iox::UniquePortId& clientQueueUniquePortId,
+                        const UniqueId& uniqueClientQueueId,
                         const uint32_t lastKnownClientQueueIndex,
                         const int64_t sequenceId,
                         const uint8_t rpcHeaderVersion)
 {
     EXPECT_THAT(sut->getRpcHeaderVersion(), rpcHeaderVersion);
-    EXPECT_THAT(sut->m_clientQueueUniquePortId, Eq(clientQueueUniquePortId));
+    EXPECT_THAT(sut->m_uniqueClientQueueId, Eq(uniqueClientQueueId));
     EXPECT_THAT(sut->m_lastKnownClientQueueIndex, lastKnownClientQueueIndex);
     EXPECT_THAT(sut->getSequenceId(), Eq(sequenceId));
 }
@@ -64,17 +66,17 @@ void checkRpcBaseHeader(const RpcBaseHeaderAccess* sut,
 TEST_F(RpcBaseHeader_test, ConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "54b62ac7-30a7-424b-b149-8255afbf0a0d");
-    const iox::UniquePortId clientQueueUniquePortId;
+    const UniqueId uniqueClientQueueId;
     constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
     constexpr int64_t SEQUENCE_ID{42};
     constexpr uint8_t RPC_HEADER_VERSION{222};
 
     ChunkMock<bool, RpcBaseHeader> chunk;
     new (chunk.userHeader())
-        RpcBaseHeader(clientQueueUniquePortId, LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID, RPC_HEADER_VERSION);
+        RpcBaseHeader(uniqueClientQueueId, LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID, RPC_HEADER_VERSION);
 
     checkRpcBaseHeader(static_cast<RpcBaseHeaderAccess*>(chunk.userHeader()),
-                       clientQueueUniquePortId,
+                       uniqueClientQueueId,
                        LAST_KNOWN_CLIENT_QUEUE_INDEX,
                        SEQUENCE_ID,
                        RPC_HEADER_VERSION);
@@ -148,22 +150,22 @@ class RequestHeader_test : public Test
 
     ChunkMock<bool, RequestHeader> chunk;
     static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{7};
-    RequestHeader* sut{new (chunk.userHeader()) RequestHeader(iox::UniquePortId(), LAST_KNOWN_CLIENT_QUEUE_INDEX)};
+    RequestHeader* sut{new (chunk.userHeader()) RequestHeader(UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX)};
 };
 
 TEST_F(RequestHeader_test, ConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4af7c64c-5f9f-4598-b405-567658e128db");
-    const iox::UniquePortId clientQueueUniquePortId;
+    const UniqueId uniqueClientQueueId;
     constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
     constexpr int64_t EXPECTED_SEQUENCE_ID{0};
     constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{RpcBaseHeader::RPC_HEADER_VERSION};
 
     ChunkMock<bool, RequestHeader> chunk;
-    auto requestHeader = new (chunk.userHeader()) RequestHeader(clientQueueUniquePortId, LAST_KNOWN_CLIENT_QUEUE_INDEX);
+    auto requestHeader = new (chunk.userHeader()) RequestHeader(uniqueClientQueueId, LAST_KNOWN_CLIENT_QUEUE_INDEX);
 
     checkRpcBaseHeader(reinterpret_cast<RpcBaseHeaderAccess*>(requestHeader),
-                       clientQueueUniquePortId,
+                       uniqueClientQueueId,
                        LAST_KNOWN_CLIENT_QUEUE_INDEX,
                        EXPECTED_SEQUENCE_ID,
                        EXPECTED_RPC_HEADER_VERSION);
@@ -204,23 +206,23 @@ class ResponseHeader_test : public Test
     static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
     static constexpr int64_t SEQUENCE_ID{1111};
     ResponseHeader* sut{new (chunk.userHeader())
-                            ResponseHeader(iox::UniquePortId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID)};
+                            ResponseHeader(UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID)};
 };
 
 TEST_F(ResponseHeader_test, ConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec3d90c3-2126-420c-a31c-f1c6a0731791");
-    const iox::UniquePortId clientQueueUniquePortId;
+    const UniqueId uniqueClientQueueId;
     constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{17};
     constexpr int64_t SEQUENCE_ID{555};
     constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{RpcBaseHeader::RPC_HEADER_VERSION};
 
     ChunkMock<bool, ResponseHeader> chunk;
     auto responseHeader =
-        new (chunk.userHeader()) ResponseHeader(clientQueueUniquePortId, LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
+        new (chunk.userHeader()) ResponseHeader(uniqueClientQueueId, LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
 
     checkRpcBaseHeader(reinterpret_cast<RpcBaseHeaderAccess*>(responseHeader),
-                       clientQueueUniquePortId,
+                       uniqueClientQueueId,
                        LAST_KNOWN_CLIENT_QUEUE_INDEX,
                        SEQUENCE_ID,
                        EXPECTED_RPC_HEADER_VERSION);
