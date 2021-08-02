@@ -243,14 +243,14 @@ class Mepoo_IntegrationTest : public Test
 
     void getMempoolInfoFromIntrospection(MemPoolInfoContainer& memPoolInfoContainer)
     {
-
         iox::runtime::PoshRuntime::initRuntime("hypnotoad");
 
         iox::popo::SubscriberOptions options;
         options.queueCapacity = 1U;
         options.historyRequest = 1U;
 
-        iox::popo::Subscriber<iox::roudi::MemPoolIntrospectionInfoContainer> subscriber(iox::roudi::IntrospectionMempoolService, options);
+        iox::popo::Subscriber<iox::roudi::MemPoolIntrospectionInfoContainer> subscriber(
+            iox::roudi::IntrospectionMempoolService, options);
         ASSERT_THAT(subscriber.getSubscriptionState(), iox::SubscribeState::SUBSCRIBED);
 
         iox::popo::WaitSet<1> waitset;
