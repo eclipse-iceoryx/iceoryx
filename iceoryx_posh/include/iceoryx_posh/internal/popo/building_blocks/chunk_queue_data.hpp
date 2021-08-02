@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP
 
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -38,6 +39,8 @@ struct ChunkQueueData : public LockingPolicy
     using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
 
     ChunkQueueData(const QueueFullPolicy policy, const cxx::VariantQueueTypes queueType) noexcept;
+
+    cxx::UniqueId m_uniqueId{};
 
     static constexpr uint64_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
     cxx::VariantQueue<mepoo::ShmSafeUnmanagedChunk, MAX_CAPACITY> m_queue;

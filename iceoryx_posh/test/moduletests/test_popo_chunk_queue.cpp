@@ -36,6 +36,8 @@ using namespace iox::popo;
 using namespace iox::mepoo;
 using namespace iox::units::duration_literals;
 
+using iox::cxx::UniqueId;
+
 class ChunkQueue_testBase
 {
   public:
@@ -110,6 +112,23 @@ TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7e6116fa-9bbd-4d63-bfd1-ad49edb7a24e");
     EXPECT_THAT(this->m_popper.isConditionVariableSet(), Eq(false));
+}
+
+TYPED_TEST(ChunkQueue_test, UniqueIdIsMonotonicallyIncreasing)
+{
+    using ChunkQueueData_t = typename ChunkQueue_test<TypeParam>::ChunkQueueData_t;
+
+    ChunkQueueData_t m_chunkData1{QueueFullPolicy::DISCARD_OLDEST_DATA, this->m_variantQueueType};
+    {
+        ChunkQueueData_t m_chunkData2{QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
+        EXPECT_THAT(static_cast<UniqueId::value_type>(m_chunkData2.m_uniqueId),
+                    static_cast<UniqueId::value_type>(m_chunkData1.m_uniqueId) + 1);
+    }
+    ChunkQueueData_t m_chunkData3{QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                  iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    EXPECT_THAT(static_cast<UniqueId::value_type>(m_chunkData3.m_uniqueId),
+                static_cast<UniqueId::value_type>(m_chunkData1.m_uniqueId) + 2);
 }
 
 TYPED_TEST(ChunkQueue_test, PushOneChunk)
