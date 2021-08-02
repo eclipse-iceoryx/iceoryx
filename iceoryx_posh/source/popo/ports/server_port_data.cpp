@@ -23,13 +23,17 @@ namespace popo
 {
 ServerPortData::ServerPortData(const capro::ServiceDescription& serviceDescription,
                                const RuntimeName_t& runtimeName,
-                               const NodeName_t& nodeName,
+                               const ServerOptions& serverOptions,
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, runtimeName, nodeName)
-    , m_chunkSenderData(memoryManager, SERVER_SUBSCRIBER_POLICY, 0, memoryInfo)
-    , m_chunkReceiverData(cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, SERVER_PUBLISHER_POLICY)
+    : BasePortData(serviceDescription, runtimeName, serverOptions.nodeName)
+    , m_chunkSenderData(
+          memoryManager, static_cast<SubscriberTooSlowPolicy>(serverOptions.clientTooSlowPolicy), 0, memoryInfo)
+    , m_chunkReceiverData(cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
+                          QueueFullPolicy::DISCARD_OLDEST_DATA)
+    , m_offeringRequested(serverOptions.offerOnCreate)
 {
+    m_chunkReceiverData.m_queue.setCapacity(serverOptions.requestQueueCapacity);
 }
 
 } // namespace popo

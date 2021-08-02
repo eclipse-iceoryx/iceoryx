@@ -26,6 +26,7 @@
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/rpc_header.hpp"
 
 namespace iox
 {
@@ -41,7 +42,7 @@ class ServerPortUser : public BasePort
   public:
     using MemberType_t = ServerPortData;
 
-    explicit ServerPortUser(cxx::not_null<MemberType_t* const> serverPortDataPtr) noexcept;
+    explicit ServerPortUser(MemberType_t& serverPortData) noexcept;
 
     ServerPortUser(const ServerPortUser& other) = delete;
     ServerPortUser& operator=(const ServerPortUser&) = delete;
@@ -51,9 +52,9 @@ class ServerPortUser : public BasePort
 
     /// @brief Tries to get the next request from the queue. If there is a new one, the ChunkHeader of the oldest
     /// request in the queue is returned (FiFo queue)
-    /// @return optional that has a new chunk header or no value if there are no new requests in the underlying queue,
+    /// @return cxx::expected that has a new RequestHeader if there are new requests in the underlying queue,
     /// ChunkReceiveResult on error
-    cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveResult> getRequest() noexcept;
+    cxx::expected<const RequestHeader*, ChunkReceiveResult> getRequest() noexcept;
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
@@ -69,10 +70,14 @@ class ServerPortUser : public BasePort
 
     /// @brief Allocate a response, the ownerhip of the SharedChunk remains in the ServerPortUser for being able to
     /// cleanup if the user process disappears
+    /// @param[in] requestHeader, the request header for the corresponding response
     /// @param[in] userPayloadSize, size of the user user-paylaod without additional headers
+    /// @param[in] userPayloadAlignment, alignment of the user user-paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const uint32_t userPayloadSize) noexcept;
+    cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const RequestHeader* const requestHeader,
+                                                                     const uint32_t userPayloadSize,
+                                                                     const uint32_t userPayloadAlignment) noexcept;
 
     /// @brief Free an allocated response without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free

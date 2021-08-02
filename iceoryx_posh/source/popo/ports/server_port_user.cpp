@@ -21,11 +21,10 @@ namespace iox
 {
 namespace popo
 {
-ServerPortUser::ServerPortUser(cxx::not_null<MemberType_t* const> serverPortDataPtr) noexcept
-    : BasePort(serverPortDataPtr)
+ServerPortUser::ServerPortUser(MemberType_t& serverPortData) noexcept
+    : BasePort(&serverPortData)
     , m_chunkSender(&getMembers()->m_chunkSenderData)
     , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
-
 {
 }
 
@@ -39,15 +38,21 @@ ServerPortUser::MemberType_t* ServerPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-
-cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveResult> ServerPortUser::getRequest() noexcept
+cxx::expected<const RequestHeader*, ChunkReceiveResult> ServerPortUser::getRequest() noexcept
 {
-    return cxx::success<cxx::optional<const RequestHeader*>>(cxx::nullopt_t());
+    auto getChunkResult = m_chunkReceiver.tryGet();
+
+    if (getChunkResult.has_error())
+    {
+        return cxx::error<ChunkReceiveResult>(getChunkResult.get_error());
+    }
+
+    return cxx::success<const RequestHeader*>(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));
 }
 
-void ServerPortUser::releaseRequest(const RequestHeader* const /*requestHeader*/) noexcept
+void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
 {
-    /// @todo
+    m_chunkReceiver.release(requestHeader->getChunkHeader());
 }
 
 bool ServerPortUser::hasNewRequests() const noexcept
@@ -61,20 +66,54 @@ bool ServerPortUser::hasLostRequestsSinceLastCall() noexcept
 }
 
 cxx::expected<ResponseHeader*, AllocationError>
-ServerPortUser::allocateResponse(const uint32_t /*userPayloadSize*/) noexcept
+ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
+                                 const uint32_t userPayloadSize,
+                                 const uint32_t userPayloadAlignment) noexcept
 {
-    /// @todo
-    return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
+    auto allocateResult = m_chunkSender.tryAllocate(
+        getUniqueID(), userPayloadSize, userPayloadAlignment, sizeof(ResponseHeader), alignof(ResponseHeader));
+
+    if (allocateResult.has_error())
+    {
+        return cxx::error<AllocationError>(allocateResult.get_error());
+    }
+
+    auto responseHeader =
+        new (allocateResult.value()->userHeader()) ResponseHeader(requestHeader->m_uniqueClientQueueId,
+                                                                  requestHeader->m_lastKnownClientQueueIndex,
+                                                                  requestHeader->getSequenceId());
+
+    return cxx::success<ResponseHeader*>(responseHeader);
 }
 
-void ServerPortUser::freeResponse(ResponseHeader* const /*responseHeader*/) noexcept
+void ServerPortUser::freeResponse(ResponseHeader* const responseHeader) noexcept
 {
-    /// @todo
+    m_chunkSender.release(responseHeader->getChunkHeader());
 }
 
-void ServerPortUser::sendResponse(ResponseHeader* const /*responseHeader*/) noexcept
+void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
-    /// @todo
+    const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
+
+    if (offerRequested)
+    {
+        m_chunkSender.getQueueIndex(responseHeader->m_uniqueClientQueueId, responseHeader->m_lastKnownClientQueueIndex)
+            .and_then([&](auto queueIndex) {
+                responseHeader->m_lastKnownClientQueueIndex = queueIndex;
+                if (!m_chunkSender.sendToQueue(
+                        responseHeader->getChunkHeader(), responseHeader->m_uniqueClientQueueId, queueIndex))
+                {
+                    /// @note do not access the member of responseHeader since the ownership is passed to sendToQueue
+                    /// and it might not be valid anymore
+                    LogWarn() << "Could not deliver to queue!";
+                }
+            })
+            .or_else([] { LogWarn() << "Could not deliver to queue! Queue not available anymore!"; });
+    }
+    else
+    {
+        LogWarn() << "Try to send request without being connected!";
+    }
 }
 
 void ServerPortUser::offer() noexcept

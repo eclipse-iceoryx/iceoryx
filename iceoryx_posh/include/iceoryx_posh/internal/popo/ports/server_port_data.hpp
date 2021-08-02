@@ -22,7 +22,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
-#include "iceoryx_posh/popo/rpc_header.hpp"
+#include "iceoryx_posh/popo/server_options.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -35,12 +35,10 @@ struct ServerPortData : public BasePortData
 {
     ServerPortData(const capro::ServiceDescription& serviceDescription,
                    const RuntimeName_t& runtimeName,
-                   const NodeName_t& nodeName,
+                   const ServerOptions& serverOptions,
                    mepoo::MemoryManager* const memoryManager,
                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    static constexpr SubscriberTooSlowPolicy SERVER_SUBSCRIBER_POLICY = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
-    static constexpr QueueFullPolicy SERVER_PUBLISHER_POLICY = QueueFullPolicy::DISCARD_OLDEST_DATA;
     ServerChunkSenderData_t m_chunkSenderData;
     ServerChunkReceiverData_t m_chunkReceiverData;
     std::atomic_bool m_offeringRequested{false};
