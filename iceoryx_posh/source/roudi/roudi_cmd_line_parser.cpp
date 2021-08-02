@@ -36,10 +36,11 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                                       {"unique-roudi-id", required_argument, nullptr, 'u'},
                                       {"compatibility", required_argument, nullptr, 'x'},
                                       {"kill-delay", required_argument, nullptr, 'k'},
+                                      {"introspection-update-interval", required_argument, nullptr, 'i'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:u:x:k:";
+    constexpr const char* shortOptions = "hvm:l:u:x:k:i:";
     int32_t index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
@@ -71,6 +72,9 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "-k, --kill-delay <UINT>           Sets the delay when RouDi sends SIG_KILL, if apps"
                       << std::endl;
             std::cout << "                                  have't responded after trying SIG_TERM first, in seconds."
+                      << std::endl;
+            std::cout << "-i, --introspection-update-interval <UINT>  Sets the update/publish interval for "
+                         "introspection, in milliseconds."
                       << std::endl;
 
             m_run = false;
@@ -164,6 +168,23 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             }
             break;
         }
+        case 'i':
+        {
+            uint32_t introspectionUpdateIntervalInMilliSeconds{0u};
+            constexpr uint64_t MAX_INTROSPECTION_UPDATE_INTERVAL = std::numeric_limits<uint32_t>::max();
+            if (!cxx::convert::fromString(optarg, introspectionUpdateIntervalInMilliSeconds))
+            {
+                LogError() << "The process kill delay must be in the range of [0, " << MAX_INTROSPECTION_UPDATE_INTERVAL
+                           << "]";
+                m_run = false;
+            }
+            else
+            {
+                m_introspectionUpdateInterval =
+                    units::Duration::fromMilliseconds(introspectionUpdateIntervalInMilliSeconds);
+            }
+            break;
+        }
         case 'x':
         {
             if (strcmp(optarg, "off") == 0)
@@ -215,6 +236,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                                                      m_logLevel,
                                                      m_compatibilityCheckLevel,
                                                      m_processKillDelay,
+                                                     m_introspectionUpdateInterval,
                                                      m_uniqueRouDiId,
                                                      m_run,
                                                      iox::roudi::ConfigFilePathString_t("")});

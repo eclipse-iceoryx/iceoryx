@@ -15,7 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 namespace iox
 {
@@ -23,7 +25,7 @@ namespace roudi
 {
 IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept
     : rouDiMemoryManager(roudiConfig)
-    , portManager([&]() -> IceOryxRouDiMemoryManager* {
+    , portManager([&]() -> PortManager::PortManagerConfig {
         // this temporary object will create a roudi IPC channel
         // and close it immediatelly
         // if there was an outdated roudi IPC channel, it will be cleaned up
@@ -34,7 +36,12 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
             LogFatal() << "Could not create SharedMemory! Error: " << error;
             errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
         });
-        return &rouDiMemoryManager;
+
+        PortManager::PortManagerConfig portManagerConfig;
+        portManagerConfig.m_roudiMemoryInterface = &rouDiMemoryManager;
+        portManagerConfig.m_introspectionUpdateInterval = units::Duration::fromSeconds(1U);
+
+        return portManagerConfig;
     }())
 {
 }

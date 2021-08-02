@@ -47,7 +47,8 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                                 true,
                                                                 RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                                 m_compatibilityCheckLevel,
-                                                                m_processKillDelay});
+                                                                m_processKillDelay,
+                                                                m_introspectionUpdateInterval});
         waitForSignal();
     }
     return EXIT_SUCCESS;

@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/file.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -60,12 +61,14 @@ class RouDi
             const bool killProcessesInDestructor = true,
             const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
-            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
+            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY,
+            const units::Duration introspectionUpdateInterval = roudi::INTROSPECTION_DEFAULT_UPDATE_INTERVAL) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
             , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
             , m_processKillDelay(processKillDelay)
+            , m_introspectionUpdateInterval(introspectionUpdateInterval)
         {
         }
 
@@ -74,6 +77,7 @@ class RouDi
         const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
         const units::Duration m_processKillDelay;
+        const units::Duration m_introspectionUpdateInterval;
     };
 
     RouDi& operator=(const RouDi& other) = delete;

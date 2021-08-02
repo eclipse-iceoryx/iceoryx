@@ -88,6 +88,7 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
                                                      m_logLevel,
                                                      m_compatibilityCheckLevel,
                                                      m_processKillDelay,
+                                                     m_introspectionUpdateInterval,
                                                      m_uniqueRouDiId,
                                                      m_run,
                                                      m_customConfigFilePath});

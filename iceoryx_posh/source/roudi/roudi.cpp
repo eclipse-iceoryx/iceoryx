@@ -54,10 +54,13 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     {
         LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
     }
+    m_processIntrospection.setSendInterval(roudiStartupParameters.m_introspectionUpdateInterval);
     m_processIntrospection.registerPublisherPort(PublisherPortUserType(
         m_prcMgr->addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
     m_prcMgr->initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
+
+    m_mempoolIntrospection.setSendInterval(roudiStartupParameters.m_introspectionUpdateInterval);
     m_mempoolIntrospection.run();
 
     // since RouDi offers the introspection services, also add it to the list of processes

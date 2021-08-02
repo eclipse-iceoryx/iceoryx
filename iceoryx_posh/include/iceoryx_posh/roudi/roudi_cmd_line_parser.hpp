@@ -70,6 +70,7 @@ class CmdLineParser
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     cxx::optional<uint16_t> m_uniqueRouDiId;
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
+    units::Duration m_introspectionUpdateInterval{roudi::INTROSPECTION_DEFAULT_UPDATE_INTERVAL};
 };
 
 } // namespace config

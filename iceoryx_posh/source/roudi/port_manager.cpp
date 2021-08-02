@@ -18,8 +18,10 @@
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
@@ -42,9 +44,9 @@ capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept
     return static_cast<capro::Interfaces>(i);
 }
 
-PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
+PortManager::PortManager(PortManagerConfig config) noexcept
 {
-    m_roudiMemoryInterface = roudiMemoryInterface;
+    m_roudiMemoryInterface = config.m_roudiMemoryInterface;
 
     auto maybePortPool = m_roudiMemoryInterface->portPool();
     if (!maybePortPool.has_value())
@@ -108,6 +110,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     m_portIntrospection.registerPublisherPort(PublisherPortUserType(std::move(portGeneric)),
                                               PublisherPortUserType(std::move(portThroughput)),
                                               PublisherPortUserType(std::move(subscriberPortsData)));
+    m_portIntrospection.setSendInterval(config.m_introspectionUpdateInterval);
     m_portIntrospection.run();
 }
 

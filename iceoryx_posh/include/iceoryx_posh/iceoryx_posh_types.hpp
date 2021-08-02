@@ -216,6 +216,7 @@ constexpr const char SHM_NAME[] = "/iceoryx_mgmt";
 
 // Timeout
 using namespace units::duration_literals;
+constexpr units::Duration INTROSPECTION_DEFAULT_UPDATE_INTERVAL = 1_s;
 constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
 constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;

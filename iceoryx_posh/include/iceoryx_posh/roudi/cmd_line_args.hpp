@@ -16,6 +16,7 @@
 #ifndef IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 #define IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
@@ -32,6 +33,7 @@ struct CmdLineArgs_t
     iox::log::LogLevel logLevel{iox::log::LogLevel::kWarn};
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
+    units::Duration introspectionUpdateInterval{roudi::INTROSPECTION_DEFAULT_UPDATE_INTERVAL};
     cxx::optional<uint16_t> uniqueRouDiId{cxx::nullopt};
     bool run{true};
     roudi::ConfigFilePathString_t configFilePath;
@@ -45,6 +47,8 @@ inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Cmd
     cmdLineArgs.uniqueRouDiId.and_then([&logstream](auto& id) { logstream << "Unique RouDi ID: " << id << "\n"; })
         .or_else([&logstream] { logstream << "Unique RouDi ID: < unset >\n"; });
     logstream << "Process kill delay: " << cmdLineArgs.processKillDelay.toSeconds() << " s\n";
+    logstream << "Introspection update interval: " << cmdLineArgs.introspectionUpdateInterval.toMilliseconds()
+              << " ms\n";
     if (!cmdLineArgs.configFilePath.empty())
     {
         logstream << "Config file used is: " << cmdLineArgs.configFilePath;

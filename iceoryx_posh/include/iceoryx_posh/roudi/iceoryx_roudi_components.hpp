@@ -29,7 +29,8 @@ namespace roudi
 struct IceOryxRouDiComponents
 {
   public:
-    IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept;
+    // TODO: also proxy introspectionUpdateInterval
+    explicit IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept;
 
     virtual ~IceOryxRouDiComponents() = default;
 

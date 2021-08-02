@@ -85,6 +85,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     , m_config(config)
     , m_compatibilityCheckLevel(cmdLineArgs.compatibilityCheckLevel)
     , m_processKillDelay(cmdLineArgs.processKillDelay)
+    , m_introspectionUpdateInterval(cmdLineArgs.introspectionUpdateInterval)
 {
     // the "and" is intentional, just in case the the provided RouDiConfig_t is empty
     m_run &= cmdLineArgs.run;

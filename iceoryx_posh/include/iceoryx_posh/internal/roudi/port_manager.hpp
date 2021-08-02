@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -40,6 +41,7 @@
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
+#include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 
@@ -54,8 +56,14 @@ capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept;
 class PortManager
 {
   public:
+    struct PortManagerConfig
+    {
+        RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
+        units::Duration m_introspectionUpdateInterval{roudi::INTROSPECTION_DEFAULT_UPDATE_INTERVAL};
+    };
+
     using PortConfigInfo = iox::runtime::PortConfigInfo;
-    PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept;
+    explicit PortManager(PortManagerConfig config) noexcept;
 
     virtual ~PortManager() = default;
 
@@ -136,8 +144,8 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
-        noexcept;
+    cxx::optional<RuntimeName_t>
+    doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<RuntimeName_t>
