@@ -208,8 +208,10 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_
 }
 
 template <typename ChunkDistributorDataType>
-inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(
-    const cxx::UniqueId uniqueQueueId, uint32_t& lastKnownQueueIndex, mepoo::SharedChunk chunk) noexcept
+inline cxx::expected<ChunkDistributorError>
+ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId uniqueQueueId IOX_MAYBE_UNUSED,
+                                                           uint32_t& lastKnownQueueIndex IOX_MAYBE_UNUSED,
+                                                           mepoo::SharedChunk chunk IOX_MAYBE_UNUSED) noexcept
 {
     /// @todo iox-#27
     /// - find queue
