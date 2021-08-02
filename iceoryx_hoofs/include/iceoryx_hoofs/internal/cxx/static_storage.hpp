@@ -56,7 +56,7 @@ class static_storage
     static_storage(static_storage&&) = delete;
     static_storage& operator=(static_storage&&) = delete;
 
-    /// @brief check whether the type T will fit in the buffer 
+    /// @brief check whether the type T will fit in the buffer
     /// @return true if the type fits in the buffer, false otherwise
     /// @note can be checked at compile time
     template <typename T>
