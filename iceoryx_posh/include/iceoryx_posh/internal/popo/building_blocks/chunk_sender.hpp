@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
@@ -94,6 +95,10 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @brief Send an allocated chunk to all connected ChunkQueuePopper
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
     void send(mepoo::ChunkHeader* const chunkHeader) noexcept;
+
+    bool sendToQueue(mepoo::ChunkHeader* const chunkHeader,
+                     const cxx::UniqueId uniqueQueuId,
+                     uint32_t& lastKnownQueueIndex) noexcept;
 
     /// @brief Push an allocated chunk to the history without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to push to the history

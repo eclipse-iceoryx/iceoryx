@@ -208,6 +208,16 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_
 }
 
 template <typename ChunkDistributorDataType>
+inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(
+    const cxx::UniqueId uniqueQueueId, uint32_t& lastKnownQueueIndex, mepoo::SharedChunk chunk) noexcept
+{
+    /// @todo iox-#27
+    /// - find queue
+    /// - deliver to queue but respect `SubscriberTooSlowPolicy` like in `deliverToAllStoredQueues`
+    return cxx::success<>();
+}
+
+template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
