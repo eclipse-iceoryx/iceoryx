@@ -30,7 +30,8 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     {
         if (element == serviceDescription)
         {
-            return cxx::error<Error>(Error::SERVICE_DESCRIPTION_ALREADY_ADDED);
+            // Due to n:m communication we don't store twice but return success
+            return cxx::success<>();
         }
     }
 

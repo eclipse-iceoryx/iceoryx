@@ -37,7 +37,6 @@ class ServiceRegistry
     enum class Error
     {
         INVALID_STATE,
-        SERVICE_DESCRIPTION_ALREADY_ADDED,
         SERVICE_REGISTRY_FULL,
     };
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES

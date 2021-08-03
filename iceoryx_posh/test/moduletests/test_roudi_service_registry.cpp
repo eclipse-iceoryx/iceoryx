@@ -92,14 +92,18 @@ TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
     EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
 }
 
-TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWork)
+TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
 {
     auto result1 = registry.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result1.has_error());
 
     auto result2 = registry.add(ServiceDescription("Li", "La", "Launebaer"));
-    ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(ServiceRegistry::Error::SERVICE_DESCRIPTION_ALREADY_ADDED));
+    ASSERT_FALSE(result2.has_error());
+
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Li", "La", "Launebaer")));
 }
 
 TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
@@ -340,9 +344,7 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNo
     ASSERT_FALSE(registry.add(service1).has_error());
     // add same service a, instance c to check if in registry only one entry is created
     ASSERT_FALSE(registry.add(service2).has_error());
-    auto result = registry.add(service2);
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(iox::roudi::ServiceRegistry::Error::SERVICE_DESCRIPTION_ALREADY_ADDED));
+    ASSERT_FALSE(registry.add(service2).has_error());
     ASSERT_FALSE(registry.add(service3).has_error());
     ASSERT_FALSE(registry.add(service4).has_error());
 
