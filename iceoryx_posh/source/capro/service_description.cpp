@@ -121,11 +121,6 @@ ServiceDescription::ServiceDescription(const IdString_t& service,
 
 bool ServiceDescription::operator==(const ServiceDescription& rhs) const
 {
-    if (!isValid() || !rhs.isValid())
-    {
-        return false;
-    }
-
     if (m_serviceString != rhs.m_serviceString)
     {
         return false;

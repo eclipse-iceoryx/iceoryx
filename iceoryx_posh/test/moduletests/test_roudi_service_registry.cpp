@@ -102,11 +102,10 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedDoesNotWo
     EXPECT_THAT(result2.get_error(), Eq(ServiceRegistry::Error::SERVICE_DESCRIPTION_ALREADY_ADDED));
 }
 
-TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsFails)
+TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
 {
     auto result = registry.add(ServiceDescription());
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_DESCRIPTION_INVALID));
+    ASSERT_FALSE(result.has_error());
 }
 
 TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
@@ -114,9 +113,28 @@ TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
     EXPECT_FALSE(registry.remove(ServiceDescription("Sim", "Sa", "Lambim")));
 }
 
-TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsFails)
+TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsWorks)
 {
-    EXPECT_FALSE(registry.remove(ServiceDescription()));
+    ASSERT_FALSE(registry.add(ServiceDescription()).has_error());
+    EXPECT_TRUE(registry.remove(ServiceDescription()));
+}
+
+TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildcardSearch)
+{
+    ASSERT_FALSE(registry.add(ServiceDescription()).has_error());
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription()));
+}
+
+TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmptyString)
+{
+    ASSERT_FALSE(registry.add(ServiceDescription()).has_error());
+    registry.find(searchResults, "", "");
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0], Eq(ServiceDescription()));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
@@ -147,6 +165,20 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0], Eq(service1));
+}
+
+TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWithWildcardSearch)
+{
+    ServiceDescription service1;
+    ServiceDescription service2("alpha", "bravo", "charlie");
+
+    ASSERT_FALSE(registry.add(service1).has_error());
+    ASSERT_FALSE(registry.add(service2).has_error());
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(2));
+    EXPECT_THAT(searchResults[0], Eq(service1));
+    EXPECT_THAT(searchResults[1], Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAllBeFound)
