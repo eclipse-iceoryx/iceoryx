@@ -39,8 +39,10 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     {
         return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
     }
-    m_serviceMap.insert({serviceDescription.getServiceIDString(), m_serviceDescriptionVector.size() - 1});
-    m_instanceMap.insert({serviceDescription.getInstanceIDString(), m_serviceDescriptionVector.size() - 1});
+
+    auto serviceIndex = m_serviceDescriptionVector.size() - 1;
+    m_serviceMap.insert({serviceDescription.getServiceIDString(), serviceIndex});
+    m_instanceMap.insert({serviceDescription.getInstanceIDString(), serviceIndex});
     return cxx::success<>();
 }
 
