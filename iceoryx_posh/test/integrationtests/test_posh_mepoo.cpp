@@ -21,22 +21,16 @@
 #include "iceoryx_hoofs/posix_wrapper/timer.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-
-#define private public
-#define protected public
-
-#include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
-
-#undef private
-#undef protected
 
 #include "test.hpp"
 
@@ -247,23 +241,42 @@ class Mepoo_IntegrationTest : public Test
         return true;
     }
 
-    void getMempoolInfoFromIntrospection(MemPoolInfoContainer& mempoolInfo)
+    void getMempoolInfoFromIntrospection(MemPoolInfoContainer& memPoolInfoContainer)
     {
-        auto currentUser = iox::posix::PosixUser::getUserOfCurrentProcess();
-        auto memoryManager = m_roudiEnv->m_roudiApp->m_mempoolIntrospection.m_segmentManager
-                                 ->getSegmentInformationWithWriteAccessForUser(currentUser.getName())
-                                 .m_memoryManager;
-        ASSERT_TRUE(memoryManager.has_value());
-        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(memoryManager.value().get(), mempoolInfo);
+        iox::runtime::PoshRuntime::initRuntime("hypnotoad");
 
-        // internally, the chunks are adjusted to the additional management information;
-        // this needs to be subtracted to be able to compare to the configured sizes
-        for (auto& mempool : mempoolInfo)
+        iox::popo::SubscriberOptions options;
+        options.queueCapacity = 1U;
+        options.historyRequest = 1U;
+
+        iox::popo::Subscriber<iox::roudi::MemPoolIntrospectionInfoContainer> subscriber(
+            iox::roudi::IntrospectionMempoolService, options);
+        ASSERT_THAT(subscriber.getSubscriptionState(), iox::SubscribeState::SUBSCRIBED);
+
+        iox::popo::WaitSet<1> waitset;
+        waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+            std::cerr << "failed to attach subscriber" << std::endl;
+            std::exit(EXIT_FAILURE);
+        });
+
+        auto notifications = waitset.wait();
+
+        ASSERT_THAT(notifications.size(), Eq(1));
+        if (notifications[0]->doesOriginateFrom(&subscriber))
         {
-            if (mempool.m_chunkSize != 0)
-            {
-                mempool.m_chunkSize = mempool.m_chunkSize - static_cast<uint32_t>(sizeof(iox::mepoo::ChunkHeader));
-            }
+            subscriber.take().and_then([&](auto& sample) {
+                ASSERT_THAT(sample->size(), Eq(2)); // internal and user mempools
+                memPoolInfoContainer = sample->at(1).m_mempoolInfo;
+                // internally, the chunks are adjusted to the additional management information;
+                // this needs to be subtracted to be able to compare to the configured sizes
+                for (auto& info : memPoolInfoContainer)
+                {
+                    if (info.m_chunkSize != 0)
+                    {
+                        info.m_chunkSize = info.m_chunkSize - static_cast<uint32_t>(sizeof(iox::mepoo::ChunkHeader));
+                    }
+                }
+            });
         }
     }
 

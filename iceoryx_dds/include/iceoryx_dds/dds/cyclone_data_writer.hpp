@@ -18,9 +18,9 @@
 #ifndef IOX_DDS_DDS_CYCLONE_DATA_WRITER_HPP
 #define IOX_DDS_DDS_CYCLONE_DATA_WRITER_HPP
 
+#include "iceoryx_dds/Mempool.hpp"
 #include "iceoryx_dds/dds/data_writer.hpp"
 
-#include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
 
 namespace iox

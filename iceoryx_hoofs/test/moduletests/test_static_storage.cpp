@@ -55,7 +55,6 @@ struct alignas(Align) Bytes
 
 namespace
 {
-
 TEST(static_storage_test, CapacityIsConsistent)
 {
     constexpr uint64_t CAPACITY = 16;

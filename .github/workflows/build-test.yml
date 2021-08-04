@@ -11,9 +11,16 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  pre-flight-check:
+     runs-on: ubuntu-20.04
+     steps:
+       - uses: actions/checkout@v2
+       - run: ./tools/check_formatting.sh
+
   # This job builds & runs iceoryx tests in ubuntu-18.04
   iceoryx-ubuntu:
      runs-on: ubuntu-18.04
+     needs: pre-flight-check
 
      # Steps represent a sequence of tasks that will be executed as part of the job
      steps:
@@ -27,7 +34,7 @@ jobs:
          # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
          run: |
           sudo apt-get update
-          sudo apt-get install -y libacl1-dev libncurses5-dev
+          sudo apt-get install -y libacl1-dev libncurses5-dev bison
 
        - name: Checkout
          uses: actions/checkout@v2
@@ -55,6 +62,7 @@ jobs:
     runs-on: macos-10.14
     # Softwares installed in macos-latest instance
     # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.14-Readme.md
+    needs: pre-flight-check
 
     steps:
       - name: Checkout
@@ -67,18 +75,21 @@ jobs:
       - name: Build and install dependencies
       # tinfo library which is required by iceoryx_introspection isn't available in mac
         run: |
+          brew install ncurses
           cd $GITHUB_WORKSPACE
-          mkdir -p build
-          cd build
-          git clone https://github.com/mirror/ncurses.git
-          cd ncurses
-          git checkout v6.2
-          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib
+          mkdir -p bison_build
+          cd bison_build
+          wget https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.gz
+          tar -xvf bison-3.5.1.tar.gz
+          cd bison-3.5.1
+          ./configure
           make
-          make install
+          sudo make install
 
       - name: Build sources
         run: |
+          export LDFLAGS="-L/usr/local/opt/ncurses/lib"
+          export CFLAGS="-I/usr/local/opt/ncurses/include"
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
       - name: Run tests, excluding timing_tests
@@ -95,6 +106,7 @@ jobs:
     runs-on: windows-2019
     # Softwares installed in windows instance
     # https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
+    needs: pre-flight-check
 
     steps:
       - name : Checkout

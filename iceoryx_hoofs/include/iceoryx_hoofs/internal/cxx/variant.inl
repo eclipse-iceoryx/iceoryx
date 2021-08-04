@@ -216,8 +216,8 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
 template <typename... Types>
 template <uint64_t TypeIndex>
-inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type* variant<Types...>::get_at_index() const
-    noexcept
+inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
+variant<Types...>::get_at_index() const noexcept
 {
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
     return const_cast<const T*>(const_cast<variant*>(this)->template get_at_index<TypeIndex>());
