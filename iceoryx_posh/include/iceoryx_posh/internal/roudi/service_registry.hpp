@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/cxx/pair.hpp"
 #include "iceoryx_hoofs/internal/cxx/set.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 
@@ -41,7 +42,9 @@ class ServiceRegistry
     };
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
-    using ServiceDescriptionVector_t = cxx::vector<capro::ServiceDescription, MAX_SERVICE_DESCRIPTIONS>;
+    using ReferenceCounter_t = uint64_t;
+    using ServiceDescriptionVector_t =
+        cxx::vector<cxx::pair<capro::ServiceDescription, ReferenceCounter_t>, MAX_SERVICE_DESCRIPTIONS>;
 
     /// @brief Adds given service description to registry
     /// @param[in] serviceDescription, service to be added

@@ -274,7 +274,7 @@ void PortManager::handleInterfaces() noexcept
 
         for (auto const& element : serviceVector)
         {
-            caproMessage.m_serviceDescription = element;
+            caproMessage.m_serviceDescription = element.first;
 
             for (auto& interfacePortData : interfacePortsForInitialForwarding)
             {
@@ -599,7 +599,7 @@ runtime::IpcMessage PortManager::findService(const capro::IdString_t& service,
     m_serviceRegistry.find(searchResult, service, instance);
     for (auto& service : searchResult)
     {
-        response << static_cast<cxx::Serialization>(service).toString();
+        response << static_cast<cxx::Serialization>(service.first).toString();
     }
 
     return response;

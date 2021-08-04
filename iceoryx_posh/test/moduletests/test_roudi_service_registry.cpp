@@ -103,7 +103,25 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Li", "La", "Launebaer")));
+    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Li", "La", "Launebaer")));
+    EXPECT_THAT(searchResults[0].second, Eq(2));
+}
+
+TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
+{
+    auto result1 = registry.add(ServiceDescription("Li", "La", "Launebaerli"));
+    ASSERT_FALSE(result1.has_error());
+
+    auto result2 = registry.add(ServiceDescription("Li", "La", "Launebaerli"));
+    ASSERT_FALSE(result2.has_error());
+
+    registry.remove(ServiceDescription("Li", "La", "Launebaerli"));
+
+    registry.find(searchResults, Wildcard, Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(1));
+    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Li", "La", "Launebaerli")));
+    EXPECT_THAT(searchResults[0].second, Eq(1));
 }
 
 TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
@@ -129,7 +147,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildc
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription()));
+    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription()));
 }
 
 TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmptyString)
@@ -138,7 +156,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmpty
     registry.find(searchResults, "", "");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription()));
+    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription()));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
@@ -148,7 +166,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Foo", "Bar", "Baz")));
+    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Foo", "Bar", "Baz")));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
@@ -158,7 +176,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
     registry.find(searchResults, Wildcard, "Bar");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(ServiceDescription("Baz", "Bar", "Foo")));
+    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Baz", "Bar", "Foo")));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
@@ -168,7 +186,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
     registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(service1));
+    EXPECT_THAT(searchResults[0].first, Eq(service1));
 }
 
 TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWithWildcardSearch)
@@ -181,8 +199,8 @@ TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWith
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(2));
-    EXPECT_THAT(searchResults[0], Eq(service1));
-    EXPECT_THAT(searchResults[1], Eq(service2));
+    EXPECT_THAT(searchResults[0].first, Eq(service1));
+    EXPECT_THAT(searchResults[1].first, Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAllBeFound)
@@ -204,11 +222,11 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAll
 
     for (auto& e : searchResults)
     {
-        if (e == service1)
+        if (e.first == service1)
             hasFoundB = true;
-        if (e == service2)
+        if (e.first == service2)
             hasFoundC = true;
-        if (e == service3)
+        if (e.first == service3)
             hasFoundD = true;
     }
 
@@ -225,12 +243,12 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceNameC
     registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(service1));
+    EXPECT_THAT(searchResults[0].first, Eq(service1));
     searchResults.clear();
 
     registry.find(searchResults, "c", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(service2));
+    EXPECT_THAT(searchResults[0].first, Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsSpecificService)
@@ -245,7 +263,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsS
     registry.find(searchResults, "a", "c");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq(service2));
+    EXPECT_THAT(searchResults[0].first, Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFindsCorrectServices)
@@ -356,17 +374,17 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNo
 
     for (auto const& element : serviceDescriptionVector)
     {
-        if (element == service1)
+        if (element.first == service1)
         {
             service1Found = true;
         }
 
-        if (element == service2)
+        if (element.first == service2)
         {
             service2Found = true;
         }
 
-        if (element == service4)
+        if (element.first == service4)
         {
             service4Found = true;
         }
