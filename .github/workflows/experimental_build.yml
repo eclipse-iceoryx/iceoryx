@@ -23,11 +23,7 @@ jobs:
       - name: Install latest clang stable release
         shell: bash
         run: |
-          REPO_NAME="deb http://apt.llvm.org/focal/ llvm-toolchain-focal main"
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository "${REPO_NAME}"
-          sudo apt-get update
-          sudo apt-get install -y clang
+          sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,8 +32,8 @@ jobs:
         continue-on-error: true
         shell: bash
         env:
-          CC: clang
-          CXX: clang++
+          CC: clang-12
+          CXX: clang++-12
         run: |
           echo $(clang --version)
           sudo $GITHUB_WORKSPACE/tools/add_test_users.sh
