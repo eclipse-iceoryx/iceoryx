@@ -15,11 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dds/Mempool.hpp"
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "test.hpp"
 
-#include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
 
 namespace
