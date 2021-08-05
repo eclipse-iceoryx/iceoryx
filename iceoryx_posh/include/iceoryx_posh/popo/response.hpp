@@ -51,7 +51,7 @@ class Response : public SmartChunk<RpcInterface<Response<T>>, T, ResponseHeader>
     /// @param responseUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer is a reference to the producer to be able to use the `send` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<T>& Producer) noexcept;
+    Response(cxx::unique_ptr<T>&& responseUniquePtr, RpcInterface<Response<T>>& Producer) noexcept;
 
     /// @brief Constructor for a Response used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T

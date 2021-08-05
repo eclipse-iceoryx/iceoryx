@@ -25,7 +25,7 @@ namespace popo
 {
 template <typename T>
 template <typename S, typename>
-inline Request<T>::Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T>& producer) noexcept
+inline Request<T>::Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<Request<T>>& producer) noexcept
     : Base_t(std::move(requestUniquePtr), producer)
 {
 }

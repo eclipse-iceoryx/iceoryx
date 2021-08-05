@@ -50,7 +50,7 @@ class Request : public SmartChunk<RpcInterface<Request<T>>, T, RequestHeader>
     /// @param requestUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer is a reference to the producer to be able to use the `send` and `release` methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<T>& producer) noexcept;
+    Request(cxx::unique_ptr<T>&& requestUniquePtr, RpcInterface<Request<T>>& producer) noexcept;
 
     /// @brief Constructor for a Request used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
