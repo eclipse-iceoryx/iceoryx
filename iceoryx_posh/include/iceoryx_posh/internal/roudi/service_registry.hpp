@@ -48,8 +48,7 @@ class ServiceRegistry
 
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
-    using ServiceDescriptionVector_t =
-        cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
+    using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 
     /// @brief Adds given service description to registry
     /// @param[in] serviceDescription, service to be added
