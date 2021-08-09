@@ -64,10 +64,10 @@ class ServiceRegistry
     /// @brief Removes given service description from registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
     /// @param[in] service, string or wildcard to search for
-    /// @param[in] service, string or wildcard to search for
+    /// @param[in] instance, string or wildcard to search for
     void find(ServiceDescriptionVector_t& searchResult,
               const capro::IdString_t& service = Wildcard,
-              const capro::IdString_t& instinstanceance = Wildcard) const noexcept;
+              const capro::IdString_t& instance = Wildcard) const noexcept;
 
     /// @brief Returns all service descriptions as copy
     /// @return ServiceDescriptionVector_t, copy of complete service registry

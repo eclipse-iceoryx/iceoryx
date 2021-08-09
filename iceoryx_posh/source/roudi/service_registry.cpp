@@ -35,7 +35,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
             return cxx::success<>();
         }
     }
-    uint64_t referenceCounter = 1;
+    uint64_t referenceCounter = 1U;
     if (!m_serviceDescriptionVector.push_back({serviceDescription, referenceCounter}))
     {
         return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
