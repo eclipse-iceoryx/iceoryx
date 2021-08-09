@@ -28,10 +28,10 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     // Forbid duplicate service descriptions entries
     for (auto& element : m_serviceDescriptionVector)
     {
-        if (element.first == serviceDescription)
+        if (element.serviceDescription == serviceDescription)
         {
             // Due to n:m communication we don't store twice but increase the reference counter
-            element.second++;
+            element.referenceCounter++;
             return cxx::success<>();
         }
     }
@@ -53,10 +53,10 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     uint64_t index = 0U;
     for (auto iterator = m_serviceDescriptionVector.begin(); iterator != m_serviceDescriptionVector.end();)
     {
-        auto& element = m_serviceDescriptionVector[index].first;
+        auto& element = m_serviceDescriptionVector[index].serviceDescription;
         if (element == serviceDescription)
         {
-            auto& refCounter = m_serviceDescriptionVector[index].second;
+            auto& refCounter = m_serviceDescriptionVector[index].referenceCounter;
             refCounter--;
             if (refCounter == 0)
             {

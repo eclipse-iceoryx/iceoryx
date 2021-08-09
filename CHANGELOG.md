@@ -108,7 +108,7 @@ ServiceDescription("First", "Second", "DontCare") myServiceDescription2;
 ServiceDescription("Foo", "Bar", "Baz") myServiceDescription3;
 ```
 
-The service-related methods have been move from `PoshRuntime` to a separate class (TBD):
+The service-related methods have been moved from `PoshRuntime` to a separate class (TBD):
 
 ```cpp
 // before

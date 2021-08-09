@@ -103,8 +103,8 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Li", "La", "Launebaer")));
-    EXPECT_THAT(searchResults[0].second, Eq(2));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
+    EXPECT_THAT(searchResults[0].referenceCounter, Eq(2));
 }
 
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
@@ -120,8 +120,8 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Li", "La", "Launebaerli")));
-    EXPECT_THAT(searchResults[0].second, Eq(1));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
+    EXPECT_THAT(searchResults[0].referenceCounter, Eq(1));
 }
 
 TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
@@ -147,7 +147,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildc
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription()));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
 }
 
 TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmptyString)
@@ -156,7 +156,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmpty
     registry.find(searchResults, "", "");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription()));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
@@ -166,7 +166,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Foo", "Bar", "Baz")));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
@@ -176,7 +176,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
     registry.find(searchResults, Wildcard, "Bar");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(ServiceDescription("Baz", "Bar", "Foo")));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Baz", "Bar", "Foo")));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
@@ -186,7 +186,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
     registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(service1));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
 }
 
 TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWithWildcardSearch)
@@ -199,8 +199,8 @@ TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWith
     registry.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(2));
-    EXPECT_THAT(searchResults[0].first, Eq(service1));
-    EXPECT_THAT(searchResults[1].first, Eq(service2));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
+    EXPECT_THAT(searchResults[1].serviceDescription, Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAllBeFound)
@@ -222,11 +222,11 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAll
 
     for (auto& e : searchResults)
     {
-        if (e.first == service1)
+        if (e.serviceDescription == service1)
             hasFoundB = true;
-        if (e.first == service2)
+        if (e.serviceDescription == service2)
             hasFoundC = true;
-        if (e.first == service3)
+        if (e.serviceDescription == service3)
             hasFoundD = true;
     }
 
@@ -243,12 +243,12 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceNameC
     registry.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(service1));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
     searchResults.clear();
 
     registry.find(searchResults, "c", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(service2));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsSpecificService)
@@ -263,7 +263,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsS
     registry.find(searchResults, "a", "c");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].first, Eq(service2));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
 }
 
 TEST_F(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFindsCorrectServices)
@@ -374,17 +374,17 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNo
 
     for (auto const& element : serviceDescriptionVector)
     {
-        if (element.first == service1)
+        if (element.serviceDescription == service1)
         {
             service1Found = true;
         }
 
-        if (element.first == service2)
+        if (element.serviceDescription == service2)
         {
             service2Found = true;
         }
 
-        if (element.first == service4)
+        if (element.serviceDescription == service4)
         {
             service4Found = true;
         }
