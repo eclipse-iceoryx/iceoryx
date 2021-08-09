@@ -417,7 +417,7 @@ PoshRuntimeImpl::findService(const cxx::variant<Wildcard_t, capro::IdString_t> s
 
     // Limit the services (max value is the capacity of serviceContainer)
     uint32_t numberOfServices = algorithm::min(capacity, numberOfElements);
-    for (uint32_t i = 0; i < numberOfServices; ++i)
+    for (uint32_t i = 0U; i < numberOfServices; ++i)
     {
         capro::ServiceDescription service(cxx::Serialization(requestResponse.getElementAtIndex(i)));
         serviceContainer.push_back(service);

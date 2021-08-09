@@ -57,7 +57,7 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
         if (element == serviceDescription)
         {
             auto& refCounter = m_serviceDescriptionVector[index].referenceCounter;
-            refCounter--;
+            --refCounter;
             if (refCounter == 0)
             {
                 m_serviceDescriptionVector.erase(iterator);
@@ -70,8 +70,8 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
             // There can't be more than one element
             break;
         }
-        index++;
-        iterator++;
+        ++index;
+        ++iterator;
     }
 
     auto removeIndexFromMap = [](std::multimap<capro::IdString_t, uint64_t>& map, uint64_t index) {
@@ -91,8 +91,11 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
         }
     };
 
-    removeIndexFromMap(m_serviceMap, index);
-    removeIndexFromMap(m_instanceMap, index);
+    if (removedElement)
+    {
+        removeIndexFromMap(m_serviceMap, index);
+        removeIndexFromMap(m_instanceMap, index);
+    }
 
     return removedElement;
 }
@@ -156,7 +159,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
     else
     {
         // Find (*, *)
-        // O(1)
+        // O(n)
         searchResult = m_serviceDescriptionVector;
     }
 }
