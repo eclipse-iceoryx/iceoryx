@@ -49,6 +49,5 @@ bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
         return false;
     }
 }
-
 } // namespace gw
 } // namespace iox

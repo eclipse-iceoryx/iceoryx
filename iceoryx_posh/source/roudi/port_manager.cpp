@@ -371,6 +371,14 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
+
+        auto messageInterface = message.m_serviceDescription.getSourceInterface();
+        auto publisherInterface = publisherPort.getCaProServiceDescription().getSourceInterface();
+        if (publisherInterface != capro::Interfaces::INTERNAL && publisherInterface == messageInterface)
+        {
+            break;
+        }
+
         if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription()
             && !(publisherPort.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
                  && subscriberSource.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
@@ -400,6 +408,15 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
     for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortType subscriberPort(subscriberPortData);
+
+        auto messageInterface = message.m_serviceDescription.getSourceInterface();
+        auto subscriberInterface = subscriberPort.getCaProServiceDescription().getSourceInterface();
+
+        if (subscriberInterface != capro::Interfaces::INTERNAL && subscriberInterface == messageInterface)
+        {
+            break;
+        }
+
         if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription()
             && !(publisherSource.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
                  && subscriberPort.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))

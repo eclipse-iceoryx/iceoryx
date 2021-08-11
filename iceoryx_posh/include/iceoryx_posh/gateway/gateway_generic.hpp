@@ -149,6 +149,8 @@ class GatewayGeneric : public gateway_t
     std::thread m_discoveryThread;
     std::thread m_forwardingThread;
 
+    capro::Interfaces m_interface = capro::Interfaces::INTERFACE_END;
+
     void forwardingLoop() noexcept;
     void discoveryLoop() noexcept;
 };
