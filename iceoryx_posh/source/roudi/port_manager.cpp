@@ -374,6 +374,9 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
 
         auto messageInterface = message.m_serviceDescription.getSourceInterface();
         auto publisherInterface = publisherPort.getCaProServiceDescription().getSourceInterface();
+
+        // internal publisher receive all messages all other publishers receive only messages if
+        // they do not have the same interface otherwise we have cyclic connections in gateways
         if (publisherInterface != capro::Interfaces::INTERNAL && publisherInterface == messageInterface)
         {
             break;
@@ -412,6 +415,8 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
         auto messageInterface = message.m_serviceDescription.getSourceInterface();
         auto subscriberInterface = subscriberPort.getCaProServiceDescription().getSourceInterface();
 
+        // internal subscriber receive all messages all other subscribers receive only messages if
+        // they do not have the same interface otherwise we have cyclic connections in gateways
         if (subscriberInterface != capro::Interfaces::INTERNAL && subscriberInterface == messageInterface)
         {
             break;
