@@ -39,7 +39,7 @@ void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     // Do only forward messages for internal ports or if the ports interface is different
     // than the messageInterface otherwise it is possible that a gateway subscribes to its
     // own services. This would lead to running messages in cycles.
-    if (myInterface != iox::capro::Interfaces::INTERNAL && myInterface != messageInterface)
+    if (myInterface != iox::capro::Interfaces::INTERNAL && myInterface == messageInterface)
     {
         return;
     }

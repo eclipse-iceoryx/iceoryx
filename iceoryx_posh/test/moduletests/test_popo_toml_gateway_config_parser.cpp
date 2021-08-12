@@ -204,7 +204,9 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfi
     EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
 }
 
-TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithoutParameterTakeDefaultPathReturnNoError)
+// Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is used. Then this
+// test fails on every machine which is using such a config.
+TEST_F(TomlGatewayConfigParserSuiteTest, DISABLED_ParseWithoutParameterTakeDefaultPathReturnNoError)
 {
     auto result = TomlGatewayConfigParser::parse();
     ASSERT_FALSE(result.has_error());
