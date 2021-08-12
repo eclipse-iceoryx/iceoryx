@@ -162,7 +162,6 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
             if (subscriber->getServiceDescription().getSourceInterface()
                 == static_cast<capro::Interfaces>(publisherInterface))
             {
-                EXPECT_THAT(subscriber->getSubscriptionState(), Ne(iox::SubscribeState::SUBSCRIBED));
                 EXPECT_TRUE(subscriber->take().has_error());
             }
             else
