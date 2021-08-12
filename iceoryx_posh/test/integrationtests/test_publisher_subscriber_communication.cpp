@@ -111,7 +111,7 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
 
     constexpr int TRANSMISSION_DATA = 1337;
     ASSERT_FALSE(publisher->loan()
-                     .and_then([](auto& sample) {
+                     .and_then([&](auto& sample) {
                          *sample = TRANSMISSION_DATA;
                          sample.publish();
                      })
@@ -119,8 +119,9 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
 
     for (auto& subscriber : subscribers)
     {
-        EXPECT_FALSE(
-            subscriber->take().and_then([](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); }).has_error());
+        EXPECT_FALSE(subscriber->take()
+                         .and_then([&](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
+                         .has_error());
     }
 }
 
@@ -151,7 +152,7 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
 
         constexpr int TRANSMISSION_DATA = 1337;
         ASSERT_FALSE(publisher->loan()
-                         .and_then([](auto& sample) {
+                         .and_then([&](auto& sample) {
                              *sample = TRANSMISSION_DATA;
                              sample.publish();
                          })
@@ -167,7 +168,7 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
             else
             {
                 EXPECT_FALSE(subscriber->take()
-                                 .and_then([](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
+                                 .and_then([&](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
                                  .has_error());
             }
         }
