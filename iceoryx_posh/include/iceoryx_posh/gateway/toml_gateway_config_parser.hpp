@@ -62,7 +62,7 @@ class TomlGatewayConfigParser
 {
   public:
     static cxx::expected<GatewayConfig, TomlGatewayConfigParseError>
-    parse(const roudi::ConfigFilePathString_t& path = DEFAULT_CONFIG_FILE_PATH);
+    parse(const roudi::ConfigFilePathString_t& path = roudi::ConfigFilePathString_t(DEFAULT_CONFIG_FILE_PATH));
 
   protected:
     static cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
