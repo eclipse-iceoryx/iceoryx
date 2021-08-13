@@ -135,6 +135,8 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
             continue;
         }
 
+        m_watchdog.watchAndActOnFailure();
+
         auto publisher = createPublisher<int>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA,
                                               static_cast<capro::Interfaces>(publisherInterface));
         this->InterOpWait();

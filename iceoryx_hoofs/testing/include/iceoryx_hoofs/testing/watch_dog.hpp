@@ -37,8 +37,15 @@ class Watchdog
 
     Watchdog(const Watchdog&) = delete;
     Watchdog(Watchdog&&) = delete;
+    Watchdog& operator=(const Watchdog&) = delete;
+    Watchdog& operator=(Watchdog&&) = delete;
 
     ~Watchdog() noexcept
+    {
+        reset();
+    }
+
+    void reset() noexcept
     {
         if (m_watchdog.joinable())
         {
@@ -49,6 +56,8 @@ class Watchdog
 
     void watchAndActOnFailure(const std::function<void()>& actionOnFailure = std::function<void()>()) noexcept
     {
+        reset();
+
         m_watchdog = std::thread([=] {
             m_watchdogSemaphore.timedWait(m_timeToWait)
                 .and_then([&](auto& result) {
