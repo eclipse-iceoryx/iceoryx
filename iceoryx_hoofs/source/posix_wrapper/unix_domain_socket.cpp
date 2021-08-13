@@ -232,16 +232,6 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 
     struct timeval tv = timeout;
-#if defined(__APPLE__)
-    if (tv.tv_sec != 0 || tv.tv_usec != 0)
-    {
-        std::cerr
-            << "socket: \"" << m_name
-            << "\", timedSend with a timeout != 0 is not supported on MacOS. timedSend will behave like send instead."
-            << std::endl;
-    }
-#endif
-
     auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
@@ -289,17 +279,6 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     }
 
     struct timeval tv = timeout;
-#if defined(__APPLE__)
-    if (tv.tv_sec != 0 || tv.tv_usec != 0)
-    {
-        std::cerr
-            << "socket: \"" << m_name
-            << "\", timedReceive with a timeout != 0 is not supported on MacOS. timedReceive will behave like receive "
-               "instead."
-            << std::endl;
-    }
-#endif
-
     auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)

@@ -6,6 +6,7 @@
 
 **Features:**
 
+- Enhance MacOS performance with timed{send,receive} functionality in unix domain socket[\#903](https://github.com/eclipse-iceoryx/iceoryx/issues/903)
 - Enhance posixCall[\#805](https://github.com/eclipse-iceoryx/iceoryx/issues/805)
 - New chunk available callback for the new C++[\#391](https://github.com/eclipse-iceoryx/iceoryx/issues/391)
 - Git Hooks on iceoryx[\#486](https://github.com/eclipse-iceoryx/iceoryx/issues/486)
