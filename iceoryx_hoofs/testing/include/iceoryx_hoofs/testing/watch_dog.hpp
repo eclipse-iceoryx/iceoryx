@@ -30,10 +30,13 @@ using namespace iox::units::duration_literals;
 class Watchdog
 {
   public:
-    Watchdog(const iox::units::Duration& timeToWait) noexcept
+    explicit Watchdog(const iox::units::Duration& timeToWait) noexcept
         : m_timeToWait(timeToWait)
     {
     }
+
+    Watchdog(const Watchdog&) = delete;
+    Watchdog(Watchdog&&) = delete;
 
     ~Watchdog() noexcept
     {
@@ -44,14 +47,23 @@ class Watchdog
         }
     }
 
-    void watchAndActOnFailure(std::function<void()> f) noexcept
+    void watchAndActOnFailure(const std::function<void()>& actionOnFailure = std::function<void()>()) noexcept
     {
         m_watchdog = std::thread([=] {
             m_watchdogSemaphore.timedWait(m_timeToWait)
                 .and_then([&](auto& result) {
                     if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
                     {
-                        f();
+                        std::cerr << "Watchdog observed no reaction after " << m_timeToWait << ". Taking measures!"
+                                  << std::endl;
+                        if (actionOnFailure)
+                        {
+                            actionOnFailure();
+                        }
+                        else
+                        {
+                            std::terminate();
+                        }
                         EXPECT_TRUE(false);
                     }
                 })
