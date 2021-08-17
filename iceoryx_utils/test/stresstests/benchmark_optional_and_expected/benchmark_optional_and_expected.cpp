@@ -133,7 +133,7 @@ uint64_t complexErrorValueImpl(uint64_t& value)
 
 void complexErrorValue()
 {
-    uint64_t maybeValue;
+    uint64_t maybeValue = 0;
     uint64_t returnValue = complexErrorValueImpl(maybeValue);
     if (returnValue == 0)
     {
