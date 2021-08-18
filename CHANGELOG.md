@@ -8,6 +8,7 @@
 
 - Enhance MacOS performance with timed{send,receive} functionality in unix domain socket[\#903](https://github.com/eclipse-iceoryx/iceoryx/issues/903)
 - Multi-Publisher support for DDS gateway and generic gateway class [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)
+- Replace `iox-gw-iceoryx2dds` and `iox-gw-dds2iceoryx` gateways with `iox-dds-gateway` [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)
 - Enhance posixCall[\#805](https://github.com/eclipse-iceoryx/iceoryx/issues/805)
 - New chunk available callback for the new C++[\#391](https://github.com/eclipse-iceoryx/iceoryx/issues/391)
 - Git Hooks on iceoryx[\#486](https://github.com/eclipse-iceoryx/iceoryx/issues/486)
