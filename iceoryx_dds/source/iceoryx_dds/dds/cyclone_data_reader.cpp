@@ -47,6 +47,14 @@ void iox::dds::CycloneDataReader::connect() noexcept
         auto qos = ::dds::sub::qos::DataReaderQos();
         qos << ::dds::core::policy::History::KeepAll();
 
+        /// Is required for the Gateway. When two iceoryx publisher are publishing on the same
+        /// topic and one publisher is located on a remove iceoryx instance connected via a
+        /// bidirectional dds gateway (iceoryx2dds & dds2iceoryx) then every sample is delivered
+        /// twice to the local subscriber.
+        /// Once via the iceoryx publisher and once via dds2iceoryx
+        auto* cqos = qos.delegate().ddsc_qos();
+        dds_qset_ignorelocal(cqos, DDS_IGNORELOCAL_PROCESS);
+
         m_impl = ::dds::sub::DataReader<Mempool::Chunk>(subscriber, topic, qos);
 
         LogDebug() << "[CycloneDataReader] Connected to topic: " << topicString;

@@ -29,5 +29,5 @@ EOF
 fi
 
 /usr/bin/iox-roudi &
-/usr/bin/iox-gw-iceoryx2dds &
+/usr/bin/iox-dds-gateway &
 /usr/bin/iox-cpp-publisher-untyped
