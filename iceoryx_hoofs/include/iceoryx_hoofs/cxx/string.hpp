@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/internal/cxx/string_internal.hpp"
 #include "optional.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 
