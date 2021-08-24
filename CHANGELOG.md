@@ -16,6 +16,7 @@
 
 **Bugfixes:**
 
+- Fix support for libc++ on clang[\#905](https://github.com/eclipse-iceoryx/iceoryx/issues/905)
 - Fix warnings for gcc-11.1[\#838](https://github.com/eclipse-iceoryx/iceoryx/issues/838)
 - Incremental builds with the build script are broken[\#821](https://github.com/eclipse-iceoryx/iceoryx/issues/821)
 - Compile failed because of missing <limits> for GCC 11[\#811](https://github.com/eclipse-iceoryx/iceoryx/issues/811) thanks to @homalozoa

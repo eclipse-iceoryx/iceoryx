@@ -88,7 +88,7 @@ bool popFromFiFoImpl(uint64_t& value)
 
 void popFromFiFo()
 {
-    uint64_t maybeValue;
+    uint64_t maybeValue{0U};
     if (popFromFiFoImpl(maybeValue))
     {
         globalCounter += maybeValue;

@@ -51,6 +51,7 @@ BUILD_SHARED="OFF"
 TOML_FLAG="ON"
 COMPONENTS="iceoryx_posh iceoryx_hoofs iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
 TOOLCHAIN_FILE=""
+CMAKE_CXX_FLAGS=""
 
 while (( "$#" )); do
   case "$1" in
@@ -174,6 +175,11 @@ while (( "$#" )); do
         export CXX=$(which clang++)
         shift 1
         ;;
+    "libcxx")
+        echo " [i] Build with libc++ library"
+        CMAKE_CXX_FLAGS="-stdlib=libc++"
+        shift 1
+        ;;
     "doc")
         echo " [i] Build and generate doxygen"
         BUILD_DOC="ON"
@@ -281,6 +287,7 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DBUILD_SHARED_LIBS=$BUILD_SHARED \
       -DSANITIZE=$SANITIZE_FLAG \
       -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
+      -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
       $WORKSPACE/iceoryx_meta
 
 cmake --build . --target install -- -j$NUM_JOBS
