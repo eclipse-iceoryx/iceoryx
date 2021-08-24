@@ -35,6 +35,11 @@ GatewayBase::~GatewayBase() noexcept
     }
 }
 
+capro::Interfaces GatewayBase::getInterface() const noexcept
+{
+    return m_interfaceImpl.getCaProServiceDescription().getSourceInterface();
+}
+
 bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
 {
     auto maybeCaproMessage = m_interfaceImpl.tryGetCaProMessage();

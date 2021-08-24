@@ -69,7 +69,6 @@ inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces in
     : gateway_t(interface)
     , m_discoveryPeriod(discoveryPeriod)
     , m_forwardingPeriod(forwardingPeriod)
-    , m_interface(interface)
 {
 }
 
@@ -99,7 +98,7 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
                                          service.getInstanceIDString(),
                                          service.getEventIDString(),
                                          {0U, 0U, 0U, 0U},
-                                         m_interface},
+                                         this->getInterface()},
                                         options);
         if (result.has_error())
         {

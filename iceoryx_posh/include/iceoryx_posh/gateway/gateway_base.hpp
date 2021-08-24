@@ -59,6 +59,7 @@ class GatewayBase
   protected:
     // Needed for unit testing
     GatewayBase() noexcept = default;
+    capro::Interfaces getInterface() const noexcept;
 
   protected:
     popo::InterfacePort m_interfaceImpl{nullptr};
