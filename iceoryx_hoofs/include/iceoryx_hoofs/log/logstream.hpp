@@ -94,7 +94,9 @@ struct LogBin32 : private LogBin
 {
     uint32_t value;
     constexpr LogBin32(uint32_t value) noexcept
-        : value(value){};
+        : value(value)
+    {
+    }
 };
 struct LogBin64 : private LogBin
 {
