@@ -26,13 +26,29 @@ Those obstacles can be overcome when iceoryx containers like `cxx::string`,
 memory in a part of the shared memory which is also in the process space of the
 subscriber available.
 
-To accomplish this we require:
+To accomplish dynamic size types we require:
 
-1. an allocator concept
+1. an allocator concept which supports states for allocators
 2. have to adjust the containers like `cxx::string`, `cxx::vector` and 
    `cxx::{forward}list`
 3. the publisher has to provide access to the shared memory allocator via the
    sample
+
+### Allocator Type Does Not Effect Container Type
+
+One important restriction is for the allocator concept is that the specification
+of the allocator does not change the type like the STL C++ allocator concept
+does. Function developers for instance do not want to restrict their functions
+to shared memory allocated types which would result in some implementation
+overhead. One example could be that someone analyses an image with a function
+like
+`void analyseImage(cxx::vector<int, SharedMemoryAllocator> & a)`. This function
+can now be only used with a vector which is using the `SharedMemoryAllocator`.
+One could define the allocator type as a template but this would increase the
+compile time and can make it nearly impossible to write proprietary code since
+templates require the implementation in the header. Furthermore, the function
+developer has to be aware of the implementation detail that there is something
+like a `SharedMemoryAllocator`.
 
 ## Memory Layout
 
@@ -114,152 +130,304 @@ look like this.
 +--------------------------------------------------------+
 ```
 
-## Design
+This does not require any adaptions on the subscriber side since the subscriber
+already mapped this memory region which is handled by the memory manager into 
+its local process.
+
+## Design Allocator
+
+The allocator should be designed in a manner so that it can be used inside the
+shared memory in an IPC context. This means the design has to consider that
+vtables, virtual and inheritance are not allowed as well as function pointers
+or the use of `cxx::function` or `cxx::function_ref`.
+
+Therefore this allocator concept is less flexibel and more complex as it would
+be when everything would run in the same process since we have to use relative
+pointer and have to allocate everything on the stack.
+
 ```
-      +----------------------------------+
-      | Allocator                        |                     +-----------------------------------+
-      |                                  |                     |Publisher                          |
-      |  void* allocate(const uint64_t); |                     |  # SharedMemoryAllocator *m_alloc |    // actually ChunkSenderData
-      |  void free(void* const chunk);   |                     +-----------------------------------+
-      +--+------------------+------------+----+
-         |                  |                 |
-+--------+-----+ +----------+----------+ +----+--------+
-|StackAllocator| |SharedMemoryAllocator| |HeapAllocator|       +--------------------------------+
-+--------------+ +---------------------+ +-------------+       |template<Type>                  |
-                                                               |Sample                          |
-+-------------------------------------------+                  |  Allocator & getShmAllocator();|
-|template<Type, Allocator>                  |                  |                                |
-|vector                                     |                  |  # Allocator * m_shmAllocator; |
-|  vector(Allocator & allocator);           |                  +--------------------------------+
-|  void setAllocator(Allocator & allocator);|
-|  void reserve(const uint64_t);            |
-+-------------------------------------------+
+  +--------------------------------------------------------+
+  |  Allocator [Concept]                                   |
+  |                                                        |
+  |   - void* allocate(const uint64_t)                     |
+  |   - void free(void* const chunk)                       |
+  |   - template<AnotherAllocator>                         |
+  |     bool isMoveCompatible(const AnotherAllocator& rhs) |
+  +---+--------+-------------------------------------------+
+      |        |
+      |  +-----+---------------------------------------------------+
+      |  | RangeAllocator                                          |
+      |  |                                                         |
+      |  |   - RangeAllocator(void* start, void* end)              |
+      |  |   - void * allocate(const uint64_t)                     |
+      |  |   - void free(void* chunk)                              |
+      |  |   - template<AnotherAllocator>                          |
+      |  |     bool isMoveCompatible(const AnotherAllocator & rhs) |
+      |  |                                                         |
+      |  |   # void * m_start                                      |
+      |  |   # void * m_end                                        |
+      |  +---------------------------------------------------------+
+      |
+   +--+------------------------------------------------------+
+   | HeapAllocator                                           |
+   |                                                         |
+   |   - void * allocate(const uint64_t)                     |
+   |   - void free(void* chunk)                              |
+   |   - template<AnotherAllocator>                          |
+   |     bool isMoveCompatible(const AnotherAllocator & rhs) |
+   +---------------------------------------------------------+
 
-+------------------------------------------------------+
-|template<Type, Capacity>                              |
-|using vector = vector<Type, StackAllocator<Capacity>; |
-+------------------------------------------------------+
++--------------------------------+
+| template<typename Type>        |
+| IsAllocatorTypeTrait           |   Used to verify that AllocatorTypes
+|                                +---------------------------------------+
+|   static constexpr bool value; |  are compliant with Allocator Concept |
++--------------------------------+                                       |
+                                                                         |
+                    +----------------------------------------------------+----+
+                    | template<AllocatorTypes...>                             |
+                    | VariantAllocator                                        |
+                    |                                                         |
+                    |   - void * allocate(const uint64_t)                     |
+                    |   - void free(void * chunk)                             |
+                    |   - template<AnotherAllocator>                          |
+                    |     bool isMoveCompatible(const AnotherAllocator & rhs) |
+                    |                                                         |
+                    |   # void* m_ptrToAllocator                              |
+                    +---------------------------------------------------------+
 ```
+The `Allocator` described in this diagram is similar to a C++20 concept which can
+be verified at compiletime without inheritance. The verification can be realized
+with a `IsAllocatorTypeTrait` in C++14.
+The shared memory and IPC restrictions are forcing us to implement a
+VariantAllocator which provides us type independent access to the underlying
+allocator like inheritance would provide. Hereby the implementation for
+`allocate`, `free` and `isMoveCompatible` is always the same and can be
+implemented similar to the `cxx::variant` move and copy operations. This would
+make the `VariantAllocator` easier extendable since the user just has to add
+any additional allocator as type in the variadic template list. An alternative
+way of implementing this `VariantAllocator` would be with a switch statement
+in every method which is selecting the correct type. This would lead to a less
+extendable `VariantAllocator` since the implementation has to be adjusted with
+every new allocator but would may provide the benefit that the `VariantAllocator`
+does not require to be a template class anymore.
 
-## Memory Structure
-```
-struct MyData {                vector<int> {
-  int         data;              mgmt; // internal mgmt stuff
-  vector<int> image;             data; // user data
-}                              }
+The `isMoveCompatible` method will be used by every container to see verify if
+a real move of the underlying structure can be performed or not. This could be
+the case for instance with two kinds of heap allocators are when the used
+RangeAllocator is managing the same range. If this is not the case the move
+operations will be replaced with an expensive copy operation (fake move).
 
-                                       Shared Memory
-old:
+Furthermore, the suggested zero copy types will only once acquire memory from an
+allocator. The reason is that we would like to guarantee zero copy throughout the
+usage of the container otherwise some intransparent copies may occur when the
+container allocates memory multiple times and requires on one contiguous piece
+of memory which the allocator may not provide. (See behavior of `realloc` in C).
 
-+----------------+----------------+----------------+                     --+
-|  data          |                |                |                       |
-|  image::mgmt   |                |                |   chunk size = 1000   |
-|  image::data   |                |                |                       |
-+----------------+----------------+----------------+                       |
-                                                                           |  inside one memory manager (member of ChunkSenderData)
-+---+---+---+---+---+---+---+---+---+---+---+---+---+                      |
-|   |   |   |   |   |   |   |   |   |   |   |   |   |                      |
-|   |   |   |   |   |   |   |   |   |   |   |   |   |  chunk size = 100    |
-|   |   |   |   |   |   |   |   |   |   |   |   |   |                      |
-+---+---+---+---+---+---+---+---+---+---+---+---+---+                    --+
-
---------------------------------------------------------------------------------
-
-new:
-
-+----------------+----------------+----------------+                   ---+
-|  data          |                |                |                      |
-|  image::mgmt   |                |                |   chunk size = 1000  |
-|                |                |                |                      |
-+---------+------+----------------+----------------+                      |
-          |                                                               |
-          +---------------+                                               |
-                          |                                               |  inside one memory manager (member of ChunkSenderData)
-                          |                                               |
-+---+---+---+---+---+---+-+-+---+---+---+---+---+---+                     |
-|   |   |   |   |   |   |img|   |   |   |   |   |   |                     |
-|   |   |   |   |   |   |dat|   |   |   |   |   |   |  chunk size = 100   |
-|   |   |   |   |   |   |   |   |   |   |   |   |   |                     |
-+---+---+---+---+---+---+---+---+---+---+---+---+---+                  ---+
-```
-
-## Iceoryx Usage
-
+### Implementation of a C++20 Concept in C++14
+The type trait can be implemented via the C++ SFINAE (substition failure is not
+an error) principle.
 ```cpp
-struct MyData {
-  int         data;
-  cxx::vector<int, SharedMemoryAllocator> image;
-  cxx::string<SharedMemoryAllocator> text;
-  cxx::string<SharedMemoryAllocator> moreText;
-}
+template<typename T>
+struct IsAllocatorTypeTrait {
+    template <typename C, class = void>
+    struct HasAllocateMethod : std::false_type {};
 
-auto sample = publisher->loan();
-// can only be called once
-sample->image.setAllocator(publisher->getShmAllocator());
-sample->image.reserve(1024);
-setImage(sample->image.data());
+    template <typename C>
+    struct HasAllocateMethod<
+        C, std::void_t<std::enable_if_t<
+               std::is_same<decltype(std::declval<C>().allocate(
+                                std::declval<uint64_t>())),
+                            void>::value,
+               void>>> : std::true_type {};
 
-// can only be called once
-sample->text.setAllocator(publisher->getShmAllocator());
-sample->text.reserve(11);
-sample->text.assign("hello world");
-
-// Alternative API 1:
-sample->moreText.reserve(publisher->getShmAllocator().allocate(5 * sizeof(char)));
-sample->moreText.assign("hello"); // fails since capacity is zero
-
-// Alternative API 2:
-struct MyData {
-  // user has to provide custom ctor with shared memory allocator when they 
-  // would like to use zero copy types
-  MyData(SharedMemoryAllocator & allocator) 
-    : image(allocator), text(allocator), moreText(allocator) {}
-
-  int         data;
-  cxx::vector<int, SharedMemoryAllocator> image;
-  cxx::string<SharedMemoryAllocator> text;
-  cxx::string<SharedMemoryAllocator> moreText;
+    // test all other methods
+    static_assert(HasAllocateMethod<T>::value, 
+              "Type is not an allocator, void* allocate(uint64_t) missing");
 };
 ```
 
-## ROS2 usage
+## Design of Zero Copy Containers
+
+The design pursues the following goals.
+
+1. The `cxx::vector<T, Capacity>` should not change in its API.
+2. All static cxx containers are still owner of all their data. This means the
+   memory which the stack allocator manages must be stored inside the cxx
+   container class.
+3. A function developer should not have to specify the allocator type of a
+   container. This means the allocator type is independent of the container type.
+   This has to work:
+   ```cpp
+   void myFunkyFunction(const cxx::vector<int> & bla) {}
+
+   cxx::vector<int, 20> a;
+   cxx::vector<int, 30> b;
+   cxx::vector<int> c(Allocator::heap);
+
+   myFunkyFunction(a);
+   myFunkyFunction(b);
+   myFunkyFunction(c);
+   ```
+4. All containers must be shared memory compatible, this means no vtables and
+   virtual. Furthermore the usage of function pointers, `cxx::function` and
+   `cxx::function_ref` is forbidden in all containers and their underlying 
+   constructs.
+5. Before using any cxx container the user as to call `reserve()` once otherwise
+   the container will have a default capacity of zero. It is not allowed to
+   call `reserve()` multiple times since this could violate the zero copy
+   guarantee.
+   Stack based containers do not require a `reserve()` call beforehand but
+   should provide this call as well for compatibility reasons.
+
+The draft we provide here is using the `cxx::vector` but the techniques
+described can be easily applied to the `cxx::string` or other cxx containers.
+
+```
++---------------------------------------------------+
+|template<T>                                        |
+|vector                                             |
+|                                                   |
+|  - vector() = default                             |
+|  - template<Allocator>                            |
+|    vector(Allocator & allocator);                 |
+|                                                   |
+|  - void reserve(const uint64_t);                  |
+|  - void release();                                |
+|                                                   |
+|  // remaining API is unchanged                    |
++---------------------------------------------------+
+                          ^
+                         /|\
+                          |
+       +------------------+--------------------------+
+       |template<T, Capacity>                        |
+       |vector : public vector<Type>                 |
+       |                                             |
+       |  (#1)                                       |
+       |  - vector(const vector<T> &)                |
+       |  - vector(vector<T> &&)                     |
+       |  - vector& operator=(const vector<T> &)     |
+       |  - vector& operator=(vector<T> &&)          |
+       |                                             |
+       |                                             |
+       |  // same API as current cxx::vector         |
+       |                                             |
+       |  # uint8_t m_data[Capacity]                 |
+       |  # RangeAllocator m_allocator               |
+       +---------------------------------------------+
+```
+All non stack based version of cxx containers will not have constructors similar
+to the STL. The only provided constructor has one argument which specifies the
+type of allocator one would like to use for that container. If no argument is
+provided the heap allocator will be used by default.
+
+The constructors and operations defined in (#1) are added to support implicit
+conversion from the generic `cxx::vector` which is required to the stack version
+of a vector. It makes the following operations possible
 ```cpp
-auto loaned_msg = pub->borrow_loaned_msg();
-// reserve the size for unbounded sequences
-loaned_msg.image.reserve(7500000);
+void f(const vector<int, 20> &a) {}
+
+vector<int> v1;
+vector<int, 20> v2;
+
+// this works thanks to implicit conversions from vector<int>
+f(v1);
+v2 = v1;
 ```
 
-## First step
+Since every stack based vector is a child of the more generic vector we can with
+the help of (#1) also assign and use stack based vectors of different sizes
+to each other or use them in functions. This allows us to write code like this:
+```cpp
+void f(const vector<int, 20> &a) {}
 
-unbounded heap copy to iceoryx serialized
+vector<int, 10> v1;
+vector<int, 20> v2;
 
-bounded with cxx::vector
-
-# Adjust IDL file with comment only
-
-## Pro
- * IDL files can be reused
- * can optionally be adjusted to fit the content
- * in a complex system with network communication iceoryx can be easily 
-   integrated since message types can be reused
- * no API changes
-
-## Con
- * Message transported via DDS to another network instance, which used the
-   idl message without capacity comment and has an iceoryx subscriber?
- * Requires runtime string/vector size adjustment or view
- 
-```
-module my_type {
-  struct Foo {
-    string unbounded_string; // capacity = 128
-    string another_string;
-  };
-};
+// this works since vector<int, 10> is also a vector<int> and can be converted
+v2 = v1;
+v1 = v2; // this can fail when v1 capacity is smaller then v2.size, previously 
+         // it was only possible when v1.capacity < v2.capacity
+f(v1);
+f(v2);
 ```
 
-## Howto
+The only restriction are functions which require a stack based vector of a 
+specific size as non const reference. This is usally the case when some function
+would like to set the contents of a vector.
+```cpp
+void setVectorContents(vector<int, 20> &a) {}
 
- 1. Every unbounded type is bounded by a preconfigured limit
- 2. IDL compiler can be asked internally to acquire type size 
- 3. Extend IDL compiler to parse optional capacity comment
+vector<int, 10> v1;
+vector<int> v2;
+
+// both calls will result in a compile time warning
+setVectorContents(v1);
+setVectorContents(v2);
+```
+
+### Usage
+
+```cpp
+cxx::vector<int, 20> a;
+a.emplace_back(123); // can be used without a preceding reserve call
+
+cxx::vector<int> c(heapAllocator);
+c.reserve(42); // reserve required
+c.emplace_back(891);
+
+auto sample = publisher.loan();
+sample->sharedMemoryVector.resize(123);
+sample->sharedMemoryVector.emplace_back(someValue);
+```
+
+Copy and move operations should be possible without the developer knowing
+what kind of underlying allocator is used. Additionally, it should be as efficient
+as possible. That means the move operation should be a real move operation
+if possible. This will be guaranteed by `isMoveCompatible` provided by the
+allocator.
+```cpp
+cxx::vector<int, 20> a;
+
+cxx::vector<int> b(heapAllocator);
+cxx::vector<int> c(heapAllocator);
+
+// isMoveCompatible() will return false since stack allocated memory cannot be moved
+// will call release on b and acquires a new fitting chunk with reserve to store
+// the contents of a via copy
+b = std::move(a); 
+
+// isMoveCompatible() will return true therefore only the internal data pointer
+// will be copied
+c =  std::move(b);
+
+// isMoveCompatible() will return false
+// will call release on a and acquires a new memory chunk, if the compile time
+// capacity argument is insufficient it will fail
+a = std::move(b);
+```
+
+## Open Questions
+
+1. Is it possible to specialize the `cxx::vector` for POD types like `int`, `float` etc.
+   in a way that they will be set via an allocator defined memset method. This would
+   allow us to use a GPU allocator inside of the vector in an elegant way.
+   ```cpp
+   cxx::vector<float> pointCloud(gpuAllocator);
+   pointCloud.reserve(100);
+   pointCloud.emplace_back(123); // would be stored directly on the gpu
+
+   cxx::vector<float, 100> someOtherPointcloud;
+   pointCloud = someOtherPointcloud; // would be copied directly to the gpu 
+   ```
+2. When the allocator is successfully integrated we can adapt the internal publisher
+   and subscriber lists to be dynamic in size and configurable via config file.
+   Furthermore, we could optimize the publishers subscriber list to be a little bit 
+   more dynamic.
+3. When using the heap as default allocator is it possible that a developer by
+   accident uses the heap?
+   ```cpp
+   cxx::vector<float> points;
+   points.reserve(1234); // allocated on the heap
+   ```
