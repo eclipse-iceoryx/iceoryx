@@ -110,6 +110,20 @@ ServiceDescription("First", "Second", "DontCare") myServiceDescription2;
 ServiceDescription("Foo", "Bar", "Baz") myServiceDescription3;
 ```
 
+The service-related methods have been moved from `PoshRuntime` to a separate class (TBD):
+
+```cpp
+// before
+poshRuntime.offerService(myServiceDescription);
+poshRuntime.stopOfferService(myServiceDescription);
+poshRuntime.findService({"ServiceA", iox::capro::AnyInstanceString});
+
+// after
+discoveryInfo.offerService(myServiceDescription);
+discoveryInfo.stopOfferService(myServiceDescription);
+discoveryInfo.findService("ServiceA", Wildcard);
+```
+
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.0...v1.0.1)
