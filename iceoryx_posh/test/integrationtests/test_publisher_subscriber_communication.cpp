@@ -57,22 +57,36 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
 
     template <typename T>
     std::unique_ptr<iox::popo::Publisher<T>>
-    createPublisher(const SubscriberTooSlowPolicy policy = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA)
+    createPublisher(const SubscriberTooSlowPolicy policy = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA,
+                    const capro::Interfaces interface = capro::Interfaces::INTERNAL)
     {
         iox::popo::PublisherOptions options;
         options.subscriberTooSlowPolicy = policy;
-        return std::make_unique<iox::popo::Publisher<T>>(m_serviceDescription, options);
+        return std::make_unique<iox::popo::Publisher<T>>(
+            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
+                                      m_serviceDescription.getInstanceIDString(),
+                                      m_serviceDescription.getEventIDString(),
+                                      {0U, 0U, 0U, 0U},
+                                      interface},
+            options);
     }
 
     template <typename T>
     std::unique_ptr<iox::popo::Subscriber<T>>
     createSubscriber(const QueueFullPolicy policy = QueueFullPolicy::DISCARD_OLDEST_DATA,
-                     const uint64_t queueCapacity = SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY)
+                     const uint64_t queueCapacity = SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY,
+                     const capro::Interfaces interface = capro::Interfaces::INTERNAL)
     {
         iox::popo::SubscriberOptions options;
         options.queueFullPolicy = policy;
         options.queueCapacity = queueCapacity;
-        return std::make_unique<iox::popo::Subscriber<T>>(m_serviceDescription, options);
+        return std::make_unique<iox::popo::Subscriber<T>>(
+            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
+                                      m_serviceDescription.getInstanceIDString(),
+                                      m_serviceDescription.getEventIDString(),
+                                      {0U, 0U, 0U, 0U},
+                                      interface},
+            options);
     }
 
 
@@ -80,6 +94,88 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
     capro::ServiceDescription m_serviceDescription{
         "PublisherSubscriberCommunication", "IntegrationTest", "AllHailHypnotoad"};
 };
+
+TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscribedToPublisherWithInternalInterface)
+{
+    auto publisher = createPublisher<int>();
+    this->InterOpWait();
+
+    std::vector<std::unique_ptr<iox::popo::Subscriber<int>>> subscribers;
+    for (uint16_t interface = 0U; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
+    {
+        subscribers.emplace_back(createSubscriber<int>(QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                       SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY,
+                                                       static_cast<capro::Interfaces>(interface)));
+    }
+    this->InterOpWait();
+
+    constexpr int TRANSMISSION_DATA = 1337;
+    ASSERT_FALSE(publisher->loan()
+                     .and_then([&](auto& sample) {
+                         *sample = TRANSMISSION_DATA;
+                         sample.publish();
+                     })
+                     .has_error());
+
+    for (auto& subscriber : subscribers)
+    {
+        EXPECT_FALSE(subscriber->take()
+                         .and_then([&](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
+                         .has_error());
+    }
+}
+
+TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenInterfaceDiffersFromPublisher)
+{
+    for (uint16_t publisherInterface = 0U; publisherInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END);
+         ++publisherInterface)
+    {
+        if (static_cast<capro::Interfaces>(publisherInterface) == capro::Interfaces::INTERNAL)
+        {
+            continue;
+        }
+
+        m_watchdog.watchAndActOnFailure();
+
+        auto publisher = createPublisher<int>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA,
+                                              static_cast<capro::Interfaces>(publisherInterface));
+        this->InterOpWait();
+
+        std::vector<std::unique_ptr<iox::popo::Subscriber<int>>> subscribers;
+        for (uint16_t subscriberInterface = 0U;
+             subscriberInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END);
+             ++subscriberInterface)
+        {
+            subscribers.emplace_back(createSubscriber<int>(QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                           SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY,
+                                                           static_cast<capro::Interfaces>(subscriberInterface)));
+        }
+        this->InterOpWait();
+
+        constexpr int TRANSMISSION_DATA = 1337;
+        ASSERT_FALSE(publisher->loan()
+                         .and_then([&](auto& sample) {
+                             *sample = TRANSMISSION_DATA;
+                             sample.publish();
+                         })
+                         .has_error());
+
+        for (auto& subscriber : subscribers)
+        {
+            if (subscriber->getServiceDescription().getSourceInterface()
+                == static_cast<capro::Interfaces>(publisherInterface))
+            {
+                EXPECT_TRUE(subscriber->take().has_error());
+            }
+            else
+            {
+                EXPECT_FALSE(subscriber->take()
+                                 .and_then([&](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
+                                 .has_error());
+            }
+        }
+    }
+}
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_list)
 {

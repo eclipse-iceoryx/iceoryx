@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +36,11 @@ GatewayBase::~GatewayBase() noexcept
     }
 }
 
+capro::Interfaces GatewayBase::getInterface() const noexcept
+{
+    return m_interfaceImpl.getCaProServiceDescription().getSourceInterface();
+}
+
 bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
 {
     auto maybeCaproMessage = m_interfaceImpl.tryGetCaProMessage();
@@ -49,6 +55,5 @@ bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
         return false;
     }
 }
-
 } // namespace gw
 } // namespace iox

@@ -61,8 +61,8 @@ static constexpr const char GATEWAY_CONFIG_SERVICE_EVENT_NAME[] = "event";
 class TomlGatewayConfigParser
 {
   public:
-    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse();
-    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(const roudi::ConfigFilePathString_t& path);
+    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError>
+    parse(const roudi::ConfigFilePathString_t& path = roudi::ConfigFilePathString_t(DEFAULT_CONFIG_FILE_PATH));
 
   protected:
     static cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;

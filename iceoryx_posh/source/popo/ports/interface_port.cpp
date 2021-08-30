@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +34,17 @@ cxx::optional<capro::CaproMessage> InterfacePort::tryGetCaProMessage() noexcept
 
 void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
 {
+    auto messageInterface = caProMessage.m_serviceDescription.getSourceInterface();
+    auto myInterface = getMembers()->m_serviceDescription.getSourceInterface();
+
+    // Do only forward messages for internal ports or if the ports interface is different
+    // than the messageInterface otherwise it is possible that a gateway subscribes to its
+    // own services. This would lead to running messages in cycles.
+    if (myInterface != iox::capro::Interfaces::INTERNAL && myInterface == messageInterface)
+    {
+        return;
+    }
+
     if (!getMembers()->m_caproMessageFiFo.push(caProMessage))
     {
         // information loss for this interface port
