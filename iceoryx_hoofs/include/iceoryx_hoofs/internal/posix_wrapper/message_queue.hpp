@@ -100,12 +100,14 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10u) noexcept;
 
-    cxx::expected<int32_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide) noexcept;
+    cxx::expected<int32_t, IpcChannelError> open(const IpcChannelName_t& name,
+                                                 const IpcChannelSide channelSide) noexcept;
 
     cxx::expected<IpcChannelError> close() noexcept;
     cxx::expected<IpcChannelError> unlink() noexcept;
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name,
+                                                             const int32_t errnum) noexcept;
     static cxx::expected<IpcChannelName_t, IpcChannelError>
     sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
 

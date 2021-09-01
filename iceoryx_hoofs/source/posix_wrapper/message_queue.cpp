@@ -289,7 +289,8 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
     return cxx::success<std::string>(std::string(&(message[0])));
 }
 
-cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout) const noexcept
+cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg,
+                                                       const units::Duration& timeout) const noexcept
 {
     const size_t messageSize = static_cast<size_t>(msg.size()) + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<size_t>(m_attributes.mq_msgsize))
@@ -335,7 +336,8 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t er
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum) noexcept
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name,
+                                                                const int32_t errnum) noexcept
 {
     switch (errnum)
     {

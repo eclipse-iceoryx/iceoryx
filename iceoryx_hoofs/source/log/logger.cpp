@@ -34,7 +34,9 @@ namespace iox
 {
 namespace log
 {
-Logger::Logger(IOX_MAYBE_UNUSED std::string ctxId, IOX_MAYBE_UNUSED std::string ctxDescription, LogLevel appLogLevel) noexcept
+Logger::Logger(IOX_MAYBE_UNUSED std::string ctxId,
+               IOX_MAYBE_UNUSED std::string ctxDescription,
+               LogLevel appLogLevel) noexcept
     : m_logLevel(appLogLevel)
 {
 }

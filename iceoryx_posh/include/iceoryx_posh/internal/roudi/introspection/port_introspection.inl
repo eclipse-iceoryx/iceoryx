@@ -232,8 +232,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSu
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool
-PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(typename PublisherPort::MemberType_t& port) noexcept
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
+    typename PublisherPort::MemberType_t& port) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -347,7 +347,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(const PublisherPort& port) noexcept
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(const PublisherPort& port) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -382,7 +383,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePu
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(const SubscriberPort& port) noexcept
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(const SubscriberPort& port) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -633,13 +635,15 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(b
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t& port) noexcept
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t& port) noexcept
 {
     return m_portData.addPublisher(port);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t& port) noexcept
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t& port) noexcept
 {
     return m_portData.addSubscriber(port);
 }

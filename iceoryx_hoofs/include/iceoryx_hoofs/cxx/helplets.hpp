@@ -37,8 +37,8 @@ struct TruncateToCapacity_t;
 
 namespace internal
 {
-inline void
-Require(const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
+inline void Require(
+    const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
 {
     if (!condition)
     {

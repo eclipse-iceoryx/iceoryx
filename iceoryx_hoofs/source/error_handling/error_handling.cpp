@@ -38,7 +38,9 @@ std::ostream& operator<<(std::ostream& stream, Error value) noexcept
     return stream;
 }
 
-void ErrorHandler::DefaultHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level) noexcept
+void ErrorHandler::DefaultHandler(const Error error,
+                                  const std::function<void()> errorCallBack,
+                                  const ErrorLevel level) noexcept
 {
     if (errorCallBack)
     {

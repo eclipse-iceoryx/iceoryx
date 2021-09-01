@@ -90,7 +90,8 @@ class AccessController
     /// @param[f_permission] Permissions which should be applied to the category.
     /// @param[f_id] The group or user id - depending on the category. For Category::USER, Category::GROUP and
     ///   Category::OTHER the f_id is not required for everything else a valid group or user id is mandatory.
-    bool addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id = -1u) noexcept;
+    bool
+    addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id = -1u) noexcept;
 
     /// @brief just like addPermissionEntry(Category, Permission, int) but using a name instead of an id.
     bool addPermissionEntry(const Category f_category, const Permission f_permission, const string_t& f_name) noexcept;

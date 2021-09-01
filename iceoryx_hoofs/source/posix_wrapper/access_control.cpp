@@ -154,7 +154,9 @@ bool AccessController::addPermissionEntry(const Category f_category,
     return false;
 }
 
-bool AccessController::addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id) noexcept
+bool AccessController::addPermissionEntry(const Category f_category,
+                                          const Permission f_permission,
+                                          const uint32_t f_id) noexcept
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {

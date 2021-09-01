@@ -216,7 +216,8 @@ using HandlerFunction = std::function<void(const Error error, const std::functio
 ///         error handling.
 class ErrorHandler
 {
-    friend void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level) noexcept;
+    friend void
+    errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level) noexcept;
 
   public:
     static cxx::GenericRAII SetTemporaryErrorHandler(const HandlerFunction& newHandler) noexcept;
