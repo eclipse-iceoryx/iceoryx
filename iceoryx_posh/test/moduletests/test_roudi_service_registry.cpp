@@ -317,8 +317,7 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameServicesAnd
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
-TEST_F(ServiceRegistry_test,
-       ServiceNotFoundAfterAddingAndRemovingToServiceRegistry)
+TEST_F(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceRegistry)
 {
     iox::capro::ServiceDescription service1("a", "b", "b");
     iox::capro::ServiceDescription service2("b", "c", "c");

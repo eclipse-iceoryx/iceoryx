@@ -164,7 +164,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
 /// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
 /// only intended to check the functionality by injecting the valus directly.
-TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeSetsTheScopeToInvalid)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeLeadsToInvalidServiceDescription)
 {
     ServiceDescription::ClassHash testHash = {14U, 28U, 42U, 56U};
     testService = "Service";
@@ -189,7 +190,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
 /// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceSetsTheInterfaceSourceToInterfaceEnd)
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceLeadsToInvalidServiceDescription)
 {
     ServiceDescription::ClassHash testHash = {17U, 34U, 51U, 68U};
     testService = "Service";
@@ -208,6 +209,16 @@ TEST_F(ServiceDescription_test,
                                                      invalidInterfaceSource);
 
     ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidServiceDescription)
+{
+    std::string emptyString;
+    iox::cxx::Serialization invalidSerialObj{emptyString};
+
+    ServiceDescription serviceDescription1 = ServiceDescription(invalidSerialObj);
 
     EXPECT_FALSE(serviceDescription1.isValid());
 }
