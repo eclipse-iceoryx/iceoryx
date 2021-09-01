@@ -32,13 +32,13 @@ HandlerFunction ErrorHandler::handler = {ErrorHandler::DefaultHandler};
 
 std::mutex ErrorHandler::handler_mutex;
 
-std::ostream& operator<<(std::ostream& stream, Error value)
+std::ostream& operator<<(std::ostream& stream, Error value) noexcept
 {
     stream << ErrorHandler::ToString(value);
     return stream;
 }
 
-void ErrorHandler::DefaultHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level)
+void ErrorHandler::DefaultHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level) noexcept
 {
     if (errorCallBack)
     {
@@ -53,7 +53,7 @@ void ErrorHandler::DefaultHandler(const Error error, const std::function<void()>
     }
 }
 
-void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorText)
+void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
 {
     static auto& logger = CreateLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
     switch (level)
@@ -73,7 +73,7 @@ void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorTe
     }
 }
 
-cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& newHandler)
+cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& newHandler) noexcept
 {
     return cxx::GenericRAII(
         [&newHandler] {
@@ -87,12 +87,12 @@ cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& n
 }
 
 
-const char* ErrorHandler::ToString(const Error error)
+const char* ErrorHandler::ToString(const Error error) noexcept
 {
     return ErrorHandler::errorNames[static_cast<uint32_t>(error)];
 }
 
-void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level)
+void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level) noexcept
 {
     ErrorHandler::handler(error, errorCallBack, level);
 }

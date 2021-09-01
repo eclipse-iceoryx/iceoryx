@@ -37,7 +37,7 @@ inline BaseSubscriber<port_t>::BaseSubscriber(const capro::ServiceDescription& s
 }
 
 template <typename port_t>
-inline BaseSubscriber<port_t>::~BaseSubscriber()
+inline BaseSubscriber<port_t>::~BaseSubscriber() noexcept
 {
     m_port.destroy();
 }

@@ -50,7 +50,7 @@ template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
   public:
-    virtual ~BaseSubscriber();
+    virtual ~BaseSubscriber() noexcept;
 
     ///
     /// @brief uid Get the unique ID of the subscriber.

@@ -112,7 +112,7 @@ class variant
   public:
     /// @brief the default constructor constructs a variant which does not contain
     ///     an element and returns INVALID_VARIANT_INDEX when .index() is called
-    constexpr variant() = default;
+    constexpr variant() noexcept = default;
 
     /// @brief creates a variant and perform an in place construction of the type
     ///         stored at index N. If the index N is out of bounds you get a compiler

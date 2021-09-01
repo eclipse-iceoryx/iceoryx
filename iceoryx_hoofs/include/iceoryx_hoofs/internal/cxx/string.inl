@@ -328,7 +328,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
 }
 
 template <uint64_t Capacity>
-inline bool operator==(const std::string& lhs, const string<Capacity>& rhs)
+inline bool operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept
 {
     if (lhs.size() != rhs.size())
     {
@@ -338,25 +338,25 @@ inline bool operator==(const std::string& lhs, const string<Capacity>& rhs)
 }
 
 template <uint64_t Capacity>
-inline bool operator==(const string<Capacity>& lhs, const std::string& rhs)
+inline bool operator==(const string<Capacity>& lhs, const std::string& rhs) noexcept
 {
     return (rhs == lhs);
 }
 
 template <uint64_t Capacity>
-inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs)
+inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
 template <uint64_t Capacity>
-inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs)
+inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs) noexcept
 {
     return (rhs != lhs);
 }
 
 template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str)
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept
 {
     stream << str.c_str();
     return stream;
@@ -393,7 +393,7 @@ inline bool string<Capacity>::operator!=(const char* const) const noexcept
 }
 
 template <uint64_t Capacity>
-inline bool operator==(const char* const, const string<Capacity>&)
+inline bool operator==(const char* const, const string<Capacity>&) noexcept
 {
     static_assert(always_false<Capacity>::value,
                   "The equality operator for char pointer and fixed string is disabled, because it may lead to "
@@ -404,7 +404,7 @@ inline bool operator==(const char* const, const string<Capacity>&)
 }
 
 template <uint64_t Capacity>
-inline bool operator!=(const char* const, const string<Capacity>&)
+inline bool operator!=(const char* const, const string<Capacity>&) noexcept
 {
     static_assert(always_false<Capacity>::value,
                   "The inequality operator for char pointer and fixed string is disabled, because it may lead to "
@@ -427,7 +427,7 @@ template <typename T1, typename T2>
 inline typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
                                    && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
                                string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-concatenate(const T1& t1, const T2& t2)
+concatenate(const T1& t1, const T2& t2) noexcept
 {
     uint64_t size1 = internal::GetSize<T1>::call(t1);
     uint64_t size2 = internal::GetSize<T2>::call(t2);
@@ -445,7 +445,7 @@ template <typename T1, typename T2, typename... Targs>
 inline typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
                                    && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
                                string<internal::SumCapa<T1, T2, Targs...>::value>>::type
-concatenate(const T1& t1, const T2& t2, const Targs&... targs)
+concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept
 {
     return concatenate(concatenate(t1, t2), targs...);
 }
@@ -455,7 +455,7 @@ inline typename std::enable_if<(internal::IsCharArray<T1>::value && internal::Is
                                    || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
                                    || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value),
                                string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-operator+(const T1& t1, const T2& t2)
+operator+(const T1& t1, const T2& t2) noexcept
 {
     return concatenate(t1, t2);
 }

@@ -108,20 +108,20 @@ class ServiceDescription
 
     /// @brief compare operator. If wildcards AnyServiceString, AnyInstanceString or AnyEventString are used, the
     /// corresponding member comparisons are skipped.
-    bool operator==(const ServiceDescription& rhs) const;
+    bool operator==(const ServiceDescription& rhs) const noexcept;
 
     /// @brief negation of compare operator.
-    bool operator!=(const ServiceDescription& rhs) const;
+    bool operator!=(const ServiceDescription& rhs) const noexcept;
 
     /// @brief Uses the underlying m_**String compare method to provide an order.
     ///         This is needed to use ServiceDescription in sorted containers like map or set.
-    bool operator<(const ServiceDescription& rhs) const;
+    bool operator<(const ServiceDescription& rhs) const noexcept;
 
-    ServiceDescription& operator=(const ServiceDescription&) = default;
-    ServiceDescription& operator=(ServiceDescription&&) = default;
+    ServiceDescription& operator=(const ServiceDescription&) noexcept = default;
+    ServiceDescription& operator=(ServiceDescription&&) noexcept = default;
 
     /// @brief serialization of the capro description.
-    operator cxx::Serialization() const;
+    operator cxx::Serialization() const noexcept;
 
     // @brief Returns if this service description is used for an RouDi-internal channel
     bool isInternal() const noexcept;

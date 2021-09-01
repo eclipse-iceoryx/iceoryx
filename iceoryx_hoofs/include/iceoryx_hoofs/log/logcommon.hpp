@@ -62,10 +62,10 @@ constexpr const char* LogLevelText[] = {
     "[Verbose]", // bold cyan
 };
 
-LogMode operator|(LogMode lhs, LogMode rhs);
-LogMode& operator|=(LogMode& lhs, LogMode rhs);
-LogMode operator&(LogMode lhs, LogMode rhs);
-LogMode& operator&=(LogMode& lhs, LogMode rhs);
+LogMode operator|(LogMode lhs, LogMode rhs) noexcept;
+LogMode& operator|=(LogMode& lhs, LogMode rhs) noexcept;
+LogMode operator&(LogMode lhs, LogMode rhs) noexcept;
+LogMode& operator&=(LogMode& lhs, LogMode rhs) noexcept;
 
 struct LogEntry
 {

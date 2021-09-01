@@ -45,10 +45,10 @@ class ConstMethodCallback
     template <typename T>
     using ConstMethodPointer = ReturnValue (T::*)(Args...) const;
 
-    ConstMethodCallback() = default;
-    ConstMethodCallback(const ConstMethodCallback& rhs) = default;
-    ConstMethodCallback& operator=(const ConstMethodCallback& rhs) = default;
-    ~ConstMethodCallback() = default;
+    ConstMethodCallback() noexcept = default;
+    ConstMethodCallback(const ConstMethodCallback& rhs) noexcept = default;
+    ConstMethodCallback& operator=(const ConstMethodCallback& rhs) noexcept = default;
+    ~ConstMethodCallback() noexcept = default;
 
     /// @brief Constructs a ConstMethodCallback from a pointer to a specific object
     ///        and a pointer to a method of that class.
@@ -117,10 +117,10 @@ class MethodCallback
     template <typename T>
     using MethodPointer = ReturnValue (T::*)(Args...);
 
-    MethodCallback() = default;
-    MethodCallback(const MethodCallback& rhs) = default;
-    MethodCallback& operator=(const MethodCallback& rhs) = default;
-    ~MethodCallback() = default;
+    MethodCallback() noexcept = default;
+    MethodCallback(const MethodCallback& rhs) noexcept = default;
+    MethodCallback& operator=(const MethodCallback& rhs) noexcept = default;
+    ~MethodCallback() noexcept = default;
 
     /// @brief Constructs a MethodCallback from a pointer to a specific object
     ///        and a pointer to a method of that object.

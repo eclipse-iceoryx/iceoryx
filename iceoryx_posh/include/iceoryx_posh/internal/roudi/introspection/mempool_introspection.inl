@@ -26,7 +26,7 @@ namespace roudi
 {
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 inline MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPoolIntrospection(
-    MemoryManager& rouDiInternalMemoryManager, SegmentManager& segmentManager, PublisherPort&& publisherPort)
+    MemoryManager& rouDiInternalMemoryManager, SegmentManager& segmentManager, PublisherPort&& publisherPort) noexcept
     : m_rouDiInternalMemoryManager(&rouDiInternalMemoryManager)
     , m_segmentManager(&segmentManager)
     , m_publisherPort(std::move(publisherPort))
@@ -35,7 +35,7 @@ inline MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPo
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-inline MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::~MemPoolIntrospection()
+inline MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::~MemPoolIntrospection() noexcept
 {
     stop();
     m_publisherPort.stopOffer();

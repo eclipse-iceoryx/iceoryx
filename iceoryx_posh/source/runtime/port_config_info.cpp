@@ -26,7 +26,7 @@ PortConfigInfo::PortConfigInfo(uint32_t portType, uint32_t deviceId, uint32_t me
 {
 }
 
-PortConfigInfo::PortConfigInfo(const cxx::Serialization& serialization)
+PortConfigInfo::PortConfigInfo(const cxx::Serialization& serialization) noexcept
 {
     serialization.extract(portType, memoryInfo.deviceId, memoryInfo.memoryType);
 }

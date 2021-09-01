@@ -21,7 +21,7 @@ namespace iox
 {
 namespace posix
 {
-struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms)
+struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms) noexcept
 {
     decltype(time.tv_nsec) sec_ns = time.tv_nsec + ((timeToAdd_ms % 1000) * TS_DIVIDER_msec);
     time.tv_sec += (timeToAdd_ms / 1000);
@@ -38,7 +38,7 @@ struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms)
     return time;
 }
 
-double subtractTimespecMS(const struct timespec minuend, const struct timespec subtrahend)
+double subtractTimespecMS(const struct timespec minuend, const struct timespec subtrahend) noexcept
 {
     // Define TimeType instead of long long to be machine independent, long long is 64-bit on QNX/Linux 32-bit/64-bit
     using TimeType = std::uint64_t;

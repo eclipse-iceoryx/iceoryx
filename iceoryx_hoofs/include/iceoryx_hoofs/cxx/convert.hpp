@@ -62,7 +62,7 @@ class convert
     /// @return string representation of t
     template <typename Source>
     static typename std::enable_if<!std::is_convertible<Source, std::string>::value, std::string>::type
-    toString(const Source& t);
+    toString(const Source& t) noexcept;
 
     /// @brief Converts every type which is either a pod (plain old data) type or is convertable
     ///         to a string (this means that the operator std::string() is defined)
@@ -71,7 +71,7 @@ class convert
     /// @return string representation of t
     template <typename Source>
     static typename std::enable_if<std::is_convertible<Source, std::string>::value, std::string>::type
-    toString(const Source& t);
+    toString(const Source& t) noexcept;
 
     /// @brief Sets dest from a given string. If the conversion fails false is
     ///         returned and the value of dest is undefined.
@@ -79,16 +79,16 @@ class convert
     /// @param[in] dest destination to which the value should be written
     /// @return false = if the conversion fails otherwise true
     template <typename Destination>
-    static bool fromString(const char* v, Destination& dest);
+    static bool fromString(const char* v, Destination& dest) noexcept;
 
     /// @brief checks if a given string v is a number
     /// @param[in] v string which contains the number
     /// @param[in] type is the expected contained type in v
     /// @return true if the given string is a number, otherwise false
-    static bool stringIsNumber(const char* v, const NumberType type);
+    static bool stringIsNumber(const char* v, const NumberType type) noexcept;
 
   private:
-    static bool stringIsNumberWithErrorMessage(const char* v, const NumberType type);
+    static bool stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept;
 };
 
 } // namespace cxx

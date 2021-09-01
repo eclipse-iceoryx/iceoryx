@@ -28,7 +28,7 @@ namespace iox
 {
 namespace log
 {
-LogManager& LogManager::GetLogManager()
+LogManager& LogManager::GetLogManager() noexcept
 {
     static LogManager manager;
     return manager;

@@ -21,19 +21,19 @@ namespace iox
 {
 namespace roudi
 {
-void ServiceRegistry::add(const capro::IdString_t& service, const capro::IdString_t& instance)
+void ServiceRegistry::add(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
 {
     cxx::set::add(m_serviceMap[service].instanceSet, instance);
 }
 
-void ServiceRegistry::remove(const capro::IdString_t& service, const capro::IdString_t& instance)
+void ServiceRegistry::remove(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
 {
     cxx::set::remove(m_serviceMap[service].instanceSet, instance);
 }
 
 void ServiceRegistry::find(InstanceSet_t& instances,
                            const capro::IdString_t& service,
-                           const capro::IdString_t& instance) const
+                           const capro::IdString_t& instance) const noexcept
 {
     if (instance == Wildcard)
     {
@@ -53,7 +53,7 @@ void ServiceRegistry::find(InstanceSet_t& instances,
     }
 }
 
-const ServiceRegistry::serviceMap_t& ServiceRegistry::getServiceMap() const
+const ServiceRegistry::serviceMap_t& ServiceRegistry::getServiceMap() const noexcept
 {
     return m_serviceMap;
 }

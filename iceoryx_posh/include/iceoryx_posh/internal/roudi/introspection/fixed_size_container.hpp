@@ -42,7 +42,7 @@ class FixedSizeContainer
     using Capacity_t = decltype(capacity);
     static constexpr int32_t NOT_AN_ELEMENT = -1;
 
-    FixedSizeContainer()
+    FixedSizeContainer() noexcept
         : m_values(capacity)
     {
     }
@@ -50,7 +50,7 @@ class FixedSizeContainer
     /// @note returns index or -1 if element could not be added
     /// a successful add returns an arbitrary index which can be non consecutive
     /// for consecutive adds
-    Index_t add(const T& element)
+    Index_t add(const T& element) noexcept
     {
         auto nextElement = nextFree();
 
@@ -65,7 +65,7 @@ class FixedSizeContainer
         return nextElement;
     }
 
-    void remove(Index_t index)
+    void remove(Index_t index) noexcept
     {
         if (m_values[static_cast<Capacity_t>(index)].isValid)
         {
@@ -76,24 +76,24 @@ class FixedSizeContainer
 
     /// @note access can change the underlying object, without modifying valid flag
     /// if the index is invalid than the behavior is undefined
-    T& operator[](Index_t index)
+    T& operator[](Index_t index) noexcept
     {
         return m_values[static_cast<Capacity_t>(index)].value;
     }
 
-    T* get(Index_t index)
+    T* get(Index_t index) noexcept
     {
         return (m_values[static_cast<Capacity_t>(index)].isValid) ? &m_values[static_cast<uint32_t>(index)].value
                                                                   : nullptr;
     }
 
-    size_t size()
+    size_t size() noexcept
     {
         return m_size;
     }
 
   private:
-    Index_t nextFree()
+    Index_t nextFree() noexcept
     {
         if (m_size >= capacity)
             return NOT_AN_ELEMENT; // container is full
@@ -105,12 +105,12 @@ class FixedSizeContainer
         return m_freeIndex;
     }
 
-    void setValid(Index_t index, bool value = true)
+    void setValid(Index_t index, bool value = true) noexcept
     {
         m_values[static_cast<Capacity_t>(index)].isValid = value;
     }
 
-    void setInvalid(Index_t index)
+    void setInvalid(Index_t index) noexcept
     {
         setValid(index, false);
     }

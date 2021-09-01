@@ -22,7 +22,7 @@
 
 struct cpp2c_Publisher
 {
-    cpp2c_Publisher() = default;
+    cpp2c_Publisher() noexcept = default;
     cpp2c_Publisher(const cpp2c_Publisher&) = delete;
     cpp2c_Publisher(cpp2c_Publisher&& rhs) noexcept;
     ~cpp2c_Publisher();

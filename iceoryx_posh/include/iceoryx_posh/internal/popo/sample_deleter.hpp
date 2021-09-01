@@ -33,17 +33,17 @@ template <typename Port>
 struct SampleDeleter
 {
   public:
-    SampleDeleter(Port& port);
+    SampleDeleter(Port& port) noexcept;
 
     /// @brief Handles deletion of the sample.
     /// @param[in] userPayload The pointer to the user-payload of the sample.
     template <typename T>
-    void operator()(T* const userPayload);
+    void operator()(T* const userPayload) noexcept;
 
     /// @brief Handles deletion of the sample.
     /// @param[in] userPayload The pointer to the user-payload of the sample.
     template <typename T>
-    void operator()(const T* const userPayload) const;
+    void operator()(const T* const userPayload) const noexcept;
 
   private:
     Port* m_port;

@@ -70,7 +70,7 @@ inline constexpr bool doesContainType() noexcept
 }
 
 template <typename T>
-inline constexpr bool doesContainValue(const T)
+inline constexpr bool doesContainValue(const T) noexcept
 {
     return false;
 }

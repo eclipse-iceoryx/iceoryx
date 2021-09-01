@@ -28,9 +28,9 @@ static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/roudi_config.toml"
 class TomlRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
 {
   public:
-    TomlRouDiConfigFileProvider(iox::config::CmdLineArgs_t& cmdLineArgs);
+    TomlRouDiConfigFileProvider(iox::config::CmdLineArgs_t& cmdLineArgs) noexcept;
 
-    iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> parse() override;
+    iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> parse() noexcept override;
 };
 } // namespace config
 } // namespace iox

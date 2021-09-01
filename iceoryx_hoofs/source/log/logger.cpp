@@ -34,18 +34,18 @@ namespace iox
 {
 namespace log
 {
-Logger::Logger(IOX_MAYBE_UNUSED std::string ctxId, IOX_MAYBE_UNUSED std::string ctxDescription, LogLevel appLogLevel)
+Logger::Logger(IOX_MAYBE_UNUSED std::string ctxId, IOX_MAYBE_UNUSED std::string ctxDescription, LogLevel appLogLevel) noexcept
     : m_logLevel(appLogLevel)
 {
 }
 
-Logger::Logger(Logger&& other)
+Logger::Logger(Logger&& other) noexcept
 {
     m_logLevel.store(other.m_logLevel.load(std::memory_order_relaxed), std::memory_order_relaxed);
     m_logMode.store(other.m_logMode.load(std::memory_order_relaxed), std::memory_order_relaxed);
 }
 
-Logger& Logger::operator=(Logger&& rhs)
+Logger& Logger::operator=(Logger&& rhs) noexcept
 {
     m_logLevel.store(rhs.m_logLevel.load(std::memory_order_relaxed), std::memory_order_relaxed);
     m_logMode.store(rhs.m_logMode.load(std::memory_order_relaxed), std::memory_order_relaxed);
@@ -114,7 +114,7 @@ LogStream Logger::LogVerbose() noexcept
     return LogStream(*this, LogLevel::kVerbose);
 }
 
-void Logger::Print(const LogEntry entry) const
+void Logger::Print(const LogEntry entry) const noexcept
 {
     // as long as there is only this synchronous logger, buffer the output before using clog to prevent interleaving
     // output because of threaded access
@@ -138,7 +138,7 @@ bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
     return (logLevel <= m_logLevel.load(std::memory_order_relaxed));
 }
 
-void Logger::Log(const LogEntry& entry) const
+void Logger::Log(const LogEntry& entry) const noexcept
 {
     /// @todo do we want a ringbuffer where we store the last e.g. 100 logs
     /// event if they are below the current log level and print them if case of kFatal?

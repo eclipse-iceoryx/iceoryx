@@ -94,7 +94,7 @@ struct get_type_at_index<N, N, T, Targs...>
 template <uint64_t N, typename T, typename... Targs>
 struct call_at_index
 {
-    static void destructor(const uint64_t index, byte_t* ptr)
+    static void destructor(const uint64_t index, byte_t* ptr) noexcept
     {
         if (N == index)
         {
@@ -106,7 +106,7 @@ struct call_at_index
         }
     }
 
-    static void move(const uint64_t index, byte_t* source, byte_t* destination)
+    static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -118,7 +118,7 @@ struct call_at_index
         }
     }
 
-    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination)
+    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -130,7 +130,7 @@ struct call_at_index
         }
     }
 
-    static void copy(const uint64_t index, byte_t* source, byte_t* destination)
+    static void copy(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -142,7 +142,7 @@ struct call_at_index
         }
     }
 
-    static void copyConstructor(const uint64_t index, byte_t* source, byte_t* destination)
+    static void copyConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -158,7 +158,7 @@ struct call_at_index
 template <uint64_t N, typename T>
 struct call_at_index<N, T>
 {
-    static void destructor(const uint64_t index, byte_t* ptr)
+    static void destructor(const uint64_t index, byte_t* ptr) noexcept
     {
         if (N == index)
         {
@@ -170,7 +170,7 @@ struct call_at_index<N, T>
         }
     }
 
-    static void move(const uint64_t index, byte_t* source, byte_t* destination)
+    static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -182,7 +182,7 @@ struct call_at_index<N, T>
         }
     }
 
-    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination)
+    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -194,7 +194,7 @@ struct call_at_index<N, T>
         }
     }
 
-    static void copy(const uint64_t index, byte_t* source, byte_t* destination)
+    static void copy(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
@@ -206,7 +206,7 @@ struct call_at_index<N, T>
         }
     }
 
-    static void copyConstructor(const uint64_t index, byte_t* source, byte_t* destination)
+    static void copyConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {

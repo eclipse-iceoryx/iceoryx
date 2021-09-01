@@ -37,13 +37,13 @@ inline constexpr const char* asStringLiteral(ConnectionState value) noexcept
     return "[Undefined ConnectionState]";
 }
 
-std::ostream& operator<<(std::ostream& stream, ConnectionState value)
+std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
 }
 
-log::LogStream& operator<<(log::LogStream& stream, ConnectionState value)
+log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
@@ -51,7 +51,7 @@ log::LogStream& operator<<(log::LogStream& stream, ConnectionState value)
 
 namespace roudi
 {
-inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode)
+inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept
 {
     switch (mode)
     {

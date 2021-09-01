@@ -54,19 +54,19 @@ class FileReader
     /// error mode is evaluated when an error occurs.
     FileReader(const std::string& f_fileName,
                const std::string& f_filePath = "",
-               ErrorMode f_errorMode = ErrorMode::Inform);
+               ErrorMode f_errorMode = ErrorMode::Inform) noexcept;
 
     FileReader(const FileReader&) = delete;
     FileReader(FileReader&&) = delete;
     FileReader& operator=(const FileReader&) = delete;
     FileReader& operator=(FileReader&&) = delete;
 
-    ~FileReader() = default;
+    ~FileReader() noexcept = default;
 
     /// Check if the associated file is open.
-    bool IsOpen() const;
+    bool IsOpen() const noexcept;
     /// Read one line from the file and store the result in f_string.
-    bool ReadLine(std::string& f_string);
+    bool ReadLine(std::string& f_string) noexcept;
 
   private:
 #ifdef _WIN32

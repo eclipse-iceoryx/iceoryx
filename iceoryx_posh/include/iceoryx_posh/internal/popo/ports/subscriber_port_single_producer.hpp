@@ -37,8 +37,8 @@ class SubscriberPortSingleProducer : public SubscriberPortRouDi
 
     SubscriberPortSingleProducer(const SubscriberPortSingleProducer& other) = delete;
     SubscriberPortSingleProducer& operator=(const SubscriberPortSingleProducer&) = delete;
-    SubscriberPortSingleProducer(SubscriberPortSingleProducer&& rhs) = default;
-    SubscriberPortSingleProducer& operator=(SubscriberPortSingleProducer&& rhs) = default;
+    SubscriberPortSingleProducer(SubscriberPortSingleProducer&& rhs) noexcept = default;
+    SubscriberPortSingleProducer& operator=(SubscriberPortSingleProducer&& rhs) noexcept = default;
     ~SubscriberPortSingleProducer() = default;
 
     /// @brief get an optional CaPro message that changes the subscription state of the subscriber

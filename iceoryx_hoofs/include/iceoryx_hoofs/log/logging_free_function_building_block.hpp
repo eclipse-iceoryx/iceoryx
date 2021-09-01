@@ -66,7 +66,7 @@ namespace log
 namespace ffbb
 {
 template <typename T>
-static Logger& ComponentLogger()
+static Logger& ComponentLogger() noexcept
 {
     static auto& logger = CreateLogger(T::Ctx, T::Description, LogManager::GetLogManager().DefaultLogLevel());
     return logger;

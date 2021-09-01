@@ -24,7 +24,7 @@ namespace popo
 {
 template <typename T, typename H, typename BaseSubscriber_t>
 inline SubscriberImpl<T, H, BaseSubscriber_t>::SubscriberImpl(const capro::ServiceDescription& service,
-                                                              const SubscriberOptions& subscriberOptions)
+                                                              const SubscriberOptions& subscriberOptions) noexcept
     : BaseSubscriber_t(service, subscriberOptions)
 {
 }

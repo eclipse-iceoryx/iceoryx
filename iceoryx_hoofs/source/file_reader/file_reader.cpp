@@ -25,7 +25,7 @@ namespace cxx
 {
 constexpr char FileReader::PATH_SEPARATOR[];
 
-FileReader::FileReader(const std::string& f_fileName, const std::string& f_filePath, ErrorMode f_errorMode)
+FileReader::FileReader(const std::string& f_fileName, const std::string& f_filePath, ErrorMode f_errorMode) noexcept
     : m_errorMode{f_errorMode}
 {
     m_file = f_filePath.empty() ? f_fileName : f_filePath + PATH_SEPARATOR + f_fileName;
@@ -61,12 +61,12 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
     }
 }
 
-bool FileReader::IsOpen() const
+bool FileReader::IsOpen() const noexcept
 {
     return m_fileStream.is_open();
 }
 
-bool FileReader::ReadLine(std::string& f_string)
+bool FileReader::ReadLine(std::string& f_string) noexcept
 {
     return static_cast<bool>(std::getline(m_fileStream, f_string));
 }

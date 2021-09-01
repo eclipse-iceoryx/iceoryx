@@ -45,8 +45,8 @@ class ServerPortUser : public BasePort
 
     ServerPortUser(const ServerPortUser& other) = delete;
     ServerPortUser& operator=(const ServerPortUser&) = delete;
-    ServerPortUser(ServerPortUser&& rhs) = default;
-    ServerPortUser& operator=(ServerPortUser&& rhs) = default;
+    ServerPortUser(ServerPortUser&& rhs) noexcept = default;
+    ServerPortUser& operator=(ServerPortUser&& rhs) noexcept = default;
     ~ServerPortUser() = default;
 
     /// @brief Tries to get the next request from the queue. If there is a new one, the ChunkHeader of the oldest

@@ -20,13 +20,13 @@ namespace iox
 {
 namespace runtime
 {
-PoshRuntime*& getSingleProcessRuntime()
+PoshRuntime*& getSingleProcessRuntime() noexcept
 {
     static PoshRuntime* singleProcessRuntime = nullptr;
     return singleProcessRuntime;
 }
 
-PoshRuntime& singleProcessRuntimeFactory(cxx::optional<const RuntimeName_t*>)
+PoshRuntime& singleProcessRuntimeFactory(cxx::optional<const RuntimeName_t*>) noexcept
 {
     return *getSingleProcessRuntime();
 }

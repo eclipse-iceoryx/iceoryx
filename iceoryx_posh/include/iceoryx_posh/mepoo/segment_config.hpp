@@ -34,7 +34,7 @@ struct SegmentConfig
         SegmentEntry(const posix::PosixGroup::string_t& readerGroup,
                      const posix::PosixGroup::string_t& writerGroup,
                      const MePooConfig& memPoolConfig,
-                     iox::mepoo::MemoryInfo memoryInfo = iox::mepoo::MemoryInfo())
+                     iox::mepoo::MemoryInfo memoryInfo = iox::mepoo::MemoryInfo()) noexcept
             : m_readerGroup(readerGroup)
             , m_writerGroup(writerGroup)
             , m_mempoolConfig(memPoolConfig)

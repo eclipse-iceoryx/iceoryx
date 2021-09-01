@@ -41,7 +41,7 @@ template <typename T1, typename T2>
 typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
                             && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
                         string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-concatenate(const T1& t1, const T2& t2);
+concatenate(const T1& t1, const T2& t2) noexcept;
 
 /// @brief concatenates an arbitrary number of fixed strings or string literals
 ///
@@ -57,7 +57,7 @@ template <typename T1, typename T2, typename... Targs>
 typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
                             && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
                         string<internal::SumCapa<T1, T2, Targs...>::value>>::type
-concatenate(const T1& t1, const T2& t2, const Targs&... targs);
+concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 
 /// @brief concatenates two fixed strings or one fixed fixed string and one string literal; concatenation of two string
 /// literals is not possible
@@ -70,7 +70,7 @@ typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxStri
                             || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
                             || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value),
                         string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-operator+(const T1& t1, const T2& t2);
+operator+(const T1& t1, const T2& t2) noexcept;
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
@@ -514,7 +514,7 @@ class string
     friend typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
                                        && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
                                    string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-    concatenate(const T1& t1, const T2& t2);
+    concatenate(const T1& t1, const T2& t2) noexcept;
 
   private:
     /// @brief copies rhs fixed string to this with compile time check whether rhs capacity is less than or equal to
@@ -546,7 +546,7 @@ class string
 ///
 /// @return true if both strings are equal, otherwise false
 template <uint64_t Capacity>
-inline bool operator==(const std::string& lhs, const string<Capacity>& rhs);
+inline bool operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a rhs std::string is equal to a lhs fixed string
 ///
@@ -555,7 +555,7 @@ inline bool operator==(const std::string& lhs, const string<Capacity>& rhs);
 ///
 /// @return true if both strings are equal, otherwise false
 template <uint64_t Capacity>
-inline bool operator==(const string<Capacity>& lhs, const std::string& rhs);
+inline bool operator==(const string<Capacity>& lhs, const std::string& rhs) noexcept;
 
 /// @brief checks if a rhs fixed string is not equal to a lhs std::string
 ///
@@ -564,7 +564,7 @@ inline bool operator==(const string<Capacity>& lhs, const std::string& rhs);
 ///
 /// @return true if both strings are not equal, otherwise false
 template <uint64_t Capacity>
-inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs);
+inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a rhs std::string is not equal to a lhs fixed string
 ///
@@ -573,7 +573,7 @@ inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs);
 ///
 /// @return true if both strings are not equal, otherwise false
 template <uint64_t Capacity>
-inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs);
+inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs) noexcept;
 
 /// @brief The equality operator for char pointer and fixed string is disabled via a static_assert, because it may
 /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
@@ -585,7 +585,7 @@ inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs);
 ///
 /// @return false
 template <uint64_t Capacity>
-inline bool operator==(const char* const lhs, const string<Capacity>& rhs);
+inline bool operator==(const char* const lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief The inequality operator for char pointer and fixed string is disabled via a static_assert, because it may
 /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
@@ -597,7 +597,7 @@ inline bool operator==(const char* const lhs, const string<Capacity>& rhs);
 ///
 /// @return false
 template <uint64_t Capacity>
-inline bool operator!=(const char* const lhs, const string<Capacity>& rhs);
+inline bool operator!=(const char* const lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief outputs the fixed string on stream
 ///
@@ -606,7 +606,7 @@ inline bool operator!=(const char* const lhs, const string<Capacity>& rhs);
 ///
 /// @return the stream output of the fixed string
 template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str);
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
 } // namespace cxx
 } // namespace iox
 #include "iceoryx_hoofs/internal/cxx/string.inl"

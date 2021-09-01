@@ -110,7 +110,7 @@ class Trigger
     Trigger& operator=(Trigger&& rhs) noexcept;
 
     /// @brief calls reset on destruction
-    ~Trigger();
+    ~Trigger() noexcept;
 
     /// @brief returns true if the Trigger is valid otherwise false
     ///        A trigger is valid when:

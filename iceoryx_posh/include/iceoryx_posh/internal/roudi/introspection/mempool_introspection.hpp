@@ -46,9 +46,9 @@ class MemPoolIntrospection
     /// @param[in] publisherPort is the publisher port for transmission of the introspection data
     MemPoolIntrospection(MemoryManager& rouDiInternalMemoryManager,
                          SegmentManager& segmentManager,
-                         PublisherPort&& publisherPort);
+                         PublisherPort&& publisherPort) noexcept;
 
-    ~MemPoolIntrospection();
+    ~MemPoolIntrospection() noexcept;
 
     // delete copy constructor and assignment operator
     MemPoolIntrospection(MemPoolIntrospection const&) = delete;

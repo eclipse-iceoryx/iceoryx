@@ -129,7 +129,7 @@ inline list<T, Capacity>& list<T, Capacity>::list::operator=(list&& rhs) noexcep
 
 
 template <typename T, uint64_t Capacity>
-inline list<T, Capacity>::~list()
+inline list<T, Capacity>::~list() noexcept
 {
     clear();
 }

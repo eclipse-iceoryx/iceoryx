@@ -29,7 +29,7 @@ namespace iox
 {
 namespace posix
 {
-MessageQueue::MessageQueue()
+MessageQueue::MessageQueue() noexcept
 {
     this->m_isInitialized = false;
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
@@ -38,7 +38,7 @@ MessageQueue::MessageQueue()
 MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const IpcChannelSide channelSide,
                            const size_t maxMsgSize,
-                           const uint64_t maxMsgNumber)
+                           const uint64_t maxMsgNumber) noexcept
     : m_channelSide(channelSide)
 {
     sanitizeIpcChannelName(name)
@@ -93,7 +93,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
     }
 }
 
-MessageQueue::MessageQueue(MessageQueue&& other)
+MessageQueue::MessageQueue(MessageQueue&& other) noexcept
 {
     *this = std::move(other);
 }
@@ -106,7 +106,7 @@ MessageQueue::~MessageQueue()
     }
 }
 
-MessageQueue& MessageQueue::operator=(MessageQueue&& other)
+MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
 {
     if (this != &other)
     {
@@ -127,7 +127,7 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name)
+cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
     IpcChannelName_t l_name;
     if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
@@ -145,7 +145,7 @@ cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChann
     return cxx::success<bool>(mqCall->errnum != ENOENT);
 }
 
-cxx::expected<IpcChannelError> MessageQueue::destroy()
+cxx::expected<IpcChannelError> MessageQueue::destroy() noexcept
 {
     if (m_mqDescriptor != INVALID_DESCRIPTOR)
     {
@@ -168,7 +168,7 @@ cxx::expected<IpcChannelError> MessageQueue::destroy()
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
+cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const noexcept
 {
     const size_t messageSize = static_cast<size_t>(msg.size()) + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<size_t>(m_attributes.mq_msgsize))
@@ -187,7 +187,7 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
     return cxx::success<void>();
 }
 
-cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
+cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
 {
     char message[MAX_MESSAGE_SIZE];
 
@@ -204,7 +204,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 }
 
 cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
-                                                           const IpcChannelSide channelSide)
+                                                           const IpcChannelSide channelSide) noexcept
 {
     IpcChannelName_t l_name;
     if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
@@ -236,7 +236,7 @@ cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_
     return cxx::success<int32_t>(mqCall->value);
 }
 
-cxx::expected<IpcChannelError> MessageQueue::close()
+cxx::expected<IpcChannelError> MessageQueue::close() noexcept
 {
     auto mqCall = posixCall(mq_close)(m_mqDescriptor).failureReturnValue(ERROR_CODE).evaluate();
 
@@ -248,7 +248,7 @@ cxx::expected<IpcChannelError> MessageQueue::close()
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> MessageQueue::unlink()
+cxx::expected<IpcChannelError> MessageQueue::unlink() noexcept
 {
     if (m_channelSide == IpcChannelSide::CLIENT)
     {
@@ -266,7 +266,7 @@ cxx::expected<IpcChannelError> MessageQueue::unlink()
     }
 }
 
-cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const
+cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const noexcept
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
     char message[MAX_MESSAGE_SIZE];
@@ -289,7 +289,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
     return cxx::success<std::string>(std::string(&(message[0])));
 }
 
-cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout) const
+cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout) const noexcept
 {
     const size_t messageSize = static_cast<size_t>(msg.size()) + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<size_t>(m_attributes.mq_msgsize))
@@ -319,7 +319,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
     return cxx::success<void>();
 }
 
-cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated()
+cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated() noexcept
 {
     struct stat sb;
     auto fstatCall = posixCall(fstat)(m_mqDescriptor, &sb).failureReturnValue(-1).evaluate();
@@ -330,12 +330,12 @@ cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated()
     return cxx::success<bool>(sb.st_nlink == 0);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t errnum) const
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t errnum) const noexcept
 {
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum)
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum) noexcept
 {
     switch (errnum)
     {

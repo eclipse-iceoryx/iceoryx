@@ -81,30 +81,30 @@ class RouDi
 
     RouDi(RouDiMemoryInterface& roudiMemoryInteface,
           PortManager& portManager,
-          RoudiStartupParameters roudiStartupParameters);
+          RoudiStartupParameters roudiStartupParameters) noexcept;
 
-    virtual ~RouDi();
+    virtual ~RouDi() noexcept;
 
   protected:
     /// @brief Starts the thread processing messages from the runtimes
     /// Once this is done, applications can register and Roudi is fully operational.
-    void startProcessRuntimeMessagesThread();
+    void startProcessRuntimeMessagesThread() noexcept;
 
     /// @brief Stops threads and kills all process known to RouDi
     /// Called in d'tor
     ///
     /// @note Intentionally not virtual to be able to call it in derived class
-    void shutdown();
+    void shutdown() noexcept;
     virtual void processMessage(const runtime::IpcMessage& message,
                                 const iox::runtime::IpcMessageType& cmd,
-                                const RuntimeName_t& runtimeName);
-    virtual void cyclicUpdateHook();
-    void IpcMessageErrorHandler();
+                                const RuntimeName_t& runtimeName) noexcept;
+    virtual void cyclicUpdateHook() noexcept;
+    void IpcMessageErrorHandler() noexcept;
 
     version::VersionInfo parseRegisterMessage(const runtime::IpcMessage& message,
                                               uint32_t& pid,
                                               uid_t& userId,
-                                              int64_t& transmissionTimestamp);
+                                              int64_t& transmissionTimestamp) noexcept;
 
     /// @brief Handles the registration request from process
     /// @param [in] name of the process which wants to register at roudi; this is equal to the IPC channel name
@@ -118,16 +118,16 @@ class RouDi
                          const posix::PosixUser user,
                          const int64_t transmissionTimestamp,
                          const uint64_t sessionId,
-                         const version::VersionInfo& versionInfo);
+                         const version::VersionInfo& versionInfo) noexcept;
 
     /// @brief Creates a unique ID which can be used to check outdated IPC channel transmissions
     /// @return a unique, monotonic and consecutive increasing number
-    static uint64_t getUniqueSessionIdForProcess();
+    static uint64_t getUniqueSessionIdForProcess() noexcept;
 
   private:
-    void processRuntimeMessages();
+    void processRuntimeMessages() noexcept;
 
-    void monitorAndDiscoveryUpdate();
+    void monitorAndDiscoveryUpdate() noexcept;
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;

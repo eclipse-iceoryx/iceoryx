@@ -40,12 +40,12 @@ class ServiceRegistry
     };
     using serviceMap_t = std::map<capro::IdString_t, instance_t>;
 
-    void add(const capro::IdString_t& service, const capro::IdString_t& instance);
-    void remove(const capro::IdString_t& service, const capro::IdString_t& instance);
+    void add(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
+    void remove(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
     void find(InstanceSet_t& instances,
               const capro::IdString_t& service,
-              const capro::IdString_t& instance = Wildcard) const;
-    const serviceMap_t& getServiceMap() const;
+              const capro::IdString_t& instance = Wildcard) const noexcept;
+    const serviceMap_t& getServiceMap() const noexcept;
 
   private:
     mutable serviceMap_t m_serviceMap;

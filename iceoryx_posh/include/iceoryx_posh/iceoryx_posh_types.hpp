@@ -172,13 +172,13 @@ inline constexpr const char* asStringLiteral(ConnectionState value) noexcept;
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline std::ostream& operator<<(std::ostream& stream, ConnectionState value);
+inline std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept;
 
 /// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline log::LogStream& operator<<(log::LogStream& stream, ConnectionState value);
+inline log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept;
 
 // Default properties of ChunkDistributorData
 struct DefaultChunkDistributorConfig
@@ -232,7 +232,7 @@ enum class MonitoringMode
     OFF
 };
 
-iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode);
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept;
 } // namespace roudi
 
 namespace mepoo

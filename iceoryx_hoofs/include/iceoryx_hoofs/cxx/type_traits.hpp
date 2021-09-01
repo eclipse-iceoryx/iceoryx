@@ -54,14 +54,14 @@ struct is_invocable
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
-    static constexpr std::true_type test(typename std::result_of<C(As...)>::type*)
+    static constexpr std::true_type test(typename std::result_of<C(As...)>::type*) noexcept
     {
         return {};
     }
 
     // This is chosen if Callable(ArgTypes) does not resolve to a valid type.
     template <typename C, typename... As>
-    static constexpr std::false_type test(...)
+    static constexpr std::false_type test(...) noexcept
     {
         return {};
     }
@@ -81,13 +81,13 @@ struct is_invocable_r
 {
     template <typename C, typename... As>
     static constexpr std::true_type
-    test(std::enable_if_t<std::is_convertible<typename std::result_of<C(As...)>::type, ReturnType>::value>*)
+    test(std::enable_if_t<std::is_convertible<typename std::result_of<C(As...)>::type, ReturnType>::value>*) noexcept
     {
         return {};
     }
 
     template <typename C, typename... As>
-    static constexpr std::false_type test(...)
+    static constexpr std::false_type test(...) noexcept
     {
         return {};
     }

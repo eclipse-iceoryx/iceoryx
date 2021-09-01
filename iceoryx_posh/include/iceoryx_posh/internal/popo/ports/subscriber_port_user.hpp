@@ -46,8 +46,8 @@ class SubscriberPortUser : public BasePort
 
     SubscriberPortUser(const SubscriberPortUser& other) = delete;
     SubscriberPortUser& operator=(const SubscriberPortUser&) = delete;
-    SubscriberPortUser(SubscriberPortUser&& rhs) = default;
-    SubscriberPortUser& operator=(SubscriberPortUser&& rhs) = default;
+    SubscriberPortUser(SubscriberPortUser&& rhs) noexcept = default;
+    SubscriberPortUser& operator=(SubscriberPortUser&& rhs) noexcept = default;
     ~SubscriberPortUser() = default;
 
     /// @brief try to subscribe to all matching publishers

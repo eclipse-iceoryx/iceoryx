@@ -78,7 +78,7 @@ struct NotificationCallback<OriginType, internal::NoType_t>
 /// @param[in] callback reference to a callback with the signature void(OriginType*)
 /// @return the callback stored inside of an NotificationCallback
 template <typename OriginType, typename ContextDataType = internal::NoType_t>
-NotificationCallback<OriginType, ContextDataType> createNotificationCallback(void (&callback)(OriginType* const));
+NotificationCallback<OriginType, ContextDataType> createNotificationCallback(void (&callback)(OriginType* const)) noexcept;
 
 /// @brief creates an NotificationCallback with a user defined value
 /// @param[in] callback reference to a callback with the signature void(OriginType*, ContextDataType*)
@@ -86,7 +86,7 @@ NotificationCallback<OriginType, ContextDataType> createNotificationCallback(voi
 /// @return the callback and user value stored inside of an NotificationCallback
 template <typename OriginType, typename ContextDataType>
 NotificationCallback<OriginType, ContextDataType>
-createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue);
+createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue) noexcept;
 
 } // namespace popo
 } // namespace iox

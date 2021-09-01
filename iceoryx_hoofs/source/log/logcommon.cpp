@@ -25,23 +25,23 @@ namespace iox
 {
 namespace log
 {
-LogMode operator|(LogMode lhs, LogMode rhs)
+LogMode operator|(LogMode lhs, LogMode rhs) noexcept
 {
     return static_cast<LogMode>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
-LogMode& operator|=(LogMode& lhs, LogMode rhs)
+LogMode& operator|=(LogMode& lhs, LogMode rhs) noexcept
 {
     lhs = static_cast<LogMode>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
     return lhs;
 }
 
-LogMode operator&(LogMode lhs, LogMode rhs)
+LogMode operator&(LogMode lhs, LogMode rhs) noexcept
 {
     return static_cast<LogMode>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
 
-LogMode& operator&=(LogMode& lhs, LogMode rhs)
+LogMode& operator&=(LogMode& lhs, LogMode rhs) noexcept
 {
     lhs = static_cast<LogMode>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
     return lhs;

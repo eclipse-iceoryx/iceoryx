@@ -32,13 +32,13 @@ constexpr unsigned int TS_DIVIDER_msec = (TS_DIVIDER_sec / 1000);
 /// @param[in] time period  time base
 /// @param[in] timeToAdd_ms period in time [ms] to be added
 /// @return sum of the two inputs [timespec]
-struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms);
+struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms) noexcept;
 
 /// @brief subtract subtrahend from minuend
 /// @param[in] minuend [timespec]
 /// @param[in] subtrahend [timespec]
 /// @return result [ms]
-double subtractTimespecMS(const struct timespec minuend, const struct timespec subtrahend);
+double subtractTimespecMS(const struct timespec minuend, const struct timespec subtrahend) noexcept;
 
 } // namespace posix
 } // namespace iox

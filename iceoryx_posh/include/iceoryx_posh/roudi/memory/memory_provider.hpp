@@ -140,7 +140,7 @@ class MemoryProvider
     /// @return a MemoryProviderError if the destruction failed, otherwise success
     virtual cxx::expected<MemoryProviderError> destroyMemory() noexcept = 0;
 
-    static const char* getErrorString(const MemoryProviderError error);
+    static const char* getErrorString(const MemoryProviderError error) noexcept;
 
   private:
     void* m_memory{nullptr};

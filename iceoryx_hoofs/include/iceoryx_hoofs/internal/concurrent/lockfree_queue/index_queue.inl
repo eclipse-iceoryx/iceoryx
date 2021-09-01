@@ -319,7 +319,7 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index
-IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::memory_order memoryOrder) const
+IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::memory_order memoryOrder) const noexcept
 {
     return m_cells[position.getIndex()].load(memoryOrder);
 }

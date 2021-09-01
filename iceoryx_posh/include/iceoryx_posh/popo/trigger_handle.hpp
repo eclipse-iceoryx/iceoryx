@@ -37,7 +37,7 @@ namespace popo
 class TriggerHandle
 {
   public:
-    TriggerHandle() = default;
+    TriggerHandle() noexcept = default;
 
     /// @brief Creates a TriggerHandle
     /// @param[in] conditionVariableDataRef reference to a condition variable data struct
@@ -52,7 +52,7 @@ class TriggerHandle
 
     TriggerHandle(TriggerHandle&& rhs) noexcept;
     TriggerHandle& operator=(TriggerHandle&& rhs) noexcept;
-    ~TriggerHandle();
+    ~TriggerHandle() noexcept;
 
     /// @brief returns true if the TriggerHandle is valid otherwise false. A TriggerHandle is valid if
     /// m_conditionVariableDataPtr != nullptr.

@@ -20,12 +20,12 @@ namespace iox
 {
 namespace config
 {
-RouDiConfig& RouDiConfig::setDefaults()
+RouDiConfig& RouDiConfig::setDefaults() noexcept
 {
     return *this;
 }
 
-RouDiConfig& RouDiConfig::optimize()
+RouDiConfig& RouDiConfig::optimize() noexcept
 {
     return *this;
 }

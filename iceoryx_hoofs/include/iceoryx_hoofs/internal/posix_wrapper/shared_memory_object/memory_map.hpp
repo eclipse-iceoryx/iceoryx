@@ -55,7 +55,7 @@ class MemoryMap : public DesignPattern::Creation<MemoryMap, MemoryMapError>
     MemoryMap(MemoryMap&& rhs) noexcept;
     MemoryMap& operator=(MemoryMap&& rhs) noexcept;
 
-    ~MemoryMap();
+    ~MemoryMap() noexcept;
     void* getBaseAddress() const noexcept;
 
     friend class DesignPattern::Creation<MemoryMap, MemoryMapError>;

@@ -38,7 +38,7 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
             Error::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
     });
 }
-mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const
+mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const noexcept
 {
     constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
     // have some spare chunks to still deliver introspection data in case there are multiple subscriber to the data

@@ -33,7 +33,7 @@ class SubscriberImpl : public BaseSubscriber_t
 
   public:
     SubscriberImpl(const capro::ServiceDescription& service,
-                   const SubscriberOptions& subscriberOptions = SubscriberOptions());
+                   const SubscriberOptions& subscriberOptions = SubscriberOptions()) noexcept;
     SubscriberImpl(const SubscriberImpl& other) = delete;
     SubscriberImpl& operator=(const SubscriberImpl&) = delete;
     SubscriberImpl(SubscriberImpl&& rhs) = delete;

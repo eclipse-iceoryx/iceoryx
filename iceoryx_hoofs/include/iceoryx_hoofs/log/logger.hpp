@@ -40,8 +40,8 @@ class Logger
     friend class LogStream;
 
   public:
-    Logger(Logger&& other);
-    Logger& operator=(Logger&& rhs);
+    Logger(Logger&& other) noexcept;
+    Logger& operator=(Logger&& rhs) noexcept;
 
     Logger(const Logger& other) = delete;
     Logger& operator=(const Logger& rhs) = delete;
@@ -71,13 +71,13 @@ class Logger
     LogStream LogVerbose() noexcept;
 
   protected:
-    Logger(std::string ctxId, std::string ctxDescription, LogLevel appLogLevel);
+    Logger(std::string ctxId, std::string ctxDescription, LogLevel appLogLevel) noexcept;
 
     // virtual because of Logger_Mock
-    virtual void Log(const LogEntry& entry) const;
+    virtual void Log(const LogEntry& entry) const noexcept;
 
   private:
-    void Print(const LogEntry entry) const;
+    void Print(const LogEntry entry) const noexcept;
 
     std::atomic<LogLevel> m_logLevel{LogLevel::kVerbose};
     std::atomic<LogLevel> m_logLevelPredecessor{LogLevel::kVerbose};

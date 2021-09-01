@@ -20,7 +20,7 @@ namespace iox
 {
 namespace mepoo
 {
-MemoryInfo::MemoryInfo(uint32_t deviceId, uint32_t memoryType)
+MemoryInfo::MemoryInfo(uint32_t deviceId, uint32_t memoryType) noexcept
     : deviceId(deviceId)
     , memoryType(memoryType)
 {

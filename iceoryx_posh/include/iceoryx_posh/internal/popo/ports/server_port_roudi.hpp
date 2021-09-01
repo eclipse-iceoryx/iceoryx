@@ -40,8 +40,8 @@ class ServerPortRouDi : public BasePort
 
     ServerPortRouDi(const ServerPortRouDi& other) = delete;
     ServerPortRouDi& operator=(const ServerPortRouDi&) = delete;
-    ServerPortRouDi(ServerPortRouDi&& rhs) = default;
-    ServerPortRouDi& operator=(ServerPortRouDi&& rhs) = default;
+    ServerPortRouDi(ServerPortRouDi&& rhs) noexcept = default;
+    ServerPortRouDi& operator=(ServerPortRouDi&& rhs) noexcept = default;
     ~ServerPortRouDi() = default;
 
     /// @brief get an optional CaPro message that changes the offer state of the server

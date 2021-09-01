@@ -28,7 +28,7 @@ namespace runtime
 {
 SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
-                                   const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset)
+                                   const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     // create and map the already existing shared memory region
     posix::SharedMemoryObject::create(roudi::SHM_NAME,

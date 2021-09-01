@@ -44,9 +44,9 @@ class RpcBaseHeader
 
     RpcBaseHeader(const RpcBaseHeader& other) = delete;
     RpcBaseHeader& operator=(const RpcBaseHeader&) = delete;
-    RpcBaseHeader(RpcBaseHeader&& rhs) = default;
-    RpcBaseHeader& operator=(RpcBaseHeader&& rhs) = default;
-    ~RpcBaseHeader() = default;
+    RpcBaseHeader(RpcBaseHeader&& rhs) noexcept = default;
+    RpcBaseHeader& operator=(RpcBaseHeader&& rhs) noexcept = default;
+    ~RpcBaseHeader() noexcept = default;
 
     /// @brief From the 2.0 release onward, this must be incremented for each incompatible change, e.g.
     ///            - data width of members changes
@@ -104,9 +104,9 @@ class RequestHeader : public RpcBaseHeader
 
     RequestHeader(const RequestHeader& other) = delete;
     RequestHeader& operator=(const RequestHeader&) = delete;
-    RequestHeader(RequestHeader&& rhs) = default;
-    RequestHeader& operator=(RequestHeader&& rhs) = default;
-    ~RequestHeader() = default;
+    RequestHeader(RequestHeader&& rhs) noexcept = default;
+    RequestHeader& operator=(RequestHeader&& rhs) noexcept = default;
+    ~RequestHeader() noexcept = default;
 
     /// @brief Sets the sequence ID which is used to match a response to a request
     /// @param[in] sequenceId is a consecutive number set by the user
@@ -141,9 +141,9 @@ class ResponseHeader : public RpcBaseHeader
 
     ResponseHeader(const ResponseHeader& other) = delete;
     ResponseHeader& operator=(const ResponseHeader&) = delete;
-    ResponseHeader(ResponseHeader&& rhs) = default;
-    ResponseHeader& operator=(ResponseHeader&& rhs) = default;
-    ~ResponseHeader() = default;
+    ResponseHeader(ResponseHeader&& rhs) noexcept = default;
+    ResponseHeader& operator=(ResponseHeader&& rhs) noexcept = default;
+    ~ResponseHeader() noexcept = default;
 
     /// @brief Sets the server error flag
     void setServerError() noexcept;

@@ -40,7 +40,7 @@ class LockFreeQueue
     /// @brief creates and initalizes an empty LockFreeQueue
     LockFreeQueue() noexcept;
 
-    ~LockFreeQueue() = default;
+    ~LockFreeQueue() noexcept = default;
 
     // remark: a thread-safe and lockfree implementation of copy seems impossible
     // but unsafe copying (i.e. where synchronization is up to the user) would be possible
@@ -118,13 +118,13 @@ class LockFreeQueue
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)
     template <typename T>
-    void writeBufferAt(const BufferIndex&, T&&);
+    void writeBufferAt(const BufferIndex&, T&&) noexcept;
 
     // needed to avoid code duplication (via universal reference type deduction)
     template <typename T>
     iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
 
-    cxx::optional<ElementType> readBufferAt(const BufferIndex&);
+    cxx::optional<ElementType> readBufferAt(const BufferIndex&) noexcept;
 };
 } // namespace concurrent
 } // namespace iox

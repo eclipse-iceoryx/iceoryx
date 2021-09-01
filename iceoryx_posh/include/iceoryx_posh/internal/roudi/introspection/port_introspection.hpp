@@ -69,7 +69,7 @@ class PortIntrospection
             {
             }
 
-            PublisherInfo(typename PublisherPort::MemberType_t& portData)
+            PublisherInfo(typename PublisherPort::MemberType_t& portData) noexcept
                 : portData(&portData)
                 , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
@@ -96,7 +96,7 @@ class PortIntrospection
         {
             SubscriberInfo() noexcept = default;
 
-            SubscriberInfo(typename SubscriberPort::MemberType_t& portData)
+            SubscriberInfo(typename SubscriberPort::MemberType_t& portData) noexcept
                 : portData(&portData)
                 , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
@@ -114,7 +114,7 @@ class PortIntrospection
         {
             ConnectionInfo() noexcept = default;
 
-            ConnectionInfo(typename SubscriberPort::MemberType_t& portData)
+            ConnectionInfo(typename SubscriberPort::MemberType_t& portData) noexcept
                 : subscriberInfo(portData)
                 , state(ConnectionState::DEFAULT)
             {
@@ -142,24 +142,24 @@ class PortIntrospection
         /// @brief add a publisher port to be tracked by introspection
         /// @param[in] port to be added
         /// @return returns false if the port could not be added and true otherwise
-        bool addPublisher(typename PublisherPort::MemberType_t& port);
+        bool addPublisher(typename PublisherPort::MemberType_t& port) noexcept;
 
         /// @brief add a subscriber port to be tracked by introspection
         /// @param[in] portData to be added
         /// @return returns false if the port could not be added and true otherwise
-        bool addSubscriber(typename SubscriberPort::MemberType_t& portData);
+        bool addSubscriber(typename SubscriberPort::MemberType_t& portData) noexcept;
 
         /// @brief remove a publisher port from introspection
         /// @param[in] port publisher port to be removed
         /// @return returns false if the port could not be removed (since it did not exist)
         ///              and true otherwise
-        bool removePublisher(const PublisherPort& port);
+        bool removePublisher(const PublisherPort& port) noexcept;
 
         /// @brief remove a subscriber port from introspection
         /// @param[in] port subscriber port to be removed
         /// @return returns false if the port could not be removed (since it did not exist)
         ///              and true otherwise
-        bool removeSubscriber(const SubscriberPort& port);
+        bool removeSubscriber(const SubscriberPort& port) noexcept;
 
         /// @brief update the state of any connection identified by the capro id of a given message
         ///        according to the message type (e.g. capro::SUB for a subscription request)
@@ -175,7 +175,7 @@ class PortIntrospection
         /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
         /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
         /// which are subscribed to the same topic
-        bool updateSubscriberConnectionState(const capro::CaproMessage& message, const UniquePortId& id);
+        bool updateSubscriberConnectionState(const capro::CaproMessage& message, const UniquePortId& id) noexcept;
 
         /// @brief prepare the topic to be send based on the internal connection state of all tracked ports
         /// @param[out] topic data structure to be prepared for sending
@@ -250,24 +250,24 @@ class PortIntrospection
     /// @brief add a publisher port to be tracked by introspection
     /// @param[in] port to be added
     /// @return returns false if the port could not be added and true otherwise
-    bool addPublisher(typename PublisherPort::MemberType_t& port);
+    bool addPublisher(typename PublisherPort::MemberType_t& port) noexcept;
 
     /// @brief add a subscriber port to be tracked by introspection
     /// @param[in] port to be added
     /// @return returns false if the port could not be added and true otherwise
-    bool addSubscriber(typename SubscriberPort::MemberType_t& port);
+    bool addSubscriber(typename SubscriberPort::MemberType_t& port) noexcept;
 
     /// @brief remove a publisher port from introspection
     /// @param[in] port publisher port to be removed
     /// @return returns false if the port could not be removed (since it did not exist)
     ///              and true otherwise
-    bool removePublisher(const PublisherPort& port);
+    bool removePublisher(const PublisherPort& port) noexcept;
 
     /// @brief remove a subscriber port from introspection
     /// @param[in] port subscriber port to be removed
     /// @return returns false if the port could not be removed (since it did not exist)
     ///              and true otherwise
-    bool removeSubscriber(const SubscriberPort& port);
+    bool removeSubscriber(const SubscriberPort& port) noexcept;
 
     /// @brief report a capro message to introspection (since this could change the state of active connections)
     /// @param[in] message capro message to be processed
@@ -279,7 +279,7 @@ class PortIntrospection
     /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
     /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
     /// which are subscribed to the same topic
-    void reportMessage(const capro::CaproMessage& message, const UniquePortId& id);
+    void reportMessage(const capro::CaproMessage& message, const UniquePortId& id) noexcept;
 
     /// @brief register publisher port used to send introspection
     /// @param[in] publisherPort publisher port to be registered

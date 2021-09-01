@@ -28,7 +28,7 @@ namespace iox
 {
 namespace log
 {
-LogStream::LogStream(Logger& logger, LogLevel logLevel)
+LogStream::LogStream(Logger& logger, LogLevel logLevel) noexcept
     : m_logger(logger)
 {
     m_logEntry.level = logLevel;
@@ -42,7 +42,7 @@ LogStream::~LogStream()
     Flush();
 }
 
-void LogStream::Flush()
+void LogStream::Flush() noexcept
 {
     /// @todo do we want to send the log to the logger even if the loglevel is lower than the global log level?
     if (!m_flushed)

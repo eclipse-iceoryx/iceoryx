@@ -34,7 +34,7 @@ class SharedPointer;
 class SharedChunk
 {
   public:
-    SharedChunk() = default;
+    SharedChunk() noexcept = default;
     SharedChunk(ChunkManagement* const resource) noexcept;
     ~SharedChunk() noexcept;
 

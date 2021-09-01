@@ -48,8 +48,8 @@ class ClientPortUser : public BasePort
 
     ClientPortUser(const ClientPortUser& other) = delete;
     ClientPortUser& operator=(const ClientPortUser&) = delete;
-    ClientPortUser(ClientPortUser&& rhs) = default;
-    ClientPortUser& operator=(ClientPortUser&& rhs) = default;
+    ClientPortUser(ClientPortUser&& rhs) noexcept = default;
+    ClientPortUser& operator=(ClientPortUser&& rhs) noexcept = default;
     ~ClientPortUser() = default;
 
     /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the ClientPortUser for being able to

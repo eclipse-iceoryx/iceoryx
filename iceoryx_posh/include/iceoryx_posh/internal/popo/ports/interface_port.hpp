@@ -31,8 +31,8 @@ class InterfacePort : public BasePort
 
     InterfacePort(const InterfacePort& other) = delete;
     InterfacePort& operator=(const InterfacePort& other) = delete;
-    InterfacePort(InterfacePort&& other) = default;
-    InterfacePort& operator=(InterfacePort&& other) = default;
+    InterfacePort(InterfacePort&& other) noexcept = default;
+    InterfacePort& operator=(InterfacePort&& other) noexcept = default;
     ~InterfacePort() = default;
 
     /// @brief get an optional CaPro message for the interface port to process

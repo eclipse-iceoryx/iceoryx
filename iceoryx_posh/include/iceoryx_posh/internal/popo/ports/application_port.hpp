@@ -32,8 +32,8 @@ class ApplicationPort : public BasePort
 
     ApplicationPort(const ApplicationPort& other) = delete;
     ApplicationPort& operator=(const ApplicationPort& other) = delete;
-    ApplicationPort(ApplicationPort&& other) = default;
-    ApplicationPort& operator=(ApplicationPort&& other) = default;
+    ApplicationPort(ApplicationPort&& other) noexcept = default;
+    ApplicationPort& operator=(ApplicationPort&& other) noexcept = default;
     ~ApplicationPort() = default;
 
 

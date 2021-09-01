@@ -21,13 +21,13 @@
 #include <regex>
 
 iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
-iox::config::TomlGatewayConfigParser::parse()
+iox::config::TomlGatewayConfigParser::parse() noexcept
 {
     return iox::config::TomlGatewayConfigParser::parse(DEFAULT_CONFIG_FILE_PATH);
 }
 
 iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
-iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t& path)
+iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t& path) noexcept
 {
     iox::config::GatewayConfig config;
 

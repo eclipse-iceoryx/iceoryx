@@ -41,10 +41,10 @@ struct PortConfigInfo
     uint32_t portType{DEFAULT_PORT_TYPE};
     iox::mepoo::MemoryInfo memoryInfo;
 
-    PortConfigInfo(const PortConfigInfo&) = default;
-    PortConfigInfo(PortConfigInfo&&) = default;
-    PortConfigInfo& operator=(const PortConfigInfo&) = default;
-    PortConfigInfo& operator=(PortConfigInfo&&) = default;
+    PortConfigInfo(const PortConfigInfo&) noexcept = default;
+    PortConfigInfo(PortConfigInfo&&) noexcept = default;
+    PortConfigInfo& operator=(const PortConfigInfo&) noexcept = default;
+    PortConfigInfo& operator=(PortConfigInfo&&) noexcept = default;
 
     /// @brief creates a PortConfigInfo object
     /// @param[in] portType specifies the type of port to be created
@@ -56,7 +56,7 @@ struct PortConfigInfo
 
     /// @brief creates a PortConfigInfo object from its serialization
     /// @param[in] serialization specifies the serialization from which the port is created
-    PortConfigInfo(const cxx::Serialization& serialization);
+    PortConfigInfo(const cxx::Serialization& serialization) noexcept;
 
     /// @brief creates a serilaization of the PortConfigInfo
     operator cxx::Serialization() const noexcept;

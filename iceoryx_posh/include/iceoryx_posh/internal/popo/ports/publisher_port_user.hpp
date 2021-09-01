@@ -44,8 +44,8 @@ class PublisherPortUser : public BasePort
 
     PublisherPortUser(const PublisherPortUser& other) = delete;
     PublisherPortUser& operator=(const PublisherPortUser&) = delete;
-    PublisherPortUser(PublisherPortUser&& rhs) = default;
-    PublisherPortUser& operator=(PublisherPortUser&& rhs) = default;
+    PublisherPortUser(PublisherPortUser&& rhs) noexcept = default;
+    PublisherPortUser& operator=(PublisherPortUser&& rhs) noexcept = default;
     ~PublisherPortUser() = default;
 
     /// @brief Allocate a chunk, the ownership of the SharedChunk remains in the PublisherPortUser for being able to

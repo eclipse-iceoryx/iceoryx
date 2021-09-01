@@ -37,8 +37,8 @@ class SubscriberPortMultiProducer : public SubscriberPortRouDi
 
     SubscriberPortMultiProducer(const SubscriberPortMultiProducer& other) = delete;
     SubscriberPortMultiProducer& operator=(const SubscriberPortMultiProducer&) = delete;
-    SubscriberPortMultiProducer(SubscriberPortMultiProducer&& rhs) = default;
-    SubscriberPortMultiProducer& operator=(SubscriberPortMultiProducer&& rhs) = default;
+    SubscriberPortMultiProducer(SubscriberPortMultiProducer&& rhs) noexcept = default;
+    SubscriberPortMultiProducer& operator=(SubscriberPortMultiProducer&& rhs) noexcept = default;
     ~SubscriberPortMultiProducer() = default;
 
     /// @brief get an optional CaPro message that changes the subscription state of the subscriber

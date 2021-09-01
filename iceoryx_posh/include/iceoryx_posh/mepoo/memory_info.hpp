@@ -37,15 +37,15 @@ struct MemoryInfo
     uint32_t deviceId{DEFAULT_DEVICE_ID};
     uint32_t memoryType{DEFAULT_MEMORY_TYPE};
 
-    MemoryInfo(const MemoryInfo&) = default;
-    MemoryInfo(MemoryInfo&&) = default;
-    MemoryInfo& operator=(const MemoryInfo&) = default;
-    MemoryInfo& operator=(MemoryInfo&&) = default;
+    MemoryInfo(const MemoryInfo&) noexcept = default;
+    MemoryInfo(MemoryInfo&&) noexcept = default;
+    MemoryInfo& operator=(const MemoryInfo&) noexcept = default;
+    MemoryInfo& operator=(MemoryInfo&&) noexcept = default;
 
     /// @brief creates a MemoryInfo object
     /// @param[in] deviceId specifies the device where the memory is located
     /// @param[in] memoryType encodes additional information about the memory
-    MemoryInfo(uint32_t deviceId = DEFAULT_DEVICE_ID, uint32_t memoryType = DEFAULT_MEMORY_TYPE);
+    MemoryInfo(uint32_t deviceId = DEFAULT_DEVICE_ID, uint32_t memoryType = DEFAULT_MEMORY_TYPE) noexcept;
 };
 } // namespace mepoo
 } // namespace iox
