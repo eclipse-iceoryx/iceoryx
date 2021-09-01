@@ -182,7 +182,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
 
     ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
 
-    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INVALID));
+    EXPECT_FALSE(serviceDescription1.isValid());
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
@@ -209,10 +209,9 @@ TEST_F(ServiceDescription_test,
 
     ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
 
-    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
+    EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-/// @todo remove
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
 {
     ServiceDescription serviceDescription1 = ServiceDescription();
@@ -433,7 +432,6 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
     EXPECT_FALSE(serviceDescription1 < serviceDescription2);
 }
 
-/// @todo add new tests for service description?
 
 /// END SERVICEDESCRIPTION TESTS
 

@@ -73,26 +73,41 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcep
 {
     std::underlying_type<Scope>::type scope = 0;
     std::underlying_type<Interfaces>::type interfaceSource = 0;
-    serial.extract(m_serviceString,
-                   m_instanceString,
-                   m_eventString,
-                   m_classHash[0u],
-                   m_classHash[1u],
-                   m_classHash[2u],
-                   m_classHash[3u],
-                   scope,
-                   interfaceSource);
+    auto deserializationSuccessful = serial.extract(m_serviceString,
+                                                    m_instanceString,
+                                                    m_eventString,
+                                                    m_classHash[0u],
+                                                    m_classHash[1u],
+                                                    m_classHash[2u],
+                                                    m_classHash[3u],
+                                                    scope,
+                                                    interfaceSource);
+    if (!deserializationSuccessful)
+    {
+        m_serviceString = iox::capro::InvalidIdString;
+        m_instanceString = iox::capro::InvalidIdString;
+        m_eventString = iox::capro::InvalidIdString;
+        return;
+    }
+
     if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
     {
-        m_scope = Scope::INVALID;
+        m_serviceString = iox::capro::InvalidIdString;
+        m_instanceString = iox::capro::InvalidIdString;
+        m_eventString = iox::capro::InvalidIdString;
+        return;
     }
     else
     {
         m_scope = static_cast<Scope>(scope);
     }
+
     if (interfaceSource > static_cast<std::underlying_type<Interfaces>::type>(Interfaces::INTERFACE_END))
     {
-        m_interfaceSource = Interfaces::INTERFACE_END;
+        m_serviceString = iox::capro::InvalidIdString;
+        m_instanceString = iox::capro::InvalidIdString;
+        m_eventString = iox::capro::InvalidIdString;
+        return;
     }
     else
     {
