@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +26,9 @@ class MockGatewayBase
   public:
     MockGatewayBase(const iox::capro::Interfaces){};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
+
+  protected:
+    MOCK_METHOD0(getInterface, iox::capro::Interfaces());
 };
 
 #endif // IOX_POSH_MOCKS_GATEWAY_BASE_HPP

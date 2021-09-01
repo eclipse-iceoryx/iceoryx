@@ -28,12 +28,6 @@ if(NOT N EQUAL 0)
     endif()
 endif()
 
-if(WIN32)
-    set(CREATE_PATH_COMMAND mkdir)
-else()
-    set(CREATE_PATH_COMMAND mkdir -p)
-endif(WIN32)
-
 if(DEFINED CMAKE_TOOLCHAIN_FILE)
     set(TOOLCHAIN_FILE "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 endif()
@@ -67,12 +61,7 @@ function(fetch_and_install name)
     endif()
 
     # Build
-    execute_process(COMMAND ${CREATE_PATH_COMMAND} "${BUILD_DIR}"
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-    if(result)
-        message(FATAL_ERROR "CMake step [create build dir] for ${name} failed: ${result}")
-    endif()
+    file(MAKE_DIRECTORY "${BUILD_DIR}")
 
     # Parse additional CMake flags
     set(ADDITIONAL_CMAKE_FLAGS "")

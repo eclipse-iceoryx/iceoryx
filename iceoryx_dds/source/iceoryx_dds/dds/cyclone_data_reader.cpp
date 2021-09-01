@@ -45,6 +45,17 @@ void iox::dds::CycloneDataReader::connect() noexcept
         auto subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
 
         auto qos = ::dds::sub::qos::DataReaderQos();
+
+        /// Is required for the Gateway. When two iceoryx publisher are publishing on the same
+        /// topic and one publisher is located on a remote iceoryx instance connected via a
+        /// bidirectional dds gateway (iceoryx2dds & dds2iceoryx) then every sample is delivered
+        /// twice to the local subscriber.
+        /// Once via the local iceoryx publisher and once via dds2iceoryx which received the
+        /// sample from the iceoryx2dds gateway. But when we ignore the local dds writer the
+        /// sample is not forwarded to the local dds gateway and delivered a second time.
+        auto* cqos = qos.delegate().ddsc_qos();
+        dds_qset_ignorelocal(cqos, DDS_IGNORELOCAL_PROCESS);
+        qos.delegate().ddsc_qos(cqos);
         qos << ::dds::core::policy::History::KeepAll();
 
         m_impl = ::dds::sub::DataReader<Mempool::Chunk>(subscriber, topic, qos);
@@ -52,6 +63,7 @@ void iox::dds::CycloneDataReader::connect() noexcept
         LogDebug() << "[CycloneDataReader] Connected to topic: " << topicString;
 
         m_isConnected.store(true, std::memory_order_relaxed);
+        free(cqos);
     }
 }
 

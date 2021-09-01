@@ -155,13 +155,11 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         m_portIntrospection.reportMessage(caproMessage);
         if (capro::CaproMessageType::OFFER == caproMessage.m_type)
         {
-            this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                            caproMessage.m_serviceDescription.getInstanceIDString());
+            this->addEntryToServiceRegistry(caproMessage.m_serviceDescription);
         }
         else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
         {
-            this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                                 caproMessage.m_serviceDescription.getInstanceIDString());
+            this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
         }
         else
         {
@@ -268,21 +266,19 @@ void PortManager::handleInterfaces() noexcept
             }
         }
         // also forward services from service registry
-        auto serviceMap = m_serviceRegistry.getServiceMap();
+        /// @todo #415 do we still need this? yes but return a copy here to be stored in shared memory via new
+        /// StatusPort's
+        auto serviceVector = m_serviceRegistry.getServices();
 
         caproMessage.m_subType = capro::CaproMessageSubType::SERVICE;
 
-        for (auto const& x : serviceMap)
+        for (auto const& element : serviceVector)
         {
-            for (auto& instance : x.second.instanceSet)
-            {
-                caproMessage.m_serviceDescription = capro::ServiceDescription(x.first, instance, roudi::Wildcard);
+            caproMessage.m_serviceDescription = element.serviceDescription;
 
-                for (auto& interfacePortData : interfacePortsForInitialForwarding)
-                {
-                    auto interfacePort = popo::InterfacePort(interfacePortData);
-                    interfacePort.dispatchCaProMessage(caproMessage);
-                }
+            for (auto& interfacePortData : interfacePortsForInitialForwarding)
+            {
+                popo::InterfacePort(interfacePortData).dispatchCaProMessage(caproMessage);
             }
         }
     }
@@ -306,14 +302,12 @@ void PortManager::handleApplications() noexcept
             {
             case capro::CaproMessageType::OFFER:
             {
-                addEntryToServiceRegistry(serviceDescription.getServiceIDString(),
-                                          serviceDescription.getInstanceIDString());
+                addEntryToServiceRegistry(caproMessage.m_serviceDescription);
                 break;
             }
             case capro::CaproMessageType::STOP_OFFER:
             {
-                removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
-                                               serviceDescription.getInstanceIDString());
+                removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
                 break;
             }
             default:
@@ -371,6 +365,17 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
+
+        auto messageInterface = message.m_serviceDescription.getSourceInterface();
+        auto publisherInterface = publisherPort.getCaProServiceDescription().getSourceInterface();
+
+        // internal publisher receive all messages all other publishers receive only messages if
+        // they do not have the same interface otherwise we have cyclic connections in gateways
+        if (publisherInterface != capro::Interfaces::INTERNAL && publisherInterface == messageInterface)
+        {
+            break;
+        }
+
         if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription()
             && !(publisherPort.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
                  && subscriberSource.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
@@ -400,6 +405,17 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
     for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortType subscriberPort(subscriberPortData);
+
+        auto messageInterface = message.m_serviceDescription.getSourceInterface();
+        auto subscriberInterface = subscriberPort.getCaProServiceDescription().getSourceInterface();
+
+        // internal subscriber receive all messages all other subscribers receive only messages if
+        // they do not have the same interface otherwise we have cyclic connections in gateways
+        if (subscriberInterface != capro::Interfaces::INTERNAL && subscriberInterface == messageInterface)
+        {
+            break;
+        }
+
         if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription()
             && !(publisherSource.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
                  && subscriberPort.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
@@ -550,8 +566,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
 
         m_portIntrospection.reportMessage(caproMessage);
-        this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                             caproMessage.m_serviceDescription.getInstanceIDString());
+        this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
@@ -600,17 +615,16 @@ runtime::IpcMessage PortManager::findService(const capro::IdString_t& service,
         interfacePort.dispatchCaProMessage(caproMessage);
     }
 
-    // add all found instances to instanceString
-    runtime::IpcMessage instanceMessage;
+    runtime::IpcMessage response;
 
-    ServiceRegistry::InstanceSet_t instances;
-    m_serviceRegistry.find(instances, service, instance);
-    for (auto& instance : instances)
+    ServiceRegistry::ServiceDescriptionVector_t searchResult;
+    m_serviceRegistry.find(searchResult, service, instance);
+    for (auto& service : searchResult)
     {
-        instanceMessage << instance;
+        response << static_cast<cxx::Serialization>(service.serviceDescription).toString();
     }
 
-    return instanceMessage;
+    return response;
 }
 
 const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcept
@@ -721,17 +735,18 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Runtime
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service,
-                                            const capro::IdString_t& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.add(service, instance);
+    m_serviceRegistry.add(service).or_else([&](auto&) {
+        LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
+        errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
+    });
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& service,
-                                                 const capro::IdString_t& instance) noexcept
+void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.remove(service, instance);
+    m_serviceRegistry.remove(service);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 

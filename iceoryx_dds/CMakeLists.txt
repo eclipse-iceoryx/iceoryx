@@ -124,33 +124,21 @@ endif()
 target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
-########## build gateway apps ##########
+########## build gateway app ##########
 #
-add_executable(iox-gw-iceoryx2dds
-    source/iceoryx2dds_app/main.cpp
+add_executable(iox-dds-gateway
+    source/gateway/main.cpp
 )
-target_link_libraries(iox-gw-iceoryx2dds
+target_link_libraries(iox-dds-gateway
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_gateway
     iceoryx_posh::iceoryx_posh_config
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
-target_compile_options(iox-gw-iceoryx2dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-dds-gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-gw-dds2iceoryx
-    source/dds2iceoryx_app/main.cpp
-)
-target_link_libraries(iox-gw-dds2iceoryx
-    iceoryx_posh::iceoryx_posh
-    iceoryx_posh::iceoryx_posh_gateway
-    iceoryx_posh::iceoryx_posh_config
-    ${PROJECT_NAMESPACE}::iceoryx_dds
-)
-
-target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-gw-iceoryx2dds iox-gw-dds2iceoryx iceoryx_dds
+set_target_properties(iox-dds-gateway iceoryx_dds
   PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -167,7 +155,7 @@ endif()
 ########## export library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_dds iox-gw-iceoryx2dds iox-gw-dds2iceoryx
+    TARGETS iceoryx_dds iox-dds-gateway
     INCLUDE_DIRECTORY include/
 )
 

@@ -31,7 +31,7 @@ $(clang --version)"
 
 msg "building and installing dependencies"
 # tinfo library which is required by iceoryx_introspection isn't available in mac
-brew install ncurses
+brew install ncurses wget
 mkdir -p bison_build
 cd bison_build
 wget https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.gz
