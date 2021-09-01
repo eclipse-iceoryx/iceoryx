@@ -73,7 +73,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     }
 }
 
-RouDi::~RouDi()
+RouDi::~RouDi() noexcept
 {
     shutdown();
 }

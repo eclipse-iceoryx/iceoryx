@@ -50,7 +50,7 @@ mutex::mutex(bool f_isRecursive) noexcept
     cxx::Ensures(isInitialized && "Unable to create mutex");
 }
 
-mutex::~mutex()
+mutex::~mutex() noexcept
 {
     auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).successReturnValue(0).evaluate();
 

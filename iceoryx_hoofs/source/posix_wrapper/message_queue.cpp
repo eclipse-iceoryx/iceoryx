@@ -98,7 +98,7 @@ MessageQueue::MessageQueue(MessageQueue&& other) noexcept
     *this = std::move(other);
 }
 
-MessageQueue::~MessageQueue()
+MessageQueue::~MessageQueue() noexcept
 {
     if (destroy().has_error())
     {

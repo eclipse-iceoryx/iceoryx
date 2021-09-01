@@ -37,7 +37,7 @@ LogStream::LogStream(Logger& logger, LogLevel logLevel) noexcept
     m_logEntry.time = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch());
 }
 
-LogStream::~LogStream()
+LogStream::~LogStream() noexcept
 {
     Flush();
 }

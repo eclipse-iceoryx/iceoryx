@@ -222,7 +222,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest) noexcep
 /// introduced for mac os since unsigned long is not uint64_t despite it has the same size
 /// who knows why ¯\_(ツ)_/¯
 template <>
-inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest)
+inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest) noexcept
 {
     uint64_t temp{0};
     bool retVal = fromString(v, temp);

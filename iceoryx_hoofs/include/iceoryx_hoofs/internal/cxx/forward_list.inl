@@ -121,7 +121,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
 
 
 template <typename T, uint64_t Capacity>
-inline forward_list<T, Capacity>::~forward_list()
+inline forward_list<T, Capacity>::~forward_list() noexcept
 {
     clear();
 }
