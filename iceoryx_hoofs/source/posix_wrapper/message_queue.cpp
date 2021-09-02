@@ -35,6 +35,7 @@ MessageQueue::MessageQueue()
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const IpcChannelSide channelSide,
                            const size_t maxMsgSize,
@@ -93,7 +94,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
     }
 }
 
-MessageQueue::MessageQueue(MessageQueue&& other)
+MessageQueue::MessageQueue(MessageQueue&& other) noexcept
 {
     *this = std::move(other);
 }
@@ -106,7 +107,7 @@ MessageQueue::~MessageQueue()
     }
 }
 
-MessageQueue& MessageQueue::operator=(MessageQueue&& other)
+MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
 {
     if (this != &other)
     {
@@ -321,7 +322,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
 
 cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated()
 {
-    struct stat sb;
+    struct stat sb = {};
     auto fstatCall = posixCall(fstat)(m_mqDescriptor, &sb).failureReturnValue(-1).evaluate();
     if (fstatCall.has_error())
     {
@@ -376,6 +377,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannel
     }
     default:
     {
+        // NOLINTNEXTLINE(concurrency-mt-unsafe) impossible case
         std::cerr << "internal logic error in message queue \"" << name << "\" occurred [errno: " << errnum << ": "
                   << strerror(errnum) << "]" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
@@ -394,6 +396,8 @@ MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
+    // name is checked for emptiness, so it's ok to get a first member
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     else if (name.c_str()[0] != '/')
     {
         return cxx::success<IpcChannelName_t>(IpcChannelName_t("/").append(iox::cxx::TruncateToCapacity, name));

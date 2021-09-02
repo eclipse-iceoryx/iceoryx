@@ -21,7 +21,9 @@ namespace iox
 {
 namespace log
 {
+// NOLINTNEXTLINE(readability-identifier-naming)
 constexpr char LoggingComponent::Ctx[];
+// NOLINTNEXTLINE(readability-identifier-naming)
 constexpr char LoggingComponent::Description[];
 } // namespace log
 } // namespace iox

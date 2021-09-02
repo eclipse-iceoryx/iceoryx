@@ -372,7 +372,7 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 
 TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
@@ -385,7 +385,7 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatContinuesWhenCallbackIsLong
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
@@ -398,7 +398,7 @@ TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateContinuesWhenCallbackIsLongerThe
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyTerminateTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
@@ -411,7 +411,7 @@ TIMING_TEST_F(Timer_test, CatchUpPolicyTerminateTerminatesWhenCallbackIsLongerTh
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyChangeToTerminateChangesBehaviorToTerminate, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });

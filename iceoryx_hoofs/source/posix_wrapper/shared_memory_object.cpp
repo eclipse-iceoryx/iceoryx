@@ -44,6 +44,8 @@ static void memsetSigbusHandler(int)
     _exit(EXIT_FAILURE);
 }
 
+// TODO: reduce number of arguments by moving them to struct
+// NOLINTNEXTLINE(readability-function-size)
 SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
@@ -74,7 +76,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
             });
     }
 
-    if (m_isInitialized == false)
+    if (!m_isInitialized)
     {
         auto flags = std::cerr.flags();
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name

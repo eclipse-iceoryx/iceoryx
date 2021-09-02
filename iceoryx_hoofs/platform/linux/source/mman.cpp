@@ -16,11 +16,13 @@
 
 #include "iceoryx_hoofs/platform/mman.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
     return shm_open(name, oflag, mode);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 int iox_shm_unlink(const char* name)
 {
     return shm_unlink(name);

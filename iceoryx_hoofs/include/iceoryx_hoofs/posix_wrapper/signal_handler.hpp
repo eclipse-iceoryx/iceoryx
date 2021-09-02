@@ -69,7 +69,7 @@ class SignalGuard
 
   private:
     Signal m_signal;
-    struct sigaction m_previousAction;
+    struct sigaction m_previousAction = {};
     bool m_doRestorePreviousAction{false};
 };
 

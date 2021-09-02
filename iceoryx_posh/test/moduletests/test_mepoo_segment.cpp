@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
@@ -138,7 +139,7 @@ class MePooSegment_test : public Test
 
     MePooConfig mepooConfig = setupMepooConfig();
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut{
-        mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
+        mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
 
@@ -160,7 +161,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
         EXPECT_THAT(openMode, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
+        mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
@@ -177,7 +178,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
         memorySizeInBytes = f_memorySizeInBytes;
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
+        mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 

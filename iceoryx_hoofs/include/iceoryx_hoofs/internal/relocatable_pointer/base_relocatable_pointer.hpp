@@ -49,7 +49,7 @@ class BaseRelocatablePointer
     using offset_t = std::ptrdiff_t;
 
     /// @brief default constructs a logical nullptr
-    BaseRelocatablePointer() noexcept;
+    BaseRelocatablePointer() noexcept = default;
 
     /// @brief creates a relocatable pointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
@@ -101,6 +101,8 @@ class BaseRelocatablePointer
     static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
   protected:
+    // justification: used by a friend class
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
     offset_t m_offset{NULL_POINTER_OFFSET};
 
     offset_t computeOffset(const void* ptr) const noexcept;

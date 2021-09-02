@@ -34,7 +34,7 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
         return false;
     }
 
-    auto maybeWorkingACL = createACL((m_permissions.size() + m_useACLMask) ? 1 : 0);
+    auto maybeWorkingACL = createACL(static_cast<int32_t>(m_permissions.size()) + (m_useACLMask ? 1 : 0));
 
     if (maybeWorkingACL.has_error())
     {
@@ -56,7 +56,7 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     // add mask to acl if specific users or groups have been added
     if (m_useACLMask)
     {
-        createACLEntry(workingACL.get(), {ACL_MASK, Permission::READWRITE, -1u});
+        createACLEntry(workingACL.get(), {ACL_MASK, Permission::READWRITE, -1U});
     }
 
     // check if acl is valid
@@ -80,7 +80,7 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
 }
 
 cxx::expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
-AccessController::createACL(const int32_t f_numEntries) const
+AccessController::createACL(const int32_t f_numEntries)
 {
     // allocate memory for a new ACL
     auto aclInitCall = posixCall(acl_init)(f_numEntries).failureReturnValue(nullptr).evaluate();
@@ -195,10 +195,10 @@ bool AccessController::addPermissionEntry(const Category f_category, const Permi
     return true;
 }
 
-bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry) const
+bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry)
 {
     // create new entry in acl
-    acl_entry_t newEntry;
+    acl_entry_t newEntry{};
     acl_t l_ACL{f_ACL};
 
     auto aclCreateEntryCall = posixCall(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
@@ -210,7 +210,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 
     // set tag type for new entry (user, group, ...)
-    acl_tag_t tagType = static_cast<acl_tag_t>(f_entry.m_category);
+    auto tagType = static_cast<acl_tag_t>(f_entry.m_category);
     auto aclSetTagTypeCall = posixCall(acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
 
     if (aclSetTagTypeCall.has_error())
@@ -253,7 +253,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 
     // get reference to permission set in new entry
-    acl_permset_t entryPermissionSet;
+    acl_permset_t entryPermissionSet{};
 
     auto aclGetPermsetCall = posixCall(acl_get_permset)(newEntry, &entryPermissionSet).successReturnValue(0).evaluate();
 
@@ -275,7 +275,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
     case Permission::READWRITE:
     {
-        if (addAclPermission(entryPermissionSet, ACL_READ) == false)
+        if (!addAclPermission(entryPermissionSet, ACL_READ))
         {
             return false;
         }
@@ -292,7 +292,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 }
 
-bool AccessController::addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm) const
+bool AccessController::addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm)
 {
     auto aclAddPermCall = posixCall(acl_add_perm)(f_permset, f_perm).successReturnValue(0).evaluate();
 

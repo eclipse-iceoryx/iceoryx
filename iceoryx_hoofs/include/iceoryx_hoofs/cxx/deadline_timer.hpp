@@ -45,7 +45,7 @@ class DeadlineTimer
   public:
     /// @brief Constructor
     /// @param[in] timeToWait duration until the timer expires
-    DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
+    explicit DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
 
     /// @brief Checks if the timer has expired compared to its absolute end time
     /// @return false if the timer is still active and true if it is expired
@@ -63,10 +63,10 @@ class DeadlineTimer
 
     /// @brief calculates the remaining time before the timer goes off
     /// @return the time duration before the timer expires
-    const iox::units::Duration remainingTime() const noexcept;
+    iox::units::Duration remainingTime() const noexcept;
 
   private:
-    iox::units::Duration getCurrentMonotonicTime() const noexcept;
+    static iox::units::Duration getCurrentMonotonicTime() noexcept;
 
     iox::units::Duration m_timeToWait;
     iox::units::Duration m_endTime;

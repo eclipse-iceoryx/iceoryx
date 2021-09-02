@@ -42,8 +42,8 @@ class PosixGroup
 {
   public:
     using string_t = cxx::string<100>;
-    PosixGroup(gid_t f_id);
-    PosixGroup(string_t f_name);
+    explicit PosixGroup(const gid_t f_id);
+    explicit PosixGroup(const string_t& f_name);
 
     bool operator==(const PosixGroup& other) const;
 
@@ -68,8 +68,8 @@ class PosixUser
     using groupVector_t = cxx::vector<PosixGroup, MaxNumberOfGroups>;
     using string_t = cxx::string<100>;
 
-    PosixUser(uid_t f_id);
-    PosixUser(const string_t& f_name);
+    explicit PosixUser(const uid_t f_id);
+    explicit PosixUser(const string_t& f_name);
 
     groupVector_t getGroups() const;
     string_t getName() const;

@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
@@ -212,13 +213,17 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            uint32_t pid;
-            uid_t userId;
-            int64_t transmissionTimestamp;
+            uint32_t pid{0U};
+            uid_t userId{0};
+            int64_t transmissionTimestamp{0};
             version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
-            registerProcess(
-                runtimeName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
+            registerProcess(runtimeName,
+                            pid,
+                            iox::posix::PosixUser{userId},
+                            transmissionTimestamp,
+                            getUniqueSessionIdForProcess(),
+                            versionInfo);
         }
         break;
     }

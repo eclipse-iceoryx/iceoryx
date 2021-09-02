@@ -21,10 +21,6 @@ namespace iox
 {
 namespace rp
 {
-BaseRelocatablePointer::BaseRelocatablePointer() noexcept
-{
-}
-
 BaseRelocatablePointer::BaseRelocatablePointer(const void* ptr) noexcept
     : m_offset(computeOffset(ptr))
 {
@@ -105,9 +101,12 @@ BaseRelocatablePointer::offset_t BaseRelocatablePointer::computeOffset(const voi
 void* BaseRelocatablePointer::computeRawPtr() const noexcept
 {
     if (m_offset == NULL_POINTER_OFFSET)
+    {
         return nullptr;
+    }
 
     /// @todo find most efficient way to do this (see above)
+    // NOLINTNEXTLINE(performance-no-int-to-ptr)
     return reinterpret_cast<void*>(reinterpret_cast<offset_t>(&m_offset) - m_offset);
 }
 } // namespace rp

@@ -248,7 +248,7 @@ TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
     auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
@@ -280,7 +280,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
     auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
@@ -397,7 +397,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
     auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
@@ -851,7 +851,7 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
             }
 
             iox::cxx::optional<iox::Error> detectedError;
-            auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
                 [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
                     detectedError.emplace(error);
                     EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);

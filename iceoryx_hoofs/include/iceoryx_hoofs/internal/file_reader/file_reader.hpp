@@ -31,8 +31,8 @@ namespace cxx
 /// @code
 ///     cxx::FileReader reader("filename");
 ///     std::string str;
-///     if(reader.IsOpen()) {
-///         reader.ReadeLine(str);
+///     if(reader.isOpen()) {
+///         reader.readLine(str);
 ///     }
 ///
 ///     // Terminates program execution, if file cannot be opened (or found):
@@ -64,9 +64,9 @@ class FileReader
     ~FileReader() = default;
 
     /// Check if the associated file is open.
-    bool IsOpen() const;
+    bool isOpen() const;
     /// Read one line from the file and store the result in f_string.
-    bool ReadLine(std::string& f_string);
+    bool readLine(std::string& f_string);
 
   private:
 #ifdef _WIN32

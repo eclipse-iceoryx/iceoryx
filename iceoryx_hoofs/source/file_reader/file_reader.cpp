@@ -31,7 +31,7 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
     m_file = f_filePath.empty() ? f_fileName : f_filePath + PATH_SEPARATOR + f_fileName;
     m_fileStream.open(m_file, std::fstream::in);
 
-    if (!IsOpen())
+    if (!isOpen())
     {
         errorHandler(Error::kFILEREADER__FAILED_TO_OPEN_FILE, [=]() {
             switch (m_errorMode)
@@ -61,12 +61,12 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
     }
 }
 
-bool FileReader::IsOpen() const
+bool FileReader::isOpen() const
 {
     return m_fileStream.is_open();
 }
 
-bool FileReader::ReadLine(std::string& f_string)
+bool FileReader::readLine(std::string& f_string)
 {
     return static_cast<bool>(std::getline(m_fileStream, f_string));
 }

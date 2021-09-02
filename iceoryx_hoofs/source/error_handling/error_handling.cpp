@@ -26,19 +26,20 @@
 
 namespace iox
 {
-const char* ErrorHandler::errorNames[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+const char* ErrorHandler::ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
-HandlerFunction ErrorHandler::handler = {ErrorHandler::DefaultHandler};
+// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
+HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};
 
 std::mutex ErrorHandler::handler_mutex;
 
 std::ostream& operator<<(std::ostream& stream, Error value)
 {
-    stream << ErrorHandler::ToString(value);
+    stream << ErrorHandler::toString(value);
     return stream;
 }
 
-void ErrorHandler::DefaultHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level)
+void ErrorHandler::defaultHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level)
 {
     if (errorCallBack)
     {
@@ -49,13 +50,13 @@ void ErrorHandler::DefaultHandler(const Error error, const std::function<void()>
         std::stringstream ss;
         ss << "ICEORYX error! " << error;
 
-        ReactOnErrorLevel(level, ss.str().c_str());
+        reactOnErrorLevel(level, ss.str().c_str());
     }
 }
 
-void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorText)
+void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorText)
 {
-    static auto& logger = CreateLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
+    static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
     switch (level)
     {
     case ErrorLevel::FATAL:
@@ -73,7 +74,7 @@ void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorTe
     }
 }
 
-cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& newHandler)
+cxx::GenericRAII ErrorHandler::setTemporaryErrorHandler(const HandlerFunction& newHandler)
 {
     return cxx::GenericRAII(
         [&newHandler] {
@@ -82,17 +83,17 @@ cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& n
         },
         [] {
             std::lock_guard<std::mutex> lock(handler_mutex);
-            handler = DefaultHandler;
+            handler = defaultHandler;
         });
 }
 
 
-const char* ErrorHandler::ToString(const Error error)
+const char* ErrorHandler::toString(const Error error)
 {
-    return ErrorHandler::errorNames[static_cast<uint32_t>(error)];
+    return ErrorHandler::ERROR_NAMES[static_cast<uint32_t>(error)];
 }
 
-void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level)
+void errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level)
 {
     ErrorHandler::handler(error, errorCallBack, level);
 }
