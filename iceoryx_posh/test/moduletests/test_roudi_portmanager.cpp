@@ -82,7 +82,7 @@ class PortManager_test : public Test
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
-        auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
+        auto user = iox::posix::PosixUser::getUserOfCurrentProcess();
         auto segmentInfo =
             m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
         ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());
@@ -445,7 +445,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     { // test if overflow errors get hit
 
         bool errorHandlerCalled = false;
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
@@ -473,7 +473,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
     { // test if overflow errors get hit
 
         bool errorHandlerCalled = false;
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
@@ -494,7 +494,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
                 errorHandlerCalled = true;
             });
@@ -645,7 +645,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
                 errorHandlerCalled = true;
             });
@@ -703,7 +703,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
                 errorHandlerCalled = true;
             });
@@ -773,7 +773,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 
     // test if overflow errors get hit
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });

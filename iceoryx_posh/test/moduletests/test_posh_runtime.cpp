@@ -107,7 +107,7 @@ TEST(PoshRuntime, LeadingSlashAppName)
 
     auto errorHandlerCalled{false};
     iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
@@ -153,7 +153,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessful)
 {
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
@@ -169,7 +169,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessfu
 TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
 {
     auto applicationlistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&applicationlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             applicationlistOverflowDetected = true;
             EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW));
@@ -204,7 +204,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 {
     auto interfacelistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&interfacelistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             interfacelistOverflowDetected = true;
             EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__INTERFACELIST_OVERFLOW));
@@ -304,7 +304,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
 {
     auto publisherlistOverflowDetected{false};
 
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&publisherlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             if (error == iox::Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW)
             {
@@ -334,7 +334,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOneToManyPolicyFails)
 {
     auto publisherDuplicateDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&publisherDuplicateDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             if (error == iox::Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE)
             {
@@ -494,7 +494,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
 {
     auto subscriberlistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&subscriberlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             if (error == iox::Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW)
             {
@@ -596,7 +596,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
 {
     auto conditionVariableListOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&conditionVariableListOverflowDetected](
             const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             if (error == iox::Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW)
@@ -653,7 +653,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
     iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));

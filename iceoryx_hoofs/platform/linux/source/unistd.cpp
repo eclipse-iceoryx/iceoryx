@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/platform/unistd.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 int iox_close(int fd)
 {
     return close(fd);

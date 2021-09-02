@@ -140,9 +140,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr int32_t INVALID_FD = -1;
 
     UdsName_t m_name;
-    IpcChannelSide m_channelSide;
+    IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
     int32_t m_sockfd{INVALID_FD};
-    struct sockaddr_un m_sockAddr;
+    sockaddr_un m_sockAddr{};
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };
 } // namespace posix

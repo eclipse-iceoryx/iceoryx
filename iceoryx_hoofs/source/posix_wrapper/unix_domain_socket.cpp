@@ -40,6 +40,7 @@ UnixDomainSocket::UnixDomainSocket() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static) API can be misused if IPC channel changes
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
 {
     // This is for being API compatible with the message queue, but has no equivalent for socket.
@@ -54,6 +55,7 @@ UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
     *this = std::move(other);
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
@@ -75,6 +77,7 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 {
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const UdsName_t& name,
                                    const IpcChannelSide channelSide,
@@ -262,7 +265,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 {
     // we also support timedReceive. The setsockopt call sets the timeout for all further recvfrom calls, so we must set
     // it to 0 to turn the timeout off
-    struct timeval tv;
+    struct timeval tv = {};
     tv.tv_sec = 0;
     tv.tv_usec = 0;
 
@@ -413,7 +416,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     case ENOBUFS:
     {
-        std::cerr << "out of memory for unix domain socket \"" << m_name << "\"" << std::endl;
+        std::cerr << "queue is full for unix domain socket \"" << m_name << "\"" << std::endl;
         return IpcChannelError(IpcChannelError::OUT_OF_MEMORY);
     }
     case ENOMEM:
@@ -438,7 +441,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     case ENOTSOCK:
     {
-        std::cerr << "invalid file descriptor for unix domain socket \"" << m_name << "\"" << std::endl;
+        std::cerr << "invalid unix domain socket \"" << m_name << "\"" << std::endl;
         return IpcChannelError(IpcChannelError::INVALID_FILE_DESCRIPTOR);
     }
     case EADDRNOTAVAIL:

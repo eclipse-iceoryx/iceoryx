@@ -25,14 +25,15 @@
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
-#include <assert.h>
 #include <bitset>
+#include <cassert>
 #include <limits>
 
 namespace iox
 {
 namespace posix
 {
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 SharedMemory::SharedMemory(const Name_t& name,
                            const AccessMode accessMode,
                            const OpenMode openMode,
@@ -47,6 +48,8 @@ SharedMemory::SharedMemory(const Name_t& name,
         m_isInitialized = false;
         m_errorValue = SharedMemoryError::EMPTY_NAME;
     }
+    // empty case handled above, so it's fine to get first element
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     else if (name.c_str()[0] != '/')
     {
         std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
@@ -134,6 +137,7 @@ bool SharedMemory::hasOwnership() const noexcept
     return m_hasOwnership;
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 bool SharedMemory::open(const AccessMode accessMode,
                         const OpenMode openMode,
                         const mode_t permissions,
@@ -221,7 +225,7 @@ bool SharedMemory::unlink() noexcept
     if (m_isInitialized && m_hasOwnership)
     {
         auto unlinkResult = unlinkIfExist(m_name);
-        if (unlinkResult.has_error() || unlinkResult.value() == false)
+        if (unlinkResult.has_error() || !unlinkResult.value())
         {
             std::cerr << "Unable to unlink SharedMemory (shm_unlink failed)." << std::endl;
             return false;

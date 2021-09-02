@@ -113,9 +113,9 @@ class AccessController
 
     cxx::vector<PermissionEntry, MaxNumOfPermissions> m_permissions;
 
-    cxx::expected<smartAclPointer_t, AccessControllerError> createACL(const int32_t f_numEntries) const;
-    bool createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry) const;
-    bool addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm) const;
+    static cxx::expected<smartAclPointer_t, AccessControllerError> createACL(const int32_t f_numEntries);
+    static bool createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry);
+    static bool addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm);
 
     bool m_useACLMask{false};
 };

@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include <utility>
+
 #include "iceoryx_hoofs/log/logging.hpp"
 
 #include "iceoryx_hoofs/log/logger.hpp"
@@ -25,7 +27,8 @@ namespace iox
 {
 namespace log
 {
-Logger& CreateLogger(std::string ctxId, std::string ctxDescription, LogLevel appDefLogLevel) noexcept
+Logger&
+createLogger(const std::string& ctxId, const std::string& ctxDescription, const LogLevel appDefLogLevel) noexcept
 {
     return LogManager::CreateLogContext(ctxId, ctxDescription, appDefLogLevel);
 }

@@ -23,20 +23,23 @@
 #include "logging_internal.hpp"
 
 #include <mutex>
+#include <utility>
 
 namespace iox
 {
 namespace log
 {
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogManager& LogManager::GetLogManager()
 {
     static LogManager manager;
     return manager;
 }
 
-Logger& LogManager::CreateLogContext(IOX_MAYBE_UNUSED std::string ctxId,
-                                     IOX_MAYBE_UNUSED std::string ctxDescription,
-                                     LogLevel appDefLogLevel) noexcept
+// NOLINTNEXTLINE(readability-identifier-naming)
+Logger& LogManager::CreateLogContext(IOX_MAYBE_UNUSED const std::string& ctxId,
+                                     IOX_MAYBE_UNUSED const std::string& ctxDescription,
+                                     const LogLevel appDefLogLevel) noexcept
 {
     static std::mutex mtx;
     std::lock_guard<std::mutex> lock(mtx);
@@ -54,11 +57,13 @@ Logger& LogManager::CreateLogContext(IOX_MAYBE_UNUSED std::string ctxId,
     }
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogLevel LogManager::DefaultLogLevel() const noexcept
 {
     return m_defaultLogLevel.load(std::memory_order_relaxed);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutput logLevelOutput) noexcept
 {
     m_defaultLogLevel.store(logLevel, std::memory_order_relaxed);
@@ -75,11 +80,13 @@ void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutpu
     }
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogMode LogManager::DefaultLogMode() const noexcept
 {
     return m_defaultLogMode.load(std::memory_order_relaxed);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 void LogManager::SetDefaultLogMode(const LogMode logMode) noexcept
 {
     m_defaultLogMode.store(logMode, std::memory_order_relaxed);

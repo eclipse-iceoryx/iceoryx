@@ -57,7 +57,8 @@ void SignalGuard::restorePreviousAction() noexcept
 
 SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallback_t callback) noexcept
 {
-    struct sigaction action;
+    struct sigaction action = {};
+
 
     // sigemptyset fails when a nullptr is provided and this should never happen with this logic
     if (posixCall(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
@@ -68,10 +69,13 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
         return SignalGuard();
     }
 
+    // system struct, no way to avoid union
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
     action.sa_handler = callback;
     action.sa_flags = 0;
 
-    struct sigaction previousAction;
+
+    struct sigaction previousAction = {};
 
     // sigaction fails when action is a nullptr (which we ensure that its not) or when the signal SIGSTOP or SIGKILL
     // should be registered which can also never happen - ensured by the enum class.

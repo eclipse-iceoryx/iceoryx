@@ -300,7 +300,7 @@ TEST_F(SubscriberPortSingleProducer_test, NackInUnsubscribeRequestedResultsInNot
 TEST_F(SubscriberPortSingleProducer_test, InvalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -316,7 +316,7 @@ TEST_F(SubscriberPortSingleProducer_test, InvalidMessageResultsInError)
 TEST_F(SubscriberPortSingleProducer_test, AckWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -333,7 +333,7 @@ TEST_F(SubscriberPortSingleProducer_test, NackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
@@ -508,7 +508,7 @@ TEST_F(SubscriberPortMultiProducer_test, InvalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;

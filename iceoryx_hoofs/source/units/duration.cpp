@@ -47,7 +47,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
     }
     else
     {
-        struct timespec referenceTime;
+        struct timespec referenceTime = {};
 
         if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
                                             &referenceTime)

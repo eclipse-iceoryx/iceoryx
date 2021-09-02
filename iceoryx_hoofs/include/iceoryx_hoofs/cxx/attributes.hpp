@@ -27,7 +27,8 @@ namespace cxx
 ///     uint32_t foo();
 ///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
 /// @endcode
-#define IOX_DISCARD_RESULT(expr) static_cast<void>(expr) // NOLINT
+// NOLINTNEXTLINE
+#define IOX_DISCARD_RESULT(expr) static_cast<void>(expr)
 
 /// @brief IOX_NO_DISCARD adds the [[nodiscard]] keyword if it is available for the current compiler.
 ///        If additionally the keyword [[gnu::warn_unused]] is present it will be added as well.
@@ -37,14 +38,18 @@ namespace cxx
 ///   activate keywords for gcc>=5 or clang>=4
 #if defined(_WIN32)
 // On WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
-#define IOX_NO_DISCARD [[nodiscard]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_NO_DISCARD [[nodiscard]]
 #elif defined(__APPLE__) && defined(__clang__)
 // On APPLE we are using C++17 which makes the keyword [[nodiscard]] available
-#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]]
 #elif (defined(__clang__) && __clang_major__ >= 4)
-#define IOX_NO_DISCARD [[gnu::warn_unused]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_NO_DISCARD [[gnu::warn_unused]]
 #elif (defined(__GNUC__) && __GNUC__ >= 5)
-#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]]
 #else
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #define IOX_NO_DISCARD
@@ -57,13 +62,16 @@ namespace cxx
 ///   activate keywords for gcc>=7 or clang>=4
 #if defined(_WIN32)
 // On WIN32 we are using C++17 which makes the keyword [[fallthrough]] available
-#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_FALLTHROUGH [[fallthrough]]
 #elif defined(__APPLE__) && defined(__clang__)
 // On APPLE we are using C++17 which makes the keyword [[fallthrough]] available
-#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_FALLTHROUGH [[fallthrough]]
 #elif (defined(__GNUC__) && __GNUC__ >= 7) && !defined(__clang__)
 // clang prints a warning therefore we exclude it here
-#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_FALLTHROUGH [[fallthrough]]
 #else
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #define IOX_FALLTHROUGH
@@ -74,10 +82,12 @@ namespace cxx
 /// @note
 ///   activate attribute for gcc or clang
 #if defined(__GNUC__) || defined(__clang__)
-#define IOX_MAYBE_UNUSED [[gnu::unused]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_MAYBE_UNUSED [[gnu::unused]]
 #elif defined(_WIN32)
 // On WIN32 we are using C++17 which makes the attribute [[maybe_unused]] available
-#define IOX_MAYBE_UNUSED [[maybe_unused]] // NOLINT
+// NOLINTNEXTLINE
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #else
 #define IOX_MAYBE_UNUSED

@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/platform/file.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 int iox_flock(int fd, int op)
 {
     return flock(fd, op);

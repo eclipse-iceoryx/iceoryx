@@ -16,11 +16,13 @@
 
 #include "iceoryx_hoofs/platform/mqueue.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 mqd_t iox_mq_open2(const char* name, int oflag)
 {
     return mq_open(name, oflag);
 }
 
+// NOLINTNEXTLINE(readability-function-size,readability-identifier-naming)
 mqd_t iox_mq_open4(const char* name, int oflag, mode_t mode, struct mq_attr* attr)
 {
     return mq_open(name, oflag, mode, attr);

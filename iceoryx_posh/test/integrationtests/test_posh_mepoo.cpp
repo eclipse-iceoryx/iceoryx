@@ -405,7 +405,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     const int repetition3 = 1;
     auto errorHandlerCalled{false};
     iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
@@ -427,7 +427,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     const int repetition1 = 2 * DefaultNumChunks;
     auto errorHandlerCalled{false};
     iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;

@@ -42,6 +42,7 @@ LogStream::~LogStream()
     Flush();
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 void LogStream::Flush()
 {
     /// @todo do we want to send the log to the logger even if the loglevel is lower than the global log level?
@@ -99,7 +100,10 @@ LogStream& LogStream::operator<<(const LogRawBuffer& value) noexcept
     for (int8_t i = 0; i < value.size; ++i)
     {
         // the '+value' is there to not interpret the uint8_t as char and print the character instead of the hex value
-        ss << (i > 0 ? " " : "") << std::setw(2) << +value.data[i];
+        ss << (i > 0 ? " " : "")
+           << std::setw(2)
+           // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+           << +value.data[i];
     }
     ss << "]";
     m_logEntry.message.append(ss.str());

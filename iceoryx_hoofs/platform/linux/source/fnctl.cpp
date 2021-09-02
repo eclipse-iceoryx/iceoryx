@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 int iox_open(const char* pathname, int flags, mode_t mode)
 {
     return open(pathname, flags, mode);

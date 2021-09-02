@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/timespec.hpp"
+#include <cstdint>
 
 namespace iox
 {
@@ -23,8 +24,9 @@ namespace posix
 {
 struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms)
 {
-    decltype(time.tv_nsec) sec_ns = time.tv_nsec + ((timeToAdd_ms % 1000) * TS_DIVIDER_msec);
-    time.tv_sec += (timeToAdd_ms / 1000);
+    constexpr uint32_t MSEC_IN_SEC{1000};
+    decltype(time.tv_nsec) sec_ns = time.tv_nsec + ((timeToAdd_ms % MSEC_IN_SEC) * TS_DIVIDER_msec);
+    time.tv_sec += (timeToAdd_ms / MSEC_IN_SEC);
     if (sec_ns < TS_DIVIDER_sec)
     {
         time.tv_nsec = sec_ns;
@@ -48,7 +50,8 @@ double subtractTimespecMS(const struct timespec minuend, const struct timespec s
     const TimeType diff_s = static_cast<TimeType>(minuend.tv_sec) - static_cast<TimeType>(subtrahend.tv_sec);
     const TimeType diff_ns = static_cast<TimeType>(minuend.tv_nsec) - static_cast<TimeType>(subtrahend.tv_nsec);
 
-    return (static_cast<double>(diff_s) * 1000.)
+    constexpr double MSEC_IN_SEC{1000.};
+    return (static_cast<double>(diff_s) * MSEC_IN_SEC)
            + (static_cast<double>(diff_ns) / static_cast<double>(TS_DIVIDER_msec));
 }
 

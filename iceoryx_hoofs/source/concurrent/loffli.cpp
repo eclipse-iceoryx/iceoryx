@@ -40,6 +40,7 @@ void LoFFLi::init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capa
     {
         for (uint32_t i = 0; i < m_size + 1; i++)
         {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) upper limit of index is set by m_size
             m_nextFreeIndex[i] = i + 1;
         }
     }
@@ -58,6 +59,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
             return false;
         }
 
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) upper limit of index set by m_size
         newHead.indexToNextFreeIndex = m_nextFreeIndex[oldHead.indexToNextFreeIndex];
         newHead.abaCounter += 1;
     } while (!m_head.compare_exchange_weak(oldHead, newHead, std::memory_order_acq_rel, std::memory_order_acquire));
@@ -70,6 +72,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
     ///         either is used by the same thread in push or it is given to another
     ///         thread which performs the cleanup and during this process a synchronization
     ///         is required
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     m_nextFreeIndex[index] = m_invalidIndex;
 
     /// we need to synchronize m_nextFreeIndex with push so that we can perform a validation
@@ -86,6 +89,7 @@ bool LoFFLi::push(const Index_t index) noexcept
 
     /// we want to avoid double free's therefore we check if the index was acquired
     /// in pop and the push argument "index" is valid
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) index is limited by capacity
     if (index >= m_size || m_nextFreeIndex[index] != m_invalidIndex)
     {
         return false;
@@ -96,6 +100,7 @@ bool LoFFLi::push(const Index_t index) noexcept
 
     do
     {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) index is limited by capacity
         m_nextFreeIndex[index] = oldHead.indexToNextFreeIndex;
         newHead.indexToNextFreeIndex = index;
         newHead.abaCounter += 1;

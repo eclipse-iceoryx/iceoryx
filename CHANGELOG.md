@@ -23,6 +23,7 @@
 
 **Refactoring:**
 
+- Add clang-tidy rules for iceoryx_hoofs[\#889](https://github.com/eclipse-iceoryx/iceoryx/issues/889)
 - Move all tests into an anonymous namespace[\#563](https://github.com/eclipse-iceoryx/iceoryx/issues/563)
 - Refactor smart_c to use contract by design and expected[\#418](https://github.com/eclipse-iceoryx/iceoryx/issues/418)
 - PoshRuntime Mock[\#449](https://github.com/eclipse-iceoryx/iceoryx/issues/449)
@@ -99,14 +100,46 @@ A well-defined `ServiceDescription` consists of three non-empty strings.
 
 ```cpp
 // before
-ServiceDescription(1U, 2U, 3U) myServiceDescription1;
-ServiceDescription("First", "Second") myServiceDescription3;
-ServiceDescription(iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString) myServiceDescription3;
+ServiceDescription myServiceDescription1(1U, 2U, 3U);
+ServiceDescription myServiceDescription3("First", "Second");
+ServiceDescription myServiceDescription3(iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString);
 
 // after
-ServiceDescription("Foo", "Bar", "Baz") myServiceDescription1;
-ServiceDescription("First", "Second", "DontCare") myServiceDescription2;
-ServiceDescription("Foo", "Bar", "Baz") myServiceDescription3;
+ServiceDescription myServiceDescription1("Foo", "Bar", "Baz");
+ServiceDescription myServiceDescription2("First", "Second", "DontCare");
+ServiceDescription myServiceDescription3("Foo", "Bar", "Baz");
+```
+
+The following classes have now an constructor marked as `explicit`:
+
+```cpp
+explicit DeadlineTimer(const iox::units::Duration timeToWait);
+explicit GenericRAII(const std::function<void()>& cleanupFunction);
+explicit mutex(const bool f_isRecursive);
+explicit PosixUser(const uid_t f_id);
+explicit PosixUser(const string_t& f_name);
+```
+
+Renaming in `FileReader` class and logging of iceoryx_hoofs
+
+```cpp
+// before
+iox::cxx::FileReader reader("filename");
+std::string str;
+if(reader.IsOpen()) {
+    reader.ReadLine(str);
+}
+
+static auto& logger = CreateLogger("", "", iox::log::LogManager::GetLogManager().DefaultLogLevel());
+
+// after
+iox::cxx::FileReader reader("filename");
+std::string str;
+if(reader.isOpen()) {
+    reader.readLine(str);
+}
+
+static auto& logger = createLogger("", "", iox::log::LogManager::GetLogManager().DefaultLogLevel());
 ```
 
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)

@@ -31,21 +31,26 @@ Timer::OsTimerCallbackHandle Timer::OsTimer::s_callbackHandlePool[MAX_NUMBER_OF_
 sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor) noexcept
 {
     assert(descriptor < MAX_DESCRIPTOR_VALUE);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers) shift 8 bits
     uint32_t temp = (descriptor << 8) | static_cast<uint32_t>(index);
-    sigval sigvalData;
+    sigval sigvalData{};
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access) system struct
     sigvalData.sival_int = static_cast<int>(temp);
     return sigvalData;
 }
 
 uint8_t Timer::OsTimerCallbackHandle::sigvalToIndex(sigval intVal) noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access, cppcoreguidelines-avoid-magic-numbers) system struct
     return static_cast<uint8_t>(0xFF & intVal.sival_int);
 }
 
 uint32_t Timer::OsTimerCallbackHandle::sigvalToDescriptor(sigval intVal) noexcept
 {
-    uint32_t temp = static_cast<uint32_t>(intVal.sival_int);
-    return (temp >> 8u) & 0xFFFFFFu;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access) system struct
+    auto temp = static_cast<uint32_t>(intVal.sival_int);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers) shift 8 bits
+    return (temp >> 8U) & 0xFFFFFFU;
 }
 
 void Timer::OsTimerCallbackHandle::incrementDescriptor() noexcept
@@ -54,7 +59,7 @@ void Timer::OsTimerCallbackHandle::incrementDescriptor() noexcept
     callbackHandleDescriptor++;
     if (callbackHandleDescriptor >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
     {
-        callbackHandleDescriptor = 0u;
+        callbackHandleDescriptor = 0U;
     }
 
     m_descriptor.store(callbackHandleDescriptor, std::memory_order_relaxed);
@@ -81,7 +86,8 @@ void Timer::OsTimer::callbackHelper(sigval data)
 
     // signal that we intend to call the callback (but we may not start it ourself, it may be done
     // by another invocation of this function)
-    auto invocationCounter = handle.m_timerInvocationCounter.fetch_add(1u, std::memory_order_relaxed);
+    // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores) used in a do-while loop below
+    auto invocationCounter = handle.m_timerInvocationCounter.fetch_add(1U, std::memory_order_relaxed);
 
     // avoid the spurious failures of try_lock with this flag end still reduce contention
     // if another thread is in this section we return but we already stated our intention to call the callback
@@ -128,10 +134,10 @@ void Timer::OsTimer::callbackHelper(sigval data)
                 return;
             }
 
-            invocationCounter = handle.m_timerInvocationCounter.exchange(0u, std::memory_order_acq_rel);
+            invocationCounter = handle.m_timerInvocationCounter.exchange(0U, std::memory_order_acq_rel);
 
             // did someone else execute the callback for us?
-            if (invocationCounter != 0u)
+            if (invocationCounter != 0U)
             {
                 handle.m_timer->executeCallback();
             }
@@ -156,7 +162,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
             // and be able to enter the region or the flag to be set again, in which case this thread
             // will take care of the call
 
-        } while (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE && invocationCounter > 0u);
+        } while (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE && invocationCounter > 0U);
     }
     else
     {
@@ -182,7 +188,7 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
 
     // find OsTimerCallbackHandle not in use
     bool callbackHandleFound = false;
-    uint32_t callbackHandleDescriptor = 0u;
+    uint32_t callbackHandleDescriptor = 0U;
     for (auto& callbackHandle : OsTimer::s_callbackHandlePool)
     {
         if (!callbackHandle.m_inUse.load(std::memory_order_relaxed))
@@ -203,7 +209,7 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
             // it is sufficient to set the counter in the constructor
             // (setting it in start leads to a subtle race in the loop of callbackHelper
             // were they are checked should the callback call start)
-            callbackHandle.m_timerInvocationCounter.store(0u, std::memory_order_relaxed);
+            callbackHandle.m_timerInvocationCounter.store(0U, std::memory_order_relaxed);
 
             callbackHandleFound = true;
             callbackHandleDescriptor = callbackHandle.m_descriptor.load(std::memory_order_relaxed);
@@ -218,17 +224,20 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
     }
 
     // Create the struct in order to configure the timer in the OS
-    struct sigevent asyncCallNotification;
+    struct sigevent asyncCallNotification = {};
     // We want the timer to call a function
     asyncCallNotification.sigev_notify = SIGEV_THREAD;
     // Set the function pointer to our sigevent
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access) system struct
     asyncCallNotification.sigev_notify_function = &callbackHelper;
     // Save the pointer to self in order to execute the callback
     asyncCallNotification.sigev_value.sival_ptr = nullptr; // initialize all bits of the sigval union for mem check
     asyncCallNotification.sigev_value.sival_int =
         Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(m_callbackHandleIndex, callbackHandleDescriptor)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access) system struct
             .sival_int;
     // Do not set any thread attributes
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access) system struct
     asyncCallNotification.sigev_notify_attributes = nullptr;
 
     posixCall(timer_create)(CLOCK_REALTIME, &asyncCallNotification, &m_timerId)
@@ -280,7 +289,7 @@ void Timer::OsTimer::executeCallback() noexcept
 cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     // Convert units::Duration to itimerspec
-    struct itimerspec interval;
+    struct itimerspec interval = {};
     interval.it_value = m_timeToWait.timespec(units::TimeSpecReference::None);
 
     if (runMode == RunMode::PERIODIC)
@@ -327,7 +336,7 @@ cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
         return cxx::success<void>();
     }
 
-    struct itimerspec interval;
+    struct itimerspec interval = {};
     units::Duration zero = 0_s;
     interval.it_value = zero.timespec(units::TimeSpecReference::None);
     interval.it_interval.tv_sec = 0;
@@ -383,7 +392,7 @@ cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWa
 
 cxx::expected<units::Duration, TimerError> Timer::OsTimer::timeUntilExpiration() noexcept
 {
-    struct itimerspec currentInterval;
+    struct itimerspec currentInterval = {};
 
     auto result = posixCall(timer_gettime)(m_timerId, &currentInterval).failureReturnValue(-1).evaluate();
 
@@ -423,7 +432,7 @@ TimerError Timer::OsTimer::getError() const noexcept
 
 cxx::expected<units::Duration, TimerError> Timer::now() noexcept
 {
-    struct timespec value;
+    struct timespec value = {};
     auto result = posixCall(clock_gettime)(CLOCK_REALTIME, &value).failureReturnValue(-1).evaluate();
 
     if (result.has_error())

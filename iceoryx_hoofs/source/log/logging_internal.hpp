@@ -24,15 +24,23 @@ namespace log
 {
 struct LoggingComponent
 {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static constexpr char Ctx[] = "IceoryxHoofs";
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static constexpr char Description[] = "Log context of the IceoryxHoofs component!";
 };
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 static constexpr auto LogFatal = iox::log::ffbb::LogFatal<LoggingComponent>;
+// NOLINTNEXTLINE(readability-identifier-naming)
 static constexpr auto LogError = iox::log::ffbb::LogError<LoggingComponent>;
+// NOLINTNEXTLINE(readability-identifier-naming)
 static constexpr auto LogWarn = iox::log::ffbb::LogWarn<LoggingComponent>;
+// NOLINTNEXTLINE(readability-identifier-naming)
 static constexpr auto LogInfo = iox::log::ffbb::LogInfo<LoggingComponent>;
+// NOLINTNEXTLINE(readability-identifier-naming)
 static constexpr auto LogDebug = iox::log::ffbb::LogDebug<LoggingComponent>;
+// NOLINTNEXTLINE(readability-identifier-naming)
 static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponent>;
 
 } // namespace log

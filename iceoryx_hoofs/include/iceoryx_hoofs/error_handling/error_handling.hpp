@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <functional>
 #include <iostream>
 #include <mutex>
@@ -215,22 +215,22 @@ using HandlerFunction = std::function<void(const Error error, const std::functio
 ///         error handling.
 class ErrorHandler
 {
-    friend void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level);
+    friend void errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level);
 
   public:
-    static cxx::GenericRAII SetTemporaryErrorHandler(const HandlerFunction& newHandler);
+    static cxx::GenericRAII setTemporaryErrorHandler(const HandlerFunction& newHandler);
 
-    static const char* ToString(const Error error);
+    static const char* toString(const Error error);
 
   protected:
-    static void ReactOnErrorLevel(const ErrorLevel level, const char* errorText);
+    static void reactOnErrorLevel(const ErrorLevel level, const char* errorText);
 
   private:
-    static void DefaultHandler(const Error error,
-                               const std::function<void()> errorCallBack,
+    static void defaultHandler(const Error error,
+                               const std::function<void()>& errorCallBack,
                                const ErrorLevel level = ErrorLevel::FATAL);
 
-    static const char* errorNames[];
+    static const char* ERROR_NAMES[];
     static iox::HandlerFunction handler;
     /// Needed, if you want to exchange the handler. Remember the old one and call it if it is not your error. The error
     /// mock needs to be the last one exchanging the handler in tests.
@@ -266,7 +266,7 @@ class ErrorHandler
 ///
 /// @code
 /// bool called = false;
-/// auto temporaryErrorHandler = ErrorHandler::SetTemporaryErrorHandler(
+/// auto temporaryErrorHandler = ErrorHandler::setTemporaryErrorHandler(
 ///     [&](const Error e, std::function<void()>, const ErrorLevel) {
 ///         called = true;
 ///     });
@@ -275,7 +275,7 @@ class ErrorHandler
 /// ASSERT_TRUE(called);
 /// @endcode
 void errorHandler(const Error error,
-                  const std::function<void()> errorCallBack = std::function<void()>(),
+                  const std::function<void()>& errorCallBack = std::function<void()>(),
                   const ErrorLevel level = ErrorLevel::FATAL);
 } // namespace iox
 
