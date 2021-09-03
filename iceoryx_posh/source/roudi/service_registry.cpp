@@ -47,7 +47,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     return cxx::success<>();
 }
 
-bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
+void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
 {
     bool removedElement{false};
     uint64_t index = 0U;
@@ -65,7 +65,7 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
             }
             else
             {
-                return true;
+                return;
             }
             // There can't be more than one element
             break;
@@ -96,8 +96,6 @@ bool ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
         removeIndexFromMap(m_serviceMap, index);
         removeIndexFromMap(m_instanceMap, index);
     }
-
-    return removedElement;
 }
 
 void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,

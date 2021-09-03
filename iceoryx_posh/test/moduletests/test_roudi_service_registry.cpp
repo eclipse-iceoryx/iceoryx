@@ -132,13 +132,15 @@ TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
 
 TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
 {
-    EXPECT_FALSE(sut.remove(ServiceDescription("Sim", "Sa", "Lambim")));
+    sut.remove(ServiceDescription("Sim", "Sa", "Lambim"));
+    EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsWorks)
 {
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
-    EXPECT_TRUE(sut.remove(ServiceDescription()));
+    sut.remove(ServiceDescription());
+    EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildcardSearch)
@@ -280,8 +282,9 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFind
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service1).has_error());
 
-    ASSERT_TRUE(sut.remove(service5));
-    ASSERT_TRUE(sut.remove(service1));
+    sut.remove(service5);
+    sut.remove(service1);
+    EXPECT_THAT(sut.getServices().size(), Eq(3));
     sut.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(0));
@@ -311,7 +314,8 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameServicesAnd
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service3).has_error());
 
-    EXPECT_TRUE(sut.remove(service2));
+    sut.remove(service2);
+    EXPECT_THAT(sut.getServices().size(), Eq(2));
 
     sut.find(searchResults, "a", "c");
     EXPECT_THAT(searchResults.size(), Eq(0));
@@ -327,7 +331,8 @@ TEST_F(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceRegis
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service3).has_error());
 
-    EXPECT_TRUE(sut.remove(service2));
+    sut.remove(service2);
+    EXPECT_THAT(sut.getServices().size(), Eq(2));
 
     sut.find(searchResults, "b", "c");
     EXPECT_THAT(searchResults.size(), Eq(0));
@@ -343,9 +348,9 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllDoesN
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service3).has_error());
 
-    EXPECT_TRUE(sut.remove(service1));
-    EXPECT_TRUE(sut.remove(service2));
-    EXPECT_TRUE(sut.remove(service3));
+    sut.remove(service1);
+    sut.remove(service2);
+    sut.remove(service3);
 
     sut.find(searchResults, "a", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(0));
