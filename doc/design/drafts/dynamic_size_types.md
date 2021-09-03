@@ -11,7 +11,7 @@ three approaches.
    a real challenge when they should be constructed inside of this sample.
 
 2. One can perform a worst case estimation at compile time and declare
-   a type with container members which fullfil those worst case estimations.
+   a type with container members which fullfil those estimations.
    This could lead to a lot of wasted memory and if the worst case estimations
    have to be adjusted all the applications which are using this type may have
    to be adjusted as well since the capacity is part of the type.
@@ -36,7 +36,7 @@ To accomplish dynamic size types we require:
 
 ### Allocator Type Does Not Effect Container Type
 
-One important restriction is for the allocator concept is that the specification
+One important restriction for the allocator concept is that the specification
 of the allocator does not change the type like the STL C++ allocator concept
 does. Function developers for instance do not want to restrict their functions
 to shared memory allocated types which would result in some implementation
@@ -65,7 +65,7 @@ struct MyData {
 and observe how this is stored currently in the shared memory of iceoryx and
 compare it to the suggested solution.
 
-An iceoryx containers memory structure looks mostly like this:
+An iceoryx container memory structure looks mostly like this:
 ```
 vector/string {
   mgmt; // contains internal variables to handle the logic and later the
@@ -77,7 +77,7 @@ vector/string {
 
 ### Static Layout
 
-When we require a sample with our publisher and write `MyData` we gain have a
+When we require a sample with our publisher and write `MyData` we acquire a
 chunk where all the contents are stored inside one chunk. Hereby is the
 Memory Manager the class which handles the distribution of shared memory chunks.
 To support different sizes the Memory Manager uses bucket allocators with
@@ -85,16 +85,16 @@ preconfigured bucket sizes called Memory Pool.
 
 ```
 +--------------------- Memory Manager -------------------+
-|  MemPool with chunk size = 1000                        |
+|  Memory Pool with chunk size = 1000                    |
 |  +----------------+----------------+----------------+  |
-|  |  data          |                |                |  |
+|  |  value         |                |                |  |
 |  |  image::mgmt   |                |                |  |
 |  |  image::data   |                |                |  |
 |  |  text::mgmt    |                |                |  |
 |  |  text::data    |                |                |  |
 |  +----------------+----------------+----------------+  |
 |                                                        |
-|  MemPool with chunk size = 100                         |
+|  Memory Pool with chunk size = 100                     |
 |  +---+---+---+---+---+---+---+---+---+---+---+---+---+ |
 |  |   |   |   |   |   |   |   |   |   |   |   |   |   | |
 |  |   |   |   |   |   |   |   |   |   |   |   |   |   | |
@@ -115,7 +115,7 @@ look like this.
 +--------------------- Memory Manager -------------------+
 |  MemPool with chunk size = 1000                        |
 |  +----------------+----------------+----------------+  |
-|  |  data          |                |                |  |
+|  |  value         |                |                |  |
 |  |  image::mgmt   |                |                |  |
 |  |  text::mgmt    |                |                |  |
 |  +-------------+--+----------------+----------------+  |
@@ -141,41 +141,48 @@ shared memory in an IPC context. This means the design has to consider that
 vtables, virtual and inheritance are not allowed as well as function pointers
 or the use of `cxx::function` or `cxx::function_ref`.
 
-Therefore this allocator concept is less flexibel and more complex as it would
+Therefore this allocator concept is less flexible and more complex as it would
 be when everything would run in the same process since we have to use relative
 pointer and have to allocate everything on the stack.
 
 ```
-  +--------------------------------------------------------+
-  |  Allocator [Concept]                                   |
-  |                                                        |
-  |   - void* allocate(const uint64_t)                     |
-  |   - void free(void* const chunk)                       |
-  |   - template<AnotherAllocator>                         |
-  |     bool isMoveCompatible(const AnotherAllocator& rhs) |
-  +---+--------+-------------------------------------------+
+  +------------------------------+
+  |  AllocatorError [enum class] |
+  |                              |
+  |     # OUT_OF_MEMORY          |
+  |     # MEMORY_SIZE_TOO_LARGE  |
+  +------------------------------+
+
+  +---------------------------------------------------------------+
+  |  Allocator [Concept]                                          |
+  |                                                               |
+  |   - expected<relative_ptr, AllocatorError> allocate(uint64_t) |
+  |   - void free(relative_ptr chunk)                             |
+  |   - template<AnotherAllocator>                                |
+  |     bool isMoveCompatible(const AnotherAllocator& rhs)        |
+  +---+--------+--------------------------------------------------+
       |        |
-      |  +-----+---------------------------------------------------+
-      |  | RangeAllocator                                          |
-      |  |                                                         |
-      |  |   - RangeAllocator(void* start, void* end)              |
-      |  |   - void * allocate(const uint64_t)                     |
-      |  |   - void free(void* chunk)                              |
-      |  |   - template<AnotherAllocator>                          |
-      |  |     bool isMoveCompatible(const AnotherAllocator & rhs) |
-      |  |                                                         |
-      |  |   # void * m_start                                      |
-      |  |   # void * m_end                                        |
-      |  +---------------------------------------------------------+
+      |  +-----+---------------------------------------------------------+
+      |  | RangeAllocator                                                |
+      |  |                                                               |
+      |  |   - RangeAllocator(relative_ptr start, relative_ptr end)      |
+      |  |   - expected<relative_ptr, AllocatorError> allocate(uint64_t) |
+      |  |   - void free(relative_ptr chunk)                             |
+      |  |   - template<AnotherAllocator>                                |
+      |  |     bool isMoveCompatible(const AnotherAllocator & rhs)       |
+      |  |                                                               |
+      |  |   # relative_ptr m_start                                      |
+      |  |   # relative_ptr m_end                                        |
+      |  +---------------------------------------------------------------+
       |
-   +--+------------------------------------------------------+
-   | HeapAllocator                                           |
-   |                                                         |
-   |   - void * allocate(const uint64_t)                     |
-   |   - void free(void* chunk)                              |
-   |   - template<AnotherAllocator>                          |
-   |     bool isMoveCompatible(const AnotherAllocator & rhs) |
-   +---------------------------------------------------------+
+   +--+------------------------------------------------------------+
+   | HeapAllocator                                                 |
+   |                                                               |
+   |   - expected<relative_ptr, AllocatorError> allocate(uint64_t) |
+   |   - void free(relative_ptr chunk)                             |
+   |   - template<AnotherAllocator>                                |
+   |     bool isMoveCompatible(const AnotherAllocator & rhs)       |
+   +---------------------------------------------------------------+
 
 +--------------------------------+
 | template<typename Type>        |
@@ -184,17 +191,17 @@ pointer and have to allocate everything on the stack.
 |   static constexpr bool value; |  are compliant with Allocator Concept |
 +--------------------------------+                                       |
                                                                          |
-                    +----------------------------------------------------+----+
-                    | template<AllocatorTypes...>                             |
-                    | VariantAllocator                                        |
-                    |                                                         |
-                    |   - void * allocate(const uint64_t)                     |
-                    |   - void free(void * chunk)                             |
-                    |   - template<AnotherAllocator>                          |
-                    |     bool isMoveCompatible(const AnotherAllocator & rhs) |
-                    |                                                         |
-                    |   # void* m_ptrToAllocator                              |
-                    +---------------------------------------------------------+
+               +---------------------------------------------------------+-----+
+               | template<AllocatorTypes...>                                   |
+               | VariantAllocator                                              |
+               |                                                               |
+               |   - expected<relative_ptr, AllocatorError> allocate(uint64_t) |
+               |   - void free(relative_ptr chunk)                             |
+               |   - template<AnotherAllocator>                                |
+               |     bool isMoveCompatible(const AnotherAllocator & rhs)       |
+               |                                                               |
+               |   # relative_ptr m_ptrToAllocator                             |
+               +---------------------------------------------------------------+
 ```
 The `Allocator` described in this diagram is similar to a C++20 concept which can
 be verified at compiletime without inheritance. The verification can be realized
@@ -212,16 +219,16 @@ extendable `VariantAllocator` since the implementation has to be adjusted with
 every new allocator but would may provide the benefit that the `VariantAllocator`
 does not require to be a template class anymore.
 
-The `isMoveCompatible` method will be used by every container to see verify if
+The `isMoveCompatible` method will be used by every container to verify if
 a real move of the underlying structure can be performed or not. This could be
-the case for instance with two kinds of heap allocators are when the used
-RangeAllocator is managing the same range. If this is not the case the move
+the case for instance with two kinds of heap allocators or when two
+RangeAllocators are using the same range. If this is not the case the move
 operations will be replaced with an expensive copy operation (fake move).
 
 Furthermore, the suggested zero copy types will only once acquire memory from an
 allocator. The reason is that we would like to guarantee zero copy throughout the
 usage of the container otherwise some intransparent copies may occur when the
-container allocates memory multiple times and requires on one contiguous piece
+container allocates memory multiple times and requires one contiguous piece
 of memory which the allocator may not provide. (See behavior of `realloc` in C).
 
 ### Implementation of a C++20 Concept in C++14
@@ -284,19 +291,19 @@ The draft we provide here is using the `cxx::vector` but the techniques
 described can be easily applied to the `cxx::string` or other cxx containers.
 
 ```
-+---------------------------------------------------+
-|template<T>                                        |
-|vector                                             |
-|                                                   |
-|  - vector() = default                             |
-|  - template<Allocator>                            |
-|    vector(Allocator & allocator);                 |
-|                                                   |
-|  - void reserve(const uint64_t);                  |
-|  - void release();                                |
-|                                                   |
-|  // remaining API is unchanged                    |
-+---------------------------------------------------+
++------------------------------------------------------+
+|template<T>                                           |
+|vector                                                |
+|                                                      |
+|  - vector() = default                                |
+|  - template<Allocator>                               |
+|    vector(Allocator & allocator);                    |
+|                                                      |
+|  - expected<AllocatorError> reserve(const uint64_t); |
+|  - void release();                                   |
+|                                                      |
+|  // remaining API is unchanged                       |
++------------------------------------------------------+
                           ^
                          /|\
                           |
@@ -323,8 +330,7 @@ type of allocator one would like to use for that container. If no argument is
 provided the heap allocator will be used by default.
 
 The constructors and operations defined in (#1) are added to support implicit
-conversion from the generic `cxx::vector` which is required to the stack version
-of a vector. It makes the following operations possible
+conversion from the generic `cxx::vector`. It makes the following operations possible
 ```cpp
 void f(const vector<int, 20> &a) {}
 
@@ -335,9 +341,13 @@ vector<int, 20> v2;
 f(v1);
 v2 = v1;
 ```
+We can use `cxx::Expects` to ensure that the size of `v1` is smaller or equal
+than the capacity `v2`. Later we can overload the copy operation with a method
+like `perform_copy` which returns the boolean `true` when the copy operation
+was successful and `false` when the size of `v1` exceeded the capacity of `v2`.
 
-Since every stack based vector is a child of the more generic vector we can with
-the help of (#1) also assign and use stack based vectors of different sizes
+Since every stack based vector is a child of the more generic vector we can, with
+the help of (#1), also assign and use stack based vectors of different sizes
 to each other or use them in functions. This allows us to write code like this:
 ```cpp
 void f(const vector<int, 20> &a) {}
@@ -374,13 +384,19 @@ cxx::vector<int, 20> a;
 a.emplace_back(123); // can be used without a preceding reserve call
 
 cxx::vector<int> c(heapAllocator);
-c.reserve(42); // reserve required
-c.emplace_back(891);
+// reserve required
+c.reserve(42)
+     .and_then([&]{ c.emplace_back(891); })
+     .or_else([](auto & error){ /* error handling */});
 
 auto sample = publisher.loan();
-sample->sharedMemoryVector.resize(123);
+if ( sample->sharedMemoryVector.reserve(123).has_error() {
+   /* error handling */
+   return;
+}
 sample->sharedMemoryVector.emplace_back(someValue);
 ```
+
 
 Copy and move operations should be possible without the developer knowing
 what kind of underlying allocator is used. Additionally, it should be as efficient
@@ -407,6 +423,47 @@ c =  std::move(b);
 // capacity argument is insufficient it will fail
 a = std::move(b);
 ```
+Move can again fail when for instance the size of `c` exceeds the capacity of
+`a`. Here we can again provide two operations, the default C++ approach which
+could lead to a call to `cxx::Ensures` and then `std::terminate` if the capacity
+is insufficient. Additionally, we could introduce a method like `perform_move`
+which returns a boolean signaling if it was successful.
+
+## STL containers and zero copy IPC communication
+
+Most dynamic sized STL containers can be used in combination of a custom
+allocator. The internal structure of those containers looks similar to the
+structure of their `cxx` pendants
+```cpp
+template<typename T>
+class vector {
+  //...
+  T * memoryStorageOfVectorElements;
+};
+```
+The pointer hereby is an absolut pointer pointing to a piece of memory in the
+local virtual address space. Assume we have two processes A and B which would
+like to communicate via a `std::vector`.
+
+Further, lets assume process A has a virtual address space [1 - 100] and 
+process B [1000 - 1200] (the numbers are representing the memory addresses of
+the beginning and end of the virtual address space).
+When process A creates a `std::vector` with a shared memory allocator the 
+internal `memoryStorageOfVectorElements` pointer may point to an address like
+42 which is inside the virtual address space of process A and pointing to the
+correct shared memory position from the point of view of process A. When this 
+vector is then transmitted to process B the internal `memoryStorageOfVectorElements`
+still points to 42 which is no longer in the virtual address space [1000 - 1200]
+of process B which would lead to a segmentation fault.
+
+To overcome this restriction we would have to change the internal implementation
+of the `std::vector` so that it is inter process capable which would lead to
+a new implementation. Additionally, we are not aware if this is the only obstacle
+to overcome since a `std::vector` throws exceptions which are not allowed in
+our safety concept or think of iterators which are also not interprocess capable.
+
+Therefore the adaptation of the iceoryx hoofs containers seem like the best
+option to realize dynamic sized containers.
 
 ## Open Questions
 
@@ -431,3 +488,5 @@ a = std::move(b);
    cxx::vector<float> points;
    points.reserve(1234); // allocated on the heap
    ```
+4. Can relative pointer be used standalone like the heap allocator requires.
+   This means without an registered runtime and a mapped shared memory partition.
