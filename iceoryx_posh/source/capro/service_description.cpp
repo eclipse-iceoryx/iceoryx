@@ -82,7 +82,8 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcep
                                                     m_classHash[3u],
                                                     scope,
                                                     interfaceSource);
-    if (!deserializationSuccessful)
+    if (!deserializationSuccessful || scope >= static_cast<std::underlying_type<Scope>::type>(Scope::INVALID)
+        || interfaceSource >= static_cast<std::underlying_type<Interfaces>::type>(Interfaces::INTERFACE_END))
     {
         m_serviceString = iox::capro::InvalidIdString;
         m_instanceString = iox::capro::InvalidIdString;
@@ -90,29 +91,8 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcep
         return;
     }
 
-    if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
-    {
-        m_serviceString = iox::capro::InvalidIdString;
-        m_instanceString = iox::capro::InvalidIdString;
-        m_eventString = iox::capro::InvalidIdString;
-        return;
-    }
-    else
-    {
-        m_scope = static_cast<Scope>(scope);
-    }
-
-    if (interfaceSource > static_cast<std::underlying_type<Interfaces>::type>(Interfaces::INTERFACE_END))
-    {
-        m_serviceString = iox::capro::InvalidIdString;
-        m_instanceString = iox::capro::InvalidIdString;
-        m_eventString = iox::capro::InvalidIdString;
-        return;
-    }
-    else
-    {
-        m_interfaceSource = static_cast<Interfaces>(interfaceSource);
-    }
+    m_scope = static_cast<Scope>(scope);
+    m_interfaceSource = static_cast<Interfaces>(interfaceSource);
 }
 
 ServiceDescription::ServiceDescription() noexcept

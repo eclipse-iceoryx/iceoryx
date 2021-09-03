@@ -46,29 +46,15 @@ ClientOptions::deserialize(const cxx::Serialization& serialized) noexcept
                                                         responseQueueFullPolicy,
                                                         serverTooSlowPolicy);
 
-    if (!deserializationSuccessful)
+    if (!deserializationSuccessful
+        || responseQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy2::DISCARD_OLDEST_DATA)
+        || serverTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
         return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
-    if (responseQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy2::DISCARD_OLDEST_DATA))
-    {
-        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
-    }
-    else
-    {
-        clientOptions.responseQueueFullPolicy = static_cast<QueueFullPolicy2>(responseQueueFullPolicy);
-    }
-
-    if (serverTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
-    {
-        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
-    }
-    else
-    {
-        clientOptions.serverTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(serverTooSlowPolicy);
-    }
-
+    clientOptions.responseQueueFullPolicy = static_cast<QueueFullPolicy2>(responseQueueFullPolicy);
+    clientOptions.serverTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(serverTooSlowPolicy);
     return cxx::success<ClientOptions>(clientOptions);
 }
 } // namespace popo
