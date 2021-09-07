@@ -490,3 +490,7 @@ option to realize dynamic sized containers.
    ```
 4. Can relative pointer be used standalone like the heap allocator requires.
    This means without an registered runtime and a mapped shared memory partition.
+5. Is it possible to get rid of the `VariantAllocator` so that iceoryx does not
+   need to know the allocator types at compile time? If not, can we simplify the 
+   allocator integration so that the user only has to add any additional allocator
+   to a type list defined in `iceoryx_posh_types.hpp`?
