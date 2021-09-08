@@ -56,7 +56,7 @@ namespace cxx
 ///             using ThisType::operator=;  // put the assignment operators in scope
 ///
 ///             // implement ctors and assignment operators when they are implemented by the base class
-///             // this is necessary pro prevent warnings from specific compilers
+///             // this is necessary to prevent warnings from some compilers
 ///             Index() noexcept = default;
 ///             Index(const Index&) noexcept = default;
 ///             Index(Index&&) noexcept = default;

@@ -32,7 +32,7 @@ struct Sut : public T
     using T::operator=; // bring all operator= into scope
 
     // implement ctors and assignment operators when they are implemented by the base class
-    // this is necessary pro prevent warnings from specific compilers
+    // this is necessary to prevent warnings from some compilers
     Sut() noexcept = default;
     Sut(const Sut&) noexcept = default;
     Sut(Sut&&) noexcept = default;
