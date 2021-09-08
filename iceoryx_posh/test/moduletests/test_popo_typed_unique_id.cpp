@@ -38,7 +38,7 @@ TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdTwiceFails)
 {
     uint16_t someId = 1243u;
     bool errorHandlerCalled = false;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                               const std::function<void()>,
                               const iox::ErrorLevel) { errorHandlerCalled = true; });
@@ -53,7 +53,7 @@ TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdTwiceFails)
 TEST(TypedUniqueId_RouDiId, GettingTheRouDiIdWithoutSettingFails)
 {
     bool errorHandlerCalled = false;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                               const std::function<void()>,
                               const iox::ErrorLevel) { errorHandlerCalled = true; });

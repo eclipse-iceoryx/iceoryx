@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
@@ -128,33 +129,33 @@ class SegmentManager_test : public Test
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForReadUser))
 {
-    auto mapping = sut.getSegmentMappings({"iox_roudi_test1"});
+    auto mapping = sut.getSegmentMappings(PosixUser{"iox_roudi_test1"});
     ASSERT_THAT(mapping.size(), Eq(1u));
     EXPECT_THAT(mapping[0].m_isWritable, Eq(false));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForWriteUser))
 {
-    auto mapping = sut.getSegmentMappings({"iox_roudi_test2"});
+    auto mapping = sut.getSegmentMappings(PosixUser{"iox_roudi_test2"});
     ASSERT_THAT(mapping.size(), Eq(2u));
     EXPECT_THAT(mapping[0].m_isWritable == mapping[1].m_isWritable, Eq(false));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmptyForNonRegisteredUser))
 {
-    auto mapping = sut.getSegmentMappings({"roudi_test4"});
+    auto mapping = sut.getSegmentMappings(PosixUser{"roudi_test4"});
     ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmptyForNonExistingUser))
 {
-    auto mapping = sut.getSegmentMappings({"no_user"});
+    auto mapping = sut.getSegmentMappings(PosixUser{"no_user"});
     ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserWithWriteUser))
 {
-    auto memoryManager = sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test2"}).m_memoryManager;
+    auto memoryManager = sut.getSegmentInformationWithWriteAccessForUser(PosixUser{"iox_roudi_test2"}).m_memoryManager;
     ASSERT_TRUE(memoryManager.has_value());
     ASSERT_THAT(memoryManager.value().get().getNumberOfMemPools(), Eq(2u));
 
@@ -166,19 +167,20 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithReadOnlyUser))
 {
-    EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test1"}).m_memoryManager.has_value());
+    EXPECT_FALSE(
+        sut.getSegmentInformationWithWriteAccessForUser(PosixUser{"iox_roudi_test1"}).m_memoryManager.has_value());
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))
 {
-    EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser({"no_user"}).m_memoryManager.has_value());
+    EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser(PosixUser{"no_user"}).m_memoryManager.has_value());
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWriterGroupFails))
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;

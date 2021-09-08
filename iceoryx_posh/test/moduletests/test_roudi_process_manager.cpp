@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
@@ -121,7 +122,7 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
 {
     m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
-    auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
+    auto user = iox::posix::PosixUser::getUserOfCurrentProcess();
     auto payloadDataSegmentMemoryManager = m_roudiMemoryManager->segmentManager()
                                                .value()
                                                ->getSegmentInformationWithWriteAccessForUser(user)

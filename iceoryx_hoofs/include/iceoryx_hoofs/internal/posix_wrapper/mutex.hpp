@@ -54,7 +54,7 @@ class mutex
 {
   public:
     /// @attention the construction of the mutex can fail. This can lead to a program termination!
-    mutex(const bool f_isRecursive) noexcept;
+    explicit mutex(const bool f_isRecursive) noexcept;
 
     /// @attention the destruction of the mutex can fail. This can lead to a program termination!
     ~mutex() noexcept;
@@ -81,14 +81,17 @@ class mutex
     /// @brief  Tries to lock the mutex object. If it is not possible to lock
     ///         the mutex object try_lock will return an error. If the c
     ///         function fails it will return false, otherwise true.
+    // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
     bool try_lock() noexcept;
 
     /// @brief  Returns the native handle which then can be used in
     ///         pthread_mutex_** calls. Required when a pthread_mutex_**
     ///         call is not abstracted with this wrapper.
+    // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
     pthread_mutex_t get_native_handle() const noexcept;
 
-    pthread_mutex_t m_handle;
+    // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
+    pthread_mutex_t m_handle{};
 };
 } // namespace posix
 } // namespace iox

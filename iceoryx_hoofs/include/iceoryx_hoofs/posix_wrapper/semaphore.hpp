@@ -176,7 +176,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     bool m_isNamedSemaphore = true;
     bool m_isShared = false;
 
-    mutable iox_sem_t m_handle;
+    mutable iox_sem_t m_handle{};
     mutable iox_sem_t* m_handlePtr = nullptr;
 
   private:
@@ -269,7 +269,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// undefined behavior.
     ///
     /// @return returns false when sem_init fails otherwise true
-    bool init(iox_sem_t* handle, const int pshared, const unsigned int value) noexcept;
+    static bool init(iox_sem_t* handle, const int pshared, const unsigned int value) noexcept;
 
     /// @brief calls sem_open which initializes and opens a named semaphore
     /// From the sem_open manpage: sem_open() creates a new POSIX semaphore or
@@ -312,7 +312,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// open close it.
     ///
     /// @return returns false when sem_unlink fails otherwise true
-    bool unlink(const char* name) noexcept;
+    static bool unlink(const char* name) noexcept;
 
     /// @brief Returns true if the semaphore was created with CreateNamed or
     ///         OpenNamed otherwise it returns false.
@@ -320,7 +320,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
     void closeHandle() noexcept;
 
-    SemaphoreError errnoToEnum(const int errnoValue) const noexcept;
+    static SemaphoreError errnoToEnum(const int errnoValue) noexcept;
 };
 } // namespace posix
 } // namespace iox

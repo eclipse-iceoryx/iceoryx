@@ -57,6 +57,7 @@ mutex::~mutex() noexcept
     cxx::Ensures(!destroyCall.has_error() && "Could not destroy mutex");
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
 pthread_mutex_t mutex::get_native_handle() const noexcept
 {
     return m_handle;
@@ -72,6 +73,7 @@ bool mutex::unlock() noexcept
     return !posixCall(pthread_mutex_unlock)(&m_handle).successReturnValue(0).evaluate().has_error();
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
 bool mutex::try_lock() noexcept
 {
     auto result = posixCall(pthread_mutex_trylock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EBUSY).evaluate();

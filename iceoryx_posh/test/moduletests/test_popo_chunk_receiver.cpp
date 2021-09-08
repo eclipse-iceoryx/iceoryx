@@ -196,7 +196,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });

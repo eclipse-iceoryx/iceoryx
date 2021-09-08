@@ -43,7 +43,7 @@ PosixGroup::PosixGroup(gid_t f_id) noexcept
 {
 }
 
-PosixGroup::PosixGroup(PosixGroup::string_t f_name) noexcept
+PosixGroup::PosixGroup(const PosixGroup::string_t& f_name) noexcept
 {
     auto id = getGroupID(f_name);
     if (id.has_value())

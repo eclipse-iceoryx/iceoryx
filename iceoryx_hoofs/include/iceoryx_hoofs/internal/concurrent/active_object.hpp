@@ -32,7 +32,7 @@ class ActiveObject
   protected:
     ActiveObject() noexcept;
     virtual ~ActiveObject() noexcept;
-    void addTask(const std::function<void()> f) noexcept;
+    void addTask(const std::function<void()>& f) noexcept;
     void mainLoop() noexcept;
     void stopRunning() noexcept;
 

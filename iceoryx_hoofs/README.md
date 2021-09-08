@@ -140,7 +140,6 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 |`system_configuration` | i | | Collection of free functions which acquire system information like the page-size. |
 |`thread`              |   | | Wrapper for pthread functions like `pthread_setname_np`. |
 |`Timer`              |   | | Interface for the posix timer, see [ManPage timer_create](https://www.man7.org/linux/man-pages/man2/timer_create.2.html). |
-|`timespec`           | i | X | Free functions which modify `timespec`. |
 |`UnixDomainSocket`   | i | | Interface for unix domain sockets. |
 
 ### Units

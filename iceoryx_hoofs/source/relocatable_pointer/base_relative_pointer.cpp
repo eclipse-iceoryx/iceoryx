@@ -39,6 +39,7 @@ BaseRelativePointer::BaseRelativePointer(ptr_t ptr) noexcept
 {
 }
 
+// NOLINTNEXTLINE(hicpp-use-equals-default) style consistency
 BaseRelativePointer::BaseRelativePointer(const BaseRelativePointer& other) noexcept
     : m_id(other.m_id)
     , m_offset(other.m_offset)
@@ -134,7 +135,7 @@ BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, cons
     {
         return NULL_POINTER_OFFSET;
     }
-    auto basePtr = getBasePtr(id);
+    auto* basePtr = getBasePtr(id);
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
 
@@ -144,7 +145,8 @@ BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offs
     {
         return nullptr;
     }
-    auto basePtr = getBasePtr(id);
+    auto* basePtr = getBasePtr(id);
+    // NOLINTNEXTLINE(performance-no-int-to-ptr) reliance on integers for offset computation by design
     return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
 }
 

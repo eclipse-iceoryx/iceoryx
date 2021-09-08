@@ -36,6 +36,7 @@ NamedPipe::NamedPipe() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 NamedPipe::NamedPipe(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize,
@@ -58,6 +59,8 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
 
     // leading slash is allowed even though it is not a valid file name
     bool isValidPipeName = cxx::isValidFileName(name)
+                           // name is checked for emptiness, so it's ok to get a first member
+                           // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                            || (!name.empty() && name.c_str()[0] == '/' && cxx::isValidFileName(*name.substr(1)));
     if (!isValidPipeName)
     {
@@ -117,7 +120,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     else
     {
         m_isInitialized = m_data->waitForInitialization();
-        if (m_isInitialized == false)
+        if (!m_isInitialized)
         {
             m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
         }
@@ -153,6 +156,7 @@ template <typename Prefix>
 IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t& name) noexcept
 {
     return IpcChannelName_t(cxx::TruncateToCapacity,
+                            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                             cxx::concatenate(p, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
 }
 
@@ -172,6 +176,7 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
     return cxx::success<>();
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static) API can be misused if IPC channel changes
 cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
 {
     return cxx::success<bool>(false);
@@ -324,6 +329,7 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units:
     return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init) semaphores are initalized via placementCreate call
 NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
                                         IpcChannelError& error,
                                         const uint64_t maxMsgNumber) noexcept

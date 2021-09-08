@@ -49,6 +49,7 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
 
     if (m_length >= alignedPosition + size)
     {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) low-level memory management
         l_returnValue = m_startAddress + alignedPosition;
         m_currentPosition = alignedPosition + size;
     }

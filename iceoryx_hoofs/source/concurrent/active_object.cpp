@@ -31,7 +31,7 @@ ActiveObject::~ActiveObject() noexcept
     stopRunning();
 }
 
-void ActiveObject::addTask(const std::function<void()> f) noexcept
+void ActiveObject::addTask(const std::function<void()>& f) noexcept
 {
     m_tasks.push(f);
 }

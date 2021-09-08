@@ -100,7 +100,7 @@ TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
     sut.publish();
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));

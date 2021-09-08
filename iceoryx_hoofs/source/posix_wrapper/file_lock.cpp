@@ -45,10 +45,10 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
         return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
     PathName_t fullPath(platform::IOX_LOCK_FILE_PATH_PREFIX + m_name + ".lock");
-    constexpr int createFileForReadWrite = O_CREAT | O_RDWR;
+    constexpr int CREATE_FILE_FOR_READ_WRITE = O_CREAT | O_RDWR;
     mode_t userReadWriteAccess = S_IRUSR | S_IWUSR;
 
-    auto openCall = posixCall(iox_open)(fullPath.c_str(), createFileForReadWrite, userReadWriteAccess)
+    auto openCall = posixCall(iox_open)(fullPath.c_str(), CREATE_FILE_FOR_READ_WRITE, userReadWriteAccess)
                         .failureReturnValue(ERROR_CODE)
                         .evaluate()
                         .and_then([this](auto& r) { this->m_fd = r.value; });

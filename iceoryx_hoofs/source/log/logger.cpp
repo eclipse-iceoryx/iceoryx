@@ -34,8 +34,8 @@ namespace iox
 {
 namespace log
 {
-Logger::Logger(IOX_MAYBE_UNUSED std::string ctxId,
-               IOX_MAYBE_UNUSED std::string ctxDescription,
+Logger::Logger(IOX_MAYBE_UNUSED const std::string& ctxId,
+               IOX_MAYBE_UNUSED const std::string& ctxDescription,
                LogLevel appLogLevel) noexcept
     : m_logLevel(appLogLevel)
 {
@@ -54,16 +54,19 @@ Logger& Logger::operator=(Logger&& rhs) noexcept
     return *this;
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogLevel Logger::GetLogLevel() const noexcept
 {
     return m_logLevel.load(std::memory_order_relaxed);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 void Logger::SetLogLevel(const LogLevel logLevel) noexcept
 {
     m_logLevel.store(logLevel, std::memory_order_relaxed);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 cxx::GenericRAII Logger::SetLogLevelForScope(const LogLevel logLevel) noexcept
 {
     m_logLevelPredecessor.store(m_logLevel.load(std::memory_order_relaxed), std::memory_order_relaxed);
@@ -71,6 +74,7 @@ cxx::GenericRAII Logger::SetLogLevelForScope(const LogLevel logLevel) noexcept
     return cxx::GenericRAII([] {}, [&] { this->SetLogLevel(m_logLevelPredecessor.load(std::memory_order_relaxed)); });
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 void Logger::SetLogMode(const LogMode logMode) noexcept
 {
     m_logMode.store(logMode, std::memory_order_relaxed);
@@ -86,37 +90,44 @@ void Logger::SetLogMode(const LogMode logMode) noexcept
     }
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogStream Logger::LogFatal() noexcept
 {
     return LogStream(*this, LogLevel::kFatal);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogStream Logger::LogError() noexcept
 {
     return LogStream(*this, LogLevel::kError);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogStream Logger::LogWarn() noexcept
 {
     return LogStream(*this, LogLevel::kWarn);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogStream Logger::LogInfo() noexcept
 {
     return LogStream(*this, LogLevel::kInfo);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogStream Logger::LogDebug() noexcept
 {
     return LogStream(*this, LogLevel::kDebug);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 LogStream Logger::LogVerbose() noexcept
 {
     return LogStream(*this, LogLevel::kVerbose);
 }
 
-void Logger::Print(const LogEntry entry) const noexcept
+// NOLINTNEXTLINE(readability-identifier-naming)
+void Logger::Print(const LogEntry& entry) noexcept
 {
     // as long as there is only this synchronous logger, buffer the output before using clog to prevent interleaving
     // output because of threaded access
@@ -125,21 +136,27 @@ void Logger::Print(const LogEntry entry) const noexcept
     auto sec = std::chrono::duration_cast<std::chrono::seconds>(entry.time);
     std::time_t time = sec.count();
 
-    auto timeInfo = std::localtime(&time);
+    // TODO: std::localtime is thread-unsafe, may be remove
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
+    auto* timeInfo = std::localtime(&time);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+    auto milliseconds = entry.time.count() % 1000;
     buffer << "\033[0;90m" << std::put_time(timeInfo, "%Y-%m-%d %H:%M:%S");
-    buffer << "." << std::right << std::setfill('0') << std::setw(3) << entry.time.count() % 1000 << " ";
+    buffer << "." << std::right << std::setfill('0') << std::setw(3) << milliseconds << " ";
     buffer << LogLevelColor[cxx::enumTypeAsUnderlyingType(entry.level)]
            << LogLevelText[cxx::enumTypeAsUnderlyingType(entry.level)];
     buffer << "\033[m: " << entry.message << std::endl;
     std::clog << buffer.str();
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
 {
     return (logLevel <= m_logLevel.load(std::memory_order_relaxed));
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 void Logger::Log(const LogEntry& entry) const noexcept
 {
     /// @todo do we want a ringbuffer where we store the last e.g. 100 logs

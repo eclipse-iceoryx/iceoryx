@@ -66,7 +66,7 @@ class SignalHandler_test : public Test
 
     void registerSignal(const int signal, void (*const callback)(int))
     {
-        struct sigaction action;
+        struct sigaction action = {};
         sigemptyset(&action.sa_mask);
         action.sa_handler = callback;
         action.sa_flags = 0;

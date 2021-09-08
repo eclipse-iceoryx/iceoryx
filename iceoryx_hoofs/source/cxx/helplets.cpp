@@ -25,14 +25,20 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
 {
     // -1 == since the max alignment addition is alignment - 1 otherwise the
     // memory is already aligned and we have to do nothing
+    // low-level memory management
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory, cppcoreguidelines-no-malloc, hicpp-use-auto)
     uint64_t memory = reinterpret_cast<uint64_t>(malloc(size + alignment + sizeof(void*) - 1));
     if (memory == 0)
     {
         return nullptr;
     }
     uint64_t alignedMemory = align(memory + sizeof(void*), alignment);
+    assert(alignedMemory >= memory + 1);
+    // low-level memory management
+    // NOLINTNEXTLINE(performance-no-int-to-ptr, cppcoreguidelines-pro-bounds-pointer-arithmetic)
     reinterpret_cast<void**>(alignedMemory)[-1] = reinterpret_cast<void*>(memory);
 
+    // NOLINTNEXTLINE(performance-no-int-to-ptr) low-level memory management
     return reinterpret_cast<void*>(alignedMemory);
 }
 
@@ -40,6 +46,10 @@ void alignedFree(void* const memory) noexcept
 {
     if (memory != nullptr)
     {
+        // low-level memory management
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory, cppcoreguidelines-no-malloc,
+        // cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE
         free(reinterpret_cast<void**>(memory)[-1]);
     }
 }

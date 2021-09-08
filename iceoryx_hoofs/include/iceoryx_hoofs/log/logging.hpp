@@ -27,7 +27,9 @@ namespace iox
 {
 namespace log
 {
-Logger& CreateLogger(std::string ctxId, std::string ctxDescription, LogLevel appDefLogLevel = LogLevel::kWarn) noexcept;
+Logger& createLogger(const std::string& ctxId,
+                     const std::string& ctxDescription,
+                     const LogLevel appDefLogLevel = LogLevel::kWarn) noexcept;
 
 inline constexpr LogHex8 HexFormat(uint8_t value) noexcept
 {

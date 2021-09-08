@@ -24,6 +24,8 @@ namespace iox
 {
 namespace posix
 {
+// TODO: reduce number of arguments by moving them to struct
+// NOLINTNEXTLINE(readability-function-size)
 MemoryMap::MemoryMap(const void* baseAddressHint,
                      const uint64_t length,
                      const int32_t fileDescriptor,
@@ -44,7 +46,9 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
     }
     // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
     posixCall(mmap)(const_cast<void*>(baseAddressHint), m_length, l_memoryProtection, flags, fileDescriptor, offset)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
         .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
         .evaluate()
         .and_then([this](auto& r) {
@@ -68,7 +72,7 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
         });
 }
 
-MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) const noexcept
+MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {

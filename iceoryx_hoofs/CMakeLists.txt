@@ -164,7 +164,6 @@ add_library(iceoryx_hoofs
     source/posix_wrapper/file_lock.cpp
     source/posix_wrapper/semaphore.cpp
     source/posix_wrapper/timer.cpp
-    source/posix_wrapper/timespec.cpp
     source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/signal_handler.cpp
     source/posix_wrapper/message_queue.cpp

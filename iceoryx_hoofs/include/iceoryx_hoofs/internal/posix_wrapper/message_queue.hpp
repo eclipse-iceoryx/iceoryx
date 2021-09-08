@@ -98,7 +98,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     MessageQueue(const IpcChannelName_t& name,
                  const IpcChannelSide channelSide,
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                 const uint64_t maxMsgNumber = 10u) noexcept;
+                 const uint64_t maxMsgNumber = 10U) noexcept;
 
     cxx::expected<int32_t, IpcChannelError> open(const IpcChannelName_t& name,
                                                  const IpcChannelSide channelSide) noexcept;
@@ -113,9 +113,9 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
   private:
     IpcChannelName_t m_name;
-    struct mq_attr m_attributes;
+    mq_attr m_attributes{};
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
-    IpcChannelSide m_channelSide;
+    IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
 
 #ifdef __QNX__
     static constexpr int TIMEOUT_ERRNO = EINTR;

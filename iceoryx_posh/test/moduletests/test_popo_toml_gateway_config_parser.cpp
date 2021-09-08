@@ -59,7 +59,7 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
     iox::roudi::ConfigFilePathString_t m_configFilePath;
     void CreateTmpTomlFile(std::shared_ptr<cpptoml::table> toml)
     {
-        m_configFilePath.append(iox::cxx::TruncateToCapacity, "popo_toml_gateway_config.toml");
+        m_configFilePath.append(iox::cxx::TruncateToCapacity, "generated_gateway_config.toml");
         std::fstream fs(m_configFilePath, std::fstream::out | std::fstream::trunc);
         if (fs.std::fstream::is_open())
         {
@@ -364,7 +364,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto serviceArray = cpptoml::make_table_array();
     auto serviceEntry = cpptoml::make_table();
 
-    for (uint32_t i = 1U; i <= iox::MAX_GATEWAY_SERVICES; ++i)
+    for (uint32_t i = 1U; i <= iox::MAX_GATEWAY_SERVICES + 1U; ++i)
     {
         std::string stringentry = "validservice" + std::to_string(i);
         serviceEntry->insert("service", stringentry);
@@ -373,23 +373,11 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
         serviceArray->push_back(serviceEntry);
     }
 
+
     toml->insert("services", serviceArray);
     CreateTmpTomlFile(toml);
 
     auto result = TomlGatewayConfigParser::parse(m_configFilePath);
-    GatewayConfig config = result.value();
-    ASSERT_FALSE(result.has_error());
-
-    std::string stringentry = "validservice" + std::to_string(iox::MAX_GATEWAY_SERVICES);
-    serviceEntry->insert("service", stringentry);
-    serviceEntry->insert("instance", stringentry);
-    serviceEntry->insert("event", stringentry);
-    serviceArray->push_back(serviceEntry);
-
-    toml->insert("services", serviceArray);
-    CreateTmpTomlFile(toml);
-
-    result = TomlGatewayConfigParser::parse(m_configFilePath);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(result.get_error(), MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
@@ -402,7 +390,7 @@ INSTANTIATE_TEST_CASE_P(
     ParseAllMalformedInputConfigFiles,
     TomlGatewayConfigParserTest,
     Values(ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION,
-                                 "popo_toml_gateway_config.toml"},
+                                 "generated_gateway_config.toml"},
            ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
                                  "toml_parser_exception.toml"}));
 

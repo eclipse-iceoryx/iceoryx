@@ -26,20 +26,21 @@
 
 namespace iox
 {
-const char* ErrorHandler::errorNames[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+const char* ErrorHandler::ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
-HandlerFunction ErrorHandler::handler = {ErrorHandler::DefaultHandler};
+// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
+HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};
 
 std::mutex ErrorHandler::handler_mutex;
 
 std::ostream& operator<<(std::ostream& stream, Error value) noexcept
 {
-    stream << ErrorHandler::ToString(value);
+    stream << ErrorHandler::toString(value);
     return stream;
 }
 
-void ErrorHandler::DefaultHandler(const Error error,
-                                  const std::function<void()> errorCallBack,
+void ErrorHandler::defaultHandler(const Error error,
+                                  const std::function<void()>& errorCallBack,
                                   const ErrorLevel level) noexcept
 {
     if (errorCallBack)
@@ -51,13 +52,13 @@ void ErrorHandler::DefaultHandler(const Error error,
         std::stringstream ss;
         ss << "ICEORYX error! " << error;
 
-        ReactOnErrorLevel(level, ss.str().c_str());
+        reactOnErrorLevel(level, ss.str().c_str());
     }
 }
 
-void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
+void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
 {
-    static auto& logger = CreateLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
+    static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
     switch (level)
     {
     case ErrorLevel::FATAL:
@@ -75,7 +76,7 @@ void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorTe
     }
 }
 
-cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& newHandler) noexcept
+cxx::GenericRAII ErrorHandler::setTemporaryErrorHandler(const HandlerFunction& newHandler) noexcept
 {
     return cxx::GenericRAII(
         [&newHandler] {
@@ -84,17 +85,17 @@ cxx::GenericRAII ErrorHandler::SetTemporaryErrorHandler(const HandlerFunction& n
         },
         [] {
             std::lock_guard<std::mutex> lock(handler_mutex);
-            handler = DefaultHandler;
+            handler = defaultHandler;
         });
 }
 
 
-const char* ErrorHandler::ToString(const Error error) noexcept
+const char* ErrorHandler::toString(const Error error) noexcept
 {
-    return ErrorHandler::errorNames[static_cast<uint32_t>(error)];
+    return ErrorHandler::ERROR_NAMES[static_cast<uint32_t>(error)];
 }
 
-void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level) noexcept
+void errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept
 {
     ErrorHandler::handler(error, errorCallBack, level);
 }

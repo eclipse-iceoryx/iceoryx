@@ -233,7 +233,7 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -399,7 +399,7 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -418,7 +418,7 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -452,7 +452,7 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });

@@ -48,7 +48,7 @@ struct PosixCallResult
     cxx::string<POSIX_CALL_ERROR_STRING_SIZE> getHumanReadableErrnum() const noexcept;
 
     /// @brief the return value of the posix function call
-    T value;
+    T value{};
 
     /// @brief the errno value which was set by the posix function call
     int32_t errnum = POSIX_CALL_INVALID_ERRNO;
@@ -188,9 +188,9 @@ class IOX_NO_DISCARD PosixCallBuilder
     PosixCallVerificator<ReturnType> operator()(FunctionArguments... arguments) && noexcept;
 
   private:
-    template <typename ReturnType_, typename... FunctionArguments_>
-    friend PosixCallBuilder<ReturnType_, FunctionArguments_...>
-    internal::createPosixCallBuilder(ReturnType_ (*posixCall)(FunctionArguments_...),
+    template <typename ReturnTypeFriend, typename... FunctionArgumentsFriend>
+    friend PosixCallBuilder<ReturnTypeFriend, FunctionArgumentsFriend...>
+    internal::createPosixCallBuilder(ReturnTypeFriend (*posixCall)(FunctionArgumentsFriend...),
                                      const char* posixFunctionName,
                                      const char* file,
                                      const int32_t line,

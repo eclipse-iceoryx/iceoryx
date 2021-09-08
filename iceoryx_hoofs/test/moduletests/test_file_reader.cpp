@@ -79,28 +79,28 @@ class FileReader_test : public Test
 TEST_F(FileReader_test, openNonExisting)
 {
     iox::cxx::FileReader reader("a_file_that_wasn't_there.txt");
-    EXPECT_FALSE(reader.IsOpen());
+    EXPECT_FALSE(reader.isOpen());
 }
 
 TEST_F(FileReader_test, openExisting)
 {
     iox::cxx::FileReader reader(TestFilePath);
-    EXPECT_TRUE(reader.IsOpen());
+    EXPECT_TRUE(reader.isOpen());
 }
 
 TEST_F(FileReader_test, openWithPath)
 {
     iox::cxx::FileReader reader(TestFile, TempPath);
-    EXPECT_TRUE(reader.IsOpen());
+    EXPECT_TRUE(reader.isOpen());
 
     iox::cxx::FileReader almostTheSameReader(TestFile, TempPath);
-    EXPECT_TRUE(almostTheSameReader.IsOpen());
+    EXPECT_TRUE(almostTheSameReader.isOpen());
 }
 
 TEST_F(FileReader_test, openWithWrongPath)
 {
     iox::cxx::FileReader reader(TestFile, CrapPath);
-    EXPECT_FALSE(reader.IsOpen());
+    EXPECT_FALSE(reader.isOpen());
 }
 
 TEST_F(FileReader_test, readLines)
@@ -108,11 +108,11 @@ TEST_F(FileReader_test, readLines)
     iox::cxx::FileReader reader(TestFilePath);
     std::string stringLine;
 
-    bool isLineCorrect = reader.ReadLine(stringLine);
+    bool isLineCorrect = reader.readLine(stringLine);
     EXPECT_TRUE(isLineCorrect);
     EXPECT_EQ(stringLine.compare("This is a test file."), 0);
 
-    isLineCorrect = reader.ReadLine(stringLine);
+    isLineCorrect = reader.readLine(stringLine);
     EXPECT_TRUE(isLineCorrect);
     EXPECT_EQ(stringLine.compare("It consists of more than one line."), 0);
 }
@@ -122,7 +122,7 @@ TEST_F(FileReader_test, readAllLines)
     iox::cxx::FileReader reader(TestFilePath);
     std::string stringLine;
     int numLines = 0;
-    while (reader.ReadLine(stringLine))
+    while (reader.readLine(stringLine))
     {
         ++numLines;
     }

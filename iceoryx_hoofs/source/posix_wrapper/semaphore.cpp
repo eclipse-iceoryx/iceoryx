@@ -24,9 +24,7 @@ namespace iox
 {
 namespace posix
 {
-Semaphore::Semaphore() noexcept
-{
-}
+Semaphore::Semaphore() noexcept = default;
 
 Semaphore::Semaphore(Semaphore&& rhs) noexcept
 {
@@ -89,7 +87,7 @@ void Semaphore::closeHandle() noexcept
 
 cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 {
-    int value;
+    int value{0};
     auto call = posixCall(iox_sem_getvalue)(getHandle(), &value).failureReturnValue(-1).evaluate();
     if (call.has_error())
     {
@@ -190,7 +188,7 @@ Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int va
 Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept
     : m_isCreated(false)
 {
-    if (m_name.unsafe_assign(name) == false)
+    if (!m_name.unsafe_assign(name))
     {
         m_isInitialized = false;
         m_errorValue = SemaphoreError::NAME_TOO_LONG;
@@ -208,10 +206,11 @@ Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) no
     }
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept
     : m_isCreated(true)
 {
-    if (m_name.unsafe_assign(name) == false)
+    if (!m_name.unsafe_assign(name))
     {
         m_isInitialized = false;
         m_errorValue = SemaphoreError::NAME_TOO_LONG;
@@ -275,7 +274,7 @@ bool Semaphore::isNamedSemaphore() const noexcept
     return m_isNamedSemaphore;
 }
 
-SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
+SemaphoreError Semaphore::errnoToEnum(const int errnoValue) noexcept
 {
     switch (errnoValue)
     {
@@ -290,6 +289,7 @@ SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
         return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
     default:
         std::cerr << "an unexpected error occurred in semaphore - this should never happen! errno: "
+                  // NOLINTNEXTLINE(concurrency-mt-unsafe) impossible case
                   << strerror(errnoValue) << std::endl;
         return SemaphoreError::UNDEFINED;
     }
