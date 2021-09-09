@@ -54,6 +54,14 @@ namespace cxx
 ///         //                 otherwise the code will not compile
 ///             using ThisType::ThisType;   // this makes all constructors of NewType available for Index
 ///             using ThisType::operator=;  // put the assignment operators in scope
+///
+///             // implement ctors and assignment operators when they are implemented by the base class
+///             // this is necessary to prevent warnings from some compilers
+///             Index() noexcept = default;
+///             Index(const Index&) noexcept = default;
+///             Index(Index&&) noexcept = default;
+///             Index& operator=(const Index&) noexcept = default;
+///             Index& operator=(Index&&) noexcept = default;
 ///     };
 ///
 ///     Index a(123), c(456);   // allowed since we are using the policy ConstructByValueCopy
