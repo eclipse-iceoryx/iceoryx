@@ -98,7 +98,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
 
     bool sendToQueue(mepoo::ChunkHeader* const chunkHeader,
                      const cxx::UniqueId uniqueQueuId,
-                     uint32_t& lastKnownQueueIndex) noexcept;
+                     const uint32_t lastKnownQueueIndex) noexcept;
 
     /// @brief Push an allocated chunk to the history without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to push to the history

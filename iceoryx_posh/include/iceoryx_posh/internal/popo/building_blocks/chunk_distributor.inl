@@ -209,14 +209,70 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_
 
 template <typename ChunkDistributorDataType>
 inline cxx::expected<ChunkDistributorError>
-ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId uniqueQueueId IOX_MAYBE_UNUSED,
-                                                           uint32_t& lastKnownQueueIndex IOX_MAYBE_UNUSED,
+ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId uniqueQueueId,
+                                                           const uint32_t lastKnownQueueIndex,
                                                            mepoo::SharedChunk chunk IOX_MAYBE_UNUSED) noexcept
 {
-    /// @todo iox-#27
-    /// - find queue
-    /// - deliver to queue but respect `SubscriberTooSlowPolicy` like in `deliverToAllStoredQueues`
+    bool retry{false};
+    do
+    {
+        typename MemberType_t::LockGuard_t lock(*getMembers());
+
+        auto queueIndex = getQueueIndex(uniqueQueueId, lastKnownQueueIndex);
+
+        if (!queueIndex.has_value())
+        {
+            return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER);
+        }
+
+        auto& queue = getMembers()->m_queues[queueIndex.value()];
+
+        bool willWaitForSubscriber =
+            getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+
+        bool isBlockingQueue = (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
+
+        retry = false;
+        if (!deliverToQueue(queue.get(), chunk))
+        {
+            if (isBlockingQueue)
+            {
+                retry = true;
+            }
+            else
+            {
+                ChunkQueuePusher_t(queue.get()).lostAChunk();
+            }
+        }
+    } while (retry);
+
     return cxx::success<>();
+}
+
+template <typename ChunkDistributorDataType>
+inline cxx::optional<uint32_t>
+ChunkDistributor<ChunkDistributorDataType>::getQueueIndex(const cxx::UniqueId uniqueQueueId,
+                                                          const uint32_t lastKnownQueueIndex) const noexcept
+{
+    typename MemberType_t::LockGuard_t lock(*getMembers());
+
+    auto& queues = getMembers()->m_queues;
+
+    if (queues.size() > lastKnownQueueIndex && queues[lastKnownQueueIndex]->m_uniqueId == uniqueQueueId)
+    {
+        return lastKnownQueueIndex;
+    }
+
+    uint32_t index{0};
+    for (auto& queue : queues)
+    {
+        if (queue->m_uniqueId == uniqueQueueId)
+        {
+            return index;
+        }
+        ++index;
+    }
+    return cxx::nullopt;
 }
 
 template <typename ChunkDistributorDataType>

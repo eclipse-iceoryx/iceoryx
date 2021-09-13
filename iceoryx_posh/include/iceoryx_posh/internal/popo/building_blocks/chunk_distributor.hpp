@@ -113,13 +113,20 @@ class ChunkDistributor
     /// @brief Deliver the provided shared chunk to the chunk queue with the provided ID. The chunk will NOT be added
     /// to the chunk history
     /// @param[in] uniqueQueueId is an unique ID which identifies the queue to which this chunk shall be delivered
-    /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId; if the queue is not
-    /// found at the index, the queue is searched by iteration over all stored queues and the new index is stored in
-    /// this parameter
+    /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
     /// @param[in] chunk is the SharedChunk to be delivered
     /// @return ChunkDistributorError if the queue was not found
-    cxx::expected<ChunkDistributorError>
-    deliverToQueue(const cxx::UniqueId uniqueQueueId, uint32_t& lastKnownQueueIndex, mepoo::SharedChunk chunk) noexcept;
+    cxx::expected<ChunkDistributorError> deliverToQueue(const cxx::UniqueId uniqueQueueId,
+                                                        const uint32_t lastKnownQueueIndex,
+                                                        mepoo::SharedChunk chunk) noexcept;
+
+    /// @brief Lookup for the index of a queue with a specific cxx::UniqueId
+    /// @param[in] uniqueQueueId is the unique ID of the queue to query the index
+    /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId; if the queue is not
+    /// found at the index, the queue is searched by iteration over all stored queues
+    /// @return the index of the queue with uniqueQueueId or cxx::nullopt if the queue was not found
+    cxx::optional<uint32_t> getQueueIndex(const cxx::UniqueId uniqueQueueId,
+                                          const uint32_t lastKnownQueueIndex) const noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara

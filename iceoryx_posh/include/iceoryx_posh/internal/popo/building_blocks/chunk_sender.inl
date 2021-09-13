@@ -161,7 +161,7 @@ inline void ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chu
 template <typename ChunkSenderDataType>
 inline bool ChunkSender<ChunkSenderDataType>::sendToQueue(mepoo::ChunkHeader* const chunkHeader,
                                                           const cxx::UniqueId uniqueQueuId,
-                                                          uint32_t& lastKnownQueueIndex) noexcept
+                                                          const uint32_t lastKnownQueueIndex) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
