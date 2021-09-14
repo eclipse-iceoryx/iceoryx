@@ -26,7 +26,7 @@ namespace iox
 {
 namespace posix
 {
-mutex::mutex(bool f_isRecursive)
+mutex::mutex(bool f_isRecursive) noexcept
 {
     pthread_mutexattr_t attr;
     bool isInitialized{true};
@@ -50,7 +50,7 @@ mutex::mutex(bool f_isRecursive)
     cxx::Ensures(isInitialized && "Unable to create mutex");
 }
 
-mutex::~mutex()
+mutex::~mutex() noexcept
 {
     auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).successReturnValue(0).evaluate();
 
@@ -63,18 +63,18 @@ pthread_mutex_t mutex::get_native_handle() const noexcept
     return m_handle;
 }
 
-bool mutex::lock()
+bool mutex::lock() noexcept
 {
     return !posixCall(pthread_mutex_lock)(&m_handle).successReturnValue(0).evaluate().has_error();
 }
 
-bool mutex::unlock()
+bool mutex::unlock() noexcept
 {
     return !posixCall(pthread_mutex_unlock)(&m_handle).successReturnValue(0).evaluate().has_error();
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-bool mutex::try_lock()
+bool mutex::try_lock() noexcept
 {
     auto result = posixCall(pthread_mutex_trylock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EBUSY).evaluate();
     bool isBusy = !result.has_error() && result->errnum == EBUSY;

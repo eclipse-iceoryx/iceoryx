@@ -60,52 +60,54 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     /// default constructor. The result is an invalid MessageQueue object which can be reassigned later by using the
     /// move constructor.
-    MessageQueue();
+    MessageQueue() noexcept;
 
     MessageQueue(const MessageQueue& other) = delete;
     MessageQueue(MessageQueue&& other) noexcept;
     MessageQueue& operator=(const MessageQueue& other) = delete;
     MessageQueue& operator=(MessageQueue&& other) noexcept;
 
-    ~MessageQueue();
+    ~MessageQueue() noexcept;
 
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name);
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
     /// close and remove message queue.
-    cxx::expected<IpcChannelError> destroy();
+    cxx::expected<IpcChannelError> destroy() noexcept;
 
     /// @brief send a message to queue using std::string.
     /// @return true if sent without errors, false otherwise
-    cxx::expected<IpcChannelError> send(const std::string& msg) const;
+    cxx::expected<IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @todo zero copy receive with receive(cxx::string&); cxx::string would be the buffer for mq_receive
 
     /// @brief receive message from queue using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.
-    cxx::expected<std::string, IpcChannelError> receive() const;
+    cxx::expected<std::string, IpcChannelError> receive() const noexcept;
 
     /// @brief try to receive message from queue for a given timeout duration using std::string. Only defined
     /// for NON_BLOCKING == false.
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
-    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const;
+    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
     /// @brief try to send a message to the queue for a given timeout duration using std::string
-    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const;
+    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
-    cxx::expected<bool, IpcChannelError> isOutdated();
+    cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
     MessageQueue(const IpcChannelName_t& name,
                  const IpcChannelSide channelSide,
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                 const uint64_t maxMsgNumber = 10U);
+                 const uint64_t maxMsgNumber = 10U) noexcept;
 
-    cxx::expected<int32_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide);
+    cxx::expected<int32_t, IpcChannelError> open(const IpcChannelName_t& name,
+                                                 const IpcChannelSide channelSide) noexcept;
 
-    cxx::expected<IpcChannelError> close();
-    cxx::expected<IpcChannelError> unlink();
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum);
+    cxx::expected<IpcChannelError> close() noexcept;
+    cxx::expected<IpcChannelError> unlink() noexcept;
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name,
+                                                             const int32_t errnum) noexcept;
     static cxx::expected<IpcChannelName_t, IpcChannelError>
     sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
 

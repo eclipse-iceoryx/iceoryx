@@ -32,7 +32,8 @@ enum class CompatibilityCheckLevel
     BUILD_DATE
 };
 
-inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const version::CompatibilityCheckLevel& level)
+inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream,
+                                       const version::CompatibilityCheckLevel& level) noexcept
 {
     switch (level)
     {

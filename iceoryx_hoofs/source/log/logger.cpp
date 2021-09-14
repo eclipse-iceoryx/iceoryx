@@ -36,7 +36,7 @@ namespace log
 {
 Logger::Logger(IOX_MAYBE_UNUSED const std::string& ctxId,
                IOX_MAYBE_UNUSED const std::string& ctxDescription,
-               LogLevel appLogLevel)
+               LogLevel appLogLevel) noexcept
     : m_logLevel(appLogLevel)
 {
 }
@@ -127,7 +127,7 @@ LogStream Logger::LogVerbose() noexcept
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-void Logger::Print(const LogEntry& entry)
+void Logger::Print(const LogEntry& entry) noexcept
 {
     // as long as there is only this synchronous logger, buffer the output before using clog to prevent interleaving
     // output because of threaded access
@@ -157,7 +157,7 @@ bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-void Logger::Log(const LogEntry& entry) const
+void Logger::Log(const LogEntry& entry) const noexcept
 {
     /// @todo do we want a ringbuffer where we store the last e.g. 100 logs
     /// event if they are below the current log level and print them if case of kFatal?

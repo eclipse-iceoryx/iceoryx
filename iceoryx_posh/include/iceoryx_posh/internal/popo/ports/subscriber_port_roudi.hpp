@@ -41,8 +41,8 @@ class SubscriberPortRouDi : public BasePort
 
     SubscriberPortRouDi(const SubscriberPortRouDi& other) = delete;
     SubscriberPortRouDi& operator=(const SubscriberPortRouDi&) = delete;
-    SubscriberPortRouDi(SubscriberPortRouDi&& rhs) = default;
-    SubscriberPortRouDi& operator=(SubscriberPortRouDi&& rhs) = default;
+    SubscriberPortRouDi(SubscriberPortRouDi&& rhs) noexcept = default;
+    SubscriberPortRouDi& operator=(SubscriberPortRouDi&& rhs) noexcept = default;
     virtual ~SubscriberPortRouDi() = default;
 
     /// @brief Returns behaviour in case of a full delivery queue

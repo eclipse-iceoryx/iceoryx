@@ -91,7 +91,7 @@ bool CyclicIndex<CycleLength, ValueType>::isOneCycleBehind(const CyclicIndex& ot
 }
 
 template <uint64_t CycleLength, typename ValueType>
-int64_t CyclicIndex<CycleLength, ValueType>::operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const
+int64_t CyclicIndex<CycleLength, ValueType>::operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const noexcept
 {
     return static_cast<int64_t>(m_value - rhs.m_value);
 }

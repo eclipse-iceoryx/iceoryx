@@ -55,7 +55,7 @@ class IndexQueue
     static constexpr ConstructFull_t ConstructFull{};
     static constexpr ConstructEmpty_t ConstructEmpty{};
 
-    ~IndexQueue() = default;
+    ~IndexQueue() noexcept = default;
     IndexQueue(const IndexQueue&) = delete;
     IndexQueue(IndexQueue&&) = delete;
     IndexQueue& operator=(const IndexQueue&) = delete;
@@ -125,7 +125,7 @@ class IndexQueue
     /// @param position position to load the value from
     /// @param memoryOrder memory order to load the value with
     /// @return value at position
-    Index loadvalueAt(const Index& position, std::memory_order memoryOrder = std::memory_order_relaxed) const;
+    Index loadvalueAt(const Index& position, std::memory_order memoryOrder = std::memory_order_relaxed) const noexcept;
 
     /// @brief pop an index from the queue in FIFO order if the queue not empty
     /// @param index that was obtained, undefined if false is returned

@@ -30,7 +30,7 @@ namespace set
 /// @param [in] container container to be added to
 /// @param [in] entry element to be added
 template <typename Container, typename Type = typename Container::value_type>
-void add(Container& container, const Type& entry)
+void add(Container& container, const Type& entry) noexcept
 {
     auto iter = std::find(container.begin(), container.end(), entry);
     if (iter == container.end())
@@ -43,7 +43,7 @@ void add(Container& container, const Type& entry)
 /// @param [in] container container to be removed from
 /// @param [in] entry element to be removed
 template <typename Container, typename Type = typename Container::value_type>
-void remove(Container& container, const Type& entry)
+void remove(Container& container, const Type& entry) noexcept
 {
     auto iter = std::find(container.begin(), container.end(), entry);
     if (iter != container.end())
@@ -57,7 +57,7 @@ void remove(Container& container, const Type& entry)
 /// @param [in] entry element whose existence is checked
 /// @return true if the container contains entry, false otherwise
 template <typename Container, typename Type = typename Container::value_type>
-bool hasElement(Container& container, const Type& entry)
+bool hasElement(Container& container, const Type& entry) noexcept
 {
     auto iter = std::find(container.begin(), container.end(), entry);
     return iter != container.end();
@@ -68,7 +68,7 @@ bool hasElement(Container& container, const Type& entry)
 /// @param [in] set2 second set operand for union operation
 /// @return reference to the union of both sets stored in set1
 template <typename Container>
-Container& unify(Container& set1, const Container& set2)
+Container& unify(Container& set1, const Container& set2) noexcept
 {
     for (auto& element : set2)
     {

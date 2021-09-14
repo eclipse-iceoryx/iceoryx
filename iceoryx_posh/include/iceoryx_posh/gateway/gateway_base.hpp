@@ -49,8 +49,8 @@ class GatewayBase
 
     GatewayBase& operator=(const GatewayBase& other) = delete;
     GatewayBase(const GatewayBase& other) = delete;
-    GatewayBase(GatewayBase&& other) = default;
-    GatewayBase& operator=(GatewayBase&&) = default;
+    GatewayBase(GatewayBase&& other) noexcept = default;
+    GatewayBase& operator=(GatewayBase&&) noexcept = default;
 
     virtual ~GatewayBase() noexcept;
     /// @brief Get function for type of capro message - service or event or field

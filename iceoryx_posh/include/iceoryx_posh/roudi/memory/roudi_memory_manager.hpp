@@ -48,7 +48,7 @@ enum class RouDiMemoryManagerError
     MEMORY_DESTRUCTION_FAILED,
 };
 
-iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error);
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error) noexcept;
 
 class RouDiMemoryManager
 {
@@ -79,7 +79,7 @@ class RouDiMemoryManager
     cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept;
 
   private:
-    mepoo::MePooConfig introspectionMemPoolConfig() const;
+    mepoo::MePooConfig introspectionMemPoolConfig() const noexcept;
     cxx::vector<MemoryProvider*, MAX_NUMBER_OF_MEMORY_PROVIDER> m_memoryProvider;
 };
 } // namespace roudi

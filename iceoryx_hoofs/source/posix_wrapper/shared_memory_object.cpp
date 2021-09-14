@@ -37,7 +37,7 @@ constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U + platform::IOX_MAX_SHM_N
 static char sigbusErrorMessage[SIGBUS_ERROR_MESSAGE_LENGTH];
 static std::mutex sigbusHandlerMutex;
 
-static void memsetSigbusHandler(int)
+static void memsetSigbusHandler(int) noexcept
 {
     auto result = write(STDERR_FILENO, sigbusErrorMessage, strnlen(sigbusErrorMessage, SIGBUS_ERROR_MESSAGE_LENGTH));
     IOX_DISCARD_RESULT(result);

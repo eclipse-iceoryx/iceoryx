@@ -54,10 +54,10 @@ class mutex
 {
   public:
     /// @attention the construction of the mutex can fail. This can lead to a program termination!
-    explicit mutex(const bool f_isRecursive);
+    explicit mutex(const bool f_isRecursive) noexcept;
 
     /// @attention the destruction of the mutex can fail. This can lead to a program termination!
-    ~mutex();
+    ~mutex() noexcept;
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
     ///         undefined behavior or race conditions will occure if you copy
@@ -71,18 +71,18 @@ class mutex
     /// @brief Locks the mutex object and returns true if the underlying c
     ///         function did not returned any error. If the mutex is already
     ///         locked the method is blocking till the mutex can be locked.
-    bool lock();
+    bool lock() noexcept;
     /// @brief Unlocks the mutex object and returns true if the underlying c
     ///         function did not returned any error.
     ///        IMPORTANT! Unlocking and unlocked mutex is undefined behavior
     ///         and the underlying c function will report success in this case!
-    bool unlock();
+    bool unlock() noexcept;
 
     /// @brief  Tries to lock the mutex object. If it is not possible to lock
     ///         the mutex object try_lock will return an error. If the c
     ///         function fails it will return false, otherwise true.
     // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-    bool try_lock();
+    bool try_lock() noexcept;
 
     /// @brief  Returns the native handle which then can be used in
     ///         pthread_mutex_** calls. Required when a pthread_mutex_**

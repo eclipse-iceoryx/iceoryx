@@ -150,7 +150,7 @@ uint64_t LockFreeQueue<ElementType, Capacity>::size() const noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const BufferIndex& index)
+cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const BufferIndex& index) noexcept
 {
     // also used for buffer synchronization
     m_size.fetch_sub(1u, std::memory_order_acquire);
@@ -163,7 +163,7 @@ cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(co
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const BufferIndex& index, T&& value)
+void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const BufferIndex& index, T&& value) noexcept
 {
     auto elementPtr = m_buffer.ptr(index);
     new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise

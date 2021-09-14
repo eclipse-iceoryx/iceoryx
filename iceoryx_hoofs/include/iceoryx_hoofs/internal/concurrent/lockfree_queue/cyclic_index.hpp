@@ -54,10 +54,10 @@ class CyclicIndex
 
     CyclicIndex(ValueType index, ValueType cycle) noexcept;
 
-    CyclicIndex(const CyclicIndex&) = default;
-    CyclicIndex(CyclicIndex&&) = default;
-    CyclicIndex& operator=(const CyclicIndex&) = default;
-    CyclicIndex& operator=(CyclicIndex&&) = default;
+    CyclicIndex(const CyclicIndex&) noexcept = default;
+    CyclicIndex(CyclicIndex&&) noexcept = default;
+    CyclicIndex& operator=(const CyclicIndex&) noexcept = default;
+    CyclicIndex& operator=(CyclicIndex&&) noexcept = default;
 
     ValueType getIndex() const noexcept;
 
@@ -80,7 +80,7 @@ class CyclicIndex
     /// This is excactly the right behaviour to deal with a (theoretically possible)
     /// overflow of lhs and can be seen as lhs being interpreted as MAX + its actual value.
     /// In this case, lhs - rhs is positive even though lhs < rhs.
-    int64_t operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const;
+    int64_t operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const noexcept;
 
   private:
     ValueType m_value{0U};

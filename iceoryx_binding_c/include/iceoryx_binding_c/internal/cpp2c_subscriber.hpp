@@ -26,10 +26,10 @@
 
 struct cpp2c_Subscriber
 {
-    cpp2c_Subscriber() = default;
+    cpp2c_Subscriber() noexcept = default;
     cpp2c_Subscriber(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber(cpp2c_Subscriber&& rhs) = delete;
-    ~cpp2c_Subscriber();
+    ~cpp2c_Subscriber() noexcept;
 
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;

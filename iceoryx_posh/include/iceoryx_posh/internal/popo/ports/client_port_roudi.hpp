@@ -44,8 +44,8 @@ class ClientPortRouDi : public BasePort
 
     ClientPortRouDi(const ClientPortRouDi& other) = delete;
     ClientPortRouDi& operator=(const ClientPortRouDi&) = delete;
-    ClientPortRouDi(ClientPortRouDi&& rhs) = default;
-    ClientPortRouDi& operator=(ClientPortRouDi&& rhs) = default;
+    ClientPortRouDi(ClientPortRouDi&& rhs) noexcept = default;
+    ClientPortRouDi& operator=(ClientPortRouDi&& rhs) noexcept = default;
     ~ClientPortRouDi() = default;
 
     /// @brief Access to the configured responseQueueFullPolicy

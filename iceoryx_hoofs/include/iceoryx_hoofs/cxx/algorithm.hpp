@@ -100,7 +100,7 @@ constexpr bool doesContainType() noexcept;
 /// @param T type of the value to check
 /// @return always false
 template <typename T>
-inline constexpr bool doesContainValue(const T);
+inline constexpr bool doesContainValue(const T) noexcept;
 
 /// @brief Returns true if value of T is found in the ValueList, otherwise false
 /// @tparam T type of the value to check

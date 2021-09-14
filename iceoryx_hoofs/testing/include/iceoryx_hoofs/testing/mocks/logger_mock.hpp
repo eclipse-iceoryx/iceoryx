@@ -30,7 +30,7 @@ class Logger_Mock : public iox::log::Logger
     {
     }
 
-    void Log(const iox::log::LogEntry& entry) const override
+    void Log(const iox::log::LogEntry& entry) const noexcept override
     {
         m_logs.push_back(entry);
     }

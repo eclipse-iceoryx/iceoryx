@@ -42,7 +42,7 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
     return reinterpret_cast<void*>(alignedMemory);
 }
 
-void alignedFree(void* const memory)
+void alignedFree(void* const memory) noexcept
 {
     if (memory != nullptr)
     {

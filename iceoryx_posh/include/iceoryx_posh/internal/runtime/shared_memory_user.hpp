@@ -39,7 +39,7 @@ class SharedMemoryUser
     /// address space
     SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
-                     const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset);
+                     const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     void openDataSegments(const uint64_t segmentId,

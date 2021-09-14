@@ -26,8 +26,8 @@ namespace config
 {
 struct RouDiConfig
 {
-    RouDiConfig& setDefaults();
-    RouDiConfig& optimize();
+    RouDiConfig& setDefaults() noexcept;
+    RouDiConfig& optimize() noexcept;
 };
 } // namespace config
 } // namespace iox

@@ -36,7 +36,7 @@ struct ConditionVariableData
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
     ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
-    ~ConditionVariableData() = default;
+    ~ConditionVariableData() noexcept = default;
 
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0u)

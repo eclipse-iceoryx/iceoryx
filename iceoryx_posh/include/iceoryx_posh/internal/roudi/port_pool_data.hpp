@@ -38,14 +38,14 @@ class FixedPositionContainer
   public:
     static constexpr uint64_t FIRST_ELEMENT = std::numeric_limits<uint64_t>::max();
 
-    bool hasFreeSpace();
+    bool hasFreeSpace() noexcept;
 
     template <typename... Targs>
-    T* insert(Targs&&... args);
+    T* insert(Targs&&... args) noexcept;
 
-    void erase(T* const element);
+    void erase(T* const element) noexcept;
 
-    cxx::vector<T*, Capacity> content();
+    cxx::vector<T*, Capacity> content() noexcept;
 
   private:
     cxx::vector<cxx::optional<T>, Capacity> m_data;

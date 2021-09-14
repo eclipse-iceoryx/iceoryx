@@ -53,8 +53,8 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     using element_t = ElementType;
     static constexpr uint64_t MAX_CAPACITY = MaxCapacity;
 
-    ResizeableLockFreeQueue() = default;
-    ~ResizeableLockFreeQueue() = default;
+    ResizeableLockFreeQueue() noexcept = default;
+    ~ResizeableLockFreeQueue() noexcept = default;
 
     // deleted for now, can be implemented later if needed
     // note: concurrent copying or moving in lockfree fashion is nontrivial

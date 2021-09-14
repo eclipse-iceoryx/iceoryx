@@ -31,7 +31,7 @@ namespace cxx
 /// @param [in] ctorArgs ctor arguments for the object to construct
 /// @return cxx::GenericRAII
 template <typename T, typename... CTorArgs>
-GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs);
+GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept;
 } // namespace cxx
 } // namespace iox
 

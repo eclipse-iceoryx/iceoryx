@@ -39,8 +39,8 @@ class Allocator
     Allocator(const Allocator&) = delete;
     Allocator(Allocator&&) noexcept = default;
     Allocator& operator=(const Allocator&) noexcept = delete;
-    Allocator& operator=(Allocator&&) = default;
-    ~Allocator() = default;
+    Allocator& operator=(Allocator&&) noexcept = default;
+    ~Allocator() noexcept = default;
 
     /// @brief allocates on the memory supplied with the ctor
     /// @param[in] size of the memory to allocate

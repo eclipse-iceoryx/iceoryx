@@ -60,13 +60,13 @@ inline constexpr const char* asStringLiteral(CaproMessageType value) noexcept
     return "[Undefined CaproMessageType]";
 }
 
-inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value)
+inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
 }
 
-inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value)
+inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

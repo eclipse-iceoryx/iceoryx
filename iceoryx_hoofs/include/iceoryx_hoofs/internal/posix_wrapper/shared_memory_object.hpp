@@ -45,9 +45,9 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     static constexpr void* NO_ADDRESS_HINT = nullptr;
     SharedMemoryObject(const SharedMemoryObject&) = delete;
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
-    SharedMemoryObject(SharedMemoryObject&&) = default;
-    SharedMemoryObject& operator=(SharedMemoryObject&&) = default;
-    ~SharedMemoryObject() = default;
+    SharedMemoryObject(SharedMemoryObject&&) noexcept = default;
+    SharedMemoryObject& operator=(SharedMemoryObject&&) noexcept = default;
+    ~SharedMemoryObject() noexcept = default;
 
     void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
     void finalizeAllocation() noexcept;

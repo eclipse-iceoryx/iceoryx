@@ -26,7 +26,7 @@ namespace iox
 {
 namespace posix
 {
-bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) const
+bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) const noexcept
 {
     if (m_permissions.empty())
     {
@@ -80,7 +80,7 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
 }
 
 cxx::expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
-AccessController::createACL(const int32_t f_numEntries)
+AccessController::createACL(const int32_t f_numEntries) noexcept
 {
     // allocate memory for a new ACL
     auto aclInitCall = posixCall(acl_init)(f_numEntries).failureReturnValue(nullptr).evaluate();
@@ -102,7 +102,7 @@ AccessController::createACL(const int32_t f_numEntries)
 
 bool AccessController::addPermissionEntry(const Category f_category,
                                           const Permission f_permission,
-                                          const string_t& f_name)
+                                          const string_t& f_name) noexcept
 {
     switch (f_category)
     {
@@ -154,7 +154,9 @@ bool AccessController::addPermissionEntry(const Category f_category,
     return false;
 }
 
-bool AccessController::addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id)
+bool AccessController::addPermissionEntry(const Category f_category,
+                                          const Permission f_permission,
+                                          const uint32_t f_id) noexcept
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {
@@ -195,7 +197,7 @@ bool AccessController::addPermissionEntry(const Category f_category, const Permi
     return true;
 }
 
-bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry)
+bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry) noexcept
 {
     // create new entry in acl
     acl_entry_t newEntry{};
@@ -292,7 +294,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 }
 
-bool AccessController::addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm)
+bool AccessController::addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm) noexcept
 {
     auto aclAddPermCall = posixCall(acl_add_perm)(f_permset, f_perm).successReturnValue(0).evaluate();
 

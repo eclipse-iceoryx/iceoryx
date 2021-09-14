@@ -32,7 +32,7 @@ inline BasePublisher<port_t>::BasePublisher(const capro::ServiceDescription& ser
 }
 
 template <typename port_t>
-inline BasePublisher<port_t>::~BasePublisher()
+inline BasePublisher<port_t>::~BasePublisher() noexcept
 {
     m_port.destroy();
 }

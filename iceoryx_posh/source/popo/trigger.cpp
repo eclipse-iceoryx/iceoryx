@@ -22,7 +22,7 @@ namespace popo
 {
 constexpr uint64_t Trigger::INVALID_TRIGGER_ID;
 
-Trigger::~Trigger()
+Trigger::~Trigger() noexcept
 {
     reset();
 }

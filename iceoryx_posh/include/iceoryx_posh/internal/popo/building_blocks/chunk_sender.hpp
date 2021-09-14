@@ -55,9 +55,9 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;
-    ChunkSender(ChunkSender&& rhs) = default;
-    ChunkSender& operator=(ChunkSender&& rhs) = default;
-    ~ChunkSender() = default;
+    ChunkSender(ChunkSender&& rhs) noexcept = default;
+    ChunkSender& operator=(ChunkSender&& rhs) noexcept = default;
+    ~ChunkSender() noexcept = default;
 
     /// @brief allocate a chunk, the ownership of the SharedChunk remains in the ChunkSender for being able to cleanup
     /// if the user process disappears

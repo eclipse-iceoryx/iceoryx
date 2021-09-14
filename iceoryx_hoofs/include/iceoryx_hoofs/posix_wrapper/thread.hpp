@@ -28,8 +28,8 @@ constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 
 using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;
 
-void setThreadName(pthread_t thread, const ThreadName_t& name);
-ThreadName_t getThreadName(pthread_t thread);
+void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept;
+ThreadName_t getThreadName(pthread_t thread) noexcept;
 
 } // namespace posix
 } // namespace iox

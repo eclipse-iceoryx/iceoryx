@@ -33,7 +33,7 @@ namespace popo
 struct BasePortData
 {
     /// @brief Constructor for base port data members
-    BasePortData() = default;
+    BasePortData() noexcept = default;
 
     /// @brief Constructor
     /// @param[in] serviceDescription creates the service service description
@@ -47,7 +47,7 @@ struct BasePortData
     BasePortData& operator=(const BasePortData&) = delete;
     BasePortData(BasePortData&&) = delete;
     BasePortData& operator=(BasePortData&&) = delete;
-    ~BasePortData() = default;
+    ~BasePortData() noexcept = default;
 
     capro::ServiceDescription m_serviceDescription;
     RuntimeName_t m_runtimeName;

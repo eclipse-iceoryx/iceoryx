@@ -71,7 +71,7 @@ class LoFFLi
     iox::rp::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:
-    LoFFLi() = default;
+    LoFFLi() noexcept = default;
     /// @todo: why init not in ctor
 
     /// Initializes the lock-free free-list

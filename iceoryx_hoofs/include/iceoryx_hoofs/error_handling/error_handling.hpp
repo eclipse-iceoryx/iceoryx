@@ -181,7 +181,7 @@ enum class Error : uint32_t
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-std::ostream& operator<<(std::ostream& stream, Error value);
+std::ostream& operator<<(std::ostream& stream, Error value) noexcept;
 
 /// @brief the available error levels
 /// FATAL
@@ -216,20 +216,21 @@ using HandlerFunction = std::function<void(const Error error, const std::functio
 ///         error handling.
 class ErrorHandler
 {
-    friend void errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level);
+    friend void
+    errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept;
 
   public:
-    static cxx::GenericRAII setTemporaryErrorHandler(const HandlerFunction& newHandler);
+    static cxx::GenericRAII setTemporaryErrorHandler(const HandlerFunction& newHandler) noexcept;
 
-    static const char* toString(const Error error);
+    static const char* toString(const Error error) noexcept;
 
   protected:
-    static void reactOnErrorLevel(const ErrorLevel level, const char* errorText);
+    static void reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept;
 
   private:
     static void defaultHandler(const Error error,
                                const std::function<void()>& errorCallBack,
-                               const ErrorLevel level = ErrorLevel::FATAL);
+                               const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 
     static const char* ERROR_NAMES[];
     static iox::HandlerFunction handler;
@@ -277,7 +278,7 @@ class ErrorHandler
 /// @endcode
 void errorHandler(const Error error,
                   const std::function<void()>& errorCallBack = std::function<void()>(),
-                  const ErrorLevel level = ErrorLevel::FATAL);
+                  const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 } // namespace iox
 
 #endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP

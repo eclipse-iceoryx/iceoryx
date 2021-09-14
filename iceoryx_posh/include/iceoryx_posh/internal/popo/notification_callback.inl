@@ -42,14 +42,16 @@ inline void TranslateAndCallTypelessCallback<T, NoType_t>::call(void* const orig
 } // namespace internal
 
 template <typename OriginType, typename ContextDataType>
-inline NotificationCallback<OriginType, ContextDataType> createNotificationCallback(void (&callback)(OriginType* const))
+inline NotificationCallback<OriginType, ContextDataType>
+createNotificationCallback(void (&callback)(OriginType* const)) noexcept
 {
     return NotificationCallback<OriginType, internal::NoType_t>{&callback};
 }
 
 template <typename OriginType, typename ContextDataType>
 inline NotificationCallback<OriginType, ContextDataType>
-createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue)
+createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const),
+                           ContextDataType& userValue) noexcept
 {
     return NotificationCallback<OriginType, ContextDataType>{&callback, &userValue};
 }

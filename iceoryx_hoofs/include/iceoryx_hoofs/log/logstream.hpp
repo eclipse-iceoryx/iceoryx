@@ -38,7 +38,7 @@ struct LogHex
 struct LogHex8 : private LogHex
 {
     uint8_t value;
-    constexpr LogHex8(uint8_t value)
+    constexpr LogHex8(uint8_t value) noexcept
         : value(value)
     {
     }
@@ -47,7 +47,7 @@ struct LogHex8 : private LogHex
 struct LogHex16 : private LogHex
 {
     uint16_t value;
-    constexpr LogHex16(uint16_t value)
+    constexpr LogHex16(uint16_t value) noexcept
         : value(value)
     {
     }
@@ -55,7 +55,7 @@ struct LogHex16 : private LogHex
 struct LogHex32 : private LogHex
 {
     uint32_t value;
-    constexpr LogHex32(uint32_t value)
+    constexpr LogHex32(uint32_t value) noexcept
         : value(value)
     {
     }
@@ -63,7 +63,7 @@ struct LogHex32 : private LogHex
 struct LogHex64 : private LogHex
 {
     uint64_t value;
-    constexpr LogHex64(uint64_t value)
+    constexpr LogHex64(uint64_t value) noexcept
         : value(value)
     {
     }
@@ -77,7 +77,7 @@ struct LogBin
 struct LogBin8 : private LogBin
 {
     uint8_t value;
-    constexpr LogBin8(uint8_t value)
+    constexpr LogBin8(uint8_t value) noexcept
         : value(value)
     {
     }
@@ -85,7 +85,7 @@ struct LogBin8 : private LogBin
 struct LogBin16 : private LogBin
 {
     uint16_t value;
-    constexpr LogBin16(uint16_t value)
+    constexpr LogBin16(uint16_t value) noexcept
         : value(value)
     {
     }
@@ -93,13 +93,13 @@ struct LogBin16 : private LogBin
 struct LogBin32 : private LogBin
 {
     uint32_t value;
-    constexpr LogBin32(uint32_t value)
+    constexpr LogBin32(uint32_t value) noexcept
         : value(value){};
 };
 struct LogBin64 : private LogBin
 {
     uint64_t value;
-    constexpr LogBin64(uint64_t value)
+    constexpr LogBin64(uint64_t value) noexcept
         : value(value)
     {
     }
@@ -115,11 +115,11 @@ class Logger;
 class LogStream
 {
   public:
-    LogStream(Logger& logger, LogLevel logLevel = LogLevel::kWarn);
+    LogStream(Logger& logger, LogLevel logLevel = LogLevel::kWarn) noexcept;
 
-    virtual ~LogStream();
+    virtual ~LogStream() noexcept;
 
-    void Flush();
+    void Flush() noexcept;
 
     LogStream& operator<<(const char* cstr) noexcept;
 

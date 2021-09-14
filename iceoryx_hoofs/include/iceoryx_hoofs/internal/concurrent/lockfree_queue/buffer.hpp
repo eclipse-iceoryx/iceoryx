@@ -30,8 +30,8 @@ template <typename ElementType, uint64_t Capacity, typename index_t = uint64_t>
 class Buffer
 {
   public:
-    Buffer() = default;
-    ~Buffer() = default;
+    Buffer() noexcept = default;
+    ~Buffer() noexcept = default;
 
     Buffer(const Buffer&) = delete;
     Buffer(Buffer&&) = delete;

@@ -30,7 +30,7 @@ namespace iox
 {
 namespace config
 {
-TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& cmdLineArgs)
+TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& cmdLineArgs) noexcept
 {
     /// don't print additional output if not running
     if (cmdLineArgs.run)
@@ -55,7 +55,8 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     }
 }
 
-iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse()
+iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
+TomlRouDiConfigFileProvider::parse() noexcept
 {
     // Early exit in case no config file path was provided
     if (m_customConfigFilePath.empty())

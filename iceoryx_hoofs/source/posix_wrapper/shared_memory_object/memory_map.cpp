@@ -159,7 +159,7 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
     return *this;
 }
 
-MemoryMap::~MemoryMap()
+MemoryMap::~MemoryMap() noexcept
 {
     if (!destroy())
     {

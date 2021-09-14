@@ -36,7 +36,7 @@ struct DefaultRouDiMemory
     DefaultRouDiMemory(const DefaultRouDiMemory&) = delete;
     DefaultRouDiMemory& operator=(const DefaultRouDiMemory&) = delete;
 
-    mepoo::MePooConfig introspectionMemPoolConfig() const;
+    mepoo::MePooConfig introspectionMemPoolConfig() const noexcept;
 
     MemPoolCollectionMemoryBlock m_introspectionMemPoolBlock;
     MemPoolSegmentManagerMemoryBlock m_segmentManagerBlock;

@@ -52,9 +52,9 @@ class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::Ch
 
     ChunkReceiver(const ChunkReceiver& other) = delete;
     ChunkReceiver& operator=(const ChunkReceiver&) = delete;
-    ChunkReceiver(ChunkReceiver&& rhs) = default;
-    ChunkReceiver& operator=(ChunkReceiver&& rhs) = default;
-    ~ChunkReceiver() = default;
+    ChunkReceiver(ChunkReceiver&& rhs) noexcept = default;
+    ChunkReceiver& operator=(ChunkReceiver&& rhs) noexcept = default;
+    ~ChunkReceiver() noexcept = default;
 
     /// @brief Tries to get the next received chunk. If there is a new one the ChunkHeader of this new chunk is received
     /// The ownerhip of the SharedChunk remains in the ChunkReceiver for being able to cleanup if the user process

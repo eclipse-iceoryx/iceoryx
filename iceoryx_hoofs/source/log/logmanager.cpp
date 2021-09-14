@@ -30,7 +30,7 @@ namespace iox
 namespace log
 {
 // NOLINTNEXTLINE(readability-identifier-naming)
-LogManager& LogManager::GetLogManager()
+LogManager& LogManager::GetLogManager() noexcept
 {
     static LogManager manager;
     return manager;

@@ -59,7 +59,7 @@ TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
     return *this;
 }
 
-TriggerHandle::~TriggerHandle()
+TriggerHandle::~TriggerHandle() noexcept
 {
     reset();
 }

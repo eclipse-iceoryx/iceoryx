@@ -57,7 +57,7 @@ class Process
     /// @note the move cTor and assignment operator are already implicitly deleted because of the atomic
     Process(Process&& other) = delete;
     Process& operator=(Process&& other) = delete;
-    ~Process() = default;
+    ~Process() noexcept = default;
 
     uint32_t getPid() const noexcept;
 

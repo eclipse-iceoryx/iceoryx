@@ -58,13 +58,13 @@ inline constexpr const char* asStringLiteral(CaproMessageType value) noexcept;
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value);
+inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) noexcept;
 
 /// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value);
+inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept;
 
 enum class CaproMessageSubType : uint8_t
 {
@@ -79,7 +79,7 @@ class CaproMessage
 {
   public:
     /// @brief default constructor
-    CaproMessage() = default;
+    CaproMessage() noexcept = default;
 
     /// @brief C'tor for CaPro Message with type, service description
     /// @param type                    Message type

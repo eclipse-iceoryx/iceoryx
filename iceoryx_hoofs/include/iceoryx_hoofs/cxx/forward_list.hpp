@@ -73,7 +73,7 @@ class forward_list
 
     /// @brief destructs the list and also calls the destructor of all
     ///         contained elements
-    ~forward_list();
+    ~forward_list() noexcept;
 
     /// @brief copy constructor list including elements
     /// @param[in] rhs is the list to copy from (same capacity)

@@ -25,7 +25,7 @@ namespace iox
 {
 namespace roudi
 {
-iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error)
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error) noexcept
 {
     switch (error)
     {

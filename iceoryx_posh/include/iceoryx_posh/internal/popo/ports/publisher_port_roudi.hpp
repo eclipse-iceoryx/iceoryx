@@ -41,8 +41,8 @@ class PublisherPortRouDi : public BasePort
 
     PublisherPortRouDi(const PublisherPortRouDi& other) = delete;
     PublisherPortRouDi& operator=(const PublisherPortRouDi&) = delete;
-    PublisherPortRouDi(PublisherPortRouDi&& rhs) = default;
-    PublisherPortRouDi& operator=(PublisherPortRouDi&& rhs) = default;
+    PublisherPortRouDi(PublisherPortRouDi&& rhs) noexcept = default;
+    PublisherPortRouDi& operator=(PublisherPortRouDi&& rhs) noexcept = default;
     ~PublisherPortRouDi() = default;
 
     /// @brief Returns behaviour in case of a full delivery queue

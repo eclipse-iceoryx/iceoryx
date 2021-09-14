@@ -65,7 +65,7 @@ void Timer::OsTimerCallbackHandle::incrementDescriptor() noexcept
     m_descriptor.store(callbackHandleDescriptor, std::memory_order_relaxed);
 }
 
-void Timer::OsTimer::callbackHelper(sigval data)
+void Timer::OsTimer::callbackHelper(sigval data) noexcept
 {
     uint32_t index = Timer::OsTimerCallbackHandle::sigvalToIndex(data);
     auto descriptor = Timer::OsTimerCallbackHandle::sigvalToDescriptor(data);

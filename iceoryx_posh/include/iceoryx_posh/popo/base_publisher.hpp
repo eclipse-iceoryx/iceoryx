@@ -44,7 +44,7 @@ class BasePublisher
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = delete;
     BasePublisher& operator=(BasePublisher&& rhs) = delete;
-    virtual ~BasePublisher();
+    virtual ~BasePublisher() noexcept;
 
     ///
     /// @brief uid Get the UID of the publisher.

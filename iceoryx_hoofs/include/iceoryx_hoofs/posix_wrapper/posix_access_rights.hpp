@@ -32,7 +32,7 @@ static constexpr int MaxNumberOfGroups = 888;
 
 struct PosixRights
 {
-    PosixRights(bool f_read, bool f_write, bool f_execute);
+    PosixRights(bool f_read, bool f_write, bool f_execute) noexcept;
     bool m_read;
     bool m_write;
     bool m_execute;
@@ -42,20 +42,20 @@ class PosixGroup
 {
   public:
     using string_t = cxx::string<100>;
-    explicit PosixGroup(const gid_t f_id);
-    explicit PosixGroup(const string_t& f_name);
+    explicit PosixGroup(const gid_t f_id) noexcept;
+    explicit PosixGroup(const string_t& f_name) noexcept;
 
-    bool operator==(const PosixGroup& other) const;
+    bool operator==(const PosixGroup& other) const noexcept;
 
-    string_t getName() const;
-    gid_t getID() const;
+    string_t getName() const noexcept;
+    gid_t getID() const noexcept;
 
-    bool doesExist() const;
+    bool doesExist() const noexcept;
 
-    static PosixGroup getGroupOfCurrentProcess();
+    static PosixGroup getGroupOfCurrentProcess() noexcept;
 
-    static cxx::optional<uid_t> getGroupID(const string_t& f_name);
-    static cxx::optional<string_t> getGroupName(gid_t f_id);
+    static cxx::optional<uid_t> getGroupID(const string_t& f_name) noexcept;
+    static cxx::optional<string_t> getGroupName(gid_t f_id) noexcept;
 
   private:
     gid_t m_id;
@@ -68,19 +68,19 @@ class PosixUser
     using groupVector_t = cxx::vector<PosixGroup, MaxNumberOfGroups>;
     using string_t = cxx::string<100>;
 
-    explicit PosixUser(const uid_t f_id);
-    explicit PosixUser(const string_t& f_name);
+    explicit PosixUser(const uid_t f_id) noexcept;
+    explicit PosixUser(const string_t& f_name) noexcept;
 
-    groupVector_t getGroups() const;
-    string_t getName() const;
-    uid_t getID() const;
+    groupVector_t getGroups() const noexcept;
+    string_t getName() const noexcept;
+    uid_t getID() const noexcept;
 
-    bool doesExist() const;
+    bool doesExist() const noexcept;
 
-    static PosixUser getUserOfCurrentProcess();
+    static PosixUser getUserOfCurrentProcess() noexcept;
 
-    static cxx::optional<uid_t> getUserID(const string_t& f_name);
-    static cxx::optional<string_t> getUserName(uid_t f_id);
+    static cxx::optional<uid_t> getUserID(const string_t& f_name) noexcept;
+    static cxx::optional<string_t> getUserName(uid_t f_id) noexcept;
 
   private:
     uid_t m_id;

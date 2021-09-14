@@ -22,7 +22,7 @@
 
 using namespace iox::popo;
 
-cpp2c_Subscriber::~cpp2c_Subscriber()
+cpp2c_Subscriber::~cpp2c_Subscriber() noexcept
 {
     if (m_portData)
     {

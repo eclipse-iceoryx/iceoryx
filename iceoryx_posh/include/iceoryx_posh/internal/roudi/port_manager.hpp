@@ -57,7 +57,7 @@ class PortManager
     using PortConfigInfo = iox::runtime::PortConfigInfo;
     PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept;
 
-    virtual ~PortManager() = default;
+    virtual ~PortManager() noexcept = default;
 
     /// @todo Remove this later
     void stopPortIntrospection() noexcept;

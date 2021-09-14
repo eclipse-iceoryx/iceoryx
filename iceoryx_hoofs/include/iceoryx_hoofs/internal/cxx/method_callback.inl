@@ -46,8 +46,9 @@ struct ReturnSuccess<void>
 };
 
 template <typename ReturnValue, typename ClassType, typename... Args>
-ReturnValue
-constMethodCallbackCaller(const void* objectRef, ReturnValue (GenericClass::*methodPtr)(Args...) const, Args&&... args)
+ReturnValue constMethodCallbackCaller(const void* objectRef,
+                                      ReturnValue (GenericClass::*methodPtr)(Args...) const,
+                                      Args&&... args) noexcept
 {
     return ((*reinterpret_cast<const ClassType*>(objectRef))
             .*reinterpret_cast<ReturnValue (ClassType::*)(Args...) const>(methodPtr))(std::forward<Args>(args)...);
@@ -55,7 +56,8 @@ constMethodCallbackCaller(const void* objectRef, ReturnValue (GenericClass::*met
 
 
 template <typename ReturnValue, typename ClassType, typename... Args>
-ReturnValue methodCallbackCaller(void* objectRef, ReturnValue (GenericClass::*methodPtr)(Args...), Args&&... args)
+ReturnValue
+methodCallbackCaller(void* objectRef, ReturnValue (GenericClass::*methodPtr)(Args...), Args&&... args) noexcept
 {
     return ((*reinterpret_cast<ClassType*>(objectRef))
             .*reinterpret_cast<ReturnValue (ClassType::*)(Args...)>(methodPtr))(std::forward<Args>(args)...);

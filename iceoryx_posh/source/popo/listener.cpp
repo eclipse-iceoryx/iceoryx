@@ -34,7 +34,7 @@ Listener::Listener(ConditionVariableData& conditionVariable) noexcept
     m_thread = std::thread(&Listener::threadLoop, this);
 }
 
-Listener::~Listener()
+Listener::~Listener() noexcept
 {
     m_wasDtorCalled.store(true, std::memory_order_relaxed);
     m_conditionListener.destroy();
@@ -107,7 +107,7 @@ void Listener::removeTrigger(const uint64_t index) noexcept
 ////////////////
 // Event_t
 ////////////////
-Listener::Event_t::~Event_t()
+Listener::Event_t::~Event_t() noexcept
 {
     reset();
 }

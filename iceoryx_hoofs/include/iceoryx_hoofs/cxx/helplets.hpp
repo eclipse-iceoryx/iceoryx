@@ -37,8 +37,8 @@ struct TruncateToCapacity_t;
 
 namespace internal
 {
-inline void
-Require(const bool condition, const char* file, const int line, const char* function, const char* conditionString)
+inline void Require(
+    const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
 {
     if (!condition)
     {
@@ -99,13 +99,13 @@ template <typename T, typename = typename std::enable_if<std::is_pointer<T>::val
 struct not_null
 {
   public:
-    not_null(T t)
+    not_null(T t) noexcept
         : value(t)
     {
         Expects(t != nullptr);
     }
 
-    constexpr operator T() const
+    constexpr operator T() const noexcept
     {
         return value;
     }
@@ -118,13 +118,13 @@ template <typename T, T Minimum>
 struct greater_or_equal
 {
   public:
-    greater_or_equal(T t)
+    greater_or_equal(T t) noexcept
         : value(t)
     {
         Expects(t >= Minimum);
     }
 
-    constexpr operator T() const
+    constexpr operator T() const noexcept
     {
         return value;
     }
@@ -137,13 +137,13 @@ template <typename T, T Minimum, T Maximum>
 struct range
 {
   public:
-    range(T t)
+    range(T t) noexcept
         : value(t)
     {
         Expects(t >= Minimum && t <= Maximum);
     }
 
-    constexpr operator T() const
+    constexpr operator T() const noexcept
     {
         return value;
     }
@@ -153,7 +153,7 @@ struct range
 };
 
 template <typename T>
-T align(const T value, const T alignment)
+T align(const T value, const T alignment) noexcept
 {
     T remainder = value % alignment;
     return value + ((remainder == 0u) ? 0u : alignment - remainder);
@@ -167,46 +167,46 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept;
 
 /// @brief frees aligned memory allocated with alignedAlloc
 /// @param[in] memory, pointer to the aligned memory
-void alignedFree(void* const memory);
+void alignedFree(void* const memory) noexcept;
 
 /// template recursion stopper for maximum alignment calculation
 template <size_t s = 0>
-constexpr size_t maxAlignment()
+constexpr size_t maxAlignment() noexcept
 {
     return s;
 }
 
 /// calculate maximum alignment of supplied types
 template <typename T, typename... Args>
-constexpr size_t maxAlignment()
+constexpr size_t maxAlignment() noexcept
 {
     return alignof(T) > maxAlignment<Args...>() ? alignof(T) : maxAlignment<Args...>();
 }
 
 /// template recursion stopper for maximum size calculation
 template <size_t s = 0>
-constexpr size_t maxSize()
+constexpr size_t maxSize() noexcept
 {
     return s;
 }
 
 /// calculate maximum size of supplied types
 template <typename T, typename... Args>
-constexpr size_t maxSize()
+constexpr size_t maxSize() noexcept
 {
     return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
 }
 
 /// Convert Enum class type to string
 template <typename T, typename Enumeration>
-const char* convertEnumToString(T port, const Enumeration source)
+const char* convertEnumToString(T port, const Enumeration source) noexcept
 {
     return port[static_cast<size_t>(source)];
 }
 
 /// cast an enum to its underlying type
 template <typename enum_type>
-auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying_type<enum_type>::type
+auto enumTypeAsUnderlyingType(enum_type const value) noexcept -> typename std::underlying_type<enum_type>::type
 {
     return static_cast<typename std::underlying_type<enum_type>::type>(value);
 }
@@ -230,7 +230,7 @@ void forEach(Container& c, const Functor& f) noexcept
 /// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
 /// @return Returns the size of a char array at compile time.
 template <uint64_t SizeValue>
-static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
+static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue]) noexcept
 {
     return SizeValue - 1;
 }
@@ -253,7 +253,7 @@ using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system
-constexpr bool isCompiledOn32BitSystem()
+constexpr bool isCompiledOn32BitSystem() noexcept
 {
     return INTPTR_MAX == INT32_MAX;
 }
@@ -261,7 +261,7 @@ constexpr bool isCompiledOn32BitSystem()
 /// @brief Checks if an unsigned integer is a power of two
 /// @return true if power of two, otherwise false
 template <typename T>
-constexpr bool isPowerOfTwo(const T n)
+constexpr bool isPowerOfTwo(const T n) noexcept
 {
     static_assert(std::is_unsigned<T>::value && !std::is_same<T, bool>::value, "Only unsigned integer are allowed!");
     return n && ((n & (n - 1U)) == 0U);

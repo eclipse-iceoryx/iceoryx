@@ -41,9 +41,9 @@ class ChunkQueuePusher
 
     ChunkQueuePusher(const ChunkQueuePusher& other) = delete;
     ChunkQueuePusher& operator=(const ChunkQueuePusher&) = delete;
-    ChunkQueuePusher(ChunkQueuePusher&& rhs) = default;
-    ChunkQueuePusher& operator=(ChunkQueuePusher&& rhs) = default;
-    ~ChunkQueuePusher() = default;
+    ChunkQueuePusher(ChunkQueuePusher&& rhs) noexcept = default;
+    ChunkQueuePusher& operator=(ChunkQueuePusher&& rhs) noexcept = default;
+    ~ChunkQueuePusher() noexcept = default;
 
     /// @brief push a new chunk to the chunk queue
     /// @param[in] shared chunk object

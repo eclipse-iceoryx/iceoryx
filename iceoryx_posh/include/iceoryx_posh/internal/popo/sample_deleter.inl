@@ -24,14 +24,14 @@ namespace iox
 namespace popo
 {
 template <typename Port>
-SampleDeleter<Port>::SampleDeleter(Port& port)
+SampleDeleter<Port>::SampleDeleter(Port& port) noexcept
     : m_port(&port)
 {
 }
 
 template <typename Port>
 template <typename T>
-void SampleDeleter<Port>::operator()(T* const userPayload)
+void SampleDeleter<Port>::operator()(T* const userPayload) noexcept
 {
     auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
     m_port->releaseChunk(chunkHeader);
@@ -39,7 +39,7 @@ void SampleDeleter<Port>::operator()(T* const userPayload)
 
 template <typename Port>
 template <typename T>
-void SampleDeleter<Port>::operator()(const T* const userPayload) const
+void SampleDeleter<Port>::operator()(const T* const userPayload) const noexcept
 {
     const auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
     m_port->releaseChunk(chunkHeader);

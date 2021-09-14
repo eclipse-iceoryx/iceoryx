@@ -144,7 +144,7 @@ class Timer
 #endif
       public:
         /// @brief Wrapper that can be registered with the operating system
-        static void callbackHelper(sigval data);
+        static void callbackHelper(sigval data) noexcept;
 
         OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept;
 

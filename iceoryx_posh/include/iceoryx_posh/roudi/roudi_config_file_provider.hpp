@@ -67,7 +67,7 @@ class RouDiConfigFileProvider
     /// @brief interface to parse a config file which needs to be implemented for a custom parser
     /// @param[in] configFilePath to the custom RouDi config file
     /// @return a cxx::expected with either the parsed RouDiConfig_t if the parsing was successful or a parsing error
-    virtual cxx::expected<RouDiConfig_t, RouDiConfigFileParseError> parse() = 0;
+    virtual cxx::expected<RouDiConfig_t, RouDiConfigFileParseError> parse() noexcept = 0;
 
   protected:
     ConfigFilePathString_t m_customConfigFilePath;

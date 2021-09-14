@@ -38,14 +38,14 @@ class LogManager
 {
   public:
     // NOLINTNEXTLINE(readability-identifier-naming)
-    static LogManager& GetLogManager();
+    static LogManager& GetLogManager() noexcept;
     static Logger&
     // NOLINTNEXTLINE(readability-identifier-naming)
     CreateLogContext(const std::string& ctxId,
                      const std::string& ctxDescription,
                      const LogLevel appDefLogLevel) noexcept;
 
-    ~LogManager() = default;
+    ~LogManager() noexcept = default;
 
     LogManager(const LogManager&) = delete;
     LogManager(LogManager&&) = delete;
@@ -64,7 +64,7 @@ class LogManager
     void SetDefaultLogMode(const LogMode logMode) noexcept;
 
   protected:
-    LogManager() = default;
+    LogManager() noexcept = default;
 
   private:
     std::atomic<LogLevel> m_defaultLogLevel{LogLevel::kVerbose};

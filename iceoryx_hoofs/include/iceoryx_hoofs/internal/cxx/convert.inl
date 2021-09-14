@@ -25,14 +25,14 @@ namespace cxx
 /// and stringstream will not convert these to string as it is already a character.
 template <>
 inline typename std::enable_if<!std::is_convertible<uint8_t, std::string>::value, std::string>::type
-convert::toString(const uint8_t& t)
+convert::toString(const uint8_t& t) noexcept
 {
     return toString(static_cast<uint16_t>(t));
 }
 
 template <>
 inline typename std::enable_if<!std::is_convertible<int8_t, std::string>::value, std::string>::type
-convert::toString(const int8_t& t)
+convert::toString(const int8_t& t) noexcept
 {
     return toString(static_cast<int16_t>(t));
 }
@@ -40,7 +40,7 @@ convert::toString(const int8_t& t)
 
 template <typename Source>
 inline typename std::enable_if<!std::is_convertible<Source, std::string>::value, std::string>::type
-convert::toString(const Source& t)
+convert::toString(const Source& t) noexcept
 {
     std::stringstream ss;
     ss << t;
@@ -49,28 +49,28 @@ convert::toString(const Source& t)
 
 template <typename Source>
 inline typename std::enable_if<std::is_convertible<Source, std::string>::value, std::string>::type
-convert::toString(const Source& t)
+convert::toString(const Source& t) noexcept
 {
     return t;
 }
 
 template <typename Destination>
 inline typename std::enable_if<std::is_convertible<const char*, Destination>::value, bool>::type
-fromString(const char* v, Destination& dest)
+fromString(const char* v, Destination& dest) noexcept
 {
     dest = Destination(v);
     return true;
 }
 
 template <>
-inline bool convert::fromString<std::string>(const char* v, std::string& dest)
+inline bool convert::fromString<std::string>(const char* v, std::string& dest) noexcept
 {
     dest = std::string(v);
     return true;
 }
 
 template <>
-inline bool convert::fromString<char>(const char* v, char& dest)
+inline bool convert::fromString<char>(const char* v, char& dest) noexcept
 {
     if (strlen(v) != 1u)
     {
@@ -82,13 +82,13 @@ inline bool convert::fromString<char>(const char* v, char& dest)
 }
 
 template <>
-inline bool convert::fromString<string<100>>(const char* v, string<100>& dest)
+inline bool convert::fromString<string<100>>(const char* v, string<100>& dest) noexcept
 {
     dest = string<100>(TruncateToCapacity, v);
     return true;
 }
 
-inline bool convert::stringIsNumber(const char* v, const NumberType type)
+inline bool convert::stringIsNumber(const char* v, const NumberType type) noexcept
 {
     if (v[0] == '\0')
         return false;
@@ -119,7 +119,7 @@ inline bool convert::stringIsNumber(const char* v, const NumberType type)
     return true;
 }
 
-inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberType type)
+inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept
 {
     if (!stringIsNumber(v, type))
     {
@@ -149,7 +149,7 @@ inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberT
 }
 
 template <>
-inline bool convert::fromString<float>(const char* v, float& dest)
+inline bool convert::fromString<float>(const char* v, float& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
     {
@@ -164,7 +164,7 @@ inline bool convert::fromString<float>(const char* v, float& dest)
 }
 
 template <>
-inline bool convert::fromString<double>(const char* v, double& dest)
+inline bool convert::fromString<double>(const char* v, double& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
     {
@@ -179,7 +179,7 @@ inline bool convert::fromString<double>(const char* v, double& dest)
 }
 
 template <>
-inline bool convert::fromString<long double>(const char* v, long double& dest)
+inline bool convert::fromString<long double>(const char* v, long double& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
     {
@@ -194,7 +194,7 @@ inline bool convert::fromString<long double>(const char* v, long double& dest)
 }
 
 template <>
-inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
+inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
@@ -222,7 +222,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
 /// introduced for mac os since unsigned long is not uint64_t despite it has the same size
 /// who knows why ¯\_(ツ)_/¯
 template <>
-inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest)
+inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest) noexcept
 {
     uint64_t temp{0};
     bool retVal = fromString(v, temp);
@@ -232,7 +232,7 @@ inline bool convert::fromString<unsigned long>(const char* v, unsigned long& des
 #endif
 
 template <>
-inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
+inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
@@ -257,7 +257,7 @@ inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
 }
 
 template <>
-inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest)
+inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
@@ -282,7 +282,7 @@ inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest)
 }
 
 template <>
-inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest)
+inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
@@ -307,7 +307,7 @@ inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest)
 }
 
 template <>
-inline bool convert::fromString<int64_t>(const char* v, int64_t& dest)
+inline bool convert::fromString<int64_t>(const char* v, int64_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
     {
@@ -332,7 +332,7 @@ inline bool convert::fromString<int64_t>(const char* v, int64_t& dest)
 }
 
 template <>
-inline bool convert::fromString<int32_t>(const char* v, int32_t& dest)
+inline bool convert::fromString<int32_t>(const char* v, int32_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
     {
@@ -357,7 +357,7 @@ inline bool convert::fromString<int32_t>(const char* v, int32_t& dest)
 }
 
 template <>
-inline bool convert::fromString<int16_t>(const char* v, int16_t& dest)
+inline bool convert::fromString<int16_t>(const char* v, int16_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
     {
@@ -381,7 +381,7 @@ inline bool convert::fromString<int16_t>(const char* v, int16_t& dest)
 }
 
 template <>
-inline bool convert::fromString<int8_t>(const char* v, int8_t& dest)
+inline bool convert::fromString<int8_t>(const char* v, int8_t& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
     {
@@ -405,7 +405,7 @@ inline bool convert::fromString<int8_t>(const char* v, int8_t& dest)
 }
 
 template <>
-inline bool convert::fromString<bool>(const char* v, bool& dest)
+inline bool convert::fromString<bool>(const char* v, bool& dest) noexcept
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {

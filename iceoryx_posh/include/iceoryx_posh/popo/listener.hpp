@@ -69,7 +69,7 @@ class Listener
     Listener() noexcept;
     Listener(const Listener&) = delete;
     Listener(Listener&&) = delete;
-    ~Listener();
+    ~Listener() noexcept;
 
     Listener& operator=(const Listener&) = delete;
     Listener& operator=(Listener&&) = delete;
@@ -158,7 +158,7 @@ class Listener
     class Event_t
     {
       public:
-        ~Event_t();
+        ~Event_t() noexcept;
 
         bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
         bool reset() noexcept;

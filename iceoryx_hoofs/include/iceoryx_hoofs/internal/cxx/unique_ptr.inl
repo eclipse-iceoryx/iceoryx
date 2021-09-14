@@ -131,37 +131,37 @@ void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
 }
 
 template <typename T, typename U>
-bool operator==(const unique_ptr<T>& x, const unique_ptr<U>& y)
+bool operator==(const unique_ptr<T>& x, const unique_ptr<U>& y) noexcept
 {
     return x.get() == y.get();
 }
 
 template <typename T>
-bool operator==(const unique_ptr<T>& x, std::nullptr_t)
+bool operator==(const unique_ptr<T>& x, std::nullptr_t) noexcept
 {
     return !x;
 }
 
 template <typename T>
-bool operator==(std::nullptr_t, const unique_ptr<T>& x)
+bool operator==(std::nullptr_t, const unique_ptr<T>& x) noexcept
 {
     return !x;
 }
 
 template <typename T, typename U>
-bool operator!=(const unique_ptr<T>& x, const unique_ptr<U>& y)
+bool operator!=(const unique_ptr<T>& x, const unique_ptr<U>& y) noexcept
 {
     return x.get() != y.get();
 }
 
 template <typename T>
-bool operator!=(const unique_ptr<T>& x, std::nullptr_t)
+bool operator!=(const unique_ptr<T>& x, std::nullptr_t) noexcept
 {
     return static_cast<bool>(x);
 }
 
 template <typename T>
-bool operator!=(std::nullptr_t, const unique_ptr<T>& x)
+bool operator!=(std::nullptr_t, const unique_ptr<T>& x) noexcept
 {
     return static_cast<bool>(x);
 }

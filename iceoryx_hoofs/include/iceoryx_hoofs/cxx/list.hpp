@@ -74,7 +74,7 @@ class list
 
     /// @brief destructs the list and also calls the destructor of all
     ///         contained elements
-    ~list();
+    ~list() noexcept;
 
     /// @brief copy constructor list including elements
     /// @param[in] rhs is the list to copy from (same capacity)

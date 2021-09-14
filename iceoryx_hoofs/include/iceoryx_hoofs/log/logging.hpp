@@ -31,68 +31,68 @@ Logger& createLogger(const std::string& ctxId,
                      const std::string& ctxDescription,
                      const LogLevel appDefLogLevel = LogLevel::kWarn) noexcept;
 
-inline constexpr LogHex8 HexFormat(uint8_t value)
+inline constexpr LogHex8 HexFormat(uint8_t value) noexcept
 {
     return LogHex8(value);
 }
-inline constexpr LogHex8 HexFormat(int8_t value)
+inline constexpr LogHex8 HexFormat(int8_t value) noexcept
 {
     return LogHex8(static_cast<uint8_t>(value));
 }
-inline constexpr LogHex16 HexFormat(uint16_t value)
+inline constexpr LogHex16 HexFormat(uint16_t value) noexcept
 {
     return LogHex16(value);
 }
-inline constexpr LogHex16 HexFormat(int16_t value)
+inline constexpr LogHex16 HexFormat(int16_t value) noexcept
 {
     return LogHex16(static_cast<uint16_t>(value));
 }
-inline constexpr LogHex32 HexFormat(uint32_t value)
+inline constexpr LogHex32 HexFormat(uint32_t value) noexcept
 {
     return LogHex32(value);
 }
-inline constexpr LogHex32 HexFormat(int32_t value)
+inline constexpr LogHex32 HexFormat(int32_t value) noexcept
 {
     return LogHex32(static_cast<uint32_t>(value));
 }
-inline constexpr LogHex64 HexFormat(uint64_t value)
+inline constexpr LogHex64 HexFormat(uint64_t value) noexcept
 {
     return LogHex64(value);
 }
-inline constexpr LogHex64 HexFormat(int64_t value)
+inline constexpr LogHex64 HexFormat(int64_t value) noexcept
 {
     return LogHex64(static_cast<uint64_t>(value));
 }
 
-inline constexpr LogBin8 BinFormat(uint8_t value)
+inline constexpr LogBin8 BinFormat(uint8_t value) noexcept
 {
     return LogBin8(value);
 }
-inline constexpr LogBin8 BinFormat(int8_t value)
+inline constexpr LogBin8 BinFormat(int8_t value) noexcept
 {
     return LogBin8(static_cast<uint8_t>(value));
 }
-inline constexpr LogBin16 BinFormat(uint16_t value)
+inline constexpr LogBin16 BinFormat(uint16_t value) noexcept
 {
     return LogBin16(value);
 }
-inline constexpr LogBin16 BinFormat(int16_t value)
+inline constexpr LogBin16 BinFormat(int16_t value) noexcept
 {
     return LogBin16(static_cast<uint16_t>(value));
 }
-inline constexpr LogBin32 BinFormat(uint32_t value)
+inline constexpr LogBin32 BinFormat(uint32_t value) noexcept
 {
     return LogBin32(value);
 }
-inline constexpr LogBin32 BinFormat(int32_t value)
+inline constexpr LogBin32 BinFormat(int32_t value) noexcept
 {
     return LogBin32(static_cast<uint32_t>(value));
 }
-inline constexpr LogBin64 BinFormat(uint64_t value)
+inline constexpr LogBin64 BinFormat(uint64_t value) noexcept
 {
     return LogBin64(value);
 }
-inline constexpr LogBin64 BinFormat(int64_t value)
+inline constexpr LogBin64 BinFormat(int64_t value) noexcept
 {
     return LogBin64(static_cast<uint64_t>(value));
 }

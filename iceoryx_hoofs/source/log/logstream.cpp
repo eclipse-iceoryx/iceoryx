@@ -28,7 +28,7 @@ namespace iox
 {
 namespace log
 {
-LogStream::LogStream(Logger& logger, LogLevel logLevel)
+LogStream::LogStream(Logger& logger, LogLevel logLevel) noexcept
     : m_logger(logger)
 {
     m_logEntry.level = logLevel;
@@ -37,13 +37,13 @@ LogStream::LogStream(Logger& logger, LogLevel logLevel)
     m_logEntry.time = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch());
 }
 
-LogStream::~LogStream()
+LogStream::~LogStream() noexcept
 {
     Flush();
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-void LogStream::Flush()
+void LogStream::Flush() noexcept
 {
     /// @todo do we want to send the log to the logger even if the loglevel is lower than the global log level?
     if (!m_flushed)

@@ -82,15 +82,15 @@ class Logger
     LogStream LogVerbose() noexcept;
 
   protected:
-    Logger(const std::string& ctxId, const std::string& ctxDescription, const LogLevel appLogLevel);
+    Logger(const std::string& ctxId, const std::string& ctxDescription, const LogLevel appLogLevel) noexcept;
 
     // virtual because of Logger_Mock
     // NOLINTNEXTLINE(readability-identifier-naming)
-    virtual void Log(const LogEntry& entry) const;
+    virtual void Log(const LogEntry& entry) const noexcept;
 
   private:
     // NOLINTNEXTLINE(readability-identifier-naming)
-    static void Print(const LogEntry& entry);
+    static void Print(const LogEntry& entry) noexcept;
 
     std::atomic<LogLevel> m_logLevel{LogLevel::kVerbose};
     std::atomic<LogLevel> m_logLevelPredecessor{LogLevel::kVerbose};

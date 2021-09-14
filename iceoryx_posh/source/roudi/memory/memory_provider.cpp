@@ -164,7 +164,7 @@ bool MemoryProvider::isAvailableAnnounced() const noexcept
 }
 
 
-const char* MemoryProvider::getErrorString(const MemoryProviderError error)
+const char* MemoryProvider::getErrorString(const MemoryProviderError error) noexcept
 {
     switch (error)
     {
