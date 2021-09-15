@@ -5,6 +5,7 @@
 |[icehello](./icehello/)                     | Sending data to another process                                           | :star:             |
 |[icedelivery](./icedelivery/)               | Sending and receiving data using C++                                      | :star:             |
 |[icedelivery_in_c](./icedelivery_in_c/)     | Sending and receiving data using C                                        | :star:             |
+|[icedocker](./icedocker/)                   | Sending and receiving data across multiple docker instances               | :star:             |
 |[iceoptions](./iceoptions/)                 | Configuring pub/sub settings like history cache size or startup behaviour | :star:             |
 |[complexdata](./complexdata/)               | Sending/receiving some of the iceoryx STL container surrogates            | :star:             |
 |[callbacks](./callbacks/)                   | Implementing event triggered callbacks using C++                          | :star::star:       |

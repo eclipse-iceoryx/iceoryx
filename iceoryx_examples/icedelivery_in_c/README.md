@@ -34,7 +34,7 @@ Let's take a look at the `receiving` function that comes with the
 
     ```c
     const char APP_NAME[] = "iox-c-subscriber";
-    iox_runtime_init("APP_NAME");
+    iox_runtime_init(APP_NAME);
     ```
   
  2. We create a subscriber port and subscribe to the service
@@ -109,7 +109,7 @@ Let's take a look at the `sending` function that comes with the
 
     ```c
     const char APP_NAME[] = "iox-c-publisher";
-    iox_runtime_init("APP_NAME");
+    iox_runtime_init(APP_NAME);
     ```
 
  2. We create a publisher with the service
