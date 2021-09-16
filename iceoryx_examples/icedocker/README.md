@@ -70,7 +70,7 @@ filesystem:
 
 into every docker container.
 
-### Example
+### Terminal Example
 
 We start in 3 separate terminals 3 docker instances. In this example we
 use `archlinux:latest` but one is free to choose any other linux distribution.
@@ -103,3 +103,16 @@ docker run --mount type=bind,source="/dev",target=/dev --mount type=bind,source=
 cd /iceoryx
 ./build/iceoryx_examples/icedelivery/iox-cpp-subscriber
 ```
+
+### docker-compose Example
+
+We can also use `docker-compose` to start our test setup. Our example is coming
+with a configuration file `docker-compose.yml` which can be used from the
+iceoryx root path with the following command:
+
+```
+docker-compose -f iceoryx_examples/icedocker/docker-compose.yml --project-directory . up
+```
+
+We have to set the project directory explicitly so that the mapping of the
+iceoryx root path is working as intended.
