@@ -18,7 +18,7 @@ tour, introducing the project scope and all you need for installation and a firs
 
 So first off: What is iceoryx?
 
-iceoryx is an inter-process-communication (IPC) middleware for various operating systems (currently we support Linux, MacOS and QNX).
+iceoryx is an inter-process-communication (IPC) middleware for various operating systems (currently we support Linux, MacOS, QNX and Windows 10).
 It has its origins in the automotive industry, where large amounts of data have to be transferred between different processes
 when it comes to driver assistance or automated driving systems. However, the efficient communication mechanisms can also be applied
 to a wider range of use cases, e.g. in the field of robotics or game development. 
@@ -47,6 +47,15 @@ An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/). Ot
 
 You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io).
 
+### Supported Platforms
+
+|Operating System| supports access rights for shared memory | command line parsing    |
+|----------------|:----------------------------------------:|:-----------------------:|
+| Linux          | ✅                                        | ✅                       |
+| QNX            | ✅                                        | ✅                       |
+| MacOS          | ❌, not planned for implementation       | ✅                       |
+| Windows 10     | ❌, not planned for implementation       | ✔, not yet implemented |
+
 ### Where is Eclipse iceoryx used?
 
 |Framework | Description |
@@ -56,6 +65,7 @@ You can find the full API documentation on 🌐 [https://iceoryx.io](https://ice
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 | [Apex.OS](https://www.apex.ai/apex-os) | Safe and certified software framework for autonomous mobility systems from Apex.AI |
+| [AVIN AP](https://www.avinsystems.com/products/autosar_ap_solutions/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
 
 ## Build and install
 
@@ -107,7 +117,7 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 |Name | Description | Technologies |
 |---|---|---|
 | [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
-| [iceoryx-rs](https://github.com/elBoberido/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
+| [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
 | [IceRay](https://github.com/elBoberido/iceray) | An iceoryx introspection client written in Rust | Rust |
 
 ## Governance & maintainers
