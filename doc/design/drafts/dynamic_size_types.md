@@ -259,9 +259,11 @@ struct IsAllocatorTypeTrait {
 The design pursues the following goals.
 
 1. The `cxx::vector<T, Capacity>` should not change in its API.
+
 2. All static cxx containers are still owner of all their data. This means the
    memory which the stack allocator manages must be stored inside the cxx
    container class.
+
 3. A function developer should not have to specify the allocator type of a
    container. This means the allocator type is independent of the container type.
    This has to work:
@@ -276,16 +278,67 @@ The design pursues the following goals.
    myFunkyFunction(b);
    myFunkyFunction(c);
    ```
+
 4. All containers must be shared memory compatible, this means no vtables and
    virtual. Furthermore the usage of function pointers, `cxx::function` and
    `cxx::function_ref` is forbidden in all containers and their underlying 
    constructs.
+
 5. Before using any cxx container the user as to call `reserve()` once otherwise
    the container will have a default capacity of zero. It is not allowed to
    call `reserve()` multiple times since this could violate the zero copy
    guarantee.
    Stack based containers do not require a `reserve()` call beforehand but
    should provide this call as well for compatibility reasons.
+
+   * It is not possible to provide solely the capacity (`reserve` parameter) via
+     the constructor of the container since frameworks like ROS2 cannot forward
+     such arguments when for instance `loan` was called. But it is possible to
+     provide it as an alternative.
+
+6. The allocator type should not change the underlying container type, e.g. the
+   allocator should not provided as template argument, otherwise
+   it becomes impossible to reuse defined structures in a non shared memory
+   context. This is for instance required when a user would like to store some
+   received data locally in a cache for later use.
+
+7. The allocator should not be part of copy and move-assignment operations.
+   The container should behave as closely as possible to an STL container with
+   custom allocator.
+   ```cpp
+   cxx::vector a(HeapAllocator);
+   cxx::vector b(SharedMemoryAllocator);
+   cxx::vector c(AnotherAllocator);
+   cxx::vector d(HeapAllocator);
+
+   a = b; // the content is copied from shared memory into the heap
+   a = std::move(c); // a fake move is performed and the data is again copied
+                     // into the heap
+   a = std::move(d); // real move is performed
+   ```
+   After a copy- or move assignment operation the allocator which was provided
+   in the constructor will not change.
+
+   When the copy- or move-constructor is used the allocator of the origin shall
+   be used in the newly created container.
+
+   * Real copy- and move operations could have some unwanted side effects. Lets
+     assume one would like to copy/move a shared memory located vector into a local
+     cache. If the allocator would change the container has to allocate another
+     chunk inside the shared memory for the data copy. This would use up a lot
+     of shared memory for local copies but the purpose of the shared memory is
+     to store data for zero copy communication.
+   * It would make it impossible for users to define local allocators in members
+     and use the compiler generated copy/move assignment operator.
+     ```cpp
+     struct MyData {
+       cxx::vector<int> value;
+     };
+
+     dataOnSharedMemory = subscriber->take();
+     MyData cache{.value = cxx:vector<int>(HeapAllocator)};
+     cache = dataOnSharedMemory; // would suddenly allocate shared memory
+     ```
 
 The draft we provide here is using the `cxx::vector` but the techniques
 described can be easily applied to the `cxx::string` or other cxx containers.
@@ -326,8 +379,8 @@ described can be easily applied to the `cxx::string` or other cxx containers.
 ```
 All non stack based version of cxx containers will not have constructors similar
 to the STL. The only provided constructor has one argument which specifies the
-type of allocator one would like to use for that container. If no argument is
-provided the heap allocator will be used by default.
+type of allocator one would like to use for that container. The default constructor
+shall construct a vector which has a capacity of 0.
 
 The constructors and operations defined in (#1) are added to support implicit
 conversion from the generic `cxx::vector`. It makes the following operations possible
@@ -478,19 +531,32 @@ option to realize dynamic sized containers.
    cxx::vector<float, 100> someOtherPointcloud;
    pointCloud = someOtherPointcloud; // would be copied directly to the gpu 
    ```
+
 2. When the allocator is successfully integrated we can adapt the internal publisher
    and subscriber lists to be dynamic in size and configurable via config file.
    Furthermore, we could optimize the publishers subscriber list to be a little bit 
    more dynamic.
+
 3. When using the heap as default allocator is it possible that a developer by
    accident uses the heap?
    ```cpp
    cxx::vector<float> points;
    points.reserve(1234); // allocated on the heap
    ```
+
 4. Can relative pointer be used standalone like the heap allocator requires.
    This means without an registered runtime and a mapped shared memory partition.
+
 5. Is it possible to get rid of the `VariantAllocator` so that iceoryx does not
    need to know the allocator types at compile time? If not, can we simplify the 
    allocator integration so that the user only has to add any additional allocator
    to a type list defined in `iceoryx_posh_types.hpp`?
+
+6. Is object slicing a problem when a function developer requires a copy of a
+   container where the stack version is then provided as argument?
+   ```cpp
+   void myFunc(cxx::vector<int> a)
+
+   cxx::vector<int, 20> bla;
+   myFunc(bla); // whoopsie object slicing
+   ```
