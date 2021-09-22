@@ -311,6 +311,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     # Exclude directories without CMake file from the out-of-tree build
     EXAMPLES=${EXAMPLES/iceensemble/""}
     EXAMPLES=${EXAMPLES/icecrystal/""}
+    EXAMPLES=${EXAMPLES/icedocker/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}
     mkdir -p build_out_of_tree && cd build_out_of_tree

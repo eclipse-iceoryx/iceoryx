@@ -1,0 +1,22 @@
+services:
+  roudi:
+    image: archlinux:latest
+    command: /iceoryx/build/iox-roudi
+    volumes:
+      - .:/iceoryx
+      - /dev:/dev
+      - /tmp:/tmp
+  publisher:
+    image: archlinux:latest
+    command: /iceoryx/build/iceoryx_examples/icedelivery/iox-cpp-publisher
+    volumes:
+      - .:/iceoryx
+      - /dev:/dev
+      - /tmp:/tmp
+  subscriber:
+    image: archlinux:latest
+    command: /iceoryx/build/iceoryx_examples/icedelivery/iox-cpp-subscriber
+    volumes:
+      - .:/iceoryx
+      - /dev:/dev
+      - /tmp:/tmp
