@@ -34,7 +34,7 @@ by sending a message to the unix domain socket located at
 platform settings file `platform_settings.hpp`. In linux the socket file handle
 can be found at `/tmp/roudi`. While registering it announces its unix
 domain socket to roudi for the responses of application requests which were
-send to roudi.
+sent to roudi.
 This socket is stored as well in `/tmp/IOX_RUNTIME_NAME`. The `iox-cpp-publisher`
 runtime has the same name as the binary which leads to the socket
 `/tmp/iox-cpp-publisher`.
@@ -74,8 +74,8 @@ into every docker container.
 
 We start in 3 separate terminals 3 docker instances. In this example we
 use `archlinux:latest` but one is free to choose any other linux distribution.
-The iceoryx repository which contains an already build iceoryx can be found at
-`/home/user/iceoryx` which is bound to `/iceoryx`. The usage and building is 
+The iceoryx repository which contains an already built iceoryx can be found at
+`/home/user/iceoryx` which is bound to `/iceoryx`. The usage is 
 explained in detail in the 
 [icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 

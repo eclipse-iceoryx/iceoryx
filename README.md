@@ -51,10 +51,10 @@ You can find the full API documentation on 🌐 [https://iceoryx.io](https://ice
 
 |Operating System| supports access rights for shared memory | command line parsing    |
 |----------------|:----------------------------------------:|:-----------------------:|
-| Linux          | ✅                                        | ✅                       |
-| QNX            | ✅                                        | ✅                       |
-| MacOS          | ❌, not planned for implementation       | ✅                       |
-| Windows 10     | ❌, not planned for implementation       | ✔, not yet implemented |
+| Linux          | yes                                      | yes                     |
+| QNX            | yes                                      | yes                     |
+| MacOS          | no, not planned for implementation       | yes                     |
+| Windows 10     | no, not planned for implementation       | will be implemented     |
 
 ### Where is Eclipse iceoryx used?
 
