@@ -19,6 +19,8 @@
 
 set -e
 
+COMPILER=${1:-gcc}
+
 msg() {
     printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
 }
@@ -29,25 +31,27 @@ cd ${WORKSPACE}
 msg "installing build dependencies"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
-msg "installing latest stable clang"
-wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
-chmod +x /tmp/llvm.sh
-# set LLVM_VERSION
-eval $(cat /tmp/llvm.sh | grep LLVM_VERSION= -m 1)
-sudo /tmp/llvm.sh ${LLVM_VERSION}
+if [ "$COMPILER" == "clang" ]; then
+    msg "installing latest stable clang"
+    wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
+    chmod +x /tmp/llvm.sh
+    # set LLVM_VERSION
+    eval $(cat /tmp/llvm.sh | grep LLVM_VERSION= -m 1)
+    sudo /tmp/llvm.sh ${LLVM_VERSION}
+fi
 
 msg "creating local test users and groups for testing access control"
 sudo ./tools/add_test_users.sh
 
-msg "compiler versions:
-$(clang-${LLVM_VERSION} --version)"
 
 msg "building sources"
-export CC=clang-${LLVM_VERSION}
-export CXX=clang++-${LLVM_VERSION}
-./tools/iceoryx_build_test.sh clean build-all out-of-tree build-shared test-add-user
 
-msg "running all tests"
-cd ./build
-./tools/run_tests.sh all
-cd -
+if [ "$COMPILER" == "gcc" ]; then
+    ./tools/iceoryx_build_test.sh clean release build-all out-of-tree build-shared test-add-user
+fi
+
+if [ "$COMPILER" == "clang" ]; then
+    export CC=clang-${LLVM_VERSION}
+    export CXX=clang++-${LLVM_VERSION}
+    ./tools/iceoryx_build_test.sh clean clang release build-all out-of-tree build-shared test-add-user
+fi
