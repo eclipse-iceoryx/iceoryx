@@ -29,7 +29,7 @@ uint32_t iox_cfg_max_subscribers_per_publisher();
 uint32_t iox_cfg_max_chunks_allocated_per_publisher_simultaneously();
 
 /// @brief returns maximum history size for a publisher (e.g. samples which are hold back so
-//         that new subscribers can acquire a history)
+//         that new subscribers can acquire past data)
 uint64_t iox_cfg_max_publisher_history();
 
 /// @brief returns maximum supported amount of subscribers
@@ -42,7 +42,7 @@ uint32_t iox_cfg_max_chunks_held_per_subscriber_simultaneously();
 /// subscriber if the queue capacity is reached new samples will discard old samples
 uint32_t iox_cfg_max_subscriber_queue_capacity();
 
-/// @brief returns the maximum supported amount of condition variables. this determines how many listeners and waitset
+/// @brief returns the maximum supported amount of condition variables. this determines how many listeners and waitsets
 /// can be used in one iceoryx system
 uint32_t iox_cfg_max_number_of_condition_variables();
 
@@ -50,12 +50,12 @@ uint32_t iox_cfg_max_number_of_condition_variables();
 /// attachments a listener or waitset can have
 uint32_t iox_cfg_max_number_of_notifiers_per_condition_variable();
 
-/// @brief returns the maximum amount of attachments per waitset, is less or equal to
-/// iox_cfg_max_number_of_notifiers_per_condition_variable
+/// @brief returns the maximum amount of attachments per waitset
+/// @note is less or equal to iox_cfg_max_number_of_notifiers_per_condition_variable
 uint32_t iox_cfg_max_number_of_attachments_per_waitset();
 
-/// @brief returns the maximum amount of evens per listener, is less or equal to
-/// iox_cfg_max_number_of_notifiers_per_condition_variable
+/// @brief returns the maximum amount of evens per listener
+/// @note is less or equal to iox_cfg_max_number_of_notifiers_per_condition_variable
 uint32_t iox_cfg_max_number_of_events_per_listener();
 
 /// @brief returns the maximum amount of mempools for roudi. restricts also the number of mempools in the roudi config
@@ -66,7 +66,7 @@ uint32_t iox_cfg_max_number_of_mempools();
 /// the roudi config file
 uint32_t iox_cfg_max_shm_segments();
 
-/// @brief returns the maximum supported amount of shared memory provider
+/// @brief returns the maximum supported amount of shared memory providers
 uint32_t iox_cfg_max_number_of_memory_provider();
 
 /// @brief returns the maximum supported amount of memory blocks per shared memory provider
@@ -91,5 +91,4 @@ uint32_t iox_cfg_max_number_of_services();
 /// @brief returns the maximum runtime name length
 uint32_t iox_cfg_max_runtime_name_length();
 
-
-#endif
+#endif // IOX_BINDING_C_CONFIG_H
