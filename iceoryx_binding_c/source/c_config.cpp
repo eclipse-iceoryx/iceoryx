@@ -124,4 +124,3 @@ uint32_t iox_cfg_max_runtime_name_length()
 {
     return iox::MAX_RUNTIME_NAME_LENGTH;
 }
-
