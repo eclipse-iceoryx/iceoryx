@@ -6,6 +6,7 @@
 
 **Features:**
 
+- C binding for posh configuration [\#930](https://github.com/eclipse-iceoryx/iceoryx/issues/930)
 - Enhance MacOS performance with timed{send,receive} functionality in unix domain socket[\#903](https://github.com/eclipse-iceoryx/iceoryx/issues/903)
 - Multi-Publisher support for DDS gateway and generic gateway class [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)
 - Replace `iox-gw-iceoryx2dds` and `iox-gw-dds2iceoryx` gateways with `iox-dds-gateway` [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)
