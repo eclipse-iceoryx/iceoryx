@@ -55,9 +55,6 @@ using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
 
-/// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
-constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
-
 //--------- Communication Resources Start---------------------
 // Publisher
 constexpr uint32_t MAX_PUBLISHERS = build::IOX_MAX_PUBLISHERS;
@@ -107,7 +104,6 @@ constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 128U;
 static_assert(MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
 // Listener
-constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;
 constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 128U;
 static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The Listener capacity is restricted by the maximum amount of notifiers per condition variable.");

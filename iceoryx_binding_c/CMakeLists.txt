@@ -55,6 +55,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 add_library(${PROJECT_NAME}
+    source/c_config.cpp
     source/c_notification_info.cpp
     source/c_listener.cpp
     source/c_node.cpp
