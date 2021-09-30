@@ -21,14 +21,14 @@ So first off: What is iceoryx?
 iceoryx is an inter-process-communication (IPC) middleware for various operating systems (currently we support Linux, MacOS, QNX and Windows 10).
 It has its origins in the automotive industry, where large amounts of data have to be transferred between different processes
 when it comes to driver assistance or automated driving systems. However, the efficient communication mechanisms can also be applied
-to a wider range of use cases, e.g. in the field of robotics or game development. 
+to a wider range of use cases, e.g. in the field of robotics or game development.
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif" width="100%">
 </p>
 
-iceoryx uses a true zero-copy, shared memory approach that allows to transfer data from publishers to subscribers without a single copy. 
-This ensures data transmissions with constant latency, regardless of the size of the payload. For more information have a look at the 
+iceoryx uses a true zero-copy, shared memory approach that allows to transfer data from publishers to subscribers without a single copy.
+This ensures data transmissions with constant latency, regardless of the size of the payload. For more information have a look at the
 [1000 words iceoryx introduction](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php)
 
 <p align="center">
@@ -88,19 +88,21 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 * [Concepts](doc/conceptual-guide.md)
 * [Iceoryx Hoofs Hacker Guide](iceoryx_hoofs/README.md)
 
-### Targeted quality levels & platforms
+### Quality levels & platforms
 
 > [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1+, where 1+ is highest level.
 
-|CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
-|-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|
-| iceoryx_hoofs                           | 1+   | 2                     |                                     |
-| iceoryx_posh                            | 1+, 2| 2                     | Will be split into separate targets |
-| iceoryx_binding_c                       | 2    | 2                     |                                     |
-| iceoryx_examples                        | 5    | 5                     | All example code in this folder     |
-| iceoryx_dds                             | 4    | 4                     |                                     |
-| iceoryx_introspection                   | 5    | 5                     |                                     |
-| iceoryx_meta                            | 5    | 5                     |                                     |
+Please see the [Quality Declaration](./QUALITY_DECLARATION.md) for details of the quality measures according to ROS 2 guidelines.
+
+|CMake project/target   | Current Level | Target Level QNX  | Target Level <br> Linux, Windows, macOS | Comment                             |
+|-----------------------|:-------------:|:-----------------:|:---------------------------------------:|:-----------------------------------:|
+| iceoryx_hoofs         | 2             | 1+                | 1                                       |                                     |
+| iceoryx_posh          | 2             | 1+, 2             | 1                                       | Will be split into separate targets |
+| iceoryx_binding_c     | 2             | 1+                | 1                                       |                                     |
+| iceoryx_examples      | 5             | 4                 | 4                                       | All example code in this folder     |
+| iceoryx_dds           | 4             | 4                 | 4                                       |                                     |
+| iceoryx_introspection | 5             | 4                 | 4                                       |                                     |
+| iceoryx_meta          | 5             | 5                 | 5                                       |                                     |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
 
