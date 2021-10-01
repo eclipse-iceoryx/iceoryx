@@ -56,12 +56,23 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./tools/ci/run-integration-test.sh
 
-  build-test-ubuntu-with-sanitizers:
+  build-test-ubuntu-with-sanitizers-gcc:
+    runs-on: ubuntu-20.04
+    needs: pre-flight-check
+    steps:
+      - uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+      - uses: actions/checkout@v2
+      - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc
+
+  build-test-ubuntu-with-sanitizers-clang:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v2
-      - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh
+      - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
   build-test-macos-with-sanitizers:
     runs-on: macos-latest
@@ -72,12 +83,23 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./tools/ci/build-test-macos-with-sanitizers.sh
 
-  build-test-ubuntu-with-latest-clang:
+  build-ubuntu-with-latest-clang-release:
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v2
-      - run: ./tools/ci/build-test-ubuntu-with-latest-clang.sh
+      - run: ./tools/ci/build-ubuntu-with-latest-clang-gcc.sh clang
+
+  build-ubuntu-with-latest-gcc-release:
+    runs-on: ubuntu-latest
+    needs: pre-flight-check
+    steps:
+      - uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+      - uses: actions/checkout@v2
+      - run: ./tools/ci/build-ubuntu-with-latest-clang-gcc.sh gcc
 
   # gcc 5.4 is compiler used in QNX 7.0
   build-test-ubuntu-with-gcc54:

@@ -48,4 +48,4 @@ cd ./build
 cd -
 
 msg "building roudi examples without toml support"
-./tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
+./tools/iceoryx_build_test.sh relwithdebinfo out-of-tree examples toml-config-off clean

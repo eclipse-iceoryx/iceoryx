@@ -27,6 +27,7 @@
 
 **Refactoring:**
 
+- Handle nullptr callbacks in waitset and listener[\#932](https://github.com/eclipse-iceoryx/iceoryx/issues/932)
 - Add clang-tidy rules for iceoryx_hoofs[\#889](https://github.com/eclipse-iceoryx/iceoryx/issues/889)
 - Move all tests into an anonymous namespace[\#563](https://github.com/eclipse-iceoryx/iceoryx/issues/563)
 - Refactor smart_c to use contract by design and expected[\#418](https://github.com/eclipse-iceoryx/iceoryx/issues/418)

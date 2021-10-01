@@ -327,7 +327,7 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToOverflow)
 
 TEST_F(iox_sub_test, attachingToWaitSetWorks)
 {
-    EXPECT_EQ(iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, NULL),
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, triggerCallback),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 1U);
 }
@@ -335,9 +335,9 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
     WaitSetMock m_waitSet2{m_condVar};
-    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, NULL);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, triggerCallback);
 
-    EXPECT_EQ(iox_ws_attach_subscriber_state(&m_waitSet2, m_sut, SubscriberState_HAS_DATA, 0U, NULL),
+    EXPECT_EQ(iox_ws_attach_subscriber_state(&m_waitSet2, m_sut, SubscriberState_HAS_DATA, 0U, triggerCallback),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 0U);
     EXPECT_EQ(m_waitSet2.size(), 1U);
@@ -345,14 +345,14 @@ TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
-    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, NULL);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, triggerCallback);
     iox_ws_detach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA);
     EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
 TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectNotificationId)
 {
-    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 587U, NULL);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
