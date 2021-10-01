@@ -91,6 +91,9 @@ class iox_notification_info_test : public Test
         return m_memoryManager.getChunk(chunkSettings);
     }
 
+    static void triggerCallback(iox_sub_t sub IOX_MAYBE_UNUSED)
+    {
+    }
 
     static UserTrigger* m_lastNotificationCallbackArgument;
     ConditionVariableData m_condVar{"myApp"};
@@ -142,7 +145,7 @@ TEST_F(iox_notification_info_test, notificationOriginIsUserTriggerPointerWhenIts
 
 TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsOriginatingFromThemStateBased)
 {
-    iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, NULL);
+    iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
@@ -154,7 +157,8 @@ TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsO
 
 TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsOriginatingFromThemEventBased)
 {
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, NULL);
+    iox_ws_attach_subscriber_event(
+        &m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
@@ -178,7 +182,7 @@ TEST_F(iox_notification_info_test, getOriginReturnsPointerToUserTriggerWhenOrigi
 
 TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemStateBased)
 {
-    iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, NULL);
+    iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
@@ -190,7 +194,8 @@ TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOrigin
 
 TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemEventBased)
 {
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, NULL);
+    iox_ws_attach_subscriber_event(
+        &m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
