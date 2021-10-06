@@ -65,10 +65,11 @@ TEST(NewType, ComparableDoesCompile)
 
 TEST(NewType, DISABLED_NoComparableDoesNotCompile)
 {
-    EXPECT_FALSE(compileTest.verify(R"(
+    const char* p = R"(
         Sut<NewType<int, newtype::ConstructByValueCopy>> a(123), b(456);
         if ( a == b ) {}
-    )"));
+    )";
+    EXPECT_FALSE(compileTest.verify(p));
 }
 
 TEST(NewType, SortableDoesCompile)
