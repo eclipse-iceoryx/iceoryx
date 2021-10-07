@@ -233,6 +233,19 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 }
 
+TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
+{
+    EXPECT_THAT(iox_listener_attach_subscriber_event(
+                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, NULL),
+                Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
+}
+
+TEST_F(iox_listener_test, AttachingUserTriggerEventWithNullptrCallbackFails)
+{
+    EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], NULL),
+                Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
+}
+
 TEST_F(iox_listener_test, AttachingSubscriberTillListenerFullWorks)
 {
     AttachAllSubscriber();

@@ -20,16 +20,21 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename UserType>
+template <typename T, typename ContextDataType>
 inline cxx::expected<ListenerError>
-Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, UserType>& eventCallback) noexcept
+Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
+    if (eventCallback.m_callback == nullptr)
+    {
+        return cxx::error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+    }
+
     return addEvent(&eventOrigin,
                     eventCallback.m_contextData,
                     static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
                     typeid(NoEnumUsed).hash_code(),
                     reinterpret_cast<internal::GenericCallbackRef_t>(*eventCallback.m_callback),
-                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
+                    internal::TranslateAndCallTypelessCallback<T, ContextDataType>::call,
                     NotificationAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             NotificationAttorney::enableEvent(
@@ -37,16 +42,21 @@ Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, UserType>& e
         });
 }
 
-template <typename T, typename EventType, typename UserType, typename>
+template <typename T, typename EventType, typename ContextDataType, typename>
 inline cxx::expected<ListenerError> Listener::attachEvent(
-    T& eventOrigin, const EventType eventType, const NotificationCallback<T, UserType>& eventCallback) noexcept
+    T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
+    if (eventCallback.m_callback == nullptr)
+    {
+        return cxx::error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+    }
+
     return addEvent(&eventOrigin,
                     eventCallback.m_contextData,
                     static_cast<uint64_t>(eventType),
                     typeid(EventType).hash_code(),
                     reinterpret_cast<internal::GenericCallbackRef_t>(*eventCallback.m_callback),
-                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
+                    internal::TranslateAndCallTypelessCallback<T, ContextDataType>::call,
                     NotificationAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             NotificationAttorney::enableEvent(
