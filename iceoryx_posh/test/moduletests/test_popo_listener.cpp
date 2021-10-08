@@ -465,6 +465,28 @@ TEST_F(Listener_test, AttachingSameClassWithTwoDifferentEventsWorks)
                      .has_error());
 }
 
+TEST_F(Listener_test, AttachingNullptrCallbackFails)
+{
+    auto empty_callback = createNotificationCallback(attachCallback);
+    empty_callback.m_callback = nullptr;
+    empty_callback.m_contextData = nullptr;
+
+    auto result = m_sut->attachEvent(m_simpleEvents[0U], empty_callback);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ListenerError::EMPTY_EVENT_CALLBACK));
+}
+
+TEST_F(Listener_test, AttachingNullptrCallbackWithEventFails)
+{
+    auto empty_callback = createNotificationCallback(attachCallback);
+    empty_callback.m_callback = nullptr;
+    empty_callback.m_contextData = nullptr;
+
+    auto result = m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty, empty_callback);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ListenerError::EMPTY_EVENT_CALLBACK));
+}
+
 TEST_F(Listener_test, DetachingSameClassWithDifferentEventEnumChangesNothing)
 {
     ASSERT_FALSE(m_sut
