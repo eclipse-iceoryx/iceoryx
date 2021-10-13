@@ -18,12 +18,7 @@ cmake_minimum_required(VERSION 3.10)
 
 set(IOX_VERSION_STRING "1.90.0")
 
-#find_package(iceoryx_hoofs REQUIRED)
-
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
 project(iceoryx_doc VERSION ${IOX_VERSION_STRING})
-#adjust_version()
 
 find_package(Doxygen REQUIRED)
 
@@ -72,6 +67,9 @@ math(EXPR cmp_len "${tmp_len} - 1")
 foreach(val RANGE ${cmp_len})
   list(GET COMPONENTS ${val} cmp)
   list(GET COMPONENT_DIRS ${val} cmp_dir)
+
+  set(DOXYGEN_STRIP_FROM_INC_PATH "${cmp_dir}/include")
+  set(DOXYGEN_PROJECT_NAME "${cmp}")
   message(STATUS "${cmp}  ${cmp_dir}")
 
   set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/doc/${cmp})
