@@ -18,6 +18,7 @@
 #define IOX_HOOFS_QNX_PLATFORM_GRP_HPP
 
 #include <grp.h>
+#include <unistd.h>
 
 int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups);
 

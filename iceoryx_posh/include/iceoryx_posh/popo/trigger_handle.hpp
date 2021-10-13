@@ -37,7 +37,8 @@ namespace popo
 class TriggerHandle
 {
   public:
-    TriggerHandle() noexcept = default;
+    /// @note explicitly implemented for MSVC and QNX
+    TriggerHandle() noexcept;
 
     /// @brief Creates a TriggerHandle
     /// @param[in] conditionVariableDataRef reference to a condition variable data struct
