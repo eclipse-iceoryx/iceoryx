@@ -26,6 +26,8 @@ set(DOXYGEN_GENERATE_HTML YES)
 set(DOXYGEN_GENERATE_LATEX YES)
 set(DOXYGEN_GENERATE_XML YES)
 set(DOXYGEN_XML_OUTPUT xml)
+set(DOXYGEN_EXCLUDE_PATTERNS "*/internal/*")
+set(DOXYGEN_EXCLUDE_SYMBOLS "internal::*")
 
 if(EXISTS "/usr/share/plantuml/plantuml.jar")
   set(DOXYGEN_PLANTUML_JAR_PATH /usr/share/plantuml/plantuml.jar)
