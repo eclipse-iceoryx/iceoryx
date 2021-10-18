@@ -13,7 +13,7 @@
     <buildtool_depend>cmake</buildtool_depend>
     <buildtool_depend>git</buildtool_depend>
 
-    <build_depend>iceoryx_hoofs</build_depend>
+    <depend>iceoryx_hoofs</depend>
 
     <doc_depend>doxygen</doc_depend>
 
