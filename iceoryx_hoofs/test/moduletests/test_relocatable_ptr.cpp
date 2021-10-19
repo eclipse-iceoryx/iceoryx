@@ -319,6 +319,37 @@ TYPED_TEST(Relocatable_ptr_typed_test, nonEqualNonNullptrComparisonWorks)
     EXPECT_TRUE(rp1 != p2);
 }
 
+TYPED_TEST(Relocatable_ptr_typed_test, negativeNullPointerCheckWithIfWorks)
+{
+    using T = typename TestFixture::DataType;
+    T* p = reinterpret_cast<T*>(NON_NULL_PTR);
+    iox::rp::relocatable_ptr<T> rp(p);
+
+    if (rp)
+    {
+        SUCCEED();
+    }
+    else
+    {
+        FAIL();
+    }
+}
+
+TYPED_TEST(Relocatable_ptr_typed_test, positiveNullPointerCheckWithIfWorks)
+{
+    using T = typename TestFixture::DataType;
+    iox::rp::relocatable_ptr<T> rp;
+
+    if (rp)
+    {
+        FAIL();
+    }
+    else
+    {
+        SUCCEED();
+    }
+}
+
 TEST_F(Relocatable_ptr_test, dereferencingWorks)
 {
     int x = 73;
