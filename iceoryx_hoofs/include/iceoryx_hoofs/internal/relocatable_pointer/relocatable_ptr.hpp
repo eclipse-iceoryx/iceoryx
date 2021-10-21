@@ -26,8 +26,8 @@ namespace rp
 {
 /// @brief Smart pointer type that allows objects using it to able to be copied by memcpy
 ///        without invalidating the pointer.
-///        This applies only if it points to memory owned by the object itself (i.e.
-///        i.e. not to memory outside of the object).
+///        This applies only if it points to memory owned by the object itself
+///        (i.e. not to memory outside of the object).
 ///        This is useful to improve copy-efficiency and allow the types build with relocatable
 ///        pointers only to be stored in shared memory.
 ///        It is useable like a raw pointer of the corresponding type and can be implicily
@@ -52,6 +52,8 @@ template <typename T>
 class relocatable_ptr
 {
   public:
+    using ptr_t = T*;
+
     /// @brief Construct from raw pointer.
     relocatable_ptr(T* ptr = nullptr) noexcept;
 
@@ -106,7 +108,6 @@ class relocatable_ptr
 
   private:
     using offset_t = uint64_t;
-    offset_t m_offset;
 
     offset_t self() const noexcept;
 
@@ -126,6 +127,8 @@ class relocatable_ptr
     // Since Foo and rp have the same address (this), we need the 0 offset to allow
     // rp to point to Foo itself.
     static constexpr offset_t NULL_POINTER_OFFSET = 1;
+
+    offset_t m_offset;
 };
 
 /// @brief Compare relocatable_ptr with respect to logical equality.

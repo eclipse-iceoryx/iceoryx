@@ -24,26 +24,26 @@ namespace iox
 namespace rp
 {
 template <typename T>
-relocatable_ptr<T>::relocatable_ptr(T* ptr) noexcept
+inline relocatable_ptr<T>::relocatable_ptr(T* ptr) noexcept
     : m_offset(to_offset(ptr))
 {
 }
 
 template <typename T>
-relocatable_ptr<T>::relocatable_ptr(const relocatable_ptr& other) noexcept
+inline relocatable_ptr<T>::relocatable_ptr(const relocatable_ptr& other) noexcept
     : m_offset(to_offset(other.get()))
 {
 }
 
 template <typename T>
-relocatable_ptr<T>::relocatable_ptr(relocatable_ptr&& other)
+inline relocatable_ptr<T>::relocatable_ptr(relocatable_ptr&& other)
     : m_offset(to_offset(other.get()))
 {
     other.m_offset = NULL_POINTER_OFFSET;
 }
 
 template <typename T>
-relocatable_ptr<T>& relocatable_ptr<T>::operator=(const relocatable_ptr& rhs) noexcept
+inline relocatable_ptr<T>& relocatable_ptr<T>::operator=(const relocatable_ptr& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -53,7 +53,7 @@ relocatable_ptr<T>& relocatable_ptr<T>::operator=(const relocatable_ptr& rhs) no
 }
 
 template <typename T>
-relocatable_ptr<T>& relocatable_ptr<T>::operator=(relocatable_ptr&& rhs) noexcept
+inline relocatable_ptr<T>& relocatable_ptr<T>::operator=(relocatable_ptr&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -64,20 +64,20 @@ relocatable_ptr<T>& relocatable_ptr<T>::operator=(relocatable_ptr&& rhs) noexcep
 }
 
 template <typename T>
-T* relocatable_ptr<T>::get() noexcept
+inline T* relocatable_ptr<T>::get() noexcept
 {
     return from_offset(m_offset);
 }
 
 template <typename T>
-const T* relocatable_ptr<T>::get() const noexcept
+inline const T* relocatable_ptr<T>::get() const noexcept
 {
     return from_offset(m_offset);
 }
 
 template <typename T>
 template <typename S>
-S& relocatable_ptr<T>::operator*() noexcept
+inline S& relocatable_ptr<T>::operator*() noexcept
 {
     // not actually evaluated in the error case (compiler fails earlier since S = void leads to void&)
     static_assert(!std::is_same<S, void>::value, "relocatable_ptr<void> does not support operator*");
@@ -86,7 +86,7 @@ S& relocatable_ptr<T>::operator*() noexcept
 
 template <typename T>
 template <typename S>
-const S& relocatable_ptr<T>::operator*() const noexcept
+inline const S& relocatable_ptr<T>::operator*() const noexcept
 {
     // not actually evaluated in the error case (compiler fails earlier since S = void leads to void&)
     static_assert(!std::is_same<S, void>::value, "relocatable_ptr<void> does not support operator* const");
@@ -94,37 +94,37 @@ const S& relocatable_ptr<T>::operator*() const noexcept
 }
 
 template <typename T>
-T* relocatable_ptr<T>::operator->() noexcept
+inline T* relocatable_ptr<T>::operator->() noexcept
 {
     return get();
 }
 
 template <typename T>
-const T* relocatable_ptr<T>::operator->() const noexcept
+inline const T* relocatable_ptr<T>::operator->() const noexcept
 {
     return get();
 }
 
 template <typename T>
-relocatable_ptr<T>::operator T*() noexcept
+inline relocatable_ptr<T>::operator T*() noexcept
 {
     return get();
 }
 
 template <typename T>
-relocatable_ptr<T>::operator const T*() const noexcept
+inline relocatable_ptr<T>::operator const T*() const noexcept
 {
     return get();
 }
 
 template <typename T>
-typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::self() const noexcept
+inline typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::self() const noexcept
 {
     return reinterpret_cast<offset_t>(this);
 }
 
 template <typename T>
-typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::to_offset(const void* ptr) const noexcept
+inline typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::to_offset(const void* ptr) const noexcept
 {
     if (ptr == nullptr)
     {
@@ -135,7 +135,7 @@ typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::to_offset(const void* 
 }
 
 template <typename T>
-T* relocatable_ptr<T>::from_offset(offset_t offset) const noexcept
+inline T* relocatable_ptr<T>::from_offset(offset_t offset) const noexcept
 {
     if (offset == NULL_POINTER_OFFSET)
     {
@@ -145,7 +145,7 @@ T* relocatable_ptr<T>::from_offset(offset_t offset) const noexcept
 }
 
 template <typename T>
-bool operator==(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) noexcept
+inline bool operator==(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) noexcept
 {
     return lhs.get() == rhs.get();
 }
@@ -153,7 +153,7 @@ bool operator==(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) no
 /// @brief Compare relocatable_ptr with respect to logical inequality.
 /// @return true if rhs and lhs point to a different location, false otherwise
 template <typename T>
-bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) noexcept
+inline bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) noexcept
 {
     return !operator==(lhs, rhs);
 }
