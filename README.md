@@ -122,6 +122,10 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 | [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
 | [IceRay](https://github.com/elBoberido/iceray) | An iceoryx introspection client written in Rust | Rust |
 
+## Frequently Asked Questions (FAQ)
+
+[FAQ.md](./doc/website/FAQ.md)
+
 ## Governance & maintainers
 
 Please have a look at the [GOVERNANCE.md](./GOVERNANCE.md).
