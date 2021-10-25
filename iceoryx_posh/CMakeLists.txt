@@ -24,10 +24,13 @@ find_package(Threads REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
+option(EXTERNAL_TOML_CONFIG "Use an externally provided cpptoml" OFF)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
 if(TOML_CONFIG)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/posh/cpptoml/prebuild)
+    if (NOT EXTERNAL_TOML_CONFIG)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/posh/cpptoml/prebuild)
+    endif()
 
     find_package(cpptoml REQUIRED)
 endif()
