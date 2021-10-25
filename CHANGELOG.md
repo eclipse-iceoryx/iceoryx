@@ -16,6 +16,7 @@
 - static memory alternative for std::function[\#391](https://github.com/eclipse-iceoryx/iceoryx/issues/391)
 - Adding support for Helix QAC 2021.1[\#755](https://github.com/eclipse-iceoryx/iceoryx/issues/755) thanks to @toniglandy1
 - Axivion analysis on CI[\#409](https://github.com/eclipse-iceoryx/iceoryx/issues/409)
+- Cpptoml can be provided by an external source[\#951](https://github.com/eclipse-iceoryx/iceoryx/issues/)
 
 **Bugfixes:**
 
