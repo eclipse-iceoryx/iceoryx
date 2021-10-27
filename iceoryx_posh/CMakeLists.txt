@@ -23,11 +23,14 @@ project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 find_package(Threads REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 
+option(DOWNLOAD_TOML_LIB "Download cpptoml via the CMake ExternalProject module" ON)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
 if(TOML_CONFIG)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/posh/cpptoml/prebuild)
+    if (DOWNLOAD_TOML_LIB)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/posh/cpptoml/prebuild)
+    endif()
 
     find_package(cpptoml REQUIRED)
 endif()
