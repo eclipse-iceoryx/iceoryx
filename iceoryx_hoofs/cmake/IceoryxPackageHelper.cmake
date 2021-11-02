@@ -18,6 +18,7 @@
 # setup_package_name_and_create_files : this macro which is called from other modules which use iceoryx_hoofs
 # sets the variables for package version file,config file used for configuration
 # this also creates the config files
+include(GNUInstallDirs)
 
 Macro(setup_package_name_and_create_files)
     set(options )
@@ -31,10 +32,10 @@ Macro(setup_package_name_and_create_files)
     set(TARGETS_EXPORT_NAME "${PARAMS_NAME}Targets" )
     set(PROJECT_NAMESPACE ${PARAMS_NAMESPACE} )
 
-    set(DESTINATION_BINDIR bin )
-    set(DESTINATION_LIBDIR lib )
-    set(DESTINATION_INCLUDEDIR include/${PARAMS_PROJECT_PREFIX})
-    set(DESTINATION_CONFIGDIR lib/cmake/${PARAMS_NAME} )
+    set(DESTINATION_BINDIR ${CMAKE_INSTALL_BINDIR})
+    set(DESTINATION_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+    set(DESTINATION_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${PARAMS_PROJECT_PREFIX})
+    set(DESTINATION_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PARAMS_NAME})
 
     # create package files
     include(CMakePackageConfigHelpers)
