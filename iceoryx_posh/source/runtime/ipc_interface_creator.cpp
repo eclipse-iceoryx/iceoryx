@@ -38,7 +38,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                   }
                   else
                   {
-                      LogFatal() << "Error occured while acquiring file lock named " << runtimeName;
+                      LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
                       errorHandler(Error::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
                   }
               })

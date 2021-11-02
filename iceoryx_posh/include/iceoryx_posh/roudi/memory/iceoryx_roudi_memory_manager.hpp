@@ -71,7 +71,7 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
                           }
                           else
                           {
-                              LogFatal() << "Error occured while acquiring file lock named " << ROUDI_LOCK_NAME;
+                              LogFatal() << "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME;
                               errorHandler(Error::kICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK,
                                            nullptr,
                                            iox::ErrorLevel::FATAL);
