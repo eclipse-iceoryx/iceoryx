@@ -240,7 +240,7 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
 void IntrospectionApp::prettyPrint(const std::string& str, const PrettyOptions pr)
 {
     wattron(pad, prettyMap.find(pr)->second);
-    wprintw(pad, str.c_str());
+    wprintw(pad, "%s", str.c_str());
     wattroff(pad, prettyMap.find(pr)->second);
 }
 
@@ -288,7 +288,7 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
         auto& info = introspectionInfo.m_mempoolInfo[i];
         if (info.m_numChunks > 0u)
         {
-            wprintw(pad, "%*d |", memPoolWidth, i + 1u);
+            wprintw(pad, "%*zd |", memPoolWidth, i + 1u);
             wprintw(pad, "%*d |", usedchunksWidth, info.m_usedChunks);
             wprintw(pad, "%*d |", numchunksWidth, info.m_numChunks);
             wprintw(pad, "%*d |", minFreechunksWidth, info.m_minFreeChunks);
