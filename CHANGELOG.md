@@ -25,6 +25,7 @@
 - Incremental builds with the build script are broken[\#821](https://github.com/eclipse-iceoryx/iceoryx/issues/821)
 - Compile failed because of missing <limits> for GCC 11[\#811](https://github.com/eclipse-iceoryx/iceoryx/issues/811) thanks to @homalozoa
 - Unable to build cyclone dds idlpp-cxx [\#736](https://github.com/eclipse-iceoryx/iceoryx/issues/736)
+- Fix format string issues with introspection client [\#960](https://github.com/eclipse-iceoryx/iceoryx/issues/960) thanks to @roehling
 - Add support for Multi-Arch install destinations [\#961](https://github.com/eclipse-iceoryx/iceoryx/issues/961) thanks to @roehling
 
 **Refactoring:**
