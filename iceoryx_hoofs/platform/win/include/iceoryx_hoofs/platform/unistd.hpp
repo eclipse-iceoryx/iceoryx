@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/platform/windows.hpp"
 
 #include <io.h>
+#include <process.h>
 #include <vector>
 
 #define _SC_PAGESIZE 1

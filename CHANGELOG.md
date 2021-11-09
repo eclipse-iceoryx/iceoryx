@@ -6,6 +6,7 @@
 
 **Features:**
 
+- Partial enable iceoryx building with msvc2015+clang [\#965](https://github.com/eclipse-iceoryx/iceoryx/issues/965)
 - C binding for posh configuration [\#930](https://github.com/eclipse-iceoryx/iceoryx/issues/930)
 - Enhance MacOS performance with timed{send,receive} functionality in unix domain socket[\#903](https://github.com/eclipse-iceoryx/iceoryx/issues/903)
 - Multi-Publisher support for DDS gateway and generic gateway class [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)

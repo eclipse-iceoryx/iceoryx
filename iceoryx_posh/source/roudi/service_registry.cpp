@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
 #include <algorithm>
+#include <iterator>
 
 namespace iox
 {
