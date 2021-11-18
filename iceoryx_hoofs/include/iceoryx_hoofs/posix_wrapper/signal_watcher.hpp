@@ -25,6 +25,8 @@ namespace iox
 {
 namespace posix
 {
+/// @brief The SignalWatcher waits for SIGINT and SIGTERM. One can wait until the
+///        signal has occurred or ask the watcher if it has occurred.
 class SignalWatcher
 {
   public:
@@ -35,14 +37,17 @@ class SignalWatcher
     SignalWatcher& operator=(const SignalWatcher&) = delete;
     SignalWatcher& operator=(SignalWatcher&&) = delete;
 
+    /// @brief Returns the singleton instance of the SignalWatcher
     static SignalWatcher& getInstance() noexcept;
 
+    /// @brief Blocks until either SIGTERM or SIGINT has occurred
     void waitForSignal() const noexcept;
 
+    /// @brief Returns true when SIGTERM or SIGINT has occurred, otherwise false
     bool wasSignalTriggered() const noexcept;
 
 
-  private:
+  protected:
     SignalWatcher() noexcept;
 
   private:
@@ -54,6 +59,12 @@ class SignalWatcher
     SignalGuard m_sigTermGuard;
     SignalGuard m_sigIntGuard;
 };
+
+/// @brief convenience function, calls SignalWatcher::getInstance().waitForSignal();
+void waitForTerminationRequest() noexcept;
+
+/// @brief convenience function, calls SignalWatcher::getInstance().wasSignalTriggered();
+bool hasTerminationRequest() noexcept;
 } // namespace posix
 } // namespace iox
 

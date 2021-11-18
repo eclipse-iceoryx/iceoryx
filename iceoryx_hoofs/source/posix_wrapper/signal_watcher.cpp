@@ -59,5 +59,16 @@ bool SignalWatcher::wasSignalTriggered() const noexcept
 {
     return m_hasSignalOccurred.load();
 }
+
+void waitForTerminationRequest() noexcept
+{
+    SignalWatcher::getInstance().waitForSignal();
+}
+
+bool hasTerminationRequest() noexcept
+{
+    return SignalWatcher::getInstance().wasSignalTriggered();
+}
+
 } // namespace posix
 } // namespace iox
