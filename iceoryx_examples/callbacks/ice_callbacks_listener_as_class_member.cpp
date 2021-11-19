@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
@@ -27,20 +27,7 @@
 #include <csignal>
 #include <iostream>
 
-std::atomic_bool keepRunning{true};
 constexpr char APP_NAME[] = "iox-cpp-callbacks-listener-as-class-member";
-
-iox::posix::Semaphore shutdownSemaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    shutdownSemaphore.post().or_else([](auto) {
-        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
-    keepRunning = false;
-}
 
 class CounterService
 {
@@ -71,12 +58,6 @@ class CounterService
                 std::cerr << "unable to attach subscriberRight" << std::endl;
                 std::exit(EXIT_FAILURE);
             });
-    }
-
-    void waitForShutdown() noexcept
-    {
-        shutdownSemaphore.wait().or_else(
-            [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
     }
 
   private:
@@ -121,14 +102,11 @@ class CounterService
 
 int main()
 {
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     CounterService counterService;
 
-    counterService.waitForShutdown();
+    iox::posix::waitForTerminationRequest();
 
     return (EXIT_SUCCESS);
 }

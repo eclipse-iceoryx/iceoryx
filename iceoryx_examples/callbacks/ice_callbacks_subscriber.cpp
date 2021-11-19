@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
@@ -27,23 +27,10 @@
 #include <csignal>
 #include <iostream>
 
-iox::posix::Semaphore shutdownSemaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
-
-std::atomic_bool keepRunning{true};
 constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    shutdownSemaphore.post().or_else([](auto) {
-        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
-    keepRunning = false;
-}
 
 void heartbeatCallback(iox::popo::UserTrigger*)
 {
@@ -80,9 +67,6 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 
 int main()
 {
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // the listener starts a background thread and the callbacks of the attached events
@@ -95,7 +79,7 @@ int main()
 
     // send a heartbeat every 4 seconds
     std::thread heartbeatThread([&] {
-        while (keepRunning)
+        while (iox::posix::hasTerminationRequest())
         {
             heartbeat.trigger();
             std::this_thread::sleep_for(std::chrono::seconds(4));
@@ -131,8 +115,7 @@ int main()
         });
 
     // wait until someone presses CTRL+c
-    shutdownSemaphore.wait().or_else(
-        [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
+    iox::posix::waitForTerminationRequest();
 
     // optional detachEvent, but not required.
     //   when the listener goes out of scope it will detach all events and when a
