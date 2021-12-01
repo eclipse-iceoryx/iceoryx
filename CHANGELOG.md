@@ -44,6 +44,7 @@
 - Refine quality levels[\#425](https://github.com/eclipse-iceoryx/iceoryx/issues/425)
 - Clean-up std::terminate usage[\#261](https://github.com/eclipse-iceoryx/iceoryx/issues/261)
 - Add Quality Declaration Document[\#910](https://github.com/eclipse-iceoryx/iceoryx/issues/910)
+- Make `cxx::string::capacity` a `static` method[\#979](https://github.com/eclipse-iceoryx/iceoryx/issues/979)
 
 **API Breaking Changes:**
 
