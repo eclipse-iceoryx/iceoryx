@@ -39,6 +39,15 @@ using Implementations = Types<string<1>, string<15>, string<100>, string<1000>>;
 TYPED_TEST_CASE(stringTyped_test, Implementations);
 #pragma GCC diagnostic pop
 
+TEST(string_test, CapacityReturnsSpecifiedCapacity)
+{
+    constexpr uint16_t CAPACITY_ONE{1};
+    constexpr uint16_t CAPACITY_FOURTYTWO{42};
+
+    EXPECT_THAT(string<CAPACITY_ONE>::capacity(), Eq(CAPACITY_ONE));
+    EXPECT_THAT(string<CAPACITY_FOURTYTWO>::capacity(), Eq(CAPACITY_FOURTYTWO));
+}
+
 /// @note string() noexcept
 TYPED_TEST(stringTyped_test, EmptyInitializationResultsInSize0)
 {
