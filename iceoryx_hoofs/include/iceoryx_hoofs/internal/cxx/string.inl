@@ -282,7 +282,7 @@ inline constexpr uint64_t string<Capacity>::size() const noexcept
 }
 
 template <uint64_t Capacity>
-inline constexpr uint64_t string<Capacity>::capacity() const noexcept
+inline constexpr uint64_t string<Capacity>::capacity() noexcept
 {
     return Capacity;
 }

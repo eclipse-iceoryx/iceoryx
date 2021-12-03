@@ -400,7 +400,7 @@ class string
     /// @brief returns the maximum number of characters that can be stored in the string
     ///
     /// @return the maximum number of characters that can be stored in the string
-    constexpr uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
     /// @brief returns if the string is empty or not
     ///
