@@ -35,6 +35,12 @@ struct nullopt_t
 };
 constexpr nullopt_t nullopt = nullopt_t();
 
+/// @brief helper struct which is used to call the in-place-construction constructor
+struct Emplace_t
+{
+};
+constexpr Emplace_t Emplace{};
+
 /// @brief Optional implementation from the C++17 standard with C++11. The
 ///         interface is analog to the C++17 standard and it can be used in
 ///         factory functions which can fail.
@@ -82,6 +88,13 @@ class optional
     /// @brief Creates an optional by using the copy constructor of T.
     /// @param[in] value lvalue of type T which will be copy constructed into the optional
     optional(const T& value) noexcept;
+
+    /// @brief Creates an optional and an object inside the optional on construction by perfectly forwarding args to the
+    /// constructor of T. Could be used e.g. when T is not copyable/movable.
+    /// @tparam Targs is the template parameter pack for the perfectly forwarded arguments
+    /// @param[in] Emplace_t compile time variable to distinguish between constructors with certain behavior
+    template <typename... Targs>
+    optional(Emplace_t, Targs&&... args) noexcept;
 
     /// @brief The destructor will call the destructor of T if a value is set.
     ~optional() noexcept;

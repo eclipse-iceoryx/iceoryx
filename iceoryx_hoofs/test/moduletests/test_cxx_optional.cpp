@@ -18,6 +18,8 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "test.hpp"
 
+#include <memory>
+
 namespace
 {
 using namespace ::testing;
@@ -484,5 +486,84 @@ TEST_F(Optional_test, CopyConstructionWithElementWorks)
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->value, Eq(5));
     EXPECT_THAT(sut->secondValue, Eq(6));
+}
+
+struct TestStructForInPlaceConstruction
+{
+    TestStructForInPlaceConstruction()
+        : TestStructForInPlaceConstruction(0.0, std::make_unique<std::string>("Hello"))
+    {
+    }
+
+    TestStructForInPlaceConstruction(const double& val)
+        : TestStructForInPlaceConstruction(val, std::make_unique<std::string>("Hello"))
+    {
+    }
+
+    TestStructForInPlaceConstruction(double&& val)
+        : TestStructForInPlaceConstruction(val * 2.0, std::make_unique<std::string>("Hello"))
+    {
+    }
+
+    TestStructForInPlaceConstruction(std::unique_ptr<std::string> ptr)
+        : TestStructForInPlaceConstruction(0.0, std::move(ptr))
+    {
+    }
+
+    TestStructForInPlaceConstruction(const double& val, std::unique_ptr<std::string> ptr)
+        : val(val)
+        , ptr(std::move(ptr))
+    {
+    }
+
+    double val;
+    std::unique_ptr<std::string> ptr;
+};
+
+TEST_F(Optional_test, InPlaceConstructionCtorCallsDefCtorWhenCalledWithoutArgs)
+{
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::Emplace);
+    ASSERT_TRUE(sut.has_value());
+    EXPECT_THAT(sut->val, Eq(0.0));
+    ASSERT_TRUE(sut->ptr);
+    EXPECT_THAT(sut->ptr->c_str(), StrEq("Hello"));
+}
+
+TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
+{
+    constexpr double VAL = 4.6;
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::Emplace, VAL);
+    ASSERT_TRUE(sut.has_value());
+    EXPECT_THAT(sut->val, Eq(VAL));
+    ASSERT_TRUE(sut->ptr);
+    EXPECT_THAT(sut->ptr->c_str(), StrEq("Hello"));
+}
+
+TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithRVal)
+{
+    double val = 2.3;
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut1(iox::cxx::Emplace, std::move(val));
+    ASSERT_TRUE(sut1.has_value());
+    EXPECT_THAT(sut1->val, Eq(val * 2.0));
+    ASSERT_TRUE(sut1->ptr);
+    EXPECT_THAT(sut1->ptr->c_str(), StrEq("Hello"));
+
+    std::unique_ptr<std::string> ptr(new std::string("World"));
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut2(iox::cxx::Emplace, std::move(ptr));
+    ASSERT_TRUE(sut2.has_value());
+    EXPECT_THAT(sut2->val, Eq(0.0));
+    ASSERT_TRUE(sut2->ptr);
+    EXPECT_THAT(sut2->ptr->c_str(), StrEq("World"));
+}
+
+TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithMixedArgs)
+{
+    constexpr double VAL = 11.11;
+    std::unique_ptr<std::string> ptr(new std::string("Hello World"));
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::Emplace, VAL, std::move(ptr));
+    ASSERT_TRUE(sut.has_value());
+    EXPECT_THAT(sut->val, Eq(VAL));
+    ASSERT_TRUE(sut->ptr);
+    EXPECT_THAT(sut->ptr->c_str(), StrEq("Hello World"));
 }
 } // namespace
