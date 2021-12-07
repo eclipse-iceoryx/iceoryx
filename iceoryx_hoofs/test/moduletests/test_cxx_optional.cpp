@@ -422,6 +422,12 @@ TEST_F(Optional_test, MakeOptional)
 {
     struct Make
     {
+        Make()
+            : a(0)
+            , b(0)
+        {
+        }
+
         Make(int a, int b)
             : a(a)
             , b(b)
@@ -431,9 +437,12 @@ TEST_F(Optional_test, MakeOptional)
         int b;
     };
 
-    auto sut = iox::cxx::make_optional<Make>(123, 456);
-    EXPECT_THAT(sut->a, Eq(123));
-    EXPECT_THAT(sut->b, Eq(456));
+    auto sut1 = iox::cxx::make_optional<Make>(123, 456);
+    EXPECT_THAT(sut1->a, Eq(123));
+    EXPECT_THAT(sut1->b, Eq(456));
+    auto sut2 = iox::cxx::make_optional<Make>();
+    EXPECT_THAT(sut2->a, Eq(0));
+    EXPECT_THAT(sut2->b, Eq(0));
 }
 
 TEST_F(Optional_test, AndThenWhenContainingValue)
@@ -522,7 +531,7 @@ struct TestStructForInPlaceConstruction
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsDefCtorWhenCalledWithoutArgs)
 {
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::Emplace);
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place);
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(0.0));
     ASSERT_TRUE(sut->ptr);
@@ -532,7 +541,7 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsDefCtorWhenCalledWithoutArgs)
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
 {
     constexpr double VAL = 4.6;
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::Emplace, VAL);
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, VAL);
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(VAL));
     ASSERT_TRUE(sut->ptr);
@@ -542,14 +551,14 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithRVal)
 {
     double val = 2.3;
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut1(iox::cxx::Emplace, std::move(val));
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut1(iox::cxx::in_place, std::move(val));
     ASSERT_TRUE(sut1.has_value());
     EXPECT_THAT(sut1->val, Eq(val * 2.0));
     ASSERT_TRUE(sut1->ptr);
     EXPECT_THAT(sut1->ptr->c_str(), StrEq("Hello"));
 
     std::unique_ptr<std::string> ptr(new std::string("World"));
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut2(iox::cxx::Emplace, std::move(ptr));
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut2(iox::cxx::in_place, std::move(ptr));
     ASSERT_TRUE(sut2.has_value());
     EXPECT_THAT(sut2->val, Eq(0.0));
     ASSERT_TRUE(sut2->ptr);
@@ -560,7 +569,7 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithMixed
 {
     constexpr double VAL = 11.11;
     std::unique_ptr<std::string> ptr(new std::string("Hello World"));
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::Emplace, VAL, std::move(ptr));
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, VAL, std::move(ptr));
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(VAL));
     ASSERT_TRUE(sut->ptr);

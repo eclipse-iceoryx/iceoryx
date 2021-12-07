@@ -65,7 +65,7 @@ inline optional<T>::optional(optional&& rhs) noexcept
 
 template <typename T>
 template <typename... Targs>
-inline optional<T>::optional(Emplace_t, Targs&&... args) noexcept
+inline optional<T>::optional(in_place_t, Targs&&... args) noexcept
 {
     construct_value(std::forward<Targs>(args)...);
 }
