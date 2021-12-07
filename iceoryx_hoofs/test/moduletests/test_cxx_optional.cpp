@@ -422,19 +422,15 @@ TEST_F(Optional_test, MakeOptional)
 {
     struct Make
     {
-        Make()
-            : a(0)
-            , b(0)
-        {
-        }
+        Make() = default;
 
         Make(int a, int b)
             : a(a)
             , b(b)
         {
         }
-        int a;
-        int b;
+        int a{0};
+        int b{0};
     };
 
     auto sut1 = iox::cxx::make_optional<Make>(123, 456);
@@ -497,82 +493,87 @@ TEST_F(Optional_test, CopyConstructionWithElementWorks)
     EXPECT_THAT(sut->secondValue, Eq(6));
 }
 
+constexpr char DEFAULT_STRING[]{"Live long and prosper"};
+constexpr int8_t DEFAULT_INT{0};
+constexpr int8_t DEFAULT_MULTIPLICATOR{2};
+
 struct TestStructForInPlaceConstruction
 {
-    TestStructForInPlaceConstruction()
-        : TestStructForInPlaceConstruction(0.0, std::make_unique<std::string>("Hello"))
+    TestStructForInPlaceConstruction() = default;
+
+    TestStructForInPlaceConstruction(const int8_t& val)
+        : val(val)
     {
     }
 
-    TestStructForInPlaceConstruction(const double& val)
-        : TestStructForInPlaceConstruction(val, std::make_unique<std::string>("Hello"))
-    {
-    }
-
-    TestStructForInPlaceConstruction(double&& val)
-        : TestStructForInPlaceConstruction(val * 2.0, std::make_unique<std::string>("Hello"))
+    TestStructForInPlaceConstruction(int8_t&& val)
+        : val(DEFAULT_MULTIPLICATOR * val)
     {
     }
 
     TestStructForInPlaceConstruction(std::unique_ptr<std::string> ptr)
-        : TestStructForInPlaceConstruction(0.0, std::move(ptr))
+        : ptr(std::move(ptr))
     {
     }
 
-    TestStructForInPlaceConstruction(const double& val, std::unique_ptr<std::string> ptr)
+    TestStructForInPlaceConstruction(const int8_t& val, std::unique_ptr<std::string> ptr)
         : val(val)
         , ptr(std::move(ptr))
     {
     }
 
-    double val;
-    std::unique_ptr<std::string> ptr;
+    int8_t val{DEFAULT_INT};
+    std::unique_ptr<std::string> ptr{new std::string(DEFAULT_STRING)};
 };
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsDefCtorWhenCalledWithoutArgs)
 {
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place);
     ASSERT_TRUE(sut.has_value());
-    EXPECT_THAT(sut->val, Eq(0.0));
+    EXPECT_THAT(sut->val, Eq(DEFAULT_INT));
     ASSERT_TRUE(sut->ptr);
-    EXPECT_THAT(sut->ptr->c_str(), StrEq("Hello"));
+    EXPECT_THAT(sut->ptr->c_str(), StrEq(DEFAULT_STRING));
 }
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
 {
-    constexpr double VAL = 4.6;
+    constexpr int8_t VAL = 46;
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, VAL);
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(VAL));
     ASSERT_TRUE(sut->ptr);
-    EXPECT_THAT(sut->ptr->c_str(), StrEq("Hello"));
+    EXPECT_THAT(sut->ptr->c_str(), StrEq(DEFAULT_STRING));
 }
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithRVal)
 {
-    double val = 2.3;
+    int8_t val = 23;
+    constexpr char NEW_STRING[]{"Without followers, evil cannot spread"};
+
     iox::cxx::optional<TestStructForInPlaceConstruction> sut1(iox::cxx::in_place, std::move(val));
     ASSERT_TRUE(sut1.has_value());
-    EXPECT_THAT(sut1->val, Eq(val * 2.0));
+    EXPECT_THAT(sut1->val, Eq(DEFAULT_MULTIPLICATOR * val));
     ASSERT_TRUE(sut1->ptr);
-    EXPECT_THAT(sut1->ptr->c_str(), StrEq("Hello"));
+    EXPECT_THAT(sut1->ptr->c_str(), StrEq(DEFAULT_STRING));
 
-    std::unique_ptr<std::string> ptr(new std::string("World"));
+    std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
     iox::cxx::optional<TestStructForInPlaceConstruction> sut2(iox::cxx::in_place, std::move(ptr));
     ASSERT_TRUE(sut2.has_value());
-    EXPECT_THAT(sut2->val, Eq(0.0));
+    EXPECT_THAT(sut2->val, Eq(DEFAULT_INT));
     ASSERT_TRUE(sut2->ptr);
-    EXPECT_THAT(sut2->ptr->c_str(), StrEq("World"));
+    EXPECT_THAT(sut2->ptr->c_str(), StrEq(NEW_STRING));
 }
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithMixedArgs)
 {
-    constexpr double VAL = 11.11;
-    std::unique_ptr<std::string> ptr(new std::string("Hello World"));
+    constexpr int8_t VAL = 11;
+    constexpr char NEW_STRING[]{"Insufficient facts always invite danger"};
+
+    std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, VAL, std::move(ptr));
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(VAL));
     ASSERT_TRUE(sut->ptr);
-    EXPECT_THAT(sut->ptr->c_str(), StrEq("Hello World"));
+    EXPECT_THAT(sut->ptr->c_str(), StrEq(NEW_STRING));
 }
 } // namespace
