@@ -500,6 +500,12 @@ constexpr int8_t DEFAULT_MULTIPLICATOR{2};
 struct TestStructForInPlaceConstruction
 {
     TestStructForInPlaceConstruction() = default;
+    ~TestStructForInPlaceConstruction() = default;
+
+    TestStructForInPlaceConstruction(const TestStructForInPlaceConstruction&) = delete;
+    TestStructForInPlaceConstruction(TestStructForInPlaceConstruction&&) = delete;
+    TestStructForInPlaceConstruction& operator=(const TestStructForInPlaceConstruction&) = delete;
+    TestStructForInPlaceConstruction& operator=(TestStructForInPlaceConstruction&&) = delete;
 
     TestStructForInPlaceConstruction(const int8_t& val)
         : val(val)
@@ -545,23 +551,25 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
     EXPECT_THAT(sut->ptr->c_str(), StrEq(DEFAULT_STRING));
 }
 
-TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithRVal)
+TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithPodRVal)
 {
     int8_t val = 23;
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, std::move(val));
+    ASSERT_TRUE(sut.has_value());
+    EXPECT_THAT(sut->val, Eq(DEFAULT_MULTIPLICATOR * val));
+    ASSERT_TRUE(sut->ptr);
+    EXPECT_THAT(sut->ptr->c_str(), StrEq(DEFAULT_STRING));
+}
+
+TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithComplexTypeRVal)
+{
     constexpr char NEW_STRING[]{"Without followers, evil cannot spread"};
-
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut1(iox::cxx::in_place, std::move(val));
-    ASSERT_TRUE(sut1.has_value());
-    EXPECT_THAT(sut1->val, Eq(DEFAULT_MULTIPLICATOR * val));
-    ASSERT_TRUE(sut1->ptr);
-    EXPECT_THAT(sut1->ptr->c_str(), StrEq(DEFAULT_STRING));
-
     std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
-    iox::cxx::optional<TestStructForInPlaceConstruction> sut2(iox::cxx::in_place, std::move(ptr));
-    ASSERT_TRUE(sut2.has_value());
-    EXPECT_THAT(sut2->val, Eq(DEFAULT_INT));
-    ASSERT_TRUE(sut2->ptr);
-    EXPECT_THAT(sut2->ptr->c_str(), StrEq(NEW_STRING));
+    iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, std::move(ptr));
+    ASSERT_TRUE(sut.has_value());
+    EXPECT_THAT(sut->val, Eq(DEFAULT_INT));
+    ASSERT_TRUE(sut->ptr);
+    EXPECT_THAT(sut->ptr->c_str(), StrEq(NEW_STRING));
 }
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithMixedArgs)
