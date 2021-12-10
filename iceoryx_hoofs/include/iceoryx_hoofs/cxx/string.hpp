@@ -450,6 +450,19 @@ class string
     typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
     unsafe_append(const T& t) noexcept;
 
+    /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
+    /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
+    /// string to be inserted.
+    ///
+    /// @param [in] pos position at which the string shall be inserted
+    /// @param [in] str the cxx::string or char array to be inserted
+    /// @param [in] count number of characters to be inserted
+    ///
+    /// @return true if the insertion was successful, otherwise false
+    template <typename T>
+    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+    insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
+
     /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size
     /// of the original string the returned substring only contains the characters from pos until size();
     /// iox::cxx::nullopt is returned if pos is greater than the size of the original string;

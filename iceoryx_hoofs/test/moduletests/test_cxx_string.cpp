@@ -2504,4 +2504,169 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstSubscriptO
 
     EXPECT_THAT(sut[STRINGCAP - 1], Eq('L'));
 }
+
+// template <typename T>
+// optional<string<Capacity>> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
+TEST(String10, InsertStringLiteralAtTheBeginningOfTheStringSucceeds)
+{
+    string<10> sut("toad");
+    ASSERT_TRUE(sut.insert(0, "Hypno", 5));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+}
+
+TEST(String10, InsertStringLiteralInTheMiddleOfTheStringSucceeds)
+{
+    string<10> sut("Hypoad");
+    ASSERT_TRUE(sut.insert(3, "not", 3));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+}
+
+TEST(String10, InsertStringLiteralAtTheEndOfTheStringSucceeds)
+{
+    string<10> sut("Hypno");
+    ASSERT_TRUE(sut.insert(5, "toad", 4));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+}
+
+TYPED_TEST(stringTyped_test, InsertStringLiteralToEmptyStringWorks)
+{
+    ASSERT_TRUE(this->testSubject.insert(0, "M", 1));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, InsertEmptyStringLiteralDoesNotChangeTheString)
+{
+    this->testSubject = "M";
+    ASSERT_TRUE(this->testSubject.insert(0, "", 0));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, InsertStringLiteralWithCountGreaterThanSizeOfStringLiteralFails)
+{
+    ASSERT_FALSE(this->testSubject.insert(0, "M", 2));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TEST(String10, InsertTooLargeStringLiteralFails)
+{
+    string<10> sut("Ferdinand");
+    ASSERT_FALSE(sut.insert(9, "Spitzschnueffler", 16));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Ferdinand"));
+}
+
+TEST(String10, InsertTooLargeStringLiteralWithSmallCountSucceeds)
+{
+    string<10> sut("Ferdinand");
+    ASSERT_TRUE(sut.insert(9, "Spitzschnueffler", 1));
+    EXPECT_THAT(sut.size(), Eq(10));
+    EXPECT_THAT(sut.c_str(), StrEq("FerdinandS"));
+}
+
+TYPED_TEST(stringTyped_test, InsertStringLiteralWithCount0DoesntChangeTheString)
+{
+    ASSERT_TRUE(this->testSubject.insert(0, "Ferdinand", 0));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TEST(String10, InsertStringLiteralAtPositionGreaterStringSizeFails)
+{
+    string<10> sut("Muesli");
+    ASSERT_FALSE(sut.insert(7, "s", 1));
+    EXPECT_THAT(sut.size(), Eq(6));
+    EXPECT_THAT(sut.c_str(), StrEq("Muesli"));
+}
+
+TEST(String10, InsertCxxStringAtTheBeginningOfTheStringSucceeds)
+{
+    string<10> sut("toad");
+    string<10> string_to_insert("Hypno");
+    ASSERT_TRUE(sut.insert(0, string_to_insert, 5));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+}
+
+TEST(String10, InsertCxxStringInTheMiddleOfTheStringSucceeds)
+{
+    string<10> sut("Hypoad");
+    string<10> string_to_insert("not");
+    ASSERT_TRUE(sut.insert(3, string_to_insert, 3));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+}
+
+TEST(String10, InsertCxxStringAtTheEndOfTheStringSucceeds)
+{
+    string<10> sut("Hypno");
+    string<10> string_to_insert("toad");
+    ASSERT_TRUE(sut.insert(5, string_to_insert, 4));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+}
+
+TYPED_TEST(stringTyped_test, InsertCxxStringToEmptyStringWorks)
+{
+    string<1> string_to_insert("M");
+    ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, 1));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(string_to_insert.c_str()));
+}
+
+TYPED_TEST(stringTyped_test, InsertEmptyCxxStringDoesNotChangeTheString)
+{
+    this->testSubject = "M";
+    string<1> string_to_insert("");
+    ASSERT_TRUE(this->testSubject.insert(0, "", 0));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, InsertCxxStringWithCountGreaterThanSizeOfStringLiteralFails)
+{
+    string<1> string_to_insert("M");
+    ASSERT_FALSE(this->testSubject.insert(0, string_to_insert, 2));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TEST(String10, InsertTooLargeCxxStringFails)
+{
+    string<10> sut("Ferdinand");
+    string<16> string_to_insert("Spitzschnueffler");
+    ASSERT_FALSE(sut.insert(9, string_to_insert, 16));
+    EXPECT_THAT(sut.size(), Eq(9));
+    EXPECT_THAT(sut.c_str(), StrEq("Ferdinand"));
+}
+
+TEST(String10, InsertTooLargeCxxStringWithSmallCountSucceeds)
+{
+    string<10> sut("Ferdinand");
+    string<16> string_to_insert("Spitzschnueffler");
+    ASSERT_TRUE(sut.insert(9, string_to_insert, 1));
+    EXPECT_THAT(sut.size(), Eq(10));
+    EXPECT_THAT(sut.c_str(), StrEq("FerdinandS"));
+}
+
+TYPED_TEST(stringTyped_test, InsertCxxStringWithCount0DoesntChangeTheString)
+{
+    ASSERT_TRUE(this->testSubject.insert(0, "Ferdinand", 0));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TEST(String10, InsertCxxStringAtPositionGreaterStringSizeFails)
+{
+    string<10> sut("Muesli");
+    string<1> string_to_insert("s");
+    ASSERT_FALSE(sut.insert(7, string_to_insert, 1));
+    EXPECT_THAT(sut.size(), Eq(6));
+    EXPECT_THAT(sut.c_str(), StrEq("Muesli"));
+}
 } // namespace
