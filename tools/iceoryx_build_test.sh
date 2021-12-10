@@ -56,12 +56,12 @@ CMAKE_CXX_FLAGS=""
 while (( "$#" )); do
   case "$1" in
     -b|--build-dir)
-        BUILD_DIR=$(realpath $2)
+        BUILD_DIR=$(realpath "$2")
         shift 2
         ;;
     -t|--toolchain-file)
         TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=$2"
-        echo $TOOLCHAIN_FILE
+        echo "$TOOLCHAIN_FILE"
         shift 2
         ;;
     -c|--coverage)
@@ -105,7 +105,7 @@ while (( "$#" )); do
         ;;
     "test-add-user")
         TEST_ADD_USER="ON"
-        $WORKSPACE/tools/add_test_users.sh check
+        "$WORKSPACE"/tools/scripts/add_test_users.sh check
         shift 1
         ;;
     "dds-gateway")
@@ -226,7 +226,7 @@ while (( "$#" )); do
         ;;
     *)
         echo "Invalid argument '$1'. Try 'help' for options."
-        exit -1
+        exit 1
         ;;
   esac
 done
@@ -258,15 +258,15 @@ fi
 if [ $CLEAN_BUILD == true ]
 then
     echo " [i] Cleaning build directory"
-    cd $WORKSPACE
-    rm -rf $BUILD_DIR/*
+    cd "$WORKSPACE"
+    rm -rf "${BUILD_DIR:?}/"*
 fi
 
 # create a new build directory and change the current working directory
 echo " [i] Preparing build directory"
-cd $WORKSPACE
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR
+cd "$WORKSPACE"
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR"
 echo " [i] Current working directory: $(pwd)"
 
 
@@ -274,7 +274,7 @@ echo ">>>>>> Start building iceoryx package <<<<<<"
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DBUILD_ALL=$BUILD_ALL_FLAG \
       -DBUILD_STRICT=$STRICT_FLAG \
-      -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+      -DCMAKE_INSTALL_PREFIX="$ICEORYX_INSTALL_PREFIX" \
       -DBUILD_TEST=$TEST_FLAG \
       -DCOVERAGE=$COV_FLAG \
       -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
@@ -286,9 +286,9 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
       -DBUILD_SHARED_LIBS=$BUILD_SHARED \
       -DSANITIZE=$SANITIZE_FLAG \
-      -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
+      -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER "$TOOLCHAIN_FILE" \
       -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
-      $WORKSPACE/iceoryx_meta
+      "$WORKSPACE"/iceoryx_meta
 
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx <<<<<<"
@@ -305,24 +305,23 @@ fi
 #====================================================================================================
 
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
-    rm -rf $WORKSPACE/build_out_of_tree
-    cd $WORKSPACE
+    rm -rf "$WORKSPACE"/build_out_of_tree
+    cd "$WORKSPACE"
     EXAMPLES=$(find iceoryx_examples/ -maxdepth 1 -type d -printf '%d\t%P\n' | sort -r -nk1 | cut -f2-)
     # Exclude directories without CMake file from the out-of-tree build
     EXAMPLES=${EXAMPLES/iceensemble/""}
     EXAMPLES=${EXAMPLES/icecrystal/""}
     EXAMPLES=${EXAMPLES/icedocker/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
-    echo ${EXAMPLES}
+    echo "${EXAMPLES}"
     mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
-            mkdir -p $ex && cd $ex
-            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+            mkdir -p "$ex" && cd "$ex"
+            cmake -DCMAKE_INSTALL_PREFIX="$ICEORYX_INSTALL_PREFIX" \
                   -DTOML_CONFIG=$TOML_FLAG \
                   -DBINDING_C=$BINDING_C_FLAG \
-                  $WORKSPACE/iceoryx_examples/$ex
-            cmake --build . --target install -- -j$NUM_JOBS
-            if [ $? -ne 0 ]; then
+                  "$WORKSPACE"/iceoryx_examples/"$ex"
+            if ! cmake --build . --target install -- -j$NUM_JOBS; then
                 echo "Out of tree build failed"
                 exit 1
             fi
@@ -332,34 +331,35 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
 fi
 
 if [ "$COV_FLAG" == "ON" ]; then
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial $TEST_SCOPE #make an initial scan to cover also files with no coverage
+    #make an initial scan to cover also files with no coverage
+    "$WORKSPACE"/tools/scripts/lcov_generate.sh "$WORKSPACE" initial "$TEST_SCOPE"
 fi
 
 #====================================================================================================
 #==== Step : Run all Tests  =========================================================================
 #====================================================================================================
 # the absolute path of the directory assigned to the build
-cd $BUILD_DIR
+cd "$BUILD_DIR"
 mkdir -p tools
-cp $WORKSPACE/tools/run_tests.sh $BUILD_DIR/tools/run_tests.sh
+cp "$WORKSPACE"/tools/run_tests.sh "$BUILD_DIR"/tools/run_tests.sh
 
 if [ $RUN_TEST == true ]; then
     echo " [i] Running all tests"
-    $BUILD_DIR/tools/run_tests.sh $TEST_SCOPE
+    "$BUILD_DIR"/tools/run_tests.sh "$TEST_SCOPE"
 fi
 
 for COMPONENT in $COMPONENTS; do
 
     case "$1" in
-        "unit" | "all")
+        "unit")
             if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
-                echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
+                echo "xml:""$COMPONENT""_ModuletestTestResults.xml not found!"
                 exit 1
             fi
             ;;
         "integration" | "all")
             if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
-                echo "xml:"$COMPONENT"_IntegrationTestResults.xml not found!"
+                echo "xml:""$COMPONENT""_IntegrationTestResults.xml not found!"
                 exit 1
             fi
             ;;
@@ -372,8 +372,9 @@ done
 
 if [ "$COV_FLAG" == "ON" ]; then
     echo ">>>>>> Generate Gcov Report <<<<<<"
-    cd $WORKSPACE
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE scan $TEST_SCOPE #scan all files after test execution
+    cd "$WORKSPACE"
+    #scan all files after test execution
+    "$WORKSPACE"/tools/scripts/lcov_generate.sh "$WORKSPACE" scan "$TEST_SCOPE"
     echo ">>>>>> Report Generation complete <<<<<<"
 fi
 
@@ -384,7 +385,7 @@ fi
 
 if [ "$BUILD_DOC" == "ON" ]; then
     echo ">>>>>> Doxygen PDF Generation <<<<<<"
-    cd $BUILD_DIR
+    cd "$BUILD_DIR"
 
     for cmp in $COMPONENTS; do
         make doxygen_"$cmp"

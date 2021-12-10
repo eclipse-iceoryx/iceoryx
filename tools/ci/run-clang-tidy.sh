@@ -20,11 +20,11 @@
 set -e
 
 msg() {
-    printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
+    printf "\033[1;32m%s: %s\033[0m\n" "${FUNCNAME[1]}" "$1"
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "installing build dependencies and clang-tidy-10"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev bison clang-tidy-10

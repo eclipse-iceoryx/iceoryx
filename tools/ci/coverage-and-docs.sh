@@ -20,11 +20,11 @@
 set -e
 
 msg() {
-    printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
+    printf "\033[1;32m%s: %s\033[0m\n" "${FUNCNAME[1]}" "$1"
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "installing dependencies"
 sudo apt-get update
@@ -37,7 +37,7 @@ $(clang --version)"
 
 msg "coverage"
 mkdir -p ./lcov_results/unittest ./lcov_results/unittest_timing
-sudo ./tools/add_test_users.sh
+sudo ./tools/scripts/add_test_users.sh
 ./tools/iceoryx_build_test.sh build-strict build-all test-add-user -c unit
 cp -rf ./build/lcov/ ./lcov_results/unittest/
 ./tools/iceoryx_build_test.sh build-strict build-all test-add-user -c unit-timing clean

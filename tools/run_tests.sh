@@ -27,10 +27,7 @@ ASAN_ONLY=false
 set_sanitizer_options() {
     # This script runs from build folder
     cd ..
-    local PROJECT_ROOT=$PWD
     cd build
-
-    echo "Project root is PROJECT_ROOT"
 
     echo "OSTYPE is $OSTYPE"
     if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ $ASAN_ONLY == false ]]; then
@@ -86,7 +83,7 @@ for arg in "$@"; do
         echo "      continue-on-error           Continue execution upon error"
         echo "      asan-only                   Execute Adress-Sanitizer only"
         echo ""
-        exit -1
+        exit 1
         ;;
     esac
 done
@@ -116,7 +113,6 @@ set_sanitizer_options
 
 execute_test() {
     local test_scope=$1
-    local test_binary=""
 
     echo ">>>>>> executing tests for $test_scope <<<<<<"
     echo ""
@@ -149,8 +145,7 @@ execute_test() {
     esac
 }
 
-execute_test $TEST_SCOPE
+execute_test "$TEST_SCOPE"
 
 # do not start RouDi while the module and componenttests are running;
 # they might do things which hurts RouDi, like in the roudi_shm test where named semaphores are opened and closed
-
