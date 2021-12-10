@@ -90,9 +90,6 @@ class ServiceDescription
         uint32_t data[CLASS_HASH_ELEMENT_COUNT];
     };
 
-    /// @brief construction of the capro service description using serialized strings
-    ServiceDescription(const cxx::Serialization& serial) noexcept;
-
     /// @brief default C'tor
     ServiceDescription() noexcept;
     ServiceDescription(const ServiceDescription&) noexcept = default;
@@ -122,6 +119,12 @@ class ServiceDescription
 
     /// @brief serialization of the capro description.
     operator cxx::Serialization() const;
+
+    /// @brief de-serialization of a ServiceDescription.
+    /// @param[in] serialized, Serialization object from which the ServiceDescription shall be created
+    /// @return cxx::expected that either has a ServiceDescription or cxx::Serialization::Error stored inside
+    static cxx::expected<ServiceDescription, cxx::Serialization::Error>
+    deserialize(const cxx::Serialization& serialized) noexcept;
 
     // @brief Returns if this service description is used for an RouDi-internal channel
     bool isInternal() const noexcept;

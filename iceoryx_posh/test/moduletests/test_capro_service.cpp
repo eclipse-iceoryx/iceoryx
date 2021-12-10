@@ -148,7 +148,11 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
                                                      static_cast<uint16_t>(testScope),
                                                      static_cast<uint16_t>(testInterfaceSource));
 
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    auto maybeService = ServiceDescription::deserialize(serialObj);
+    ASSERT_FALSE(maybeService.has_error());
+
+    auto serviceDescription1 = maybeService.value();
 
     EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(testService));
     EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(testInstance));
@@ -165,7 +169,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
 /// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeLeadsToInvalidServiceDescription)
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeLeadsToInvalidDeserialization)
 {
     ServiceDescription::ClassHash testHash = {14U, 28U, 42U, 56U};
     testService = "Service";
@@ -181,16 +185,16 @@ TEST_F(ServiceDescription_test,
                                                      testHash[3],
                                                      invalidScope);
 
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+    auto maybeService = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_FALSE(serviceDescription1.isValid());
+    EXPECT_TRUE(maybeService.has_error());
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
 /// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceLeadsToInvalidServiceDescription)
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceLeadsToInvalidDeserialization)
 {
     ServiceDescription::ClassHash testHash = {17U, 34U, 51U, 68U};
     testService = "Service";
@@ -208,19 +212,19 @@ TEST_F(ServiceDescription_test,
                                                      static_cast<uint16_t>(testScope),
                                                      invalidInterfaceSource);
 
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+    auto maybeService = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_FALSE(serviceDescription1.isValid());
+    EXPECT_TRUE(maybeService.has_error());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidServiceDescription)
+TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidDeserialization)
 {
     std::string emptyString;
     iox::cxx::Serialization invalidSerialObj{emptyString};
 
-    ServiceDescription serviceDescription1 = ServiceDescription(invalidSerialObj);
+    auto maybeService = ServiceDescription::deserialize(invalidSerialObj);
 
-    EXPECT_FALSE(serviceDescription1.isValid());
+    EXPECT_TRUE(maybeService.has_error());
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
