@@ -188,6 +188,23 @@ Have a look at our [best practice guidelines](./doc/website/advanced/best-practi
 
 Unit tests are black box tests that test the public interface of a class. They are required for all new code.
 
+Each unit test cases need a unique identifier (UUID according to RFC 4122) in the form of:
+
+```cpp
+::testing::Test::RecordProperty("TEST_ID", "12345678-9ab-cdef-fedc-1234567890ab");
+```
+
+UUID can be for example generated with Python or the command line tool:
+
+```python
+import uuid
+uuid.uuid4()
+```
+
+```bash
+uuidgen -r
+```
+
 ### Integration tests
 
 Integration tests are composition of more than one class and test their interaction. They are optional for new code.
