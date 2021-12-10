@@ -29,15 +29,13 @@ print_usage () {
 }
 
 SHM_SIZE=$1
-if [ -z $SHM_SIZE];
-then
+if [ -z "$SHM_SIZE" ]; then
 	SHM_SIZE=700M
 fi
 
 CONTAINER_NAME=$2
-if [ -z "$2" ];
-then
+if [ -z "$2" ]; then
 CONTAINER_NAME=RouDi
-fi 
+fi
 
 docker run -it --rm --shm-size $SHM_SIZE --name $CONTAINER_NAME iceoryx:latest

@@ -19,9 +19,10 @@
 
 # ======================================================================================================================== #
 
-FROM ubuntu:bionic as builder
+FROM ubuntu:focal as builder
 ARG REVISION
 ARG B_ICEORYX_BUILD
+ARG DEBIAN_FRONTEND=noninteractive
 ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
 
 # Dependencies
@@ -32,6 +33,8 @@ RUN apt-get update && apt-get install -y \
         libncurses5-dev \
         pkg-config \
         git \
+        gcc \
+        g++ \
         wget
 
 ADD . /iceoryx
@@ -41,7 +44,7 @@ RUN ./tools/iceoryx_build_test.sh build-all
 
 # ======================================================================================================================== #
 
-FROM ubuntu:bionic as roudi
+FROM ubuntu:focal as roudi
 
 RUN apt-get update && apt-get install -y \
         screen \
