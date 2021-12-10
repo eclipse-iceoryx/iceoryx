@@ -96,8 +96,8 @@ Please see the [Quality Declaration](./QUALITY_DECLARATION.md) for details of th
 
 |CMake project/target   | Current Level | Target Level QNX  | Target Level <br> Linux, Windows, macOS | Comment                             |
 |-----------------------|:-------------:|:-----------------:|:---------------------------------------:|:-----------------------------------:|
-| iceoryx_hoofs         | 2             | 1+                | 1                                       | Expect code in the namespace `aux`  |
-| iceoryx_posh          | 2             | 1+, 2             | 1                                       | Expect code in the namespace `aux`  |
+| iceoryx_hoofs         | 2             | 1+                | 1                                       | Except code in the namespace `aux`  |
+| iceoryx_posh          | 2             | 1+, 2             | 1                                       | Except code in the namespace `aux`  |
 | iceoryx_binding_c     | 2             | 1+                | 1                                       |                                     |
 | iceoryx_examples      | 5             | 4                 | 4                                       | All example code in this folder     |
 | iceoryx_dds           | 4             | 4                 | 4                                       |                                     |

@@ -104,6 +104,7 @@ package iceoryx_binding_c  {
    component wait_set.h <<file>>
    component user_trigger.h <<file>>
    component cpp2c <<namespace>>
+   component c2cpp <<namespace>>
 }
 
 
