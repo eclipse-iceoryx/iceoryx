@@ -311,6 +311,17 @@ class string
     template <uint64_t N>
     int64_t compare(const string<N>& other) const noexcept;
 
+    /// @brief compares a string and a char array or string literal
+    ///
+    /// @tparam [in] N is the implicit template parameter for the char array size
+    /// @param [in] other is the char array to compare with self
+    ///
+    /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
+    /// the contents of self and other are equal, an integer > 0 if the first character that does not match has a
+    /// greater value in self than in other
+    template <uint64_t N>
+    int64_t compare(const char (&other)[N]) const noexcept;
+
     /// @brief checks if self is equal to rhs
     ///
     /// @param [in] rhs is the string to compare with self
