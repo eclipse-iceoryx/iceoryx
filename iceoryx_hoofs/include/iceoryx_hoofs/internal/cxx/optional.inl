@@ -64,6 +64,13 @@ inline optional<T>::optional(optional&& rhs) noexcept
 }
 
 template <typename T>
+template <typename... Targs>
+inline optional<T>::optional(in_place_t, Targs&&... args) noexcept
+{
+    construct_value(std::forward<Targs>(args)...);
+}
+
+template <typename T>
 inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
 {
     if (this != &rhs)
