@@ -140,6 +140,7 @@ add_library(iceoryx_posh
     source/runtime/posh_runtime.cpp
     source/runtime/posh_runtime_impl.cpp
     source/runtime/posh_runtime_single_process.cpp
+    source/runtime/posh_discovery.cpp
     source/runtime/node.cpp
     source/runtime/node_data.cpp
     source/runtime/node_property.cpp

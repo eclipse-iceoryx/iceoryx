@@ -86,26 +86,6 @@ class PoshRuntime
     /// with the SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
     void shutdown() noexcept;
 
-    /// @brief find all services that match the provided service description
-    /// @param[in] service service string to search for (wildcards allowed)
-    /// @param[in] instance instance string to search for (wildcards allowed)
-    /// @return cxx::expected<ServiceContainer, FindServiceError>
-    /// ServiceContainer: on success, container that is filled with all matching instances
-    /// FindServiceError: if any, encountered during the operation
-    virtual cxx::expected<ServiceContainer, FindServiceError>
-    findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
-                const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept = 0;
-
-    /// @brief offer the provided service, sends the offer from application to RouDi daemon
-    /// @param[in] service valid ServiceDescription to offer
-    /// @return bool, if service is offered returns true else false
-    virtual bool offerService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
-
-    /// @brief stop offering the provided service
-    /// @param[in] service valid ServiceDescription that shall be no more offered
-    /// @return bool, if service is not offered anymore returns true else false
-    virtual bool stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept = 0;
-
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port
     /// @param[in] publisherOptions like the history capacity of a publisher
@@ -147,10 +127,6 @@ class PoshRuntime
     /// @param[in] nodeProperty class which contains all properties which the node should have
     /// @return pointer to the data of the node
     virtual NodeData* createNode(const NodeProperty& nodeProperty) noexcept = 0;
-
-    /// @brief requests the serviceRegistryChangeCounter from the shared memory
-    /// @return pointer to the serviceRegistryChangeCounter
-    virtual const std::atomic<uint64_t>* getServiceRegistryChangeCounter() noexcept = 0;
 
     /// @brief send a request to the RouDi daemon and get the response
     ///        currently each request is followed by a response

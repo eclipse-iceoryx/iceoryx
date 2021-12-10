@@ -43,17 +43,6 @@ class PoshRuntimeImpl : public PoshRuntime
     PoshRuntimeImpl& operator=(PoshRuntimeImpl&&) = delete;
     virtual ~PoshRuntimeImpl() noexcept;
 
-    /// @copydoc PoshRuntime::findService
-    cxx::expected<ServiceContainer, FindServiceError>
-    findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
-                const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept override;
-
-    /// @copydoc PoshRuntime::offerService
-    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept override;
-
-    /// @copydoc PoshRuntime::stopOfferService
-    bool stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept override;
-
     /// @copydoc PoshRuntime::getMiddlewarePublisher
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
@@ -78,9 +67,6 @@ class PoshRuntimeImpl : public PoshRuntime
 
     /// @copydoc PoshRuntime::createNode
     NodeData* createNode(const NodeProperty& nodeProperty) noexcept override;
-
-    /// @copydoc PoshRuntime::getServiceRegistryChangeCounter
-    const std::atomic<uint64_t>* getServiceRegistryChangeCounter() noexcept override;
 
     /// @copydoc PoshRuntime::sendRequestToRouDi
     bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept override;
@@ -107,7 +93,6 @@ class PoshRuntimeImpl : public PoshRuntime
 
     IpcRuntimeInterface m_ipcChannelInterface;
     cxx::optional<SharedMemoryUser> m_ShmInterface;
-    popo::ApplicationPort m_applicationPort;
 
     void sendKeepAliveAndHandleShutdownPreparation() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
