@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "test.hpp"
@@ -449,6 +450,59 @@ TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
 {
     mempoolconf.addMemPool({32, 0});
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, ".*");
+}
+
+TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
+{
+    using Error = iox::mepoo::MemoryManager::Error;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut : {Error::NO_MEMPOOLS_AVAILABLE,
+                            Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE,
+                            Error::MEMPOOL_OUT_OF_CHUNKS,
+                            Error::INVALID_STATE})
+    {
+        auto enumString = iox::mepoo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case Error::NO_MEMPOOLS_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::NO_MEMPOOLS_AVAILABLE"));
+            break;
+        case Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE"));
+            break;
+        case Error::MEMPOOL_OUT_OF_CHUNKS:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS"));
+            break;
+        case Error::INVALID_STATE:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::INVALID_STATE"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
+{
+    Logger_Mock loggerMock;
+
+    auto sut = iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::mepoo::asStringLiteral(sut)));
 }
 
 } // namespace
