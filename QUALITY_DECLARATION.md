@@ -17,7 +17,7 @@ Changes for MINOR releases are API compatible and ideally ABI stable if not othe
 
 A similar format is prescribed by the Eclipse Foundation in the [Release Handbook](https://www.eclipse.org/projects/handbook/#release).
 
-On Git, the tags have a `v` prefix before the version numbers. A [release script](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/iceoryx_release.sh) shall ensure that version numbers are kept consistent for all packages.
+On Git, the tags have a `v` prefix before the version numbers. A [release script](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/scripts/iceoryx_release.sh) shall ensure that version numbers are kept consistent for all packages.
 
 ### Version Stability [1.ii]
 
@@ -164,7 +164,7 @@ Currently, there are no automatic regression tests in the CI running. The work t
 The code formatting is enforced through the CI using `clang-format` and can be used by following this [guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#coding-style)
 
 The codebase is linted with `clang-tidy` to enforce naming conventions and basic coding rules and checked in the Pull-Requests by review.
-A [static code analysis](https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#static-code-analysis) is done regularly with the Axivion Suite to check against a defined [ruleset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/axivion/axivion_config.json), but the results are not publicly accessible due to licensing.
+A [static code analysis](https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#static-code-analysis) is done regularly with the Axivion Suite, but the results are not publicly accessible due to licensing.
 
 ## Dependencies [5]
 
