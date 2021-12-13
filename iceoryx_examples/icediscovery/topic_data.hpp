@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+#ifndef IOX_EXAMPLES_ICEDISCOVERY_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICEDISCOVERY_TOPIC_DATA_HPP
 
 //! [topic data]
 struct RadarObject
@@ -34,4 +34,4 @@ struct RadarObject
 };
 //! [topic data]
 
-#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+#endif // IOX_EXAMPLES_ICEDISCOVERY_TOPIC_DATA_HPP

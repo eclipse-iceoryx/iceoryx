@@ -98,23 +98,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         return runtime;
     }
 
-    // iox::cxx::expected<iox::runtime::ServiceContainer, iox::runtime::FindServiceError>
-    // findService(const iox::cxx::variant<iox::runtime::Wildcard_t, iox::capro::IdString_t> service,
-    //             const iox::cxx::variant<iox::runtime::Wildcard_t, iox::capro::IdString_t> instance) noexcept override
-    // {
-    //     return findServiceMock(service, instance);
-    // }
-
-    // bool offerService(const iox::capro::ServiceDescription& serviceDescription) noexcept override
-    // {
-    //     return offerServiceMock(serviceDescription);
-    // }
-
-    // bool stopOfferService(const iox::capro::ServiceDescription& serviceDescription) noexcept override
-    // {
-    //     return stopOfferServiceMock(serviceDescription);
-    // }
-
     iox::PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const iox::capro::ServiceDescription& service,
                            const iox::popo::PublisherOptions& publisherOptions = {},
