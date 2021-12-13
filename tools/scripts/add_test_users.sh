@@ -28,7 +28,7 @@ COMMAND=$1 # When called with argument "check" the script only look if the users
 USERS="iox_roudi_test1 iox_roudi_test2 iox_roudi_test3"
 
 for USER in ${USERS}  ; do
-    if [ $(getent group ${USER}) ]; then
+    if [ "$(getent group ${USER})" ]; then
         echo "${USER} already exist, skipping"
     else
         if [ "$EUID" -ne 0 ] || [ "$COMMAND" == "check" ]; then

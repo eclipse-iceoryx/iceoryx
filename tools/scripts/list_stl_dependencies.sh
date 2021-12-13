@@ -36,7 +36,7 @@ echo
 echo usage of std components by file
 grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \ \1  \2/p" | sort | uniq
 
-echo 
+echo
 echo files with stl dependency
 grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::[a-zA-Z_]*.*/\1/p" | xargs -I{} basename {} | sort | uniq
 

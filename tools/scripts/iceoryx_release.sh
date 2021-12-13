@@ -41,11 +41,11 @@ done
 target_version=$(head -n 1 "$WORKSPACE/VERSION")
 echo "The new version number will be: $target_version"
 
-find $WORKSPACE -name "*.xml" -type f -exec sed -i 's/<version>\(.*\)<\/version>/<version>'$target_version'<\/version>/g' {} \;
+find "$WORKSPACE" -name "*.xml" -type f -exec sed -i 's/<version>\(.*\)<\/version>/<version>'"$target_version"'<\/version>/g' {} \;
 
-find $WORKSPACE -name "CMakeLists.txt" -type f -exec sed -i 's/set(IOX_VERSION_STRING "\(.*\)")/set\(IOX_VERSION_STRING "'$target_version'"\)/g' {} \;
+find "$WORKSPACE" -name "CMakeLists.txt" -type f -exec sed -i 's/set(IOX_VERSION_STRING "\(.*\)")/set\(IOX_VERSION_STRING "'"$target_version"'"\)/g' {} \;
 
-find $WORKSPACE -name "*.cmake" -type f -exec sed -i 's/set(IOX_VERSION_STRING "\(.*\)")/set\(IOX_VERSION_STRING "'$target_version'"\)/g' {} \;
+find "$WORKSPACE" -name "*.cmake" -type f -exec sed -i 's/set(IOX_VERSION_STRING "\(.*\)")/set\(IOX_VERSION_STRING "'"$target_version"'"\)/g' {} \;
 
 echo "The necessary files are modified with the new version number. Please commit and merge them."
 echo "When this is done, you can set the git tag and create a new Github release."

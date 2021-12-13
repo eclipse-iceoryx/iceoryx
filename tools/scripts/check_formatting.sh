@@ -29,7 +29,7 @@ fail() {
 hash git || fail "git not found"
 hash clang-format-10 || fail "clang-format-10 not found"
 
-cd $(git rev-parse --show-toplevel)
+cd "$(git rev-parse --show-toplevel)"
 
 # format files
 git ls-files | grep -E "\.(c|cpp|inl|h|hpp)$" | xargs clang-format -i -style=file
