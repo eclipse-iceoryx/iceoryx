@@ -155,11 +155,11 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
 {
     ServiceDescription deserializedObject;
 
-    using ScopeType = std::underlying_type<Scope>::type;
-    using InterfaceType = std::underlying_type<Interfaces>::type;
+    using ScopeUnderlyingType = std::underlying_type<Scope>::type;
+    using InterfaceUnderlyingType = std::underlying_type<Interfaces>::type;
 
-    ScopeType scope{0};
-    InterfaceType interfaceSource{0};
+    ScopeUnderlyingType scope{0};
+    InterfaceUnderlyingType interfaceSource{0};
 
     auto deserializationSuccessful = serialized.extract(deserializedObject.m_serviceString,
                                                         deserializedObject.m_instanceString,
@@ -170,8 +170,8 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
                                                         deserializedObject.m_classHash[3u],
                                                         scope,
                                                         interfaceSource);
-    if (!deserializationSuccessful || scope >= static_cast<ScopeType>(Scope::INVALID)
-        || interfaceSource >= static_cast<InterfaceType>(Interfaces::INTERFACE_END))
+    if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
+        || interfaceSource >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
     {
         return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
