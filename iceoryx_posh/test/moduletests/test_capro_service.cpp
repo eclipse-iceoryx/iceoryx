@@ -149,10 +149,10 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
                                                      static_cast<uint16_t>(testInterfaceSource));
 
 
-    auto maybeService = ServiceDescription::deserialize(serialObj);
-    ASSERT_FALSE(maybeService.has_error());
+    auto deserializationResult = ServiceDescription::deserialize(serialObj);
+    ASSERT_FALSE(deserializationResult.has_error());
 
-    auto serviceDescription1 = maybeService.value();
+    auto serviceDescription1 = deserializationResult.value();
 
     EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(testService));
     EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(testInstance));
@@ -185,9 +185,9 @@ TEST_F(ServiceDescription_test,
                                                      testHash[3],
                                                      invalidScope);
 
-    auto maybeService = ServiceDescription::deserialize(serialObj);
+    auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_TRUE(maybeService.has_error());
+    EXPECT_TRUE(deserializationResult.has_error());
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
@@ -212,9 +212,9 @@ TEST_F(ServiceDescription_test,
                                                      static_cast<uint16_t>(testScope),
                                                      invalidInterfaceSource);
 
-    auto maybeService = ServiceDescription::deserialize(serialObj);
+    auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_TRUE(maybeService.has_error());
+    EXPECT_TRUE(deserializationResult.has_error());
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidDeserialization)
@@ -222,9 +222,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
     std::string emptyString;
     iox::cxx::Serialization invalidSerialObj{emptyString};
 
-    auto maybeService = ServiceDescription::deserialize(invalidSerialObj);
+    auto deserializationResult = ServiceDescription::deserialize(invalidSerialObj);
 
-    EXPECT_TRUE(maybeService.has_error());
+    EXPECT_TRUE(deserializationResult.has_error());
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)

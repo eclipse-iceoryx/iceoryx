@@ -231,15 +231,15 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            auto maybeService =
+            auto deserializationResult =
                 capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
-            if (maybeService.has_error())
+            if (deserializationResult.has_error())
             {
                 LogError() << "Deserialization failed when '" << message.getElementAtIndex(2).c_str()
                            << "' was provided\n";
                 break;
             }
-            auto service = maybeService.value();
+            const auto& service = deserializationResult.value();
 
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
@@ -292,16 +292,16 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            auto maybeService =
+            auto deserializationResult =
                 capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
-            if (maybeService.has_error())
+            if (deserializationResult.has_error())
             {
                 LogError() << "Deserialization failed when '" << message.getElementAtIndex(2).c_str()
                            << "' was provided\n";
                 break;
             }
 
-            auto service = maybeService.value();
+            const auto& service = deserializationResult.value();
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
             if (!service.isValid())

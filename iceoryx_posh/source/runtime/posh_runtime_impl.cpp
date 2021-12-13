@@ -419,13 +419,13 @@ PoshRuntimeImpl::findService(const cxx::variant<Wildcard_t, capro::IdString_t> s
     uint32_t numberOfServices = algorithm::min(capacity, numberOfElements);
     for (uint32_t i = 0U; i < numberOfServices; ++i)
     {
-        auto maybeService =
+        auto deserializationResult =
             capro::ServiceDescription::deserialize(cxx::Serialization(requestResponse.getElementAtIndex(i)));
-        if (maybeService.has_error())
+        if (deserializationResult.has_error())
         {
             return cxx::error<FindServiceError>(FindServiceError::DESERIALIZATION_FAILED);
         }
-        serviceContainer.push_back(maybeService.value());
+        serviceContainer.push_back(deserializationResult.value());
     }
 
     if (numberOfElements > capacity)
