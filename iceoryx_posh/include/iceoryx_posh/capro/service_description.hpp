@@ -131,7 +131,7 @@ class ServiceDescription
     // @brief Set this service description to be is used for an RouDi-internal channel
     void setInternal() noexcept;
     /// @brief Returns the scope of a ServiceDescription
-    Scope getScope() noexcept;
+    Scope getScope() const noexcept;
 
     /// @brief Returns true for valid ServiceDescription
     /// false for ServiceDescription that contain InvalidStrings.

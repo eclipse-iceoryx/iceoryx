@@ -207,7 +207,7 @@ void ServiceDescription::setInternal() noexcept
     m_scope = Scope::INTERNAL;
 }
 
-Scope ServiceDescription::getScope() noexcept
+Scope ServiceDescription::getScope() const noexcept
 {
     return m_scope;
 }

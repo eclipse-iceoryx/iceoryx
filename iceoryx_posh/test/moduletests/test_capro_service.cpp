@@ -149,20 +149,21 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
                                                      static_cast<uint16_t>(testInterfaceSource));
 
 
-    auto deserializationResult = ServiceDescription::deserialize(serialObj);
-    ASSERT_FALSE(deserializationResult.has_error());
-
-    auto serviceDescription1 = deserializationResult.value();
-
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(testService));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(testInstance));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), Eq(testEvent));
-    EXPECT_THAT((serviceDescription1.getClassHash())[0], Eq(testHash[0]));
-    EXPECT_THAT((serviceDescription1.getClassHash())[1], Eq(testHash[1]));
-    EXPECT_THAT((serviceDescription1.getClassHash())[2], Eq(testHash[2]));
-    EXPECT_THAT((serviceDescription1.getClassHash())[3], Eq(testHash[3]));
-    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INTERNAL));
-    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
+    ServiceDescription::deserialize(serialObj)
+        .and_then([&](const auto& service) {
+            EXPECT_THAT(service.getServiceIDString(), Eq(testService));
+            EXPECT_THAT(service.getInstanceIDString(), Eq(testInstance));
+            EXPECT_THAT(service.getEventIDString(), Eq(testEvent));
+            EXPECT_THAT((service.getClassHash())[0], Eq(testHash[0]));
+            EXPECT_THAT((service.getClassHash())[1], Eq(testHash[1]));
+            EXPECT_THAT((service.getClassHash())[2], Eq(testHash[2]));
+            EXPECT_THAT((service.getClassHash())[3], Eq(testHash[3]));
+            EXPECT_THAT(service.getScope(), Eq(Scope::INTERNAL));
+            EXPECT_THAT(service.getSourceInterface(), Eq(Interfaces::INTERNAL));
+        })
+        .or_else([](const auto& error) {
+            FAIL() << "Deserialization should not fail but failed with: " << static_cast<uint32_t>(error);
+        });
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
