@@ -108,6 +108,7 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 TEST(cpp2c_enum_translation_test, AllocationResult)
 {
     constexpr EnumMapping<iox::popo::AllocationError, iox_AllocationResult> ALLOCATION_ERRORS[]{
+        {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE, AllocationResult_NO_MEMPOOLS_AVAILABLE},
         {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, AllocationResult_RUNNING_OUT_OF_CHUNKS},
         {iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
          AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL},
@@ -119,6 +120,9 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
     {
         switch (allocationError.cpp)
         {
+        case iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE:
+            EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
+            break;
         case iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
@@ -130,7 +134,6 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
             break;
         case iox::popo::AllocationError::INVALID_STATE:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
-            break;
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
             // to extend the test

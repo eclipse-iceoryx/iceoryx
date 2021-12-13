@@ -313,7 +313,9 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    m_chunkPusher[0U].push(m_memoryManager.getChunk(chunkSettings));
+    m_memoryManager.getChunk(chunkSettings)
+        .and_then([&](auto& chunk) { m_chunkPusher[0U].push(chunk); })
+        .or_else([](auto& error) { FAIL() << "getChunk failed with: " << error; });
 
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
@@ -336,7 +338,9 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    m_chunkPusher[0U].push(m_memoryManager.getChunk(chunkSettings));
+    m_memoryManager.getChunk(chunkSettings)
+        .and_then([&](auto& chunk) { m_chunkPusher[0U].push(chunk); })
+        .or_else([](auto& error) { FAIL() << "getChunk failed with: " << error; });
 
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));

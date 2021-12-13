@@ -59,6 +59,8 @@ iox_AllocationResult allocationResult(const iox::popo::AllocationError value) no
 {
     switch (value)
     {
+    case AllocationError::NO_MEMPOOLS_AVAILABLE:
+        return AllocationResult_NO_MEMPOOLS_AVAILABLE;
     case AllocationError::RUNNING_OUT_OF_CHUNKS:
         return AllocationResult_RUNNING_OUT_OF_CHUNKS;
     case AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:

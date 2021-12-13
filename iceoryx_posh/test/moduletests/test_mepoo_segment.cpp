@@ -206,8 +206,10 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    auto chunk = sut.getMemoryManager().getChunk(chunkSettings);
-    EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
+    sut.getMemoryManager()
+        .getChunk(chunkSettings)
+        .and_then([&](auto& chunk) { EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE)); })
+        .or_else([](auto& error) { FAIL() << "getChunk failed with: " << error; });
 }
 
 } // namespace

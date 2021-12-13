@@ -46,6 +46,14 @@ class MemoryManager
     using MaxChunkPayloadSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
 
   public:
+    enum class Error
+    {
+        NO_MEMPOOLS_AVAILABLE,
+        NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE,
+        MEMPOOL_OUT_OF_CHUNKS,
+        INVALID_STATE,
+    };
+
     MemoryManager() noexcept = default;
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager(MemoryManager&&) = delete;
@@ -57,7 +65,10 @@ class MemoryManager
                                 posix::Allocator& managementAllocator,
                                 posix::Allocator& chunkMemoryAllocator) noexcept;
 
-    SharedChunk getChunk(const ChunkSettings& chunkSettings) noexcept;
+    /// @brief Obtains a chunk from the mempools
+    /// @param[in] chunkSettings for the requested chunk
+    /// @return a SharedChunk if successful, otherwise a MemoryManager::Error
+    cxx::expected<SharedChunk, Error> getChunk(const ChunkSettings& chunkSettings) noexcept;
 
     uint32_t getNumberOfMemPools() const noexcept;
 
@@ -85,7 +96,26 @@ class MemoryManager
     cxx::vector<MemPool, 1> m_chunkManagementPool;
 };
 
+/// @brief Converts the MemoryManager::Error to a string literal
+/// @param[in] value to convert to a string literal
+/// @return pointer to a string literal
+inline constexpr const char* asStringLiteral(const MemoryManager::Error value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept;
+
 } // namespace mepoo
 } // namespace iox
+
+#include "iceoryx_posh/internal/mepoo/memory_manager.inl"
 
 #endif // IOX_POSH_MEPOO_MEMORY_MANAGER_HPP

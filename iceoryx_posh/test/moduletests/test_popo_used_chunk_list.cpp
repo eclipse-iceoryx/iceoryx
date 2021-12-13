@@ -49,13 +49,12 @@ class UsedChunkList_test : public Test
         constexpr uint32_t USER_PAYLOAD_SIZE{32U};
         auto chunkSettingsResult =
             iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        EXPECT_FALSE(chunkSettingsResult.has_error());
-        if (chunkSettingsResult.has_error())
-        {
-            return nullptr;
-        }
+        iox::cxx::Ensures(!chunkSettingsResult.has_error());
         auto& chunkSettings = chunkSettingsResult.value();
-        return memoryManager.getChunk(chunkSettings);
+
+        auto getChunkResult = memoryManager.getChunk(chunkSettings);
+        iox::cxx::Ensures(!getChunkResult.has_error());
+        return getChunkResult.value();
     }
 
     void createMultipleChunks(uint32_t numberOfChunks, std::function<void(SharedChunk&&)> testHook)

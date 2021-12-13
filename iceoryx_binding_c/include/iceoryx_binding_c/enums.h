@@ -67,6 +67,7 @@ enum iox_SubscriberTooSlowPolicy
 /// @brief state of allocateChunk
 enum iox_AllocationResult
 {
+    AllocationResult_NO_MEMPOOLS_AVAILABLE,
     AllocationResult_RUNNING_OUT_OF_CHUNKS,
     AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
     AllocationResult_INVALID_CHUNK,

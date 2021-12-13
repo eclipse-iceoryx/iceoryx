@@ -142,8 +142,12 @@ class ClientPort_test : public Test
                                                                      iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
                                                                      userHeaderSize,
                                                                      iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        iox::cxx::Expects(!chunkSettingsResult.has_error());
-        return m_memoryManager.getChunk(chunkSettingsResult.value());
+        iox::cxx::Ensures(!chunkSettingsResult.has_error());
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
+        iox::cxx::Ensures(!getChunkResult.has_error());
+        return getChunkResult.value();
     }
 
     /// @return true if all pushes succeed, false if a push failed and a chunk was lost
