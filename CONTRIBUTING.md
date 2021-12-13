@@ -128,7 +128,7 @@ information about logging and error handling.
 * Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 * Objects created from a method returning a `cxx::optional<Foo>` shall be named `maybeFoo`
 * Objects created from a method returning a `cxx::expected<Foo, FooError>` shall
-contain the name `result` e.g. `fooResult`
+contain the name `result` e.g. `getChunkResult` for the method `getChunk()`
 
 ### Doxygen
 
