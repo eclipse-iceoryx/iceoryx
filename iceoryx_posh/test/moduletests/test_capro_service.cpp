@@ -187,7 +187,8 @@ TEST_F(ServiceDescription_test,
 
     auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_TRUE(deserializationResult.has_error());
+    ASSERT_TRUE(deserializationResult.has_error());
+    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
@@ -214,7 +215,8 @@ TEST_F(ServiceDescription_test,
 
     auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_TRUE(deserializationResult.has_error());
+    ASSERT_TRUE(deserializationResult.has_error());
+    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidDeserialization)
@@ -224,7 +226,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
 
     auto deserializationResult = ServiceDescription::deserialize(invalidSerialObj);
 
-    EXPECT_TRUE(deserializationResult.has_error());
+    ASSERT_TRUE(deserializationResult.has_error());
+    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
