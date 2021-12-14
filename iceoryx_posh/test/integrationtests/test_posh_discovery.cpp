@@ -70,8 +70,8 @@ class PoshDiscovery_test : public RouDi_GTest
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::initRuntime("Alice")};
-    iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("Bob")};
+    iox::runtime::PoshRuntime* m_runtimeAlice{&iox::runtime::PoshRuntime::initRuntime("Alice")};
+    iox::runtime::PoshRuntime* m_runtimeBob{&iox::runtime::PoshRuntime::initRuntime("Bob")};
     PoshDiscovery m_poshDiscoveryAlice;
     PoshDiscovery m_poshDiscoveryBob;
 };
@@ -419,7 +419,7 @@ TEST_F(PoshDiscovery_test, InterfacePort)
     EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
+    auto interfacePortData = m_runtimeBob->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
     this->InterOpWait();
     bool serviceFound = false;

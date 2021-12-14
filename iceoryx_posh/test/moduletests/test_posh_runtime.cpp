@@ -184,8 +184,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
             EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW));
         });
 
-    // i = 1 because there is already an active runtime in test fixture class which acquired an application port
-    for (auto i = 1U; i < iox::MAX_PROCESS_NUMBER; ++i)
+    for (auto i = 0U; i < iox::MAX_PROCESS_NUMBER; ++i)
     {
         auto appPort = m_runtime->getMiddlewareApplication();
         ASSERT_NE(nullptr, appPort);
