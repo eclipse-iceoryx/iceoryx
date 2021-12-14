@@ -31,6 +31,7 @@ BUILD_DIR=$WORKSPACE/build
 NUM_JOBS=""
 PACKAGE="OFF"
 CLEAN_BUILD=false
+NO_BUILD=false
 BUILD_TYPE=""
 BUILD_DOC="OFF"
 STRICT_FLAG="OFF"
@@ -80,6 +81,10 @@ while (( "$#" )); do
         ;;
     "clean")
         CLEAN_BUILD=true
+        shift 1
+        ;;
+    "no-build")
+        NO_BUILD=true
         shift 1
         ;;
     "release")
@@ -203,6 +208,7 @@ while (( "$#" )); do
         echo "    build-strict          Build is performed with '-Werror'"
         echo "    build-test            Build all tests (doesn't run)"
         echo "    clang                 Build with clang compiler (should be installed already)"
+        echo "    no-build              Does not trigger a build, can be used in combination with 'clean' to remove the build dir"
         echo "    clean                 Delete the build/ directory before build-step"
         echo "    dds-gateway           Build the iceoryx dds gateway"
         echo "    debug                 Build debug configuration -g"
@@ -255,50 +261,56 @@ if [ "$PACKAGE" == "ON" ]; then
 fi
 
 # clean build folders
-if [ $CLEAN_BUILD == true ]
-then
+if [ $CLEAN_BUILD == true ] && [ -d "$BUILD_DIR" ]; then
     echo " [i] Cleaning build directory"
     cd "$WORKSPACE"
     rm -rf "${BUILD_DIR:?}/"*
 fi
 
-# create a new build directory and change the current working directory
-echo " [i] Preparing build directory"
-cd "$WORKSPACE"
-mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR"
-echo " [i] Current working directory: $(pwd)"
+if [ "$NO_BUILD" == false ]; then
+
+    # create a new build directory and change the current working directory
+    echo " [i] Preparing build directory"
+    cd "$WORKSPACE"
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+    echo " [i] Current working directory: $(pwd)"
 
 
-echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DBUILD_ALL=$BUILD_ALL_FLAG \
-      -DBUILD_STRICT=$STRICT_FLAG \
-      -DCMAKE_INSTALL_PREFIX="$ICEORYX_INSTALL_PREFIX" \
-      -DBUILD_TEST=$TEST_FLAG \
-      -DCOVERAGE=$COV_FLAG \
-      -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
-      -DEXAMPLES=$EXAMPLE_FLAG \
-      -DTOML_CONFIG=$TOML_FLAG \
-      -DBUILD_DOC=$BUILD_DOC \
-      -DDDS_GATEWAY=$DDS_GATEWAY_FLAG \
-      -DBINDING_C=$BINDING_C_FLAG \
-      -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
-      -DBUILD_SHARED_LIBS=$BUILD_SHARED \
-      -DSANITIZE=$SANITIZE_FLAG \
-      -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER "$TOOLCHAIN_FILE" \
-      -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
-      "$WORKSPACE"/iceoryx_meta
-
-cmake --build . --target install -- -j$NUM_JOBS
-echo ">>>>>> Finished building iceoryx <<<<<<"
-
-if [ "$PACKAGE" == "ON" ]; then
     echo ">>>>>> Start building iceoryx package <<<<<<"
-    cpack
-    echo ">>>>>> Finished building iceoryx package <<<<<<"
-fi
+    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DBUILD_ALL=$BUILD_ALL_FLAG \
+          -DBUILD_STRICT=$STRICT_FLAG \
+          -DCMAKE_INSTALL_PREFIX="$ICEORYX_INSTALL_PREFIX" \
+          -DBUILD_TEST=$TEST_FLAG \
+          -DCOVERAGE=$COV_FLAG \
+          -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
+          -DEXAMPLES=$EXAMPLE_FLAG \
+          -DTOML_CONFIG=$TOML_FLAG \
+          -DBUILD_DOC=$BUILD_DOC \
+          -DDDS_GATEWAY=$DDS_GATEWAY_FLAG \
+          -DBINDING_C=$BINDING_C_FLAG \
+          -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
+          -DBUILD_SHARED_LIBS=$BUILD_SHARED \
+          -DSANITIZE=$SANITIZE_FLAG \
+          -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER "$TOOLCHAIN_FILE" \
+          -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
+          "$WORKSPACE"/iceoryx_meta
 
+    cmake --build . --target install -- -j$NUM_JOBS
+    echo ">>>>>> Finished building iceoryx <<<<<<"
+
+    if [ "$PACKAGE" == "ON" ]; then
+        echo ">>>>>> Start building iceoryx package <<<<<<"
+        cpack
+        echo ">>>>>> Finished building iceoryx package <<<<<<"
+    fi
+
+    cd "$BUILD_DIR"
+    mkdir -p tools
+    cp "$WORKSPACE"/tools/run_tests.sh "$BUILD_DIR"/tools/run_tests.sh
+
+fi
 
 #====================================================================================================
 #==== Step : Out-of-tree build  =====================================================================
@@ -339,9 +351,6 @@ fi
 #==== Step : Run all Tests  =========================================================================
 #====================================================================================================
 # the absolute path of the directory assigned to the build
-cd "$BUILD_DIR"
-mkdir -p tools
-cp "$WORKSPACE"/tools/run_tests.sh "$BUILD_DIR"/tools/run_tests.sh
 
 if [ $RUN_TEST == true ]; then
     echo " [i] Running all tests"
@@ -353,13 +362,13 @@ for COMPONENT in $COMPONENTS; do
     case "$1" in
         "unit")
             if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
-                echo "xml:""$COMPONENT""_ModuletestTestResults.xml not found!"
+                echo "xml:${COMPONENT}_ModuletestTestResults.xml not found!"
                 exit 1
             fi
             ;;
         "integration" | "all")
             if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
-                echo "xml:""$COMPONENT""_IntegrationTestResults.xml not found!"
+                echo "xml:${COMPONENT}_IntegrationTestResults.xml not found!"
                 exit 1
             fi
             ;;

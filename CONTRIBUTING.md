@@ -261,7 +261,7 @@ With a comment in the same line:
     *mynullptr = foo; // PRQA S 4242 # Short description why
 ```
 
-With a comment one line above (with the number after the warning number,next ’n’ lines are inclusive)
+With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
 
 ```cpp
     // PRQA S 4242 1 # Short description why
