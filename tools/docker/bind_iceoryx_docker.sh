@@ -25,13 +25,12 @@ print_usage () {
 }
 
 CONTAINER_NAME=$1
-if [ -z "$1" ];
-then
+if [ -z "$1" ]; then
 CONTAINER_NAME=RouDi
-fi 
+fi
 
-if [ ! $(docker inspect -f '{{.State.Running}}' $CONTAINER_NAME 2> /dev/null) ]; then
-    echo "Iceoryx docker container not running. Did you forget to start it ?"
+if [ ! "$(docker inspect -f '{{.State.Running}}' $CONTAINER_NAME 2> /dev/null)" ]; then
+    echo "iceoryx docker container not running. Did you forget to start it ?"
     exit
 fi
 

@@ -40,7 +40,7 @@ cd bison-3.5.1
 ./configure
 make
 sudo make install
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "building sources"
 export LDFLAGS="-L/usr/local/opt/ncurses/lib"

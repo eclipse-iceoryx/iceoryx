@@ -62,9 +62,9 @@ if [[ -n ${cpp_files} ]]; then
     echo
 
     for file in $cpp_files ; do
-        if [ -f $file ]; then
-            $CLANG_CMD -i -style=file ${file}
-            git add ${file}
+        if [ -f "$file" ]; then
+            $CLANG_CMD -i -style=file "${file}"
+            git add "${file}"
         fi
     done
 fi

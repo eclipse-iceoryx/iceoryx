@@ -22,11 +22,11 @@ set -e
 COMPILER=${1:-gcc}
 
 msg() {
-    printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
+    printf "\033[1;32m%s: %s\033[0m\n" "${FUNCNAME[1]}" "$1"
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "installing build dependencies"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
@@ -36,12 +36,13 @@ if [ "$COMPILER" == "clang" ]; then
     wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
     chmod +x /tmp/llvm.sh
     # set LLVM_VERSION
-    eval $(cat /tmp/llvm.sh | grep LLVM_VERSION= -m 1)
-    sudo /tmp/llvm.sh ${LLVM_VERSION}
+    # shellcheck disable=SC2002
+    eval "$(cat /tmp/llvm.sh | grep LLVM_VERSION= -m 1)"
+    sudo /tmp/llvm.sh "${LLVM_VERSION}"
 fi
 
 msg "creating local test users and groups for testing access control"
-sudo ./tools/add_test_users.sh
+sudo ./tools/scripts/add_test_users.sh
 
 
 msg "building sources"

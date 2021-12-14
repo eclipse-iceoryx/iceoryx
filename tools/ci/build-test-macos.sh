@@ -20,11 +20,11 @@
 set -e
 
 msg() {
-    printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
+    printf "\033[1;32m%s: %s\033[0m\n" "${FUNCNAME[1]}" "$1"
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "compiler version:
 $(clang --version)"
@@ -40,7 +40,7 @@ cd bison-3.5.1
 ./configure
 make
 sudo make install
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "building sources"
 export LDFLAGS="-L/usr/local/opt/ncurses/lib"
@@ -48,9 +48,9 @@ export CFLAGS="-I/usr/local/opt/ncurses/include"
 ./tools/iceoryx_build_test.sh clean build-strict build-all out-of-tree
 
 msg "running tests (excluding timing_tests)"
-cd ${WORKSPACE}/build
+cd "${WORKSPACE}"/build
 make all_tests
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "building RouDi examples without TOML support"
 ./tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean

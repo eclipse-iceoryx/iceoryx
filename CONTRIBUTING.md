@@ -41,7 +41,7 @@ or
 * Create a design document and raise it in a separate pull request beforehand
 
 If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
-Please have a quick search upfront if a similar issue already exists. An
+Please have a quick search upfront if a similar issue already exists. A
 [release board](https://github.com/eclipse-iceoryx/iceoryx/projects) is used to prioritize the issues for a specific release.
 This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
 contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
@@ -53,9 +53,9 @@ Please make sure you have:
 3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
 4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
 5. All commits have been signed with `git commit -s`
-6. The CHANGELOG.md is updated with the Github issue that is closed by the Pull-Request (add to unreleased section)
+6. The CHANGELOG.md is updated with the GitHub issue that is closed by the Pull-Request (add to unreleased section)
 7. You open your pull request towards the base branch `master`
-8. Link the pull request to the according Github issue and set the label accordingly
+8. Link the pull request to the according GitHub issue and set the label accordingly
 
 **NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
 
@@ -73,9 +73,9 @@ Please make sure you have:
 * Fine-tuning of external contribution e.g. running Axivion SCA
 * Finish any missing implementations regarding the quality levels
 
-As depicted below, after the release branch has been created the stabilisation phase will begin. After finishing the release, a git tag will be created to point to `HEAD` of the release branch. Follow-up releases will be branched off from the git tag.
+As depicted below, after the release branch has been created the stabilization phase will begin. After finishing the release, a git tag will be created to point to `HEAD` of the release branch. Follow-up releases will be branched off from the git tag.
 
-```
+```console
 o---o---o---o---o  master
      \
       \      v1.0.0      v1.0.1
@@ -123,7 +123,7 @@ information about logging and error handling.
 * Methods and variables in `lowerCamelCase`: `uint16_t myVariable`
 * Compile time constants, also enum values in `UPPER_SNAKE_CASE`: `static constexpr uint16_t MY_CONSTANT`
 * Class members start with `m_`: `m_myMember`
-    * Public members of structs and classes do not have the `m_` prefix
+  * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
 * Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 
@@ -191,25 +191,25 @@ Integration tests are composition of more than one class and test their interact
 
 ## Coverage Scan
 
-To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
+To ensure that the provided test code covers the productive code you can do a coverage scan with `gcov`. The reporting is done with `lcov` and `htmlgen`.
 You will need to install the following packages:
 
 ```bash
 sudo apt install lcov
 ```
 
-In iceoryx we have multiple testlevels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all testlevels together. You can create reports for these different testlevels or for all tests. Coverage is done with gcc.
+In iceoryx we have multiple test levels for test coverage: 'unit', 'integration', 'component' and ’all’ for all test levels together. You can create reports for these different test levels or for all tests. Coverage is done with gcc.
 The coverage scan applies to Quality level 3 and partly level 2 with branch coverage.
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
-You can do this with one command in iceroyx folder like this:
+You can do this with one command in iceoryx folder like this:
 
 ```bash
 ./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
 ```
 
 Optionally you can use build-all option to get coverage for extensions like DDS or C-Binding.
-The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
+The -c flag indicates that you want to have a coverage report, and you can pass there the needed test level. Per default the test level is set to 'all'.
 example:
 
 ```bash
@@ -219,9 +219,9 @@ example:
 **NOTE**
 Iceoryx needs to be built as static library for working with gcov flags. The script does it automatically.
 
-The flag `-c unit` is for having only reports for unit-tests. In the script `tools/gcov/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
+The flag `-c unit` is for having only reports for unit-tests. In the script `tools/scripts/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
 
-All reports are stored locally in build/lcov as html report (index.html). In Github, we are using [codecov](https://about.codecov.io) for a general reporting of the code coverage.
+All reports are stored locally in build/lcov as html report (index.html). In GitHub, we are using [codecov](https://about.codecov.io) for a general reporting of the code coverage.
 Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
 If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
 
@@ -253,9 +253,6 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 | [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT | :star::star: |
 | [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA | :star: |
 
-The enabled rules can be found [here](./tools/axivion/axivion_config.json). It is possible that not the whole codebase
-follows these rules, things are work in progress. But this is where we want to go.
-
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
@@ -278,7 +275,7 @@ Don't be afraid if you don't have Axivion available. As we want to make it easy 
 please raise a pull request and one of the maintainers will provided you access to the [dashboard](https://iceoryx-axivion.apex.ai/).
 
 As an alternative it is also possible to use Perforce's
-[Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
+[Helix QAC++](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
 ### Header
 
@@ -331,7 +328,7 @@ Example:
 
 The CMake targets are developed according to the
 [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
-Despite developing some of the targets according to automotive standards like ISO26262, the code base standalone
+Despite developing some targets according to automotive standards like ISO26262, the code base standalone
 does NOT legitimize the usage in a safety-critical system. All requirements of a lower quality level are included in
 higher quality levels e.g. quality level 4 is included in quality level 3.
 

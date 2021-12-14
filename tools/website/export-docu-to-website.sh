@@ -28,7 +28,7 @@
 set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-BASENAME=$(basename $WORKSPACE)
+BASENAME=$(basename "$WORKSPACE")
 WEBREPO="git@github.com:eclipse-iceoryx/iceoryx-web.git"
 TYPE=${1:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
 VERSION=$2
@@ -39,52 +39,56 @@ if [ "$BASENAME" != "iceoryx" ]; then
     exit 1
 fi
 
-cd $WORKSPACE
+cd "$WORKSPACE"
 
-git checkout $BRANCH
+git checkout "$BRANCH"
 
 # Generate doxygen
 cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
-cd $WORKSPACE/build
+cd "$WORKSPACE"/build
 make -j8 doxygen_iceoryx_posh doxygen_iceoryx_hoofs doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
 
-cd $WORKSPACE
+cd "$WORKSPACE"
 
 PACKAGES="hoofs posh c-binding DDS-gateway introspection"
 
 # Generate doxybook2 config files, to have correct links in doxygen docu
-mkdir -p $WORKSPACE/tools/website/generated/
+mkdir -p "$WORKSPACE"/tools/website/generated/
 
 for PACKAGE in ${PACKAGES}  ; do
     FILE=$WORKSPACE/tools/website/generated/doxybook2-$PACKAGE.json
-    rm -f $FILE
-    echo "{" >> $FILE
+    rm -f "$FILE"
+    echo "{" >> "$FILE"
     if [ "$TYPE" == "local" ]; then
-        echo "\"baseUrl\": \"/API-reference/$PACKAGE/\","  >> $FILE
+        echo "\"baseUrl\": \"/API-reference/$PACKAGE/\","  >> "$FILE"
     else
-        echo "\"baseUrl\": \"/$VERSION/API-reference/$PACKAGE/\","  >> $FILE
+        echo "\"baseUrl\": \"/$VERSION/API-reference/$PACKAGE/\","  >> "$FILE"
     fi
-    echo "\"indexInFolders\": false,"  >> $FILE
-    echo "\"linkSuffix\": \"/\","  >> $FILE
-    echo "\"mainPageInRoot\": false"  >> $FILE
-    echo "}"  >> $FILE
+    echo "\"indexInFolders\": false,"  >> "$FILE"
+    echo "\"linkSuffix\": \"/\","  >> "$FILE"
+    echo "\"mainPageInRoot\": false"  >> "$FILE"
+    echo "}"  >> "$FILE"
 done
 
+BUILD_FOLDER="$WORKSPACE"/build/doc
+DOC_FOLDER="$WORKSPACE"/doc/website/API-reference
+CONFIG_FOLDER="$WORKSPACE"/tools/website/generated/
+
 # Generate markdown from doxygen
-mkdir -p $WORKSPACE/doc/website/API-reference/hoofs
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_hoofs/xml/ --output $WORKSPACE/doc/website/API-reference/hoofs --config $WORKSPACE/tools/website/generated/doxybook2-hoofs.json
+mkdir -p "$DOC_FOLDER"/hoofs
+doxybook2 --input $BUILD_FOLDER/iceoryx_hoofs/xml/ --output $DOC_FOLDER/hoofs --config $CONFIG_FOLDER/doxybook2-hoofs.json
 
-mkdir -p $WORKSPACE/doc/website/API-reference/posh
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_posh/xml/ --output $WORKSPACE/doc/website/API-reference/posh --config $WORKSPACE/tools/website/generated/doxybook2-posh.json
+mkdir -p "$DOC_FOLDER"/posh
+doxybook2 --input $BUILD_FOLDER/iceoryx_posh/xml/ --output $DOC_FOLDER/posh --config $CONFIG_FOLDER/doxybook2-posh.json
 
-mkdir -p $WORKSPACE/doc/website/API-reference/c-binding
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_binding_c/xml/ --output $WORKSPACE/doc/website/API-reference/c-binding --config $WORKSPACE/tools/website/generated/doxybook2-c-binding.json
+mkdir -p "$DOC_FOLDER"/c-binding
+doxybook2 --input $BUILD_FOLDER/iceoryx_binding_c/xml/ --output $DOC_FOLDER/c-binding --config $CONFIG_FOLDER/doxybook2-c-binding.json
 
-mkdir -p $WORKSPACE/doc/website/API-reference/DDS-gateway
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_dds/xml/ --output $WORKSPACE/doc/website/API-reference/DDS-gateway --config $WORKSPACE/tools/website/generated/doxybook2-DDS-gateway.json
+mkdir -p "$DOC_FOLDER"/DDS-gateway
+doxybook2 --input $BUILD_FOLDER/iceoryx_dds/xml/ --output $DOC_FOLDER/DDS-gateway --config $CONFIG_FOLDER/doxybook2-DDS-gateway.json
 
-mkdir -p $WORKSPACE/doc/website/API-reference/introspection
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_introspection/xml/ --output $WORKSPACE/doc/website/API-reference/introspection --config $WORKSPACE/tools/website/generated/doxybook2-introspection.json
+mkdir -p "$DOC_FOLDER"/introspection
+doxybook2 --input $BUILD_FOLDER/iceoryx_introspection/xml/ --output $DOC_FOLDER/introspection --config $CONFIG_FOLDER/doxybook2-introspection.json
 
 # Remove index files
 
@@ -92,7 +96,7 @@ FILES="index_classes.md index_examples.md index_files.md index_modules.md index_
 
 for PACKAGE in ${PACKAGES}  ; do
     for FILE in ${FILES}  ; do
-        rm -f $WORKSPACE/doc/website/API-reference/$PACKAGE/$FILE
+        rm -f "$WORKSPACE"/doc/website/API-reference/"$PACKAGE"/"$FILE"
     done
 done
 
@@ -105,9 +109,9 @@ fi
 if [ "$TYPE" == "publish" ]; then
     # Generate HTML and push to GitHub pages
     if [ ! -d "$WORKSPACE/../iceoryx-web" ]; then
-        cd $WORKSPACE/../
+        cd "$WORKSPACE"/../
         git clone $WEBREPO
     fi
-    cd $WORKSPACE/../iceoryx-web
-    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases $VERSION latest
+    cd "$WORKSPACE"/../iceoryx-web
+    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases "$VERSION" latest
 fi

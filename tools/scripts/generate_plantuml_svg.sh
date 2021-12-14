@@ -28,21 +28,21 @@ TEMP_DIR="/var/tmp/iceoryx" # this is persistent across reboots
 PLANTUML_DIR="$TEMP_DIR/plantuml-jar-mit-1.2021.5"
 NUM_THREADS=1
 
-cd $WORKSPACE
+cd "$WORKSPACE"
 
 if [ ! -f $PLANTUML_DIR/plantuml.jar ]; then
     echo "Downloading Plantuml..."
     wget -P $TEMP_DIR https://downloads.sourceforge.net/project/plantuml/1.2021.5/plantuml-jar-mit-1.2021.5.zip
     cd $TEMP_DIR
     unzip plantuml-jar-mit-1.2021.5.zip -d plantuml-jar-mit-1.2021.5
-    cd $WORKSPACE
+    cd "$WORKSPACE"
 fi
 
 
 if ! java -jar $PLANTUML_DIR/plantuml.jar -v &> /dev/null
 then
     echo "plantuml could not be found"
-    exit
+    exit 1
 fi
 
 
@@ -57,7 +57,7 @@ echo " [i] Generating with $NUM_THREADS threads"
 java -jar $PLANTUML_DIR/plantuml.jar \
      -config "$WORKSPACE/doc/iceoryx-plantuml-config.puml" \
      -nometadata \
-     -nbthread $NUM_THREADS \
+     -nbthread "$NUM_THREADS" \
      -tsvg \
      -I "$EXPORT_DIR/**.puml"
 

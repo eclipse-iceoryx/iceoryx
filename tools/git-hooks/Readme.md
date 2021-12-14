@@ -3,8 +3,8 @@
 When developing on iceoryx, git-hooks are doing some sanity checks and can execute linters/formatters when you commit code to iceoryx.
 In the current state the git hooks do the following job:
 
-- checking if commit messages follow the format `[iox-#<Github issue number>]` and auto-format them if necessary
-- check if commit message subject and body follow six of the [seven rules of a great commit message](https://chris.beams.io/posts/git-commit/)
+- checking that commit messages follow the format `[iox-#<Github issue number>]` and auto-format them if necessary
+- check that the commit messages subject and body follow six of the [seven rules of a great commit message](https://chris.beams.io/posts/git-commit/)
 - remove trailing whitespace from all modified files
 - run `clang-format` on all modified files
 
@@ -24,8 +24,8 @@ cd iceoryx
 git config core.hooksPath tools/git-hooks/
 ```
 
-With that you will also receive the updates of the git hooks in future.
-We recommend to do this in every new clone you did on iceoryx.
+With that you will also receive the updates of the git hooks in the future.
+We recommend doing this in every new clone you did on iceoryx.
 
 ## Seven Rules for a good commit message
 

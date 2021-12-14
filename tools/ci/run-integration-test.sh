@@ -20,11 +20,11 @@
 set -e
 
 msg() {
-    printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
+    printf "\033[1;32m%s: %s\033[0m\n" "${FUNCNAME[1]}" "$1"
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "installing dependencies"
 # NOTE: github action ros-tooling/setup-ros@0.2.1 should be run before
@@ -32,11 +32,13 @@ sudo apt install -y apt-transport-https
 sudo apt update && sudo apt install -y cmake libacl1-dev libncurses5-dev pkg-config ros-foxy-ros-testing
 
 msg "sourcing ROS workspace"
+# shellcheck source=/dev/null
 source /opt/ros/foxy/setup.bash
 
 msg "checking copyrights"
 sudo rm -rf /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/template/apache2_header.txt
 sudo cp -rf tools/apache2_header.txt /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/template/.
+# shellcheck disable=SC2026
 sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/main.py
 ament_copyright --exclude LICENSE CONTRIBUTING.md tools/apache2_header.txt
 
@@ -49,6 +51,7 @@ rm -rf iceoryx_examples/COLCON_IGNORE iceoryx_integrationtest/COLCON_IGNORE
 colcon build
 
 msg "executing tests"
+# shellcheck source=/dev/null
 source ./install/setup.bash
 colcon test --packages-select iceoryx_integrationtest
 colcon test-result --all --verbose

@@ -30,7 +30,7 @@ msg "installing build dependencies"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev bison
 
 msg "creating local test users and groups for testing access control"
-sudo ./tools/add_test_users.sh
+sudo ./tools/scripts/add_test_users.sh
 
 msg "compiler versions:
 $(gcc --version)
