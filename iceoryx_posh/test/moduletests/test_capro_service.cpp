@@ -148,23 +148,29 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
                                                      static_cast<uint16_t>(testScope),
                                                      static_cast<uint16_t>(testInterfaceSource));
 
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
 
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(testService));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(testInstance));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), Eq(testEvent));
-    EXPECT_THAT((serviceDescription1.getClassHash())[0], Eq(testHash[0]));
-    EXPECT_THAT((serviceDescription1.getClassHash())[1], Eq(testHash[1]));
-    EXPECT_THAT((serviceDescription1.getClassHash())[2], Eq(testHash[2]));
-    EXPECT_THAT((serviceDescription1.getClassHash())[3], Eq(testHash[3]));
-    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INTERNAL));
-    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
+    ServiceDescription::deserialize(serialObj)
+        .and_then([&](const auto& service) {
+            EXPECT_THAT(service.getServiceIDString(), Eq(testService));
+            EXPECT_THAT(service.getInstanceIDString(), Eq(testInstance));
+            EXPECT_THAT(service.getEventIDString(), Eq(testEvent));
+            EXPECT_THAT((service.getClassHash())[0], Eq(testHash[0]));
+            EXPECT_THAT((service.getClassHash())[1], Eq(testHash[1]));
+            EXPECT_THAT((service.getClassHash())[2], Eq(testHash[2]));
+            EXPECT_THAT((service.getClassHash())[3], Eq(testHash[3]));
+            EXPECT_THAT(service.getScope(), Eq(Scope::INTERNAL));
+            EXPECT_THAT(service.getSourceInterface(), Eq(Interfaces::INTERNAL));
+        })
+        .or_else([](const auto& error) {
+            FAIL() << "Deserialization should not fail but failed with: " << static_cast<uint32_t>(error);
+        });
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
 /// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
 /// only intended to check the functionality by injecting the valus directly.
-TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeSetsTheScopeToInvalid)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeLeadsToInvalidDeserialization)
 {
     ServiceDescription::ClassHash testHash = {14U, 28U, 42U, 56U};
     testService = "Service";
@@ -180,16 +186,17 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
                                                      testHash[3],
                                                      invalidScope);
 
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+    auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INVALID));
+    ASSERT_TRUE(deserializationResult.has_error());
+    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
 /// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceSetsTheInterfaceSourceToInterfaceEnd)
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceLeadsToInvalidDeserialization)
 {
     ServiceDescription::ClassHash testHash = {17U, 34U, 51U, 68U};
     testService = "Service";
@@ -207,12 +214,23 @@ TEST_F(ServiceDescription_test,
                                                      static_cast<uint16_t>(testScope),
                                                      invalidInterfaceSource);
 
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+    auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
-    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
+    ASSERT_TRUE(deserializationResult.has_error());
+    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
-/// @todo remove
+TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidDeserialization)
+{
+    std::string emptyString;
+    iox::cxx::Serialization invalidSerialObj{emptyString};
+
+    auto deserializationResult = ServiceDescription::deserialize(invalidSerialObj);
+
+    ASSERT_TRUE(deserializationResult.has_error());
+    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
+}
+
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
 {
     ServiceDescription serviceDescription1 = ServiceDescription();
@@ -433,7 +451,6 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
     EXPECT_FALSE(serviceDescription1 < serviceDescription2);
 }
 
-/// @todo add new tests for service description?
 
 /// END SERVICEDESCRIPTION TESTS
 

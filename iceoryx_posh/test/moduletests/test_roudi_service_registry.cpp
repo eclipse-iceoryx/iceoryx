@@ -42,14 +42,14 @@ class ServiceRegistry_test : public Test
             std::cout << output << std::endl;
         }
     }
-    iox::roudi::ServiceRegistry registry;
+    iox::roudi::ServiceRegistry sut;
 
     iox::roudi::ServiceRegistry::ServiceDescriptionVector_t searchResults;
 };
 
 TEST_F(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
 {
-    registry.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
@@ -66,7 +66,7 @@ TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 
     for (auto& service : services)
     {
-        auto result = registry.add(service);
+        auto result = sut.add(service);
         ASSERT_FALSE(result.has_error());
     }
 }
@@ -83,24 +83,24 @@ TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 
     for (auto& service : services)
     {
-        auto result = registry.add(service);
+        auto result = sut.add(service);
         ASSERT_FALSE(result.has_error());
     }
 
-    auto result = registry.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
+    auto result = sut.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
 }
 
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
 {
-    auto result1 = registry.add(ServiceDescription("Li", "La", "Launebaer"));
+    auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result1.has_error());
 
-    auto result2 = registry.add(ServiceDescription("Li", "La", "Launebaer"));
+    auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result2.has_error());
 
-    registry.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
@@ -109,15 +109,15 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
 
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
 {
-    auto result1 = registry.add(ServiceDescription("Li", "La", "Launebaerli"));
+    auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result1.has_error());
 
-    auto result2 = registry.add(ServiceDescription("Li", "La", "Launebaerli"));
+    auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result2.has_error());
 
-    registry.remove(ServiceDescription("Li", "La", "Launebaerli"));
+    sut.remove(ServiceDescription("Li", "La", "Launebaerli"));
 
-    registry.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
@@ -126,25 +126,27 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
 
 TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
 {
-    auto result = registry.add(ServiceDescription());
+    auto result = sut.add(ServiceDescription());
     ASSERT_FALSE(result.has_error());
 }
 
 TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
 {
-    EXPECT_FALSE(registry.remove(ServiceDescription("Sim", "Sa", "Lambim")));
+    sut.remove(ServiceDescription("Sim", "Sa", "Lambim"));
+    EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsWorks)
 {
-    ASSERT_FALSE(registry.add(ServiceDescription()).has_error());
-    EXPECT_TRUE(registry.remove(ServiceDescription()));
+    ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
+    sut.remove(ServiceDescription());
+    EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildcardSearch)
 {
-    ASSERT_FALSE(registry.add(ServiceDescription()).has_error());
-    registry.find(searchResults, Wildcard, Wildcard);
+    ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
+    sut.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
@@ -152,8 +154,8 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildc
 
 TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmptyString)
 {
-    ASSERT_FALSE(registry.add(ServiceDescription()).has_error());
-    registry.find(searchResults, "", "");
+    ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
+    sut.find(searchResults, "", "");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
@@ -161,9 +163,9 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmpty
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
 {
-    auto result = registry.add(ServiceDescription("Foo", "Bar", "Baz"));
+    auto result = sut.add(ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_FALSE(result.has_error());
-    registry.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
@@ -171,9 +173,9 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
 {
-    auto result = registry.add(ServiceDescription("Baz", "Bar", "Foo"));
+    auto result = sut.add(ServiceDescription("Baz", "Bar", "Foo"));
     ASSERT_FALSE(result.has_error());
-    registry.find(searchResults, Wildcard, "Bar");
+    sut.find(searchResults, Wildcard, "Bar");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Baz", "Bar", "Foo")));
@@ -182,8 +184,8 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
 {
     iox::capro::ServiceDescription service1("a", "b", "c");
-    ASSERT_FALSE(registry.add(service1).has_error());
-    registry.find(searchResults, "a", Wildcard);
+    ASSERT_FALSE(sut.add(service1).has_error());
+    sut.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
@@ -194,9 +196,9 @@ TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWith
     ServiceDescription service1;
     ServiceDescription service2("alpha", "bravo", "charlie");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    registry.find(searchResults, Wildcard, Wildcard);
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    sut.find(searchResults, Wildcard, Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(2));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
@@ -209,10 +211,10 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAll
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
-    registry.find(searchResults, "a", Wildcard);
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+    sut.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(3));
 
@@ -238,15 +240,15 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceNameC
     iox::capro::ServiceDescription service1("a", "b", "b");
     iox::capro::ServiceDescription service2("c", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    registry.find(searchResults, "a", Wildcard);
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    sut.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
     searchResults.clear();
 
-    registry.find(searchResults, "c", Wildcard);
+    sut.find(searchResults, "c", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
 }
@@ -257,10 +259,10 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsS
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
-    registry.find(searchResults, "a", "c");
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+    sut.find(searchResults, "a", "c");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
@@ -274,15 +276,16 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFind
     iox::capro::ServiceDescription service4("d", "4", "moep");
     iox::capro::ServiceDescription service5("e", "5", "moep");
 
-    ASSERT_FALSE(registry.add(service5).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
-    ASSERT_FALSE(registry.add(service4).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service5).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.add(service4).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service1).has_error());
 
-    ASSERT_TRUE(registry.remove(service5));
-    ASSERT_TRUE(registry.remove(service1));
-    registry.find(searchResults, "a", Wildcard);
+    sut.remove(service5);
+    sut.remove(service1);
+    EXPECT_THAT(sut.getServices().size(), Eq(3));
+    sut.find(searchResults, "a", Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
@@ -293,10 +296,10 @@ TEST_F(ServiceRegistry_test, FindSpecificNonExistingServiceDescriptionFails)
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
-    registry.find(searchResults, "a", "g");
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+    sut.find(searchResults, "a", "g");
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
@@ -307,30 +310,31 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameServicesAnd
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
 
-    EXPECT_TRUE(registry.remove(service2));
+    sut.remove(service2);
+    EXPECT_THAT(sut.getServices().size(), Eq(2));
 
-    registry.find(searchResults, "a", "c");
+    sut.find(searchResults, "a", "c");
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
-TEST_F(ServiceRegistry_test,
-       AddingMultipleServiceDescriptionWithDifferentServicesAndRemovingSpecificDoesNotFindSpecific)
+TEST_F(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceRegistry)
 {
     iox::capro::ServiceDescription service1("a", "b", "b");
     iox::capro::ServiceDescription service2("b", "c", "c");
     iox::capro::ServiceDescription service3("c", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
 
-    EXPECT_TRUE(registry.remove(service2));
+    sut.remove(service2);
+    EXPECT_THAT(sut.getServices().size(), Eq(2));
 
-    registry.find(searchResults, "b", "c");
+    sut.find(searchResults, "b", "c");
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
@@ -340,15 +344,15 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllDoesN
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
 
-    EXPECT_TRUE(registry.remove(service1));
-    EXPECT_TRUE(registry.remove(service2));
-    EXPECT_TRUE(registry.remove(service3));
+    sut.remove(service1);
+    sut.remove(service2);
+    sut.remove(service3);
 
-    registry.find(searchResults, "a", Wildcard);
+    sut.find(searchResults, "a", Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
@@ -359,14 +363,14 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNo
     iox::capro::ServiceDescription service3("a", "d", "d");
     iox::capro::ServiceDescription service4("e", "f", "f");
 
-    ASSERT_FALSE(registry.add(service1).has_error());
-    // add same service a, instance c to check if in registry only one entry is created
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service2).has_error());
-    ASSERT_FALSE(registry.add(service3).has_error());
-    ASSERT_FALSE(registry.add(service4).has_error());
+    ASSERT_FALSE(sut.add(service1).has_error());
+    // add same service a, instance c to check if in sut only one entry is created
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.add(service4).has_error());
 
-    auto serviceDescriptionVector = registry.getServices();
+    auto serviceDescriptionVector = sut.getServices();
 
     bool service1Found = false;
     bool service2Found = false;

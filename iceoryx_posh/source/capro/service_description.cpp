@@ -69,37 +69,6 @@ bool ServiceDescription::ClassHash::operator!=(const ClassHash& rhs) const noexc
     return !operator==(rhs);
 }
 
-ServiceDescription::ServiceDescription(const cxx::Serialization& serial) noexcept
-{
-    std::underlying_type<Scope>::type scope = 0;
-    std::underlying_type<Interfaces>::type interfaceSource = 0;
-    serial.extract(m_serviceString,
-                   m_instanceString,
-                   m_eventString,
-                   m_classHash[0u],
-                   m_classHash[1u],
-                   m_classHash[2u],
-                   m_classHash[3u],
-                   scope,
-                   interfaceSource);
-    if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
-    {
-        m_scope = Scope::INVALID;
-    }
-    else
-    {
-        m_scope = static_cast<Scope>(scope);
-    }
-    if (interfaceSource > static_cast<std::underlying_type<Interfaces>::type>(Interfaces::INTERFACE_END))
-    {
-        m_interfaceSource = Interfaces::INTERFACE_END;
-    }
-    else
-    {
-        m_interfaceSource = static_cast<Interfaces>(interfaceSource);
-    }
-}
-
 ServiceDescription::ServiceDescription() noexcept
     : ServiceDescription(InvalidIdString, InvalidIdString, InvalidIdString)
 {
@@ -181,6 +150,38 @@ ServiceDescription::operator cxx::Serialization() const noexcept
                                       interface);
 }
 
+cxx::expected<ServiceDescription, cxx::Serialization::Error>
+ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
+{
+    ServiceDescription deserializedObject;
+
+    using ScopeUnderlyingType = std::underlying_type<Scope>::type;
+    using InterfaceUnderlyingType = std::underlying_type<Interfaces>::type;
+
+    ScopeUnderlyingType scope{0};
+    InterfaceUnderlyingType interfaceSource{0};
+
+    auto deserializationSuccessful = serialized.extract(deserializedObject.m_serviceString,
+                                                        deserializedObject.m_instanceString,
+                                                        deserializedObject.m_eventString,
+                                                        deserializedObject.m_classHash[0u],
+                                                        deserializedObject.m_classHash[1u],
+                                                        deserializedObject.m_classHash[2u],
+                                                        deserializedObject.m_classHash[3u],
+                                                        scope,
+                                                        interfaceSource);
+    if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
+        || interfaceSource >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
+    {
+        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+    }
+
+    deserializedObject.m_scope = static_cast<Scope>(scope);
+    deserializedObject.m_interfaceSource = static_cast<Interfaces>(interfaceSource);
+
+    return cxx::success<ServiceDescription>(deserializedObject);
+}
+
 IdString_t ServiceDescription::getServiceIDString() const noexcept
 {
     return m_serviceString;
@@ -206,7 +207,7 @@ void ServiceDescription::setInternal() noexcept
     m_scope = Scope::INTERNAL;
 }
 
-Scope ServiceDescription::getScope() noexcept
+Scope ServiceDescription::getScope() const noexcept
 {
     return m_scope;
 }

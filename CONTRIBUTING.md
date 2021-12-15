@@ -126,6 +126,9 @@ information about logging and error handling.
   * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
 * Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
+* Objects created from a method returning a `cxx::optional<Foo>` shall be named `maybeFoo`
+* Objects created from a method returning a `cxx::expected<Foo, FooError>` shall
+contain the name `result` e.g. `getChunkResult` for the method `getChunk()`
 
 ### Doxygen
 

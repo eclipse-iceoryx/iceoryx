@@ -55,10 +55,9 @@ class ServiceRegistry
     /// @return ServiceRegistryError, error wrapped in cxx::expected
     cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry
+    /// @brief Removes given service description from registry if service is found
     /// @param[in] serviceDescription, service to be removed
-    /// @return true, if service description was removed, false otherwise
-    bool remove(const capro::ServiceDescription& serviceDescription) noexcept;
+    void remove(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes given service description from registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
