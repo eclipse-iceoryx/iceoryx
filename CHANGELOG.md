@@ -112,6 +112,25 @@ ServiceDescription("First", "Second", "DontCare") myServiceDescription2;
 ServiceDescription("Foo", "Bar", "Baz") myServiceDescription3;
 ```
 
+Instead of using a constructor a `ServiceDescription` is now deserialized via a
+static method with error handling:
+
+```cpp
+// before
+iox::cxx::Serialization serializedObj;
+iox::capro::ServiceDescription service(serializedObj);
+
+// after
+iox::cxx::Serialization serialisedObj;
+capro::ServiceDescription::deserialize(serialisedObj)
+    .and_then([](auto& value){
+        // Do something with the deserialized object
+    })
+    .or_else([](auto& error){
+        // Handle the error
+    });
+```
+
 The service-related methods have been moved from `PoshRuntime` to a separate class (TBD):
 
 ```cpp
