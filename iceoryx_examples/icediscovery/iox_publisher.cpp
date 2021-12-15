@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +13,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-#include "topic_data.hpp"
 
 //! [include publisher]
 #include "iceoryx_posh/popo/publisher.hpp"
@@ -34,11 +31,6 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
     killswitch = true;
 }
 
-void getRadarObject(RadarObject* const object, const double& val) noexcept
-{
-    *object = RadarObject(val, val, val);
-}
-
 int main()
 {
     // Register sigHandler
@@ -47,35 +39,26 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
+    iox::runtime::PoshDiscovery discoveryInfo;
+
     //! [create publisher]
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<uint32_t> publisher({"Radar", "FrontLeft", "Object"});
     //! [create publisher]
 
-    double ct = 0.0;
+    uint32_t counter = 0;
     while (!killswitch)
     {
-        ++ct;
-        double sampleValue1 = ct + 89;
-        double sampleValue2 = ct + 144;
-        double sampleValue3 = ct + 233;
-        double sampleValue4 = ct + 377;
+        ++counter;
 
-        //! [API Usage #1]
-        //  * Retrieve a typed sample from shared memory.
-        //  * Sample can be held until ready to publish.
-        //  * Data is default constructed during loan
         publisher.loan()
             .and_then([&](auto& sample) {
-                sample->x = sampleValue1;
-                sample->y = sampleValue1;
-                sample->z = sampleValue1;
+                sample = sampleValue;
                 sample.publish();
             })
             .or_else([](auto& error) {
                 // Do something with error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });
-        //! [API Usage #1]
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

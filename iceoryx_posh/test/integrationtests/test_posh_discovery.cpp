@@ -70,22 +70,21 @@ class PoshDiscovery_test : public RouDi_GTest
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    iox::runtime::PoshRuntime* m_runtimeAlice{&iox::runtime::PoshRuntime::initRuntime("Alice")};
-    iox::runtime::PoshRuntime* m_runtimeBob{&iox::runtime::PoshRuntime::initRuntime("Bob")};
-    PoshDiscovery m_poshDiscoveryAlice;
-    PoshDiscovery m_poshDiscoveryBob;
+    iox::runtime::PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
+    iox::runtime::PoshRuntime* m_runtimeBob{&iox::runtime::PoshRuntime::initRuntime("Bob")}; // move to 2nd thread
+    PoshDiscovery m_sut;
 };
 
 TIMING_TEST_F(PoshDiscovery_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
-    auto serviceCounter = m_poshDiscoveryAlice.getServiceRegistryChangeCounter();
+    auto serviceCounter = m_sut.getServiceRegistryChangeCounter();
     auto initialCout = serviceCounter->load();
 
-    m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"});
+    m_sut.offerService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
     TIMING_TEST_EXPECT_TRUE(initialCout + 1 == serviceCounter->load());
 
-    m_poshDiscoveryAlice.stopOfferService({"service1", "instance1", "event1"});
+    m_sut.stopOfferService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
     TIMING_TEST_EXPECT_TRUE(initialCout + 2 == serviceCounter->load());
@@ -93,17 +92,17 @@ TIMING_TEST_F(PoshDiscovery_test, GetServiceRegistryChangeCounterOfferStopOfferS
 
 TEST_F(PoshDiscovery_test, OfferEmptyServiceIsInvalid)
 {
-    auto isServiceOffered = m_poshDiscoveryAlice.offerService(iox::capro::ServiceDescription());
+    auto isServiceOffered = m_sut.offerService(iox::capro::ServiceDescription());
 
     EXPECT_FALSE(isServiceOffered);
 }
 
 TEST_F(PoshDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServices)
 {
-    EXPECT_FALSE(m_poshDiscoveryAlice.offerService(iox::capro::ServiceDescription()));
+    EXPECT_FALSE(m_sut.offerService(iox::capro::ServiceDescription()));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
+    auto serviceContainer = m_sut.findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
 
     auto searchResult = serviceContainer.value();
@@ -116,10 +115,10 @@ TEST_F(PoshDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServi
 
 TEST_F(PoshDiscovery_test, OfferSingleMethodServiceSingleInstance)
 {
-    auto isServiceOffered = m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"});
+    auto isServiceOffered = m_sut.offerService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
@@ -130,7 +129,7 @@ TEST_F(PoshDiscovery_test, OfferSingleMethodServiceSingleInstance)
 
 TEST_F(PoshDiscovery_test, OfferServiceWithDefaultServiceDescriptionFails)
 {
-    auto isServiceOffered = m_poshDiscoveryAlice.offerService(iox::capro::ServiceDescription());
+    auto isServiceOffered = m_sut.offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -138,7 +137,7 @@ TEST_F(PoshDiscovery_test, OfferServiceWithDefaultServiceDescriptionFails)
 
 TEST_F(PoshDiscovery_test, OfferServiceWithValidEventIdSucessfull)
 {
-    auto isServiceOffered = m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"});
+    auto isServiceOffered = m_sut.offerService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
     ASSERT_EQ(true, isServiceOffered);
@@ -147,7 +146,7 @@ TEST_F(PoshDiscovery_test, OfferServiceWithValidEventIdSucessfull)
 TEST_F(PoshDiscovery_test, OfferServiceWithInvalidEventIdFails)
 {
     auto isServiceOffered =
-        m_poshDiscoveryAlice.offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
+        m_sut.offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -155,14 +154,14 @@ TEST_F(PoshDiscovery_test, OfferServiceWithInvalidEventIdFails)
 
 TEST_F(PoshDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFound)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
@@ -171,12 +170,12 @@ TEST_F(PoshDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFound
 
 TEST_F(PoshDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
@@ -185,15 +184,15 @@ TEST_F(PoshDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
 
 TEST_F(PoshDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
@@ -201,22 +200,22 @@ TEST_F(PoshDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 
 TEST_F(PoshDiscovery_test, OfferMultiMethodServiceSingleInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service3"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service3"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service3", "instance1", "event1"}));
@@ -224,20 +223,20 @@ TEST_F(PoshDiscovery_test, OfferMultiMethodServiceSingleInstance)
 
 TEST_F(PoshDiscovery_test, OfferMultiMethodServiceWithDistinctSingleInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance2", "event2"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance2"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event2"}));
@@ -245,16 +244,16 @@ TEST_F(PoshDiscovery_test, OfferMultiMethodServiceWithDistinctSingleInstance)
 
 TEST_F(PoshDiscovery_test, SubscribeAnyInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance2", "event2"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance3", "event3"}));
     this->InterOpWait();
     ServiceContainer serviceContainerExp;
     serviceContainerExp.push_back({"service1", "instance1", "event1"});
     serviceContainerExp.push_back({"service1", "instance2", "event2"});
     serviceContainerExp.push_back({"service1", "instance3", "event3"});
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), iox::runtime::Wildcard_t());
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), iox::runtime::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(3u));
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
@@ -262,22 +261,22 @@ TEST_F(PoshDiscovery_test, SubscribeAnyInstance)
 
 TEST_F(PoshDiscovery_test, OfferSingleMethodServiceMultiInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance2", "event2"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance3", "event3"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance2"));
+    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance2", "event2"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance3"));
+    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance3"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance3", "event3"}));
@@ -285,40 +284,40 @@ TEST_F(PoshDiscovery_test, OfferSingleMethodServiceMultiInstance)
 
 TEST_F(PoshDiscovery_test, OfferMultiMethodServiceMultiInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance2", "event2"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance3", "event3"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance2", "event2"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance3", "event3"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance3", "event3"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance2"));
+    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance2", "event2"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance3"));
+    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance3"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance3", "event3"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance2"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event2"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance3"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance3"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance3", "event3"}));
@@ -326,56 +325,56 @@ TEST_F(PoshDiscovery_test, OfferMultiMethodServiceMultiInstance)
 
 TEST_F(PoshDiscovery_test, StopOfferWithInvalidServiceDescriptionFails)
 {
-    EXPECT_FALSE(m_poshDiscoveryAlice.stopOfferService(
+    EXPECT_FALSE(m_sut.stopOfferService(
         {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString}));
 }
 
 TEST_F(PoshDiscovery_test, StopOfferSingleMethodServiceSingleInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
 
 TEST_F(PoshDiscovery_test, StopOfferMultiMethodServiceSingleInstance)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service3"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("service3"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
 
 TEST_F(PoshDiscovery_test, StopOfferServiceRedundantCall)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
@@ -383,12 +382,12 @@ TEST_F(PoshDiscovery_test, StopOfferServiceRedundantCall)
 
 TEST_F(PoshDiscovery_test, StopNonExistingService)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_poshDiscoveryAlice.stopOfferService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(m_sut.stopOfferService({"service2", "instance2", "event2"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
@@ -396,29 +395,30 @@ TEST_F(PoshDiscovery_test, StopNonExistingService)
 
 TEST_F(PoshDiscovery_test, FindNonExistingServices)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("service1"), IdString_t("schlomo"));
+    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("schlomo"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("ignatz"), IdString_t("instance1"));
+    serviceContainer = m_sut.findService(IdString_t("ignatz"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_poshDiscoveryBob.findService(IdString_t("ignatz"), IdString_t("schlomo"));
+    serviceContainer = m_sut.findService(IdString_t("ignatz"), IdString_t("schlomo"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
 
 TEST_F(PoshDiscovery_test, InterfacePort)
 {
-    EXPECT_TRUE(m_poshDiscoveryAlice.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
+    /// @todo call the c'tor of PoshRuntime from a different thread
     auto interfacePortData = m_runtimeBob->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
     this->InterOpWait();
@@ -448,12 +448,12 @@ TEST_F(PoshDiscovery_test, findServiceMaxServices)
         // (message queue has a limit of 512)
         std::string instance = "i" + iox::cxx::convert::toString(i);
         EXPECT_TRUE(
-            m_poshDiscoveryAlice.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
+            m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         serviceContainerExp.push_back({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
         this->InterOpWait();
     }
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("s"), iox::runtime::Wildcard_t());
+    auto serviceContainer = m_sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
 
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
@@ -468,12 +468,12 @@ TEST_F(PoshDiscovery_test, findServiceserviceContainerOverflowError)
     {
         std::string instance = "i" + iox::cxx::convert::toString(i);
         EXPECT_TRUE(
-            m_poshDiscoveryAlice.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
+            m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         serviceContainerExp.push_back({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
         this->InterOpWait();
     }
 
-    auto serviceContainer = m_poshDiscoveryBob.findService(IdString_t("s"), iox::runtime::Wildcard_t());
+    auto serviceContainer = m_sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
 
     ASSERT_THAT(serviceContainer.has_error(), Eq(true));
 }

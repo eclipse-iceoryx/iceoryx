@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +13,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-#include "topic_data.hpp"
 
 //! [include subscriber]
 #include "iceoryx_posh/popo/subscriber.hpp"
@@ -47,7 +44,7 @@ int main()
     iox::runtime::PoshDiscovery discoveryInfo;
 
     //! [create subscriber]
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::Subscriber<uint32_t> subscriber({"Radar", "FrontLeft", "Object"});
     //! [create subscriber]
 
     // run until interrupted by Ctrl-C
@@ -58,7 +55,7 @@ int main()
             //! [sample happy path]
             .and_then([](auto& sample) {
                 //! [print sample info]
-                std::cout << APP_NAME << " got value: " << sample->x << std::endl;
+                std::cout << APP_NAME << " got value: " << sample << std::endl;
                 //! [print sample info]
             })
             //! [sample happy path]
