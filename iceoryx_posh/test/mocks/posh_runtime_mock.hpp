@@ -45,13 +45,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         mockRuntime().reset();
     }
 
-    MOCK_METHOD((iox::cxx::expected<iox::runtime::ServiceContainer, iox::runtime::FindServiceError>),
-                findService,
-                ((const iox::cxx::variant<iox::runtime::Wildcard_t, iox::capro::IdString_t>),
-                 (const iox::cxx::variant<iox::runtime::Wildcard_t, iox::capro::IdString_t>)),
-                (noexcept, override));
-    MOCK_METHOD(bool, offerService, (const iox::capro::ServiceDescription&), (noexcept, override));
-    MOCK_METHOD(bool, stopOfferService, (const iox::capro::ServiceDescription&), (noexcept, override));
     MOCK_METHOD(iox::PublisherPortUserType::MemberType_t*,
                 getMiddlewarePublisher,
                 (const iox::capro::ServiceDescription&,
@@ -96,48 +89,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     {
         static iox::cxx::optional<PoshRuntimeMock*> runtime = iox::cxx::nullopt;
         return runtime;
-    }
-
-    iox::PublisherPortUserType::MemberType_t*
-    getMiddlewarePublisher(const iox::capro::ServiceDescription& service,
-                           const iox::popo::PublisherOptions& publisherOptions = {},
-                           const iox::runtime::PortConfigInfo& portConfigInfo = {}) noexcept override
-    {
-        return getMiddlewarePublisherMock(service, publisherOptions, portConfigInfo);
-    }
-
-    iox::SubscriberPortUserType::MemberType_t*
-    getMiddlewareSubscriber(const iox::capro::ServiceDescription& service,
-                            const iox::popo::SubscriberOptions& subscriberOptions = {},
-                            const iox::runtime::PortConfigInfo& portConfigInfo = {}) noexcept override
-    {
-        return getMiddlewareSubscriberMock(service, subscriberOptions, portConfigInfo);
-    }
-
-    iox::popo::InterfacePortData* getMiddlewareInterface(const iox::capro::Interfaces interface,
-                                                         const iox::NodeName_t& nodeName = {}) noexcept override
-    {
-        return getMiddlewareInterfaceMock(interface, nodeName);
-    }
-
-    iox::popo::ApplicationPortData* getMiddlewareApplication() noexcept override
-    {
-        return getMiddlewareApplicationMock();
-    }
-
-    iox::popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept override
-    {
-        return getMiddlewareConditionVariableMock();
-    }
-
-    iox::runtime::NodeData* createNode(const iox::runtime::NodeProperty& nodeProperty) noexcept override
-    {
-        return createNodeMock(nodeProperty);
-    }
-
-    bool sendRequestToRouDi(const iox::runtime::IpcMessage& msg, iox::runtime::IpcMessage& answer) noexcept override
-    {
-        return sendRequestToRouDiMock(msg, answer);
     }
 };
 

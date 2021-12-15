@@ -184,7 +184,7 @@ capro::ServiceDescription::deserialize(serialisedObj)
     });
 ```
 
-The service-related methods have been moved from `PoshRuntime` to a separate class (TBD):
+The service-related methods have been moved from `PoshRuntime` to `PoshDiscovery`:
 
 ```cpp
 // before
@@ -193,9 +193,9 @@ poshRuntime.stopOfferService(myServiceDescription);
 poshRuntime.findService({"ServiceA", iox::capro::AnyInstanceString});
 
 // after
-discoveryInfo.offerService(myServiceDescription);
-discoveryInfo.stopOfferService(myServiceDescription);
-discoveryInfo.findService("ServiceA", Wildcard);
+poshDiscovery.offerService(myServiceDescription);
+poshDiscovery.stopOfferService(myServiceDescription);
+poshDiscovery.findService("ServiceA", Wildcard);
 ```
 
 The `iox::cxx::expected` has dropped the requirement for `INVALID_STATE`. With this, the
