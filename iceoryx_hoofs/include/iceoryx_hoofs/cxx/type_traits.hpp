@@ -46,6 +46,15 @@ template <typename T, typename C>
 using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 
 ///
+/// @brief Helper value to bind a static_assert to a type
+/// @code
+/// static_assert(always_false_v<Foo>, "Not implemented for the given type!");
+/// @endcode
+///
+template <typename>
+constexpr bool always_false_v = false;
+
+///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
 ///
 template <typename Callable, typename... ArgTypes>

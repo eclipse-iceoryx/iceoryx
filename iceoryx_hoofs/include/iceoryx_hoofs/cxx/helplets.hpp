@@ -17,7 +17,9 @@
 #ifndef IOX_HOOFS_CXX_HELPLETS_HPP
 #define IOX_HOOFS_CXX_HELPLETS_HPP
 
-#include <assert.h>
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
+
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -276,6 +278,62 @@ bool isValidFileName(const string<StringCapacity>& name) noexcept;
 /// @return true if the string is a path to a file, otherwise false
 template <uint64_t StringCapacity>
 bool isValidFilePath(const string<StringCapacity>& name) noexcept;
+
+/// @brief Converts a value of type F to a corresponding value of type T. This function needs to be specialized by the
+/// user for the types to be converted.
+/// @code
+/// enum class LowLevel
+/// {
+///     FileDescriptorInvalid,
+///     FileDescriptorCorrupt,
+///     Timeout
+/// };
+///
+/// enum class HighLevel
+/// {
+///     FileDescriptorError,
+///     Timeout
+/// };
+///
+/// namespace iox
+/// {
+/// namespace cxx
+/// {
+/// template <>
+/// constexpr HighLevel from<LowLevel, HighLevel>(LowLevel e) noexcept
+/// {
+///     switch (e)
+///     {
+///     case LowLevel::FileDescriptorCorrupt:
+///         return HighLevel::FileDescriptorError;
+///     case LowLevel::FileDescriptorInvalid:
+///         return HighLevel::FileDescriptorError;
+///     case LowLevel::Timeout:
+///         return HighLevel::Timeout;
+///     }
+/// }
+/// } // namespace cxx
+/// } // namespace iox
+/// @endcode
+/// @tparam F is the 'from' type
+/// @tparam T is the 'to' type
+/// @param[in] value of type F to convert to T
+/// @return converted value of F to corresponding value of T
+template <typename F, typename T>
+constexpr T from(const F value) noexcept;
+
+/// @brief Converts a value of type F to a corresponding value of type T. This is a convenience function which is
+/// automatically available when `from` is implemented. This function shall therefore not be specialized but always the
+/// `from` function.
+/// @code
+/// Bar b = iox::cxx::into<Bar>(Foo::ENUM_VALUE);
+/// @endcode
+/// @tparam T is the 'to' type
+/// @tparam F is the 'from' type
+/// @param[in] value of type F to convert to T
+/// @return converted value of F to corresponding value of T
+template <typename T, typename F>
+constexpr T into(const F value) noexcept;
 
 } // namespace cxx
 } // namespace iox
