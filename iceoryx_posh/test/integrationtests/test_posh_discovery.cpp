@@ -35,9 +35,9 @@ namespace
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::cxx;
-using iox::roudi::RouDiEnvironment;
 using iox::capro::IdString_t;
 using iox::capro::ServiceDescription;
+using iox::roudi::RouDiEnvironment;
 using iox::runtime::ServiceContainer;
 
 class PoshDiscovery_test : public RouDi_GTest
@@ -71,7 +71,6 @@ class PoshDiscovery_test : public RouDi_GTest
     }
 
     iox::runtime::PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
-    iox::runtime::PoshRuntime* m_runtimeBob{&iox::runtime::PoshRuntime::initRuntime("Bob")}; // move to 2nd thread
     PoshDiscovery m_sut;
 };
 
@@ -145,8 +144,7 @@ TEST_F(PoshDiscovery_test, OfferServiceWithValidEventIdSucessfull)
 
 TEST_F(PoshDiscovery_test, OfferServiceWithInvalidEventIdFails)
 {
-    auto isServiceOffered =
-        m_sut.offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
+    auto isServiceOffered = m_sut.offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -418,8 +416,9 @@ TEST_F(PoshDiscovery_test, InterfacePort)
     EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    /// @todo call the c'tor of PoshRuntime from a different thread
-    auto interfacePortData = m_runtimeBob->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
+    /// @todo #415 call the c'tor of PoshRuntime from a different thread
+    iox::runtime::PoshRuntime* m_runtime2{&iox::runtime::PoshRuntime::initRuntime("Runtime2")};
+    auto interfacePortData = m_runtime2->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
     this->InterOpWait();
     bool serviceFound = false;
@@ -447,8 +446,7 @@ TEST_F(PoshDiscovery_test, findServiceMaxServices)
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
         std::string instance = "i" + iox::cxx::convert::toString(i);
-        EXPECT_TRUE(
-            m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
+        EXPECT_TRUE(m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         serviceContainerExp.push_back({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
         this->InterOpWait();
     }
@@ -467,8 +465,7 @@ TEST_F(PoshDiscovery_test, findServiceserviceContainerOverflowError)
     for (size_t i = 0; i < noOfInstances; i++)
     {
         std::string instance = "i" + iox::cxx::convert::toString(i);
-        EXPECT_TRUE(
-            m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
+        EXPECT_TRUE(m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         serviceContainerExp.push_back({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
         this->InterOpWait();
     }
