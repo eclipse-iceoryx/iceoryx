@@ -14,46 +14,42 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include]
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+//! [include]
 
 #include <iostream>
 
-bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
-
 int main()
 {
-    // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     // initialize runtime
+    //! [init]
+    constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    //! [init]
 
     // initialized subscriber
+    //! [subscriber]
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    //! [subscriber]
 
     // run until interrupted by Ctrl-C
-    while (!killswitch)
+    while (!iox::posix::hasTerminationRequested())
     {
+        //! [receive]
         auto takeResult = subscriber.take();
-
         if (!takeResult.has_error())
         {
             std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
         }
+        //! [receive]
         else
         {
+            //! [error]
             if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
             {
                 std::cout << "No chunk available." << std::endl;
@@ -62,9 +58,12 @@ int main()
             {
                 std::cout << "Error receiving chunk." << std::endl;
             }
+            //! [error]
         }
 
+        //! [wait]
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //! [wait]
     }
 
     return (EXIT_SUCCESS);

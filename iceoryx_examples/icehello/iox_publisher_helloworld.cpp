@@ -14,40 +14,45 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include topic]
 #include "topic_data.hpp"
+//! [include topic]
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+//! [include sig watcher]
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+//! [include sig watcher]
+
+//! [include]
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+//! [include]
 
 #include <iostream>
 
-bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
 
 int main()
 {
-    // Register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
+    //! [create runtime]
+    constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    //! [create runtime]
 
+    //! [create publisher]
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+    //! [create publisher]
 
     double ct = 0.0;
-    while (!killswitch)
+    //! [wait for term]
+    while (!iox::posix::hasTerminationRequested())
+    //! [wait for term]
     {
         ++ct;
 
         // Retrieve a sample from shared memory
+        //! [loan]
         auto loanResult = publisher.loan();
+        //! [loan]
+        //! [publish]
         if (!loanResult.has_error())
         {
             auto& sample = loanResult.value();
@@ -57,16 +62,20 @@ int main()
             sample->z = ct;
             sample.publish();
         }
+        //! [publish]
+        //! [error]
         else
         {
             auto error = loanResult.get_error();
             // Do something with error
             std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
         }
+        //! [error]
 
+        //! [msg]
         std::cout << APP_NAME << " sent value: " << ct << std::endl;
-
         std::this_thread::sleep_for(std::chrono::seconds(1));
+        //! [msg]
     }
 
     return 0;
