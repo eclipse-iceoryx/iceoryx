@@ -53,7 +53,7 @@ typedef struct
 ### Publisher Typed C++ API
 
 At first, there are includes for the user-header and user-payload types
-and the iceoryx includes for publisher, runtime and signal handling.
+and the iceoryx includes for publisher and runtime.
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [iceoryx includes] -->
 ```cpp
 #include "user_header_and_payload_types.hpp"
@@ -61,26 +61,6 @@ and the iceoryx includes for publisher, runtime and signal handling.
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-```
-
-The `main` function contains a loop which periodically sends a Fibonacci number.
-In order to break this loop, a signal handler is used which sets an atomic boolean.
-<!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [signal handling] -->
-```cpp
-std::atomic<bool> killswitch{false};
-
-static void sigHandler(int sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
-```
-
-The signal handler is registered in the `main` function.
-<!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [register sigHandler] -->
-```cpp
-auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 ```
 
 Next, the iceoryx runtime is initialized. With this call, the application will be registered at `RouDi`,
@@ -109,7 +89,7 @@ if you prefer a more traditional approach.
 uint64_t timestamp = 42;
 uint64_t fibonacciLast = 0;
 uint64_t fibonacciCurrent = 1;
-while (!killswitch)
+while (!iox::posix::hasTerminationRequested())
 {
     auto fibonacciNext = fibonacciCurrent + fibonacciLast;
     fibonacciLast = fibonacciCurrent;
@@ -255,7 +235,7 @@ The main loop is quite simple. The publisher is periodically polled and the data
 Again, the user-header is accessed by the dedicated method of the sample.
 <!-- [geoffrey] [iceoryx_examples/user_header/subscriber_cxx_api.cpp] [poll subscriber for samples in a loop] -->
 ```cpp
-while (!killswitch)
+while (!iox::posix::hasTerminationRequested())
 {
     subscriber.take().and_then([&](auto& sample) {
         std::cout << APP_NAME << " got value: " << sample->fibonacci << " with timestamp "
