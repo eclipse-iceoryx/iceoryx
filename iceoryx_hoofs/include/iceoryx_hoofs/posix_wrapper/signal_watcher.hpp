@@ -46,7 +46,6 @@ class SignalWatcher
     /// @brief Returns true when SIGTERM or SIGINT has occurred, otherwise false
     bool wasSignalTriggered() const noexcept;
 
-
   protected:
     SignalWatcher() noexcept;
 

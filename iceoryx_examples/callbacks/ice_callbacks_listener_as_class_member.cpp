@@ -32,6 +32,7 @@ constexpr char APP_NAME[] = "iox-cpp-callbacks-listener-as-class-member";
 class CounterService
 {
   public:
+    //! [ctor]
     CounterService()
         : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
         , m_subscriberRight({"Radar", "FrontRight", "Counter"})
@@ -59,11 +60,13 @@ class CounterService
                 std::exit(EXIT_FAILURE);
             });
     }
+    //! [ctor]
 
   private:
     /// This method has to be static since only c functions are allowed as callback.
     /// To gain access to the members and methods of CounterClass we provide as an additional argument the this pointer
     /// which is stored in self
+    //! [callback]
     static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterService* self)
     {
         subscriber->take().and_then([subscriber, self](auto& sample) {
@@ -92,21 +95,26 @@ class CounterService
             self->m_rightCache.reset();
         }
     }
+    //! [callback]
 
+    //! [members]
     iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
     iox::popo::Subscriber<CounterTopic> m_subscriberRight;
     iox::cxx::optional<CounterTopic> m_leftCache;
     iox::cxx::optional<CounterTopic> m_rightCache;
     iox::popo::Listener m_listener;
+    //! [members]
 };
 
 int main()
 {
+    //! [init]
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     CounterService counterService;
 
     iox::posix::waitForTerminationRequest();
+    //! [init]
 
     return (EXIT_SUCCESS);
 }
