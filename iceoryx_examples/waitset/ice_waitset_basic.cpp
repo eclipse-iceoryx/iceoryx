@@ -25,6 +25,7 @@
 #include <atomic>
 #include <iostream>
 
+//! [sig handler]
 bool keepRunning{true};
 iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
@@ -36,6 +37,7 @@ static void sigHandler(int sig IOX_MAYBE_UNUSED)
         waitset->markForDestruction();
     }
 }
+//! [sig handler]
 
 int main()
 {
@@ -43,6 +45,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-basic");
 
     // create waitset inside of the optional
+    //! [create waitset]
     waitset.emplace();
 
     // register signal handler to handle termination of the loop
@@ -57,7 +60,9 @@ int main()
         std::cerr << "failed to attach subscriber" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create waitset]
 
+    //! [mainloop]
     while (keepRunning)
     {
         // We block and wait for samples to arrive.
@@ -85,8 +90,10 @@ int main()
             }
         }
     }
+    //! [mainloop]
 
     std::cout << "shutting down" << std::endl;
 
+    waitset.reset();
     return (EXIT_SUCCESS);
 }

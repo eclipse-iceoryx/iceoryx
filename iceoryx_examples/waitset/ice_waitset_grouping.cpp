@@ -42,6 +42,7 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-grouping");
+    //! [create waitset]
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
@@ -49,21 +50,22 @@ int main()
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create waitset]
 
     // create subscriber and subscribe them to our service
+    //! [create subscribers]
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
-        auto& subscriber = subscriberVector.back();
-        // Ignore unused variable warning
-        (void)subscriber;
     }
+    //! [create subscribers]
 
     constexpr uint64_t FIRST_GROUP_ID = 123U;
     constexpr uint64_t SECOND_GROUP_ID = 456U;
 
     // attach the first two subscribers to waitset with a id of FIRST_GROUP_ID
+    //! [configure subscribers]
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
         waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
@@ -82,8 +84,9 @@ int main()
                 std::exit(EXIT_FAILURE);
             });
     }
+    //! [configure subscribers]
 
-    // event loop
+    //! [event loop 1]
     while (keepRunning)
     {
         auto notificationVector = waitset.wait();
@@ -94,7 +97,9 @@ int main()
             {
                 keepRunning = false;
             }
+            //! [event loop 1]
             // we print the received data for the first group
+            //! [event loop 2]
             else if (notification->getNotificationId() == FIRST_GROUP_ID)
             {
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
@@ -116,6 +121,7 @@ int main()
                 // instantly.
                 subscriber->releaseQueuedData();
             }
+            //! [event loop 2]
         }
 
         std::cout << std::endl;

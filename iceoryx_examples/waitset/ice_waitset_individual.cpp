@@ -40,6 +40,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-individual");
 
+    //! [create waitset]
     iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
@@ -47,8 +48,10 @@ int main()
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create waitset]
 
     // create two subscribers, subscribe to the service and attach them to the waitset
+    //! [create subscribers]
     iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
     iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
@@ -60,8 +63,9 @@ int main()
         std::cerr << "failed to attach subscriber2" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create subscribers]
 
-    // event loop
+    //! [event loop 1]
     while (keepRunning)
     {
         auto notificationVector = waitset.wait();
@@ -72,7 +76,9 @@ int main()
             {
                 keepRunning = false;
             }
+            //! [event loop 1]
             // process sample received by subscriber1
+            //! [event loop 2]
             else if (notification->doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then(
@@ -87,6 +93,7 @@ int main()
                 subscriber2.releaseQueuedData();
                 std::cout << "subscriber 2 received something - dont care\n";
             }
+            //! [event loop 2]
         }
 
         std::cout << std::endl;
