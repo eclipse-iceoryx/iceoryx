@@ -90,7 +90,7 @@ int main()
     // send a heartbeat every 4 seconds
     //! [create heartbeat]
     std::thread heartbeatThread([&] {
-        while (iox::posix::hasTerminationRequest())
+        while (iox::posix::hasTerminationRequested())
         {
             heartbeat.trigger();
             std::this_thread::sleep_for(std::chrono::seconds(4));

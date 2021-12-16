@@ -53,21 +53,21 @@ class SignalWatcher_test : public Test
 TEST_F(SignalWatcher_test, SignalWasNotTriggeredWhenNotTriggeredBefore)
 {
     EXPECT_FALSE(sut->wasSignalTriggered());
-    EXPECT_FALSE(hasTerminationRequest());
+    EXPECT_FALSE(hasTerminationRequested());
 }
 
 TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGINTWasTriggeredBefore)
 {
     raise(SIGINT);
     EXPECT_TRUE(sut->wasSignalTriggered());
-    EXPECT_TRUE(hasTerminationRequest());
+    EXPECT_TRUE(hasTerminationRequested());
 }
 
 TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGTERMWasTriggeredBefore)
 {
     raise(SIGTERM);
     EXPECT_TRUE(sut->wasSignalTriggered());
-    EXPECT_TRUE(hasTerminationRequest());
+    EXPECT_TRUE(hasTerminationRequested());
 }
 
 void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,

@@ -65,7 +65,7 @@ void waitForTerminationRequest() noexcept
     SignalWatcher::getInstance().waitForSignal();
 }
 
-bool hasTerminationRequest() noexcept
+bool hasTerminationRequested() noexcept
 {
     return SignalWatcher::getInstance().wasSignalTriggered();
 }

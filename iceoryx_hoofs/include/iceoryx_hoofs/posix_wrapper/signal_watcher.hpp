@@ -63,7 +63,7 @@ class SignalWatcher
 void waitForTerminationRequest() noexcept;
 
 /// @brief convenience function, calls SignalWatcher::getInstance().wasSignalTriggered();
-bool hasTerminationRequest() noexcept;
+bool hasTerminationRequested() noexcept;
 } // namespace posix
 } // namespace iox
 

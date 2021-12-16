@@ -32,7 +32,7 @@ void sending()
     iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
     iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
 
-    for (uint32_t counter = 0U; iox::posix::hasTerminationRequest(); ++counter)
+    for (uint32_t counter = 0U; !iox::posix::hasTerminationRequested(); ++counter)
     {
         if (counter % 3 == 0)
         {
