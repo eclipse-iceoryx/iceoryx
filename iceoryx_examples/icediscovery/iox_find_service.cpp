@@ -14,17 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-//! [include subscriber]
-#include "iceoryx_posh/popo/subscriber.hpp"
-//! [include subscriber]
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+//! [include poshdiscovery]
 #include "iceoryx_posh/runtime/posh_discovery.hpp"
+//! [include poshdiscovery]
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-subscriber";
+constexpr char APP_NAME[] = "iox-cpp-find-service";
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
@@ -41,36 +40,28 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::runtime::PoshDiscovery discoveryInfo;
-
-    //! [create subscriber]
-    iox::popo::Subscriber<uint32_t> subscriber({"Radar", "FrontLeft", "Object"});
-    //! [create subscriber]
+    iox::runtime::PoshDiscovery poshDiscovery;
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        subscriber
-            .take()
-            //! [sample happy path]
-            .and_then([](auto& sample) {
-                //! [print sample info]
-                std::cout << APP_NAME << " got value: " << sample << std::endl;
-                //! [print sample info]
-            })
-            //! [sample happy path]
-            .or_else([](auto& result) {
-                // only has to be called if the alternative is of interest,
-                // i.e. if nothing has to happen when no data is received and
-                // a possible error alternative is not checked or_else is not needed
-                if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+        poshDiscovery.findService(iox::capro::IdString_t("Radar"), iox::capro::IdString_t("FrontLeft"))
+            .and_then([](auto& serviceContainter) {
+                std::cout << "Searched for {'Radar', 'FrontLeft', '*'} and found the following events: ";
+                for (auto& service : serviceContainter)
                 {
-                    std::cout << "Error receiving chunk." << std::endl;
+                    std::cout << service << std::endl;
                 }
+            })
+            .or_else([](auto& error) {
+                std::cerr << "findService() call failed with: " << static_cast<uint64_t>(error) << std::endl;
             });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        // poshDiscovery.findService("VideoCamera", "FrontRight");
     }
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     return (EXIT_SUCCESS);
 }

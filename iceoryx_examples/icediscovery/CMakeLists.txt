@@ -27,20 +27,20 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-publisher ./iox_publisher.cpp)
-target_link_libraries(iox-cpp-publisher
+add_executable(iox-cpp-offer-service ./iox_offer_service.cpp)
+target_link_libraries(iox-cpp-offer-service
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-offer-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-cpp-subscriber ./iox_subscriber.cpp)
-target_link_libraries(iox-cpp-subscriber
+add_executable(iox-cpp-find-service ./iox_find_service.cpp)
+target_link_libraries(iox-cpp-find-service
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-cpp-subscriber
-                      iox-cpp-publisher
+set_target_properties(iox-cpp-find-service
+                      iox-cpp-offer-service
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -49,6 +49,6 @@ set_target_properties(iox-cpp-subscriber
 
 # ========================================================== //
 
-install(TARGETS iox-cpp-publisher
-                iox-cpp-subscriber
+install(TARGETS iox-cpp-offer-service
+                iox-cpp-find-service
         RUNTIME DESTINATION bin)

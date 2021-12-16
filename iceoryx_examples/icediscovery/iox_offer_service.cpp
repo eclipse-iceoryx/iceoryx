@@ -14,16 +14,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-//! [include publisher]
-#include "iceoryx_posh/popo/publisher.hpp"
-//! [include publisher]
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
+//! [include poshdiscovery]
+#include "iceoryx_posh/runtime/posh_discovery.hpp"
+//! [include poshdiscovery]
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-publisher";
+constexpr char APP_NAME[] = "iox-cpp-offer";
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
@@ -39,29 +40,19 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::runtime::PoshDiscovery discoveryInfo;
+    iox::runtime::PoshDiscovery poshDiscovery;
 
-    //! [create publisher]
-    iox::popo::Publisher<uint32_t> publisher({"Radar", "FrontLeft", "Object"});
-    //! [create publisher]
+    //! [offer by createing publisher]
+    iox::popo::Publisher<uint32_t> publisher({"Radar", "FrontLeft", "SequenceCounter"});
+    //! [offer by createing publisher]
 
-    uint32_t counter = 0;
-    while (!killswitch)
-    {
-        ++counter;
+    //! [direct offer]
+    poshDiscovery.offerService({"VideoCamera", "FrontRight", "SequenceCounter"});
+    //! [direct offer]
 
-        publisher.loan()
-            .and_then([&](auto& sample) {
-                sample = sampleValue;
-                sample.publish();
-            })
-            .or_else([](auto& error) {
-                // Do something with error
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-            });
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    // Publisher will go out of scope and call stopOffer() for the related service
 
     return 0;
 }

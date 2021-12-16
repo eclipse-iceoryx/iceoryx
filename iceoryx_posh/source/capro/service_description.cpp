@@ -233,5 +233,13 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
     return (first.getServiceIDString() == second.getServiceIDString());
 }
 
+std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service) noexcept
+{
+    /// @todo Add classHash, scope and interface
+    stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getServiceIDString()
+           << ", Event: " << service.getEventIDString();
+    return stream;
+}
+
 } // namespace capro
 } // namespace iox
