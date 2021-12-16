@@ -25,7 +25,7 @@
 #include <atomic>
 #include <iostream>
 
-std::atomic_bool keepRunning{true};
+bool keepRunning{true};
 iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
 static void sigHandler(int sig IOX_MAYBE_UNUSED)
@@ -58,7 +58,7 @@ int main()
         std::exit(EXIT_FAILURE);
     });
 
-    while (keepRunning.load())
+    while (keepRunning)
     {
         // We block and wait for samples to arrive.
         auto notificationVector = waitset->wait();

@@ -24,6 +24,7 @@
 #include <chrono>
 #include <iostream>
 
+bool keepRunning{true};
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
@@ -61,7 +62,7 @@ int main()
     });
 
     // event loop
-    while (true)
+    while (keepRunning)
     {
         auto notificationVector = waitset.wait();
 
@@ -69,8 +70,7 @@ int main()
         {
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
-                return (EXIT_SUCCESS);
+                keepRunning = false;
             }
             // process sample received by subscriber1
             else if (notification->doesOriginateFrom(&subscriber1))

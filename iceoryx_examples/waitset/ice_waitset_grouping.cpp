@@ -24,6 +24,7 @@
 #include <chrono>
 #include <iostream>
 
+bool keepRunning{true};
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
@@ -83,7 +84,7 @@ int main()
     }
 
     // event loop
-    while (true)
+    while (keepRunning)
     {
         auto notificationVector = waitset.wait();
 
@@ -91,8 +92,7 @@ int main()
         {
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
-                return (EXIT_SUCCESS);
+                keepRunning = false;
             }
             // we print the received data for the first group
             else if (notification->getNotificationId() == FIRST_GROUP_ID)

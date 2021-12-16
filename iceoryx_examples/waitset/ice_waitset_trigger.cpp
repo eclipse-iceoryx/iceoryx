@@ -22,6 +22,8 @@
 #include <iostream>
 #include <thread>
 
+std::atomic_bool keepRunning{true};
+
 // The two events the MyTriggerClass offers
 enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
 {
@@ -225,7 +227,7 @@ void callOnActivate(MyTriggerClass* const triggerClassPtr)
 // will work on the incoming notifications.
 void eventLoop()
 {
-    while (true)
+    while (keepRunning)
     {
         auto notificationVector = waitset->wait();
         for (auto& notification : notificationVector)
@@ -289,9 +291,15 @@ int main()
             std::this_thread::sleep_for(std::chrono::seconds(1));
             triggerClass->performAction();
         }
+
+        std::cout << "Sending final trigger" << std::endl;
+        keepRunning = false;
+        triggerClass->activate(activationCode++);
+        triggerClass->performAction();
     });
 
     triggerThread.join();
     eventLoopThread.join();
+    waitset.reset();
     return (EXIT_SUCCESS);
 }
