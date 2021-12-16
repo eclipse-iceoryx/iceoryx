@@ -20,19 +20,12 @@
 //! [include publisher]
 #include "iceoryx_posh/popo/publisher.hpp"
 //! [include publisher]
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 
-bool killswitch = false;
 constexpr char APP_NAME[] = "iox-cpp-publisher";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
 
 void getRadarObject(RadarObject* const object, const double& val) noexcept
 {
@@ -41,10 +34,6 @@ void getRadarObject(RadarObject* const object, const double& val) noexcept
 
 int main()
 {
-    // Register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     //! [create publisher]
@@ -52,7 +41,7 @@ int main()
     //! [create publisher]
 
     double ct = 0.0;
-    while (!killswitch)
+    while (!iox::posix::hasTerminationRequested())
     {
         ++ct;
         double sampleValue1 = ct + 89;
