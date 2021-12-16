@@ -16,27 +16,16 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 
-bool killswitch = false;
 constexpr char APP_NAME[] = "iox-cpp-subscriber-with-options";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
 
 int main()
 {
-    // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
@@ -44,30 +33,42 @@ int main()
     iox::popo::SubscriberOptions subscriberOptions;
 
     // the queue can hold 10 samples, on overflow the oldest sample will be replaced with the new arriving one
+    //! [queue capacity]
     subscriberOptions.queueCapacity = 10U;
+    //! [queue capacity]
 
     // When starting the subscriber late it will miss the first samples which the
     // publisher has send. The history request ensures that we at least get the last 5
     // samples sent by the publisher when we subscribe (if at least 5 were already sent
     // and the publisher has history enabled).
+    //! [history]
     subscriberOptions.historyRequest = 5U;
+    //! [history]
 
     // when the subscriber is created, no attempts are made to connect to any publishers that may exist
+    //! [subscribe on create]
     subscriberOptions.subscribeOnCreate = false;
+    //! [subscribe on create]
 
     // grouping of publishers and subscribers within a process
+    //! [node name]
     subscriberOptions.nodeName = "Sub_Node_With_Options";
+    //! [node name]
 
     // we request the publisher to wait for space in the queue if it is full. The publisher will be blocked then
+    //! [queue full policy]
     subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    //! [queue full policy]
 
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 
     // We have to explicitly call subscribe() otherwise the subscriber will not try to connect to publishers
+    //! [subscribe]
     subscriber.subscribe();
+    //! [subscribe]
 
     // run until interrupted by Ctrl-C
-    while (!killswitch)
+    while (!iox::posix::hasTerminationRequested())
     {
         subscriber.take().and_then(
             [](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; });
