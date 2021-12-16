@@ -235,8 +235,8 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
 
 std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service) noexcept
 {
-    /// @todo Add classHash, scope and interface
-    stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getServiceIDString()
+    /// @todo #415 Add classHash, scope and interface
+    stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getInstanceIDString()
            << ", Event: " << service.getEventIDString();
     return stream;
 }

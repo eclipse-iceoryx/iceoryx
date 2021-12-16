@@ -45,23 +45,40 @@ int main()
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
+        /// @todo #415 Instead of polling should we showcase the getServiceRegistryChangeCounter() or will that be
+        /// removed?
+
+        /// @todo #415 Why is the implicit conversion to cxx::variant not working?
         poshDiscovery.findService(iox::capro::IdString_t("Radar"), iox::capro::IdString_t("FrontLeft"))
             .and_then([](auto& serviceContainter) {
-                std::cout << "Searched for {'Radar', 'FrontLeft', '*'} and found the following events: ";
+                /// @todo #415 Maybe use some colors to beautify the output?
+                std::cout << "Searched for {'Radar', 'FrontLeft', '*'} and found the following events: " << std::endl;
                 for (auto& service : serviceContainter)
                 {
-                    std::cout << service << std::endl;
+                    std::cout << "  - " << service << std::endl;
                 }
+                std::cout << std::endl;
             })
             .or_else([](auto& error) {
                 std::cerr << "findService() call failed with: " << static_cast<uint64_t>(error) << std::endl;
             });
 
 
-        // poshDiscovery.findService("VideoCamera", "FrontRight");
+        poshDiscovery.findService(iox::capro::IdString_t("Radar"), iox::runtime::Wildcard_t())
+            .and_then([](auto& serviceContainter) {
+                std::cout << "Searched for {'Radar', '*', '*'} and found the following events: " << std::endl;
+                for (auto& service : serviceContainter)
+                {
+                    std::cout << "  - " << service << std::endl;
+                }
+                std::cout << std::endl;
+            })
+            .or_else([](auto& error) {
+                std::cerr << "findService() call failed with: " << static_cast<uint64_t>(error) << std::endl;
+            });
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     return (EXIT_SUCCESS);
 }

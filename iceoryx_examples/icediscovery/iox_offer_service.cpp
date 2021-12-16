@@ -42,13 +42,18 @@ int main()
 
     iox::runtime::PoshDiscovery poshDiscovery;
 
-    //! [offer by createing publisher]
-    iox::popo::Publisher<uint32_t> publisher({"Radar", "FrontLeft", "SequenceCounter"});
-    //! [offer by createing publisher]
+    //! [offer by creating publisher]
+    iox::capro::ServiceDescription radarServiceFrontLeft{"Radar", "FrontLeft", "SequenceCounter"};
+    iox::popo::Publisher<uint32_t> publisher(radarServiceFrontLeft);
+    //! [offer by creating publisher]
+    std::cout << "Created publisher with: " << radarServiceFrontLeft << std::endl;
+
 
     //! [direct offer]
-    poshDiscovery.offerService({"VideoCamera", "FrontRight", "SequenceCounter"});
+    iox::capro::ServiceDescription radarServiceFrontRight{"Radar", "FrontRight", "SequenceCounter"};
+    poshDiscovery.offerService(radarServiceFrontRight);
     //! [direct offer]
+    std::cout << "Offered service: " << radarServiceFrontRight << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
