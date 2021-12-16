@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    //! [config]
     iox::RouDiConfig_t roudiConfig;
 
     // Create Mempool Config
@@ -44,6 +45,7 @@ int main(int argc, char* argv[])
     // Parameters are {"ReaderGroup", "WriterGroup", MemoryPoolConfig}
     roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
     roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
+    //! [config]
 
     IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig);
 

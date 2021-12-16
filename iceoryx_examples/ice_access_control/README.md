@@ -76,6 +76,7 @@ See the [next chapter](#working-setup) for a detailed description on how to conf
 
 Do the following to configure shared memory segments when building a custom RouDi:
 
+<!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segements.cpp][config]-->
 ```cpp
 iox::RouDiConfig_t roudiConfig;
 
@@ -154,12 +155,14 @@ or write access to one of the shared memory segments. Hence, RouDi will print a 
 
 Despite having no read access, subscribers can still be created. <!-- @todo In this case no data will ever arrive.-->
 
+<!--[geoffrey][iceoryx_examples/ice_access_control/iox_cheeky_app.cpp][subscriber]-->
 ```cpp
 iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
 When creating and requesting a publisher RouDi will answer with an error, as there is no write access. Hence, an error will be printed and the cheeky app will stop.
 
+<!--[geoffrey][iceoryx_examples/ice_access_control/iox_cheeky_app.cpp][publisher]-->
 ```cpp
 iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
