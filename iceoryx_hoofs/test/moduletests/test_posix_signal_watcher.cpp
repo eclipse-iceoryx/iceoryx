@@ -28,6 +28,7 @@ class SignalWatcherTester : public SignalWatcher
 {
   public:
     SignalWatcherTester() = default;
+    using SignalWatcher::reset;
 };
 
 class SignalWatcher_test : public Test
@@ -35,17 +36,17 @@ class SignalWatcher_test : public Test
   public:
     void SetUp() override
     {
-        sut = static_cast<SignalWatcherTester*>(&SignalWatcher::getInstance());
-        sut->~SignalWatcherTester();
-        new (sut) SignalWatcherTester();
+        SignalWatcherTester::reset();
+        sut = &SignalWatcher::getInstance();
         watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown() override
     {
+        SignalWatcherTester::reset();
     }
 
-    SignalWatcherTester* sut;
+    SignalWatcher* sut = nullptr;
     Watchdog watchdog{iox::units::Duration::fromSeconds(2)};
     std::chrono::milliseconds waitingTime = std::chrono::milliseconds(10);
 };

@@ -27,6 +27,23 @@ namespace posix
 {
 /// @brief The SignalWatcher waits for SIGINT and SIGTERM. One can wait until the
 ///        signal has occurred or ask the watcher if it has occurred.
+/// @code
+///   // can be used to loop until SIGINT or SIGTERM has occurred
+///   #include <iceoryx_hoofs/posix/signal_watcher.hpp>
+///   void loopUntilTerminationRequested()
+///   {
+///       while(!iox::posix::hasTerminationRequested())
+///       {
+///           // your algorithm
+///       }
+///   }
+///
+///   // another possibility is to block until SIGINT or SIGTERM has occurred
+///   void blockUntilCtrlC() {
+///       // your objects which spawn threads
+///       iox::posix::waitForTerminationRequest();
+///   }
+/// @endcode
 class SignalWatcher
 {
   public:
@@ -48,6 +65,7 @@ class SignalWatcher
 
   protected:
     SignalWatcher() noexcept;
+    static void reset() noexcept;
 
   private:
     friend void internalSignalHandler(int) noexcept;

@@ -1,6 +1,21 @@
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-
+#include "iceoryx_hoofs/platform/unistd.hpp"
 
 namespace iox
 {
@@ -11,12 +26,13 @@ void internalSignalHandler(int) noexcept
     auto& instance = SignalWatcher::getInstance();
     instance.m_hasSignalOccurred.store(true);
 
-    for (uint64_t i = 0, currentNumberOfWaiter = instance.m_numberOfWaiters.load(); i < currentNumberOfWaiter; ++i)
+    for (uint64_t remainingNumberOfWaiters = instance.m_numberOfWaiters.load(); remainingNumberOfWaiters > 0;
+         --remainingNumberOfWaiters)
     {
         instance.m_semaphore.post().or_else([](auto) {
-            std::cerr << "Unable to increment semaphore in signal handler" << std::endl;
-            constexpr bool UNABLE_TO_INCREMENT_SEMAPHORE_IN_SIGNAL_HANDLER = false;
-            cxx::Ensures(UNABLE_TO_INCREMENT_SEMAPHORE_IN_SIGNAL_HANDLER);
+            constexpr const char MSG[] = "Unable to increment semaphore in signal handler";
+            write(STDERR_FILENO, MSG, sizeof(MSG));
+            std::abort();
         });
     }
 }
@@ -38,6 +54,13 @@ SignalWatcher& SignalWatcher::getInstance() noexcept
 {
     static SignalWatcher instance;
     return instance;
+}
+
+void SignalWatcher::reset() noexcept
+{
+    SignalWatcher* currentInstance = &getInstance();
+    currentInstance->~SignalWatcher();
+    new (currentInstance) SignalWatcher();
 }
 
 void SignalWatcher::waitForSignal() const noexcept
