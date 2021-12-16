@@ -25,6 +25,7 @@ transmit and receive data.
  1. We start by setting the log level to error since we do not want to see all the
     debug messages.
 
+    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][log level]-->
     ```cpp
     int main()
     {
@@ -37,6 +38,7 @@ transmit and receive data.
     management unit which handles how the memory is created in which the transmission
     data is stored. The `IceOryxRouDiComponents` class is handling them for us
 
+    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi config]-->
     ```cpp
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
@@ -47,6 +49,7 @@ transmit and receive data.
     terminate all registered processes when he goes out of scope. If we would set it
     to `true`, our application would self terminate when the destructor is called.
 
+    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi]-->
     ```cpp
     iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
                             roudiComponents.m_portManager,
@@ -57,6 +60,7 @@ transmit and receive data.
     to communicate within one process, you have to use `PoshRuntimeSingleProcess`.
     You can create only one runtime at a time!
 
+    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][runtime]-->
     ```cpp
     iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
     ```
@@ -64,6 +68,7 @@ transmit and receive data.
  5. Now that everything is up and running, we can start the publisher and subscriber
     thread, wait two seconds and stop the example.
 
+    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][run]-->
     ```cpp
     std::thread publisherThread(publisher), subscriberThread(subscriber);
 
@@ -88,23 +93,24 @@ for detailed documentation. We only provide you here with a short overview.
 We create a typed publisher with the following service description
 (Service = `Single`, Instance = `Process`, Event = `Demo`)
 
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][publisher]-->
 ```cpp
 iox::popo::PublisherOptions publisherOptions;
 publisherOptions.historyCapacity = 10U;
 iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
 ```
 
-After that, we are sending numbers in ascending order with a 100ms interval in a `while` loop till the
-variable `keepRunning` is false.
+After that, we are sending numbers in ascending order with a 100ms interval in a `while` loop.
 
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][send]-->
 ```cpp
 uint64_t counter{0};
-std::string greenRightArrow("\033[32m->\033[m ");
-while (keepRunning.load())
+constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
+while (!iox::posix::hasTerminationRequested())
 {
     publisher.loan().and_then([&](auto& sample) {
         sample->counter = counter++;
-        consoleOutput(std::string("Sending   " + greenRightArrow + iox::cxx::convert::toString(sample->counter)));
+        consoleOutput("Sending   ", GREEN_RIGHT_ARROW, sample->counter);
         sample.publish();
     });
 
@@ -117,6 +123,7 @@ while (keepRunning.load())
 Like with the publisher, we are creating a corresponding subscriber port with the
 same service description.
 
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][subscriber]-->
 ```cpp
     iox::popo::SubscriberOptions options;
     options.queueCapacity = 10U;
@@ -127,9 +134,10 @@ same service description.
 Now we can receive the data in a while loop till `keepRunning` is false. But we
 only try to acquire data if our `SubscribeState` is `SUBSCRIBED`.
 
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][receive]-->
 ```cpp
-std::string orangeLeftArrow("\033[33m<-\033[m ");
-while (keepRunning.load())
+constexpr const char ORANGE_LEFT_ARROW[] = "\033[33m<-\033[m ";
+while (!iox::posix::hasTerminationRequested())
 {
     if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
     {
@@ -138,11 +146,14 @@ while (keepRunning.load())
         do
         {
             subscriber.take()
-                .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
-                    consoleOutput(std::string("Receiving " + orangeLeftArrow + iox::cxx::convert::toString(sample->counter)));
-                })
-                .if_empty([&] { hasMoreSamples = false; })
-                .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
+                .and_then([&](auto& sample) { consoleOutput("Receiving ", ORANGE_LEFT_ARROW, sample->counter); })
+                .or_else([&](auto& result) {
+                    hasMoreSamples = false;
+                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                    {
+                        std::cout << "Error receiving chunk." << std::endl;
+                    }
+                });
         } while (hasMoreSamples);
     }
 
