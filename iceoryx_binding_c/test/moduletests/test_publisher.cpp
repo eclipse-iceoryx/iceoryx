@@ -275,9 +275,9 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    std::vector<SharedChunk> chunkBucket;
+    std::vector<SharedChunk> chunkStore;
     while (!m_memoryManager.getChunk(chunkSettings)
-                .and_then([&](auto& chunk) { chunkBucket.emplace_back(chunk); })
+                .and_then([&](auto& chunk) { chunkStore.emplace_back(chunk); })
                 .has_error())
     {
     }
