@@ -24,7 +24,7 @@
 #include <chrono>
 #include <iostream>
 
-bool keepRunning{true};
+std::atomic_bool keepRunning{true};
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
@@ -86,20 +86,21 @@ int main()
     }
     //! [configure subscribers]
 
-    //! [event loop 1]
+    //! [event loop]
     while (keepRunning)
     {
         auto notificationVector = waitset.wait();
 
         for (auto& notification : notificationVector)
         {
+            //! [shutdown path]
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 keepRunning = false;
             }
-            //! [event loop 1]
+            //! [shutdown path]
             // we print the received data for the first group
-            //! [event loop 2]
+            //! [data path]
             else if (notification->getNotificationId() == FIRST_GROUP_ID)
             {
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
@@ -121,11 +122,12 @@ int main()
                 // instantly.
                 subscriber->releaseQueuedData();
             }
-            //! [event loop 2]
+            //! [data path]
         }
 
         std::cout << std::endl;
     }
+    //! [event loop]
 
     return (EXIT_SUCCESS);
 }

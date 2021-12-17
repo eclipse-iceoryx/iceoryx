@@ -74,7 +74,7 @@ Next thing is a `heartbeatThread` which will trigger our heartbeat trigger every
 <!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][create heartbeat]-->
 ```cpp
 std::thread heartbeatThread([&] {
-    while (keepRunning)
+    while (!iox::posix::hasTerminationRequested())
     {
         heartbeat.trigger();
         std::this_thread::sleep_for(std::chrono::seconds(4));
@@ -90,28 +90,28 @@ callback (`heartbeatCallback`).
 
 <!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][attach everything]-->
 ```cpp
-listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback))
-        .or_else([](auto) {
-            std::cerr << "unable to attach heartbeat event" << std::endl;
-            std::exit(EXIT_FAILURE);
+listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback)).or_else([](auto) {
+    std::cerr << "unable to attach heartbeat event" << std::endl;
+    std::exit(EXIT_FAILURE);
 });
-
-listener.attachEvent(subscriberLeft,
-                     iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
-    .or_else([](auto) {
-        std::cerr << "unable to attach subscriberLeft" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
 
 // It is possible to attach any c function here with a signature of void(iox::popo::Subscriber<CounterTopic> *).
 // But please be aware that the listener does not take ownership of the callback, therefore it has to exist as
 // long as the event is attached. Furthermore, it excludes lambdas which are capturing data since they are not
 // convertable to a c function pointer.
 // to simplify the example we attach the same callback onSampleReceivedCallback again
-listener.attachEvent(subscriberRight,
-                     iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
+listener
+    .attachEvent(subscriberLeft,
+                 iox::popo::SubscriberEvent::DATA_RECEIVED,
+                 iox::popo::createNotificationCallback(onSampleReceivedCallback))
+    .or_else([](auto) {
+        std::cerr << "unable to attach subscriberLeft" << std::endl;
+        std::exit(EXIT_FAILURE);
+    });
+listener
+    .attachEvent(subscriberRight,
+                 iox::popo::SubscriberEvent::DATA_RECEIVED,
+                 iox::popo::createNotificationCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberRight" << std::endl;
         std::exit(EXIT_FAILURE);
@@ -170,7 +170,7 @@ sample and check which subscriber signaled the event by acquiring the subscriber
 service description. If the instance is equal to `FrontLeft` we store the sample
 in the `leftCache` otherwise in the `rightCache`.
 
-<!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][subscriber callback]-->
+<!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][[subscriber callback][get data]]-->
 ```cpp
 void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
@@ -186,14 +186,23 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
         {
             rightCache.emplace(*sample);
         }
+
+        std::cout << "received: " << sample->counter << std::endl;
+    });
+    // ...
+}
 ```
 
 In the next step, we check if both caches are filled. If this is the case, we print
 an extra message which states the result of the sum of both received values.
 Afterward, we reset both caches to start fresh again.
 
-<!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][fill cache]-->
+<!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][[subscriber callback][process data]]-->
 ```cpp
+void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
+{
+    // ...
+    // if both caches are filled we can process them
     if (leftCache && rightCache)
     {
         std::cout << "Received samples from FrontLeft and FrontRight. Sum of " << leftCache->counter << " + "
@@ -201,6 +210,7 @@ Afterward, we reset both caches to start fresh again.
         leftCache.reset();
         rightCache.reset();
     }
+}
 ```
 
 ### Additional context data for callbacks (ice_callbacks_listener_as_class_member.cpp)
@@ -259,10 +269,12 @@ CounterService()
     : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
     , m_subscriberRight({"Radar", "FrontRight", "Counter"})
 {
-    /// Attach the static method onSampleReceivedCallback and provide "*this" as additional argument
+    /// Attach the static method onSampleReceivedCallback and provide this as additional argument
     /// to the callback to gain access to the object whenever the callback is called.
     /// It is not possible to use a lambda with capturing here since they are not convertable to
     /// a C function pointer.
+    /// important: the user has to ensure that the contextData (*this) lives as long as
+    ///            the subscriber with its callback is attached to the listener
     m_listener
         .attachEvent(m_subscriberLeft,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
@@ -290,8 +302,7 @@ argument, the pointer to the object itself, called `self`.
 
 <!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_listener_as_class_member.cpp][callback]-->
 ```cpp
-static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber,
-                                     CounterService* self)
+static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterService* self)
 {
     subscriber->take().and_then([subscriber, self](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();

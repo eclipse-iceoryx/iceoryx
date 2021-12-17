@@ -31,7 +31,7 @@ void internalSignalHandler(int) noexcept
     {
         instance.m_semaphore.post().or_else([](auto) {
             constexpr const char MSG[] = "Unable to increment semaphore in signal handler";
-            write(STDERR_FILENO, MSG, sizeof(MSG));
+            IOX_DISCARD_RESULT(write(STDERR_FILENO, MSG, sizeof(MSG)));
             std::abort();
         });
     }

@@ -38,6 +38,8 @@ struct TransmissionData_t
     uint64_t counter;
 };
 
+constexpr std::chrono::milliseconds CYCLE_TIME{100};
+
 void consoleOutput(const char* source, const char* arrow, const uint64_t counter)
 {
     static std::mutex consoleOutputMutex;
@@ -65,7 +67,7 @@ void publisher()
             sample.publish();
         });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(CYCLE_TIME);
     }
     //! [send]
 }
@@ -101,15 +103,15 @@ void subscriber()
             } while (hasMoreSamples);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(CYCLE_TIME);
     }
     //! [receive]
 }
 
-//! [log level]
 int main()
 {
     // set the log level to error to see the essence of the example
+    //! [log level]
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
     //! [log level]
 
@@ -134,7 +136,7 @@ int main()
 
     while (!iox::posix::hasTerminationRequested())
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(CYCLE_TIME);
     }
 
     publisherThread.join();

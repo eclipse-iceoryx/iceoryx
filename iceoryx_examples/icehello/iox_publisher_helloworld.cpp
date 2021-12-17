@@ -32,10 +32,10 @@
 
 int main()
 {
-    //! [create runtime]
+    //! [initialize runtime]
     constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
-    //! [create runtime]
+    //! [initialize runtime]
 
     //! [create publisher]
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});

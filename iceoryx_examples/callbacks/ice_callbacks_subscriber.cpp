@@ -42,6 +42,7 @@ void heartbeatCallback(iox::popo::UserTrigger*)
 //! [subscriber callback]
 void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
+    //! [get data]
     subscriber->take().and_then([subscriber](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
 
@@ -54,12 +55,12 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
         {
             rightCache.emplace(*sample);
         }
-        //! [subscriber callback]
 
         std::cout << "received: " << sample->counter << std::endl;
     });
+    //! [get data]
 
-    //! [fill cache]
+    //! [process data]
     // if both caches are filled we can process them
     if (leftCache && rightCache)
     {
@@ -68,8 +69,9 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
         leftCache.reset();
         rightCache.reset();
     }
-    //! [fill cache]
+    //! [process data]
 }
+//! [subscriber callback]
 
 int main()
 {

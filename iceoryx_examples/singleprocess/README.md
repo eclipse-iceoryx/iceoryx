@@ -25,62 +25,60 @@ transmit and receive data.
  1. We start by setting the log level to error since we do not want to see all the
     debug messages.
 
-    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][log level]-->
-    ```cpp
-    int main()
-    {
-        // set the log level to error to see the essence of the example
-        iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
-    ```
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][log level]-->
+```cpp
+iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+```
 
  2. To start RouDi we have to create a configuration for him. We are choosing the
     default config. Additionally, RouDi needs some other components like a memory
     management unit which handles how the memory is created in which the transmission
     data is stored. The `IceOryxRouDiComponents` class is handling them for us
 
-    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi config]-->
-    ```cpp
-    iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-    iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
-    ```
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi config]-->
+```cpp
+iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
+iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+```
 
  3. We are starting RouDi and provide him with the required components. Furthermore, we
     disable monitoring. The last bool parameter `false` states that RouDi does not
     terminate all registered processes when he goes out of scope. If we would set it
     to `true`, our application would self terminate when the destructor is called.
 
-    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi]-->
-    ```cpp
-    iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
-                            roudiComponents.m_portManager,
-                            iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
-    ```
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi]-->
+```cpp
+iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager,
+                        roudiComponents.portManager,
+                        iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
+```
 
  4. Here comes a key difference to an inter-process application. If you would like
     to communicate within one process, you have to use `PoshRuntimeSingleProcess`.
     You can create only one runtime at a time!
 
-    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][runtime]-->
-    ```cpp
-    iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
-    ```
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][runtime]-->
+```cpp
+iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
+```
 
  5. Now that everything is up and running, we can start the publisher and subscriber
     thread, wait two seconds and stop the example.
 
-    <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][run]-->
-    ```cpp
-    std::thread publisherThread(publisher), subscriberThread(subscriber);
+<!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][run]-->
+```cpp
+std::thread publisherThread(publisher), subscriberThread(subscriber);
 
-    // communicate for 2 seconds and then stop the example
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    keepRunning.store(false);
+while (!iox::posix::hasTerminationRequested())
+{
+    std::this_thread::sleep_for(CYCLE_TIME);
+}
 
-    publisherThread.join();
-    subscriberThread.join();
+publisherThread.join();
+subscriberThread.join();
 
-    std::cout << "Finished" << std::endl;
-    ```
+std::cout << "Finished" << std::endl;
+```
 
 ### Implementation of Publisher and Subscriber
 
@@ -114,7 +112,7 @@ while (!iox::posix::hasTerminationRequested())
         sample.publish();
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(CYCLE_TIME);
 }
 ```
 
@@ -125,10 +123,10 @@ same service description.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][subscriber]-->
 ```cpp
-    iox::popo::SubscriberOptions options;
-    options.queueCapacity = 10U;
-    options.historyRequest = 5U;
-    iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
+iox::popo::SubscriberOptions options;
+options.queueCapacity = 10U;
+options.historyRequest = 5U;
+iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 ```
 
 Now we can receive the data in a while loop till `keepRunning` is false. But we
@@ -157,7 +155,7 @@ while (!iox::posix::hasTerminationRequested())
         } while (hasMoreSamples);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(CYCLE_TIME);
 }
 ```
 

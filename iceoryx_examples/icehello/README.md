@@ -42,7 +42,7 @@ Next up, we include the publisher and the runtime:
 
 We create a runtime object to communicate with the RouDi daemon. We use a unique string for identifying our application:
 
-<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][create runtime]-->
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][initialize runtime]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -131,7 +131,7 @@ The subscriber needs to have similar includes, but unlike the publisher `subscri
 
 As well as the publisher, also the subscriber needs to register with the daemon RouDi:
 
-<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][init]-->
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][initialize runtime]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -139,7 +139,7 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
 Next, the subscriber object is created, again passing the topic type `RadarObject` as template parameter:
 
-<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][subscriber]-->
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][initialize subscriber]-->
 ```cpp
 iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 ```

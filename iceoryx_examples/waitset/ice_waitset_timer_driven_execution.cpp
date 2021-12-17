@@ -82,30 +82,32 @@ int main()
     });
     //! [cyclic thread]
 
-    //! [event loop 1]
+    //! [event loop]
     while (keepRunning.load())
     {
         auto notificationVector = waitset.wait();
 
         for (auto& notification : notificationVector)
         {
+            //! [shutdown path]
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
             }
-            //! [event loop 1]
-            //! [event loop 2]
+            //! [shutdown path]
+            //! [data path]
             else
             {
                 // call SomeClass::myCyclicRun
                 (*notification)();
             }
-            //! [event loop 2]
+            //! [data path]
         }
 
         std::cout << std::endl;
     }
+    //! [event loop]
 
     cyclicTriggerThread.join();
     return (EXIT_SUCCESS);

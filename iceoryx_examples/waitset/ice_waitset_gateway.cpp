@@ -24,7 +24,7 @@
 #include <chrono>
 #include <iostream>
 
-bool keepRunning{true};
+std::atomic_bool keepRunning{true};
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)

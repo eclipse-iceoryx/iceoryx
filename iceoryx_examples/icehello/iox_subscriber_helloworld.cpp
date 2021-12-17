@@ -26,16 +26,14 @@
 
 int main()
 {
-    // initialize runtime
-    //! [init]
+    //! [initialize runtime]
     constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
-    //! [init]
+    //! [initialize runtime]
 
-    // initialized subscriber
-    //! [subscriber]
+    //! [initialize subscriber]
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
-    //! [subscriber]
+    //! [initialize subscriber]
 
     // run until interrupted by Ctrl-C
     while (!iox::posix::hasTerminationRequested())
