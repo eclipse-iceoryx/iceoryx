@@ -57,13 +57,6 @@ SignalWatcher& SignalWatcher::getInstance() noexcept
     return instance;
 }
 
-void SignalWatcher::reset() noexcept
-{
-    SignalWatcher* currentInstance = &getInstance();
-    currentInstance->~SignalWatcher();
-    new (currentInstance) SignalWatcher();
-}
-
 void SignalWatcher::waitForSignal() const noexcept
 {
     ++m_numberOfWaiters;

@@ -466,40 +466,28 @@ The remaining part of the loop is handling the subscribers. In the first group
 we would like to print the received data to the console and in the second group
 we just dismiss the received data.
 
-<!--[geoffrey][iceoryx_examples/waitset/ice_waitset_grouping.cpp][[event loop][data path]]-->
+<!--[geoffrey][iceoryx_examples/waitset/ice_waitset_grouping.cpp][data path]-->
 ```cpp
-while (keepRunning)
+else if (notification->getNotificationId() == FIRST_GROUP_ID)
 {
-    auto notificationVector = waitset.wait();
-
-    for (auto& notification : notificationVector)
-    {
-        // ...
-        // we print the received data for the first group
-        else if (notification->getNotificationId() == FIRST_GROUP_ID)
-        {
-            auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
-            subscriber->take().and_then([&](auto& userPayload) {
-                const CounterTopic* data = static_cast<const CounterTopic*>(userPayload);
-                auto flags = std::cout.flags();
-                std::cout << "received: " << std::dec << data->counter << std::endl;
-                std::cout.setf(flags);
-                subscriber->release(userPayload);
-            });
-        }
-        // dismiss the received data for the second group
-        else if (notification->getNotificationId() == SECOND_GROUP_ID)
-        {
-            std::cout << "dismiss data\n";
-            auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
-            // We need to release the data to reset the trigger hasData
-            // otherwise the WaitSet would notify us in `waitset.wait()` again
-            // instantly.
-            subscriber->releaseQueuedData();
-        }
-    }
-
-    std::cout << std::endl;
+    auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
+    subscriber->take().and_then([&](auto& userPayload) {
+        const CounterTopic* data = static_cast<const CounterTopic*>(userPayload);
+        auto flags = std::cout.flags();
+        std::cout << "received: " << std::dec << data->counter << std::endl;
+        std::cout.setf(flags);
+        subscriber->release(userPayload);
+    });
+}
+// dismiss the received data for the second group
+else if (notification->getNotificationId() == SECOND_GROUP_ID)
+{
+    std::cout << "dismiss data\n";
+    auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
+    // We need to release the data to reset the trigger hasData
+    // otherwise the WaitSet would notify us in `waitset.wait()` again
+    // instantly.
+    subscriber->releaseQueuedData();
 }
 ```
 

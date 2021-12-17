@@ -65,7 +65,6 @@ class SignalWatcher
 
   protected:
     SignalWatcher() noexcept;
-    static void reset() noexcept;
 
   private:
     friend void internalSignalHandler(int) noexcept;

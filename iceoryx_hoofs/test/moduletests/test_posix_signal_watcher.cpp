@@ -28,7 +28,12 @@ class SignalWatcherTester : public SignalWatcher
 {
   public:
     SignalWatcherTester() = default;
-    using SignalWatcher::reset;
+    static void reset() noexcept
+    {
+        SignalWatcher* currentInstance = &getInstance();
+        currentInstance->~SignalWatcher();
+        new (currentInstance) SignalWatcherTester();
+    }
 };
 
 class SignalWatcher_test : public Test

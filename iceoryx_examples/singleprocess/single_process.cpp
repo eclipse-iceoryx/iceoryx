@@ -134,10 +134,7 @@ int main()
     //! [run]
     std::thread publisherThread(publisher), subscriberThread(subscriber);
 
-    while (!iox::posix::hasTerminationRequested())
-    {
-        std::this_thread::sleep_for(CYCLE_TIME);
-    }
+    iox::posix::waitForTerminationRequest();
 
     publisherThread.join();
     subscriberThread.join();
