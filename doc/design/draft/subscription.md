@@ -12,7 +12,7 @@ massively slow down (caused by deadlock discovery) or crash RouDi.
 
 ## Terminology
 
-- **ChunkHistory** the last N samples which the publishers of a service have
+- **ChunkHistory** the last N samples which the publishers of a topic have
    published
 - **HistorySize** the number of samples the subscriber will receive at most on
    subscription
@@ -35,7 +35,7 @@ application which holds a lock and dies which would lead to a deadlock in RouDi.
 
 ### Subscribing without concurrent send
 
-Let's assume a subscriber S would like to subscribe to a service which has two
+Let's assume a subscriber S would like to subscribe to a topic which has two
 publishers P1 and P2. Furthermore, we assume that P1 and P2 have send the
 following samples:
 
@@ -47,7 +47,7 @@ following samples:
 | P1        | 31        | D      | | P2        | 40        | I      |
 | P1        | 41        | E      | | P2        | 42        | J      |
 
-Let's assume the subscriber subscribes to the service.
+Let's assume the subscriber subscribes to the topic.
 
 #### Subscription with _HistorySize_ 0
 
@@ -101,7 +101,7 @@ requests always a _HistorySize_ of 2.
 All the listed cases should behave identical if there is more then one
 concurrent publish in progress.
 
-#### Publisher before _DeliveryTime_
+#### Subscription before _DeliveryTime_
 
 The subscriber cache contains two samples.
 
@@ -112,7 +112,7 @@ The subscriber cache contains two samples.
 
 The sample K will be delivered after successful subscription.
 
-#### Publisher after _DeliveryTime_
+#### Subscription after _DeliveryTime_
 
 The subscriber cache contains two samples.
 
@@ -125,9 +125,9 @@ The sample K will not be delivered by the publisher since the _DeliveryTime_
 is defined as exactly the timepoint after the sample is placed into the ChunkHistory
 and the subscriber cache is based on that ChunkHistory.
 
-### Subscribing After Publisher Stops Offering
+### Subscription After Publisher Stops Offering
 
-In this case we assume that publisher P1 has stopped offering the service
+In this case we assume that publisher P1 has stopped offering the topic
 before the subscription was requested.
 
 #### Subscription with _HistorySize_ 4
@@ -152,12 +152,47 @@ The subscriber cache contains the four samples ordered after _DeliveryTime_.
     and lock-free manner.
 - A publisher delivers a sample by writing that sample into the shared ring-buffer.
 - Every subscriber owns an index to their own read position of the ring-buffer.
-- On subscription the subscriber will acquire a const reference to the ring-buffer.
+- On subscription the subscriber will acquire a const relocatable pointer to the ring-buffer.
 - When subscriber acquires a sample with take, the shared-chunk is copied from
     the index position and the index is incremented.
 - When the publisher delivers a sample it will verify all subscriber indices.
    If a subscriber `index > ring-buffer-head - subscriberHistorySize` the index
    is incremented.
+
+#### Alternative Ring Buffer Idea
+
+The history ring buffer interface could look like:
+```cpp
+template<typename T, uint64_t Capacity>
+class RingBuffer {
+  public:
+    struct ReadResult {
+      uint64_t currentPushCounter
+      cxx::vector<T, Capacity> contents;
+    };
+
+    ReadResult read(const uint64_t numberOfSamples, const uint64_t lastPushCounter);
+
+    // another idea would to state readOldest or readNewest
+    ReadResult readOldest(const uint64_t numberOfSamples, const uint64_t lastPushCounter);
+    ReadResult readNewest(const uint64_t numberOfSamples, const uint64_t lastPushCounter);
+    // idea end
+
+    cxx::optional<T> push(const T & value);
+};
+```
+
+The publisher would use it as before and just calls `push` for every sample it delivers.
+With every push the `uint64_t` push counter is incremented (it is something similar to
+an aba counter).
+When some subscriber would like to read something it calls `read` and provides the
+number of samples it would like to read and the last known push counter. Thanks to the
+last known push counter the RingBuffer knows exactly which samples weren't read yet and
+it can return the oldest `numberOfSamples` which are closest to the `lastPushCounter`.
+Additionally, it would return the `pushCounter` of the next sample which comes directly
+after the last sample the reader just read.
+
+In the first approach we can ensure the thread safety with `smart_lock`.
 
 #### Open Points
 
@@ -168,7 +203,7 @@ The subscriber cache contains the four samples ordered after _DeliveryTime_.
   the size has to be defined via some service subscription options.
 - Who owns the ring-buffer? Since it is shared between multiple publishers and
   a subscriber should be able to read samples after all publisher have stopped
-  offering the service, the ring-buffer should be owned by the service?
+  offering the topic, the ring-buffer should be owned by the topic?
 
 ### Considerations
 
