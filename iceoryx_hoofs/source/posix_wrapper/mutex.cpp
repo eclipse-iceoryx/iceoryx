@@ -30,29 +30,29 @@ mutex::mutex(bool f_isRecursive) noexcept
 {
     pthread_mutexattr_t attr;
     bool isInitialized{true};
-    isInitialized &= !posixCall(pthread_mutexattr_init)(&attr).successReturnValue(0).evaluate().has_error();
+    isInitialized &= !posixCall(pthread_mutexattr_init)(&attr).returnValueMatchesErrno().evaluate().has_error();
     isInitialized &= !posixCall(pthread_mutexattr_setpshared)(&attr, PTHREAD_PROCESS_SHARED)
-                          .successReturnValue(0)
+                          .returnValueMatchesErrno()
                           .evaluate()
                           .has_error();
     isInitialized &=
         !posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
-             .successReturnValue(0)
+             .returnValueMatchesErrno()
              .evaluate()
              .has_error();
     isInitialized &= !posixCall(pthread_mutexattr_setprotocol)(&attr, PTHREAD_PRIO_NONE)
-                          .successReturnValue(0)
+                          .returnValueMatchesErrno()
                           .evaluate()
                           .has_error();
-    isInitialized &= !posixCall(pthread_mutex_init)(&m_handle, &attr).successReturnValue(0).evaluate().has_error();
-    isInitialized &= !posixCall(pthread_mutexattr_destroy)(&attr).successReturnValue(0).evaluate().has_error();
+    isInitialized &= !posixCall(pthread_mutex_init)(&m_handle, &attr).returnValueMatchesErrno().evaluate().has_error();
+    isInitialized &= !posixCall(pthread_mutexattr_destroy)(&attr).returnValueMatchesErrno().evaluate().has_error();
 
     cxx::Ensures(isInitialized && "Unable to create mutex");
 }
 
 mutex::~mutex() noexcept
 {
-    auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).successReturnValue(0).evaluate();
+    auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).returnValueMatchesErrno().evaluate();
 
     cxx::Ensures(!destroyCall.has_error() && "Could not destroy mutex");
 }
@@ -65,12 +65,12 @@ pthread_mutex_t mutex::get_native_handle() const noexcept
 
 bool mutex::lock() noexcept
 {
-    return !posixCall(pthread_mutex_lock)(&m_handle).successReturnValue(0).evaluate().has_error();
+    return !posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate().has_error();
 }
 
 bool mutex::unlock() noexcept
 {
-    return !posixCall(pthread_mutex_unlock)(&m_handle).successReturnValue(0).evaluate().has_error();
+    return !posixCall(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate().has_error();
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
