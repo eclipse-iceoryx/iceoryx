@@ -24,21 +24,6 @@
 
 uint64_t globalCounter{0U};
 
-namespace iox
-{
-namespace cxx
-{
-template <>
-struct ErrorTypeAdapter<uint64_t>
-{
-    static uint64_t getInvalidState()
-    {
-        return 0;
-    };
-};
-} // namespace cxx
-} // namespace iox
-
 template <uint64_t Size>
 struct LargeObject
 {

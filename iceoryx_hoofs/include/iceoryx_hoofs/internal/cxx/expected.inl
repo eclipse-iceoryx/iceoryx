@@ -25,14 +25,6 @@ namespace cxx
 {
 namespace internal
 {
-template <typename T, typename>
-struct HasInvalidStateMember : std::false_type
-{
-};
-template <typename T>
-struct HasInvalidStateMember<T, iox::cxx::void_t<decltype(T::INVALID_STATE)>> : std::true_type
-{
-};
 template <typename... T>
 struct IsOptional : std::false_type
 {
@@ -42,11 +34,6 @@ struct IsOptional<iox::cxx::optional<T>> : std::true_type
 {
 };
 } // namespace internal
-template <typename T>
-inline T ErrorTypeAdapter<T>::getInvalidState() noexcept
-{
-    return T::INVALID_STATE;
-}
 
 template <typename T>
 inline success<T>::success(const T& t) noexcept
@@ -136,8 +123,6 @@ expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) 
     {
         m_store = std::move(rhs.m_store);
         m_hasError = std::move(rhs.m_hasError);
-        rhs.m_store.template emplace_at_index<ERROR_INDEX>(ErrorTypeAdapter<ErrorType>::getInvalidState());
-        rhs.m_hasError = true;
     }
     return *this;
 }
@@ -389,8 +374,6 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&&
     {
         m_store = std::move(rhs.m_store);
         m_hasError = rhs.m_hasError;
-        rhs.m_store = ErrorTypeAdapter<ErrorType>::getInvalidState();
-        rhs.m_hasError = true;
     }
     return *this;
 }

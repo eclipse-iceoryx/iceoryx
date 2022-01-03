@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,39 +60,54 @@ struct TestClass
     int m_b;
 };
 
-} // namespace
-
-namespace iox
+struct NonTrivialTestClass
 {
-namespace cxx
-{
-template <>
-struct ErrorTypeAdapter<TestClass>
-{
-    static TestClass getInvalidState()
+    NonTrivialTestClass(int a, int b)
+        : m_a(a)
+        , m_b(b)
     {
-        return TestClass(-1, -1);
     }
+
+    NonTrivialTestClass(const NonTrivialTestClass& other)
+    {
+        *this = other;
+    }
+    NonTrivialTestClass(NonTrivialTestClass&& other)
+    {
+        *this = std::move(other);
+    }
+
+    NonTrivialTestClass& operator=(const NonTrivialTestClass& rhs)
+    {
+        if (this != &rhs)
+        {
+            m_a = rhs.m_a;
+            m_b = rhs.m_b;
+            m_moved = rhs.m_moved;
+        }
+        return *this;
+    }
+
+    NonTrivialTestClass& operator=(NonTrivialTestClass&& rhs)
+    {
+        if (this != &rhs)
+        {
+            m_a = rhs.m_a;
+            m_b = rhs.m_b;
+            m_moved = rhs.m_moved;
+            rhs.m_moved = true;
+        }
+        return *this;
+    }
+
+    int m_a{0};
+    int m_b{0};
+    bool m_moved{false};
 };
 
-template <>
-struct ErrorTypeAdapter<std::string>
-{
-    static std::string getInvalidState()
-    {
-        return std::string("IAmInvalid");
-    }
-};
-} // namespace cxx
-} // namespace iox
-
-namespace
-{
 class expected_test : public Test
 {
 };
-
-using TestClassAdapter = iox::cxx::ErrorTypeAdapter<TestClass>;
 
 enum class TestError : uint8_t
 {
@@ -187,58 +202,64 @@ TEST_F(expected_test, ConstCreateLValueAndGetErrorResultsInCorrectError)
     EXPECT_THAT(sut.get_error().m_b, Eq(232));
 }
 
-TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidState)
+TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToMovedSource)
 {
-    auto sut = expected<int, TestClass>::create_value(177);
-    auto movedValue{std::move(sut)};
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
+    constexpr int A{177};
+    constexpr int B{188};
+    auto sutSource = expected<NonTrivialTestClass, int>::create_value(A, B);
+    auto sutDestination{std::move(sutSource)};
+
+    ASSERT_FALSE(sutSource.has_error());
+    EXPECT_TRUE(sutSource.value().m_moved);
+    ASSERT_TRUE(!sutDestination.has_error());
+    EXPECT_FALSE(sutDestination.value().m_moved);
+    EXPECT_EQ(sutDestination.value().m_a, A);
+    EXPECT_EQ(sutDestination.value().m_b, B);
 }
 
-TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToInvalidState)
+TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToMovedSource)
 {
-    auto sut = expected<int, TestClass>::create_error(22, 33);
-    auto movedValue{std::move(sut)};
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
+    constexpr int A{22};
+    constexpr int B{33};
+    auto sutSource = expected<int, NonTrivialTestClass>::create_error(A, B);
+    auto sutDestination{std::move(sutSource)};
+
+    ASSERT_TRUE(sutSource.has_error());
+    EXPECT_TRUE(sutSource.get_error().m_moved);
+    ASSERT_TRUE(sutDestination.has_error());
+    EXPECT_FALSE(sutDestination.get_error().m_moved);
+    EXPECT_EQ(sutDestination.get_error().m_a, A);
+    EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
-TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToInvalidState)
+TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToMovedSource)
 {
-    auto sut = expected<int, TestClass>::create_value(73);
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
+    constexpr int A{73};
+    constexpr int B{37};
+    auto sutSource = expected<NonTrivialTestClass, int>::create_value(A, B);
+    auto sutDestination = std::move(sutSource);
+
+    ASSERT_FALSE(sutSource.has_error());
+    EXPECT_TRUE(sutSource.value().m_moved);
+    ASSERT_FALSE(sutDestination.has_error());
+    EXPECT_FALSE(sutDestination.value().m_moved);
+    EXPECT_EQ(sutDestination.value().m_a, A);
+    EXPECT_EQ(sutDestination.value().m_b, B);
 }
 
-TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToInvalidState)
+TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToMovedSource)
 {
-    auto sut = expected<int, TestClass>::create_error(44, 55);
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
-}
+    constexpr int A{44};
+    constexpr int B{55};
+    auto sutSource = expected<int, NonTrivialTestClass>::create_error(A, B);
+    auto sutDestination = std::move(sutSource);
 
-TEST_F(expected_test, CreateInvalidExpectedAndCallGetErrorLeadsToInvalidState)
-{
-    auto sut = expected<int, TestError>::create_error(TestError::ERROR1);
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
-}
-
-TEST_F(expected_test, ErrorTypeOnlyCreateInvalidExpectedAndCallGetErrorLeadsToInvalidState)
-{
-    auto sut = expected<TestError>::create_error(TestError::ERROR2);
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
+    ASSERT_TRUE(sutSource.has_error());
+    EXPECT_TRUE(sutSource.get_error().m_moved);
+    ASSERT_TRUE(sutDestination.has_error());
+    EXPECT_FALSE(sutDestination.get_error().m_moved);
+    EXPECT_EQ(sutDestination.get_error().m_a, A);
+    EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
 TEST_F(expected_test, BoolOperatorReturnsError)
@@ -334,22 +355,50 @@ TEST_F(expected_test, ErrorTypeOnlyCreateErrorLeadsToError)
     ASSERT_THAT(sut.get_error(), Eq(TestError::ERROR2));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsToInvalidState)
+TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueMoveCtorLeadsToNoError)
 {
-    auto sut = expected<TestError>::create_error(TestError::ERROR2);
-    auto movedValue{std::move(sut)};
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
+    auto sutSource = expected<NonTrivialTestClass>::create_value();
+    auto sutDestination{std::move(sutSource)};
+    EXPECT_FALSE(sutSource.has_error());
+    EXPECT_FALSE(sutDestination.has_error());
+}
+
+TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueMoveAssignmentLeadsToNoError)
+{
+    auto sutSource = expected<NonTrivialTestClass>::create_value();
+    auto sutDestination = std::move(sutSource);
+    EXPECT_FALSE(sutSource.has_error());
+    EXPECT_FALSE(sutDestination.has_error());
+}
+
+TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsMovedSource)
+{
+    constexpr int A{111};
+    constexpr int B{112};
+    auto sutSource = expected<NonTrivialTestClass>::create_error(A, B);
+    auto sutDestination{std::move(sutSource)};
+
+    ASSERT_TRUE(sutSource.has_error());
+    EXPECT_TRUE(sutSource.get_error().m_moved);
+    ASSERT_TRUE(sutDestination.has_error());
+    EXPECT_FALSE(sutDestination.get_error().m_moved);
+    EXPECT_EQ(sutDestination.get_error().m_a, A);
+    EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
 TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToInvalidState)
 {
-    auto sut = expected<TestError>::create_error(TestError::ERROR1);
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-    ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
+    constexpr int A{222};
+    constexpr int B{223};
+    auto sutSource = expected<NonTrivialTestClass>::create_error(A, B);
+    auto sutDestination = std::move(sutSource);
+
+    ASSERT_TRUE(sutSource.has_error());
+    EXPECT_TRUE(sutSource.get_error().m_moved);
+    ASSERT_TRUE(sutDestination.has_error());
+    EXPECT_FALSE(sutDestination.get_error().m_moved);
+    EXPECT_EQ(sutDestination.get_error().m_a, A);
+    EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
 TEST_F(expected_test, CreateFromEmptySuccessTypeLeadsToValidSut)
@@ -450,14 +499,15 @@ TEST_F(expected_test, ConstWhenHavingSuccessCallsAndThen)
     EXPECT_THAT(a, Eq(1142));
 }
 
-TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsOrElse)
+TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsAndThen)
 {
     expected<int, TestError> sut{success<int>(1143)};
     auto movedValue = std::move(sut);
     IOX_DISCARD_RESULT(movedValue);
-    TestError error{TestError::ERROR1};
-    sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
-    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
+
+    bool success{false};
+    sut.and_then([&](auto&) { success = true; }).or_else([&](auto&) { FAIL() << "'or_else' should not be called"; });
+    EXPECT_TRUE(success);
 }
 
 TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsOrElse)
@@ -465,19 +515,21 @@ TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsOrElse)
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
     auto movedValue = std::move(sut);
     IOX_DISCARD_RESULT(movedValue);
-    TestError error{TestError::ERROR1};
-    sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
-    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
+
+    bool success{false};
+    sut.and_then([&](auto&) { FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) { success = true; });
+    EXPECT_TRUE(success);
 }
 
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsOrElse)
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsAndThen)
 {
     expected<TestError> sut{success<>()};
     auto movedValue = std::move(sut);
     IOX_DISCARD_RESULT(movedValue);
-    TestError error{TestError::ERROR1};
-    sut.and_then([&]() { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
-    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
+
+    bool success{false};
+    sut.and_then([&]() { success = true; }).or_else([&](auto&) { FAIL() << "'or_else' should not be called"; });
+    EXPECT_TRUE(success);
 }
 
 TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsOrElse)
@@ -485,9 +537,10 @@ TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsOrElse
     expected<TestError> sut{error<TestError>(TestError::ERROR1)};
     auto movedValue = std::move(sut);
     IOX_DISCARD_RESULT(movedValue);
-    TestError error{TestError::ERROR1};
-    sut.and_then([&]() { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
-    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
+
+    bool success{false};
+    sut.and_then([&]() { FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) { success = true; });
+    EXPECT_TRUE(success);
 }
 
 TEST_F(expected_test, ConvertNonEmptySuccessResultToErrorTypeOnlyResult)
