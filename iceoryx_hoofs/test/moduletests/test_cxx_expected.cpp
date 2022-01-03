@@ -111,7 +111,6 @@ class expected_test : public Test
 
 enum class TestError : uint8_t
 {
-    INVALID_STATE,
     ERROR1,
     ERROR2,
     ERROR3

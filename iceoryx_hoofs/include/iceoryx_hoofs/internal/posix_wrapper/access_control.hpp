@@ -46,7 +46,6 @@ class AccessController
 
     enum class AccessControllerError : uint8_t
     {
-        INVALID_STATE,
         COULD_NOT_ALLOCATE_NEW_ACL,
     };
 

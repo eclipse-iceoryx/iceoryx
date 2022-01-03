@@ -36,7 +36,6 @@ namespace popo
 {
 enum class ListenerError
 {
-    INVALID_STATE,
     LISTENER_FULL,
     EVENT_ALREADY_ATTACHED,
     EMPTY_EVENT_CALLBACK,

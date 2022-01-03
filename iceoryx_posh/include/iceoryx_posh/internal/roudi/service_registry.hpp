@@ -35,7 +35,6 @@ class ServiceRegistry
   public:
     enum class Error
     {
-        INVALID_STATE,
         SERVICE_REGISTRY_FULL,
     };
 

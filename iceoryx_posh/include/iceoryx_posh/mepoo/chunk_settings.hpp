@@ -35,7 +35,6 @@ class ChunkSettings
         USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT,
         USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT,
         REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE,
-        INVALID_STATE
     };
 
     /// @brief constructs and initializes a ChunkSettings

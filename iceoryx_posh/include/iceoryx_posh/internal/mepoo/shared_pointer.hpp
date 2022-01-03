@@ -27,7 +27,6 @@ namespace mepoo
 {
 enum class SharedPointerError
 {
-    INVALID_STATE,
     SharedChunkIsEmpty
 };
 

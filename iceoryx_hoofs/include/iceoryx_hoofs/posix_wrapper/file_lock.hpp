@@ -26,7 +26,6 @@ namespace posix
 {
 enum class FileLockError
 {
-    INVALID_STATE,
     INVALID_FILE_NAME,
     LOCKED_BY_OTHER_PROCESS,
     ACCESS_DENIED,

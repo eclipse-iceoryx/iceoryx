@@ -110,7 +110,6 @@ class Serialization
     enum class Error
     {
         DESERIALIZATION_FAILED, ///< indicates a failed deserialization
-        INVALID_STATE,          ///< required to set a moved `cxx::expected` to a defined state
     };
 
   private:

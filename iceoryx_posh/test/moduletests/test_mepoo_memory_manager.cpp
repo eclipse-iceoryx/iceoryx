@@ -459,10 +459,8 @@ TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
     // each bit corresponds to an enum value and must be set to true on test
     uint64_t testedEnumValues{0U};
     uint64_t loopCounter{0U};
-    for (const auto& sut : {Error::NO_MEMPOOLS_AVAILABLE,
-                            Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE,
-                            Error::MEMPOOL_OUT_OF_CHUNKS,
-                            Error::INVALID_STATE})
+    for (const auto& sut :
+         {Error::NO_MEMPOOLS_AVAILABLE, Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE, Error::MEMPOOL_OUT_OF_CHUNKS})
     {
         auto enumString = iox::mepoo::asStringLiteral(sut);
 
@@ -476,9 +474,6 @@ TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
             break;
         case Error::MEMPOOL_OUT_OF_CHUNKS:
             EXPECT_THAT(enumString, StrEq("MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS"));
-            break;
-        case Error::INVALID_STATE:
-            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::INVALID_STATE"));
             break;
         }
 

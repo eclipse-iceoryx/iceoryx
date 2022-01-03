@@ -34,7 +34,6 @@ class GenericClass
 
 enum class MethodCallbackError
 {
-    INVALID_STATE,
     UNINITIALIZED_CALLBACK
 };
 

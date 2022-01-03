@@ -31,7 +31,6 @@ namespace config
 {
 enum class CmdLineParserResult
 {
-    INVALID_STATE,
     UNKNOWN_OPTION_USED,
     INFO_OUTPUT_ONLY /// @todo use this instead of CmdLineArgs_t.run after modularisation of RouDi
 };

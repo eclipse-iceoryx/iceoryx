@@ -45,7 +45,6 @@ class Condition;
 
 enum class WaitSetError : uint8_t
 {
-    INVALID_STATE,
     WAIT_SET_FULL,
     ALREADY_ATTACHED,
 };

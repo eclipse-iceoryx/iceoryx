@@ -30,7 +30,6 @@ namespace popo
 {
 enum class ChunkDistributorError
 {
-    INVALID_STATE,
     QUEUE_CONTAINER_OVERFLOW,
     QUEUE_NOT_IN_CONTAINER
 };

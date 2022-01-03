@@ -49,8 +49,6 @@ iox_ChunkReceiveResult chunkReceiveResult(const iox::popo::ChunkReceiveResult va
         return ChunkReceiveResult_NO_CHUNK_AVAILABLE;
     case iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
         return ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL;
-    case iox::popo::ChunkReceiveResult::INVALID_STATE:
-        return ChunkReceiveResult_UNDEFINED_ERROR;
     }
     return ChunkReceiveResult_UNDEFINED_ERROR;
 }
@@ -59,6 +57,8 @@ iox_AllocationResult allocationResult(const iox::popo::AllocationError value) no
 {
     switch (value)
     {
+    case AllocationError::UNDEFINED_ERROR:
+        return AllocationResult_UNDEFINED_ERROR;
     case AllocationError::NO_MEMPOOLS_AVAILABLE:
         return AllocationResult_NO_MEMPOOLS_AVAILABLE;
     case AllocationError::RUNNING_OUT_OF_CHUNKS:
@@ -67,8 +67,6 @@ iox_AllocationResult allocationResult(const iox::popo::AllocationError value) no
         return AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL;
     case AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
         return AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER;
-    case AllocationError::INVALID_STATE:
-        return AllocationResult_UNDEFINED_ERROR;
     }
     return AllocationResult_UNDEFINED_ERROR;
 }
@@ -81,8 +79,6 @@ iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept
         return WaitSetResult_WAIT_SET_FULL;
     case WaitSetError::ALREADY_ATTACHED:
         return WaitSetResult_ALREADY_ATTACHED;
-    case WaitSetError::INVALID_STATE:
-        return WaitSetResult_UNDEFINED_ERROR;
     }
     return WaitSetResult_UNDEFINED_ERROR;
 }
@@ -95,8 +91,6 @@ iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
         return ListenerResult_EVENT_ALREADY_ATTACHED;
     case ListenerError::LISTENER_FULL:
         return ListenerResult_LISTENER_FULL;
-    case ListenerError::INVALID_STATE:
-        return ListenerResult_UNDEFINED_ERROR;
     case ListenerError::EMPTY_EVENT_CALLBACK:
         return ListenerResult_EMPTY_EVENT_CALLBACK;
     case ListenerError::EMPTY_INVALIDATION_CALLBACK:

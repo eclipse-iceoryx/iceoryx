@@ -84,7 +84,6 @@ enum class IpcMessageType : int32_t
 enum class IpcMessageErrorType : int32_t
 {
     BEGIN,
-    INVALID_STATE,
     NOTYPE,
     /// A publisher could not be created unique
     NO_UNIQUE_CREATED,

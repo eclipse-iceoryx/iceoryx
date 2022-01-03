@@ -36,7 +36,6 @@ namespace mepoo
 {
 enum class TypedMemPoolError
 {
-    INVALID_STATE,
     OutOfChunks,
     FatalErrorReachedInconsistentState
 };

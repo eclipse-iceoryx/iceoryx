@@ -76,8 +76,7 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
     constexpr EnumMapping<iox::popo::ChunkReceiveResult, iox_ChunkReceiveResult> CHUNK_RECEIVE_RESULTS[]{
         {iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE, ChunkReceiveResult_NO_CHUNK_AVAILABLE},
         {iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-         ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL},
-        {iox::popo::ChunkReceiveResult::INVALID_STATE, ChunkReceiveResult_UNDEFINED_ERROR}};
+         ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL}};
 
     for (const auto chunkReceiveResult : CHUNK_RECEIVE_RESULTS)
     {
@@ -87,9 +86,6 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
             EXPECT_EQ(cpp2c::chunkReceiveResult(chunkReceiveResult.cpp), chunkReceiveResult.c);
             break;
         case iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
-            EXPECT_EQ(cpp2c::chunkReceiveResult(chunkReceiveResult.cpp), chunkReceiveResult.c);
-            break;
-        case iox::popo::ChunkReceiveResult::INVALID_STATE:
             EXPECT_EQ(cpp2c::chunkReceiveResult(chunkReceiveResult.cpp), chunkReceiveResult.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
@@ -108,18 +104,21 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 TEST(cpp2c_enum_translation_test, AllocationResult)
 {
     constexpr EnumMapping<iox::popo::AllocationError, iox_AllocationResult> ALLOCATION_ERRORS[]{
+        {iox::popo::AllocationError::UNDEFINED_ERROR, AllocationResult_UNDEFINED_ERROR},
         {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE, AllocationResult_NO_MEMPOOLS_AVAILABLE},
         {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, AllocationResult_RUNNING_OUT_OF_CHUNKS},
         {iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
          AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL},
         {iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
-         AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER},
-        {iox::popo::AllocationError::INVALID_STATE, AllocationResult_UNDEFINED_ERROR}};
+         AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER}};
 
     for (const auto allocationError : ALLOCATION_ERRORS)
     {
         switch (allocationError.cpp)
         {
+        case iox::popo::AllocationError::UNDEFINED_ERROR:
+            EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
+            break;
         case iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
@@ -130,9 +129,6 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
         case iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
-            EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
-            break;
-        case iox::popo::AllocationError::INVALID_STATE:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
@@ -151,8 +147,7 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
 {
     constexpr EnumMapping<iox::popo::WaitSetError, iox_WaitSetResult> WAIT_SET_ERRORS[]{
         {iox::popo::WaitSetError::WAIT_SET_FULL, WaitSetResult_WAIT_SET_FULL},
-        {iox::popo::WaitSetError::ALREADY_ATTACHED, WaitSetResult_ALREADY_ATTACHED},
-        {iox::popo::WaitSetError::INVALID_STATE, WaitSetResult_UNDEFINED_ERROR}};
+        {iox::popo::WaitSetError::ALREADY_ATTACHED, WaitSetResult_ALREADY_ATTACHED}};
 
     for (const auto waitSetError : WAIT_SET_ERRORS)
     {
@@ -162,9 +157,6 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
             EXPECT_EQ(cpp2c::waitSetResult(waitSetError.cpp), waitSetError.c);
             break;
         case iox::popo::WaitSetError::ALREADY_ATTACHED:
-            EXPECT_EQ(cpp2c::waitSetResult(waitSetError.cpp), waitSetError.c);
-            break;
-        case iox::popo::WaitSetError::INVALID_STATE:
             EXPECT_EQ(cpp2c::waitSetResult(waitSetError.cpp), waitSetError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
@@ -185,8 +177,7 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
         {iox::popo::ListenerError::LISTENER_FULL, ListenerResult_LISTENER_FULL},
         {iox::popo::ListenerError::EVENT_ALREADY_ATTACHED, ListenerResult_EVENT_ALREADY_ATTACHED},
         {iox::popo::ListenerError::EMPTY_EVENT_CALLBACK, ListenerResult_EMPTY_EVENT_CALLBACK},
-        {iox::popo::ListenerError::EMPTY_INVALIDATION_CALLBACK, ListenerResult_EMPTY_INVALIDATION_CALLBACK},
-        {iox::popo::ListenerError::INVALID_STATE, ListenerResult_UNDEFINED_ERROR}};
+        {iox::popo::ListenerError::EMPTY_INVALIDATION_CALLBACK, ListenerResult_EMPTY_INVALIDATION_CALLBACK}};
 
     for (const auto listenerError : LISTENER_ERRORS)
     {
@@ -202,9 +193,6 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
             EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
             break;
         case iox::popo::ListenerError::EMPTY_INVALIDATION_CALLBACK:
-            EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
-            break;
-        case iox::popo::ListenerError::INVALID_STATE:
             EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot

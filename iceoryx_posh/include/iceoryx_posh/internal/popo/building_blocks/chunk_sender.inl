@@ -33,10 +33,8 @@ from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryMana
         return popo::AllocationError::NO_MEMPOOLS_AVAILABLE;
     case mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS:
         return popo::AllocationError::RUNNING_OUT_OF_CHUNKS;
-    case mepoo::MemoryManager::Error::INVALID_STATE:
-        return popo::AllocationError::INVALID_STATE;
     }
-    return popo::AllocationError::INVALID_STATE;
+    return popo::AllocationError::UNDEFINED_ERROR;
 }
 } // namespace cxx
 
