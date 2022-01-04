@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,12 +69,12 @@ class MemoryProvider_Test : public Test
     iox::cxx::expected<MemoryProviderError> commonSetup()
     {
         EXPECT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
-        EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));
-        EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_ALIGNMENT));
+        EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));
+        EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_ALIGNMENT));
         EXPECT_CALL(sut, createMemoryMock(COMMON_SETUP_MEMORY_SIZE, COMMON_SETUP_MEMORY_ALIGNMENT)).Times(1);
 
         EXPECT_CALL(sut, destroyMemoryMock());
-        EXPECT_CALL(memoryBlock1, destroyMock());
+        EXPECT_CALL(memoryBlock1, destroy());
 
         return sut.create();
     }
@@ -178,8 +178,8 @@ TEST_F(MemoryProvider_Test, CreationFailed)
     ASSERT_FALSE(sutFailure.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
+    EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
+    EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 
     auto expectError = sutFailure.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
@@ -193,7 +193,7 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 {
     ASSERT_FALSE(commonSetup().has_error());
 
-    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailable(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -207,23 +207,23 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
     uint64_t MEMORY_ALIGNMENT_1{8};
     uint64_t MEMORY_SIZE_2{32};
     uint64_t MEMORY_ALIGNMENT_2{16};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_1));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
-    EXPECT_CALL(memoryBlock2, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_2));
-    EXPECT_CALL(memoryBlock2, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
+    EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
+    EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
+    EXPECT_CALL(memoryBlock2, size()).WillRepeatedly(Return(MEMORY_SIZE_2));
+    EXPECT_CALL(memoryBlock2, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
     EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE_1 + MEMORY_SIZE_2, std::max(MEMORY_ALIGNMENT_1, MEMORY_ALIGNMENT_2)))
         .Times(1);
     EXPECT_THAT(sut.create().has_error(), Eq(false));
 
-    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
-    EXPECT_CALL(memoryBlock2, onMemoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailable(_)).Times(1);
+    EXPECT_CALL(memoryBlock2, onMemoryAvailable(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
 
     EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
-    EXPECT_CALL(memoryBlock2, destroyMock());
+    EXPECT_CALL(memoryBlock1, destroy());
+    EXPECT_CALL(memoryBlock2, destroy());
 }
 
 TEST_F(MemoryProvider_Test, AddMemoryBlockAfterCreation)
@@ -248,7 +248,7 @@ TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 {
     ASSERT_FALSE(commonSetup().has_error());
 
-    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock1, onMemoryAvailable(_)).Times(1);
     sut.announceMemoryAvailable();
     sut.announceMemoryAvailable(); // this shouldn't trigger a second memoryAvailable call on memoryBlock1
 
