@@ -39,7 +39,7 @@ using ChunkDistributorTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolic
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ChunkDistributor_test, ChunkDistributorTestSubjects);
+TYPED_TEST_SUITE(ChunkDistributor_test, ChunkDistributorTestSubjects);
 #pragma GCC diagnostic pop
 
 template <typename PolicyType>

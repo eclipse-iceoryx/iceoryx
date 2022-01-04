@@ -52,7 +52,7 @@ using PortDataTypes =
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(BasePort_test, PortDataTypes);
+TYPED_TEST_SUITE(BasePort_test, PortDataTypes);
 #pragma GCC diagnostic pop
 
 // port data factories

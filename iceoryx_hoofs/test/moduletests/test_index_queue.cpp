@@ -63,7 +63,7 @@ typedef ::testing::Types<IndexQueue<1>, IndexQueue<10>, IndexQueue<1000>> TestQu
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(IndexQueueTest, TestQueues);
+TYPED_TEST_SUITE(IndexQueueTest, TestQueues);
 #pragma GCC diagnostic pop
 
 

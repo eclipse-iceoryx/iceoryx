@@ -78,17 +78,17 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-INSTANTIATE_TEST_CASE_P(ValidTest,
-                        TomlGatewayConfigParserSuiteTest,
-                        ::testing::Values(CheckCharactersValidity_t{"validcharacters", false},
-                                          CheckCharactersValidity_t{"UPPERCASECHARACTERS", false},
-                                          CheckCharactersValidity_t{"lowercasecharacters", false},
-                                          CheckCharactersValidity_t{"Number1234567890", false},
-                                          CheckCharactersValidity_t{"Under_score_Characters", false},
-                                          CheckCharactersValidity_t{"_BeginsWithUnderscore", false},
-                                          CheckCharactersValidity_t{"Hyphen-InService", true},
-                                          CheckCharactersValidity_t{"1234567890", true},
-                                          CheckCharactersValidity_t{"這場考試_!*#:", true}));
+INSTANTIATE_TEST_SUITE_P(ValidTest,
+                         TomlGatewayConfigParserSuiteTest,
+                         ::testing::Values(CheckCharactersValidity_t{"validcharacters", false},
+                                           CheckCharactersValidity_t{"UPPERCASECHARACTERS", false},
+                                           CheckCharactersValidity_t{"lowercasecharacters", false},
+                                           CheckCharactersValidity_t{"Number1234567890", false},
+                                           CheckCharactersValidity_t{"Under_score_Characters", false},
+                                           CheckCharactersValidity_t{"_BeginsWithUnderscore", false},
+                                           CheckCharactersValidity_t{"Hyphen-InService", true},
+                                           CheckCharactersValidity_t{"1234567890", true},
+                                           CheckCharactersValidity_t{"這場考試_!*#:", true}));
 
 
 #pragma GCC diagnostic pop
@@ -383,10 +383,10 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     EXPECT_EQ(result.get_error(), MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
 }
 
-/// we require INSTANTIATE_TEST_CASE_P since we support gtest 1.8 for our safety targets
+/// we require INSTANTIATE_TEST_SUITE_P since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     ParseAllMalformedInputConfigFiles,
     TomlGatewayConfigParserTest,
     Values(ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION,

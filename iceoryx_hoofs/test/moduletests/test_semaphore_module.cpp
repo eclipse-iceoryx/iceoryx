@@ -111,7 +111,7 @@ class SemaphoreCreate_test : public Test
 /// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&createNamedSemaphore, &createUnnamedSemaphore));
+INSTANTIATE_TEST_SUITE_P(Semaphore_test, Semaphore_test, Values(&createNamedSemaphore, &createUnnamedSemaphore));
 #pragma GCC diagnostic pop
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)

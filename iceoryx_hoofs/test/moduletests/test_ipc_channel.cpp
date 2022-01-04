@@ -96,7 +96,7 @@ constexpr uint64_t IpcChannel_test<T>::MaxMsgNumber;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(IpcChannel_test, IpcChannelTypes);
+TYPED_TEST_SUITE(IpcChannel_test, IpcChannelTypes);
 #pragma GCC diagnostic pop
 
 TYPED_TEST(IpcChannel_test, CreateWithTooLargeMessageSizeLeadsToError)

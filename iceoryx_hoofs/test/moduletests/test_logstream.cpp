@@ -196,7 +196,7 @@ using LogHexBinTypes = Types<uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(IoxLogStreamHexBin_test, LogHexBinTypes);
+TYPED_TEST_SUITE(IoxLogStreamHexBin_test, LogHexBinTypes);
 #pragma GCC diagnostic pop
 
 template <typename LogType>
@@ -266,7 +266,7 @@ using ArithmeticTypes =
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(IoxLogStreamArithmetic_test, ArithmeticTypes);
+TYPED_TEST_SUITE(IoxLogStreamArithmetic_test, ArithmeticTypes);
 #pragma GCC diagnostic pop
 
 template <typename Arithmetic>

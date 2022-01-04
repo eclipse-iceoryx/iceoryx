@@ -85,7 +85,7 @@ using ChunkQueueSubjects =
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ChunkQueue_test, ChunkQueueSubjects);
+TYPED_TEST_SUITE(ChunkQueue_test, ChunkQueueSubjects);
 #pragma GCC diagnostic pop
 
 template <typename TestTypes>
@@ -242,7 +242,7 @@ using ChunkQueueFiFoTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects);
+TYPED_TEST_SUITE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects);
 #pragma GCC diagnostic pop
 
 template <typename PolicyType>
@@ -304,7 +304,7 @@ using ChunkQueueSoFiSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects);
+TYPED_TEST_SUITE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects);
 #pragma GCC diagnostic pop
 
 template <typename PolicyType>

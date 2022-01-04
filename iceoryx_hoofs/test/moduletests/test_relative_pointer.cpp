@@ -71,7 +71,7 @@ typedef testing::Types<uint8_t, int8_t, double> Types;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(base_relative_ptr_test, Types);
+TYPED_TEST_SUITE(base_relative_ptr_test, Types);
 #pragma GCC diagnostic pop
 
 TYPED_TEST(base_relative_ptr_test, ConstrTests)

@@ -53,7 +53,7 @@ typedef ::testing::Types<CyclicIndex<1>, CyclicIndex<2>, CyclicIndex<10>, Cyclic
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(LockFreeQueueCyclicIndexTest, TestIndices);
+TYPED_TEST_SUITE(LockFreeQueueCyclicIndexTest, TestIndices);
 #pragma GCC diagnostic pop
 
 // note that in all tests we will check whether the getCycle and getIndex methods

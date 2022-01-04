@@ -80,7 +80,7 @@ class SignalHandler_test : public Test
 using Implementations =
     Types<SignalType<Signal::INT>, SignalType<Signal::BUS>, SignalType<Signal::TERM>, SignalType<Signal::HUP>>;
 
-TYPED_TEST_CASE(SignalHandler_test, Implementations);
+TYPED_TEST_SUITE(SignalHandler_test, Implementations);
 
 TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 {

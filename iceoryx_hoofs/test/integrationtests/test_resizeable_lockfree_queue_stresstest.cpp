@@ -369,7 +369,7 @@ typedef ::testing::Types<HalfFull2> TestConfigs;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ResizeableLockFreeQueueStressTest, TestConfigs);
+TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
 #pragma GCC diagnostic pop
 
 

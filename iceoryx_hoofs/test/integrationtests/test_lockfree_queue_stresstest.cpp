@@ -352,7 +352,7 @@ typedef ::testing::Types<SingleElementQueue, SmallQueue, MediumQueue, LargeQueue
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(LockFreeQueueStressTest, TestQueues);
+TYPED_TEST_SUITE(LockFreeQueueStressTest, TestQueues);
 #pragma GCC diagnostic pop
 
 ///@brief Tests concurrent operation of one prodcuer and one consumer
