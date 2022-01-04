@@ -158,9 +158,6 @@ class IoxLoggerLogLevel_test : public TestWithParam<iox::log::LogLevel>, public 
     }
 };
 
-/// we require INSTANTIATE_TEST_SUITE_P since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_SUITE_P(AllLogLevel,
                          IoxLoggerLogLevel_test,
                          Values(iox::log::LogLevel::kOff,
@@ -170,7 +167,6 @@ INSTANTIATE_TEST_SUITE_P(AllLogLevel,
                                 iox::log::LogLevel::kInfo,
                                 iox::log::LogLevel::kDebug,
                                 iox::log::LogLevel::kVerbose));
-#pragma GCC diagnostic pop
 
 TEST_P(IoxLoggerLogLevel_test, LogLevel)
 {

@@ -196,11 +196,8 @@ class Helplets_test_isPowerOfTwo : public Helplets_test
 
 using HelpletsIsPowerOfTwoTypes = Types<uint8_t, uint16_t, uint32_t, uint64_t, size_t>;
 
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_SUITE(Helplets_test_isPowerOfTwo, HelpletsIsPowerOfTwoTypes);
-#pragma GCC diagnostic pop
+
 
 TYPED_TEST(Helplets_test_isPowerOfTwo, OneIsPowerOfTwo)
 {

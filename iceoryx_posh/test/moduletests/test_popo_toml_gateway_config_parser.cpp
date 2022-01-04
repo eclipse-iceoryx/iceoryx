@@ -74,9 +74,6 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
 };
 
 // ======================================== Tests ======================================== //
-/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 INSTANTIATE_TEST_SUITE_P(ValidTest,
                          TomlGatewayConfigParserSuiteTest,
@@ -90,8 +87,6 @@ INSTANTIATE_TEST_SUITE_P(ValidTest,
                                            CheckCharactersValidity_t{"1234567890", true},
                                            CheckCharactersValidity_t{"這場考試_!*#:", true}));
 
-
-#pragma GCC diagnostic pop
 
 TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription)
 {
@@ -383,9 +378,6 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     EXPECT_EQ(result.get_error(), MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
 }
 
-/// we require INSTANTIATE_TEST_SUITE_P since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_SUITE_P(
     ParseAllMalformedInputConfigFiles,
     TomlGatewayConfigParserTest,
@@ -394,8 +386,6 @@ INSTANTIATE_TEST_SUITE_P(
            ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
                                  "toml_parser_exception.toml"}));
 
-
-#pragma GCC diagnostic pop
 
 TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
 {

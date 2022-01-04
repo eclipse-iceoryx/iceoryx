@@ -82,11 +82,8 @@ using ChunkQueueSubjects =
           TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
           TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>>;
 
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_SUITE(ChunkQueue_test, ChunkQueueSubjects);
-#pragma GCC diagnostic pop
+
 
 template <typename TestTypes>
 class ChunkQueue_test : public Test, public ChunkQueue_testBase
@@ -239,11 +236,9 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
 using ChunkQueueFiFoTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 TYPED_TEST_SUITE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects);
-#pragma GCC diagnostic pop
+
 
 template <typename PolicyType>
 class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
@@ -301,11 +296,9 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 
 /// @note this could be changed to a parameterized ChunkQueueOverflowingFIFO_test when there are more FIFOs available
 using ChunkQueueSoFiSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 TYPED_TEST_SUITE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects);
-#pragma GCC diagnostic pop
+
 
 template <typename PolicyType>
 class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase

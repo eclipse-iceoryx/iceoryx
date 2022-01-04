@@ -28,11 +28,9 @@ using namespace ::testing;
 
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 TYPED_TEST_SUITE(LoFFLi_test, LoFFLiTestSubjects);
-#pragma GCC diagnostic pop
+
 
 template <typename LoFFLiType>
 class LoFFLi_test : public Test
