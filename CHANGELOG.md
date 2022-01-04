@@ -51,6 +51,7 @@
 - Make `cxx::string::capacity` a `static` method[\#979](https://github.com/eclipse-iceoryx/iceoryx/issues/979)
 - Restructure iceoryx tools [\#471](https://github.com/eclipse-iceoryx/iceoryx/issues/471)
 - Use cxx::expected for MemoryManager::getChunk [\#954](https://github.com/eclipse-iceoryx/iceoryx/pull/991)
+- Upgrade GTest/GMock to v1.10 [\#841](https://github.com/eclipse-iceoryx/iceoryx/issues/841)
 
 **API Breaking Changes:**
 
