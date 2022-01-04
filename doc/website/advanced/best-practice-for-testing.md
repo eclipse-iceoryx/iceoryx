@@ -230,7 +230,7 @@ They also exert all the good practices mentioned previously, like clear and dist
 There are situations when test cases only vary in the type applied to the `sut`. In this case typed tests can be used to reduce repetition.
 The there is a section for [typed tests](https://github.com/google/googletest/blob/master/docs/advanced.md#typed-tests) in the advanced gtest documentation.
 
-A more thorough [example](https://github.com/google/googletest/blob/release-1.8.1/googletest/samples/sample6_unittest.cc) is in the gtest github repository.
+A more thorough [example](https://github.com/google/googletest/blob/release-1.10.0/googletest/samples/sample6_unittest.cc) is in the gtest github repository.
 
 ## Parameterized Tests
 
@@ -245,7 +245,7 @@ The block post mentions tuples to pass multiple parameters at once. Since tuples
 
 Some classes are hard to test or to reach a full coverage. This might be due to external access or interaction with the operating system.
 Mocks can help to have full control over the `sut` and reliably cause error conditions to test the negative code path.
-There is an [extensive gmock documentation](https://github.com/google/googletest/tree/release-1.8.1/googlemock/docs) in the gtest github repository.
+There is an [extensive gmock documentation](https://github.com/google/googletest/tree/release-1.10.0/googlemock/docs) in the gtest github repository.
 
 ## Pitfalls
 Some tests require creating dummy classes and it might be that the same name is chosen multiple times, e.g. “class DummyData {...};”.
