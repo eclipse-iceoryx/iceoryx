@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,8 +33,7 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
 {
     if (globalIDCounter.load() >= (static_cast<uint64_t>(1u) << UNIQUE_ID_BIT_LENGTH))
     {
-        errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, [] {}, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, nullptr, ErrorLevel::FATAL);
     }
 }
 

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,8 +30,7 @@ void setUniqueRouDiId(const uint16_t id) noexcept
 {
     if (hasDefinedUniqueRouDiId)
     {
-        errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::MODERATE);
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID, nullptr, ErrorLevel::MODERATE);
     }
     uniqueRouDiId = id;
     hasDefinedUniqueRouDiId = true;
@@ -45,8 +45,7 @@ uint16_t getUniqueRouDiId() noexcept
 {
     if (!hasDefinedUniqueRouDiId)
     {
-        errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID, nullptr, ErrorLevel::FATAL);
     }
     return uniqueRouDiId;
 }
