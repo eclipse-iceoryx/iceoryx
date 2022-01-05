@@ -19,6 +19,9 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "port_queue_policies.hpp"
+
+#include "iceoryx_hoofs/cxx/serialization.hpp"
+
 #include <cstdint>
 
 namespace iox
@@ -39,6 +42,12 @@ struct PublisherOptions
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
     SubscriberTooSlowPolicy subscriberTooSlowPolicy{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+
+    /// @brief serialization of the PublisherOptions
+    cxx::Serialization serialize() const noexcept;
+    /// @brief deserialization of the PublisherOptions
+    static cxx::expected<PublisherOptions, cxx::Serialization::Error>
+    deserialize(const cxx::Serialization& serialized) noexcept;
 };
 
 } // namespace popo
