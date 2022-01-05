@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@
 
 namespace
 {
-enum A
+enum class A
 {
     A1 = 13,
     A2
 };
 
-enum B
+enum class B
 {
     B1 = 42,
     B2
@@ -47,10 +47,10 @@ constexpr B from<A, B>(A e) noexcept
 {
     switch (e)
     {
-    case A1:
-        return B1;
-    case A2:
-        return B2;
+    case A::A1:
+        return B::B1;
+    case A::A2:
+        return B::B2;
     }
 }
 
@@ -485,16 +485,16 @@ TEST(Helplets_test_isValidFilePath, EmptyFilePathIsInvalid)
 
 TEST(Helplets_test_from, fromWorksAsConstexpr)
 {
-    constexpr A FROM_VALUE{A1};
-    constexpr B TO_VALUE{B1};
+    constexpr A FROM_VALUE{A::A1};
+    constexpr B TO_VALUE{B::B1};
     constexpr B SUT = iox::cxx::from<A, B>(FROM_VALUE);
     EXPECT_EQ(SUT, TO_VALUE);
 }
 
 TEST(Helplets_test_into, intoWorksWhenFromIsSpecialized)
 {
-    constexpr A FROM_VALUE{A2};
-    constexpr B TO_VALUE{B2};
+    constexpr A FROM_VALUE{A::A2};
+    constexpr B TO_VALUE{B::B2};
     constexpr B SUT = iox::cxx::into<B>(FROM_VALUE);
     EXPECT_EQ(SUT, TO_VALUE);
 }
