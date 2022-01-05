@@ -211,7 +211,7 @@ TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToMovedSource)
 
     ASSERT_FALSE(sutSource.has_error());
     EXPECT_TRUE(sutSource.value().m_moved);
-    ASSERT_TRUE(!sutDestination.has_error());
+    ASSERT_FALSE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.value().m_moved);
     EXPECT_EQ(sutDestination.value().m_a, A);
     EXPECT_EQ(sutDestination.value().m_b, B);
@@ -371,7 +371,7 @@ TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueMoveAssignmentLeadsToN
     EXPECT_FALSE(sutDestination.has_error());
 }
 
-TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsMovedSource)
+TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsToMovedSource)
 {
     constexpr int A{111};
     constexpr int B{112};
@@ -386,7 +386,7 @@ TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsMovedSource)
     EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
-TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToInvalidState)
+TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToMovedSource)
 {
     constexpr int A{222};
     constexpr int B{223};
