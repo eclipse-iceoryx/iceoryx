@@ -229,7 +229,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_PUBLISHER:
     {
-        if (message.getNumberOfElements() != 8)
+        if (message.getNumberOfElements() != 5)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_PUBLISHER\" from \"" << runtimeName
                        << "\"received!";
@@ -246,45 +246,26 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& service = deserializationResult.value();
 
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
-
             if (!service.isValid())
             {
                 LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
                 break;
             }
 
-            popo::PublisherOptions options;
-            uint64_t historyCapacity{};
-            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
+            auto publisherOptionsDeserializationResult =
+                popo::PublisherOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+            if (publisherOptionsDeserializationResult.has_error())
             {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
-                           << message.getElementAtIndex(3).c_str() << "' cannot be extracted from string\n";
+                LogError() << "Deserialization of 'PublisherOptions' failed when '"
+                           << message.getElementAtIndex(3).c_str() << "' was provided\n";
                 break;
             }
-            options.historyCapacity = historyCapacity;
-            options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
+            const auto& publisherOptions = publisherOptionsDeserializationResult.value();
 
-            uint64_t offerOnCreate{};
-            if (!cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate))
-            {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
-                           << message.getElementAtIndex(5).c_str() << "' cannot be extracted from string\n";
-                break;
-            }
-            options.offerOnCreate = (0U == offerOnCreate) ? false : true;
-
-            uint8_t subscriberTooSlowPolicy{};
-            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
-            {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_PUBLISHER\"! '"
-                           << message.getElementAtIndex(6).c_str() << "' cannot be extracted from string\n";
-                break;
-            }
-            options.subscriberTooSlowPolicy = static_cast<popo::SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
             m_prcMgr->addPublisherForProcess(
-                runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+                runtimeName, service, publisherOptions, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
