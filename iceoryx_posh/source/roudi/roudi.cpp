@@ -271,7 +271,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_SUBSCRIBER:
     {
-        if (message.getNumberOfElements() != 9)
+        if (message.getNumberOfElements() != 5)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SUBSCRIBER\" from \"" << runtimeName
                        << "\"received!";
@@ -288,7 +288,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
 
             const auto& service = deserializationResult.value();
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
             if (!service.isValid())
             {
@@ -296,45 +295,20 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
                 break;
             }
 
-            popo::SubscriberOptions options;
-            uint64_t historyRequest;
-            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest))
+            auto subscriberOptionsDeserializationResult =
+                popo::SubscriberOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+            if (subscriberOptionsDeserializationResult.has_error())
             {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
-                           << message.getElementAtIndex(3).c_str() << "' cannot be extracted from string\n";
+                LogError() << "Deserialization of 'SubscriberOptions' failed when '"
+                           << message.getElementAtIndex(3).c_str() << "' was provided\n";
                 break;
             }
-            options.historyRequest = historyRequest;
-            uint64_t queueCapacity;
-            if (!cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity))
-            {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
-                           << message.getElementAtIndex(4).c_str() << "' cannot be extracted from string\n";
-                break;
-            }
-            options.queueCapacity = queueCapacity;
-            options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
+            const auto& subscriberOptions = subscriberOptionsDeserializationResult.value();
 
-            uint32_t subscribeOnCreate;
-            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate))
-            {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
-                           << message.getElementAtIndex(6).c_str() << "' cannot be extracted from string\n";
-                break;
-            }
-            options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
-
-            uint8_t queueFullPolicy{};
-            if (!cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
-            {
-                LogError() << "Invalid parameter for \"IpcMessageType::CREATE_SUBSCRIBER\"! '"
-                           << message.getElementAtIndex(7).c_str() << "' cannot be extracted from string\n";
-                break;
-            }
-            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(queueFullPolicy);
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
             m_prcMgr->addSubscriberForProcess(
-                runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+                runtimeName, service, subscriberOptions, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }

@@ -239,10 +239,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyRequest)
-               << cxx::convert::toString(options.queueCapacity) << options.nodeName
-               << cxx::convert::toString(options.subscribeOnCreate)
-               << cxx::convert::toString(static_cast<uint8_t>(options.queueFullPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << options.serialize().toString()
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
