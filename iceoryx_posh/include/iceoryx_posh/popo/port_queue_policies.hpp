@@ -39,7 +39,7 @@ enum class QueueFullPolicy : uint8_t
 };
 
 /// @brief Used by producers how to adjust to slow consumer
-enum class ConsumerTooSlowPolicy
+enum class ConsumerTooSlowPolicy : uint8_t
 {
     /// Waits for the consumer it it's queue is full
     WAIT_FOR_CONSUMER,
@@ -49,7 +49,7 @@ enum class ConsumerTooSlowPolicy
 
 /// @brief Used by consumers to request a specific behavior from the producer
 /// @todo iox-#27 Rename this to QueueFullPolicy
-enum class QueueFullPolicy2
+enum class QueueFullPolicy2 : uint8_t
 {
     /// Requests the producer to block when the consumer queue is full
     BLOCK_PRODUCER,

@@ -40,20 +40,13 @@ ServerOptions::deserialize(const cxx::Serialization& serialized) noexcept
     auto deserializationSuccessful = serialized.extract(
         serverOptions.requestQueueCapacity, serverOptions.nodeName, serverOptions.offerOnCreate, clientTooSlowPolicy);
 
-    if (!deserializationSuccessful)
-    {
-        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
-    }
-
-    if (clientTooSlowPolicy < 0
+    if (!deserializationSuccessful
         || clientTooSlowPolicy > static_cast<ClientTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
         return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
-    else
-    {
-        serverOptions.clientTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(clientTooSlowPolicy);
-    }
+
+    serverOptions.clientTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(clientTooSlowPolicy);
 
     return cxx::success<ServerOptions>(serverOptions);
 }
