@@ -118,7 +118,7 @@ class ChunkDistributor_test : public Test
 
     static constexpr std::chrono::milliseconds BLOCKING_DURATION{100};
 
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{2_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
     ;
 };
@@ -127,6 +127,8 @@ constexpr std::chrono::milliseconds ChunkDistributor_test<PolicyType>::BLOCKING_
 template <typename PolicyType>
 constexpr iox::units::Duration ChunkDistributor_test<PolicyType>::DEADLOCK_TIMEOUT;
 
+/// @todo iox-#898: this is broken on macOS and triggers the watchdog, even with 5 seconds timeout
+#if !defined(__APPLE__)
 TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aa7eaa9e-c337-45dc-945a-d097b8916eaa");
@@ -135,6 +137,7 @@ TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 
     EXPECT_DEATH(IOX_DISCARD_RESULT(sut.tryAddQueue(nullptr)), ".*");
 }
+#endif
 
 TYPED_TEST(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
 {
