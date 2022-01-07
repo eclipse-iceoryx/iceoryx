@@ -100,16 +100,6 @@ class ChunkDistributor
     /// @param[in] chunk is the SharedChunk to be delivered
     void deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept;
 
-    /// @brief Deliver the provided shared chunk to the provided chunk queue. The chunk will NOT be added to the chunk
-    /// history
-    /// @param[in] queue to which this chunk shall be delivered
-    /// @param[in] chunk is the SharedChunk to be delivered
-    /// @return false if a queue overflow occured, otherwise true
-    /// @todo iox-#27 should this be made private? It's unsafe to call this outside of the ChunkDistributor since the
-    /// queue might not exist anymore when it is passed from outside to this method since the owning port might have
-    /// unsubscribed or there might be an ABA problem when the port which owns the queue was destroyed and newly created
-    bool deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
-
     /// @brief Deliver the provided shared chunk to the chunk queue with the provided ID. The chunk will NOT be added
     /// to the chunk history
     /// @param[in] uniqueQueueId is an unique ID which identifies the queue to which this chunk shall be delivered
@@ -150,6 +140,8 @@ class ChunkDistributor
   protected:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
+
+    bool pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
   private:
     MemberType_t* m_chunkDistrubutorDataPtr{nullptr};

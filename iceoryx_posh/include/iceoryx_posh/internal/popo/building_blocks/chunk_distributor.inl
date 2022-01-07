@@ -76,7 +76,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
                 (requestedHistory <= currChunkHistorySize) ? currChunkHistorySize - requestedHistory : 0u;
             for (auto i = startIndex; i < currChunkHistorySize; ++i)
             {
-                deliverToQueue(queueToAdd, getMembers()->m_history[i].cloneToSharedChunk());
+                pushToQueue(queueToAdd, getMembers()->m_history[i].cloneToSharedChunk());
             }
 
             return cxx::success<void>();
@@ -145,7 +145,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
             bool isBlockingQueue =
                 (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
 
-            if (!deliverToQueue(queue.get(), chunk))
+            if (!pushToQueue(queue.get(), chunk))
             {
                 if (isBlockingQueue)
                 {
@@ -183,7 +183,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
             // deliver to remaining queues
             for (uint64_t i = remainingQueues.size() - 1U; !remainingQueues.empty(); --i)
             {
-                if (deliverToQueue(remainingQueues[i].get(), chunk))
+                if (pushToQueue(remainingQueues[i].get(), chunk))
                 {
                     remainingQueues.erase(remainingQueues.begin() + i);
                 }
@@ -201,8 +201,8 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
 }
 
 template <typename ChunkDistributorDataType>
-inline bool ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
-                                                                       mepoo::SharedChunk chunk) noexcept
+inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
+                                                                    mepoo::SharedChunk chunk) noexcept
 {
     return ChunkQueuePusher_t(queue).push(chunk);
 }
@@ -233,7 +233,7 @@ ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId u
         bool isBlockingQueue = (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
 
         retry = false;
-        if (!deliverToQueue(queue.get(), chunk))
+        if (!pushToQueue(queue.get(), chunk))
         {
             if (isBlockingQueue)
             {
