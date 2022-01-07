@@ -230,6 +230,94 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
     EXPECT_THAT(sut.hasStoredQueues(), Eq(false));
 }
 
+TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithoutAddedQueueReturnsNoIndex)
+{
+    constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+
+    auto sutData = this->getChunkDistributorData();
+    typename TestFixture::ChunkDistributor_t sut(sutData.get());
+
+    auto queueData = this->getChunkQueueData();
+
+    auto maybeIndex = sut.getQueueIndex(queueData->m_uniqueId, UNKNOWN_QUEUE_INDEX);
+
+    EXPECT_FALSE(maybeIndex.has_value());
+}
+
+TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithAddedQueueReturnsIndex)
+{
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+
+    auto sutData = this->getChunkDistributorData();
+    typename TestFixture::ChunkDistributor_t sut(sutData.get());
+
+    auto queueData = this->getChunkQueueData();
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
+
+    sut.getQueueIndex(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+}
+
+TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsIndex)
+{
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_1{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_2{1U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_3{2U};
+
+    auto sutData = this->getChunkDistributorData();
+    typename TestFixture::ChunkDistributor_t sut(sutData.get());
+
+    auto queueData1 = this->getChunkQueueData();
+    auto queueData2 = this->getChunkQueueData();
+    auto queueData3 = this->getChunkQueueData();
+    ASSERT_FALSE(sut.tryAddQueue(queueData1.get()).has_error());
+    ASSERT_FALSE(sut.tryAddQueue(queueData2.get()).has_error());
+    ASSERT_FALSE(sut.tryAddQueue(queueData3.get()).has_error());
+
+    sut.getQueueIndex(queueData1->m_uniqueId, EXPECTED_QUEUE_INDEX_1)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_1)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+
+    sut.getQueueIndex(queueData2->m_uniqueId, EXPECTED_QUEUE_INDEX_2)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_2)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+
+    sut.getQueueIndex(queueData3->m_uniqueId, EXPECTED_QUEUE_INDEX_3)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_3)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+}
+
+TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknownLastIndexReturnsIndex)
+{
+    constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_1{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_2{1U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_3{2U};
+
+    auto sutData = this->getChunkDistributorData();
+    typename TestFixture::ChunkDistributor_t sut(sutData.get());
+
+    auto queueData1 = this->getChunkQueueData();
+    auto queueData2 = this->getChunkQueueData();
+    auto queueData3 = this->getChunkQueueData();
+    ASSERT_FALSE(sut.tryAddQueue(queueData1.get()).has_error());
+    ASSERT_FALSE(sut.tryAddQueue(queueData2.get()).has_error());
+    ASSERT_FALSE(sut.tryAddQueue(queueData3.get()).has_error());
+
+    sut.getQueueIndex(queueData1->m_uniqueId, UNKNOWN_QUEUE_INDEX)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_1)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+
+    sut.getQueueIndex(queueData2->m_uniqueId, UNKNOWN_QUEUE_INDEX)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_2)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+
+    sut.getQueueIndex(queueData3->m_uniqueId, UNKNOWN_QUEUE_INDEX)
+        .and_then([](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_3)); })
+        .or_else([] { FAIL() << "Expected to get an index!"; });
+}
+
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5bc10e0a-d67b-4123-887c-a50dc16cf680");
