@@ -21,16 +21,6 @@ namespace iox
 {
 namespace runtime
 {
-ServiceDiscovery::ServiceDiscovery() noexcept
-    : m_applicationPort(PoshRuntime::getInstance().getMiddlewareApplication())
-
-{
-}
-
-ServiceDiscovery::~ServiceDiscovery() noexcept
-{
-}
-
 cxx::expected<ServiceContainer, FindServiceError>
 ServiceDiscovery::findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
                               const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept

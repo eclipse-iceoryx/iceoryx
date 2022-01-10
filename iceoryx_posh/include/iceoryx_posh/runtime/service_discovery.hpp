@@ -27,12 +27,12 @@ namespace runtime
 class ServiceDiscovery
 {
   public:
-    ServiceDiscovery() noexcept;
+    ServiceDiscovery() noexcept = default;
     ServiceDiscovery(const ServiceDiscovery&) = delete;
     ServiceDiscovery& operator=(const ServiceDiscovery&) = delete;
     ServiceDiscovery(ServiceDiscovery&&) = delete;
     ServiceDiscovery& operator=(ServiceDiscovery&&) = delete;
-    virtual ~ServiceDiscovery() noexcept;
+    ~ServiceDiscovery() noexcept = default;
 
     /// @brief find all services that match the provided service description
     /// @param[in] service service string to search for (wildcards allowed)
@@ -59,7 +59,7 @@ class ServiceDiscovery
     virtual const std::atomic<uint64_t>* getServiceRegistryChangeCounter() noexcept;
 
   private:
-    popo::ApplicationPort m_applicationPort;
+    popo::ApplicationPort m_applicationPort{PoshRuntime::getInstance().getMiddlewareApplication()};
 };
 
 
