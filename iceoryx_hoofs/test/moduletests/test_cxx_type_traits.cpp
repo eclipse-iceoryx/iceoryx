@@ -126,6 +126,14 @@ TEST(TypeTraitsTest, AddConstConditionallyTypeAliasWorks)
     EXPECT_TRUE(std::is_const<SutTypeResult>::value);
 }
 
+TEST(TypeTraitsTest, AlwaysFalseWorks)
+{
+    struct Foo
+    {
+    };
+    EXPECT_FALSE(always_false_v<Foo>);
+}
+
 TEST(TypeTraitsTest, IsFunctionPointerResolvesToTrue)
 {
     auto result = is_function_pointer<void (*)(double)>::value;

@@ -126,6 +126,19 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
 
     return false;
 }
+
+template <typename F, typename T>
+constexpr T from(const F) noexcept
+{
+    static_assert(always_false_v<F> && always_false_v<T>, "Conversion for the specified types is not implemented!\
+    Please specialize `template <typename F, typename T> constexpr T from(const F) noexcept`!");
+}
+
+template <typename T, typename F>
+constexpr T into(const F e) noexcept
+{
+    return from<F, T>(e);
+}
 } // namespace cxx
 } // namespace iox
 

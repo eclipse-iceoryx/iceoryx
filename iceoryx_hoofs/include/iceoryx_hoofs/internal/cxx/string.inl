@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -362,18 +362,10 @@ inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& st
     return stream;
 }
 
-/// @brief struct used to disable the equality operators for fixed string and char pointer; it is needed, because a
-/// simple false will be evaluated before the template is instanciated and therefore the program won't be compiled
-template <uint64_t>
-struct always_false
-{
-    static constexpr bool value = false;
-};
-
 template <uint64_t Capacity>
 inline bool string<Capacity>::operator==(const char* const) const noexcept
 {
-    static_assert(always_false<Capacity>::value,
+    static_assert(cxx::always_false_v<string<Capacity>>,
                   "The equality operator for fixed string and char pointer is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
@@ -384,7 +376,7 @@ inline bool string<Capacity>::operator==(const char* const) const noexcept
 template <uint64_t Capacity>
 inline bool string<Capacity>::operator!=(const char* const) const noexcept
 {
-    static_assert(always_false<Capacity>::value,
+    static_assert(cxx::always_false_v<string<Capacity>>,
                   "The inequality operator for fixed string and char pointer is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
@@ -395,7 +387,7 @@ inline bool string<Capacity>::operator!=(const char* const) const noexcept
 template <uint64_t Capacity>
 inline bool operator==(const char* const, const string<Capacity>&) noexcept
 {
-    static_assert(always_false<Capacity>::value,
+    static_assert(cxx::always_false_v<string<Capacity>>,
                   "The equality operator for char pointer and fixed string is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
@@ -406,7 +398,7 @@ inline bool operator==(const char* const, const string<Capacity>&) noexcept
 template <uint64_t Capacity>
 inline bool operator!=(const char* const, const string<Capacity>&) noexcept
 {
-    static_assert(always_false<Capacity>::value,
+    static_assert(cxx::always_false_v<string<Capacity>>,
                   "The inequality operator for char pointer and fixed string is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
@@ -418,7 +410,7 @@ template <uint64_t Capacity>
 template <typename T>
 inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 {
-    static_assert(always_false<Capacity>::value,
+    static_assert(cxx::always_false_v<string<Capacity>>,
                   "operator += is not supported by cxx::string, please use append or unsafe_append instead");
     return *this;
 }

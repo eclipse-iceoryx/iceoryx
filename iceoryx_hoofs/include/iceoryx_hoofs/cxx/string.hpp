@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CXX_STRING_HPP
 #define IOX_HOOFS_CXX_STRING_HPP
 
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/cxx/string_internal.hpp"
 #include "optional.hpp"
 
