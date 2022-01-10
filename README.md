@@ -64,7 +64,7 @@ You can find the full API documentation on 🌐 [https://iceoryx.io](https://ice
 | [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
-| [Apex.Middleware](https://www.apex.ai/apex-middleware) | Safe and certified software framework for autonomous mobility systems from [Apex.AI](https://www.apex.ai/) |
+| [Apex.Middleware](https://www.apex.ai/apex-middleware) | Safe and certified middleware for autonomous mobility systems from [Apex.AI](https://www.apex.ai/) |
 | [AVIN AP](https://www.avinsystems.com/products/autosar_ap_solutions/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
 
 ## Build and install
