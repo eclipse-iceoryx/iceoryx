@@ -26,7 +26,7 @@
 bool killswitch = false;
 constexpr char APP_NAME[] = "iox-cpp-offer";
 
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
+static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;

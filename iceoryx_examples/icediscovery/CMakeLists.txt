@@ -41,9 +41,9 @@ target_compile_options(iox-cpp-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORY
 set_target_properties(iox-cpp-find-service
                       iox-cpp-offer-service
                       PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+                      CXX_STANDARD_REQUIRED ON
+                      CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+                      POSITION_INDEPENDENT_CODE ON
 )
 
 # ========================================================== //
