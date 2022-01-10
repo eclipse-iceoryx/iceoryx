@@ -40,7 +40,7 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::runtime::PoshDiscovery poshDiscovery;
+    iox::runtime::ServiceDiscovery serviceDiscovery;
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -49,7 +49,7 @@ int main()
         /// removed?
 
         /// @todo #415 Why is the implicit conversion to cxx::variant not working?
-        poshDiscovery.findService(iox::capro::IdString_t("Radar"), iox::capro::IdString_t("FrontLeft"))
+        serviceDiscovery.findService(iox::capro::IdString_t("Radar"), iox::capro::IdString_t("FrontLeft"))
             .and_then([](auto& serviceContainter) {
                 /// @todo #415 Maybe use some colors to beautify the output?
                 std::cout << "Searched for {'Radar', 'FrontLeft', '*'} and found the following events: " << std::endl;
@@ -64,7 +64,7 @@ int main()
             });
 
 
-        poshDiscovery.findService(iox::capro::IdString_t("Radar"), iox::runtime::Wildcard_t())
+        serviceDiscovery.findService(iox::capro::IdString_t("Radar"), iox::runtime::Wildcard_t())
             .and_then([](auto& serviceContainter) {
                 std::cout << "Searched for {'Radar', '*', '*'} and found the following events: " << std::endl;
                 for (auto& service : serviceContainter)

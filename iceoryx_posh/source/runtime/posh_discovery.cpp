@@ -21,19 +21,19 @@ namespace iox
 {
 namespace runtime
 {
-PoshDiscovery::PoshDiscovery() noexcept
+ServiceDiscovery::ServiceDiscovery() noexcept
     : m_applicationPort(PoshRuntime::getInstance().getMiddlewareApplication())
 
 {
 }
 
-PoshDiscovery::~PoshDiscovery() noexcept
+ServiceDiscovery::~ServiceDiscovery() noexcept
 {
 }
 
 cxx::expected<ServiceContainer, FindServiceError>
-PoshDiscovery::findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
-                           const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept
+ServiceDiscovery::findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
+                              const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept
 {
     /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;
@@ -98,7 +98,7 @@ PoshDiscovery::findService(const cxx::variant<Wildcard_t, capro::IdString_t> ser
 }
 
 
-bool PoshDiscovery::offerService(const capro::ServiceDescription& serviceDescription) noexcept
+bool ServiceDiscovery::offerService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     if (serviceDescription.isValid())
     {
@@ -112,7 +112,7 @@ bool PoshDiscovery::offerService(const capro::ServiceDescription& serviceDescrip
     return false;
 }
 
-bool PoshDiscovery::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
+bool ServiceDiscovery::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     if (serviceDescription.isValid())
     {
@@ -126,7 +126,7 @@ bool PoshDiscovery::stopOfferService(const capro::ServiceDescription& serviceDes
     return false;
 }
 
-const std::atomic<uint64_t>* PoshDiscovery::getServiceRegistryChangeCounter() noexcept
+const std::atomic<uint64_t>* ServiceDiscovery::getServiceRegistryChangeCounter() noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::SERVICE_REGISTRY_CHANGE_COUNTER)

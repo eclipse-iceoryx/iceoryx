@@ -40,7 +40,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::runtime::PoshDiscovery poshDiscovery;
+    iox::runtime::ServiceDiscovery serviceDiscovery;
 
     //! [offer by creating publisher]
     iox::capro::ServiceDescription radarServiceFrontLeft{"Radar", "FrontLeft", "SequenceCounter"};
@@ -51,7 +51,7 @@ int main()
 
     //! [direct offer]
     iox::capro::ServiceDescription radarServiceFrontRight{"Radar", "FrontRight", "SequenceCounter"};
-    poshDiscovery.offerService(radarServiceFrontRight);
+    serviceDiscovery.offerService(radarServiceFrontRight);
     //! [direct offer]
     std::cout << "Offered service: " << radarServiceFrontRight << std::endl;
 
