@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "port_queue_policies.hpp"
+
+#include "iceoryx_hoofs/cxx/serialization.hpp"
 
 #include <cstdint>
 
@@ -44,6 +46,12 @@ struct SubscriberOptions
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
     QueueFullPolicy queueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
+
+    /// @brief serialization of the SubscriberOptions
+    cxx::Serialization serialize() const noexcept;
+    /// @brief deserialization of the SubscriberOptions
+    static cxx::expected<SubscriberOptions, cxx::Serialization::Error>
+    deserialize(const cxx::Serialization& serialized) noexcept;
 };
 
 } // namespace popo

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -128,9 +128,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyCapacity)
-               << options.nodeName << cxx::convert::toString(options.offerOnCreate)
-               << cxx::convert::toString(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << publisherOptions.serialize().toString()
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -241,10 +239,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyRequest)
-               << cxx::convert::toString(options.queueCapacity) << options.nodeName
-               << cxx::convert::toString(options.subscribeOnCreate)
-               << cxx::convert::toString(static_cast<uint8_t>(options.queueFullPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << options.serialize().toString()
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

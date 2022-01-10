@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -125,6 +125,8 @@ add_library(iceoryx_posh
     source/popo/listener.cpp
     source/popo/notification_info.cpp
     source/popo/rpc_header.cpp
+    source/popo/publisher_options.cpp
+    source/popo/subscriber_options.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
     source/popo/user_trigger.cpp

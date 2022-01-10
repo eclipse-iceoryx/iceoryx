@@ -32,6 +32,7 @@
 - Add support for Multi-Arch install destinations [\#961](https://github.com/eclipse-iceoryx/iceoryx/issues/961) thanks to @roehling
 - Fix a few misspellings in log messages [\#962](https://github.com/eclipse-iceoryx/iceoryx/issues/962) thanks to @roehling
 - Fix typos in goals/non-goals document [\#968](https://github.com/eclipse-iceoryx/iceoryx/issues/968)
+- Catch deserialization errors for enums in publisher and subscriber options [\#989](https://github.com/eclipse-iceoryx/iceoryx/issues/989)
 
 **Refactoring:**
 
