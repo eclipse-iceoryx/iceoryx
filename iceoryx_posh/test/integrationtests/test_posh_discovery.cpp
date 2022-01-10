@@ -47,22 +47,12 @@ class ServiceDiscovery_test : public RouDi_GTest
     {
     }
 
-    virtual ~ServiceDiscovery_test()
-    {
-    }
-
     virtual void SetUp()
     {
-        testing::internal::CaptureStdout();
     };
 
     virtual void TearDown()
     {
-        std::string output = testing::internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     };
 
     void InterOpWait()
