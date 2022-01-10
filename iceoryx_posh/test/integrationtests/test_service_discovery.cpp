@@ -21,8 +21,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
@@ -43,37 +43,25 @@ using iox::runtime::ServiceContainer;
 class ServiceDiscovery_test : public RouDi_GTest
 {
   public:
-    ServiceDiscovery_test()
-    {
-    }
-
-    virtual void SetUp()
-    {
-    };
-
-    virtual void TearDown()
-    {
-    };
-
     void InterOpWait()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
     iox::runtime::PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
-    ServiceDiscovery m_sut;
+    ServiceDiscovery sut;
 };
 
 TIMING_TEST_F(ServiceDiscovery_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
-    auto serviceCounter = m_sut.getServiceRegistryChangeCounter();
+    auto serviceCounter = sut.getServiceRegistryChangeCounter();
     auto initialCout = serviceCounter->load();
 
-    m_sut.offerService({"service1", "instance1", "event1"});
+    sut.offerService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
     TIMING_TEST_EXPECT_TRUE(initialCout + 1 == serviceCounter->load());
 
-    m_sut.stopOfferService({"service1", "instance1", "event1"});
+    sut.stopOfferService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
     TIMING_TEST_EXPECT_TRUE(initialCout + 2 == serviceCounter->load());
@@ -81,17 +69,17 @@ TIMING_TEST_F(ServiceDiscovery_test, GetServiceRegistryChangeCounterOfferStopOff
 
 TEST_F(ServiceDiscovery_test, OfferEmptyServiceIsInvalid)
 {
-    auto isServiceOffered = m_sut.offerService(iox::capro::ServiceDescription());
+    auto isServiceOffered = sut.offerService(iox::capro::ServiceDescription());
 
     EXPECT_FALSE(isServiceOffered);
 }
 
 TEST_F(ServiceDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServices)
 {
-    EXPECT_FALSE(m_sut.offerService(iox::capro::ServiceDescription()));
+    EXPECT_FALSE(sut.offerService(iox::capro::ServiceDescription()));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
 
     auto searchResult = serviceContainer.value();
@@ -104,10 +92,10 @@ TEST_F(ServiceDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionSe
 
 TEST_F(ServiceDiscovery_test, OfferSingleMethodServiceSingleInstance)
 {
-    auto isServiceOffered = m_sut.offerService({"service1", "instance1", "event1"});
+    auto isServiceOffered = sut.offerService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
@@ -118,7 +106,7 @@ TEST_F(ServiceDiscovery_test, OfferSingleMethodServiceSingleInstance)
 
 TEST_F(ServiceDiscovery_test, OfferServiceWithDefaultServiceDescriptionFails)
 {
-    auto isServiceOffered = m_sut.offerService(iox::capro::ServiceDescription());
+    auto isServiceOffered = sut.offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -126,7 +114,7 @@ TEST_F(ServiceDiscovery_test, OfferServiceWithDefaultServiceDescriptionFails)
 
 TEST_F(ServiceDiscovery_test, OfferServiceWithValidEventIdSucessfull)
 {
-    auto isServiceOffered = m_sut.offerService({"service1", "instance1", "event1"});
+    auto isServiceOffered = sut.offerService({"service1", "instance1", "event1"});
     this->InterOpWait();
 
     ASSERT_EQ(true, isServiceOffered);
@@ -134,7 +122,7 @@ TEST_F(ServiceDiscovery_test, OfferServiceWithValidEventIdSucessfull)
 
 TEST_F(ServiceDiscovery_test, OfferServiceWithInvalidEventIdFails)
 {
-    auto isServiceOffered = m_sut.offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
+    auto isServiceOffered = sut.offerService({"service1", iox::capro::InvalidIdString, iox::capro::InvalidIdString});
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);
@@ -142,14 +130,14 @@ TEST_F(ServiceDiscovery_test, OfferServiceWithInvalidEventIdFails)
 
 TEST_F(ServiceDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFound)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
@@ -158,12 +146,12 @@ TEST_F(ServiceDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFo
 
 TEST_F(ServiceDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
@@ -172,15 +160,15 @@ TEST_F(ServiceDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
 
 TEST_F(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
@@ -188,22 +176,22 @@ TEST_F(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 
 TEST_F(ServiceDiscovery_test, OfferMultiMethodServiceSingleInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service3"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service3"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service3", "instance1", "event1"}));
@@ -211,20 +199,20 @@ TEST_F(ServiceDiscovery_test, OfferMultiMethodServiceSingleInstance)
 
 TEST_F(ServiceDiscovery_test, OfferMultiMethodServiceWithDistinctSingleInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance2", "event2"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance2"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event2"}));
@@ -232,16 +220,16 @@ TEST_F(ServiceDiscovery_test, OfferMultiMethodServiceWithDistinctSingleInstance)
 
 TEST_F(ServiceDiscovery_test, SubscribeAnyInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance2", "event2"}));
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance3", "event3"}));
     this->InterOpWait();
     ServiceContainer serviceContainerExp;
     serviceContainerExp.push_back({"service1", "instance1", "event1"});
     serviceContainerExp.push_back({"service1", "instance2", "event2"});
     serviceContainerExp.push_back({"service1", "instance3", "event3"});
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(IdString_t("service1"), iox::runtime::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(3u));
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
@@ -249,22 +237,22 @@ TEST_F(ServiceDiscovery_test, SubscribeAnyInstance)
 
 TEST_F(ServiceDiscovery_test, OfferSingleMethodServiceMultiInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance2", "event2"}));
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance3", "event3"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance2"));
+    serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance2", "event2"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance3"));
+    serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance3"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance3", "event3"}));
@@ -272,40 +260,40 @@ TEST_F(ServiceDiscovery_test, OfferSingleMethodServiceMultiInstance)
 
 TEST_F(ServiceDiscovery_test, OfferMultiMethodServiceMultiInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance2", "event2"}));
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance3", "event3"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance2", "event2"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance3", "event3"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance2", "event2"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance3", "event3"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance3", "event3"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance2"));
+    serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance2", "event2"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance3"));
+    serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance3"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance3", "event3"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance2"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance2"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance2", "event2"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance3"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance3"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance3", "event3"}));
@@ -313,56 +301,56 @@ TEST_F(ServiceDiscovery_test, OfferMultiMethodServiceMultiInstance)
 
 TEST_F(ServiceDiscovery_test, StopOfferWithInvalidServiceDescriptionFails)
 {
-    EXPECT_FALSE(m_sut.stopOfferService(
-        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString}));
+    EXPECT_FALSE(
+        sut.stopOfferService({iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString}));
 }
 
 TEST_F(ServiceDiscovery_test, StopOfferSingleMethodServiceSingleInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
 
 TEST_F(ServiceDiscovery_test, StopOfferMultiMethodServiceSingleInstance)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.stopOfferService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(sut.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.stopOfferService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_sut.findService(IdString_t("service2"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service2"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1u));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service2", "instance1", "event1"}));
 
-    serviceContainer = m_sut.findService(IdString_t("service3"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("service3"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
 
 TEST_F(ServiceDiscovery_test, StopOfferServiceRedundantCall)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.stopOfferService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.stopOfferService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
@@ -370,12 +358,12 @@ TEST_F(ServiceDiscovery_test, StopOfferServiceRedundantCall)
 
 TEST_F(ServiceDiscovery_test, StopNonExistingService)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
-    EXPECT_TRUE(m_sut.stopOfferService({"service2", "instance2", "event2"}));
+    EXPECT_TRUE(sut.stopOfferService({"service2", "instance2", "event2"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("instance1"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1));
     ASSERT_THAT(*serviceContainer.value().begin(), Eq(ServiceDescription{"service1", "instance1", "event1"}));
@@ -383,27 +371,27 @@ TEST_F(ServiceDiscovery_test, StopNonExistingService)
 
 TEST_F(ServiceDiscovery_test, FindNonExistingServices)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service2", "instance1", "event1"}));
-    EXPECT_TRUE(m_sut.offerService({"service3", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service2", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service3", "instance1", "event1"}));
     this->InterOpWait();
 
-    auto serviceContainer = m_sut.findService(IdString_t("service1"), IdString_t("schlomo"));
+    auto serviceContainer = sut.findService(IdString_t("service1"), IdString_t("schlomo"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_sut.findService(IdString_t("ignatz"), IdString_t("instance1"));
+    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("instance1"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 
-    serviceContainer = m_sut.findService(IdString_t("ignatz"), IdString_t("schlomo"));
+    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("schlomo"));
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(0u));
 }
 
 TEST_F(ServiceDiscovery_test, InterfacePort)
 {
-    EXPECT_TRUE(m_sut.offerService({"service1", "instance1", "event1"}));
+    EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
     /// @todo #415 call the c'tor of PoshRuntime from a different thread
@@ -436,12 +424,12 @@ TEST_F(ServiceDiscovery_test, findServiceMaxServices)
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
         std::string instance = "i" + iox::cxx::convert::toString(i);
-        EXPECT_TRUE(m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
+        EXPECT_TRUE(sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         serviceContainerExp.push_back({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
         this->InterOpWait();
     }
 
-    auto serviceContainer = m_sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
 
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
@@ -455,12 +443,12 @@ TEST_F(ServiceDiscovery_test, findServiceserviceContainerOverflowError)
     for (size_t i = 0; i < noOfInstances; i++)
     {
         std::string instance = "i" + iox::cxx::convert::toString(i);
-        EXPECT_TRUE(m_sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
+        EXPECT_TRUE(sut.offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"}));
         serviceContainerExp.push_back({"s", IdString_t(iox::cxx::TruncateToCapacity, instance), "foo"});
         this->InterOpWait();
     }
 
-    auto serviceContainer = m_sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
 
     ASSERT_THAT(serviceContainer.has_error(), Eq(true));
 }
