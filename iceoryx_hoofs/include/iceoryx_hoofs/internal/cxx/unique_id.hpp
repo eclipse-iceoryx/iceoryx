@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_UNIQUE_ID_INL
-#define IOX_HOOFS_CXX_UNIQUE_ID_INL
+#ifndef IOX_HOOFS_CXX_UNIQUE_ID_HPP
+#define IOX_HOOFS_CXX_UNIQUE_ID_HPP
 
 #include "iceoryx_hoofs/cxx/newtype.hpp"
 
@@ -45,10 +45,10 @@ class UniqueId : public cxx::NewType<uint64_t,
     UniqueId() noexcept;
 
   private:
-    static std::atomic<value_type> g_IdCounter; // = 1U
+    static std::atomic<value_type> g_IdCounter; // initialized in corresponding cpp file
 };
 
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_UNIQUE_ID_INL
+#endif // IOX_HOOFS_CXX_UNIQUE_ID_HPP
