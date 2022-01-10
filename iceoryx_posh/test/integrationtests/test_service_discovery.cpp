@@ -21,7 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/runtime/posh_discovery.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "mocks/posh_runtime_mock.hpp"

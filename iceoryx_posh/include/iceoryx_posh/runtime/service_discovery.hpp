@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_RUNTIME_POSH_DISCOVERY_HPP
-#define IOX_POSH_RUNTIME_POSH_DISCOVERY_HPP
+#ifndef IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
+#define IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -67,4 +67,4 @@ class ServiceDiscovery
 
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_POSH_DISCOVERY_HPP
+#endif // IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP

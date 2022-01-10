@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/runtime/posh_discovery.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 namespace iox
 {

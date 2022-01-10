@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-//! [include poshdiscovery]
-#include "iceoryx_posh/runtime/posh_discovery.hpp"
-//! [include poshdiscovery]
+//! [include servicediscovery]
+#include "iceoryx_posh/runtime/service_discovery.hpp"
+//! [include servicediscovery]
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
