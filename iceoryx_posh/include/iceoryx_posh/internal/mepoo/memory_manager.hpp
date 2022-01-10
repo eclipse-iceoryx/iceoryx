@@ -105,13 +105,13 @@ inline constexpr const char* asStringLiteral(const MemoryManager::Error value) n
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept;
+std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept;
 
 /// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept;
+log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept;
 
 } // namespace mepoo
 } // namespace iox

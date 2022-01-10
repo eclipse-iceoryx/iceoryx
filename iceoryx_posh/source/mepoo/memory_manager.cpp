@@ -207,5 +207,18 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         return cxx::success<SharedChunk>(SharedChunk(chunkManagement));
     }
 }
+
+std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
 } // namespace mepoo
 } // namespace iox

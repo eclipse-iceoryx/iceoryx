@@ -38,18 +38,6 @@ inline constexpr const char* asStringLiteral(const MemoryManager::Error value) n
     return "[Undefined MemoryManager::Error]";
 }
 
-inline std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept
-{
-    stream << asStringLiteral(value);
-    return stream;
-}
-
-inline log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept
-{
-    stream << asStringLiteral(value);
-    return stream;
-}
-
 } // namespace mepoo
 } // namespace iox
 
