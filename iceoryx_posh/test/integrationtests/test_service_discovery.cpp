@@ -394,9 +394,7 @@ TEST_F(ServiceDiscovery_test, InterfacePort)
     EXPECT_TRUE(sut.offerService({"service1", "instance1", "event1"}));
     this->InterOpWait();
 
-    /// @todo #415 call the c'tor of PoshRuntime from a different thread
-    iox::runtime::PoshRuntime* m_runtime2{&iox::runtime::PoshRuntime::initRuntime("Runtime2")};
-    auto interfacePortData = m_runtime2->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
+    auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
     this->InterOpWait();
     bool serviceFound = false;
