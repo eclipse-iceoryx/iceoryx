@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,27 @@
 
 namespace iox
 {
+namespace cxx
+{
+template <>
+constexpr popo::AllocationError
+from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error) noexcept
+{
+    switch (error)
+    {
+    case mepoo::MemoryManager::Error::NO_MEMPOOLS_AVAILABLE:
+        return popo::AllocationError::NO_MEMPOOLS_AVAILABLE;
+    case mepoo::MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE:
+        return popo::AllocationError::NO_MEMPOOLS_AVAILABLE;
+    case mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS:
+        return popo::AllocationError::RUNNING_OUT_OF_CHUNKS;
+    case mepoo::MemoryManager::Error::INVALID_STATE:
+        return popo::AllocationError::INVALID_STATE;
+    }
+    return popo::AllocationError::INVALID_STATE;
+}
+} // namespace cxx
+
 namespace popo
 {
 template <typename ChunkSenderDataType>
@@ -85,10 +106,12 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     {
         // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
         // get a new chunk
-        mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(chunkSettings);
+        auto getChunkResult = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
-        if (chunk)
+        if (!getChunkResult.has_error())
         {
+            auto& chunk = getChunkResult.value();
+
             // if the application allocated too much chunks, return no more chunks
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
@@ -105,7 +128,8 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         }
         else
         {
-            return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
+            /// @todo iox-#1012 use cxx::error<E2>::from(E1); once available
+            return cxx::error<AllocationError>(cxx::into<AllocationError>(getChunkResult.get_error()));
         }
     }
 }

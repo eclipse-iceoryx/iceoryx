@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ enum iox_SubscriberTooSlowPolicy
 /// @brief state of allocateChunk
 enum iox_AllocationResult
 {
+    AllocationResult_NO_MEMPOOLS_AVAILABLE,
     AllocationResult_RUNNING_OUT_OF_CHUNKS,
     AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
     AllocationResult_INVALID_CHUNK,

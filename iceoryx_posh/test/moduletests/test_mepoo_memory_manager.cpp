@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "test.hpp"
@@ -43,6 +44,22 @@ class MemoryManager_test : public Test
         delete allocator;
         free(rawMemory);
     };
+
+    using ChunkStore = std::vector<iox::mepoo::SharedChunk>;
+    ChunkStore getChunksFromSut(const uint32_t numberOfChunks, const iox::mepoo::ChunkSettings& chunkSettings)
+    {
+        ChunkStore chunkStore;
+        for (uint32_t i = 0; i < numberOfChunks; ++i)
+        {
+            sut->getChunk(chunkSettings)
+                .and_then([&](auto& chunk) {
+                    EXPECT_TRUE(chunk);
+                    chunkStore.push_back(chunk);
+                })
+                .or_else([](const auto& error) { FAIL() << "getChunk failed with: " << error; });
+        }
+        return chunkStore;
+    }
 
     static constexpr uint32_t CHUNK_SIZE_32{32U};
     static constexpr uint32_t CHUNK_SIZE_64{64U};
@@ -147,12 +164,15 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    auto bla = sut->getChunk(chunkSettings);
-    EXPECT_THAT(bla, Eq(false));
+    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::NO_MEMPOOLS_AVAILABLE};
+    sut->getChunk(chunkSettings)
+        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL);
 }
+
 
 TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkSizeInMemPoolConfigReturnsError)
 {
@@ -174,8 +194,10 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    auto bla = sut->getChunk(chunkSettings);
-    EXPECT_THAT(bla, Eq(false));
+    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE};
+    sut->getChunk(chunkSettings)
+        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
@@ -185,13 +207,12 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
 {
     constexpr uint32_t CHUNK_COUNT{1U};
     constexpr uint32_t PAYLOAD_SIZE{100U};
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
     auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
-    chunkStore.push_back(sut->getChunk(chunkSettings));
+    auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings);
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
@@ -200,9 +221,10 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
             EXPECT_EQ(errorLevel, iox::ErrorLevel::MODERATE);
         });
 
-
-    auto bla = sut->getChunk(chunkSettings);
-    EXPECT_THAT(bla, Eq(false));
+    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    sut->getChunk(chunkSettings)
+        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
@@ -219,9 +241,9 @@ TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableI
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    auto receivedChunk = sut->getChunk(chunkSettings);
-
-    EXPECT_TRUE(receivedChunk);
+    sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
+        FAIL() << "getChunk failed with: " << error;
+    });
 }
 
 TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
@@ -236,12 +258,7 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0U; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-    }
+    auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings);
 
     EXPECT_EQ(sut->getMemPoolInfo(0U).m_usedChunks, CHUNK_COUNT);
 }
@@ -253,13 +270,12 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolToMuchChunks)
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0U; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings_128));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-    }
-    EXPECT_THAT(sut->getChunk(chunkSettings_128), Eq(false));
+    auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
+
+    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    sut->getChunk(chunkSettings_128)
+        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 }
 
 TEST_F(MemoryManager_test, freeChunkSingleMemPoolFullToEmptyToFull)
@@ -268,26 +284,17 @@ TEST_F(MemoryManager_test, freeChunkSingleMemPoolFullToEmptyToFull)
 
     // chunks are freed when they go out of scope
     {
-        std::vector<iox::mepoo::SharedChunk> chunkStore;
         mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
         sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-        for (size_t i = 0; i < CHUNK_COUNT; i++)
-        {
-            chunkStore.push_back(sut->getChunk(chunkSettings_128));
-            EXPECT_THAT(chunkStore.back(), Eq(true));
-        }
+
+        auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
 
         EXPECT_EQ(sut->getMemPoolInfo(0U).m_usedChunks, CHUNK_COUNT);
     }
 
     EXPECT_EQ(sut->getMemPoolInfo(0U).m_usedChunks, 0U);
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0U; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings_128));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-    }
+    auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
 
     EXPECT_EQ(sut->getMemPoolInfo(0U).m_usedChunks, CHUNK_COUNT);
 }
@@ -303,17 +310,12 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolSingleChunk)
 
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    auto bla = sut->getChunk(chunkSettings_32);
-    EXPECT_THAT(bla, Eq(true));
-
-    bla = sut->getChunk(chunkSettings_64);
-    EXPECT_THAT(bla, Eq(true));
-
-    bla = sut->getChunk(chunkSettings_128);
-    EXPECT_THAT(bla, Eq(true));
-
-    bla = sut->getChunk(chunkSettings_256);
-    EXPECT_THAT(bla, Eq(true));
+    for (const auto& chunkSettings : {chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256})
+    {
+        sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
+            FAIL() << "getChunk failed with: " << error;
+        });
+    }
 }
 
 TEST_F(MemoryManager_test, getChunkMultiMemPoolAllChunks)
@@ -326,21 +328,10 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolAllChunks)
     mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings_32));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-
-        chunkStore.push_back(sut->getChunk(chunkSettings_64));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-
-        chunkStore.push_back(sut->getChunk(chunkSettings_128));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-
-        chunkStore.push_back(sut->getChunk(chunkSettings_256));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-    }
+    auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
+    auto chunkStore_64 = getChunksFromSut(CHUNK_COUNT, chunkSettings_64);
+    auto chunkStore_128 = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
+    auto chunkStore_256 = getChunksFromSut(CHUNK_COUNT, chunkSettings_256);
 
     EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(CHUNK_COUNT));
     EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(CHUNK_COUNT));
@@ -358,19 +349,22 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
     mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings_32));
-        chunkStore.push_back(sut->getChunk(chunkSettings_64));
-        chunkStore.push_back(sut->getChunk(chunkSettings_128));
-        chunkStore.push_back(sut->getChunk(chunkSettings_256));
-    }
+    auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
+    auto chunkStore_64 = getChunksFromSut(CHUNK_COUNT, chunkSettings_64);
+    auto chunkStore_128 = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
+    auto chunkStore_256 = getChunksFromSut(CHUNK_COUNT, chunkSettings_256);
 
-    EXPECT_THAT(sut->getChunk(chunkSettings_32), Eq(false));
-    EXPECT_THAT(sut->getChunk(chunkSettings_64), Eq(false));
-    EXPECT_THAT(sut->getChunk(chunkSettings_128), Eq(false));
-    EXPECT_THAT(sut->getChunk(chunkSettings_256), Eq(false));
+    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+
+    for (const auto& chunkSettings : {chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256})
+    {
+        sut->getChunk(chunkSettings)
+            .and_then([&](auto&) {
+                FAIL() << "getChunk for payload size " << chunkSettings.userPayloadSize() << " should fail with '"
+                       << EXPECTED_ERROR << "' but did not fail";
+            })
+            .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
+    }
 }
 
 TEST_F(MemoryManager_test, emptyMemPoolDoesNotResultInAcquiringChunksFromOtherMemPools)
@@ -383,13 +377,12 @@ TEST_F(MemoryManager_test, emptyMemPoolDoesNotResultInAcquiringChunksFromOtherMe
     mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings_64));
-    }
+    auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_64);
 
-    EXPECT_THAT(sut->getChunk(chunkSettings_64), Eq(false));
+    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    sut->getChunk(chunkSettings_64)
+        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0U));
     EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(CHUNK_COUNT));
@@ -411,13 +404,10 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
         mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
         sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-        for (size_t i = 0; i < CHUNK_COUNT; i++)
-        {
-            chunkStore.push_back(sut->getChunk(chunkSettings_32));
-            chunkStore.push_back(sut->getChunk(chunkSettings_64));
-            chunkStore.push_back(sut->getChunk(chunkSettings_128));
-            chunkStore.push_back(sut->getChunk(chunkSettings_256));
-        }
+        auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
+        auto chunkStore_64 = getChunksFromSut(CHUNK_COUNT, chunkSettings_64);
+        auto chunkStore_128 = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
+        auto chunkStore_256 = getChunksFromSut(CHUNK_COUNT, chunkSettings_256);
 
         EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(CHUNK_COUNT));
         EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(CHUNK_COUNT));
@@ -430,21 +420,10 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
     EXPECT_THAT(sut->getMemPoolInfo(2).m_usedChunks, Eq(0U));
     EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(0U));
 
-    std::vector<iox::mepoo::SharedChunk> chunkStore;
-    for (size_t i = 0; i < CHUNK_COUNT; i++)
-    {
-        chunkStore.push_back(sut->getChunk(chunkSettings_32));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-
-        chunkStore.push_back(sut->getChunk(chunkSettings_64));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-
-        chunkStore.push_back(sut->getChunk(chunkSettings_128));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-
-        chunkStore.push_back(sut->getChunk(chunkSettings_256));
-        EXPECT_THAT(chunkStore.back(), Eq(true));
-    }
+    auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
+    auto chunkStore_64 = getChunksFromSut(CHUNK_COUNT, chunkSettings_64);
+    auto chunkStore_128 = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
+    auto chunkStore_256 = getChunksFromSut(CHUNK_COUNT, chunkSettings_256);
 
     EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(CHUNK_COUNT));
     EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(CHUNK_COUNT));
@@ -461,13 +440,69 @@ TEST_F(MemoryManager_test, getChunkWithUserPayloadSizeZeroShouldNotFail)
 
     mempoolconf.addMemPool({32, 10});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-    EXPECT_THAT(sut->getChunk(chunkSettings), Eq(true));
+
+    sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
+        FAIL() << "getChunk failed with: " << error;
+    });
 }
 
 TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
 {
     mempoolconf.addMemPool({32, 0});
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, ".*");
+}
+
+TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
+{
+    using Error = iox::mepoo::MemoryManager::Error;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut : {Error::NO_MEMPOOLS_AVAILABLE,
+                            Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE,
+                            Error::MEMPOOL_OUT_OF_CHUNKS,
+                            Error::INVALID_STATE})
+    {
+        auto enumString = iox::mepoo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case Error::NO_MEMPOOLS_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::NO_MEMPOOLS_AVAILABLE"));
+            break;
+        case Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE"));
+            break;
+        case Error::MEMPOOL_OUT_OF_CHUNKS:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS"));
+            break;
+        case Error::INVALID_STATE:
+            EXPECT_THAT(enumString, StrEq("MemoryManager::Error::INVALID_STATE"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
+{
+    Logger_Mock loggerMock;
+
+    auto sut = iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::mepoo::asStringLiteral(sut)));
 }
 
 } // namespace

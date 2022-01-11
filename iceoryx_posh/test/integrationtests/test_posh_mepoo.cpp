@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,29 +60,14 @@ class Mepoo_IntegrationTest : public Test
         uint32_t chunkCount;
     };
 
-    Mepoo_IntegrationTest()
-    {
-    }
-    virtual ~Mepoo_IntegrationTest()
+    void SetUp() override
     {
     }
 
-    // just to prevent the "hides overloaded virtual function" warning
-    virtual void SetUp()
-    {
-        internal::CaptureStderr();
-    }
-
-    virtual void TearDown()
+    void TearDown() override
     {
         publisherPort->stopOffer();
         subscriberPort->unsubscribe();
-
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     enum class configType
@@ -171,7 +156,7 @@ class Mepoo_IntegrationTest : public Test
     template <uint32_t size>
     struct MemPoolTestTopic
     {
-        char testtopic[size] = {0};
+        uint8_t testtopic[size] = {0};
     };
 
     enum class Log
@@ -261,11 +246,11 @@ class Mepoo_IntegrationTest : public Test
 
         auto notifications = waitset.wait();
 
-        ASSERT_THAT(notifications.size(), Eq(1));
+        ASSERT_THAT(notifications.size(), Eq(1U));
         if (notifications[0]->doesOriginateFrom(&subscriber))
         {
             subscriber.take().and_then([&](auto& sample) {
-                ASSERT_THAT(sample->size(), Eq(2)); // internal and user mempools
+                ASSERT_THAT(sample->size(), Eq(2U)); // internal and user mempools
                 memPoolInfoContainer = sample->at(1).m_mempoolInfo;
                 // internally, the chunks are adjusted to the additional management information;
                 // this needs to be subtracted to be able to compare to the configured sizes
@@ -284,12 +269,12 @@ class Mepoo_IntegrationTest : public Test
     uint32_t indexOfMempool(std::vector<TestMemPoolConfig>& testMempoolConfig) const
     {
         using Topic = MemPoolTestTopic<size>;
-        constexpr auto topicSize = sizeof(Topic);
+        constexpr auto TOPIC_SIZE = sizeof(Topic);
 
         uint32_t index = 0;
         for (const auto& mempoolConfig : testMempoolConfig)
         {
-            if (topicSize <= mempoolConfig.chunkSize)
+            if (TOPIC_SIZE <= mempoolConfig.chunkSize)
             {
                 break;
             }
@@ -299,7 +284,8 @@ class Mepoo_IntegrationTest : public Test
     }
 
     template <uint32_t size>
-    bool sendreceivesample(const int& times)
+    bool sendReceiveSample(const uint32_t& times,
+                           iox::cxx::optional<iox::popo::AllocationError> expectedAllocationError = iox::cxx::nullopt)
     {
         using Topic = MemPoolTestTopic<size>;
         constexpr auto TOPIC_SIZE = sizeof(Topic);
@@ -317,31 +303,54 @@ class Mepoo_IntegrationTest : public Test
 
         m_roudiEnv->InterOpWait();
 
-        for (int idx = 0; idx < times; ++idx)
+        bool hasRunAsExpected = true;
+        for (uint32_t idx = 0; idx < times; ++idx)
         {
-            publisherPort
-                ->tryAllocateChunk(
-                    TOPIC_SIZE, TOPIC_ALIGNMENT, iox::CHUNK_NO_USER_HEADER_SIZE, iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
-                .and_then([&](auto sample) {
-                    new (sample->userPayload()) Topic;
-                    publisherPort->sendChunk(sample);
-                    m_roudiEnv->InterOpWait();
-                });
+            auto allocationResult = publisherPort
+                                        ->tryAllocateChunk(TOPIC_SIZE,
+                                                           TOPIC_ALIGNMENT,
+                                                           iox::CHUNK_NO_USER_HEADER_SIZE,
+                                                           iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
+                                        .and_then([&](auto sample) {
+                                            new (sample->userPayload()) Topic;
+                                            publisherPort->sendChunk(sample);
+                                            m_roudiEnv->InterOpWait();
+                                        });
+
+            if (!allocationResult.has_error())
+            {
+                hasRunAsExpected &= !expectedAllocationError.has_value();
+                EXPECT_FALSE(expectedAllocationError.has_value());
+            }
+            else if (!expectedAllocationError.has_value())
+            {
+                hasRunAsExpected = false;
+                std::cout << "Did not expect an error but got: " << static_cast<uint32_t>(allocationResult.get_error())
+                          << std::endl;
+                EXPECT_TRUE(hasRunAsExpected);
+            }
+            else if (allocationResult.get_error() != expectedAllocationError.value())
+            {
+                hasRunAsExpected = false;
+                std::cout << "Expected error: " << static_cast<uint32_t>(expectedAllocationError.value()) << std::endl;
+                std::cout << "But got: " << static_cast<uint32_t>(allocationResult.get_error()) << std::endl;
+                EXPECT_TRUE(hasRunAsExpected);
+            }
         }
 
-        return true;
+        return hasRunAsExpected;
     }
 
-    static constexpr uint32_t DefaultNumChunks = 10;
+    static constexpr uint32_t DEFAULT_NUMBER_OF_CHUNKS{10U};
 
     std::vector<TestMemPoolConfig> defaultMemPoolConfig()
     {
-        constexpr int MempoolCount = 6;
+        constexpr uint32_t MEMPOOL_COUNT = 6U;
         std::vector<TestMemPoolConfig> defaultConfig;
         uint32_t power = 5;
-        for (int i = 0; i < MempoolCount; ++i)
+        for (uint32_t i = 0; i < MEMPOOL_COUNT; ++i)
         {
-            defaultConfig.push_back({1u << power, DefaultNumChunks});
+            defaultConfig.push_back({1u << power, DEFAULT_NUMBER_OF_CHUNKS});
             ++power;
         }
 
@@ -358,6 +367,8 @@ class Mepoo_IntegrationTest : public Test
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
 };
 
+constexpr uint32_t Mepoo_IntegrationTest::DEFAULT_NUMBER_OF_CHUNKS;
+
 
 TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
 {
@@ -367,26 +378,25 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
 
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
 
-    constexpr int samplesize1 = 200;
-    const int repetition1 = 1;
-    ASSERT_TRUE(sendreceivesample<samplesize1>(repetition1));
-    auto mempolIndex1 = indexOfMempool<samplesize1>(testMempoolConfig);
-    memPoolTestContainer[mempolIndex1].m_usedChunks = repetition1;
+    constexpr uint32_t SAMPLE_SIZE_1 = 200U;
+    constexpr uint32_t REPETITION_1 = 1U;
+    ASSERT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(REPETITION_1));
+    auto mempolIndex1 = indexOfMempool<SAMPLE_SIZE_1>(testMempoolConfig);
+    memPoolTestContainer[mempolIndex1].m_usedChunks = REPETITION_1;
     memPoolTestContainer[mempolIndex1].m_minFreeChunks =
-        memPoolTestContainer[mempolIndex1].m_minFreeChunks - repetition1;
+        memPoolTestContainer[mempolIndex1].m_minFreeChunks - REPETITION_1;
 
     m_roudiEnv->InterOpWait();
 
-    constexpr int samplesize2 = 450;
-    const int repetition2 = 3;
-    ASSERT_TRUE(sendreceivesample<samplesize2>(repetition2));
-    auto mempolIndex2 = indexOfMempool<samplesize2>(testMempoolConfig);
-    memPoolTestContainer[mempolIndex2].m_usedChunks = repetition2;
+    constexpr uint32_t SAMPLE_SIZE_2 = 450U;
+    constexpr uint32_t REPETITION_2 = 3U;
+    ASSERT_TRUE(sendReceiveSample<SAMPLE_SIZE_2>(REPETITION_2));
+    auto mempolIndex2 = indexOfMempool<SAMPLE_SIZE_2>(testMempoolConfig);
+    memPoolTestContainer[mempolIndex2].m_usedChunks = REPETITION_2;
     memPoolTestContainer[mempolIndex2].m_minFreeChunks =
-        memPoolTestContainer[mempolIndex2].m_minFreeChunks - repetition2;
+        memPoolTestContainer[mempolIndex2].m_minFreeChunks - REPETITION_2;
 
     m_roudiEnv->InterOpWait();
-
 
     // get mempoolconfig from introspection
     MemPoolInfoContainer memPoolInfoContainer;
@@ -401,21 +411,18 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
-    constexpr int samplesize3 = 2048;
-    const int repetition3 = 1;
-    auto errorHandlerCalled{false};
-    iox::Error receivedError{iox::Error::kNO_ERROR};
+    constexpr uint32_t SAMPLE_SIZE = 2048U;
+    constexpr uint32_t REPETITION = 1U;
+    iox::cxx::optional<iox::Error> receivedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&errorHandlerCalled,
-         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-            receivedError = error;
+        [&receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            receivedError.emplace(error);
         });
 
-    sendreceivesample<samplesize3>(repetition3);
+    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE}));
 
-    EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
+    ASSERT_TRUE(receivedError.has_value());
+    EXPECT_THAT(receivedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
 }
 
 TEST_F(Mepoo_IntegrationTest, SampleOverflow)
@@ -423,21 +430,22 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
-    constexpr int samplesize1 = 200;
-    const int repetition1 = 2 * DefaultNumChunks;
-    auto errorHandlerCalled{false};
-    iox::Error receivedError{iox::Error::kNO_ERROR};
+    constexpr uint32_t SAMPLE_SIZE_1 = 200U;
+    constexpr uint32_t REPETITION = 1U;
+    iox::cxx::optional<iox::Error> receivedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&errorHandlerCalled,
-         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-            receivedError = error;
+        [&receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            receivedError.emplace(error);
         });
 
-    sendreceivesample<samplesize1>(repetition1);
+    // make the mempool empty
+    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(DEFAULT_NUMBER_OF_CHUNKS));
 
-    EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
+    // trigger out of chunk error
+    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(REPETITION, {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS}));
+
+    ASSERT_TRUE(receivedError.has_value());
+    ASSERT_THAT(receivedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
 }
 
 TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5), [&] {

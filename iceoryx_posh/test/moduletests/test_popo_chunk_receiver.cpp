@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,14 +63,12 @@ class ChunkReceiver_test : public Test
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
-        EXPECT_FALSE(chunkSettingsResult.has_error());
-        if (chunkSettingsResult.has_error())
-        {
-            return nullptr;
-        }
+        iox::cxx::Ensures(!chunkSettingsResult.has_error());
         auto& chunkSettings = chunkSettingsResult.value();
 
-        return m_memoryManager.getChunk(chunkSettings);
+        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
+        iox::cxx::Ensures(!getChunkResult.has_error());
+        return getChunkResult.value();
     }
 
     static constexpr size_t MEGABYTE = 1 << 20;

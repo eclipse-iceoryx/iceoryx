@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,11 +34,22 @@ namespace popo
 enum class AllocationError
 {
     INVALID_STATE,
+    NO_MEMPOOLS_AVAILABLE,
     RUNNING_OUT_OF_CHUNKS,
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
     INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
 };
+} // namespace popo
 
+namespace cxx
+{
+template <>
+constexpr popo::AllocationError
+from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error) noexcept;
+} // namespace cxx
+
+namespace popo
+{
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends
 /// the functionality of a ChunkDistributor with the abililty to allocate and free memory chunks.
 /// For getting chunks of memory the MemoryManger is used. Together with the ChunkReceiver, they are the next

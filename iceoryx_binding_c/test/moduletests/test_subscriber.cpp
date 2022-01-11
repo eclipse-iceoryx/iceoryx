@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,14 +88,12 @@ class iox_sub_test : public Test
         constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
         auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        EXPECT_FALSE(chunkSettingsResult.has_error());
-        if (chunkSettingsResult.has_error())
-        {
-            return nullptr;
-        }
+        iox::cxx::Ensures(!chunkSettingsResult.has_error());
         auto& chunkSettings = chunkSettingsResult.value();
 
-        return m_memoryManager.getChunk(chunkSettings);
+        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
+        iox::cxx::Ensures(!getChunkResult.has_error());
+        return getChunkResult.value();
     }
 
     static iox_sub_t m_triggerCallbackLatestArgument;

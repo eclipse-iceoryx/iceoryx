@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -269,20 +269,17 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 
 TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
 {
-    std::vector<SharedChunk> chunkBucket;
-    while (true)
+    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
+
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    std::vector<SharedChunk> chunkStore;
+    while (!m_memoryManager.getChunk(chunkSettings)
+                .and_then([&](auto& chunk) { chunkStore.emplace_back(chunk); })
+                .has_error())
     {
-        constexpr uint32_t USER_PAYLOAD_SIZE{100U};
-
-        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        ASSERT_FALSE(chunkSettingsResult.has_error());
-        auto& chunkSettings = chunkSettingsResult.value();
-
-        auto sharedChunk = m_memoryManager.getChunk(chunkSettings);
-        if (sharedChunk)
-            chunkBucket.emplace_back(sharedChunk);
-        else
-            break;
     }
 
     void* chunk = nullptr;
