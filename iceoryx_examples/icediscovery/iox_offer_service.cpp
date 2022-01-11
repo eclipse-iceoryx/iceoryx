@@ -55,9 +55,14 @@ int main()
     //! [direct offer]
     std::cout << "Offered service: " << radarServiceFrontRight << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::cout << "Once Ctrl-C is pressed, the publisher 'radarServiceFrontLeft' will go out of scope and call "
+                 "stopOffer() its related service"
+              << std::endl;
 
-    // Publisher will go out of scope and call stopOffer() for the related service
+    while (!killswitch)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
     return 0;
 }

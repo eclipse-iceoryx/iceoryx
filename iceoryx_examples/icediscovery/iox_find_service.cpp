@@ -48,6 +48,8 @@ int main()
         /// @todo #415 Instead of polling should we showcase the getServiceRegistryChangeCounter() or will that be
         /// removed?
 
+        std::cout << "=========================================" << std::endl;
+
         /// @todo #415 Why is the implicit conversion to cxx::variant not working?
         serviceDiscovery.findService(iox::capro::IdString_t("Radar"), iox::capro::IdString_t("FrontLeft"))
             .and_then([](auto& serviceContainter) {
@@ -76,7 +78,7 @@ int main()
             .or_else([](auto& error) {
                 std::cerr << "findService() call failed with: " << static_cast<uint64_t>(error) << std::endl;
             });
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
 
