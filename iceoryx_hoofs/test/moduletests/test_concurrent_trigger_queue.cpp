@@ -67,11 +67,8 @@ using TriggerQueueTestSubjects = Types<TriggerQueue<uint64_t, 1, FiFo>,
                                        TriggerQueue<uint64_t, 10, ResizeableLockFreeQueue>,
                                        TriggerQueue<uint64_t, 100, ResizeableLockFreeQueue>>;
 
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(TriggerQueue_test, TriggerQueueTestSubjects);
-#pragma GCC diagnostic pop
+TYPED_TEST_SUITE(TriggerQueue_test, TriggerQueueTestSubjects);
+
 
 TYPED_TEST(TriggerQueue_test, EmptyOnConstruction)
 {

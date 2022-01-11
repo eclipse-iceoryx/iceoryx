@@ -73,11 +73,9 @@ class TypedUniqueId_test : public Test
 };
 
 using Implementations = Types<TypedUniqueId<int>, TypedUniqueId<float>>;
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(TypedUniqueId_test, Implementations);
-#pragma GCC diagnostic pop
+
+TYPED_TEST_SUITE(TypedUniqueId_test, Implementations);
+
 
 TYPED_TEST(TypedUniqueId_test, DefaultConstructorIncrementsID)
 {

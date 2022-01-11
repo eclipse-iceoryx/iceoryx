@@ -232,39 +232,39 @@ class ChunkSettings_AlteringUserPayloadWithoutUserHeader : public ::testing::Tes
 
 // without a user-header, the user-payload is located right after the ChunkHeader, therefore the user-payload size and
 // alignment parameters are made dependant on the ChunkHeader
-INSTANTIATE_TEST_CASE_P(ChunkSettings_test,
-                        ChunkSettings_AlteringUserPayloadWithoutUserHeader,
-                        ::testing::Values(
-                            // alignment = 0
-                            PayloadParams{0U, 0U},
-                            PayloadParams{1U, 0U},
-                            PayloadParams{sizeof(ChunkHeader), 0U},
-                            PayloadParams{sizeof(ChunkHeader) * 42U, 0U},
-                            // alignment = 1
-                            PayloadParams{0U, 1U},
-                            PayloadParams{1U, 1U},
-                            PayloadParams{sizeof(ChunkHeader), 1U},
-                            PayloadParams{sizeof(ChunkHeader) * 42U, 1U},
-                            // alignment = alignof(ChunkHeader) / 2
-                            PayloadParams{0U, alignof(ChunkHeader) / 2},
-                            PayloadParams{1U, alignof(ChunkHeader) / 2},
-                            PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) / 2},
-                            PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) / 2},
-                            // alignment = alignof(ChunkHeader)
-                            PayloadParams{0U, alignof(ChunkHeader)},
-                            PayloadParams{1U, alignof(ChunkHeader)},
-                            PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader)},
-                            PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader)},
-                            // alignment = alignof(ChunkHeader) * 2
-                            PayloadParams{0U, alignof(ChunkHeader) * 2},
-                            PayloadParams{1U, alignof(ChunkHeader) * 2},
-                            PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) * 2},
-                            PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) * 2},
-                            // alignment = PayloadParams::MAX_ALIGNMENT
-                            PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{sizeof(ChunkHeader), PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{sizeof(ChunkHeader) * 42U, PayloadParams::MAX_ALIGNMENT}));
+INSTANTIATE_TEST_SUITE_P(ChunkSettings_test,
+                         ChunkSettings_AlteringUserPayloadWithoutUserHeader,
+                         ::testing::Values(
+                             // alignment = 0
+                             PayloadParams{0U, 0U},
+                             PayloadParams{1U, 0U},
+                             PayloadParams{sizeof(ChunkHeader), 0U},
+                             PayloadParams{sizeof(ChunkHeader) * 42U, 0U},
+                             // alignment = 1
+                             PayloadParams{0U, 1U},
+                             PayloadParams{1U, 1U},
+                             PayloadParams{sizeof(ChunkHeader), 1U},
+                             PayloadParams{sizeof(ChunkHeader) * 42U, 1U},
+                             // alignment = alignof(ChunkHeader) / 2
+                             PayloadParams{0U, alignof(ChunkHeader) / 2},
+                             PayloadParams{1U, alignof(ChunkHeader) / 2},
+                             PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) / 2},
+                             PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) / 2},
+                             // alignment = alignof(ChunkHeader)
+                             PayloadParams{0U, alignof(ChunkHeader)},
+                             PayloadParams{1U, alignof(ChunkHeader)},
+                             PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader)},
+                             PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader)},
+                             // alignment = alignof(ChunkHeader) * 2
+                             PayloadParams{0U, alignof(ChunkHeader) * 2},
+                             PayloadParams{1U, alignof(ChunkHeader) * 2},
+                             PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) * 2},
+                             PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) * 2},
+                             // alignment = PayloadParams::MAX_ALIGNMENT
+                             PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
+                             PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
+                             PayloadParams{sizeof(ChunkHeader), PayloadParams::MAX_ALIGNMENT},
+                             PayloadParams{sizeof(ChunkHeader) * 42U, PayloadParams::MAX_ALIGNMENT}));
 
 TEST_P(ChunkSettings_AlteringUserPayloadWithoutUserHeader, RequiredChunkSizeIsCorrect)
 {
@@ -301,39 +301,39 @@ class ChunkSettings_AlteringUserPayloadWithUserHeader : public ::testing::TestWi
 
 // with a user-header, the user-payload is located right after the UserPayloadOffset_t, therefore the user-payload size
 // and alignment parameters are made dependant on the UserPayloadOffset_t
-INSTANTIATE_TEST_CASE_P(ChunkSettings_test,
-                        ChunkSettings_AlteringUserPayloadWithUserHeader,
-                        ::testing::Values(
-                            // alignment = 0
-                            PayloadParams{0U, 0U},
-                            PayloadParams{1U, 0U},
-                            PayloadParams{sizeof(UserPayloadOffset_t), 0U},
-                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, 0U},
-                            // alignment = 1
-                            PayloadParams{0U, 1U},
-                            PayloadParams{1U, 1U},
-                            PayloadParams{sizeof(UserPayloadOffset_t), 1U},
-                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, 1U},
-                            // alignment = alignof(UserPayloadOffset_t) / 2
-                            PayloadParams{0U, alignof(UserPayloadOffset_t) / 2},
-                            PayloadParams{1U, alignof(UserPayloadOffset_t) / 2},
-                            PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t) / 2},
-                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t) / 2},
-                            // alignment = alignof(UserPayloadOffset_t)
-                            PayloadParams{0U, alignof(UserPayloadOffset_t)},
-                            PayloadParams{1U, alignof(UserPayloadOffset_t)},
-                            PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t)},
-                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t)},
-                            // alignment = alignof(UserPayloadOffset_t) * 2
-                            PayloadParams{0U, alignof(UserPayloadOffset_t) * 2},
-                            PayloadParams{1U, alignof(UserPayloadOffset_t) * 2},
-                            PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t) * 2},
-                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t) * 2},
-                            // alignment = PayloadParams::MAX_ALIGNMENT
-                            PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{sizeof(UserPayloadOffset_t), PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, PayloadParams::MAX_ALIGNMENT}));
+INSTANTIATE_TEST_SUITE_P(ChunkSettings_test,
+                         ChunkSettings_AlteringUserPayloadWithUserHeader,
+                         ::testing::Values(
+                             // alignment = 0
+                             PayloadParams{0U, 0U},
+                             PayloadParams{1U, 0U},
+                             PayloadParams{sizeof(UserPayloadOffset_t), 0U},
+                             PayloadParams{sizeof(UserPayloadOffset_t) * 42U, 0U},
+                             // alignment = 1
+                             PayloadParams{0U, 1U},
+                             PayloadParams{1U, 1U},
+                             PayloadParams{sizeof(UserPayloadOffset_t), 1U},
+                             PayloadParams{sizeof(UserPayloadOffset_t) * 42U, 1U},
+                             // alignment = alignof(UserPayloadOffset_t) / 2
+                             PayloadParams{0U, alignof(UserPayloadOffset_t) / 2},
+                             PayloadParams{1U, alignof(UserPayloadOffset_t) / 2},
+                             PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t) / 2},
+                             PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t) / 2},
+                             // alignment = alignof(UserPayloadOffset_t)
+                             PayloadParams{0U, alignof(UserPayloadOffset_t)},
+                             PayloadParams{1U, alignof(UserPayloadOffset_t)},
+                             PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t)},
+                             PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t)},
+                             // alignment = alignof(UserPayloadOffset_t) * 2
+                             PayloadParams{0U, alignof(UserPayloadOffset_t) * 2},
+                             PayloadParams{1U, alignof(UserPayloadOffset_t) * 2},
+                             PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t) * 2},
+                             PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t) * 2},
+                             // alignment = PayloadParams::MAX_ALIGNMENT
+                             PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
+                             PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
+                             PayloadParams{sizeof(UserPayloadOffset_t), PayloadParams::MAX_ALIGNMENT},
+                             PayloadParams{sizeof(UserPayloadOffset_t) * 42U, PayloadParams::MAX_ALIGNMENT}));
 
 uint32_t expectedChunkSizeWithUserHeader(const PayloadParams& userPayload, uint32_t userHeaderSize)
 {

@@ -1,5 +1,5 @@
 // Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,12 +78,12 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
     uint64_t MEMORY_ALIGNMENT_1{8};
     uint64_t MEMORY_SIZE_2{32};
     uint64_t MEMORY_ALIGNMENT_2{16};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_1));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
-    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_));
-    EXPECT_CALL(memoryBlock2, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_2));
-    EXPECT_CALL(memoryBlock2, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
-    EXPECT_CALL(memoryBlock2, onMemoryAvailableMock(_));
+    EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
+    EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
+    EXPECT_CALL(memoryBlock1, onMemoryAvailable(_));
+    EXPECT_CALL(memoryBlock2, size()).WillRepeatedly(Return(MEMORY_SIZE_2));
+    EXPECT_CALL(memoryBlock2, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
+    EXPECT_CALL(memoryBlock2, onMemoryAvailable(_));
 
     IOX_DISCARD_RESULT(memoryProvider1.addMemoryBlock(&memoryBlock1));
     IOX_DISCARD_RESULT(memoryProvider2.addMemoryBlock(&memoryBlock2));
@@ -93,8 +93,8 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
 
     EXPECT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(false));
 
-    EXPECT_CALL(memoryBlock1, destroyMock());
-    EXPECT_CALL(memoryBlock2, destroyMock());
+    EXPECT_CALL(memoryBlock1, destroy());
+    EXPECT_CALL(memoryBlock2, destroy());
 }
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)
@@ -112,9 +112,9 @@ TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDest
 {
     uint64_t MEMORY_SIZE_1{16};
     uint64_t MEMORY_ALIGNMENT_1{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_1));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
-    EXPECT_CALL(memoryBlock1, onMemoryAvailableMock(_));
+    EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
+    EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
+    EXPECT_CALL(memoryBlock1, onMemoryAvailable(_));
 
     IOX_DISCARD_RESULT(memoryProvider1.addMemoryBlock(&memoryBlock1));
 
@@ -122,9 +122,9 @@ TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDest
         RouDiMemoryManager sutDestroy;
         ASSERT_FALSE(sutDestroy.addMemoryProvider(&memoryProvider1).has_error());
         ASSERT_FALSE(sutDestroy.createAndAnnounceMemory().has_error());
-        EXPECT_CALL(memoryBlock1, destroyMock()).Times(1);
+        EXPECT_CALL(memoryBlock1, destroy()).Times(1);
     }
-    EXPECT_CALL(memoryBlock1, destroyMock()).Times(0);
+    EXPECT_CALL(memoryBlock1, destroy()).Times(0);
 }
 
 TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)

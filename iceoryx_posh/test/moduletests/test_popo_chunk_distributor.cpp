@@ -36,11 +36,9 @@ using namespace iox::cxx;
 using namespace iox::mepoo;
 
 using ChunkDistributorTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ChunkDistributor_test, ChunkDistributorTestSubjects);
-#pragma GCC diagnostic pop
+
+TYPED_TEST_SUITE(ChunkDistributor_test, ChunkDistributorTestSubjects);
+
 
 template <typename PolicyType>
 class ChunkDistributor_test : public Test

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
         auto s = std::move(sample); // this step is necessary since the mock method doesn't execute the move
         return publishMock(std::move(s));
     }
-    MOCK_METHOD1_T(publishMock, void(iox::popo::Sample<T, H>&&));
+    MOCK_METHOD(void, publishMock, ((iox::popo::Sample<T, H> &&)), (noexcept));
 };
 
 class SampleTest : public Test
@@ -124,10 +124,6 @@ TEST_F(SampleTest, CallingGetUserHeaderFromNonConstTypeReturnsCorrectAddress)
     MockPublisherInterface<DummyData, DummyHeader> mockPublisherInterface{};
 
     auto sut = iox::popo::Sample<DummyData, DummyHeader>(std::move(testSamplePtr), mockPublisherInterface);
-
-    // this line is actually not needed for the tests but if it is not present gmock raises a unused-function warning in
-    // gmock-spec-builders.h which breaks the build with -Werror
-    EXPECT_CALL(mockPublisherInterface, publishMock).Times(0);
 
     // ===== Test ===== //
     auto& userHeader = sut.getUserHeader();

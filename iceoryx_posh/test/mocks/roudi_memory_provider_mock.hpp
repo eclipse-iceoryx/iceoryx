@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
         dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
         return iox::cxx::success<void*>(dummyMemory);
     }
-    MOCK_METHOD2(createMemoryMock, void(uint64_t, uint64_t));
+    MOCK_METHOD(void, createMemoryMock, (uint64_t, uint64_t), (noexcept));
 
     iox::cxx::expected<iox::roudi::MemoryProviderError> destroyMemory() noexcept override
     {
@@ -63,7 +63,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
 
         return iox::cxx::success<void>();
     }
-    MOCK_METHOD0(destroyMemoryMock, void());
+    MOCK_METHOD(void, destroyMemoryMock, (), (noexcept));
 
     uint8_t* dummyMemory{nullptr};
 

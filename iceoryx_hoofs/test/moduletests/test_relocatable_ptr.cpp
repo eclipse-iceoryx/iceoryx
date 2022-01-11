@@ -185,11 +185,8 @@ class Relocatable_ptr_test : public Test
 
 typedef ::testing::Types<int, Data, void, char*, const Data, const void> TestTypes;
 
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(Relocatable_ptr_typed_test, TestTypes);
-#pragma GCC diagnostic pop
+TYPED_TEST_SUITE(Relocatable_ptr_typed_test, TestTypes);
+
 
 TYPED_TEST(Relocatable_ptr_typed_test, wrappedPointerTypeIsCorrect)
 {

@@ -366,11 +366,7 @@ using HalfFull3 = HalfFull<Data, Large>;
 /// @endcode
 typedef ::testing::Types<HalfFull2> TestConfigs;
 
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ResizeableLockFreeQueueStressTest, TestConfigs);
-#pragma GCC diagnostic pop
+TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
 
 
 ///@brief Tests concurrent operation of multiple producers and consumers

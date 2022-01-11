@@ -54,10 +54,7 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParseDefaultConfigIsSuccessful)
     EXPECT_FALSE(result.has_error());
 }
 
-/// we require INSTANTIATE_TEST_CASE_P since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     ParseAllMalformedInputConfigFiles,
     RoudiConfigTomlFileProvider_test,
     Values(ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::NO_GENERAL_SECTION,
@@ -78,7 +75,7 @@ INSTANTIATE_TEST_CASE_P(
                                  "roudi_config_error_mempool_without_chunk_count.toml"},
            ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER,
                                  "toml_parser_exception.toml"}));
-#pragma GCC diagnostic pop
+
 
 TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)
 {

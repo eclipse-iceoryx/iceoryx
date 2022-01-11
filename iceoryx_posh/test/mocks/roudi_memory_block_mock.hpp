@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,33 +24,10 @@
 class MemoryBlockMock final : public iox::roudi::MemoryBlock
 {
   public:
-    /// @note with gmock 1.8 it is not possible to mock functions with the noexcept specifier, therefore this
-    /// interesting mock implementation
-
-    uint64_t size() const noexcept override
-    {
-        return sizeMock();
-    }
-
-    uint64_t alignment() const noexcept override
-    {
-        return alignmentMock();
-    }
-
-    void onMemoryAvailable(iox::cxx::not_null<void*> memory) noexcept override
-    {
-        onMemoryAvailableMock(memory);
-    }
-
-    void destroy() noexcept override
-    {
-        destroyMock();
-    }
-
-    MOCK_CONST_METHOD0(sizeMock, uint64_t());
-    MOCK_CONST_METHOD0(alignmentMock, uint64_t());
-    MOCK_METHOD1(onMemoryAvailableMock, void(iox::cxx::not_null<void*>));
-    MOCK_METHOD0(destroyMock, void());
+    MOCK_METHOD(uint64_t, size, (), (const, noexcept, override));
+    MOCK_METHOD(uint64_t, alignment, (), (const, noexcept, override));
+    MOCK_METHOD(void, onMemoryAvailable, (iox::cxx::not_null<void*>), (noexcept, override));
+    MOCK_METHOD(void, destroy, (), (noexcept, override));
 };
 
 #endif // IOX_POSH_MOCKS_ROUDI_MEMORY_BLOCK_MOCK_HPP
