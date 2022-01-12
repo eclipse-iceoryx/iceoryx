@@ -86,30 +86,35 @@ class PeriodicTask_test : public Test
 
 TEST_F(PeriodicTask_test, CopyConstructorIsDeleted)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b62ff99f-bed3-4c46-8c30-701968f7a217");
     EXPECT_TRUE(std::is_copy_constructible<PeriodicTaskTestType>::value);
     EXPECT_FALSE(std::is_copy_constructible<concurrent::PeriodicTask<PeriodicTaskTestType>>::value);
 }
 
 TEST_F(PeriodicTask_test, MoveConstructorIsDeleted)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aa8f709b-b992-406e-bb40-d9da388fa0e1");
     EXPECT_TRUE(std::is_move_constructible<PeriodicTaskTestType>::value);
     EXPECT_FALSE(std::is_move_constructible<concurrent::PeriodicTask<PeriodicTaskTestType>>::value);
 }
 
 TEST_F(PeriodicTask_test, CopyAssignmentIsDeleted)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4f6efb3-7440-4929-8a09-ef7e0489a78d");
     EXPECT_TRUE(std::is_copy_assignable<PeriodicTaskTestType>::value);
     EXPECT_FALSE(std::is_copy_assignable<concurrent::PeriodicTask<PeriodicTaskTestType>>::value);
 }
 
 TEST_F(PeriodicTask_test, MoveAssignmentIsDeleted)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a3f8991b-1b97-4d31-93f3-dacb69fd440f");
     EXPECT_TRUE(std::is_move_assignable<PeriodicTaskTestType>::value);
     EXPECT_FALSE(std::is_move_assignable<concurrent::PeriodicTask<PeriodicTaskTestType>>::value);
 }
 
 TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithoutIntervalIsInactive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "37c092b9-d44b-4de2-8599-39ac8234d69e");
     concurrent::PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskManualStart, "Test");
 
     EXPECT_THAT(sut.isActive(), Eq(false));
@@ -117,6 +122,7 @@ TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithoutIntervalIsInactive)
 
 TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithoutIntervalIsActiveAfterCallingStart)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "02e24d7f-c990-4c76-af26-e86e43beb151");
     concurrent::PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskManualStart, "Test");
     sut.start(INTERVAL);
 
@@ -125,6 +131,7 @@ TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithoutIntervalIsActiveAfterCal
 
 TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithIntervalIsActive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4ff6df91-8fff-4edf-a452-d35dfac77a78");
     concurrent::PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskAutoStart, INTERVAL, "Test");
 
     EXPECT_THAT(sut.isActive(), Eq(true));
@@ -132,6 +139,7 @@ TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithIntervalIsActive)
 
 TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithIntervalIsInactiveAfterCallingStop)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f0311c9a-f605-4517-b118-94d2513ecc26");
     concurrent::PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskAutoStart, INTERVAL, "Test");
     sut.stop();
 
@@ -140,6 +148,7 @@ TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithIntervalIsInactiveAfterCall
 
 TEST_F(PeriodicTask_test, PeriodicTaskWhichIsInactiveDoesNotExecuteTheCallable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c48d19c8-170f-4714-a294-6fafb4a04a7f");
     {
         concurrent::PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskManualStart, "Test");
 

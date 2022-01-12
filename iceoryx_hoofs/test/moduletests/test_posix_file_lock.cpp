@@ -61,6 +61,7 @@ class FileLock_test : public Test
 
 TEST_F(FileLock_test, EmptyNameLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dfbcbeba-fe6a-452d-8fb0-3f4c1793c44d");
     auto sut2 = iox::posix::FileLock::create("");
     ASSERT_TRUE(sut2.has_error());
     EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_FILE_NAME));
@@ -68,6 +69,7 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
 
 TEST_F(FileLock_test, MaxStringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1cf3418d-51d1-4ead-9001-e0d8e61617f0");
     const FileLock::FileName_t maxString(iox::cxx::TruncateToCapacity,
                                          std::string(FileLock::FileName_t().capacity(), 'x'));
     auto sut2 = iox::posix::FileLock::create(maxString);
@@ -76,12 +78,14 @@ TEST_F(FileLock_test, MaxStringWorks)
 
 TEST_F(FileLock_test, SecondLockWithDifferentNameWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "05f8c97a-f29d-40ca-91f4-525fc4e98683");
     auto sut2 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);
     ASSERT_FALSE(sut2.has_error());
 }
 
 TEST_F(FileLock_test, LockAndReleaseWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a884cf3f-178d-4711-be9b-6e5260d0e0e7");
     {
         IOX_DISCARD_RESULT(iox::posix::FileLock::create(ANOTHER_TEST_NAME));
     }
@@ -91,6 +95,7 @@ TEST_F(FileLock_test, LockAndReleaseWorks)
 
 TEST_F(FileLock_test, CreatingSameFileLockAgainFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ed3af1c8-4a84-4d4f-a267-c4a80481dc42");
     auto sut2 = iox::posix::FileLock::create(TEST_NAME);
     ASSERT_TRUE(sut2.has_error());
     EXPECT_THAT(sut2.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
@@ -98,6 +103,7 @@ TEST_F(FileLock_test, CreatingSameFileLockAgainFails)
 
 TEST_F(FileLock_test, MoveCtorInvalidatesRhs)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9eb39f39-f5e2-4d43-8945-7e0424610c3e");
     auto movedSut{std::move(m_sut.value())};
     ASSERT_FALSE(m_sut.value().isInitialized());
     ASSERT_TRUE(movedSut.isInitialized());
@@ -105,6 +111,7 @@ TEST_F(FileLock_test, MoveCtorInvalidatesRhs)
 
 TEST_F(FileLock_test, MoveCtorTransfersLock)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0ba1f8d8-3bd5-46ee-aba8-5dff7e712026");
     auto movedSut{std::move(m_sut.value())};
     auto anotherLock = iox::posix::FileLock::create(TEST_NAME);
     ASSERT_TRUE(anotherLock.has_error());
@@ -113,6 +120,7 @@ TEST_F(FileLock_test, MoveCtorTransfersLock)
 
 TEST_F(FileLock_test, MoveAssignInvalidatesRhs)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "705627aa-9e8e-478e-8086-38fb899a4b70");
     auto movedSut = std::move(m_sut.value());
     ASSERT_FALSE(m_sut.value().isInitialized());
     ASSERT_TRUE(movedSut.isInitialized());
@@ -120,6 +128,7 @@ TEST_F(FileLock_test, MoveAssignInvalidatesRhs)
 
 TEST_F(FileLock_test, MoveAssignTransfersLock)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cd9ee3d0-4f57-44e1-b01c-f892610e805a");
     auto movedSut = std::move(m_sut.value());
     auto anotherLock = iox::posix::FileLock::create(TEST_NAME);
     ASSERT_TRUE(anotherLock.has_error());

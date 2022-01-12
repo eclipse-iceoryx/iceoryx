@@ -126,6 +126,7 @@ class ObjectPool_test : public Test
 // behaviour  many other tests depend on this behaviour to track construction/destruction and associated data
 TEST_F(ObjectPool_test, poolObjectBehaviour)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f8381e4b-b775-47f1-aaac-3c3ac7484df6");
     // check that Foo objects behave correctly (i.e. static constructionCounter works and destructor effects data)
     int data = 73; // databuffer of foo
     {
@@ -155,6 +156,7 @@ TEST_F(ObjectPool_test, poolObjectBehaviour)
 
 TEST_F(ObjectPool_test, construction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7b8a278a-7a3c-4b32-8e81-f0072d97e5c2");
     // pool initialized correctly, check size and capacity
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
@@ -164,6 +166,7 @@ TEST_F(ObjectPool_test, construction)
 
 TEST_F(ObjectPool_test, reserve)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a91fc2f1-9d6d-4e85-9a3d-4620e31478ef");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -184,6 +187,7 @@ TEST_F(ObjectPool_test, reserve)
 
 TEST_F(ObjectPool_test, default_construct)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "50fad76a-5eec-4812-b509-908f09ed71ac");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -204,6 +208,7 @@ TEST_F(ObjectPool_test, default_construct)
 
 TEST_F(ObjectPool_test, parameter_construct)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b0af6d2-3baf-4620-92e1-fe14770b03fd");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -228,6 +233,7 @@ TEST_F(ObjectPool_test, parameter_construct)
 
 TEST_F(ObjectPool_test, add)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e5c09e18-a3dc-46e5-a8d8-fac27c3c8c47");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -255,6 +261,7 @@ TEST_F(ObjectPool_test, add)
 
 TEST_F(ObjectPool_test, size_and_remove)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "696ba57c-d761-4c8a-bb5f-60a519172a69");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -291,6 +298,7 @@ TEST_F(ObjectPool_test, size_and_remove)
 
 TEST_F(ObjectPool_test, bracket_operator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "79f4e1f0-cfeb-474c-a2f3-7b7b92cad27f");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -322,6 +330,7 @@ TEST_F(ObjectPool_test, bracket_operator)
 
 TEST_F(ObjectPool_test, allocate)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "89ed7083-42be-4f71-bf31-9ce3ea5db6cf");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -341,6 +350,7 @@ TEST_F(ObjectPool_test, allocate)
 
 TEST_F(ObjectPool_test, default_create)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "874342ce-0680-4634-b651-f72c2dee24c4");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -361,6 +371,7 @@ TEST_F(ObjectPool_test, default_create)
 
 TEST_F(ObjectPool_test, parameter_create)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b08141d9-23b9-4a36-a694-236dce2ceaf7");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -385,6 +396,7 @@ TEST_F(ObjectPool_test, parameter_create)
 
 TEST_F(ObjectPool_test, destruct_free)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "efd63af2-3c59-491f-b92b-4d9faa548e9b");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -421,6 +433,7 @@ TEST_F(ObjectPool_test, destruct_free)
 
 TEST_F(ObjectPool_test, default_free)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "55b755e5-8195-4fe4-8336-044416e644cd");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -468,6 +481,7 @@ TEST_F(ObjectPool_test, default_free)
 
 TEST_F(ObjectPool_test, insert)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d362be33-4ac1-420d-8502-c4dad69a66ff");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -494,6 +508,7 @@ TEST_F(ObjectPool_test, insert)
 
 TEST_F(ObjectPool_test, get)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9328ee17-c705-48ac-bcc6-e6a13d73829c");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -539,6 +554,7 @@ TEST_F(ObjectPool_test, get)
 
 TEST_F(ObjectPool_test, pointerToIndexConversion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "69ece67d-0d9e-44a3-bb16-956bdc591ee3");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
@@ -575,6 +591,7 @@ TEST_F(ObjectPool_test, pointerToIndexConversion)
 
 TEST_F(ObjectPool_test, pointerToIndexLegalPointerConversion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0e03caaa-1d47-4c19-823a-5456b732bff6");
     data = 0;
     EXPECT_THAT(poolExposed.construct(data), Ne(NO_INDEX));
 
@@ -589,6 +606,7 @@ TEST_F(ObjectPool_test, pointerToIndexLegalPointerConversion)
 
 TEST_F(ObjectPool_test, pointerToIndexIllegalPointerConversion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9f127dc6-944d-4723-8e99-cf45ed75e4ff");
     data = 0;
     EXPECT_THAT(poolExposed.construct(data), Ne(NO_INDEX));
 
@@ -608,6 +626,7 @@ TEST_F(ObjectPool_test, pointerToIndexIllegalPointerConversion)
 // also test whether finding the next free cell (if it exists) works correctly
 TEST_F(ObjectPool_test, nextFree)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d554c604-186f-4372-8ce7-633df8aeddcc");
     EXPECT_THAT(poolExposed.size(), Eq(0U));
     EXPECT_THAT(poolExposed.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by poolExposed
@@ -633,6 +652,7 @@ TEST_F(ObjectPool_test, nextFree)
 
 TEST_F(ObjectPool_test, destructor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "138bcd54-54e8-47ef-a0d0-dbf464789e41");
     // allocate objects without construction
     {
         FooPool localPool; // local pool, to check destruction of objects
@@ -723,6 +743,7 @@ TEST_F(ObjectPool_test, destructor)
 // test all iterator functions in this test since they are closely related
 TEST_F(ObjectPool_test, iterator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2a8ffc21-1ec3-4319-ac2e-89db82f80c98");
     EXPECT_THAT(pool.size(), Eq(0U));
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool

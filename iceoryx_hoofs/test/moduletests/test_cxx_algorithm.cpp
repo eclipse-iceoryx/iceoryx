@@ -44,71 +44,85 @@ class algorithm_test : public Test
 
 TEST_F(algorithm_test, MaxOfOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3fba70b4-252b-4c13-a98c-87b026254bba");
     EXPECT_THAT(max(12.34f), Eq(12.34f));
 }
 
 TEST_F(algorithm_test, MaxOfTwoElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0443931f-3eb4-4ae2-99b3-029637f94d0f");
     EXPECT_THAT(max(56.78f, 12.34f), Eq(56.78f));
 }
 
 TEST_F(algorithm_test, MaxOfManyElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "83c16bb2-90c5-4226-bed2-7e5cc5b34f22");
     EXPECT_THAT(max(56.78f, 33.44f, 12.34f, -0.1f, 5.5f, 10001.f), Eq(10001.f));
 }
 
 TEST_F(algorithm_test, MinOfOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "384d8139-1a79-40ae-8caf-b468470c48d2");
     EXPECT_THAT(min(0.0123f), Eq(0.0123f));
 }
 
 TEST_F(algorithm_test, MinOfTwoElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c0ad7d53-03f6-4ee2-9a0b-ee929dc047a7");
     EXPECT_THAT(min(0.0123f, -91.12f), Eq(-91.12f));
 }
 
 TEST_F(algorithm_test, MinOfManyElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8ec6db69-2260-4af9-83fe-73ae58c878b3");
     EXPECT_THAT(min(0.0123f, -91.12f, 123.92f, -1021.2f, 0.0f), Eq(-1021.2f));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfZeroDoesNotContainValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b8ef3cdf-8cfa-469c-ac67-7fc4afbc9b64");
     EXPECT_FALSE(doesContainValue(42));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfOneDoesNotContainValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9836ad33-da77-476a-a074-1cf7878bcbe6");
     EXPECT_FALSE(doesContainValue(37, 13));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfOneDoesContainValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "643c842c-2dd2-4741-b344-b58fa5e32a6a");
     EXPECT_TRUE(doesContainValue(73, 73));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesNotContainValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e0131b57-51b9-439f-a372-3725bfa7f24a");
     EXPECT_FALSE(doesContainValue(13, 42, 73, 7337));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesContainValueAtFront)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ad37f570-e20d-46ca-85ef-a62fdbfeb9c2");
     EXPECT_TRUE(doesContainValue(37, 37, 3773, 7535));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesContainValueInTheMiddle)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bbc397c4-5d15-4acf-a317-b93a6537571c");
     EXPECT_TRUE(doesContainValue(42, 13, 42, 555));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfMultipleValuesDoesContainValueAtEnd)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "64c87a80-e83b-4e70-8f76-476f24804f19");
     EXPECT_TRUE(doesContainValue(7353, 42, 73, 7353));
 }
 
 TEST_F(algorithm_test, MergeTwoDisjunctNonEmptySortedContainers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4f39641f-de8a-434a-8a50-cd2b66b476da");
     constexpr int64_t OFFSET = 1337;
     vector<int64_t, 10U> a, b;
 
@@ -133,6 +147,7 @@ TEST_F(algorithm_test, MergeTwoDisjunctNonEmptySortedContainers)
 
 TEST_F(algorithm_test, MergeTwoDisjunctNonEmptySortedContainersWithAGap)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "15d3c063-8bc5-47eb-84a4-35f055a1d82c");
     constexpr int64_t OFFSET = 41;
     constexpr int64_t GAP = 13;
     vector<int64_t, 10U> a, b;
@@ -160,6 +175,7 @@ TEST_F(algorithm_test, MergeTwoDisjunctNonEmptySortedContainersWithAGap)
 
 TEST_F(algorithm_test, MergeTwoAlternatingDisjunctNonEmptySortedContainers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "02cc9514-6cfe-4e08-8806-f371561fef41");
     constexpr int64_t OFFSET = 4301;
     vector<int64_t, 10U> a, b;
 
@@ -184,6 +200,7 @@ TEST_F(algorithm_test, MergeTwoAlternatingDisjunctNonEmptySortedContainers)
 
 TEST_F(algorithm_test, MergingIdenticalContainerResultsInUnchangedContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "50f05cf2-62fa-49b8-8380-1dd0ac2470ec");
     constexpr int64_t OFFSET = 313;
     vector<int64_t, 10U> a;
 
@@ -201,6 +218,7 @@ TEST_F(algorithm_test, MergingIdenticalContainerResultsInUnchangedContainer)
 
 TEST_F(algorithm_test, MergingWithOneEmptyContainerResultsInUnchangedContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b0a0eb3a-08a3-4898-a8c9-a4f7eff0115c");
     constexpr int64_t OFFSET = 707;
     vector<int64_t, 10U> a;
 
@@ -218,6 +236,7 @@ TEST_F(algorithm_test, MergingWithOneEmptyContainerResultsInUnchangedContainer)
 
 TEST_F(algorithm_test, MergePartiallyOverlappingSortedContainers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c57dda77-81a5-413f-b54b-e924e67b66a5");
     constexpr int64_t OFFSET = 8055;
     vector<int64_t, 10U> a, b;
 
@@ -242,6 +261,7 @@ TEST_F(algorithm_test, MergePartiallyOverlappingSortedContainers)
 
 TEST_F(algorithm_test, MergeWithDisjunctOneElementContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7a56b0f9-82d2-4f9a-881f-338dd572a453");
     constexpr int64_t OFFSET = 333331;
     vector<int64_t, 10U> a, b;
 
@@ -263,6 +283,7 @@ TEST_F(algorithm_test, MergeWithDisjunctOneElementContainer)
 
 TEST_F(algorithm_test, MergeWithOverlappingOneElementContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "05fb7baf-51e9-4ff9-bb35-8ae4174b0216");
     constexpr int64_t OFFSET = 29292929;
     vector<int64_t, 10U> a, b;
 

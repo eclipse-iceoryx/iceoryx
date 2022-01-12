@@ -30,17 +30,20 @@ using namespace iox::cxx;
 
 TEST(UniqueId_test, ConstructingUniqueIdWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e7fb13d3-5c3f-4253-b485-482820aded15");
     auto sut IOX_MAYBE_UNUSED = UniqueId();
 }
 
 TEST(UniqueId_test, ConversionToValueTypeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5f68f612-08ef-4994-b954-1af1d1fb151d");
     auto sut = UniqueId();
     auto value IOX_MAYBE_UNUSED = static_cast<UniqueId::value_type>(sut);
 }
 
 TEST(UniqueId_test, TwoConsecutiveCreatedUniqueIdsDifferByOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b01170e-dffa-4ea8-a7ac-f8bc12194b2b");
     auto sut1 = UniqueId();
     auto sut2 = UniqueId();
     auto value1 = static_cast<UniqueId::value_type>(sut1);
@@ -51,6 +54,7 @@ TEST(UniqueId_test, TwoConsecutiveCreatedUniqueIdsDifferByOne)
 
 TEST(UniqueId_test, ComparingTwoUniqueIdsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f73f96c2-7e86-4e58-b246-f5eb9938a09c");
     auto sut1 = UniqueId();
     auto sut2 = UniqueId();
 
@@ -64,6 +68,7 @@ TEST(UniqueId_test, ComparingTwoUniqueIdsWorks)
 
 TEST(UniqueId_test, CopyConstructingUniqueIdsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e498c41f-2f15-4c6a-a2a5-57d6c7be1412");
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
     auto sut{id};
@@ -75,6 +80,7 @@ TEST(UniqueId_test, CopyConstructingUniqueIdsWorks)
 
 TEST(UniqueId_test, CopyAssigningUniqueIdsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "79090a19-466b-4b70-8694-e58cdf4419f7");
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
     auto sut = UniqueId();
@@ -87,6 +93,7 @@ TEST(UniqueId_test, CopyAssigningUniqueIdsWorks)
 
 TEST(UniqueId_test, MoveConstructingUniqueIdsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "da614907-acf5-4a26-a432-fa072ac6599d");
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
     auto sut{std::move(id)};
@@ -97,6 +104,7 @@ TEST(UniqueId_test, MoveConstructingUniqueIdsWorks)
 
 TEST(UniqueId_test, MoveAssigningUniqueIdsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8c483497-6b20-40bb-bde0-f3900e1e1d91");
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
     auto sut = UniqueId();
@@ -108,6 +116,7 @@ TEST(UniqueId_test, MoveAssigningUniqueIdsWorks)
 
 TEST(UniqueId_test, UniqueIdsAreMonotonicallyIncreasing)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "010c14cf-9af7-4a07-ac0a-2da9c7f6adf9");
     auto id1 = UniqueId();
     auto idValue1 = static_cast<UniqueId::value_type>(id1);
 
@@ -122,6 +131,7 @@ TEST(UniqueId_test, UniqueIdsAreMonotonicallyIncreasing)
 
 TEST(UniqueId_test, SortingUniqueIdsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "34b72dee-6b32-465b-b183-58a3c0f466a0");
     auto id1 = UniqueId();
     auto id2 = UniqueId();
     auto id3 = UniqueId();

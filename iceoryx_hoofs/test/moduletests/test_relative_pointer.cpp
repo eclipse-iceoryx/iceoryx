@@ -73,6 +73,7 @@ TYPED_TEST_SUITE(base_relative_ptr_test, Types);
 
 TYPED_TEST(base_relative_ptr_test, ConstrTests)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cae7b4d4-86eb-42f6-b938-90a76f01bea5");
     EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
     EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
 
@@ -151,6 +152,7 @@ TYPED_TEST(base_relative_ptr_test, ConstrTests)
 
 TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cd0c4a6a-7779-4dc3-97dc-58ef40a58715");
     EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
     EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
 
@@ -243,6 +245,7 @@ TYPED_TEST(base_relative_ptr_test, AssignmentOperatorTests)
 
 TYPED_TEST(base_relative_ptr_test, IdAndOffset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9a29a074-d68d-4431-88b9-bdd26b1a41f7");
     void* basePtr1 = this->memoryPartition[0];
 
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
@@ -260,6 +263,7 @@ TYPED_TEST(base_relative_ptr_test, IdAndOffset)
 
 TYPED_TEST(base_relative_ptr_test, getOffset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b493337-ee55-498a-9cac-8bb5741f72f0");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
     EXPECT_EQ(BaseRelativePointer::getOffset(1, this->memoryPartition[0]), 0);
@@ -272,6 +276,7 @@ TYPED_TEST(base_relative_ptr_test, getOffset)
 
 TYPED_TEST(base_relative_ptr_test, getPtr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4fadf89f-69c0-4058-8995-a98e2e3334b2");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
     EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), this->memoryPartition[0]);
@@ -284,6 +289,7 @@ TYPED_TEST(base_relative_ptr_test, getPtr)
 
 TYPED_TEST(base_relative_ptr_test, registerPtr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f08ab46-c778-468a-bab1-ecd71aa800f4");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
     EXPECT_EQ(rp1.registerPtr(1, this->memoryPartition[0]), true);
@@ -294,6 +300,7 @@ TYPED_TEST(base_relative_ptr_test, registerPtr)
 
 TYPED_TEST(base_relative_ptr_test, unRegisterPointerTest_Valid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cc09122e-74e8-4d24-83ec-6500471becac");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
 
     rp1.registerPtr(1, this->memoryPartition[0]);
@@ -303,6 +310,7 @@ TYPED_TEST(base_relative_ptr_test, unRegisterPointerTest_Valid)
 
 TYPED_TEST(base_relative_ptr_test, unregisterPointerAll)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e793b3e8-5077-499d-b628-608ecfd91b9e");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     RelativePointer<TypeParam> rp2(this->memoryPartition[1], 9999);
 
@@ -315,6 +323,7 @@ TYPED_TEST(base_relative_ptr_test, unregisterPointerAll)
 
 TYPED_TEST(base_relative_ptr_test, registerPtrWithId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "87521383-6aea-4b43-a182-3a21499be710");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     RelativePointer<TypeParam> rp2(this->memoryPartition[1], 10000);
 
@@ -324,6 +333,7 @@ TYPED_TEST(base_relative_ptr_test, registerPtrWithId)
 
 TYPED_TEST(base_relative_ptr_test, basePointerValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "40e649bc-b159-45ab-891f-2194a0dcf0e6");
     void* basePtr1 = this->memoryPartition[0];
 
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
@@ -334,6 +344,7 @@ TYPED_TEST(base_relative_ptr_test, basePointerValid)
 
 TYPED_TEST(base_relative_ptr_test, assignmentOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "98e2eb78-ee5d-4d87-9753-5ac42b90b9d6");
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
     RelativePointer<TypeParam> rp2 = rp1;
 
@@ -344,6 +355,7 @@ TYPED_TEST(base_relative_ptr_test, assignmentOperator)
 
 TYPED_TEST(base_relative_ptr_test, pointerOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d8c1105e-1041-418f-9327-27958f788119");
     auto baseAddr = reinterpret_cast<TypeParam*>(this->memoryPartition[0]);
     *baseAddr = static_cast<TypeParam>(88);
     RelativePointer<TypeParam> rp1(this->memoryPartition[0], 1);
@@ -358,6 +370,7 @@ TYPED_TEST(base_relative_ptr_test, pointerOperator)
 /// relative pointers point to changed locations relative to the new lookup table
 TYPED_TEST(base_relative_ptr_test, memoryRemapping)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "48452388-a7ac-486d-963d-c8d4e5eb55a0");
     constexpr size_t BLOCK_SIZE = 1024;
     // simulate 3 consecutive memory blocks on the stack
     uint8_t block1[BLOCK_SIZE];
@@ -437,6 +450,7 @@ TYPED_TEST(base_relative_ptr_test, memoryRemapping)
 
 TYPED_TEST(base_relative_ptr_test, compileTest)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "be25f19c-912c-438e-97b1-6fcacb879453");
     // No functional test. Tests if code compiles
     RelativePointer<TypeParam> p1;
     RelativePointer<const TypeParam> p2;

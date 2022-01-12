@@ -47,6 +47,7 @@ class VariantQueue_test : public Test
 
 TEST_F(VariantQueue_test, isEmptyWhenCreated)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c1055246-9852-4d02-b252-f0251ede278c");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(typeID));
         EXPECT_THAT(sut.empty(), Eq(true));
@@ -55,6 +56,7 @@ TEST_F(VariantQueue_test, isEmptyWhenCreated)
 
 TEST_F(VariantQueue_test, isNotEmptyWhenOneElementIsInside)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "428a8624-9e5a-4dac-b0be-d49a85d7cdb4");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(typeID));
         sut.push(123);
@@ -64,6 +66,7 @@ TEST_F(VariantQueue_test, isNotEmptyWhenOneElementIsInside)
 
 TEST_F(VariantQueue_test, popsSingleElementWhichWasPushed)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9cc943e7-fff2-403a-8a8a-9c821e090ef4");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(typeID));
         sut.push(4123);
@@ -75,6 +78,7 @@ TEST_F(VariantQueue_test, popsSingleElementWhichWasPushed)
 
 TEST_F(VariantQueue_test, popsMultiElementsWhichWerePushed)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f2966583-1d8c-4b24-b9b6-cfdc75dc3afb");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(typeID));
         sut.push(14123);
@@ -97,6 +101,7 @@ TEST_F(VariantQueue_test, popsMultiElementsWhichWerePushed)
 
 TEST_F(VariantQueue_test, pushTwoElementsAfterSecondPopIsInvalid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "22cc44ac-bebe-4516-b2fe-290fbefb60b7");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(typeID));
         sut.push(14123);
@@ -111,6 +116,7 @@ TEST_F(VariantQueue_test, pushTwoElementsAfterSecondPopIsInvalid)
 
 TEST_F(VariantQueue_test, handlesOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "030f69ae-315e-43b5-83c4-a36c70371397");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 2> sut(static_cast<VariantQueueTypes>(typeID));
         // current SOFI can hold capacity +1 values, so push some more to ensure overflow
@@ -125,6 +131,7 @@ TEST_F(VariantQueue_test, handlesOverflow)
 
 TEST_F(VariantQueue_test, noPopWhenEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a3ce3ea6-f8e4-47c4-912c-5779b57d64f6");
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(typeID));
         EXPECT_THAT(sut.pop().has_value(), Eq(false));
@@ -133,6 +140,7 @@ TEST_F(VariantQueue_test, noPopWhenEmpty)
 
 TEST_F(VariantQueue_test, underlyingTypeIsEmptyWhenCreated)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1b8618f8-b0cf-4ef8-bc6d-9bdc330ca09f");
     VariantQueue<int, 5> sut(static_cast<VariantQueueTypes>(0));
     EXPECT_THAT(sut.getUnderlyingFiFo().template get_at_index<0>()->empty(), Eq(true));
 }

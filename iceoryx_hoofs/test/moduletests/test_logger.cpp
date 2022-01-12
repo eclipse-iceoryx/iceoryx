@@ -107,6 +107,7 @@ class IoxLogger_test : public Test, public IoxLogger_testBase
 
 TEST_F(IoxLogger_test, Output)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67f1dac5-b425-414a-9690-268ecb06c1ee");
     iox::log::LogEntry entry;
     entry.level = iox::log::LogLevel::kError;
     entry.message = "42";
@@ -124,6 +125,7 @@ TEST_F(IoxLogger_test, Output)
 
 TEST_F(IoxLogger_test, SettingTheLogLevelWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e8225d29-ee35-4864-8528-b1e290a83311");
     constexpr auto LOG_LEVEL{iox::log::LogLevel::kInfo};
     EXPECT_THAT(m_sut.GetLogLevel(), Ne(LOG_LEVEL));
 
@@ -133,6 +135,7 @@ TEST_F(IoxLogger_test, SettingTheLogLevelWorks)
 
 TEST_F(IoxLogger_test, SettingTheLogLevelForScopeResetsLogLevelAtEndOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a750e48a-6485-45d8-a96a-98cff7df407e");
     constexpr auto LOG_LEVEL{iox::log::LogLevel::kInfo};
     auto initialLogLevel{m_sut.GetLogLevel()};
     EXPECT_THAT(initialLogLevel, Ne(LOG_LEVEL));
@@ -170,6 +173,7 @@ INSTANTIATE_TEST_SUITE_P(AllLogLevel,
 
 TEST_P(IoxLoggerLogLevel_test, LogLevel)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "829a6634-43be-4fa4-94bf-18d53ce816a9");
     const auto loggerLogLevel = GetParam();
     m_sut.SetLogLevel(loggerLogLevel);
 

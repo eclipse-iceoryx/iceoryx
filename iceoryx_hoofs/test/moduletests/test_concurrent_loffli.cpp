@@ -52,12 +52,14 @@ class LoFFLi_test : public Test
 
 TYPED_TEST(LoFFLi_test, Misuse_NullptrMemory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ab877f29-cab0-48ae-a2c0-054633b6415a");
     decltype(this->m_loffli) loFFLi;
     EXPECT_DEATH(loFFLi.init(nullptr, 1), ".*");
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb9c797b-22b4-4572-a7a2-eaf13574dbac");
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
     EXPECT_DEATH(loFFLi.init(memoryLoFFLi, 0), ".*");
@@ -65,6 +67,7 @@ TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
 
 TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "14b4b82c-ae2b-4bd2-97cf-93fcea87f050");
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
     EXPECT_DEATH(loFFLi.init(memoryLoFFLi, UINT32_MAX - 1), ".*");
@@ -73,12 +76,14 @@ TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
 
 TYPED_TEST(LoFFLi_test, Initialized)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d4ee0d3a-313d-4511-a759-f1bb7482c50b");
     // loffli must be full when initialized
     EXPECT_THAT(this->m_loffli.push(0), Eq(false));
 }
 
 TYPED_TEST(LoFFLi_test, SinglePop)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5ed7c05a-3cee-4895-825e-b39fa127fb97");
     constexpr uint32_t AFFE = 0xAFFE;
     uint32_t index = AFFE;
     EXPECT_THAT(this->m_loffli.pop(index), Eq(true));
@@ -87,6 +92,7 @@ TYPED_TEST(LoFFLi_test, SinglePop)
 
 TYPED_TEST(LoFFLi_test, PopEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6f5c9890-14d6-4b63-ae0e-b5754d2e0f23");
     constexpr uint32_t AFFE = 0xAFFE;
     for (uint32_t i = 0; i < Size; i++)
     {
@@ -102,6 +108,7 @@ TYPED_TEST(LoFFLi_test, PopEmpty)
 
 TYPED_TEST(LoFFLi_test, PopFromUninitializedLoFFLi)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1f516a22-07ac-43b5-9230-e09e4c202165");
     constexpr uint32_t AFFE = 0xAFFE;
     uint32_t index = AFFE;
 
@@ -111,6 +118,7 @@ TYPED_TEST(LoFFLi_test, PopFromUninitializedLoFFLi)
 
 TYPED_TEST(LoFFLi_test, SinglePush)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b7bf346-056b-4b1c-a6e9-92b54233598e");
     constexpr uint32_t AFFE = 0xAFFE;
     uint32_t index;
     this->m_loffli.pop(index);
@@ -124,6 +132,7 @@ TYPED_TEST(LoFFLi_test, SinglePush)
 
 TYPED_TEST(LoFFLi_test, PushTillFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "610e3e8f-1db9-4a92-a5e8-2d1bb0077123");
     std::vector<uint32_t> useList;
     uint32_t index;
     while (this->m_loffli.pop(index))
@@ -139,6 +148,7 @@ TYPED_TEST(LoFFLi_test, PushTillFull)
 
 TYPED_TEST(LoFFLi_test, PushRandomOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "73700ca3-3a37-48af-8485-91e0a7b4e3d0");
     std::vector<uint32_t> useListToPush;
     std::vector<uint32_t> useListPoped;
     uint32_t index;
@@ -170,6 +180,7 @@ TYPED_TEST(LoFFLi_test, PushRandomOrder)
 
 TYPED_TEST(LoFFLi_test, PushWrongIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9a3fabd1-17c0-4e40-8390-53ca4d656d91");
     uint32_t index;
     this->m_loffli.pop(index);
 
@@ -179,6 +190,7 @@ TYPED_TEST(LoFFLi_test, PushWrongIndex)
 
 TYPED_TEST(LoFFLi_test, PushOutOfBoundIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "261ba489-1cec-44db-8c41-d9e71c761d91");
     uint32_t index;
     this->m_loffli.pop(index);
 
@@ -188,12 +200,14 @@ TYPED_TEST(LoFFLi_test, PushOutOfBoundIndex)
 
 TYPED_TEST(LoFFLi_test, PushWhenFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "05505968-a3f9-4a8a-87e3-d32064ecdb66");
     uint32_t indexPush = 0;
     EXPECT_THAT(this->m_loffli.push(indexPush), Eq(false));
 }
 
 TYPED_TEST(LoFFLi_test, PushToUninitializedLoFFLi)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "34f5b48a-a30a-4dd1-81d6-7c963c005f1b");
     decltype(this->m_loffli) loFFLi;
     EXPECT_THAT(loFFLi.push(0), Eq(false));
 }

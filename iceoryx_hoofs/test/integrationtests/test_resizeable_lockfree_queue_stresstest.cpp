@@ -373,6 +373,7 @@ TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
 ///       with respect to completeness of the data, i.e. nothing is lost.
 TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerCompleteness)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9640d068-5c9f-4bc4-b4a0-c0a2225c15ed");
     using Queue = typename TestFixture::Queue;
     auto& queue = this->sut;
 
@@ -442,6 +443,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
 /// @note this cannot be done easily together with completeness and limited memory
 TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5a6e3e6b-7cd9-4079-a9e8-7a849ea3dfe9");
     using Queue = typename TestFixture::Queue;
     auto& queue = this->sut;
 
@@ -492,6 +494,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerOrder)
 ///(likely in a different order).
 TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b5c7dc4-6e9a-4ac4-b2fc-6bd6dfb7ee1f");
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;
@@ -559,6 +562,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 /// due to the initial values in the queue itself).
 TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer0verflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "57516ebd-e994-42c8-813c-613c61f2410f");
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;
@@ -656,6 +660,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 /// in order to test the general case under load.
 TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0verflowWithCapacityChange)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6421f32a-a1f7-4fe2-978f-6ef2005e0cc9");
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;

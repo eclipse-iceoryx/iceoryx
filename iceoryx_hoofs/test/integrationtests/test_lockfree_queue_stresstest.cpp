@@ -357,6 +357,7 @@ TYPED_TEST_SUITE(LockFreeQueueStressTest, TestQueues);
 /// The order of popped elements and completeness (no data loss) is checked.
 TYPED_TEST(LockFreeQueueStressTest, DISABLED_singleProducerSingleConsumer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6987ee43-aeac-48dc-ba91-b9cc1f479d9b");
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
@@ -380,6 +381,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_singleProducerSingleConsumer)
 /// The order of popped elements and completeness (no data loss) is checked.
 TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerSingleConsumer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e89cad23-5c2a-4da7-8d02-557aa3058e65");
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
@@ -419,6 +421,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerSingleConsumer)
 /// states from the consumers to check later (which can get quite large).
 TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "73d6047a-50b3-4d1d-9e64-a99ed3d393d1");
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
@@ -461,6 +464,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
 ///(likely in a different order).
 TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9e18cc73-a5e8-4874-aa75-09d170477d36");
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;
@@ -531,6 +535,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
 /// due to the initial values in the queue itself).
 TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0verflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9adf76d8-beeb-4810-ac71-c4c9dd363219");
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;

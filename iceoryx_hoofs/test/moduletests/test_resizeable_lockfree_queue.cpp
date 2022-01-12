@@ -90,12 +90,14 @@ TYPED_TEST_SUITE(ResizeableLockFreeQueueTest, TestQueues);
 
 TEST(ResizeableLockFreeQueueTest, maxCapacityIsConsistent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9ca4e449-aa07-4180-aab5-29aeffdaa544");
     using Queue = IntegerQueue<37U>;
     EXPECT_EQ(Queue::maxCapacity(), 37U);
 }
 
 TYPED_TEST(ResizeableLockFreeQueueTest, initialCapacityIsMaximalbyDefault)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "475e3359-2b84-482b-ab60-f00baa4544af");
     using Queue = typename TestFixture::Queue;
     auto& q = this->queue;
     EXPECT_EQ(q.capacity(), q.maxCapacity());
@@ -104,6 +106,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, initialCapacityIsMaximalbyDefault)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMaxCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "616cc6b8-9b57-44c5-be12-e675b0ccb60e");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     typename TestFixture::Queue q(MAX_CAP);
     EXPECT_EQ(q.capacity(), q.maxCapacity());
@@ -111,6 +114,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMaxCapacity)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMoreThanMaxCapacitySaturatesAtMaxCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1e02b0bc-d7e0-4a66-9381-2f3d8b3b868d");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     typename TestFixture::Queue q(MAX_CAP + 1U);
     EXPECT_EQ(q.capacity(), q.maxCapacity());
@@ -118,12 +122,14 @@ TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMoreThanMaxCapacitySaturate
 
 TYPED_TEST(ResizeableLockFreeQueueTest, constructWithNoCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9b3f8fee-1045-4f4a-b241-7cd3c8e134af");
     typename TestFixture::Queue q(0U);
     EXPECT_EQ(q.capacity(), 0U);
 }
 
 TYPED_TEST(ResizeableLockFreeQueueTest, constructWithHalfOfMaxCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fdcd764d-75d3-4cb7-9ed1-330de98bbd61");
     constexpr auto cap = TestFixture::Queue::MAX_CAPACITY / 2U;
     typename TestFixture::Queue q(cap);
     EXPECT_EQ(q.capacity(), cap);
@@ -131,6 +137,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, constructWithHalfOfMaxCapacity)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5f0c0319-bf83-409d-b3b9-8e021afaf091");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
 
@@ -151,6 +158,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOneWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d99088a8-725c-451f-8f4a-ae0aafba368d");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     using element_t = typename TestFixture::Queue::element_t;
     iox::cxx::vector<element_t, MAX_CAP> removedElements;
@@ -176,6 +184,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOneWithHandle
 
 TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ff282db3-b6dd-4f01-a9b1-e4f788172c49");
     typename TestFixture::Queue q(0U);
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     EXPECT_EQ(q.capacity(), 0U);
@@ -189,6 +198,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOneWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf4dcb07-b9be-4d81-8e9d-d170274bcc1d");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     using element_t = typename TestFixture::Queue::element_t;
     iox::cxx::vector<element_t, MAX_CAP> removedElements;
@@ -207,6 +217,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOneWithHandler
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "74906aed-bd84-4f63-9d9b-c829e97971f6");
     auto& q = this->queue;
     EXPECT_TRUE(q.setCapacity(0U));
     EXPECT_EQ(q.capacity(), 0U);
@@ -214,6 +225,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZeroWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7af169f3-32a3-43b7-8e48-cc22728e13f0");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     using element_t = typename TestFixture::Queue::element_t;
     iox::cxx::vector<element_t, MAX_CAP> removedElements;
@@ -227,6 +239,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZeroWithHandler)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3bf17fb8-f688-43c4-a9cc-91fcafd43012");
     auto& q = this->queue;
     EXPECT_TRUE(q.setCapacity(1U));
     EXPECT_EQ(q.capacity(), 1U);
@@ -234,6 +247,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOne)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOneWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1f640a03-37f4-4cb8-9985-1c27a9a5480f");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     using element_t = typename TestFixture::Queue::element_t;
     iox::cxx::vector<element_t, MAX_CAP> removedElements;
@@ -247,6 +261,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOneWithHandler)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76bcd176-e3e2-4acc-a846-596e75be5869");
     typename TestFixture::Queue q(0U);
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     EXPECT_TRUE(q.setCapacity(MAX_CAP));
@@ -255,6 +270,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacityWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2e485d0f-6dc1-46af-86d0-cec0840d0821");
     typename TestFixture::Queue q(0U);
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
 
@@ -269,6 +285,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacityWithHandler)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "054875b1-a0ab-4c65-a3ce-d1bb4113e94e");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     constexpr auto NEW_CAP = MAX_CAP / 2U;
@@ -288,6 +305,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillItWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "192221e7-c883-42a1-b7b2-c123d442b512");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     constexpr auto NEW_CAP = MAX_CAP / 2U;
@@ -313,6 +331,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillItW
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d01bd6a0-c22d-4995-87ca-115c13269339");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     constexpr auto NEW_CAP = MAX_CAP / 2U;
@@ -344,6 +363,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacityWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "04bcc542-c6aa-4865-9b60-4058ccee2904");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     constexpr auto NEW_CAP = MAX_CAP / 2U;
@@ -381,6 +401,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9d1eb828-33fa-4e98-98c6-88c342b7ab53");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     constexpr auto NEW_CAP = MAX_CAP / 2U;
@@ -407,6 +428,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacityWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b06d2d45-e6a3-47b3-865c-8b940adfac9d");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     constexpr auto NEW_CAP = MAX_CAP / 2U;
@@ -441,6 +463,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
 // remain (and the others are removed)
 TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fa79f745-212a-433b-a1f3-b1abbd6f845d");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
 
@@ -496,6 +519,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 
 TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueWithHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3b0f917b-fd9b-45d7-84b9-c0468cc86d70");
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
 

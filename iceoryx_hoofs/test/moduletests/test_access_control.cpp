@@ -67,6 +67,7 @@ class AccessController_test : public Test
 
 TEST_F(AccessController_test, writeStandardPermissions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4313fc8d-b819-4c77-b811-80e2a41cf3bd");
     // should fail beacuse no access rights have been specified yet
     bool result = m_accessController.writePermissionsToFile(m_fileDescriptor);
     EXPECT_FALSE(result);
@@ -103,6 +104,7 @@ TEST_F(AccessController_test, writeStandardPermissions)
 
 TEST_F(AccessController_test, writeSpecialUserPermissions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9e9413e6-8f08-43ef-8fc2-e25b041e6f53");
     bool entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_USER,
                                                             AccessController::Permission::READWRITE);
     // no name specified
@@ -146,6 +148,7 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
 
 TEST_F(AccessController_test, writeSpecialGroupPermissions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bb7cfb3f-0ec1-40f8-9ecf-9b0d28e6b38d");
     bool entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_GROUP,
                                                             AccessController::Permission::READWRITE);
     // no name specified
@@ -188,6 +191,7 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
 
 TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
     std::string currentUserName(getpwuid(geteuid())->pw_name);
     uid_t currentUserId(getpwuid(geteuid())->pw_uid);
     gid_t groupId = 0; // root
@@ -230,6 +234,7 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 
 TEST_F(AccessController_test, addNameInWrongPlace)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
     AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
 
     // this is not allowed as the default user should not be named explicitly
@@ -245,6 +250,7 @@ TEST_F(AccessController_test, addNameInWrongPlace)
 
 TEST_F(AccessController_test, addManyPermissions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
     AccessController::string_t groupName = "root";
 
     bool entryAdded;
@@ -269,6 +275,7 @@ TEST_F(AccessController_test, addManyPermissions)
 
 TEST_F(AccessController_test, addStrangeNames)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "916c4d31-9ce3-4412-8d78-8e8f529589ef");
     bool entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_USER,
                                                             AccessController::Permission::READWRITE,
                                                             "VeryUnlikelyThatThisUserExistsOnThisMachine123456");

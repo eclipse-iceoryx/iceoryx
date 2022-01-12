@@ -190,6 +190,7 @@ TYPED_TEST_SUITE(Relocatable_ptr_typed_test, TestTypes);
 
 TYPED_TEST(Relocatable_ptr_typed_test, wrappedPointerTypeIsCorrect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "12de29e3-673c-487c-9808-67e5c3e25c73");
     using T = typename TestFixture::DataType;
     using P = typename iox::rp::relocatable_ptr<T>::ptr_t;
     constexpr bool pointerTypeIsCorrect = std::is_same<P, T*>::value;
@@ -198,6 +199,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, wrappedPointerTypeIsCorrect)
 
 TYPED_TEST(Relocatable_ptr_typed_test, defaulCtorCreatesNullpointer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6823533f-9594-4f53-9493-d80a73706013");
     using T = typename TestFixture::DataType;
     iox::rp::relocatable_ptr<T> rp;
     EXPECT_EQ(rp.get(), nullptr);
@@ -205,6 +207,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, defaulCtorCreatesNullpointer)
 
 TYPED_TEST(Relocatable_ptr_typed_test, copyCtorOfNullptrWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "de23e14d-1c06-4005-ba61-45e5aeedaf47");
     using T = typename TestFixture::DataType;
     iox::rp::relocatable_ptr<T> rp1;
     iox::rp::relocatable_ptr<T> rp2(rp1);
@@ -214,6 +217,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, copyCtorOfNullptrWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, moveCtorOfNullptrWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f0ecd49e-c165-4e25-985c-5bc44a072f2e");
     using T = typename TestFixture::DataType;
     iox::rp::relocatable_ptr<T> rp1;
     iox::rp::relocatable_ptr<T> rp2(std::move(rp1));
@@ -223,6 +227,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveCtorOfNullptrWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, copyAssignmentOfNullptrWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "635665f9-70a1-405e-981c-155c0f2f81a7");
     using T = typename TestFixture::DataType;
     // we cannot construct an actual object if T = void
     // and it is not necessary fro most tests, we just need some non-nullptr
@@ -236,6 +241,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, copyAssignmentOfNullptrWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, moveAssignmentOfNullptrWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b15da71c-bb71-4059-a3fb-7d5d8f8020a6");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1;
@@ -247,6 +253,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveAssignmentOfNullptrWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, nonNullPointerConstructionWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6258b81c-97b4-4d5b-9543-ca7e2fc8e6f0");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp(p);
@@ -255,6 +262,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, nonNullPointerConstructionWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, copyCtorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "453b6c32-e5ba-4b15-86af-d7601ee5b97e");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1(p);
@@ -265,6 +273,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, copyCtorWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, moveCtorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "42c3a34d-4dc8-4bf6-bf1e-1fc742570ee2");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1(p);
@@ -275,6 +284,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveCtorWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, copyAssignmentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "431354d5-400d-49cd-8554-4ee797661cf7");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1(p);
@@ -286,6 +296,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, copyAssignmentWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, moveAssignmentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5041782e-2c57-4739-ab21-2d7c1dfc3991");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1(p);
@@ -298,6 +309,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveAssignmentWorks)
 // regular get is tested with the ctor
 TYPED_TEST(Relocatable_ptr_typed_test, constGetWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1b478221-d1fb-44aa-905e-7f40d961eaff");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     const iox::rp::relocatable_ptr<T> rp(p);
@@ -309,6 +321,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, constGetWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, conversionToRawPointerWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d7e46b17-62bc-4b05-a827-b91d2a4b9f23");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp(p);
@@ -321,6 +334,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, conversionToRawPointerWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, conversionToConstRawPointerWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "82f40725-67d9-4f80-812a-1fcbdd1cbf60");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     const iox::rp::relocatable_ptr<T> rp(p);
@@ -333,6 +347,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, conversionToConstRawPointerWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, arrowOperatorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6f3a7428-fd7b-4a98-b3ce-90ac73655ac8");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp(p);
@@ -344,6 +359,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, arrowOperatorWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, arrowOperatorConstWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "38bf2bb7-6550-4534-b0fe-6ec07632c6d3");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     const iox::rp::relocatable_ptr<T> rp(p);
@@ -356,6 +372,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, arrowOperatorConstWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, nullptrIsEqualToNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "45d24a0b-5a46-4a10-bbb8-7f8b7647a992");
     using T = typename TestFixture::DataType;
     iox::rp::relocatable_ptr<T> rp1;
     iox::rp::relocatable_ptr<T> rp2;
@@ -373,6 +390,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, nullptrIsEqualToNullptr)
 
 TYPED_TEST(Relocatable_ptr_typed_test, nullptrIsNotEqualToNonNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a3fd804d-9e53-4fef-9b34-bb43bd778c02");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1(p);
@@ -391,6 +409,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, nullptrIsNotEqualToNonNullptr)
 
 TYPED_TEST(Relocatable_ptr_typed_test, equalNonNullptrComparisonWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c3ed8892-db76-4d62-8c04-51819696c7dc");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp1(p);
@@ -409,6 +428,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, equalNonNullptrComparisonWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, nonEqualNonNullptrComparisonWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1cad3023-dd21-4242-a461-10f06cdea765");
     using T = typename TestFixture::DataType;
     T* p1 = nonNullPtr<T>();
     T* p2 = otherNonNullPtr<T>();
@@ -428,6 +448,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, nonEqualNonNullptrComparisonWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, negativeNullPointerCheckWithIfWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "77225288-be1d-4105-b2fb-7f5f452cad89");
     using T = typename TestFixture::DataType;
     T* p = nonNullPtr<T>();
     iox::rp::relocatable_ptr<T> rp(p);
@@ -444,6 +465,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, negativeNullPointerCheckWithIfWorks)
 
 TYPED_TEST(Relocatable_ptr_typed_test, positiveNullPointerCheckWithIfWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4a57801b-3f52-4027-a2f1-474274e83515");
     using T = typename TestFixture::DataType;
     iox::rp::relocatable_ptr<T> rp;
 
@@ -459,6 +481,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, positiveNullPointerCheckWithIfWorks)
 
 TEST_F(Relocatable_ptr_test, dereferencingWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ea67f218-6ff8-4a82-a81e-52ae988546dc");
     int x = 666;
     iox::rp::relocatable_ptr<int> rp(&x);
     EXPECT_EQ(*rp, x);
@@ -469,6 +492,7 @@ TEST_F(Relocatable_ptr_test, dereferencingWorks)
 
 TEST_F(Relocatable_ptr_test, dereferencingConstWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "64a7e44e-b9eb-428a-bd50-3bd9e14400bc");
     int x = 314;
     const iox::rp::relocatable_ptr<int> rp(&x);
     EXPECT_EQ(*rp, x);
@@ -479,6 +503,7 @@ TEST_F(Relocatable_ptr_test, dereferencingConstWorks)
 
 TEST_F(Relocatable_ptr_test, dereferencingComplexTypeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e4a2bda1-c3f2-424e-b6dd-a4da6703b699");
     Data x(69);
     iox::rp::relocatable_ptr<Data> rp(&x);
     EXPECT_EQ((*rp).value, x.value);
@@ -487,6 +512,7 @@ TEST_F(Relocatable_ptr_test, dereferencingComplexTypeWorks)
 
 TEST_F(Relocatable_ptr_test, dereferencingConstComplexTypeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b60f0fd5-ff9b-40a5-ad0d-d13965eff578");
     Data x(42);
     const iox::rp::relocatable_ptr<Data> rp(&x);
     EXPECT_EQ((*rp).value, x.value);
@@ -500,6 +526,7 @@ TEST_F(Relocatable_ptr_test, dereferencingConstComplexTypeWorks)
 // To verify this, we set the source to 0 after the copy.
 TEST_F(Relocatable_ptr_test, relocationWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1b85836-2a4f-4859-a8f9-796e20fbb735");
     using T = RelocatableType;
     using storage_t = std::aligned_storage<sizeof(T), alignof(T)>::type;
     storage_t sourceStorage, destStorage;

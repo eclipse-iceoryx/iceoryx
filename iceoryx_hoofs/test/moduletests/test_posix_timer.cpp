@@ -64,6 +64,7 @@ const Duration Timer_test::TIMEOUT{TimerStopWatch_test::TIMEOUT};
 
 TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "61067a67-7132-44e2-a99c-03ddb6ce963d");
     Timer sut(0_s);
     EXPECT_THAT(sut.hasError(), Eq(true));
     EXPECT_THAT(sut.getError(), Eq(TimerError::TIMEOUT_IS_ZERO));
@@ -71,6 +72,7 @@ TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 
 TEST_F(Timer_test, ZeroTimeoutIsNotAllowed)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e93d95af-1604-4652-a3fd-9602f47f7d6f");
     Timer sut(0_s, [] {});
 
     EXPECT_THAT(sut.hasError(), Eq(true));
@@ -123,6 +125,7 @@ TIMING_TEST_F(Timer_test, OneTimeCallbackNotExecutedPrematurely, Repeat(5), [&] 
 
 TEST_F(Timer_test, StartFailsWhenNoCallbackIsSet)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a0029e9c-12e4-4bf6-a070-9c9afa5089cb");
     Timer sut(1_ms);
     auto call = sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
 
@@ -164,6 +167,7 @@ TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedInTheMiddleAfterStop, Rep
 
 TEST_F(Timer_test, StopFailsWhenNoCallbackIsSet)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e1655ab0-7bf5-47bc-9991-8cd5ce3473c4");
     Timer sut(1_ms);
     auto call = sut.stop();
 
@@ -216,6 +220,7 @@ TIMING_TEST_F(Timer_test, RestartWithDifferentTimingAndRunMode, Repeat(5), [&] {
 
 TEST_F(Timer_test, RestartWithEmptyCallbackFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "146acdfc-3d1c-44e8-88fd-6a476d657541");
     Timer sut(1_ms);
     auto call = sut.restart(1_s, Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
 
@@ -225,6 +230,7 @@ TEST_F(Timer_test, RestartWithEmptyCallbackFails)
 
 TEST_F(Timer_test, RestartWithTimeoutOfZeroFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3ecb4925-9b15-4eca-b3eb-6d325c336e46");
     Timer sut(1_ms, [] {});
     auto call = sut.restart(0_s, Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
 
@@ -234,6 +240,7 @@ TEST_F(Timer_test, RestartWithTimeoutOfZeroFails)
 
 TEST_F(Timer_test, TimeUntilExpirationFailsWithoutCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8bdfd766-e223-4da2-9e3c-85de02534e86");
     Timer sut(1_ms);
     auto call = sut.timeUntilExpiration();
 
@@ -363,6 +370,7 @@ TIMING_TEST_F(Timer_test, StartStopAndStartAgainIsNonBlocking, Repeat(5), [&] {
 
 TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b8ee9db-9394-459a-b31d-64cd6d57dae8");
     Timer sut(1_ms);
     auto call = sut.getOverruns();
 
@@ -484,6 +492,7 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatCallsLessCallbacksThanASAPT
 /// reliable.
 TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9ac73c73-44f9-46c1-81d8-51f1dd2a203e");
     Duration selfTriggerTimeout = 1_ns;
     int repetitions = 100;
     std::atomic_int counter{0};

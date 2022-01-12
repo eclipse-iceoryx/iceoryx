@@ -112,12 +112,14 @@ INSTANTIATE_TEST_SUITE_P(Semaphore_test, Semaphore_test, Values(&createNamedSema
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "80f5fba8-c6db-4948-86e1-9e23d413d1ac");
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
 }
 
 TEST_F(SemaphoreCreate_test, CreateExistingNamedSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bee46586-bcf2-42e6-9dda-ab2611fc973f");
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem1", S_IRUSR | S_IWUSR, 10);
     auto semaphore2 =
         iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem1", S_IRUSR | S_IWUSR, 10);
@@ -127,12 +129,14 @@ TEST_F(SemaphoreCreate_test, CreateExistingNamedSemaphore)
 
 TEST_F(SemaphoreCreate_test, CreateLocalUnnamedSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "42099e77-9ac9-425f-8e53-056dc3b73d71");
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "349cdf0d-987e-4e2f-aa35-98a40fdf979b");
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
     auto semaphore2 = iox::posix::Semaphore::create(iox::posix::OpenNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
@@ -141,18 +145,21 @@ TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
 
 TEST_F(SemaphoreCreate_test, OpenNamedSemaphoreWithEmptyNameFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5dab9f61-8b27-4684-8e9d-bbd50430b9fa");
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(true));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0034b274-5a3b-49dc-a5d2-1715d068809f");
     auto semaphore2 = iox::posix::Semaphore::create(iox::posix::OpenNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore2.has_error(), Eq(true));
 }
 
 TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "af3013ef-683e-4ad4-874f-5c7e1a3f41fd");
     for (int i = 0; i < 12; ++i)
     {
         ASSERT_FALSE(sut->post().has_error());
@@ -165,6 +172,7 @@ TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
 
 TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "29a63157-caee-4d28-a477-c4fa7048911c");
     for (int i = 0; i < 18; ++i)
     {
         ASSERT_FALSE(sut->post().has_error());
@@ -181,6 +189,7 @@ TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
 
 TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a98d1c45-d538-4abc-9633-f4868163785d");
     for (int i = 0; i < 15; ++i)
     {
         ASSERT_FALSE(sut->post().has_error());
@@ -199,6 +208,7 @@ TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
 
 TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8bad3784-888b-44cd-ad5d-1c4662b26b17");
     for (int i = 0; i < 4; ++i)
     {
         auto call = sut->tryWait();
@@ -213,6 +223,7 @@ TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
 
 TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e3bd3f5d-967c-4a5b-9f22-a8f92f73b3c3");
     const iox::units::Duration timeToWait = 2_ms;
     for (int i = 0; i < 19; ++i)
     {
@@ -233,6 +244,7 @@ TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
 
 TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5a630be5-aef6-493e-a8ee-4dfabe642258");
     const iox::units::Duration timeToWait = 2_us;
     for (int i = 0; i < 4; ++i)
     {
@@ -249,6 +261,7 @@ TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)
 
 TEST_P(Semaphore_test, TryWaitAfterPostIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "22354447-c44d-443c-97a5-f5fdffb09748");
     ASSERT_FALSE(sut->post().has_error());
     auto call = sut->tryWait();
     ASSERT_THAT(call.has_error(), Eq(false));
@@ -257,6 +270,7 @@ TEST_P(Semaphore_test, TryWaitAfterPostIsSuccessful)
 
 TEST_P(Semaphore_test, TryWaitWithNoPostIsNotSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0e5d6817-88a9-4fca-889e-4dbfe2c30e48");
     ASSERT_FALSE(sut->post().has_error());
     auto call = sut->tryWait();
     ASSERT_THAT(call.has_error(), Eq(false));
@@ -265,6 +279,7 @@ TEST_P(Semaphore_test, TryWaitWithNoPostIsNotSuccessful)
 
 TEST_P(Semaphore_test, WaitValidAfterPostIsNonBlocking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d4b1de28-89c4-4dfa-a465-8c7cfc652d67");
     ASSERT_FALSE(sut->post().has_error());
     // this call should not block and should be successful
     EXPECT_THAT(sut->wait().has_error(), Eq(false));
@@ -272,6 +287,7 @@ TEST_P(Semaphore_test, WaitValidAfterPostIsNonBlocking)
 
 TEST_P(Semaphore_test, WaitIsBlocking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5869a475-6be3-4b55-aa58-2ebf11d46081");
     std::atomic<int> counter{0};
     std::thread t1([&] {
         ASSERT_FALSE(syncSemaphore->wait().has_error());
@@ -296,6 +312,7 @@ TEST_P(Semaphore_test, WaitIsBlocking)
 
 TEST_P(Semaphore_test, MoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bf7277fd-4e5c-49dd-b48b-f5d1ed6e4c01");
     iox::posix::Semaphore b;
     {
         b = std::move(*sut);
@@ -306,6 +323,7 @@ TEST_P(Semaphore_test, MoveAssignment)
 
 TEST_P(Semaphore_test, MoveCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e8083f97-c3c0-4e79-9948-395a837bde84");
     iox::posix::Semaphore b(std::move(*sut));
 
     EXPECT_THAT(b.post().has_error(), Eq(false));

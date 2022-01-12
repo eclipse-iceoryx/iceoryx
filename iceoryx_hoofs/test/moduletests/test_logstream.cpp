@@ -36,6 +36,7 @@ class IoxLogStream_test : public Test
 
 TEST_F(IoxLogStream_test, CTor_Default)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "209aadb5-9ea6-4620-a6d1-f8fb2d12b97d");
     iox::log::LogStream(loggerMock) << "";
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
@@ -45,6 +46,7 @@ TEST_F(IoxLogStream_test, CTor_Default)
 
 TEST_F(IoxLogStream_test, CTor_WithLogLevel)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "af7a62db-8f22-4127-acee-83dec7ec6733");
     iox::log::LogStream(loggerMock, iox::log::LogLevel::kOff) << "";
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
@@ -54,6 +56,7 @@ TEST_F(IoxLogStream_test, CTor_WithLogLevel)
 
 TEST_F(IoxLogStream_test, UnnamedTemporaryLogStreamObject)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b0f2c616-a373-4e6e-8083-c3bff5de58b4");
     const std::string claim = "The answer is ";
     const uint8_t answer = 42;
     const std::string bang = "!";
@@ -68,6 +71,7 @@ TEST_F(IoxLogStream_test, UnnamedTemporaryLogStreamObject)
 
 TEST_F(IoxLogStream_test, LocalLogStreamObject)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0f4b4d78-e3c4-454a-a839-8f75b288e878");
     const std::string claim = "The answer is ";
     const uint8_t answer = 42;
     const std::string bang = "!";
@@ -90,6 +94,7 @@ TEST_F(IoxLogStream_test, LocalLogStreamObject)
 
 TEST_F(IoxLogStream_test, ExplicitFlush)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "42adbd23-7b14-4977-9f3a-779c0c9083fa");
     const std::string claim = "The answer is ";
     const uint8_t answer = 42;
     const std::string bang = "!";
@@ -114,6 +119,7 @@ TEST_F(IoxLogStream_test, ExplicitFlush)
 
 TEST_F(IoxLogStream_test, NoFlushWhenAlreadyFlushed)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cb728d54-c741-4952-88a7-e8b2cebbd874");
     {
         auto log = iox::log::LogStream(loggerMock);
         log << "fubar";
@@ -127,6 +133,7 @@ TEST_F(IoxLogStream_test, NoFlushWhenAlreadyFlushed)
 
 TEST_F(IoxLogStream_test, StreamOperatorCharArray)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68b034d7-a424-4e75-b6db-a5c4172ee271");
     char logValue[]{"This is the iceoryx logger!"};
     const char constLogValue[]{"Nothing to see here, move along!"};
     iox::log::LogStream(loggerMock) << logValue;
@@ -139,6 +146,7 @@ TEST_F(IoxLogStream_test, StreamOperatorCharArray)
 
 TEST_F(IoxLogStream_test, StreamOperatorStdString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "da8dde06-3f69-4549-b584-64c3ad328dbc");
     std::string logValue{"This is the iceoryx logger!"};
     const std::string constLogValue{"Nothing to see here, move along!"};
     iox::log::LogStream(loggerMock) << logValue;
@@ -151,6 +159,7 @@ TEST_F(IoxLogStream_test, StreamOperatorStdString)
 
 TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d85b7ef4-35de-4e11-b0fd-f0de6581a9e6");
     std::string logValue{"This is the iceoryx logger!"};
     iox::log::LogLevel logLevel = iox::log::LogLevel::kWarn;
     iox::log::LogStream(loggerMock) << logValue << logLevel;
@@ -160,6 +169,7 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 
 TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "24974c62-3ec6-4a02-83ff-cbb61a3de664");
     struct DummyStruct
     {
         uint16_t a{0xAFFE};
@@ -214,16 +224,19 @@ void testStreamOperatorLogHex(Logger_Mock& loggerMock, LogType logValue)
 
 TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogHex_ValueLow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bd47c99a-0808-4a19-bafb-580c65009e0d");
     testStreamOperatorLogHex(this->loggerMock, this->LogValueLow);
 }
 
 TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogHex_ValueMin)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ee806b08-0e2a-49fd-b16b-5ad1c8da3150");
     testStreamOperatorLogHex(this->loggerMock, this->LogValueMin);
 }
 
 TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogHex_ValueMax)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "acfa2bbf-c2e1-42bf-88c6-2888d7d3a42a");
     testStreamOperatorLogHex(this->loggerMock, this->LogValueMax);
 }
 
@@ -244,16 +257,19 @@ void testStreamOperatorLogBin(Logger_Mock& loggerMock, LogType logValue)
 
 TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueLow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e4e684b7-5bcf-4e8d-8cb1-b6df95c3b37c");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueLow);
 }
 
 TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueMin)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f13b3e6a-8f7c-48c2-ae43-35e0a195556e");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueMin);
 }
 
 TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueMax)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b583014a-700f-46e3-8b7c-0a128c59598a");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueMax);
 }
 
@@ -291,6 +307,7 @@ constexpr Arithmetic IoxLogStreamArithmetic_test<Arithmetic>::ConstexprLogValueM
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueLow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "31f1504a-9353-4c46-9c8b-d7e430b07bd6");
     iox::log::LogStream(this->loggerMock) << this->LogValueLow;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -299,6 +316,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueLow)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMin)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e784ceb9-1e23-4e95-b667-855835897717");
     iox::log::LogStream(this->loggerMock) << this->LogValueMin;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -307,6 +325,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMin)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3bff0182-07ad-4c7a-b8b7-3950a8aa9f4e");
     iox::log::LogStream(this->loggerMock) << this->LogValueMax;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -315,6 +334,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "65cfbc9b-a535-47fa-a543-0c31ba63d4ba");
     iox::log::LogStream(this->loggerMock) << this->ConstLogValueLow;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -323,6 +343,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMin)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fba70497-e252-4458-b00e-2dad8b94b8c8");
     iox::log::LogStream(this->loggerMock) << this->ConstLogValueMin;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -331,6 +352,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMin)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e5e28a6e-4321-4030-b53e-90089b3ee9b9");
     iox::log::LogStream(this->loggerMock) << this->ConstLogValueMax;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -339,6 +361,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e9688979-d209-4718-9810-49684fdd9261");
     iox::log::LogStream(this->loggerMock) << this->ConstexprLogValueLow;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -347,6 +370,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMin)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f6799599-582a-454c-85b8-b2059a5d50c6");
     iox::log::LogStream(this->loggerMock) << this->ConstexprLogValueMin;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
@@ -355,6 +379,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMin)
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4a6dc777-a53b-4a42-9ab1-e1da893ad884");
     iox::log::LogStream(this->loggerMock) << this->ConstexprLogValueMax;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));

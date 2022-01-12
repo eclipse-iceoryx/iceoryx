@@ -43,6 +43,7 @@ class Allocator_Test : public Test
 
 TEST_F(Allocator_Test, allocateOneSmallElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f689e95c-5743-4370-93f0-8a23b909c75a");
     iox::posix::Allocator sut(memory, memorySize);
     int* bla = static_cast<int*>(sut.allocate(sizeof(int), MEMORY_ALIGNMENT));
     *bla = 123;
@@ -51,6 +52,7 @@ TEST_F(Allocator_Test, allocateOneSmallElement)
 
 TEST_F(Allocator_Test, allocateEverythingWithSingleElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f2e1085b-08fe-4b08-b022-0385b5a53fca");
     iox::posix::Allocator sut(memory, memorySize);
     int* bla = static_cast<int*>(sut.allocate(memorySize, 1));
     *bla = 123;
@@ -59,6 +61,7 @@ TEST_F(Allocator_Test, allocateEverythingWithSingleElement)
 
 TEST_F(Allocator_Test, allocateEverythingWithMultipleElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "21d0fa61-54f9-41a0-8e53-e3448784497b");
     iox::posix::Allocator sut(memory, memorySize);
     for (size_t i = 0; i < memorySize; i += 32)
     {
@@ -70,6 +73,7 @@ TEST_F(Allocator_Test, allocateEverythingWithMultipleElements)
 
 TEST_F(Allocator_Test, allocateTooMuchSingleElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9deed5c0-19d8-4469-a5c3-f185d4d881f1");
     iox::posix::Allocator sut(memory, memorySize);
     std::set_terminate([]() { std::cout << "", std::abort(); });
     EXPECT_DEATH({ sut.allocate(memorySize + 1, MEMORY_ALIGNMENT); }, ".*");
@@ -77,6 +81,7 @@ TEST_F(Allocator_Test, allocateTooMuchSingleElement)
 
 TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "435151e8-cc34-41ce-8115-5c179716a60a");
     iox::posix::Allocator sut(memory, memorySize);
     for (size_t i = 0; i < memorySize; i += 32)
     {
@@ -89,6 +94,7 @@ TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
 
 TEST_F(Allocator_Test, allocateAndAlignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4252ddcc-05d4-499f-ad7c-30bffb420e08");
     iox::posix::Allocator sut(memory, memorySize);
     auto bla = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
     auto bla2 = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
@@ -97,12 +103,14 @@ TEST_F(Allocator_Test, allocateAndAlignment)
 
 TEST_F(Allocator_Test, allocateElementOfSizeZero)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "17caa50c-94bf-4a1d-a1ec-dfda563caa0b");
     iox::posix::Allocator sut(memory, memorySize);
     EXPECT_DEATH(sut.allocate(0, MEMORY_ALIGNMENT), ".*");
 }
 
 TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "323fc1af-481f-4732-b7d3-fa32da389cef");
     class AllocatorAccess : iox::posix::Allocator
     {
       public:
