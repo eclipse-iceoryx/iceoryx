@@ -130,11 +130,13 @@ MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedM
 
 TEST_F(MePooSegment_test, DISABLED_sharedMemoryFileHandleRightsAfterConstructor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4719f767-3413-46cd-8d1e-92a3ca92760e");
     /// @todo
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationParameter))
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0fcfefd4-3a84-43a5-9805-057a60239184");
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
                                                                        const uint64_t,
                                                                        const iox::posix::AccessMode f_accessMode,
@@ -153,6 +155,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e1c12dd0-fd7d-4be3-918b-08d16a68c8e0");
     uint64_t memorySizeInBytes{0};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const SharedMemory::Name_t,
                                                                         const uint64_t f_memorySizeInBytes,
@@ -172,16 +175,19 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetReaderGroup))
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ad3fd360-3765-45ae-8285-fe4ae60c91ae");
     EXPECT_THAT(sut.getReaderGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test1")));
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetWriterGroup))
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3aa34489-bd46-4e77-89d6-20e82211e1a4");
     EXPECT_THAT(sut.getWriterGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test2")));
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4bc4af78-4beb-42eb-aee4-0f7cffb66411");
     ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1U));
     auto config = sut.getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100U));

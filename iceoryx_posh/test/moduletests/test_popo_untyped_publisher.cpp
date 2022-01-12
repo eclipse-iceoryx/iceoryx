@@ -57,6 +57,7 @@ class UntypedPublisherTest : public Test
 
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ddf997c8-ef8e-4f89-802e-66f1c4bf4980");
     constexpr uint32_t USER_PAYLOAD_SIZE = 7U;
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 128U;
     EXPECT_CALL(portMock,
@@ -74,6 +75,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f191e7e-4a1c-421d-bc17-917eaf497682");
     TestUntypedPublisher sutWithUserHeader{{"", "", ""}};
     MockPublisherPortUser& portMockWithUserHeader{sutWithUserHeader.mockPort()};
 
@@ -94,6 +96,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
 
 TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b609f96e-ea08-46b2-9b72-d162a8273cb5");
     constexpr uint32_t ALLOCATION_SIZE = 17U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(
@@ -108,6 +111,7 @@ TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
 
 TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e114b083-10c7-403e-a841-a04487a5f1e0");
     constexpr uint32_t ALLOCATION_SIZE = 7U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
@@ -125,6 +129,7 @@ TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
 
 TEST_F(UntypedPublisherTest, PublishesUserPayloadViaUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "33479ad8-a7bf-47f9-a9ea-0025fbf1026c");
     // ===== Setup ===== //
     EXPECT_CALL(portMock, sendChunk).Times(1);
     // ===== Test ===== //
@@ -137,18 +142,21 @@ TEST_F(UntypedPublisherTest, PublishesUserPayloadViaUnderlyingPort)
 
 TEST_F(UntypedPublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cd396859-0677-4289-8f6b-7c955b9a7a03");
     EXPECT_CALL(sut, offer).Times(1);
     // ===== Test ===== //
     sut.offer();
 }
 TEST_F(UntypedPublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "80d4bca6-87d0-4b6e-b7cb-d5e24e340921");
     EXPECT_CALL(sut, stopOffer).Times(1);
     sut.stopOffer();
 }
 
 TEST_F(UntypedPublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "90f92d0d-100e-4b03-8d20-65aa2f6ddcac");
     EXPECT_CALL(sut, isOffered).Times(1);
     // ===== Test ===== //
     sut.isOffered();
@@ -156,6 +164,7 @@ TEST_F(UntypedPublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 
 TEST_F(UntypedPublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "83eed655-8369-4a35-bfea-df22a535a33e");
     EXPECT_CALL(sut, hasSubscribers).Times(1);
     // ===== Test ===== //
     sut.hasSubscribers();
@@ -163,6 +172,7 @@ TEST_F(UntypedPublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 
 TEST_F(UntypedPublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublisherPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9799e5ea-1455-4cb0-9fd6-6248a902dfb0");
     EXPECT_CALL(sut, getServiceDescription).Times(1);
     // ===== Test ===== //
     sut.getServiceDescription();

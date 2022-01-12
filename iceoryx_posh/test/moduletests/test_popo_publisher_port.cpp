@@ -116,27 +116,32 @@ class PublisherPort_test : public Test
 
 TEST_F(PublisherPort_test, initialStateIsOfferedWithDefaultOptions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "70bd6717-6ccf-4191-b4e5-f9e3470eae07");
     EXPECT_TRUE(m_sutWithDefaultOptionsUserSide.isOffered());
 }
 
 TEST_F(PublisherPort_test, initialStateIsNotOfferedWhenNoOfferOnCreate)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "46e14a35-8264-45a3-b157-f335c4564276");
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.isOffered());
 }
 
 TEST_F(PublisherPort_test, initialStateIsNoSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a5be59ad-3921-45e9-a5f8-74c8015ddced");
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.hasSubscribers());
 }
 
 TEST_F(PublisherPort_test, noWaitingForSubscriberWithDefaultOptions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d1f74874-257a-4e8f-aabf-8eadad5b4367");
     EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getSubscriberTooSlowPolicy(),
                 Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
 }
 
 TEST_F(PublisherPort_test, initialStateReturnsOfferCaProMessageWithDefaultOptions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "033a2229-609b-47a7-adc1-ab696ab36d46");
     auto maybeCaproMessage = m_sutWithDefaultOptionsRouDiSide.tryGetCaProMessage();
 
     ASSERT_TRUE(maybeCaproMessage.has_value());
@@ -146,6 +151,7 @@ TEST_F(PublisherPort_test, initialStateReturnsOfferCaProMessageWithDefaultOption
 
 TEST_F(PublisherPort_test, initialStateReturnsNoCaProMessageWhenNoOfferOnCreate)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "93112fd3-f67e-424f-aac5-7758a7a6ea27");
     auto maybeCaproMessage = m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
@@ -153,12 +159,14 @@ TEST_F(PublisherPort_test, initialStateReturnsNoCaProMessageWhenNoOfferOnCreate)
 
 TEST_F(PublisherPort_test, waitingForSubscriberWhenDesired)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49526d1a-e81a-4e4a-8fb4-1a96dee83ae7");
     EXPECT_THAT(m_sutWaitForSubscriberRouDiSide.getSubscriberTooSlowPolicy(),
                 Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
 }
 
 TEST_F(PublisherPort_test, offerCallResultsInOfferedState)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d15f9164-7c9a-46cf-aecb-253e5a7e1b79");
     m_sutNoOfferOnCreateUserSide.offer();
 
     EXPECT_TRUE(m_sutNoOfferOnCreateUserSide.isOffered());
@@ -166,6 +174,7 @@ TEST_F(PublisherPort_test, offerCallResultsInOfferedState)
 
 TEST_F(PublisherPort_test, offerCallResultsInOfferCaProMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "328fa84e-ca6b-4e58-b47c-559709855751");
     m_sutNoOfferOnCreateUserSide.offer();
 
     auto maybeCaproMessage = m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
@@ -180,6 +189,7 @@ TEST_F(PublisherPort_test, offerCallResultsInOfferCaProMessage)
 
 TEST_F(PublisherPort_test, stopOfferCallResultsInNotOfferedState)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49985d1e-e7ed-4fc2-9d0a-d78d61b74e3c");
     m_sutNoOfferOnCreateUserSide.offer();
 
     m_sutNoOfferOnCreateUserSide.stopOffer();
@@ -189,6 +199,7 @@ TEST_F(PublisherPort_test, stopOfferCallResultsInNotOfferedState)
 
 TEST_F(PublisherPort_test, stopOfferCallResultsInStopOfferCaProMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0980c54a-2420-4f25-8546-8ca4b36e504b");
     // arrange, we need a transition from offer to stop offer, also form a RouDi point of view
     // therefore we must also get the offer CapPro message (but ignore it here)
     m_sutNoOfferOnCreateUserSide.offer();
@@ -205,6 +216,7 @@ TEST_F(PublisherPort_test, stopOfferCallResultsInStopOfferCaProMessage)
 
 TEST_F(PublisherPort_test, offerStateChangesThatEndUpInTheSameStateDoNotReturnACaProMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "885962f8-b5f1-4ed8-9001-ba95aa2b8db2");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateUserSide.stopOffer();
 
@@ -216,6 +228,7 @@ TEST_F(PublisherPort_test, offerStateChangesThatEndUpInTheSameStateDoNotReturnAC
 TEST_F(PublisherPort_test,
        offerCallWhenHavingHistoryResultsInOfferCaProMessageWithSubTypeFieldAndCorrectHistoryCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fc607126-8bee-4e02-b1c6-4f8eb27076a8");
     m_sutWithHistoryUserSide.offer();
 
     auto maybeCaproMessage = m_sutWithHistoryRouDiSide.tryGetCaProMessage();
@@ -229,6 +242,7 @@ TEST_F(PublisherPort_test,
 
 TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndSmallUserPayloadAlignmentResultsInSmallChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "467e0f06-3450-4cc9-ab84-5ccd5efab69d");
     constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -239,6 +253,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndSmallUserPayloadA
 
 TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndLargeUserPayloadAlignmentResultsInLargeChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3bdf0578-93b3-470d-84af-9139919665db");
     constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     constexpr uint32_t LARGE_USER_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
@@ -250,6 +265,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndLargeUserPayloadA
 
 TEST_F(PublisherPort_test, allocatingAChunkWithLargeUserHeaderResultsInLargeChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "598e04d8-8a37-43ef-b686-64e7b2723ffe");
     constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     constexpr uint32_t LARGE_USER_HEADER_SIZE{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
@@ -261,6 +277,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithLargeUserHeaderResultsInLargeChun
 
 TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0a88a36b-73c5-4699-8d88-bfe4c19bfd81");
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
@@ -273,6 +290,7 @@ TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 
 TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6b873fcb-d67d-48ca-a67d-b807311161d4");
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
@@ -283,6 +301,7 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7b2e2930-4271-4e56-ac84-810d6d5745e4");
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
@@ -295,6 +314,7 @@ TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 
 TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOnlyTheLast)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "761cdd5c-2692-4e0b-b978-609524c48708");
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
@@ -314,6 +334,7 @@ TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOn
 
 TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "71148938-58f1-4189-8461-8bab912e32c6");
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                       iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
@@ -330,6 +351,7 @@ TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 
 TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c68043b2-e7e1-4b73-a860-3b2980505545");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -348,6 +370,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
 
 TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4e5fa8bb-7b07-49f7-9228-47b66afb00c7");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -367,6 +390,7 @@ TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
 
 TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d11815bc-0d63-481e-83c7-4eed60322062");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -389,6 +413,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSub
 
 TEST_F(PublisherPort_test, subscribeManyIsFine)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7ee3c448-7091-4a99-b03b-6ae321cf96ba");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     // using dummy pointers for the provided chunk queue data
@@ -414,6 +439,7 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
 
 TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4726b002-93df-48cd-b190-757fe772d694");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     // using dummy pointers for the provided chunk queue data
@@ -441,6 +467,7 @@ TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
 
 TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "659db6ee-7843-4aa7-b633-916614b6a711");
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -469,6 +496,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 
 TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "12ea9650-c928-4185-8519-be949e2afcf7");
     iox::popo::PublisherOptions options;
     options.historyCapacity = 1U;
     iox::popo::PublisherPortData publisherPortDataHistory{
@@ -508,6 +536,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
 
 TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a9a076d8-ed09-4344-9053-d3d513a17d0a");
     auto maybeLastChunkHeader = m_sutNoOfferOnCreateUserSide.tryGetPreviousChunk();
 
     EXPECT_FALSE(maybeLastChunkHeader.has_value());
@@ -515,6 +544,7 @@ TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)
 
 TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b44de075-2a53-4576-92db-5fcb41d68700");
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
@@ -529,6 +559,7 @@ TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 
 TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a78f11a6-8d4e-4ab5-888a-a2706ff97ec1");
     // push some chunks to history
     for (size_t i = 0; i < iox::MAX_PUBLISHER_HISTORY; i++)
     {

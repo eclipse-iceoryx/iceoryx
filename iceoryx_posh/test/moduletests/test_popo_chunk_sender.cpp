@@ -116,6 +116,7 @@ class ChunkSender_test : public Test
 
 TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndSmallUserPayloadAlignmentResultsInSmallChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3c60fd47-6637-4a9f-bf1b-1b5f707a0cdf");
     constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
@@ -126,6 +127,7 @@ TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndSmallUserPayloadAl
 
 TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndLargeUserPayloadAlignmentResultsInLargeChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a1743fc6-65a2-4218-be6b-b0b8c2e7d1f7");
     constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
@@ -136,6 +138,7 @@ TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndLargeUserPayloadAl
 
 TEST_F(ChunkSender_test, allocate_OneChunkWithLargeUserHeaderResultsInLargeChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e13e06e5-3c9a-4ec2-812c-4ea73cd1d4eb");
     constexpr uint32_t LARGE_HEADER_SIZE{SMALL_CHUNK};
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), LARGE_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -145,6 +148,7 @@ TEST_F(ChunkSender_test, allocate_OneChunkWithLargeUserHeaderResultsInLargeChunk
 
 TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7e33b20b-93f9-4b53-926b-20295ac73b61");
     iox::UniquePortId uniqueId;
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         uniqueId, sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -155,6 +159,7 @@ TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
 
 TEST_F(ChunkSender_test, allocate_MultipleChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0be0972d-f7d4-4400-bbc9-31767aef2e2b");
     auto chunk1 = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunk2 = m_chunkSender.tryAllocate(
@@ -169,6 +174,7 @@ TEST_F(ChunkSender_test, allocate_MultipleChunks)
 
 TEST_F(ChunkSender_test, allocate_Overflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "93e3689a-a1f2-46d2-887d-8c04560161af");
     std::vector<iox::mepoo::ChunkHeader*> chunks;
 
     // tryAllocate chunks until MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY level
@@ -200,6 +206,7 @@ TEST_F(ChunkSender_test, allocate_Overflow)
 
 TEST_F(ChunkSender_test, freeChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b4a6eb09-a431-4f38-bd0c-38baf896a639");
     std::vector<iox::mepoo::ChunkHeader*> chunks;
 
     // tryAllocate chunks until MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY level
@@ -227,6 +234,7 @@ TEST_F(ChunkSender_test, freeChunk)
 
 TEST_F(ChunkSender_test, freeInvalidChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0d9f448d-f622-44f3-a78b-31b0a7b0d1a8");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -247,6 +255,7 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
 
 TEST_F(ChunkSender_test, sendWithoutReceiver)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b9c56b90-2b9d-4097-a908-8f2282b83e10");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -263,6 +272,7 @@ TEST_F(ChunkSender_test, sendWithoutReceiver)
 
 TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a5b798e6-5163-460b-a2d6-cce5592d3c04");
     for (size_t i = 0; i < 100; i++)
     {
         auto maybeChunkHeader = m_chunkSender.tryAllocate(
@@ -291,6 +301,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
 
 TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb782ba8-f457-4f4c-9b3e-c616fa329261");
     for (size_t i = 0; i < 10 * HISTORY_CAPACITY; i++)
     {
         auto maybeChunkHeader = m_chunkSenderWithHistory.tryAllocate(
@@ -319,6 +330,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
 
 TEST_F(ChunkSender_test, sendOneWithReceiver)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9279f04c-e37c-4d0f-8217-720afe59f52b");
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
@@ -346,6 +358,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "07e6a360-f5ae-4cd9-9bee-54b3c31c3390");
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
@@ -379,6 +392,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b951495a-e216-43ff-96a0-a530b7a6455b");
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
@@ -412,6 +426,7 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 
 TEST_F(ChunkSender_test, sendInvalidChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "72680d04-71aa-4229-84c3-11ce8442e9b3");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -432,6 +447,7 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
 
 TEST_F(ChunkSender_test, pushToHistory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5ef98161-c7f9-455b-a9db-8eaa1a6b3342");
     for (size_t i = 0; i < 10 * HISTORY_CAPACITY; i++)
     {
         auto maybeChunkHeader = m_chunkSenderWithHistory.tryAllocate(
@@ -446,6 +462,7 @@ TEST_F(ChunkSender_test, pushToHistory)
 
 TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4b28c59a-ab22-4e2e-8e1a-4246a7dfc38f");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -466,6 +483,7 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "955b4e9d-6c17-45d4-85ca-3a4411e71957");
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -496,6 +514,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "18ffac1d-1ac9-4318-94f0-1178f3d68a2a");
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -531,6 +550,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed
 
 TEST_F(ChunkSender_test, ReuseLastIfSmaller)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cff81129-75aa-45bb-a427-870286fb3ee5");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), BIG_CHUNK, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
@@ -556,6 +576,7 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
 
 TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "44eb7a6c-d50e-4915-a458-e401e96c4c6d");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), SMALL_CHUNK, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
@@ -581,6 +602,7 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
 
 TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1deadbe1-7877-486a-941e-9d41d03b5aba");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), SMALL_CHUNK - 10, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
@@ -606,6 +628,7 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
 
 TEST_F(ChunkSender_test, Cleanup)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5e5ab921-24bf-45a9-9572-68e444120baa");
     EXPECT_TRUE((HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY) <= NUM_CHUNKS_IN_POOL);
 
     for (size_t i = 0; i < HISTORY_CAPACITY; i++)

@@ -90,6 +90,7 @@ INSTANTIATE_TEST_SUITE_P(ValidTest,
 
 TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "48c13126-f1f9-457f-8e3b-78a27f451101");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -113,6 +114,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription
 
 TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptionToParseInTomlConfigFile)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9fc62870-448d-4ccb-b8a0-be76884841fb");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -143,6 +145,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoServiceNameInServiceDescriptionReturnIncompleteServiceDescriptionError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fbdf3cdd-133c-4689-a73c-1ee2976b6726");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -159,6 +162,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServiceNameInServiceDescriptionReturn
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoInstanceNameInServiceDescriptionReturnIncompleteServiceDescriptionError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b7382a1-7f78-4725-82b1-2508299719cc");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -175,6 +179,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoInstanceNameInServiceDescriptionRetur
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoEventNameInServiceDescriptionReturnIncompleteServiceDescriptionError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "44c56d0a-daa4-4ea5-b889-7b3758ec5c59");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -191,6 +196,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoEventNameInServiceDescriptionReturnIn
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfigurationError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "14a75eaf-7eac-4ccd-a797-79dca9f382fc");
     auto toml = cpptoml::make_table();
 
     auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
@@ -203,6 +209,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfi
 // test fails on every machine which is using such a config.
 TEST_F(TomlGatewayConfigParserSuiteTest, DISABLED_ParseWithoutParameterTakeDefaultPathReturnNoError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f18a7245-c4d5-4ad2-a74e-a622103f45f3");
     auto result = TomlGatewayConfigParser::parse();
     ASSERT_FALSE(result.has_error());
 
@@ -212,6 +219,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, DISABLED_ParseWithoutParameterTakeDefau
 
 TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithEmptyPathReturnEmptyConfig)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1dc2aec6-31ab-4748-8e5f-f44be9777dcd");
     iox::roudi::ConfigFilePathString_t path = "";
 
     auto result = TomlGatewayConfigParser::parse(path);
@@ -224,6 +232,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithEmptyPathReturnEmptyConfig)
 TEST_F(TomlGatewayConfigParserSuiteTest,
        ParseWithoutServiceNameInServiceDescriptionInTomlConfigFileReturnIncompleteServiceDescriptionError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c789eb60-935a-454d-95de-5083c0288a0a");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -243,6 +252,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
 TEST_F(TomlGatewayConfigParserSuiteTest,
        ParseWithoutInstanceNameInServiceDescriptionInTomlConfigFileReturnIncompleteServiceDescriptionError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d40950c8-4be0-4b48-9188-e18d46e21225");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -262,6 +272,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
 TEST_F(TomlGatewayConfigParserSuiteTest,
        ParseWithoutEventNameInServiceDescriptionInTomlConfigFileReturnIncompleteServiceDescriptionError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b81898dc-8f84-475d-af5b-5095abd31a15");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -281,6 +292,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
 TEST_F(TomlGatewayConfigParserSuiteTest,
        ParseWithoutServicesConfigurationInTomlConfigFileReturnIncompleteConfigurationError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e2a712d9-7f8b-45e2-a6a0-e16e8990c844");
     auto toml = cpptoml::make_table();
     CreateTmpTomlFile(toml);
 
@@ -292,6 +304,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
 
 TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFileReturnOnlyOneEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "093f09d6-67ab-4da2-933f-e20fb5c42444");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -318,6 +331,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFile
 
 TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedNumberOfConfiguredServicesReturnNoError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "979101e3-764e-484f-aa6e-94b5c1cc0b5d");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
 
@@ -355,6 +369,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
 TEST_F(TomlGatewayConfigParserSuiteTest,
        ParseValidConfigFileWithMoreThanMaximumAllowedNumberOfConfiguredServicesReturnError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5fd22d76-1d13-4364-8fd7-2f5d434714f4");
     auto toml = cpptoml::make_table();
     auto serviceArray = cpptoml::make_table_array();
     auto serviceEntry = cpptoml::make_table();
@@ -389,6 +404,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "46f32eaf-b4d5-4ae1-b57e-aa23fcfcd2d5");
     const auto parseErrorInputFile = GetParam();
 
     m_configFilePath.append(iox::cxx::TruncateToCapacity, parseErrorInputFile.second);

@@ -50,6 +50,7 @@ class IpcMessage_test : public Test
 
 TEST_F(IpcMessage_test, DefaultCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f45cce1-5d93-49eb-8344-fa318a46e035");
     IpcMessage message;
     EXPECT_THAT(message.getNumberOfElements(), Eq(0u));
     EXPECT_THAT(message.getMessage(), Eq(""));
@@ -59,6 +60,7 @@ TEST_F(IpcMessage_test, DefaultCTor)
 
 TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a21483b7-be79-400d-beeb-571c017db42c");
     IpcMessage message1({"abc", "def", "123123", ")(!*@&#^$)", "ABASDASD"});
     EXPECT_THAT(message1.getNumberOfElements(), Eq(5u));
     EXPECT_THAT(message1.getMessage(), Eq("abc,def,123123,)(!*@&#^$),ABASDASD,"));
@@ -91,6 +93,7 @@ TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
 
 TEST_F(IpcMessage_test, CTorWithInitializerList_invalidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d0f96a86-d579-4959-8633-bb30ab8d654f");
     IpcMessage message1({"abc", "def", "123i,123", ")(!*@&#^$)", "ABASDASD"});
     EXPECT_THAT(message1.isValid(), Eq(false));
 
@@ -103,6 +106,7 @@ TEST_F(IpcMessage_test, CTorWithInitializerList_invalidEntries)
 
 TEST_F(IpcMessage_test, CTorWithString_validMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9eb3418b-1d96-4d15-b5e3-36ef1097c1a7");
     IpcMessage message1("asd,asd,asd,asd,");
     EXPECT_THAT(message1.getNumberOfElements(), Eq(4u));
     EXPECT_THAT(message1.isValid(), Eq(true));
@@ -118,6 +122,7 @@ TEST_F(IpcMessage_test, CTorWithString_validMessage)
 
 TEST_F(IpcMessage_test, CTorWithString_invalidMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9af0d7a6-f4b4-4be6-8a46-654992cb021a");
     IpcMessage message1("asd,asd,asd,asd");
     EXPECT_THAT(message1.isValid(), Eq(false));
 
@@ -130,6 +135,7 @@ TEST_F(IpcMessage_test, CTorWithString_invalidMessage)
 
 TEST_F(IpcMessage_test, CopyCTorValidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4a44de96-0441-42e5-b3a8-90dfcc3acce6");
     IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
     IpcMessage destination(*source);
     delete source;
@@ -144,6 +150,7 @@ TEST_F(IpcMessage_test, CopyCTorValidEntries)
 
 TEST_F(IpcMessage_test, CopyCTorInvalidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1a5011bd-be96-4619-9384-563c0a5f4d11");
     IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
     IpcMessage destination(*source);
     delete source;
@@ -153,6 +160,7 @@ TEST_F(IpcMessage_test, CopyCTorInvalidEntries)
 
 TEST_F(IpcMessage_test, MoveCTorValidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9980d693-eb2e-441f-a707-18a5901da020");
     IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
     IpcMessage destination(std::move(*source));
     delete source;
@@ -167,6 +175,7 @@ TEST_F(IpcMessage_test, MoveCTorValidEntries)
 
 TEST_F(IpcMessage_test, MoveCTorInvalidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "65e0ac6d-ec3c-4eae-8f69-45784fc52016");
     IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
     IpcMessage destination(std::move(*source));
     delete source;
@@ -176,6 +185,7 @@ TEST_F(IpcMessage_test, MoveCTorInvalidEntries)
 
 TEST_F(IpcMessage_test, CopyOperatorValidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "702fcd55-447b-4d20-8137-18931d002d6b");
     IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
     IpcMessage destination;
     destination = *source;
@@ -191,6 +201,7 @@ TEST_F(IpcMessage_test, CopyOperatorValidEntries)
 
 TEST_F(IpcMessage_test, CopyOperatorInvalidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "133c5c9e-0880-4be4-b660-acb14fc445fe");
     IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
     IpcMessage destination;
     destination = *source;
@@ -201,6 +212,7 @@ TEST_F(IpcMessage_test, CopyOperatorInvalidEntries)
 
 TEST_F(IpcMessage_test, MoveOperatorValidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "05b92b6a-2ac8-491b-a7b8-09b1c132eea6");
     IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
     IpcMessage destination;
     destination = std::move(*source);
@@ -216,6 +228,7 @@ TEST_F(IpcMessage_test, MoveOperatorValidEntries)
 
 TEST_F(IpcMessage_test, MoveOperatorInvalidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "84a2f506-66b2-46d5-a154-45d375dc37c0");
     IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
     IpcMessage destination;
     destination = std::move(*source);
@@ -226,6 +239,7 @@ TEST_F(IpcMessage_test, MoveOperatorInvalidEntries)
 
 TEST_F(IpcMessage_test, getElementAtIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "554163c3-2119-462e-90f7-f3bd01421fad");
     IpcMessage message1({"fuu", "bar", "bla"});
 
     EXPECT_THAT(message1.getElementAtIndex(1), Eq("bar"));
@@ -249,6 +263,7 @@ TEST_F(IpcMessage_test, getElementAtIndex)
 
 TEST_F(IpcMessage_test, isValidEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8b09e0ca-66b4-40ca-9449-2ae9e79eb48e");
     IpcMessage message;
 
     EXPECT_THAT(message.isValidEntry(""), Eq(true));
@@ -264,6 +279,7 @@ TEST_F(IpcMessage_test, isValidEntry)
 
 TEST_F(IpcMessage_test, IsValidWithCTorConstruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "57aed4a1-2817-4b33-a8b4-ba75891f29a2");
     IpcMessage message1;
     EXPECT_THAT(message1.isValid(), Eq(true));
 
@@ -291,6 +307,7 @@ TEST_F(IpcMessage_test, IsValidWithCTorConstruction)
 
 TEST_F(IpcMessage_test, IsValidWithAddEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c29c21a5-0ec9-4016-9fca-d4804b3562bd");
     IpcMessage message1;
     EXPECT_THAT(message1.isValid(), Eq(true));
 
@@ -325,6 +342,7 @@ TEST_F(IpcMessage_test, IsValidWithAddEntry)
 
 TEST_F(IpcMessage_test, getMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "947eef64-112b-480c-b216-57e0c9b5688f");
     IpcMessage message1;
     EXPECT_THAT(message1.getMessage(), Eq(""));
     message1.addEntry(123);
@@ -340,6 +358,7 @@ TEST_F(IpcMessage_test, getMessage)
 
 TEST_F(IpcMessage_test, AddEntryWithValidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "370ab026-7f4c-4bdb-8a36-0a60284aaea4");
     IpcMessage message1;
 
     message1.addEntry("aaaa");
@@ -370,6 +389,7 @@ TEST_F(IpcMessage_test, AddEntryWithValidEntries)
 
 TEST_F(IpcMessage_test, AddEntryWithInvalidEntries)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2e44a35a-f046-4c13-93d5-3ab5ae71931f");
     IpcMessage message1;
 
     EXPECT_THAT(message1.isValid(), Eq(true));
@@ -389,6 +409,7 @@ TEST_F(IpcMessage_test, AddEntryWithInvalidEntries)
 
 TEST_F(IpcMessage_test, clearMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "96b6d5a7-797d-4d9b-9334-290d2254dec4");
     IpcMessage message1;
 
     message1.clearMessage();
@@ -415,6 +436,7 @@ TEST_F(IpcMessage_test, clearMessage)
 
 TEST_F(IpcMessage_test, setMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5affc711-1af9-4906-ac7d-ddf408ee61c7");
     IpcMessage message1;
 
     message1.setMessage("asd1,asd2,asd3,asd4,");

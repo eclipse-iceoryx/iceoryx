@@ -190,6 +190,7 @@ class MemPoolIntrospection_test : public Test
 
 TEST_F(MemPoolIntrospection_test, CTOR)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9da5951c-cbff-41b5-95e3-ae6921ce9331");
     {
         EXPECT_CALL(callChecker(), offer()).Times(1);
 
@@ -202,6 +203,7 @@ TEST_F(MemPoolIntrospection_test, CTOR)
 
 TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "28af0288-b57e-4c49-b0a9-33809bf69c96");
     EXPECT_CALL(callChecker(), offer()).Times(1);
 
     MemPoolIntrospectionAccess introspectionAccess(
@@ -220,6 +222,7 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 /// Should be realized as an integration test with a roudi environment and less mocking classes instead.
 TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "52c48ddb-e7b6-450d-b262-1e24401ac878");
     EXPECT_CALL(callChecker(), offer()).Times(1);
 
     MemPoolIntrospectionAccess introspectionAccess(

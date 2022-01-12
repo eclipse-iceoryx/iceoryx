@@ -212,6 +212,7 @@ void setDestroyFlagAndClearContainer(vector& container)
 
 TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "314ccda9-962d-416c-a631-74d1c5b15b41");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
 
     auto result = m_portManager->acquirePublisherPortData(
@@ -227,6 +228,7 @@ TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInService
 
 TEST_F(PortManager_test, AcquireSubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5a821353-3300-47be-9ffe-367a3740df02");
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     auto result = m_portManager->acquireSubscriberPortData(
@@ -241,6 +243,7 @@ TEST_F(PortManager_test, AcquireSubWithInvalidServiceDescriptionResultsInService
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f767cb6a-ae82-45e5-9969-d75be1077fc0");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
@@ -267,6 +270,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bef1fc7f-3661-4dcc-98dd-fbf951ed275c");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
@@ -293,6 +297,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 
 TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscriberAndPublisher)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bbd475bd-23fd-4b8f-b2ae-88e41c39e6e2");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
@@ -319,6 +324,7 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
 
 TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreationOfPublisher)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1c5bf2e-066e-4f01-b92a-edab9197a5dd");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
@@ -353,6 +359,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
 
 TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPublisherAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5a94cf82-d1f6-4129-88ca-34344d94e04e");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     PublisherPortUser publisher(
@@ -373,6 +380,7 @@ TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPubl
 
 TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f6cb4274-d137-4035-b38c-3644b8158006");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
     SubscriberPortUser subscriber(
@@ -393,6 +401,7 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
 
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopSubscriberFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "28798301-1630-458a-81b5-77f53e75d0fb");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     SubscriberPortUser subscriber(
@@ -411,6 +420,7 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopPublisherFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8a51d940-fc35-428e-b4dd-b19c7e9d1f4a");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     PublisherPortUser publisher(
@@ -431,6 +441,7 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "617abda0-36f7-4f98-9eb9-572622e0ffa1");
     iox::RuntimeName_t runtimeName = "test1";
     PublisherOptions publisherOptions{1U, iox::NodeName_t("run1")};
 
@@ -460,6 +471,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5039eff5-f2d1-4f58-8bd2-fc9768a9bc92");
     iox::RuntimeName_t runtimeName1 = "test1";
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("run1")};
 
@@ -486,6 +498,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "129706cc-18e5-4457-b314-d6b7ae347ea0");
     std::string runtimeName = "itf";
 
     // first aquire all possible Interfaces
@@ -507,6 +520,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
 
 TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberRequestsBlockingLeadsToConnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "34380b13-5541-4fdf-b266-beccb90f5215");
     PublisherOptions publisherOptions{
         1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PUBLISHER};
@@ -527,6 +541,7 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberRequestsBlockin
 
 TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestPolicyLeadsToConnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3cf03140-9ca6-47a1-b45b-8cfa70e3fd5c");
     PublisherOptions publisherOptions{
         1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA};
@@ -547,6 +562,7 @@ TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestPolicyLeadsToConnect)
 
 TEST_F(PortManager_test, DoDiscoveryPublisherDoesNotAllowBlockingAndSubscriberRequestsBlockingLeadsToNoConnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "31d879bf-ca07-4f29-90cd-a46f09a98f7c");
     PublisherOptions publisherOptions{
         1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PUBLISHER};
@@ -566,6 +582,7 @@ TEST_F(PortManager_test, DoDiscoveryPublisherDoesNotAllowBlockingAndSubscriberRe
 
 TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLeadsToConnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f2ea15a6-0672-4a98-8f80-f2900b247ac0");
     PublisherOptions publisherOptions{
         1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA};
@@ -587,6 +604,7 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLe
 
 TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2e682da4-aea0-4c37-8895-4049506db936");
     std::string runtimeName = "itf";
 
     // first aquire all possible Interfaces
@@ -607,6 +625,7 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
 
 TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0a8a52c8-2c6f-44d3-ab32-0d92f6e285f1");
     std::vector<iox::popo::InterfacePortData*> interfaceContainer;
     std::string runtimeName = "itf";
 
@@ -623,6 +642,7 @@ TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquir
 
 TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionInApplicationPortLeadsToTermination)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1f6973d5-aa2d-4781-b5b6-861793660c33");
     auto applicationPortData = m_portManager->acquireApplicationPortData(iox::RuntimeName_t("OhWieSchoenIsPanama"));
     ASSERT_NE(applicationPortData, nullptr);
 
@@ -637,6 +657,7 @@ TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionInApplicationPo
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0d13e636-2a8d-462d-a361-cbb62a922162");
     std::string runtimeName = "app";
 
     // first aquire all possible applications
@@ -658,6 +679,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)
 
 TEST_F(PortManager_test, DeleteApplicationPortfromMaximumNumberAndAddOneIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4512b3a6-3e23-49b4-90a5-9464ac2f0cde");
     std::string runtimeName = "app";
 
     // first aquire all possible applications
@@ -678,6 +700,7 @@ TEST_F(PortManager_test, DeleteApplicationPortfromMaximumNumberAndAddOneIsSucces
 
 TEST_F(PortManager_test, AcquireApplicationPortAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d4a59ba7-7858-4d6d-b43e-f4617e784590");
     std::vector<iox::popo::ApplicationPortData*> appContainer;
 
     std::string runtimeName = "app";
@@ -695,6 +718,7 @@ TEST_F(PortManager_test, AcquireApplicationPortAfterDestroyingPreviouslyAcquired
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b7f4106-cf38-4c89-9453-fca1e3887ee5");
     std::string runtimeName = "HypnoToadForEver";
 
     // first aquire all possible condition variables
@@ -717,6 +741,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
 
 TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "81de0f58-7bf8-43c4-a4ef-b365c0e74c47");
     std::string runtimeName = "HypnoToadForEver";
 
     // first aquire all possible condition variables
@@ -737,6 +762,7 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
 
 TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b82b069-b300-4018-88d6-83cca8157066");
     std::vector<iox::popo::ConditionVariableData*> condVarContainer;
 
     std::string runtimeName = "HypnoToadForEver";
@@ -754,6 +780,7 @@ TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyA
 
 TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7c4e697e-c379-44f5-a081-5903d9b287f5");
     std::string runtimeName = "Process";
     std::string nodeName = iox::NodeName_t("node");
 
@@ -765,6 +792,7 @@ TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "012b526b-f3a0-43c3-bc71-278496caf16a");
     std::string runtimeName = "Process";
     std::string nodeName = iox::NodeName_t("node");
 
@@ -786,6 +814,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 
 TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b43da28c-b1ad-43a4-82cb-e885ef9e6a89");
     std::string runtimeName = "Process";
     std::string nodeName = iox::NodeName_t("node");
 
@@ -808,6 +837,7 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
 TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c2d64fbb-6aa5-42bc-aaea-3d8776da70ed");
     iox::RuntimeName_t runtimeName = "Humuhumunukunukuapua'a";
     iox::NodeName_t nodeName = "Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu";
     std::vector<iox::runtime::NodeData*> nodeContainer;
@@ -828,6 +858,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
 
 TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aa0cd25c-4e9d-476a-a8a6-d5c650fb9fff");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     iox::cxx::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
 
@@ -856,6 +887,7 @@ TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 
 TEST_F(PortManager_test, UnblockProcessShutdownMakesPublisherStopOffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a013e699-2a6b-42e9-b6e8-5f65ea235c0a");
     const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
 
     // get publisher and subscriber
@@ -935,12 +967,14 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
 
 TEST_F(PortManager_test, UnblockRouDiShutdownUnblocksBlockedPublisher)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5200e46f-5006-4a71-966a-a4aff8a0bf85");
     const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
     setupAndTestBlockingPublisher(publisherRuntimeName, [&] { m_portManager->unblockRouDiShutdown(); });
 }
 
 TEST_F(PortManager_test, UnblockProcessShutdownUnblocksBlockedPublisher)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2c5a3f87-20fb-4fd8-a3b5-033b79598800");
     const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
     setupAndTestBlockingPublisher(publisherRuntimeName,
                                   [&] { m_portManager->unblockProcessShutdown(publisherRuntimeName); });
@@ -948,6 +982,7 @@ TEST_F(PortManager_test, UnblockProcessShutdownUnblocksBlockedPublisher)
 
 TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "65815512-0298-46b7-9d19-64bc51079c1a");
     iox::RuntimeName_t runtimeName1 = "myApp1";
     iox::RuntimeName_t runtimeName2 = "myApp2";
     iox::capro::ServiceDescription cap1("1", "1", "1");
@@ -1067,6 +1102,7 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
 
 TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "25b44ea6-be56-40ec-9567-24b4e3ef486a");
     auto serviceCounter = m_portManager->serviceRegistryChangeCounter();
     ASSERT_NE(serviceCounter, nullptr);
 

@@ -65,6 +65,7 @@ class TypedMemPool_test : public Test
 
 TEST_F(TypedMemPool_test, GetOneObject)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0cf13b53-8407-41ab-945d-b3c5964466d7");
     auto object = sut.createObject(1, 223);
     ASSERT_THAT(object.has_error(), Eq(false));
     EXPECT_THAT(object.value()->a, Eq(1));
@@ -73,6 +74,7 @@ TEST_F(TypedMemPool_test, GetOneObject)
 
 TEST_F(TypedMemPool_test, ReleaseChunkWhenGoingOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1a91a119-da28-4cec-8a61-8c2a0bbef673");
     {
         auto object = sut.createObject(1, 234);
         EXPECT_FALSE(object.has_error());
@@ -83,6 +85,7 @@ TEST_F(TypedMemPool_test, ReleaseChunkWhenGoingOutOfScope)
 
 TEST_F(TypedMemPool_test, OutOfChunksErrorWhenFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "850d7257-aa45-42c0-b535-b52beebe729a");
     auto object1 = sut.createObject(0xaffe, 0xdead);
     auto object2 = sut.createObject(0xaffe, 0xdead);
     auto object3 = sut.createObject(0xaffe, 0xdead);
@@ -123,6 +126,7 @@ class TypedMemPool_Semaphore_test : public Test
 
 TEST_F(TypedMemPool_Semaphore_test, CreateValidSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "753fbb32-beec-4277-936f-2d6359a557ce");
     auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
         iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphorePtr.has_error(), Eq(false));
@@ -130,6 +134,7 @@ TEST_F(TypedMemPool_Semaphore_test, CreateValidSemaphore)
 
 TEST_F(TypedMemPool_Semaphore_test, CreateInvalidSemaphore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "410ff52d-f14d-41f3-a1e5-f164c5accbd7");
     auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
         iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphorePtr.has_error(), Eq(true));

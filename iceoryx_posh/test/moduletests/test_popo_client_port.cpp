@@ -226,18 +226,21 @@ constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
 TEST_F(ClientPort_test, InitialConnectionStateOnPortWithConnectOnCreateIs_CONNECTED)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5d6dd457-b111-45d8-8bac-ae354288ff93");
     auto& sut = clientPortWithConnectOnCreate;
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 }
 
 TEST_F(ClientPort_test, InitialConnectionStateOnPortWithoutConnectOnCreateIs_NOT_CONNECTED)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "068d6415-1554-4f67-85da-0dd1dab77e68");
     auto& sut = clientPortWithoutConnectOnCreate;
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
 }
 
 TEST_F(ClientPort_test, AllocateRequestDoesNotFailAndUsesTheMempool)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d82b0152-8ed4-4022-ada8-f8926f27a9b1");
     auto& sut = clientPortWithConnectOnCreate;
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
 
@@ -249,6 +252,7 @@ TEST_F(ClientPort_test, AllocateRequestDoesNotFailAndUsesTheMempool)
 
 TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f21bc4ab-4080-4994-b862-5cb8c8738b46");
     auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
@@ -266,6 +270,7 @@ TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
 
 TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d2eb1ec3-78de-453b-bf97-860f3c57362b");
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) {
@@ -281,6 +286,7 @@ TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToThe
 
 TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e50da541-7621-46e8-accb-46a6b5d7e69b");
     auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
@@ -303,6 +309,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
 
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "861efd1d-31ae-436d-9a0c-84da5bf99a57");
     constexpr int64_t SEQUENCE_ID{42U};
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
@@ -328,6 +335,7 @@ TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQ
 
 TEST_F(ClientPort_test, SendRequestOnNotConnectedClientPortDoesNotEnqueuesRequestToServerQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "46c418a8-4f4f-4393-a190-8f5d41deb05e");
     auto& sut = clientPortWithoutConnectOnCreate;
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
@@ -341,6 +349,7 @@ TEST_F(ClientPort_test, SendRequestOnNotConnectedClientPortDoesNotEnqueuesReques
 
 TEST_F(ClientPort_test, ConnectAfterPreviousSendRequestCallDoesNotEnqueuesRequestToServerQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3348d22d-d08e-4855-8316-8b2ce77274ee");
     auto& sut = clientPortWithoutConnectOnCreate;
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
@@ -357,6 +366,7 @@ TEST_F(ClientPort_test, ConnectAfterPreviousSendRequestCallDoesNotEnqueuesReques
 
 TEST_F(ClientPort_test, GetResponseOnNotConnectedClientPortHasNoResponse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ecb320c9-1c95-410e-84d6-9aa9763b9768");
     auto& sut = clientPortWithoutConnectOnCreate;
     sut.portUser.getResponse()
         .and_then([&](auto&) {
@@ -368,6 +378,7 @@ TEST_F(ClientPort_test, GetResponseOnNotConnectedClientPortHasNoResponse)
 
 TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHasNoResponse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2e6efd53-c056-4d95-9d73-2fcfe7a6b69a");
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.getResponse()
         .and_then([&](auto&) {
@@ -379,6 +390,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHa
 
 TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueueHasResponse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f9625942-d69f-404a-a419-cf2f5f20dd85");
     constexpr int64_t SEQUENCE_ID{13U};
     auto& sut = clientPortWithConnectOnCreate;
 
@@ -398,6 +410,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
 
 TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b6ad4c2a-7c52-45ee-afd3-29c286489311");
     auto& sut = clientPortWithConnectOnCreate;
 
     iox::cxx::optional<iox::Error> detectedError;
@@ -415,6 +428,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
 
 TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempool)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f625d3e-9ef3-4329-9c80-95af0327cbc0");
     auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
@@ -438,12 +452,14 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
 
 TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "42f50429-e1e1-41b9-bbcd-5d14a0eda189");
     auto& sut = clientPortWithConnectOnCreate;
     EXPECT_FALSE(sut.portUser.hasNewResponses());
 }
 
 TEST_F(ClientPort_test, HasNewResponseOnNonEmptyResponseQueueReturnsTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2b0dbb32-2d5b-4eac-96d3-6cf7a8cbac15");
     auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
@@ -455,6 +471,7 @@ TEST_F(ClientPort_test, HasNewResponseOnNonEmptyResponseQueueReturnsTrue)
 
 TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueAfterPreviouslyNotEmptyReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9cd91de8-9687-436a-9d7d-95d2754eee30");
     auto& sut = clientPortWithConnectOnCreate;
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
@@ -468,12 +485,14 @@ TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueAfterPreviouslyNotEmpt
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8eba3173-6b4a-4073-90ad-133e279a6215");
     auto& sut = clientPortWithConnectOnCreate;
     EXPECT_FALSE(sut.portUser.hasLostResponsesSinceLastCall());
 }
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesAndQueueFullReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8a5765a9-dc20-40fc-95ea-84391e7a927e");
     auto& sut = clientPortWithConnectOnCreate;
 
     EXPECT_TRUE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY));
@@ -482,6 +501,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithoutLosingResponsesAndQu
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithLosingResponsesReturnsTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "28bb1d1f-4b6f-4f03-ba31-24fa4d75a44d");
     auto& sut = clientPortWithConnectOnCreate;
 
     EXPECT_FALSE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY + 1U));
@@ -490,6 +510,7 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallWithLosingResponsesReturnsT
 
 TEST_F(ClientPort_test, HasLostResponsesSinceLastCallReturnsFalseAfterPreviouslyReturningTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "233cf99e-52fc-4e9c-b2bf-77928a4370ab");
     auto& sut = clientPortWithConnectOnCreate;
 
     EXPECT_FALSE(pushResponses(sut.responseQueuePusher, QUEUE_CAPACITY + 1U));
@@ -499,12 +520,14 @@ TEST_F(ClientPort_test, HasLostResponsesSinceLastCallReturnsFalseAfterPreviously
 
 TEST_F(ClientPort_test, ConditionVariableInitiallyNotSet)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a9b75cb2-9968-4b90-b444-92d8cff2ca97");
     auto& sut = clientPortWithConnectOnCreate;
     EXPECT_FALSE(sut.portUser.isConditionVariableSet());
 }
 
 TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "86c03248-f9a6-4f4b-830f-fac5ec8c5cc3");
     iox::popo::ConditionVariableData condVar{"hypnotoad"};
     constexpr uint32_t NOTIFICATION_INDEX{1};
 
@@ -516,6 +539,7 @@ TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentW
 
 TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2f10db20-e236-4b9d-9162-4d8ea5c9f4c9");
     iox::popo::ConditionVariableData condVar{"brain slug"};
     constexpr uint32_t NOTIFICATION_INDEX{2};
 
@@ -529,6 +553,7 @@ TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWo
 
 TEST_F(ClientPort_test, UnsettingConditionVariableWithoutConditionVariablePresentIsHandledGracefully)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8e89da27-ba82-46f7-ad41-844373e103e7");
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.unsetConditionVariable();
 
@@ -537,6 +562,7 @@ TEST_F(ClientPort_test, UnsettingConditionVariableWithoutConditionVariablePresen
 
 TEST_F(ClientPort_test, ConnectOnNotConnectedClientPortResultsInStateChange)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "52c6cc2f-58c9-4215-9c91-71f0e7b8e40d");
     auto& sut = clientPortWithoutConnectOnCreate;
 
     sut.portUser.connect();
@@ -546,6 +572,7 @@ TEST_F(ClientPort_test, ConnectOnNotConnectedClientPortResultsInStateChange)
 
 TEST_F(ClientPort_test, ConnectOnConnectedClientPortResultsInNoStateChange)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "08e3e53b-9303-4d5f-8f1d-c5878adf5783");
     auto& sut = clientPortWithConnectOnCreate;
 
     sut.portUser.connect();
@@ -555,6 +582,7 @@ TEST_F(ClientPort_test, ConnectOnConnectedClientPortResultsInNoStateChange)
 
 TEST_F(ClientPort_test, DisconnectOnConnectedClientPortResultsInStateChange)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6d1d4ce8-737f-4438-bd61-173625032c76");
     auto& sut = clientPortWithConnectOnCreate;
 
     sut.portUser.disconnect();
@@ -564,6 +592,7 @@ TEST_F(ClientPort_test, DisconnectOnConnectedClientPortResultsInStateChange)
 
 TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "82ff5a16-2b4f-4480-88b1-8983242ed677");
     auto& sut = clientPortWithoutConnectOnCreate;
 
     sut.portUser.disconnect();
@@ -578,6 +607,7 @@ TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange
 
 TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithDefaultOptionIsDiscardOldesData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf169034-c413-4362-a6cd-72ec0d6cf958");
     auto& sut = clientPortWithConnectOnCreate;
 
     EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy2::DISCARD_OLDEST_DATA));
@@ -585,6 +615,7 @@ TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithDefaultOptionIsDisca
 
 TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithBlockProducerOptionIsBlockProducer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "40c3b25e-8a95-415b-9acb-6a67fd7d868a");
     auto& sut = clientPortWithBlockProducerResponseQueuePolicy;
 
     EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy2::BLOCK_PRODUCER));
@@ -592,6 +623,7 @@ TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithBlockProducerOptionI
 
 TEST_F(ClientPort_test, TryGetCaProMessageOnConnectHasCaProMessageTypeConnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eac43f13-b486-4e8b-a5b9-4fc274113d08");
     auto& sut = clientPortWithoutConnectOnCreate;
 
     sut.portUser.connect();
@@ -604,6 +636,7 @@ TEST_F(ClientPort_test, TryGetCaProMessageOnConnectHasCaProMessageTypeConnect)
 
 TEST_F(ClientPort_test, TryGetCaProMessageOnDisconnectHasCaProMessageTypeDisconnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "53bb7a12-affb-4ad0-8846-4fb20bbe4a72");
     auto& sut = clientPortWithConnectOnCreate;
 
     sut.portUser.disconnect();
@@ -616,6 +649,7 @@ TEST_F(ClientPort_test, TryGetCaProMessageOnDisconnectHasCaProMessageTypeDisconn
 
 TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c0d88645-3c8f-47e1-8989-7557675c1207");
     auto& sut = clientPortWithConnectOnCreate;
 
     // produce chunks for the chunk sender
@@ -643,6 +677,7 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 
 TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeOfferRemainsInStateNotConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "849f1825-61da-4bad-8390-b14173905611");
     auto& sut = initAndGetClientPortForStateTransitionTests();
 
     auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
@@ -654,6 +689,7 @@ TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeOfferRemainsInState
 
 TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeConnectTransitionsToStateConnectRequested)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "72c72160-f53e-4062-90cb-b7a51017b5be");
     auto& sut = initAndGetClientPortForStateTransitionTests();
 
     auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
@@ -668,6 +704,7 @@ TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeConnectTransitionsT
 
 TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeNackTransitionsToStateWaitForOffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d8921cb0-6a8d-43a4-a6ef-384bd3475aae");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
@@ -681,6 +718,7 @@ TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeNackTransitions
 
 TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeAckTransitionsToStateConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3651e440-9d20-48b8-bbf6-ca063f41b767");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
@@ -696,6 +734,7 @@ TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeAckTransitionsT
 
 TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeDisconnetTransitionsToStateNotConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fa9925d1-e867-4155-aa8c-3bfa411b09db");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
@@ -709,6 +748,7 @@ TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeDisconnetTransition
 
 TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeOfferTransitionsToStateConnectRequested)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "527a9ca0-f3c7-4bce-8e88-e4ab753358f1");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
@@ -725,6 +765,7 @@ TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeOfferTransitionsToS
 
 TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeStopOfferTransitionsToStateWaitForOffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4c07d376-f316-4805-9a91-575289beae94");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
@@ -740,6 +781,7 @@ TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeStopOfferTransitionsTo
 
 TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeDisconnectTransitionsToStateDisconnectRequested)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bb3c606e-2ab0-4b76-a7dc-83bec1068171");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
@@ -758,6 +800,7 @@ TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeDisconnectTransitionsT
 
 TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeAckTransitionsToStateNotConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1c5f2052-7397-4e23-b53a-8127cce62063");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
@@ -773,6 +816,7 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeAckTransitio
 
 TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransitionsToStateNotConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0d24f15e-5ff3-4c96-8e74-a404cd7f3605");
     auto& sut = initAndGetClientPortForStateTransitionTests();
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
@@ -793,6 +837,7 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransiti
 
 TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "465258d2-b58d-41fe-bc18-e7fd43dd233d");
     constexpr iox::ConnectionState ALL_STATES[]{iox::ConnectionState::NOT_CONNECTED,
                                                 iox::ConnectionState::CONNECT_REQUESTED,
                                                 iox::ConnectionState::WAIT_FOR_OFFER,

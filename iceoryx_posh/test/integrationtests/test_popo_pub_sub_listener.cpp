@@ -64,6 +64,7 @@ class PubSubListener_IntegrationTest : public RouDi_GTest
 /// UndefinedBehaviorSanitizer.
 TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDetachingWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "111bd422-3492-4fd6-8cca-d2cbda650567");
     m_listener
         ->attachEvent(*m_subscriber,
                       iox::popo::SubscriberEvent::DATA_RECEIVED,
@@ -79,6 +80,7 @@ TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDetachingWorks
 /// by the UndefinedBehaviorSanitizer.
 TEST_F(PubSubListener_IntegrationTest, UntypedSubscriberGoesOutOfScopeAndDetachingWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "62bb5c0f-242f-4524-868a-252dfe123b58");
     m_listener
         ->attachEvent(*m_untypedSubscriber,
                       iox::popo::SubscriberEvent::DATA_RECEIVED,

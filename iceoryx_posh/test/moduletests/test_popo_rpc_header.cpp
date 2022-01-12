@@ -63,6 +63,7 @@ void checkRpcBaseHeader(const RpcBaseHeaderAccess* sut,
 
 TEST_F(RpcBaseHeader_test, ConstructorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "54b62ac7-30a7-424b-b149-8255afbf0a0d");
     const iox::UniquePortId clientQueueUniquePortId;
     constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
     constexpr int64_t SEQUENCE_ID{42};
@@ -81,16 +82,19 @@ TEST_F(RpcBaseHeader_test, ConstructorWorks)
 
 TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionFromNonConstContextWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c58aa0ac-8897-4ac5-a2aa-53999902f504");
     EXPECT_THAT(static_cast<RpcBaseHeader*>(sut)->getChunkHeader(), Eq(chunk.chunkHeader()));
 }
 
 TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionFromConstContextWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6fa9caf1-7ebb-4995-a684-4416d6644b7e");
     EXPECT_THAT(static_cast<const RpcBaseHeader*>(sut)->getChunkHeader(), Eq(chunk.chunkHeader()));
 }
 
 TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionCalledFromNonConstContextReturnsNonConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3105ac6e-62cd-4655-a6d8-b70593a77c60");
     auto isNonConstReturn =
         std::is_same<decltype(std::declval<RpcBaseHeader>().getChunkHeader()), iox::mepoo::ChunkHeader*>::value;
     EXPECT_TRUE(isNonConstReturn);
@@ -98,6 +102,7 @@ TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionCalledFromNonConstContextReturn
 
 TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionCalledFromConstContextReturnsConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "36e1e4fc-ac81-4fd7-95ff-38afa391a3da");
     auto isConstReturn = std::is_same<decltype(std::declval<const RpcBaseHeader>().getChunkHeader()),
                                       const iox::mepoo::ChunkHeader*>::value;
     EXPECT_TRUE(isConstReturn);
@@ -105,22 +110,26 @@ TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionCalledFromConstContextReturnsCo
 
 TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionFromNonConstContextWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7ee7b88e-8fc1-4b6b-a84b-f89c9480855e");
     EXPECT_THAT(static_cast<RpcBaseHeader*>(sut)->getUserPayload(), Eq(chunk.chunkHeader()->userPayload()));
 }
 
 TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionFromConstContextWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0ac0611a-f4c8-414e-bab2-fc6a41a68f9c");
     EXPECT_THAT(static_cast<const RpcBaseHeader*>(sut)->getUserPayload(), Eq(chunk.chunkHeader()->userPayload()));
 }
 
 TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionCalledFromNonConstContextReturnsNonConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7b815d45-1dc2-44f1-9baf-013d8e76e5ca");
     auto isNonConstReturn = std::is_same<decltype(std::declval<RpcBaseHeader>().getUserPayload()), void*>::value;
     EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionCalledFromConstContextReturnsConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "06c91e8c-7495-40da-88ed-c201f3cf8da1");
     auto isConstReturn =
         std::is_same<decltype(std::declval<const RpcBaseHeader>().getUserPayload()), const void*>::value;
     EXPECT_TRUE(isConstReturn);
@@ -144,6 +153,7 @@ class RequestHeader_test : public Test
 
 TEST_F(RequestHeader_test, ConstructorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4af7c64c-5f9f-4598-b405-567658e128db");
     const iox::UniquePortId clientQueueUniquePortId;
     constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
     constexpr int64_t EXPECTED_SEQUENCE_ID{0};
@@ -163,6 +173,7 @@ TEST_F(RequestHeader_test, ConstructorWorks)
 
 TEST_F(RequestHeader_test, SetSequenceIdWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fde17d21-33b9-4c23-a482-9bce99b8c346");
     constexpr int64_t SEQUENCE_ID{666};
 
     sut->setSequenceId(SEQUENCE_ID);
@@ -172,6 +183,7 @@ TEST_F(RequestHeader_test, SetSequenceIdWorks)
 
 TEST_F(RequestHeader_test, SetFireAndForgetWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1947a27b-251c-403f-a063-74d47309486d");
     sut->setFireAndForget();
 
     EXPECT_THAT(sut->isFireAndForget(), Eq(true));
@@ -197,6 +209,7 @@ class ResponseHeader_test : public Test
 
 TEST_F(ResponseHeader_test, ConstructorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ec3d90c3-2126-420c-a31c-f1c6a0731791");
     const iox::UniquePortId clientQueueUniquePortId;
     constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{17};
     constexpr int64_t SEQUENCE_ID{555};
@@ -217,6 +230,7 @@ TEST_F(ResponseHeader_test, ConstructorWorks)
 
 TEST_F(ResponseHeader_test, SetServerErrorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b455d8dc-2349-4618-b73f-4567c70b616a");
     sut->setServerError();
 
     EXPECT_THAT(sut->hasServerError(), Eq(true));

@@ -46,6 +46,7 @@ class ServiceDescription_test : public Test
 
 TEST_F(ServiceDescription_test, ServiceDescriptionClassHashDefaultCtorCreatesClassHashWithDefaultValues)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3b57b18f-cd68-49ee-8fbb-7b1fcc878a16");
     ServiceDescription::ClassHash testHash{};
 
     EXPECT_EQ(uint32_t(0), testHash[0]);
@@ -56,6 +57,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionClassHashDefaultCtorCreatesCla
 
 TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashWithValuesPassedToTheCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "00d1f6f1-4011-406e-a18e-85af7fa401f4");
     ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
 
     EXPECT_EQ(uint32_t(1), testHash[0]);
@@ -66,6 +68,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashW
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dc2e03b0-d9ac-49fd-8d1d-6e2393ce3d68");
     ServiceDescription::ClassHash testHash1{15U, 25U, 35U, 45U};
     ServiceDescription::ClassHash testHash2{55U, 65U, 75U, 85U};
 
@@ -74,6 +77,7 @@ TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperator
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3423678c-d45e-4b36-bce6-7e6d0a5bc2a6");
     ServiceDescription::ClassHash testHash1{10U, 20U, 30U, 40U};
     ServiceDescription::ClassHash testHash2{10U, 20U, 30U, 40U};
 
@@ -82,6 +86,7 @@ TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperator
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "59d7790f-5d1f-4f1f-9cf6-8f474ae8978f");
     ServiceDescription::ClassHash testHash1{12U, 24U, 36U, 48U};
     ServiceDescription::ClassHash testHash2{60U, 72U, 84U, 96U};
 
@@ -90,6 +95,7 @@ TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperator
 
 TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "498fa728-7fbb-4e99-8e95-eaf267284f22");
     ServiceDescription::ClassHash testHash1{11U, 22U, 33U, 44U};
     ServiceDescription::ClassHash testHash2{11U, 22U, 33U, 44U};
 
@@ -98,6 +104,7 @@ TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorRe
 
 TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperatorStoresTheValueInTheCorrespondingIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2d37a48e-ba08-4fc8-9215-77bac17bd49b");
     ServiceDescription::ClassHash testHash{};
 
     testHash[0] = 10U;
@@ -113,6 +120,7 @@ TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperat
 
 TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ac4b4cb3-503c-4e39-a549-684176e7557a");
     ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
 
     testHash[0] = 1U;
@@ -132,6 +140,7 @@ TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0bda1264-f1b0-41d5-b1c4-f8e7f2a5806a");
     ServiceDescription::ClassHash testHash = {11U, 21U, 31U, 41U};
     testService = "Service";
     testInstance = "Instance";
@@ -172,6 +181,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
 TEST_F(ServiceDescription_test,
        ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeLeadsToInvalidDeserialization)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0a94b000-54ac-415a-a7c7-6f1348676f03");
     ServiceDescription::ClassHash testHash = {14U, 28U, 42U, 56U};
     testService = "Service";
     testInstance = "Instance";
@@ -198,6 +208,7 @@ TEST_F(ServiceDescription_test,
 TEST_F(ServiceDescription_test,
        ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceLeadsToInvalidDeserialization)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "29fac03f-a845-4180-89b7-8367a203646e");
     ServiceDescription::ClassHash testHash = {17U, 34U, 51U, 68U};
     testService = "Service";
     testInstance = "Instance";
@@ -222,6 +233,7 @@ TEST_F(ServiceDescription_test,
 
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidDeserialization)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4607d73d-d27d-4694-833d-2e28162589cd");
     std::string emptyString;
     iox::cxx::Serialization invalidSerialObj{emptyString};
 
@@ -233,6 +245,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "707156f8-8145-4710-b6ac-3e94dbac7237");
     ServiceDescription serviceDescription1 = ServiceDescription();
 
     EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(InvalidIdString));
@@ -242,6 +255,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsT
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScopeToWorldWide)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8e6b26b1-3363-45d8-abad-3b4c1ec122af");
     ServiceDescription serviceDescription1 = ServiceDescription();
 
     EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::WORLDWIDE));
@@ -249,6 +263,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScope
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheInterfaceToInternal)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "87c50b2a-d771-4985-8fdd-497a5f97dc35");
     ServiceDescription serviceDescription1 = ServiceDescription();
 
     EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
@@ -256,6 +271,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheInter
 
 TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "560685b0-780c-420e-8f9d-bbfe2460d15f");
     testService = "1";
     testInstance = "2";
     testEvent = "3";
@@ -274,6 +290,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceAnyEventIDsAreEqual)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f149fab2-b1a3-406e-aee1-30a3c2e9e169");
     IdString_t testService = iox::roudi::Wildcard;
     IdString_t testEvent = iox::roudi::Wildcard;
     IdString_t testInstance = iox::roudi::Wildcard;
@@ -285,6 +302,7 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceA
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidServicesAreNotEqual)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "42329498-78b4-4cef-8629-918ca2783529");
     IdString_t testService1 = "1";
     IdString_t testEvent1 = "2";
     IdString_t testInstance1 = "3";
@@ -297,6 +315,7 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidServi
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidEventsAreNotEqual)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8a06cd60-af12-4bf8-abb7-ad42b301d879");
     IdString_t testService1 = "1";
     IdString_t testEvent1 = "2";
     IdString_t testInstance1 = "3";
@@ -309,6 +328,7 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidEvent
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidInstancesAreNotEqual)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f1e13385-89b0-4aa0-9b97-8f39d5f5c0ae");
     IdString_t testService1 = "1";
     IdString_t testEvent1 = "2";
     IdString_t testInstance1 = "3";
@@ -321,6 +341,7 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidInsta
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentAndValidServiceInstanceEventsAreNotEqual)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b0ab9583-802b-4d9f-b114-08e44be74e44");
     IdString_t testService1 = "1";
     IdString_t testEvent1 = "2";
     IdString_t testInstance1 = "3";
@@ -335,6 +356,7 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentAndValidServi
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithSameStringsComparedWithInequalityOperatorReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1623a8a8-b892-45ce-a54a-ff13491069b7");
     IdString_t testService = "1";
     IdString_t testEvent = "2";
     IdString_t testInstance = "3";
@@ -346,6 +368,7 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithSameStringsComparedWit
 
 TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceStringIsSame)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "47bb698b-bb13-4885-afab-b5a975b67715");
     IdString_t sameService = "1";
     ServiceDescription description1 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
     ServiceDescription description2 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
@@ -355,6 +378,7 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceStringI
 
 TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAreDifferent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9ccd5f69-aca9-4e3d-9ba7-83581abde0f3");
     IdString_t serviceID1 = "1";
     IdString_t serviceID2 = "2";
     ServiceDescription description1 = ServiceDescription(serviceID1, iox::roudi::Wildcard, iox::roudi::Wildcard);
@@ -365,6 +389,7 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
 
 TEST_F(ServiceDescription_test, IsInternalMethodReturnsTrueWhenTheScopeIsSetToInternal)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fc611c5d-484f-43c7-899e-12085d3e6018");
     IdString_t testService = "1";
     IdString_t testEvent = "2";
     IdString_t testInstance = "3";
@@ -377,6 +402,7 @@ TEST_F(ServiceDescription_test, IsInternalMethodReturnsTrueWhenTheScopeIsSetToIn
 
 TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ddc13a6b-a2aa-4271-b479-f4d4177d048e");
     IdString_t testService = "1";
     IdString_t testEvent = "2";
     IdString_t testInstance = "3";
@@ -389,6 +415,7 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvalid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "008bbc55-894f-4083-bc78-b0dac7bd52f0");
     IdString_t testServiceID = InvalidIdString;
     IdString_t testEventID = "1";
     IdString_t testInstanceID = "1";
@@ -399,6 +426,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvali
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8b5b66fd-5d04-4200-bb7a-bf8afea9c2c4");
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
     IdString_t testInstanceID = InvalidIdString;
@@ -409,6 +437,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInval
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "afea0f45-d40a-41e3-931c-46b0cc2f8f5b");
     IdString_t testServiceID = "1";
     IdString_t testEventID = InvalidIdString;
     IdString_t testInstanceID = "1";
@@ -419,6 +448,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
 
 TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c88a8049-abf5-44f0-9b08-99fb83ce861f");
     IdString_t testServiceID = "1";
     IdString_t testEventID = "1";
     IdString_t testInstanceID = "1";
@@ -429,6 +459,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndE
 
 TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfServiceStringOfFirstServiceDescriptionIsLessThanSecond)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4fe380cc-fa94-48e9-99dd-ec2e220eff16");
     ServiceDescription serviceDescription1("TestService1", "TestInstance", "TestEvent");
     ServiceDescription serviceDescription2("TestService2", "TestInstance", "TestEvent");
 
@@ -437,6 +468,7 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfServiceStringOfFir
 
 TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfInstanceStringOfFirstServiceDescriptionIsLessThanSecond)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d5b0053e-9e7d-4176-80e1-52f057978c42");
     ServiceDescription serviceDescription1("TestService", "TestInstance1", "TestEvent");
     ServiceDescription serviceDescription2("TestService", "TestInstance2", "TestEvent");
 
@@ -445,6 +477,7 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfInstanceStringOfFi
 
 TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirstServiceDescriptionIsLessThanSecond)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8ab96b9a-5464-4b60-9d15-f31b5e3b4ee9");
     ServiceDescription serviceDescription1("TestService", "TestInstance", "TestEvent1");
     ServiceDescription serviceDescription2("TestService", "TestInstance", "TestEvent2");
 

@@ -65,6 +65,7 @@ class PosixShmMemoryProvider_Test : public Test
 
 TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9808f2a5-4cd3-49fe-9a19-6e747183141d");
     PosixShmMemoryProvider sut(
         TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
@@ -82,6 +83,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 
 TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f864b99c-373d-4954-ac8b-61acc3c9c555");
     PosixShmMemoryProvider sut(
         TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
@@ -101,6 +103,7 @@ TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 
 TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6614de7e-0f4c-48ea-bd3c-dd500fa231f2");
     PosixShmMemoryProvider sut(
         TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());

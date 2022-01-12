@@ -90,6 +90,7 @@ class BaseSubscriberTest : public Test
 
 TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bee5b6ab-c08c-4cb5-b39b-dd75b2fb1b40");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), subscribe()).Times(1);
     // ===== Test ===== //
@@ -100,6 +101,7 @@ TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 
 TEST_F(BaseSubscriberTest, GetSubscriptionStateCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8fc3be1a-cd85-44f6-8596-c7a2273eabab");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), getSubscriptionState).Times(1);
     // ===== Test ===== //
@@ -110,6 +112,7 @@ TEST_F(BaseSubscriberTest, GetSubscriptionStateCallForwardedToUnderlyingSubscrib
 
 TEST_F(BaseSubscriberTest, UnsubscribeCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d5793a32-2785-4dd3-b9ff-411070f67a5a");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), unsubscribe).Times(1);
     // ===== Test ===== //
@@ -120,6 +123,7 @@ TEST_F(BaseSubscriberTest, UnsubscribeCallForwardedToUnderlyingSubscriberPort)
 
 TEST_F(BaseSubscriberTest, HasDataCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a1c39c3a-3347-4072-a3d3-02e3cc264ae5");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), hasNewChunks).Times(1);
     // ===== Test ===== //
@@ -130,6 +134,7 @@ TEST_F(BaseSubscriberTest, HasDataCallForwardedToUnderlyingSubscriberPort)
 
 TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5e3c00e1-bd7c-49bf-adaf-f0d83cd4ab99");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
         .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
@@ -144,6 +149,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
 
 TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ff175cb2-ad97-4ba9-ab32-cd73618b0b8b");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
         .WillOnce(Return(ByMove(iox::cxx::error<iox::popo::ChunkReceiveResult>(
@@ -158,6 +164,7 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
 
 TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "975653e3-4644-4a2e-8bc6-7af9830e3863");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), releaseQueuedChunks).Times(1);
     // ===== Test ===== //
@@ -168,6 +175,7 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
 
 TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2b4c16fd-bb9d-4a4e-bc55-521be5c1ae18");
     iox::popo::ConditionVariableData condVar("Horscht");
     WaitSetTest waitSet(condVar);
     // ===== Setup ===== //
@@ -180,6 +188,7 @@ TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPo
 
 TEST_F(BaseSubscriberTest, AttachEventToWaitsetForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2588c558-9982-418d-ac4b-0d512103d0e5");
     iox::popo::ConditionVariableData condVar("Horscht");
     WaitSetTest waitSet(condVar);
     // ===== Setup ===== //
@@ -192,6 +201,7 @@ TEST_F(BaseSubscriberTest, AttachEventToWaitsetForwardedToUnderlyingSubscriberPo
 
 TEST_F(BaseSubscriberTest, WaitSetUnsetStateBasedConditionVariableWhenGoingOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9af5c23d-7584-4142-bd1b-1eaca706d887");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
@@ -205,6 +215,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetStateBasedConditionVariableWhenGoingOutOf
 
 TEST_F(BaseSubscriberTest, WaitSetUnsetEventBasedConditionVariableWhenGoingOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d0a1d958-9681-4c88-88d8-4a6e4485d101");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
@@ -218,6 +229,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetEventBasedConditionVariableWhenGoingOutOf
 
 TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "301c7202-cb9c-436c-ba6d-5c370eab9e5d");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
@@ -235,6 +247,7 @@ TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesI
 
 TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c4b37424-10ec-4217-9e64-7006e6aebad9");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
@@ -250,6 +263,7 @@ TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
 
 TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3bff4985-752e-47c9-9232-e2382086db29");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
@@ -265,6 +279,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
 
 TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c9b7a7e4-4374-4634-ba3d-6ffb833c5974");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
@@ -280,6 +295,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
 
 TEST_F(BaseSubscriberTest, GetServiceDescriptionCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "93c5087c-2ba4-46fe-95d7-b619b49d3fe8");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), getServiceDescription).Times(1);
     // ===== Test ===== //
@@ -290,6 +306,7 @@ TEST_F(BaseSubscriberTest, GetServiceDescriptionCallForwardedToUnderlyingSubscri
 
 TEST_F(BaseSubscriberTest, HasMissedSamplesCallForwardedToUnderlyingSubscriberPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "90427619-7b26-4dc2-950b-9192be99f20a");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), hasLostChunksSinceLastCall).Times(1);
     // ===== Test ===== //
@@ -300,6 +317,7 @@ TEST_F(BaseSubscriberTest, HasMissedSamplesCallForwardedToUnderlyingSubscriberPo
 
 TEST_F(BaseSubscriberTest, DestroysUnderlyingPortOnDestruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2a3004af-4ccd-4df0-bdd8-6e22e97d2428");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), destroy).Times(1);
     // ===== Test ===== //

@@ -43,6 +43,7 @@ class CmdLineParserConfigFileOption_test : public Test
 
 TEST_F(CmdLineParserConfigFileOption_test, NoConfigPathOptionLeadsToEmptyPath)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5848b80b-7dd6-4d64-8487-cbbec90de2b0");
     constexpr uint8_t NUMBER_OF_ARGS{1U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -57,6 +58,7 @@ TEST_F(CmdLineParserConfigFileOption_test, NoConfigPathOptionLeadsToEmptyPath)
 
 TEST_F(CmdLineParserConfigFileOption_test, ConfigPathShortOptionIsCorrectlyRead)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d3c791ec-0927-458e-9214-1b30ee32aac1");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -75,6 +77,7 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathShortOptionIsCorrectlyRead)
 
 TEST_F(CmdLineParserConfigFileOption_test, ConfigPathLongOptionIsCorrectlyRead)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f8231f57-ea8a-4909-8744-a05d066ddb90");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -93,6 +96,7 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathLongOptionIsCorrectlyRead)
 
 TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "81d991ce-5591-404a-8731-c6cd13de1841");
     constexpr uint8_t NUMBER_OF_ARGS{2U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -109,6 +113,7 @@ TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning
 
 TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "783406f2-26f3-4041-9b1f-3845dfb37ca8");
     constexpr uint8_t NUMBER_OF_ARGS{2U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -125,6 +130,7 @@ TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
 
 TEST_F(CmdLineParserConfigFileOption_test, UniqueIdOptionLeadsCallingCmdLineParserParseReturningNoError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4e709ad5-61a7-44d1-a656-0d29ed1078fb");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -144,6 +150,7 @@ TEST_F(CmdLineParserConfigFileOption_test, UniqueIdOptionLeadsCallingCmdLinePars
 
 TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOptionReturningNoError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b55d7d0b-7dbe-4a86-9ece-9614ebc3d188");
     constexpr uint8_t NUMBER_OF_ARGS{5U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";

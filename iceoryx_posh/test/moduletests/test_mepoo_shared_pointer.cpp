@@ -168,44 +168,52 @@ SharedPointer_Test::counter_t SharedPointer_Test::TestClass::counter;
 
 TEST_F(SharedPointer_Test, DefaultCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "035f3c9f-4b42-4a67-baae-a4347cd482cc");
     EXPECT_THAT(SharedPointer_Test::TestClass::counter.ctor, Eq(1));
 }
 
 TEST_F(SharedPointer_Test, ConstGetMethod)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c97a8b0c-bbf0-4ad1-8bb8-4c85c806478a");
     EXPECT_THAT(*const_cast<const SharedPointer<int>&>(sut).get(), Eq(42));
 }
 
 TEST_F(SharedPointer_Test, GetMethod)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b3069e1-3ded-46b4-b1cd-bfc44098adcb");
     *sut.get() = 7781;
     EXPECT_THAT(*sut.get(), Eq(7781));
 }
 
 TEST_F(SharedPointer_Test, ConstArrowOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d44bb68e-d87f-4996-a20f-7ee5602c184a");
     EXPECT_THAT(const_cast<const SharedPointer<TestClass>&>(sutComplex)->a, Eq(1337));
 }
 
 TEST_F(SharedPointer_Test, ArrowOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "17ca6efe-ba9e-4fed-af2d-676939873250");
     sutComplex->Increase();
     EXPECT_THAT(sutComplex->a, Eq(1349));
 }
 
 TEST_F(SharedPointer_Test, ConstStarOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "587cc118-094c-4390-8fce-66ae3a95e93d");
     EXPECT_THAT((*const_cast<const SharedPointer<TestClass>&>(sutComplex)).b, Eq(851));
 }
 
 TEST_F(SharedPointer_Test, StarOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ec938d1e-dcef-40fb-b1e8-f56e7265c014");
     (*sut)++;
     EXPECT_THAT(*sut, Eq(43));
 }
 
 TEST_F(SharedPointer_Test, CopyConstructor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0e2ed79c-d4a5-4702-9aa1-240f205274e6");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 313, 1313).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -228,6 +236,7 @@ TEST_F(SharedPointer_Test, CopyConstructor)
 
 TEST_F(SharedPointer_Test, MoveConstructor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "183d0ce3-a078-4bab-95f5-87b0da1e9842");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 15, 25).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -250,6 +259,7 @@ TEST_F(SharedPointer_Test, MoveConstructor)
 
 TEST_F(SharedPointer_Test, CopyAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fafcefb2-b599-4862-bf56-6ad6d593d1a5");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -268,6 +278,7 @@ TEST_F(SharedPointer_Test, CopyAssignment)
 
 TEST_F(SharedPointer_Test, MoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3be4dd7a-66cf-458c-9b9c-55459b02e75c");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -287,6 +298,7 @@ TEST_F(SharedPointer_Test, MoveAssignment)
 
 TEST_F(SharedPointer_Test, CopyToEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "94ab4d3f-1faf-4be8-bd04-b78c7f4850a8");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -305,6 +317,7 @@ TEST_F(SharedPointer_Test, CopyToEmpty)
 
 TEST_F(SharedPointer_Test, CopyFromEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ee9dddea-0c80-44df-9dd0-5c9d4d4116ae");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -321,6 +334,7 @@ TEST_F(SharedPointer_Test, CopyFromEmpty)
 
 TEST_F(SharedPointer_Test, MoveToEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fae2118e-4a8d-4b59-bfcb-6819c5728e0c");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -339,6 +353,7 @@ TEST_F(SharedPointer_Test, MoveToEmpty)
 
 TEST_F(SharedPointer_Test, MoveFromEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d9b1a79c-a949-4532-a86b-ed49e7b5a0bb");
     {
         auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
@@ -355,11 +370,13 @@ TEST_F(SharedPointer_Test, MoveFromEmpty)
 
 TEST_F(SharedPointer_Test, DefaultCTorProvidesInvalidSharedPointer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1183195-6829-48d9-96fd-caddaa7e9155");
     EXPECT_THAT(static_cast<bool>(SharedPointer<int>()), Eq(false));
 }
 
 TEST_F(SharedPointer_Test, SharedPointerWithContentIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "df031cdb-2cbe-4ef9-84ae-e177594e1941");
     auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
     EXPECT_THAT(static_cast<bool>(sut3), Eq(true));
 }

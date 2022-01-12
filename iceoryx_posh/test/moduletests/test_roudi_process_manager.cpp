@@ -71,6 +71,7 @@ class ProcessManager_test : public Test
 
 TEST_F(ProcessManager_test, RegisterProcessWithMonitorningWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "57311fb6-f993-4011-bbe9-e42df5e54d5e");
     auto result = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     EXPECT_TRUE(result);
@@ -78,6 +79,7 @@ TEST_F(ProcessManager_test, RegisterProcessWithMonitorningWorks)
 
 TEST_F(ProcessManager_test, RegisterProcessWithoutMonitoringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ce0fcf0e-564c-4330-86c8-13b33c2a64c8");
     constexpr bool isNotMonitored{false};
     auto result = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
 
@@ -86,6 +88,7 @@ TEST_F(ProcessManager_test, RegisterProcessWithoutMonitoringWorks)
 
 TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithMonitoringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d449513c-2f8f-4b77-b419-8d1b5743f02d");
     auto result1 = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
     auto result2 = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
@@ -95,6 +98,7 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithMonitoringWorks)
 
 TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "08d16887-72e5-4934-8447-a3b4760444e1");
     constexpr bool isNotMonitored{false};
     auto result1 = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
     auto result2 = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
@@ -105,6 +109,7 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringWorks)
 
 TEST_F(ProcessManager_test, UnregisterNonExistentProcessLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "293cc3d1-727c-40ee-a298-3532a9e111a1");
     auto unregisterResult = m_sut->unregisterProcess(m_processname);
 
     EXPECT_FALSE(unregisterResult);
@@ -112,6 +117,7 @@ TEST_F(ProcessManager_test, UnregisterNonExistentProcessLeadsToError)
 
 TEST_F(ProcessManager_test, RegisterAndUnregisterWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "335f1487-38ab-4526-9a83-a4b496139c34");
     m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
     auto unregisterResult = m_sut->unregisterProcess(m_processname);
 
@@ -120,6 +126,7 @@ TEST_F(ProcessManager_test, RegisterAndUnregisterWorks)
 
 TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "741669ec-111b-494b-b243-d28510b07782");
     m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     auto user = iox::posix::PosixUser::getUserOfCurrentProcess();

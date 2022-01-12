@@ -56,6 +56,7 @@ class ChannelTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c4444a37-2044-4bba-aa22-9fabc0a7b5f4");
     auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create(
         {"", "", ""}, StubbedIceoryxTerminal::Options());
     EXPECT_FALSE(channel.has_error());

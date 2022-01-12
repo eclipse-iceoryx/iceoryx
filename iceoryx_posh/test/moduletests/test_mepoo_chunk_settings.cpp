@@ -33,6 +33,7 @@ using UserPayloadOffset_t = iox::mepoo::ChunkHeader::UserPayloadOffset_t;
 
 TEST(ChunkSettings_test, CallingUserPayloadSizeReturnsCorrectValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "09b4d176-7fab-4957-8eb7-9c274dfa0ab1");
     constexpr uint32_t USER_PAYLOAD_SIZE{42U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     constexpr uint32_t USER_HEADER_SIZE{64U};
@@ -48,6 +49,7 @@ TEST(ChunkSettings_test, CallingUserPayloadSizeReturnsCorrectValue)
 
 TEST(ChunkSettings_test, CallingUserPayloadAlignmentReturnsCorrectValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "310e7342-9654-4c27-8be8-419b63f5c783");
     constexpr uint32_t USER_PAYLOAD_SIZE{42U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     constexpr uint32_t USER_HEADER_SIZE{64U};
@@ -63,6 +65,7 @@ TEST(ChunkSettings_test, CallingUserPayloadAlignmentReturnsCorrectValue)
 
 TEST(ChunkSettings_test, CallingUserHeaderSizeReturnsCorrectValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c39d8d59-1f37-428c-b902-16e8eb8f80e7");
     constexpr uint32_t USER_PAYLOAD_SIZE{42U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     constexpr uint32_t USER_HEADER_SIZE{64U};
@@ -78,6 +81,7 @@ TEST(ChunkSettings_test, CallingUserHeaderSizeReturnsCorrectValue)
 
 TEST(ChunkSettings_test, CallingUserHeaderAlignmentReturnsCorrectValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf75ffae-7ace-4eb7-b6ab-c6dfc7e3251e");
     constexpr uint32_t USER_PAYLOAD_SIZE{42U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     constexpr uint32_t USER_HEADER_SIZE{64U};
@@ -93,6 +97,7 @@ TEST(ChunkSettings_test, CallingUserHeaderAlignmentReturnsCorrectValue)
 
 TEST(ChunkSettings_test, CallingRequiredChunkSizeReturnsCorrectValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8e8ba2a5-467b-4bf3-9231-2228187c9ca7");
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
     constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
@@ -114,6 +119,7 @@ TEST(ChunkSettings_test, CallingRequiredChunkSizeReturnsCorrectValue)
 
 TEST(ChunkSettings_test, NoCustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1ac315d5-fb8d-4529-b141-110fe7c7988d");
     constexpr uint32_t USER_PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
     constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
@@ -128,6 +134,7 @@ TEST(ChunkSettings_test, NoCustomUserPayloadAlignmentAndTooLargeUserPayload_Fail
 
 TEST(ChunkSettings_test, CustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fade135d-636f-4b06-8f5d-b33eece1175c");
     constexpr uint32_t USER_PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
     constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
@@ -142,6 +149,7 @@ TEST(ChunkSettings_test, CustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
 
 TEST(ChunkSettings_test, UserHeaderAndTooLargeUserPayload_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b61df037-6dae-4350-896e-9ffad96db028");
     constexpr uint32_t USER_PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
     constexpr uint32_t USER_HEADER_SIZE{8U};
@@ -160,6 +168,7 @@ TEST(ChunkSettings_test, UserHeaderAndTooLargeUserPayload_Fails)
 
 TEST(ChunkSettings_test, UserPayloadAlignmentNotPowerOfTwo_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76ad6bad-5175-4475-8834-7a569cb0e489");
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{13U};
     constexpr uint32_t USER_HEADER_SIZE{0U};
@@ -174,6 +183,7 @@ TEST(ChunkSettings_test, UserPayloadAlignmentNotPowerOfTwo_Fails)
 
 TEST(ChunkSettings_test, UserHeaderAlignmentNotPowerOfTwo_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2287e0f5-5206-4033-8b23-01fc9ee7d14f");
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{1U};
     constexpr uint32_t USER_HEADER_SIZE{0U};
@@ -188,6 +198,7 @@ TEST(ChunkSettings_test, UserHeaderAlignmentNotPowerOfTwo_Fails)
 
 TEST(ChunkSettings_test, UserHeaderAlignmentLargerThanChunkHeaderAlignment_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6425744a-0ef7-47c3-8819-5c51bb41add7");
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
     constexpr uint32_t USER_HEADER_SIZE{8U};
@@ -202,6 +213,7 @@ TEST(ChunkSettings_test, UserHeaderAlignmentLargerThanChunkHeaderAlignment_Fails
 
 TEST(ChunkSettings_test, UserHeaderSizeNotMultipleOfAlignment_Fails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a5f5d9a0-ee02-45f3-8d72-ef493ddbac8e");
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
     constexpr uint32_t USER_HEADER_SIZE{12U};
@@ -268,6 +280,7 @@ INSTANTIATE_TEST_SUITE_P(ChunkSettings_test,
 
 TEST_P(ChunkSettings_AlteringUserPayloadWithoutUserHeader, RequiredChunkSizeIsCorrect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ec520e0a-043d-43eb-80b5-91e93c89dc62");
     const auto userPayload = GetParam();
 
     SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayload.size)
@@ -359,6 +372,7 @@ uint32_t expectedChunkSizeWithUserHeader(const PayloadParams& userPayload, uint3
 TEST_P(ChunkSettings_AlteringUserPayloadWithUserHeader,
        MultipleUserHeaderSizesAndAlignments_ResultsIn_RequiredChunkSizeIsCorrect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67b54ff2-0ab6-4fe4-b697-8fca2e22c009");
     const auto userPayload = GetParam();
 
     SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayload.size)

@@ -230,6 +230,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "710aaa1d-2df4-491d-b32e-cce3744b22c3");
     std::thread subscribingThread(&ChunkBuildingBlocks_IntegrationTest::subscribe, this);
     std::thread forwardingThread(&ChunkBuildingBlocks_IntegrationTest::forward, this);
     std::thread publishingThread(&ChunkBuildingBlocks_IntegrationTest::publish, this);

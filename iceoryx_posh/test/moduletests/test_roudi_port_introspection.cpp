@@ -149,6 +149,7 @@ class PortIntrospection_test : public Test
 
 TEST_F(PortIntrospection_test, registerPublisherPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "41227e98-ac13-40b3-a7f4-8286d4b858ad");
     auto introspection = std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>>(
         new iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>);
 
@@ -166,6 +167,7 @@ TEST_F(PortIntrospection_test, registerPublisherPort)
 
 TEST_F(PortIntrospection_test, sendPortData_EmptyList)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b599b9ca-8b7a-4e6d-b583-e142392d08f7");
     using Topic = iox::roudi::PortIntrospectionFieldTopic;
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
@@ -188,6 +190,7 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
 
 TEST_F(PortIntrospection_test, addAndRemovePublisher)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3d8a21e8-5cb0-4694-b8be-7b419f4c51ea");
     using PortData = iox::roudi::PublisherPortData;
     using Topic = iox::roudi::PortIntrospectionFieldTopic;
 
@@ -317,6 +320,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
 TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "359527ee-78a6-4a98-acd8-b39d263d8e02");
     using PortData = iox::roudi::SubscriberPortData;
     using Topic = iox::roudi::PortIntrospectionFieldTopic;
 
@@ -450,6 +454,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
 TEST_F(PortIntrospection_test, DISABLED_thread)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ae5b252d-0060-4bb7-a193-0c2ae0ebbb7a");
     using PortData = iox::roudi::PortIntrospectionFieldTopic;
     auto chunkPortData = std::unique_ptr<ChunkMock<PortData>>(new ChunkMock<PortData>);
 

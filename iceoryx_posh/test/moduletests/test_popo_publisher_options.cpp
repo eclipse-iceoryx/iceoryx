@@ -24,6 +24,7 @@ using namespace ::testing;
 
 TEST(PublisherOptions_test, SerializationRoundTripIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "56b3d95b-b5a9-4692-b2bc-6d8762965f2a");
     iox::popo::PublisherOptions defaultOptions;
     iox::popo::PublisherOptions testOptions;
 
@@ -51,6 +52,7 @@ TEST(PublisherOptions_test, SerializationRoundTripIsSuccessful)
 
 TEST(PublisherOptions_test, DeserializingBogusDataFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "01c4b42b-5636-4bd2-b2de-c5320b170d71");
     const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::PublisherOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) { FAIL() << "Deserialization is expected to fail!"; })
@@ -59,6 +61,7 @@ TEST(PublisherOptions_test, DeserializingBogusDataFails)
 
 TEST(PublisherOptions_test, DeserializingInvalidSubscriberTooSlowPolicyFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8903ee4a-8a05-4df4-8f8f-f6cb87f41da8");
     constexpr uint64_t HISTORY_CAPACITY{42U};
     const iox::NodeName_t NODE_NAME{"harr-harr"};
     constexpr bool OFFER_ON_CREATE{true};

@@ -57,36 +57,42 @@ class Process_test : public Test
 
 TEST_F(Process_test, getPid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fbe9ea27-9e23-4ec7-bfe6-e2563d42c5e7");
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
     EXPECT_THAT(roudiproc.getPid(), Eq(pid));
 }
 
 TEST_F(Process_test, getName)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c2f3df1d-0aa9-480e-8c2e-dd76960a7717");
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
     EXPECT_THAT(roudiproc.getName(), Eq(std::string(processname)));
 }
 
 TEST_F(Process_test, isMonitored)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6d926282-c8f4-4b9c-a086-acc62e102c72");
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
     EXPECT_THAT(roudiproc.isMonitored(), Eq(isMonitored));
 }
 
 TEST_F(Process_test, getSessionId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6986a49c-e23b-4cd6-ab63-269b32ff8d92");
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
     EXPECT_THAT(roudiproc.getSessionId(), Eq(sessionId));
 }
 
 TEST_F(Process_test, sendViaIpcChannelPass)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "478cb320-7f4c-420c-a0d2-4a24e0db691c");
     iox::runtime::IpcMessage data{"MESSAGE_NOT_SUPPORTED"};
     EXPECT_CALL(ipcInterfaceUserMock, sendViaIpcChannel(_)).Times(1);
     ipcInterfaceUserMock.sendViaIpcChannel(data);
 }
 TEST_F(Process_test, sendViaIpcChannelFail)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c4d5c133-bf93-45a4-aa4f-9c3c2a50f91a");
     iox::runtime::IpcMessage data{""};
     iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
 
@@ -106,6 +112,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 
 TEST_F(Process_test, TimeStamp)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b527de2-699e-4d35-86ee-10ed28498e88");
     auto timestmp = iox::mepoo::BaseClock_t::now();
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
     roudiproc.setTimestamp(timestmp);

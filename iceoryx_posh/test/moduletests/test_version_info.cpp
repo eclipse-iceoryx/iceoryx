@@ -36,6 +36,7 @@ class VersionInfo_test : public Test
 
 TEST_F(VersionInfo_test, SerializationWorkingOnOurVersion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5d0ebc47-b5f8-4faa-bb32-9df50b071019");
     VersionInfo versionInfo1(VersionInfo::getCurrentVersion().operator iox::cxx::Serialization());
     EXPECT_TRUE(versionInfo1.isValid());
     EXPECT_TRUE(versionInfo1 == VersionInfo::getCurrentVersion());
@@ -43,6 +44,7 @@ TEST_F(VersionInfo_test, SerializationWorkingOnOurVersion)
 
 TEST_F(VersionInfo_test, ComparesWorkingForOurVersion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2e9f5a81-a548-422b-aa87-5964ea720d77");
     VersionInfo versionInfo1(static_cast<iox::cxx::Serialization>(VersionInfo::getCurrentVersion()));
     VersionInfo versionInfo2(static_cast<iox::cxx::Serialization>(versionInfo1));
 
@@ -60,6 +62,7 @@ TEST_F(VersionInfo_test, ComparesWorkingForOurVersion)
 
 TEST_F(VersionInfo_test, CompareUnequalVersions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "539cd77f-e55b-4907-9a89-3f2941b9b435");
     const int versionInfosSize = 7;
     VersionInfo versionInfos[versionInfosSize] = {{11u, 22u, 33u, 44u, "abc", "efg"},
                                                   {0u, 22u, 33u, 44u, "abc", "efg"},
@@ -84,6 +87,7 @@ TEST_F(VersionInfo_test, CompareUnequalVersions)
 
 TEST_F(VersionInfo_test, ComparesVersionsSameVersionInfo)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2b716597-49a4-4dab-99a2-a9703c5871e0");
     VersionInfo versionInfo1(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfo2(1u, 2u, 3u, 4u, "a", "b");
 
@@ -97,6 +101,7 @@ TEST_F(VersionInfo_test, ComparesVersionsSameVersionInfo)
 
 TEST_F(VersionInfo_test, ComparesVersionsDifferInMajorVersion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eaec3289-a869-4590-b28f-4716c79621d9");
     VersionInfo versionInfo(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfoWithUnequalMajorVersion(0u, 2u, 3u, 4u, "a", "b");
 
@@ -112,6 +117,7 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInMajorVersion)
 
 TEST_F(VersionInfo_test, ComparesVersionsDifferInMinorVersion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d8054eb9-d9ed-487d-939d-ab9ecf3be8ad");
     VersionInfo versionInfo(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfoWithUnequalMinorVersion(1u, 0u, 3u, 4u, "a", "b");
 
@@ -127,6 +133,7 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInMinorVersion)
 
 TEST_F(VersionInfo_test, ComparesVersionsDifferInPatchVersion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f335673c-c39b-4259-a5ed-e361ed31268d");
     VersionInfo versionInfo(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfoWithUnequalPatchVersion(1u, 2u, 0u, 4u, "a", "b");
 
@@ -142,6 +149,7 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInPatchVersion)
 
 TEST_F(VersionInfo_test, ComparesVersionsDifferInTweakVersion)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "678c72fa-35f5-43ab-9c00-24b1c38585a1");
     VersionInfo versionInfo(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfoWithUnequalTweakVersion(1u, 2u, 3u, 0u, "a", "b");
 
@@ -157,6 +165,7 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInTweakVersion)
 
 TEST_F(VersionInfo_test, ComparesVersionsDifferInCommitId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "92dcfcf1-8ba3-4d9f-a865-a18bc333aa4c");
     VersionInfo versionInfo(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfoWithUnequalCommitId(1u, 2u, 3u, 4u, "a", "0");
 
@@ -170,6 +179,7 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInCommitId)
 
 TEST_F(VersionInfo_test, ComparesVersionsDifferInBuildDate)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "53ae9050-59dc-4dfe-9c44-17ba1eb21d69");
     VersionInfo versionInfo(1u, 2u, 3u, 4u, "a", "b");
     VersionInfo versionInfoWithUnequalBuildDate(1u, 2u, 3u, 4u, "0", "b");
 

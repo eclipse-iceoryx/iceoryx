@@ -30,6 +30,7 @@ using namespace ::testing;
 
 TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d6c8949d-42c9-4b2c-a150-4306cb2a57f6");
     const iox::ShmName_t TEST_SHM_NAME{"/test_name"};
     // the death test makes only sense on platforms which are zeroing the whole shared memory
     // if the memory is only reserved a death will never occur

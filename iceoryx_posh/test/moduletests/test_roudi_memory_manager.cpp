@@ -67,6 +67,7 @@ class RouDiMemoryManager_Test : public Test
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateAndAnnounceMemoryWithoutMemoryProviderFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8048cd15-3786-4eaf-9c26-e1cd6dce753c");
     auto expectError = sut.createAndAnnounceMemory();
     ASSERT_THAT(expectError.has_error(), Eq(true));
     EXPECT_THAT(expectError.get_error(), Eq(RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT));
@@ -74,6 +75,7 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateAndAnnounceMemoryWithoutMemoryProvi
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0634d8d5-5ab9-448b-a7c6-031b58374366");
     uint64_t MEMORY_SIZE_1{16};
     uint64_t MEMORY_ALIGNMENT_1{8};
     uint64_t MEMORY_SIZE_2{32};
@@ -99,6 +101,7 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b3d5a955-8dd3-40cb-9ac1-88021fbc52e1");
     ASSERT_FALSE(sut.addMemoryProvider(&memoryProvider1).has_error());
 
     // If no memory block is added to memory provider, Create and Announce Memory will return a error
@@ -110,6 +113,7 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)
 
 TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDestroy)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bb14b892-9f78-4494-a269-0c361b6a88bd");
     uint64_t MEMORY_SIZE_1{16};
     uint64_t MEMORY_ALIGNMENT_1{8};
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
@@ -129,6 +133,7 @@ TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDest
 
 TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d80b71b8-7120-49f2-a77b-0f44a8abadde");
     MemoryProviderTestImpl memoryProvider[iox::MAX_NUMBER_OF_MEMORY_PROVIDER + 1];
     RouDiMemoryManager sutExhausting;
 
@@ -144,6 +149,7 @@ TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
 
 TEST_F(RouDiMemoryManager_Test, OperatorTest)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67167a98-5ac2-498d-8062-47a61102a130");
     for (int16_t i = 0; i < nbTestCase; i++)
     {
         iox::log::LogStream logStream(loggerMock);
