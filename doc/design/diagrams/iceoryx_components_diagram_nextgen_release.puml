@@ -20,7 +20,7 @@ skinparam frame {
 ' PlantUML package: CMake package
 ' PlantUML frame: CMake library
 
-' @todo #590
+' @todo #539
 ' RouDi split, separate files and namespaces for static/dynamic discovery
 ' Implement exported libraries (add_library in iceoryx_posh/CMakeLists.txt)
 ' RouDiEnvironment shall not be in roudi namespace, but in testing
@@ -47,7 +47,6 @@ package iceoryx_hoofs  {
 
       }
       component posix <<namespace>>
-      component threading <<namespace>>
 
       ' Building blocks which only meet quality level 5
       ' Can be analysed with tools/analyse_blacklisted_namespaces_in_binary.sh
@@ -63,6 +62,7 @@ package iceoryx_posh {
       component capro <<namespace>>
       component mepoo <<namespace>>
       component version <<namespace>>
+      component build <<namespace>>
    }
 
    frame "runtime library" {
@@ -75,14 +75,12 @@ package iceoryx_posh {
 
    frame "config library" {
       component config <<namespace>>
-      component helper <<namespace>>
    }
 
    component errors <<namespace>>
 
    frame "RouDi library" {
       component roudi <<namespace>>
-      component build <<namespace>>
    }
 }
 
