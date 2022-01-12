@@ -31,21 +31,6 @@
 #include <functional>
 #include <memory>
 
-namespace iox
-{
-namespace cxx
-{
-template <>
-struct ErrorTypeAdapter<int>
-{
-    static int getInvalidState()
-    {
-        return -1;
-    }
-};
-} // namespace cxx
-} // namespace iox
-
 namespace
 {
 using namespace ::testing;

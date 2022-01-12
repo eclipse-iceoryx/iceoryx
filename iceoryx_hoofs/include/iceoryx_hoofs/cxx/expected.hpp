@@ -31,27 +31,10 @@ namespace cxx
 {
 namespace internal
 {
-/// @brief Type trait which verifies whether the passed type T has INVALID_STATE
-///        std::true_type overload chosen when INVALID_STATE is present, otherwise std::false_type
-template <typename, typename = void>
-struct HasInvalidStateMember;
-
 /// @brief Type trait which verifies whether the passed type T is of type cxx::optional
 template <typename...>
 struct IsOptional;
 } // namespace internal
-
-/// @brief Generic adapter to access INVALID_STATE member or value
-/// @note Works for enum classes and classes having a member INVALID_STATE
-template <typename T>
-struct ErrorTypeAdapter
-{
-    static_assert(internal::HasInvalidStateMember<T>::value,
-                  "T must have an INVALID_STATE value/member. Alternatively write an ErrorTypeAdapter specialisation "
-                  "for your type");
-
-    static T getInvalidState() noexcept;
-};
 
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain

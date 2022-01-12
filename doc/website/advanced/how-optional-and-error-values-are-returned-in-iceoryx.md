@@ -73,9 +73,7 @@ except that it does not throw exceptions and has no undefined behavior.
 `iox::cxx::expected<T, E>` generalizes `iox::cxx::optional` by admitting a value of another type `E` instead of
 no value at all, i.e. it contains either a value of type `T` or `E`. In this way, `expected` is a special case of
 the 'either monad'. It is usually used to pass a value of type `T` or an error that may have occurred, i.e. `E` is the
-error type. `E` must contain a static member or an enum value called `INVALID_STATE`. Alternatively an
-[`ErrorTypeAdapter`](https://github.com/eclipse-iceoryx/iceoryx/blob/5b1a0514e72514c2eae8a9d071d82a3905fedf8b/iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp#L46)
-can be implemented.
+error type.
 
 For more information on how it is used for error handling see
 [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md).
@@ -121,15 +119,7 @@ There are more convenience functions such as `value_or` which provides the value
 user. These can be found in
 [`expected.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp).
 
-Note that when we move an `expected`, the origin is set to the error value `E::INVALID_STATE` and `has_error()` will
-always return true:
-
-```cpp
-cxx::expected<int, E> result(iox::cxx::success<int>(1421));
-cxx::expected<int, E> anotherResult = std::move(result);
-
-if (result.has_error()) // is now true since it was moved
-{
-   result.get_error(); // returns E::INVALID_STATE
-}
-```
+Note that when we move an `expected`, the origin contains a moved `T` or `E`, depending on the content before the move.
+This mirrors the behavior of moving the content out of the `iox::cxx::expected` like with
+`auto foo = std::move(bar.value());` with `bar` being an `iox::cxx::expected`.
+Like all objects, `T` and `E` must therefore be in a well defined state after the move.

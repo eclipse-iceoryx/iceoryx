@@ -22,22 +22,6 @@
 
 #include "test.hpp"
 
-namespace iox
-{
-namespace cxx
-{
-template <>
-struct ErrorTypeAdapter<cxx::variant<mepoo::TypedMemPoolError, posix::SemaphoreError>>
-{
-    static variant<mepoo::TypedMemPoolError, posix::SemaphoreError> getInvalidState()
-    {
-        return variant<mepoo::TypedMemPoolError, posix::SemaphoreError>(iox::cxx::in_place_index<0>(),
-                                                                        mepoo::TypedMemPoolError::INVALID_STATE);
-    };
-};
-} // namespace cxx
-} // namespace iox
-
 namespace
 {
 using namespace ::testing;
