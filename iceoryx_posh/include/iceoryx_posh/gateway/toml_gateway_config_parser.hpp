@@ -30,7 +30,6 @@ namespace config
 {
 enum TomlGatewayConfigParseError
 {
-    INVALID_STATE,
     FILE_NOT_FOUND,
     INCOMPLETE_CONFIGURATION,
     INCOMPLETE_SERVICE_DESCRIPTION,
@@ -39,13 +38,12 @@ enum TomlGatewayConfigParseError
     MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED
 };
 
-constexpr char TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[][64] = {"INVALID_STATE",
-                                                                     "FILE_NOT_FOUND",
-                                                                     "INCOMPLETE_CONFIGURATION",
-                                                                     "INCOMPLETE_SERVICE_DESCRIPTION",
-                                                                     "INVALID_SERVICE_DESCRIPTION",
-                                                                     "EXCEPTION_IN_PARSER",
-                                                                     "MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED"};
+constexpr const char* TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"FILE_NOT_FOUND",
+                                                                        "INCOMPLETE_CONFIGURATION",
+                                                                        "INCOMPLETE_SERVICE_DESCRIPTION",
+                                                                        "INVALID_SERVICE_DESCRIPTION",
+                                                                        "EXCEPTION_IN_PARSER",
+                                                                        "MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED"};
 
 static constexpr const char REGEX_VALID_CHARACTERS[] = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 

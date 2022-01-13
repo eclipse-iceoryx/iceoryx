@@ -34,7 +34,6 @@ using byte_t = uint8_t;
 
 enum class SharedMemoryObjectError
 {
-    INVALID_STATE,
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
 };

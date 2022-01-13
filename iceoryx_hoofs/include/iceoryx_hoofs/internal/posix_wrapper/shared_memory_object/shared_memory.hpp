@@ -53,7 +53,6 @@ static constexpr const char* OPEN_MODE_STRING[] = {
 
 enum class SharedMemoryError
 {
-    INVALID_STATE,
     EMPTY_NAME,
     NAME_WITHOUT_LEADING_SLASH,
     INSUFFICIENT_PERMISSIONS,

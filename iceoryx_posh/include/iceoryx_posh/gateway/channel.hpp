@@ -32,7 +32,6 @@ namespace gw
 {
 enum class ChannelError : uint8_t
 {
-    INVALID_STATE,
     OBJECT_POOL_FULL
 };
 

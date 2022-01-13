@@ -29,7 +29,6 @@ namespace dds
 {
 enum class DataReaderError : uint8_t
 {
-    INVALID_STATE,
     NOT_CONNECTED,
     INVALID_DATAGRAM_HEADER_SIZE,
     INVALID_BUFFER_PARAMETER_FOR_USER_HEADER,
@@ -38,8 +37,7 @@ enum class DataReaderError : uint8_t
     BUFFER_SIZE_MISMATCH
 };
 
-constexpr const char* DataReaderErrorString[] = {"INVALID_STATE",
-                                                 "NOT_CONNECTED",
+constexpr const char* DataReaderErrorString[] = {"NOT_CONNECTED",
                                                  "INVALID_DATAGRAM_HEADER_SIZE",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_HEADER",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD",

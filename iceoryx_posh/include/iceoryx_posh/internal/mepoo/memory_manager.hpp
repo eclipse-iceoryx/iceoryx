@@ -51,7 +51,6 @@ class MemoryManager
         NO_MEMPOOLS_AVAILABLE,
         NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE,
         MEMPOOL_OUT_OF_CHUNKS,
-        INVALID_STATE,
     };
 
     MemoryManager() noexcept = default;

@@ -32,7 +32,6 @@ class SharedMemoryObject;
 
 enum class MemoryMapError
 {
-    INVALID_STATE,
     ACCESS_FAILED,
     UNABLE_TO_LOCK,
     INVALID_FILE_DESCRIPTOR,

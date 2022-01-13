@@ -33,7 +33,7 @@ namespace popo
 {
 enum class AllocationError
 {
-    INVALID_STATE,
+    UNDEFINED_ERROR,
     NO_MEMPOOLS_AVAILABLE,
     RUNNING_OUT_OF_CHUNKS,
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,

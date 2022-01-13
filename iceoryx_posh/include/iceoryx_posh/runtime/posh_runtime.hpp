@@ -46,7 +46,6 @@ class NodeData;
 
 enum class FindServiceError
 {
-    INVALID_STATE,
     DESERIALIZATION_FAILED,
     UNABLE_TO_WRITE_TO_ROUDI_CHANNEL, /// @todo #415 remove as IPC channel won't be used
     INSTANCE_CONTAINER_OVERFLOW       /// @todo #415 set container to iox::MAX_NUMBER_OF_SERVICES and remove error

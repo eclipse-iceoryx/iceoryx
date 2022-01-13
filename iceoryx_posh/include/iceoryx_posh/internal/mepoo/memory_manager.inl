@@ -31,8 +31,6 @@ inline constexpr const char* asStringLiteral(const MemoryManager::Error value) n
         return "MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE";
     case MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS:
         return "MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS";
-    case MemoryManager::Error::INVALID_STATE:
-        return "MemoryManager::Error::INVALID_STATE";
     }
 
     return "[Undefined MemoryManager::Error]";
