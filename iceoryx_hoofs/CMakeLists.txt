@@ -104,8 +104,11 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_h
         GTest::gtest
         GTest::gmock
         ${CMAKE_DL_LIBS}
-        $<$<PLATFORM_ID:Linux>: rt>
     )
+
+    if(LINUX)
+        target_link_libraries(iceoryx_hoofs_testing PRIVATE rt)
+    endif()
 
     target_compile_options(iceoryx_hoofs_testing PRIVATE ${ICEORYX_WARNINGS})
 
@@ -194,8 +197,11 @@ target_link_libraries(iceoryx_hoofs
     iceoryx_hoofs::iceoryx_platform
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
-    $<$<PLATFORM_ID:Linux>: acl atomic ${CODE_COVERAGE_LIBS}>
 )
+
+if(LINUX)
+    target_link_libraries(iceoryx_hoofs PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
+endif()
 
 target_compile_options(iceoryx_hoofs PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
