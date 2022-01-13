@@ -334,6 +334,21 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknown
         .or_else([] { FAIL() << "Expected to get an index!"; });
 }
 
+TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithPreviouslyAddedQueueRemovedReturnsNoIndex)
+{
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+
+    auto sutData = this->getChunkDistributorData();
+    typename TestFixture::ChunkDistributor_t sut(sutData.get());
+
+    auto queueData = this->getChunkQueueData();
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
+    ASSERT_FALSE(sut.tryRemoveQueue(queueData.get()).has_error());
+
+    auto maybeIndex = sut.getQueueIndex(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX);
+    EXPECT_FALSE(maybeIndex.has_value());
+}
+
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5bc10e0a-d67b-4123-887c-a50dc16cf680");
@@ -567,8 +582,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithAddedQueueDeliversChunkAndDo
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     auto maybeSharedChunk = queue.tryPop();
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-    auto receivedData = *(static_cast<uint32_t*>(maybeSharedChunk.value().getUserPayload()));
-    EXPECT_THAT(receivedData, Eq(DATA_TO_SEND));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(DATA_TO_SEND));
 
     EXPECT_THAT(sut.getHistorySize(), Eq(0U));
 }
