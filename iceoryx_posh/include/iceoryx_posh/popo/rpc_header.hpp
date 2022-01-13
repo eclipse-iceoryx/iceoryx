@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ class RequestHeader : public RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue where the response shall be delivered
+    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue to which the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     explicit RequestHeader(const cxx::UniqueId& uniqueClientQueueId, const uint32_t lastKnownClientQueueIndex) noexcept;
@@ -127,7 +127,7 @@ class ResponseHeader : public RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue where the response shall be delivered
+    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue to which the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     /// @param[in] sequenceId is a custom ID to map a response to a request

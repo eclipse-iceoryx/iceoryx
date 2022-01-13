@@ -105,7 +105,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @return true when successful, false otherwise
     /// @note This method does not add the chunk to the history
     bool sendToQueue(mepoo::ChunkHeader* const chunkHeader,
-                     const cxx::UniqueId uniqueQueuId,
+                     const cxx::UniqueId uniqueQueueId,
                      const uint32_t lastKnownQueueIndex) noexcept;
 
     /// @brief Push an allocated chunk to the history without sending it

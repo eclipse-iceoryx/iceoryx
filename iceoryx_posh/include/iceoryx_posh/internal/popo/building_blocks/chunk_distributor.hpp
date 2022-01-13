@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ class ChunkDistributor
                                                      const uint64_t requestedHistory = 0u) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
-    /// @param[in] queueToRemove is to queue to remove from the list
+    /// @param[in] queueToRemove is the queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
     cxx::expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
