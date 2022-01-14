@@ -90,6 +90,7 @@ class SoFiStress : public Test
 /// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
 TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e648d8b1-4eaf-449d-b6eb-4ec412b4f59d");
     iox::concurrent::SoFi<SoFiData, 10> sofi;
 
     SoFiData popCounter{0};
@@ -222,6 +223,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 /// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
 TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fce77c72-8136-4587-8cfb-578cb8c80d89");
     iox::concurrent::SoFi<SoFiData, 10> sofi;
 
     SoFiData pushCounter{0};
@@ -417,6 +419,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 /// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
 TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aad26323-07b1-49c9-be4e-fe9248699713");
     // SoFi is quite big in this test -> put it on the heap
     using SoFi_t = iox::concurrent::SoFi<SoFiData, 1000000>;
     std::unique_ptr<SoFi_t> sofi{new SoFi_t};

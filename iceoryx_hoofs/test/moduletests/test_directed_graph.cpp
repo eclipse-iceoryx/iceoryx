@@ -64,6 +64,7 @@ class DirectedGraph_test : public Test
 
 TEST_F(DirectedGraph_test, addVertices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8746aa2c-6be2-489d-a2f7-1cf9fb37c452");
     size_t numNodes = 0;
 
     EXPECT_EQ(m_graph.numberOfVertices(), numNodes);
@@ -91,6 +92,7 @@ TEST_F(DirectedGraph_test, addVertices)
 
 TEST_F(DirectedGraph_test, addEdges)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2d2e0992-188d-4525-83f5-2893ad3d0605");
     m_graph.addVertex(&node1);
     m_graph.addVertex(&node2);
     m_graph.addVertex(&node3);
@@ -144,6 +146,7 @@ TEST_F(DirectedGraph_test, addEdges)
 
 TEST_F(DirectedGraph_test, addExistingNode)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "32a3ef2e-1f04-45f1-8cea-3a9787ea23e6");
     m_graph.addVertex(&node1);
     EXPECT_FALSE(m_graph.addVertex(&node1));
     EXPECT_EQ(m_graph.numberOfVertices(), size_t(1));
@@ -151,6 +154,7 @@ TEST_F(DirectedGraph_test, addExistingNode)
 
 TEST_F(DirectedGraph_test, addEdgeToSelf)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6a2d1b90-7369-4022-b2a4-c20515c3e140");
     m_graph.addVertex(&node1);
     m_graph.addVertex(&node2);
 
@@ -160,6 +164,7 @@ TEST_F(DirectedGraph_test, addEdgeToSelf)
 
 TEST_F(DirectedGraph_test, sources)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "42fc58be-55ba-4e33-a125-acb2b1211dd8");
     EXPECT_FALSE(m_graph.isSource(&node1));
     m_graph.addVertex(&node1);
     EXPECT_TRUE(m_graph.isSource(&node1));
@@ -202,6 +207,7 @@ TEST_F(DirectedGraph_test, sources)
 
 TEST_F(DirectedGraph_test, sinks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "307b5e1f-d27c-41e7-b460-0a86c7c07f73");
     EXPECT_FALSE(m_graph.isSink(&node1));
     m_graph.addVertex(&node1);
     EXPECT_TRUE(m_graph.isSink(&node1));
@@ -267,6 +273,7 @@ class DirectedAcyclicGraph_test : public Test
 
 TEST_F(DirectedAcyclicGraph_test, addEdges)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb43b710-1594-4adc-a31c-727addc9d302");
     m_graph.addVertex(&node1);
     m_graph.addVertex(&node2);
     m_graph.addVertex(&node3);

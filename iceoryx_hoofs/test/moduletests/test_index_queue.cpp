@@ -54,6 +54,7 @@ class IndexQueueTest : public ::testing::Test
 
 TEST(LockFreeQueueTest, capacityIsConsistent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "86d94598-7271-45a1-a6c9-afad0bc8cc8b");
     IndexQueue<37U> q;
     EXPECT_EQ(q.capacity(), 37U);
 }
@@ -65,12 +66,14 @@ TYPED_TEST_SUITE(IndexQueueTest, TestQueues);
 
 TYPED_TEST(IndexQueueTest, defaultConstructedQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7fde1929-62b9-4377-8d02-5bcdd18c246f");
     auto& q = this->queue;
     EXPECT_TRUE(q.empty());
 }
 
 TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e38bb9be-720b-4aba-a17a-f7bdaa34164a");
     using Queue = typename TestFixture::Queue;
 
     Queue q(Queue::ConstructEmpty);
@@ -80,6 +83,7 @@ TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
 
 TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e9150ab1-ca01-44bf-b0bb-eab242c3a73f");
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
@@ -89,6 +93,7 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 
 TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "38c6eba6-4c21-4df1-9f47-f3bf9438b5b1");
     auto& q = this->queue;
 
     auto index = this->fullQueue.pop();
@@ -101,6 +106,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 
 TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b83d43f5-fa30-417e-aa2e-3a69408e7869");
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
@@ -119,6 +125,7 @@ TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
 
 TYPED_TEST(IndexQueueTest, queueIsNotEmptyWhenConstructedFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6a4ee1da-e70b-49d8-bfbe-0ef6d4aacf8c");
     using Queue = typename TestFixture::Queue;
 
     Queue& q = this->fullQueue;
@@ -128,6 +135,7 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyWhenConstructedFull)
 
 TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "af8bc70d-b0d3-48ff-8322-17722e01a490");
     using Queue = typename TestFixture::Queue;
 
     Queue& q = this->fullQueue;
@@ -145,6 +153,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
 
 TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "983b068f-2847-4813-bf19-3ae713261576");
     using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
@@ -163,6 +172,7 @@ TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
 
 TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7004d51a-9a2f-4ac9-90bc-bb755b393431");
     auto& q = this->queue;
     using index_t = typename TestFixture::index_t;
 
@@ -187,6 +197,7 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
 
 TYPED_TEST(IndexQueueTest, popReturnsNothingWhenQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "20487320-1c70-4212-aa00-847105780a71");
     auto& q = this->queue;
     EXPECT_FALSE(q.pop().has_value());
 }
@@ -194,6 +205,7 @@ TYPED_TEST(IndexQueueTest, popReturnsNothingWhenQueueIsEmpty)
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68773e9d-bc67-4929-ba4d-05197bbdfcac");
     auto& q = this->queue;
     EXPECT_FALSE(q.popIfFull().has_value());
 }
@@ -201,6 +213,7 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsEmpty)
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4479ef7-a19d-4f4d-a1af-d2abb8f6fa0c");
     using Queue = typename TestFixture::Queue;
     Queue& q = this->fullQueue;
 
@@ -211,6 +224,7 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "932a6096-4b56-42fc-8f9d-06a9fcf4c7d3");
     using Queue = typename TestFixture::Queue;
     Queue& q = this->fullQueue;
 
@@ -221,24 +235,28 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastReturnsNothingIfQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "415c5f5c-fc0d-45e3-994d-4ce7af9a9e98");
     auto& q = this->queue;
     EXPECT_FALSE(q.popIfSizeIsAtLeast(1U).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueIsFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1cb99149-8a34-43bf-ab6b-3744cb18889e");
     auto& q = this->fullQueue;
     EXPECT_TRUE(q.popIfSizeIsAtLeast(0U).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "74ba9355-4ec6-49ce-b4fc-d01b820d9bd1");
     auto& q = this->queue;
     EXPECT_FALSE(q.popIfSizeIsAtLeast(0U).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb58c76c-1bd0-4a5b-8732-63832f3a7fd9");
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
     ASSERT_TRUE(index.has_value());
@@ -250,6 +268,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneE
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastOneReturnsIndexIfQueueContainsOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d97a588c-c847-401e-82b6-db58f791fbf4");
     auto& q = this->queue;
     using index_t = typename TestFixture::index_t;
 
@@ -264,6 +283,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastOneReturnsIndexIfQueueContainsOneEl
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastTwoReturnsNothingIfQueueContainsOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6338b9d1-235f-4af3-9eca-3daeca25f824");
     auto& q = this->queue;
     q.push(0U);
     const auto index = q.popIfSizeIsAtLeast(2U);
@@ -272,6 +292,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastTwoReturnsNothingIfQueueContainsOne
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastCapacityReturnsIndexIfQueueIsFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5582c206-7c42-4ce3-821d-9e01085e72c5");
     const auto c = this->fullQueue.capacity();
     const auto index = this->fullQueue.popIfSizeIsAtLeast(c);
     ASSERT_TRUE(index.has_value());
@@ -280,6 +301,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastCapacityReturnsIndexIfQueueIsFull)
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastCapacityReturnsNothingIfQueueIsNotFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d4c944bd-56d9-4dea-9d27-b346cf42e46c");
     const auto CAP = this->fullQueue.capacity();
     this->fullQueue.pop();
     const auto index = this->fullQueue.popIfSizeIsAtLeast(CAP);

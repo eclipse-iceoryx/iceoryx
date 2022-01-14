@@ -119,6 +119,7 @@ class PoorMansHeap_test : public Test
 
 TEST_F(PoorMansHeap_test, SizeAndAlignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1e7dc7e-4d0d-4eef-b3ce-45b222991e8b");
     constexpr uint32_t BookkeepingSize{MaxAlignment}; // offset of the aligned storage is the MaxAlignment value
     EXPECT_THAT(sizeof(m_sut), Eq(MaxSize + BookkeepingSize));
     EXPECT_THAT(alignof(SUT), Eq(MaxAlignment));
@@ -126,11 +127,13 @@ TEST_F(PoorMansHeap_test, SizeAndAlignment)
 
 TEST_F(PoorMansHeap_test, CTor_default)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4db0afc-25d4-4754-bdf4-f966d3a5354f");
     EXPECT_THAT(m_sut.hasInstance(), Eq(false));
 }
 
 TEST_F(PoorMansHeap_test, CTorDTor_BaseClass)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3767015f-3ce2-4f44-b38f-70442ddc1d05");
     {
         SUT sut{iox::cxx::PoorMansHeapType<Bar>(), LuckyNumber::Bar};
         ASSERT_THAT(sut.hasInstance(), Eq(true));
@@ -146,6 +149,7 @@ TEST_F(PoorMansHeap_test, CTorDTor_BaseClass)
 
 TEST_F(PoorMansHeap_test, CTorDTor_NonDerived)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1c214e68-b1a8-4178-8c8f-dab7b1b69b58");
     {
         iox::cxx::PoorMansHeap<Bar, sizeof(Bar), alignof(Bar)> sut{iox::cxx::PoorMansHeapType<Bar>(), LuckyNumber::Bar};
         ASSERT_THAT(sut.hasInstance(), Eq(true));
@@ -161,6 +165,7 @@ TEST_F(PoorMansHeap_test, CTorDTor_NonDerived)
 
 TEST_F(PoorMansHeap_test, newInstance)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e1f483bc-2cb7-475c-a73f-dc257e5d7240");
     m_sut.newInstance<Foo>();
 
     ASSERT_THAT(m_sut.hasInstance(), Eq(true));
@@ -170,6 +175,7 @@ TEST_F(PoorMansHeap_test, newInstance)
 
 TEST_F(PoorMansHeap_test, deleteInstance)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8a4f312c-b8a1-4582-9854-bcc26fe4a4cf");
     m_sut.newInstance<Bar>(LuckyNumber::Bar);
 
     g_destructionIdentities.clear();
@@ -181,6 +187,7 @@ TEST_F(PoorMansHeap_test, deleteInstance)
 
 TEST_F(PoorMansHeap_test, overwriteInstance)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "043782df-e105-4b70-b529-2317daee551a");
     m_sut.newInstance<Bar>(LuckyNumber::Bar);
 
     g_destructionIdentities.clear();
@@ -197,6 +204,7 @@ TEST_F(PoorMansHeap_test, overwriteInstance)
 
 TEST_F(PoorMansHeap_test, instanceAccess)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6a3e882e-e73d-4a6e-8049-1fdd259d90de");
     m_sut.newInstance<Bar>(LuckyNumber::Bar);
 
     ASSERT_THAT(m_sut.hasInstance(), Eq(true));

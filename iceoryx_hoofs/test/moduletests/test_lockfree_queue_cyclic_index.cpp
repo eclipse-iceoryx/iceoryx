@@ -61,6 +61,7 @@ TYPED_TEST_SUITE(LockFreeQueueCyclicIndexTest, TestIndices);
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, defaultConstructedIndexIsZero)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "86401c7a-73bc-4677-9f1a-1d08c38d4793");
     using Index = typename TestFixture::Index;
     Index index;
 
@@ -71,6 +72,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, defaultConstructedIndexIsZero)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c015eb36-cbd8-42e2-8083-2e446f4c0f50");
     using Index = typename TestFixture::Index;
 
     {
@@ -90,6 +92,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, getValueReturnsValueIndexWasConstructedWith)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "707d066c-f81c-4086-a71a-5b6b5333ecb5");
     using Index = typename TestFixture::Index;
     Index index(73);
     EXPECT_EQ(index.getValue(), 73);
@@ -97,6 +100,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, getValueReturnsValueIndexWasConstructed
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1e72a059-b297-4e04-9dea-39218595ecac");
     using Index = typename TestFixture::Index;
 
     // something inbetween max and min
@@ -121,6 +125,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWithMaxIndexAndCycleWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d15fba8a-c3c0-4820-a087-699feba1064d");
     using Index = typename TestFixture::Index;
     const auto i = Index::INDEX_AT_MAX_VALUE;
     const auto c = Index::MAX_CYCLE;
@@ -142,6 +147,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWithMaxIndexAndCycl
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, copyConstructorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "896617da-a3b7-4667-ae56-a9f5229f548e");
     using Index = typename TestFixture::Index;
 
     // something inbetween max and min
@@ -159,6 +165,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, copyConstructorWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, assignmentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb4ee1ac-5913-481e-aba4-18ef82ad1c2e");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX / 2;
@@ -174,6 +181,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, assignmentWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, selfAssignmentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "56e126b1-43d8-43e7-b483-4a0fa8ac620b");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX / 2;
@@ -189,6 +197,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, selfAssignmentWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e8d5f97f-cb11-47d8-9525-5d41c849d9d3");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX / 2;
@@ -208,6 +217,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb3ced77-f8f8-4bc9-893a-c8fc4e001482");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX / 2;
@@ -226,6 +236,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWorks)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWraparound)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "947872d1-c222-47aa-9391-1fd250e8e457");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX;
@@ -248,6 +259,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWraparound)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2582ca2a-9acf-400a-90a6-ac35e23ac362");
     using Index = typename TestFixture::Index;
 
     const auto v = Index::MAX_VALUE;
@@ -272,6 +284,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementOverflow)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5578f2c1-b2e8-43db-8943-967b7d77ba65");
     using Index = typename TestFixture::Index;
 
     const auto v = Index::MAX_VALUE;
@@ -295,6 +308,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionOverflow)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckNegative)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d60bff1d-bc3f-40be-a555-56871e0b7248");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX;
@@ -334,6 +348,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckNegative)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckPositive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "313f9624-9a37-4376-a3f2-c23b8a29b610");
     using Index = typename TestFixture::Index;
 
     const auto i = Index::MAX_INDEX;
@@ -363,6 +378,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckPositive)
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckDuringOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b94e9e40-9c43-46e1-96ee-319052018326");
     using Index = typename TestFixture::Index;
 
     // last cycle before overflow

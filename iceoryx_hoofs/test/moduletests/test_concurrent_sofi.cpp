@@ -217,6 +217,7 @@ void CUnitTestContainerSoFi::checkMultiOverflow(const std::string& scope, int se
 
 TEST_F(CUnitTestContainerSoFi, Empty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "557d4e60-b214-4170-a07a-bf7ccbc38ba6");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // check if a new instace of the SoFi is empty
@@ -232,6 +233,7 @@ TEST_F(CUnitTestContainerSoFi, Empty)
 
 TEST_F(CUnitTestContainerSoFi, Capacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "693ea584-72b2-401a-8a52-b5159eecdb53");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // check if SoFi sets the right capacity
@@ -249,16 +251,19 @@ TEST_F(CUnitTestContainerSoFi, Capacity)
 
 TEST_F(CUnitTestContainerSoFi, NewlyCreatedSoFiIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1e29ee14-c592-4d60-b7c0-c38bd390e518");
     EXPECT_TRUE(m_sofi.empty());
 }
 
 TEST_F(CUnitTestContainerSoFi, NewlyCreatedSoFiHasSizeZero)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "89f0ccea-2e96-4a8c-9279-d33aec95b4c9");
     EXPECT_EQ(m_sofi.size(), 0);
 }
 
 TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushes)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf415600-d1f5-45bb-8e23-7d72a8212efe");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // check if a new instace of the SoFi is empty
@@ -277,6 +282,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushes)
 
 TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "be946957-dddc-4038-8b34-cea6f8931e5e");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // check if a new instace of the SoFi is empty
@@ -295,6 +301,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
 
 TEST_F(CUnitTestContainerSoFi, Overflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "47548956-f8f6-4649-9a04-eb766a014171");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // test with an initial SoFi read and write position of zero
@@ -307,6 +314,7 @@ TEST_F(CUnitTestContainerSoFi, Overflow)
 
 TEST_F(CUnitTestContainerSoFi, MultiOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1b229258-250a-4cf6-b73f-ab5235a10624");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // test with an initial SoFi read and write position of zero
@@ -319,6 +327,7 @@ TEST_F(CUnitTestContainerSoFi, MultiOverflow)
 
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingASingleElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9c7c43d8-939c-4fa8-b1b9-b379515931e9");
     int ret;
     m_sofi.push(123, ret);
     EXPECT_EQ(m_sofi.setCapacity(4), false);
@@ -326,6 +335,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingASingleElement)
 
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingAMultipleElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a98bd656-7d39-4274-a77f-bc918a2c1301");
     int ret;
     m_sofi.push(123, ret);
     m_sofi.push(13, ret);
@@ -335,6 +345,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingAMultipleElements)
 
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6f58b6dd-20ab-42c7-9006-fbbcadb04f42");
     for (int ret; !m_sofi.push(123, ret);)
     {
     }
@@ -343,21 +354,25 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenFull)
 
 TEST_F(CUnitTestContainerSoFi, ResizingLargeThanCapacityFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "609918f3-56aa-4e7e-8f7c-d171f2ca4602");
     EXPECT_EQ(m_sofi.setCapacity(TEST_SOFI_CAPACITY + 1), false);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizingToZeroIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6675b4c4-7866-43d3-b3b2-aa1bff6b3053");
     EXPECT_EQ(m_sofi.setCapacity(0), true);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizingDefault)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f2371e2a-56f2-4ab1-a168-a53fa2440f0b");
     EXPECT_EQ(m_sofi.setCapacity(TEST_SOFI_CAPACITY - 1), true);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizeAndSizeCheck)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b916cb44-303c-4dc3-8900-aea244482ef6");
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; ++i)
     {
         EXPECT_EQ(m_sofi.setCapacity(i), true);
@@ -367,6 +382,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeAndSizeCheck)
 
 TEST_F(CUnitTestContainerSoFi, ResizeAndSizeFillUp)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3db02cd3-68ac-4507-8437-6bdbe423babf");
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY - 1; ++i)
     {
         EXPECT_EQ(m_sofi.setCapacity(i), true);
@@ -386,6 +402,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeAndSizeFillUp)
 
 TEST_F(CUnitTestContainerSoFi, PopIfWithValidCondition)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f149035c-21cc-4f7d-ba4d-564a645e933b");
     int returnValue;
     m_sofi.push(10, returnValue);
     m_sofi.push(11, returnValue);
@@ -400,6 +417,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfWithValidCondition)
 
 TEST_F(CUnitTestContainerSoFi, PopIfWithInvalidCondition)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1a494c28-928f-48f4-8b01-e68dfbd7563e");
     int returnValue;
     m_sofi.push(15, returnValue);
     m_sofi.push(16, returnValue);
@@ -413,6 +431,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfWithInvalidCondition)
 
 TEST_F(CUnitTestContainerSoFi, PopIfOnEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "960ad78f-cb9b-4c34-a077-6adb343a841c");
     int output;
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 7; });
 
@@ -421,6 +440,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfOnEmpty)
 
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "167f2f01-f926-4442-bc4f-ff5e7cfe9fe0");
     int output;
     constexpr int INITIAL_VALUE = 100;
     constexpr int OFFSET = 2;
@@ -435,6 +455,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithInvalidCondition)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "672881b9-eebd-471d-9d62-e792a8b8013f");
     int output;
     for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + 2; i++)
         m_sofi.push(i + 100, output);
@@ -446,6 +467,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfFullWithInvalidCondition)
 
 TEST_F(CUnitTestContainerSoFi, PopIfValidEmptyAfter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "19444dcd-7746-4e6b-a3b3-398c9d62317d");
     int output;
     m_sofi.push(2, output);
 
@@ -456,6 +478,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfValidEmptyAfter)
 
 TEST_F(CUnitTestContainerSoFi, PopIfInvalidNotEmptyAfter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cadd7f02-6fe5-49a5-bd5d-837f5fcb2a71");
     int output;
     m_sofi.push(200, output);
 

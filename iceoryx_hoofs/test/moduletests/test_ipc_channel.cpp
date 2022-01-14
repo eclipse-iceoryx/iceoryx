@@ -98,6 +98,7 @@ TYPED_TEST_SUITE(IpcChannel_test, IpcChannelTypes);
 
 TYPED_TEST(IpcChannel_test, CreateWithTooLargeMessageSizeLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c9e63950-e7f1-4efc-9d55-a5c445ee7dee");
     auto serverResult = TestFixture::IpcChannelType::create(
         goodName, IpcChannelSide::SERVER, TestFixture::MaxMsgSize + 1, TestFixture::MaxMsgNumber);
     EXPECT_TRUE(serverResult.has_error());
@@ -106,6 +107,7 @@ TYPED_TEST(IpcChannel_test, CreateWithTooLargeMessageSizeLeadsToError)
 
 TYPED_TEST(IpcChannel_test, CreateNoNameLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3ffe2cf2-26f4-4b93-8baf-d997dc71e610");
     auto serverResult = TestFixture::IpcChannelType::create("", IpcChannelSide::SERVER);
     EXPECT_TRUE(serverResult.has_error());
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
@@ -113,12 +115,14 @@ TYPED_TEST(IpcChannel_test, CreateNoNameLeadsToError)
 
 TYPED_TEST(IpcChannel_test, CreateWithLeadingSlashWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "89340ebd-f80d-480b-833f-da37dff06cef");
     auto serverResult = TestFixture::IpcChannelType::create(slashName, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
 }
 
 TYPED_TEST(IpcChannel_test, CreateAgainWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "74f7e785-36fc-418c-9807-3dc95ae8aa91");
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
@@ -128,6 +132,7 @@ TYPED_TEST(IpcChannel_test, CreateAgainWorks)
 
 TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c6bf30dc-661d-47f9-8365-2cda5ca067f9");
     if (std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
     {
         // A NamedPipe server creates and destroys a pipe only when it was created
@@ -174,6 +179,7 @@ TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
 
 TYPED_TEST(IpcChannel_test, ClientWithoutServerLeadsToNoSuchChannelError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6a0f75fc-cb6a-4593-a815-ea587c8e9d9e");
     auto clientResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::CLIENT);
     EXPECT_TRUE(clientResult.has_error());
     ASSERT_THAT(clientResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
@@ -182,6 +188,7 @@ TYPED_TEST(IpcChannel_test, ClientWithoutServerLeadsToNoSuchChannelError)
 
 TYPED_TEST(IpcChannel_test, NotDestroyingServerLeadsToNonOutdatedClient)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b3eef376-ae04-425b-aa5e-6b0ec4360253");
     auto serverResult = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.value());
@@ -198,6 +205,7 @@ TYPED_TEST(IpcChannel_test, NotDestroyingServerLeadsToNonOutdatedClient)
 
 TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "441c4480-57e7-4607-a7e1-df7a9f2f19d0");
     if (std::is_same<typename TestFixture::IpcChannelType, UnixDomainSocket>::value
         || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
     {
@@ -231,6 +239,7 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 // impossible.
 TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ea22483b-4484-4d6d-b2b7-b574eaeb4b95");
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(anotherGoodName);
@@ -240,6 +249,7 @@ TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
 
 TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c2ecbedc-be63-4f07-bceb-293d5a82c3cd");
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(theUnknown);
     ASSERT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
@@ -248,6 +258,7 @@ TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
 
 TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76a3df9f-736e-4803-af11-912927c352d4");
     std::string message = "Hey, I'm talking to you";
     bool sent = this->client.send(message).has_error();
     EXPECT_FALSE(sent);
@@ -267,6 +278,7 @@ TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
 
 TYPED_TEST(IpcChannel_test, InvalidAfterDestroy)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4d878a64-95a4-4f15-8e09-f439c5dbd8eb");
     ASSERT_FALSE(this->client.destroy().has_error());
     ASSERT_FALSE(this->client.isInitialized());
     ASSERT_FALSE(this->server.destroy().has_error());
@@ -275,6 +287,7 @@ TYPED_TEST(IpcChannel_test, InvalidAfterDestroy)
 
 TYPED_TEST(IpcChannel_test, SendAfterClientDestroyLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dde79f4d-7bb5-4627-8d26-0bbc3dbf4d7d");
     auto dest = this->client.destroy();
     ASSERT_FALSE(dest.has_error());
 
@@ -285,6 +298,7 @@ TYPED_TEST(IpcChannel_test, SendAfterClientDestroyLeadsToError)
 
 TYPED_TEST(IpcChannel_test, SendAfterServerDestroyLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "95919ff0-ffe2-47e1-8a1d-0cb1e1df02df");
     if (std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value
         || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
     {
@@ -305,6 +319,7 @@ TYPED_TEST(IpcChannel_test, SendAfterServerDestroyLeadsToError)
 
 TYPED_TEST(IpcChannel_test, ReceiveAfterServerDestroyLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a704f003-097c-486b-92d3-4284f6b5abbe");
     std::string message = "hello world!";
     bool sendError = this->client.send(message).has_error();
     EXPECT_FALSE(sendError);
@@ -318,6 +333,7 @@ TYPED_TEST(IpcChannel_test, ReceiveAfterServerDestroyLeadsToError)
 
 TYPED_TEST(IpcChannel_test, SendMoreThanAllowedLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4e49c2fe-7278-4bc5-b91f-41777287e452");
     std::string shortMessage = "Iceoryx rules.";
     ASSERT_THAT(this->client.send(shortMessage).has_error(), Eq(false));
 
@@ -331,6 +347,7 @@ TYPED_TEST(IpcChannel_test, SendMoreThanAllowedLeadsToError)
 
 TYPED_TEST(IpcChannel_test, SendMaxMessageSizeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f471df17-d49a-43cd-85a9-bbe457cfd012");
     std::string message(this->MaxMsgSize - 1, 'x');
     auto clientReturn = this->client.send(message);
     ASSERT_THAT(clientReturn.has_error(), Eq(false));
@@ -342,6 +359,7 @@ TYPED_TEST(IpcChannel_test, SendMaxMessageSizeWorks)
 
 TYPED_TEST(IpcChannel_test, wildCreate)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "98d6003c-3f1a-4a8b-a524-ec1071bc9527");
     auto result = TestFixture::IpcChannelType::create();
     ASSERT_THAT(result.has_error(), Eq(true));
 }
@@ -349,6 +367,7 @@ TYPED_TEST(IpcChannel_test, wildCreate)
 #if !defined(__APPLE__)
 TYPED_TEST(IpcChannel_test, TimedSendWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "12fe0ee5-37f8-4c34-ba44-ed50872a5fd9");
     using namespace iox::units;
     using namespace std::chrono;
 
@@ -379,6 +398,7 @@ TYPED_TEST(IpcChannel_test, TimedSendWorks)
 
 TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "978c8c4e-9829-4467-b664-45457104d4a9");
     using namespace iox::units;
     using namespace std::chrono;
 

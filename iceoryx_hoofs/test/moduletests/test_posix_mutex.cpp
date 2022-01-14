@@ -74,6 +74,7 @@ class Mutex_test : public Test
 
 TEST_F(Mutex_test, TryLockAndUnlockWithNonRecursiveMutexReturnTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4ed2c3f1-6c91-465e-a702-9ea25b5434bb");
     EXPECT_THAT(sutNonRecursive.try_lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
@@ -82,6 +83,7 @@ TEST_F(Mutex_test, TryLockAndUnlockWithNonRecursiveMutexReturnTrue)
 #ifndef _WIN32
 TEST_F(Mutex_test, TryLockWithNonRecursiveMutexReturnsFalseAfterLock)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "910b16e1-53ea-46c6-ad9a-9dcaa0bf7821");
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.try_lock(), Eq(false));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
@@ -90,12 +92,14 @@ TEST_F(Mutex_test, TryLockWithNonRecursiveMutexReturnsFalseAfterLock)
 
 TEST_F(Mutex_test, LockAndUnlockWithNonRecursiveMutexReturnsTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b83e4491-50cc-40ca-a6d0-5ad8baf346b9");
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
 TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4c01c8cc-8cb2-4869-8ff3-c52e385a2289");
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
@@ -106,6 +110,7 @@ TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
 // in qnx you can destroy a locked mutex, without error if the thread holding the lock is destructing it.
 TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4bb77e54-4d1e-4d1e-9138-a284638aab8c");
     std::string output = internal::GetCapturedStderr();
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
@@ -135,11 +140,13 @@ void tryLockReturnsFalseWhenMutexLockedInOtherThread(iox::posix::mutex& mutex)
 
 TEST_F(Mutex_test, TryLockReturnsFalseWhenMutexLockedInOtherThreadNonRecursiveMutex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2bf2397b-e068-4883-870d-050d7338663f");
     tryLockReturnsFalseWhenMutexLockedInOtherThread(sutNonRecursive);
 }
 
 TEST_F(Mutex_test, TryLockReturnsFalseWhenMutexLockedInOtherThreadRecursiveMutex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "88f89346-dc69-491e-ad16-081dc29022b7");
     tryLockReturnsFalseWhenMutexLockedInOtherThread(sutRecursive);
 }
 
@@ -168,11 +175,13 @@ void lockedMutexBlocks(Mutex_test* test, iox::posix::mutex& mutex)
 
 TEST_F(Mutex_test, LockedMutexBlocksNonRecursiveMutex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "de50bda2-c94e-413b-ab32-b255a04a8d8a");
     lockedMutexBlocks(this, sutNonRecursive);
 }
 
 TEST_F(Mutex_test, LockedMutexBlocksRecursiveMutex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "59d4e6e0-d3c7-4d11-a131-01a2637883eb");
     lockedMutexBlocks(this, sutRecursive);
 }
 

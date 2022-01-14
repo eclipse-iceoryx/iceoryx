@@ -78,18 +78,21 @@ class FileReader_test : public Test
 
 TEST_F(FileReader_test, openNonExisting)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2696e939-e5b8-4fd0-aed5-f1aae55b2c38");
     iox::cxx::FileReader reader("a_file_that_wasn't_there.txt");
     EXPECT_FALSE(reader.isOpen());
 }
 
 TEST_F(FileReader_test, openExisting)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c6dd5e3e-32fd-4b6e-910e-65d70493e9d5");
     iox::cxx::FileReader reader(TestFilePath);
     EXPECT_TRUE(reader.isOpen());
 }
 
 TEST_F(FileReader_test, openWithPath)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "424bb5c8-6226-4a74-a1cd-2194787fabdd");
     iox::cxx::FileReader reader(TestFile, TempPath);
     EXPECT_TRUE(reader.isOpen());
 
@@ -99,12 +102,14 @@ TEST_F(FileReader_test, openWithPath)
 
 TEST_F(FileReader_test, openWithWrongPath)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "00933c79-94dd-48f5-9d7a-bc178ffd4222");
     iox::cxx::FileReader reader(TestFile, CrapPath);
     EXPECT_FALSE(reader.isOpen());
 }
 
 TEST_F(FileReader_test, readLines)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c6c9fde1-4878-42aa-8388-320468d51b62");
     iox::cxx::FileReader reader(TestFilePath);
     std::string stringLine;
 
@@ -119,6 +124,7 @@ TEST_F(FileReader_test, readLines)
 
 TEST_F(FileReader_test, readAllLines)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5f2bda7a-88f8-4459-8a3e-a3b3d3809b7c");
     iox::cxx::FileReader reader(TestFilePath);
     std::string stringLine;
     int numLines = 0;
@@ -133,6 +139,7 @@ TEST_F(FileReader_test, readAllLines)
 
 TEST_F(FileReader_test, errorIgnoreMode)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4155a17f-2ac3-4240-b0e5-f9bb704cc03d");
     internal::CaptureStderr();
     iox::cxx::FileReader reader(
         "FileNotAvailable.readme", "PathThatNeverHasBeen", iox::cxx::FileReader::ErrorMode::Ignore);
@@ -141,6 +148,7 @@ TEST_F(FileReader_test, errorIgnoreMode)
 
 TEST_F(FileReader_test, errorInformMode)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c5dd405e-e8cc-4c86-a4a2-02d38830a4d6");
     internal::CaptureStderr();
     iox::cxx::FileReader reader("FileNotFound.abc", "TheInfamousPath", iox::cxx::FileReader::ErrorMode::Inform);
     EXPECT_FALSE(internal::GetCapturedStderr().empty());
@@ -148,6 +156,7 @@ TEST_F(FileReader_test, errorInformMode)
 
 TEST_F(FileReader_test, errorTerminateMode)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "146e3109-6d98-44ee-a3a9-5d151616a212");
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
     EXPECT_DEATH(

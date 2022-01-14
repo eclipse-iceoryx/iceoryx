@@ -72,12 +72,14 @@ TYPED_TEST_SUITE(TriggerQueue_test, TriggerQueueTestSubjects);
 
 TYPED_TEST(TriggerQueue_test, EmptyOnConstruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e318311d-88fb-4014-8f4e-35fe539bd0e8");
     EXPECT_THAT(this->m_sut.empty(), Eq(true));
     EXPECT_THAT(this->m_sut.size(), Eq(0U));
 }
 
 TYPED_TEST(TriggerQueue_test, PushOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6c7f57fa-6656-479c-b7e2-dfe2d68b114a");
     EXPECT_THAT(this->m_sut.push(5U), Eq(true));
     EXPECT_THAT(this->m_sut.empty(), Eq(false));
     EXPECT_THAT(this->m_sut.size(), Eq(1U));
@@ -85,16 +87,19 @@ TYPED_TEST(TriggerQueue_test, PushOneElement)
 
 TYPED_TEST(TriggerQueue_test, PushTillFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "25dfabda-d873-4681-89e8-8d0741c30ab4");
     EXPECT_TRUE(this->fillQueue());
 }
 
 TYPED_TEST(TriggerQueue_test, PopOnEmptyReturnsNullopt)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6e58cfb9-9271-4dbb-bf02-7177d55c8a26");
     EXPECT_THAT(this->m_sut.pop(), Eq(cxx::nullopt));
 }
 
 TYPED_TEST(TriggerQueue_test, PopOneElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49187773-f92d-4b11-9bbc-8e0ebf63a22a");
     this->m_sut.push(123U);
     auto result = this->m_sut.pop();
     ASSERT_THAT(result.has_value(), Eq(true));
@@ -103,6 +108,7 @@ TYPED_TEST(TriggerQueue_test, PopOneElement)
 
 TYPED_TEST(TriggerQueue_test, PopFullQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c7fd6ec6-c8fc-4143-aee6-653797265531");
     constexpr uint64_t OFFSET = 231;
     this->fillQueue(OFFSET);
 
@@ -116,6 +122,7 @@ TYPED_TEST(TriggerQueue_test, PopFullQueue)
 
 TYPED_TEST(TriggerQueue_test, PushBlocksUntilPopWhenFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "519eaae3-b2da-4a7b-86a7-3bdf7523dc03");
     constexpr int64_t TIMEOUT_IN_MS = 100;
     this->fillQueue();
 
@@ -139,6 +146,7 @@ TYPED_TEST(TriggerQueue_test, PushBlocksUntilPopWhenFull)
 
 TYPED_TEST(TriggerQueue_test, PushBlocksUntilDestroyWasCalled)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aaf70037-dd47-4a01-bc41-f948248bf05a");
     constexpr int64_t TIMEOUT_IN_MS = 100;
     this->fillQueue();
 
@@ -163,6 +171,7 @@ TYPED_TEST(TriggerQueue_test, PushBlocksUntilDestroyWasCalled)
 
 TYPED_TEST(TriggerQueue_test, AfterDestroyPushAddsNoElements)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "79ea6a9c-c53a-49d0-8618-53b37718e8c8");
     this->m_sut.destroy();
     this->m_sut.push(123U);
 

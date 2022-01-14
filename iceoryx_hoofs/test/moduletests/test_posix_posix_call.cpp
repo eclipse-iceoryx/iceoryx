@@ -52,6 +52,7 @@ class PosixCall_test : public Test
 
 TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_GoodCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a01759f9-bd81-4223-9313-91f2c12acd2c");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 1;
@@ -71,6 +72,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_GoodCase)
 
 TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_BadCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aea9317e-1bf8-47bd-bc6c-971439f93a43");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 3;
@@ -93,6 +95,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_BadCase)
 
 TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_GoodCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ee9814a8-b646-4a8c-b1ba-5923c5331a7a");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 5;
@@ -112,6 +115,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_GoodCase)
 
 TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_BadCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "de9ec4b8-72ac-43c2-a3a2-962571c8039d");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 7;
@@ -134,6 +138,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValue_BadCase)
 
 TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_GoodCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4cf87f69-d694-423a-98bf-d5658758f7f0");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 9;
@@ -154,6 +159,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_Good
 
 TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_BadCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "29cd753e-9b89-43dd-a754-d9bde42d7ff3");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 11;
@@ -177,6 +183,7 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValueAndIgnoredErrno_BadC
 
 TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_GoodCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f9cc178d-9d74-4458-8cc7-5086b2359511");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 13;
@@ -197,6 +204,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_Good
 
 TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_BadCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7d872f26-b303-4f01-817d-857e5ee2353a");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 15;
@@ -220,6 +228,7 @@ TEST_F(PosixCall_test, CallingFunctionWithFailureReturnValueAndIgnoredErrno_BadC
 
 TEST_F(PosixCall_test, IgnoringMultipleErrnosWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "382eeb72-03a8-480f-8fe1-51e749370d44");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 17;
@@ -240,6 +249,7 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWorks)
 
 TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsNotListedFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a1f11d1b-7eb4-4a61-b977-ec0813a55fe1");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 19;
@@ -260,6 +270,7 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsNotListedFails
 
 TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsFirstInListSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f6937559-185e-481d-9186-4c332cafd700");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 21;
@@ -280,6 +291,7 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsFirstInListSuc
 
 TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsLastInListSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3e9817ef-ad3a-4c73-94bc-1032448972e3");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 23;
@@ -300,6 +312,7 @@ TEST_F(PosixCall_test, IgnoringMultipleErrnosWhereOccurringErrnoIsLastInListSucc
 
 TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIsFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fbf80e39-2f7c-4eff-9bd2-079526f83059");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 117;
@@ -322,6 +335,7 @@ TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIs
 
 TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIsMiddle)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "06eba974-df54-44ff-accb-e0d4e3a64895");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 217;
@@ -344,6 +358,7 @@ TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIs
 
 TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIsLast)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5c3e55ad-5665-47be-ba01-3c7096075858");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 317;
@@ -366,6 +381,7 @@ TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsWorksWhenErrnoIs
 
 TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "83f52825-fd6c-457c-859f-d3cccd8800bd");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 417;
@@ -388,6 +404,7 @@ TEST_F(PosixCall_test, IgnoringErrnosByMultipleIgnoreErrnosCallsFails)
 
 TEST_F(PosixCall_test, SuppressErrnoLoggingWithNonPresentErrnoPrintsErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f7447e69-44bd-45ba-9dda-4c90107fc73e");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 111;
@@ -408,6 +425,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingWithNonPresentErrnoPrintsErrorMessage
 
 TEST_F(PosixCall_test, SuppressErrnoLoggingWithPresentErrnoDoesNotPrintErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bc7bc0f5-8d31-4254-a61e-6a5c43ab87ee");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 113;
@@ -428,6 +446,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingWithPresentErrnoDoesNotPrintErrorMess
 
 TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithNoPresentErrnoPrintsErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "207f2148-f0f1-464b-bf64-0f8a820a5b70");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 115;
@@ -448,6 +467,7 @@ TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithNoPresentErrnoPrintsError
 
 TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithPresentErrnoDoesNotPrintErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1f26ada9-ba40-4a6f-a572-c911dff36ebb");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 117;
@@ -468,6 +488,7 @@ TEST_F(PosixCall_test, SuppressMultipleErrnoLoggingWithPresentErrnoDoesNotPrintE
 
 TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithNonPresentErrnoPrintsErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49e41c5c-9a95-47c8-a522-245a3885003b");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 119;
@@ -490,6 +511,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithNonPresentErrnoPri
 
 TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithPresentErrnoDoesNotPrintErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0624a93c-8589-44e2-94f5-ba284486f220");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 121;
@@ -512,6 +534,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingByMultipleCallsWithPresentErrnoDoesNo
 
 TEST_F(PosixCall_test, SuppressErrnoLoggingOfIgnoredErrnoDoesNotPrintErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3292eff4-6f91-4a84-a9ba-05e77b63a5f0");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 123;
@@ -533,6 +556,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingOfIgnoredErrnoDoesNotPrintErrorMessag
 
 TEST_F(PosixCall_test, SuppressErrnoLoggingOfNotIgnoredErrnoDoesNotPrintErrorMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9d8142b9-f993-46a2-ba45-2f103d3c6ee8");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 123;
@@ -554,6 +578,7 @@ TEST_F(PosixCall_test, SuppressErrnoLoggingOfNotIgnoredErrnoDoesNotPrintErrorMes
 
 TEST_F(PosixCall_test, RecallingFunctionWithEintrWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c613542f-dead-409e-9630-f05486faa8f3");
     internal::CaptureStderr();
 
     eintrRepetition = iox::posix::POSIX_CALL_EINTR_REPETITIONS;
@@ -573,6 +598,7 @@ TEST_F(PosixCall_test, RecallingFunctionWithEintrWorks)
 
 TEST_F(PosixCall_test, FunctionReturnsEINTRTooOftenResultsInFailure)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a63b36d3-bccc-4d5c-9fad-502dd6f163f1");
     internal::CaptureStderr();
 
     eintrRepetition = iox::posix::POSIX_CALL_EINTR_REPETITIONS + 1;
@@ -591,6 +617,7 @@ TEST_F(PosixCall_test, FunctionReturnsEINTRTooOftenResultsInFailure)
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "776689ef-8289-44f0-a509-a195dae025c0");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 25;
@@ -610,6 +637,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodVa
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsCenter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1b45e355-f809-4214-b227-18aa0c1585c5");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 27;
@@ -629,6 +657,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodVa
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsLast)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0de42576-bb17-4596-9e91-e80f6bf2bdb5");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 29;
@@ -648,6 +677,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodVa
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodValueIsNotPresent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f8d0036f-8f99-467a-8d74-f8e736296e80");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 31;
@@ -667,6 +697,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleSuccessReturnValuesWhereGoodVa
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsFirst)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d3000e92-5585-43d1-a857-085df9b3e890");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 33;
@@ -686,6 +717,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsCenter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "280f24d2-22b2-4904-bab0-79dbcff0aad2");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 35;
@@ -705,6 +737,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsLast)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "21f34570-8d2f-45d1-aa9f-4c74bcdd7296");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 37;
@@ -724,6 +757,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
 
 TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailureValueIsNotPresent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a8c6d31d-2214-447f-9d13-c60497641cc1");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 39;
@@ -743,6 +777,7 @@ TEST_F(PosixCall_test, CallingFunctionWithMultipleFailureReturnValuesWhereFailur
 
 TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInReturnValue_GoodCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b2dc8737-703d-4a85-a370-1c6e53f845a0");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 0;
@@ -761,6 +796,7 @@ TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInRetur
 
 TEST_F(PosixCall_test, ErrnoIsSetFromReturnValueWhenFunctionHandlesErrnosInReturnValue_BadCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ae8aa873-d5f0-4301-8325-506c14a49393");
     internal::CaptureStderr();
 
     constexpr int RETURN_VALUE = 42;

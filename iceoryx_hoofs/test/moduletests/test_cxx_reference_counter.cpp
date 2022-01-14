@@ -32,23 +32,27 @@ class ReferenceCounter_test : public Test
 
 TEST_F(ReferenceCounter_test, CTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b2fec1f5-7c59-40ef-9893-6b1f9aa2c56d");
     EXPECT_THAT(var, Eq(1));
 }
 
 TEST_F(ReferenceCounter_test, CopyCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "746fdfe6-80bb-4429-9bc2-2999a31d0891");
     ReferenceCounter<uint64_t> sut2(sut);
     EXPECT_THAT(var, Eq(2));
 }
 
 TEST_F(ReferenceCounter_test, MoveCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d6146408-308a-44a2-bf52-3b807d36f6c4");
     ReferenceCounter<uint64_t> sut2(std::move(sut));
     EXPECT_THAT(var, Eq(1));
 }
 
 TEST_F(ReferenceCounter_test, CopyAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a2117274-7550-4c7c-9f17-6bcf9d640acd");
     uint64_t var2{0};
     ReferenceCounter<uint64_t> sut2(&var);
     sut2 = sut;
@@ -59,6 +63,7 @@ TEST_F(ReferenceCounter_test, CopyAssignment)
 
 TEST_F(ReferenceCounter_test, MoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b728ba0f-bb26-4146-a7ec-076f90426711");
     uint64_t var2{0};
     ReferenceCounter<uint64_t> sut2(&var);
     sut2 = std::move(sut);
@@ -69,6 +74,7 @@ TEST_F(ReferenceCounter_test, MoveAssignment)
 
 TEST_F(ReferenceCounter_test, Destructor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2eb96773-4543-4d73-9cfb-e4e456470d57");
     uint64_t var2{0};
     {
         ReferenceCounter<uint64_t> sut2(&var2);
@@ -78,6 +84,7 @@ TEST_F(ReferenceCounter_test, Destructor)
 
 TEST_F(ReferenceCounter_test, DestructorAfterCopyCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6e0f8ecf-2380-4611-bd3a-29a881d38e87");
     uint64_t var2{0};
     {
         ReferenceCounter<uint64_t> sut2(&var2);
@@ -88,6 +95,7 @@ TEST_F(ReferenceCounter_test, DestructorAfterCopyCTor)
 
 TEST_F(ReferenceCounter_test, DestructorAfterMoveCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1972f5f0-43bb-45da-b843-82f10a62e84a");
     uint64_t var2{0};
     {
         ReferenceCounter<uint64_t> sut2(&var2);
@@ -98,6 +106,7 @@ TEST_F(ReferenceCounter_test, DestructorAfterMoveCTor)
 
 TEST_F(ReferenceCounter_test, DestructorAfterCopyAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9d44de2b-44be-4a67-8d92-9249122d6df7");
     uint64_t var2{0};
     {
         uint64_t var3{0};
@@ -114,6 +123,7 @@ TEST_F(ReferenceCounter_test, DestructorAfterCopyAssignment)
 
 TEST_F(ReferenceCounter_test, DestructorAfterMoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "197d9f84-0fb3-49d0-8041-3e02b307800e");
     uint64_t var2{0};
     {
         uint64_t var3{0};
@@ -130,6 +140,7 @@ TEST_F(ReferenceCounter_test, DestructorAfterMoveAssignment)
 
 TEST_F(ReferenceCounter_test, GetValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "615a8d5d-39a5-4003-be32-d8e7d3c94baa");
     EXPECT_THAT(sut.getValue(), Eq(1));
 }
 } // namespace

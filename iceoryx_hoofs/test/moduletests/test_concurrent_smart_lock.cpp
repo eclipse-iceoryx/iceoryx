@@ -147,12 +147,14 @@ constexpr uint64_t NUMBER_OF_THREADS = 4;
 
 TEST_F(smart_lock_test, DefaultConstructionOfUnderlyingObjectWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7b70e351-0e34-4eed-ba02-fcea2b95aaa1");
     m_sut.emplace();
     EXPECT_THAT((*m_sut)->getA(), Eq(0));
 }
 
 TEST_F(smart_lock_test, ConstructionWithOneValueCTorOfUnderlyingObjectWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1c464484-7e64-421a-84f0-1b399586deea");
     constexpr int32_t CTOR_VALUE = 25;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
@@ -160,6 +162,7 @@ TEST_F(smart_lock_test, ConstructionWithOneValueCTorOfUnderlyingObjectWorks)
 
 TEST_F(smart_lock_test, CopyConstructionOfUnderlyinObjectWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3c03837e-c5f9-4937-a5d3-77a507fe91a5");
     constexpr int32_t CTOR_VALUE = 121;
     SmartLockTester tester(CTOR_VALUE);
     m_sut.emplace(ForwardArgsToCTor, tester);
@@ -169,6 +172,7 @@ TEST_F(smart_lock_test, CopyConstructionOfUnderlyinObjectWorks)
 
 TEST_F(smart_lock_test, MoveConstructionOfUnderlyinObjectWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8ded7285-3608-4e55-b9e9-a97fb8b1345e");
     constexpr int32_t CTOR_VALUE = 1211;
     SmartLockTester tester(CTOR_VALUE);
     m_sut.emplace(ForwardArgsToCTor, std::move(tester));
@@ -178,6 +182,7 @@ TEST_F(smart_lock_test, MoveConstructionOfUnderlyinObjectWorks)
 
 TEST_F(smart_lock_test, CopyConstructorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "04692305-6a72-45c4-bc4e-fc0cd8ed8dd7");
     constexpr int32_t CTOR_VALUE = 1221;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
@@ -189,6 +194,7 @@ TEST_F(smart_lock_test, CopyConstructorWorks)
 
 TEST_F(smart_lock_test, CopyAssignmentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f8d68a06-00c5-4b68-a6b1-109b9d011ae8");
     constexpr int32_t CTOR_VALUE = 2121;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
@@ -201,6 +207,7 @@ TEST_F(smart_lock_test, CopyAssignmentWorks)
 
 TEST_F(smart_lock_test, MoveConstructorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1a22291e-3e78-4335-9a9f-e704b767085f");
     constexpr int32_t CTOR_VALUE = 41221;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
@@ -212,6 +219,7 @@ TEST_F(smart_lock_test, MoveConstructorWorks)
 
 TEST_F(smart_lock_test, MoveAssignmentWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "82342f30-d261-4611-a972-4acaeae6379f");
     constexpr int32_t CTOR_VALUE = 21281;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
@@ -224,6 +232,7 @@ TEST_F(smart_lock_test, MoveAssignmentWorks)
 
 TEST_F(smart_lock_test, ConstArrowOperatorWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9d46c335-48e6-424a-aedb-128b124f7cc3");
     constexpr int32_t CTOR_VALUE = 212818;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
 
@@ -232,6 +241,7 @@ TEST_F(smart_lock_test, ConstArrowOperatorWorks)
 
 TEST_F(smart_lock_test, AccessThroughConstScopeGuardWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f52e9b24-0819-487b-947a-5f18d24b55e6");
     constexpr int32_t CTOR_VALUE = 6212818;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
     auto guard = constSut.getScopeGuard();
@@ -241,6 +251,7 @@ TEST_F(smart_lock_test, AccessThroughConstScopeGuardWorks)
 
 TEST_F(smart_lock_test, AccessThroughScopeGuardWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9d91a04f-d84e-4fa3-9ee0-95ebc4bfbed1");
     constexpr int32_t CTOR_VALUE = 62818;
     SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
     auto guard = constSut.getScopeGuard();
@@ -250,6 +261,7 @@ TEST_F(smart_lock_test, AccessThroughScopeGuardWorks)
 
 TEST_F(smart_lock_test, AcquiringCopyWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "47863174-e936-4b18-9617-c58bb956ccac");
     constexpr int32_t CTOR_VALUE = 628189;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
@@ -296,6 +308,7 @@ void threadSafeOperationTest(smart_lock_test* test, const std::function<void()> 
 
 TEST_F(smart_lock_test, ThreadSafeAccessThroughArrowOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e6cfd20a-4450-46f7-80ca-b87f75a0462e");
     threadSafeOperationTest(this, [=] { (*m_sut)->incrementA(); });
 
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
@@ -303,12 +316,14 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughArrowOperator)
 
 TEST_F(smart_lock_test, ThreadSafeAccessThroughConstArrowOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c0dedded-cf07-47dc-9032-e5de3db859d2");
     threadSafeOperationTest(this, [=] { (const_cast<const SutType_t&>(*m_sut))->constIncrementA(); });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
 TEST_F(smart_lock_test, ThreadSafeAccessThroughScopedGuard)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2ffb9ba4-4df3-4851-8976-20f15a3bfa4b");
     threadSafeOperationTest(this, [=] {
         auto guard = (*m_sut).getScopeGuard();
         guard->incrementA();
@@ -318,6 +333,7 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughScopedGuard)
 
 TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dc2efd41-4c0a-4ac0-93ed-f8e9195e0dfd");
     threadSafeOperationTest(this, [=] {
         auto guard = const_cast<const SutType_t&>(*m_sut).getScopeGuard();
         guard->incrementA();
@@ -327,18 +343,21 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 
 TEST_F(smart_lock_test, ThreadSafeCopyCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "23b27eda-17de-42b9-bdbc-81e7bae15fd6");
     threadSafeOperationTest(this, [=] { SutType_t someCopy(*m_sut); });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
 TEST_F(smart_lock_test, ThreadSafeMoveCTor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e7368392-ff41-44a7-ad58-9d3b17637dd6");
     threadSafeOperationTest(this, [=] { SutType_t movedSut(std::move(*m_sut)); });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
 TEST_F(smart_lock_test, ThreadSafeCopyAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a9964501-9c88-4250-a1d5-e266171a670c");
     threadSafeOperationTest(this, [=] {
         SutType_t someCopy;
         someCopy = *m_sut;
@@ -348,6 +367,7 @@ TEST_F(smart_lock_test, ThreadSafeCopyAssignment)
 
 TEST_F(smart_lock_test, ThreadSafeMoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f89e951-bf93-4230-b749-ec91416785ae");
     threadSafeOperationTest(this, [=] {
         SutType_t someMovedSut;
         someMovedSut = std::move(*m_sut);

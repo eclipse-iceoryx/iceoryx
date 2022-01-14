@@ -30,6 +30,7 @@
 - [ ] Commits are properly organized and messages are according to the guideline
 - [ ] Code according to our coding style and naming conventions
 - [ ] Unit tests have been written for new behavior
+    - [ ] Each unit test case has a unique UUID
 - [ ] Public API changes are documented via doxygen
 - [ ] Copyright owner are updated in the changed files
 - [ ] PR title describes the changes

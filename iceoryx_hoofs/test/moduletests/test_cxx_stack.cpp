@@ -59,6 +59,7 @@ class stack_test : public Test
 
 TEST_F(stack_test, isEmptyOnCreation)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2a9ce587-9daf-479d-95da-0df96325023f");
     EXPECT_THAT(m_sut.size(), Eq(0U));
     EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
     EXPECT_THAT(m_sut.pop(), Eq(cxx::nullopt));
@@ -66,6 +67,7 @@ TEST_F(stack_test, isEmptyOnCreation)
 
 TEST_F(stack_test, pushingOneElementWithDefaultCtorSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f4e91f32-fb20-4502-b0c8-d4b4d4c2bec0");
     ASSERT_TRUE(m_sut.push());
     EXPECT_THAT(m_sut.size(), Eq(1U));
     EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
@@ -77,6 +79,7 @@ TEST_F(stack_test, pushingOneElementWithDefaultCtorSucceeds)
 
 TEST_F(stack_test, pushingOneElementWithCustomCtorSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c9112cdb-af63-4a55-b8ee-94010dc2d819");
     pushElements(1U);
 
     auto element = m_sut.pop();
@@ -86,6 +89,7 @@ TEST_F(stack_test, pushingOneElementWithCustomCtorSucceeds)
 
 TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2d12fd5d-ded8-482d-86dd-094660c65f9c");
     pushElements(STACK_SIZE);
 
     for (uint64_t i = 0U; i < STACK_SIZE; ++i)
@@ -99,6 +103,7 @@ TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
 
 TEST_F(stack_test, ifCapacityIsExceededPushFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6844bc2d-f8e9-4614-ad14-62744a7421f7");
     pushElements(STACK_SIZE);
 
     EXPECT_FALSE(m_sut.push());
@@ -106,6 +111,7 @@ TEST_F(stack_test, ifCapacityIsExceededPushFails)
 
 TEST_F(stack_test, popCreatesSpaceForAnotherElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3ebf7f6d-81ef-45d6-83a6-80f8588cbba6");
     pushElements(STACK_SIZE);
 
     EXPECT_THAT(m_sut.pop(), Ne(cxx::nullopt));

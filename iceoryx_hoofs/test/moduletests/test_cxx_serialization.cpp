@@ -41,18 +41,21 @@ class Serialization_test : public Test
 
 TEST_F(Serialization_test, CreateSingleEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "501d7767-f522-4e3c-a367-9c659e109b1b");
     auto serial = iox::cxx::Serialization::create("hello world");
     EXPECT_THAT(serial.toString(), Eq("11:hello world"));
 }
 
 TEST_F(Serialization_test, CreateMultiEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5baf4079-20f4-4ec2-a5f9-38f61460b61b");
     auto serial = iox::cxx::Serialization::create("hello world", 12345);
     EXPECT_THAT(static_cast<std::string>(serial), Eq("11:hello world5:12345"));
 }
 
 TEST_F(Serialization_test, ExtractSingleEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "47b75a1a-f133-453b-adad-c82e5ea77565");
     auto serial = iox::cxx::Serialization::create(12345);
     int i;
     EXPECT_THAT(serial.extract(i), Eq(true));
@@ -61,6 +64,7 @@ TEST_F(Serialization_test, ExtractSingleEntry)
 
 TEST_F(Serialization_test, ExtractSingleEntryWrongType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4bba7ed7-0485-48fc-b979-76a7b8e97b2a");
     auto serial = iox::cxx::Serialization::create("asd");
     int i;
     EXPECT_THAT(serial.extract(i), Eq(false));
@@ -68,6 +72,7 @@ TEST_F(Serialization_test, ExtractSingleEntryWrongType)
 
 TEST_F(Serialization_test, ExtractMultiEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf0be6f1-e986-499c-b96e-339cdc9cb534");
     auto serial = iox::cxx::Serialization::create(12345, 'c', "aasd");
     int i;
     char c;
@@ -80,6 +85,7 @@ TEST_F(Serialization_test, ExtractMultiEntry)
 
 TEST_F(Serialization_test, ExtractMultiEntryWrongType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8e0cdb0f-7a6f-4fce-a04d-bb665f5692e1");
     auto serial = iox::cxx::Serialization::create(12345, 'c', "aasd");
     int i;
     char c;
@@ -89,6 +95,7 @@ TEST_F(Serialization_test, ExtractMultiEntryWrongType)
 
 TEST_F(Serialization_test, GetNthSingleEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39b3a9d5-e3e1-4131-8f1a-5bbeaf199fcb");
     auto serial = iox::cxx::Serialization::create(12345);
     int i;
     EXPECT_THAT(serial.getNth(0, i), Eq(true));
@@ -97,6 +104,7 @@ TEST_F(Serialization_test, GetNthSingleEntry)
 
 TEST_F(Serialization_test, GetNthSingleEntryWrongType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "83d32bc1-d732-483b-a8e8-ca71b9ca9c9c");
     auto serial = iox::cxx::Serialization::create("a1234a5");
     int i;
     EXPECT_THAT(serial.getNth(0, i), Eq(false));
@@ -104,6 +112,7 @@ TEST_F(Serialization_test, GetNthSingleEntryWrongType)
 
 TEST_F(Serialization_test, GetNthMultiEntry)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "00fb34ec-2135-4824-bd8f-a681ac21d215");
     auto serial = iox::cxx::Serialization::create(12345, "asdasd", 'x', -123);
     int v1;
     std::string v2;
@@ -122,6 +131,7 @@ TEST_F(Serialization_test, GetNthMultiEntry)
 
 TEST_F(Serialization_test, ExtractFromGivenSerialization)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "38d6ffe5-6ca2-4dd6-9b2d-0002eb4e312f");
     iox::cxx::Serialization serial("6:hello!4:1234");
     std::string v1;
     int v2;
@@ -132,6 +142,7 @@ TEST_F(Serialization_test, ExtractFromGivenSerialization)
 
 TEST_F(Serialization_test, SerializeSerializableClass)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f9a4d22a-a4ca-4451-8f35-27ffff65cd2d");
     struct A
     {
         A()

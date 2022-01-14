@@ -130,6 +130,7 @@ constexpr uint64_t UnixDomainSocket_test::MaxMsgNumber;
 
 TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameLeadsToInvalidChannelNameError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bdc1e253-2750-4b07-a528-83ca50246b29");
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, "");
     ASSERT_TRUE(ret.has_error());
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
@@ -137,6 +138,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameLeadsToInvalidChannelNameErro
 
 TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidChannelNameError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "97793649-ac88-4e73-a0bc-602dca302746");
     auto ret = UnixDomainSocket::unlinkIfExists("");
     ASSERT_TRUE(ret.has_error());
     EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
@@ -144,6 +146,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
 
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2fae48fb-8247-4119-a0ec-c40dda87e0c7");
     UnixDomainSocket::UdsName_t longSocketName;
     for (uint64_t i = 0U; i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(platform::IOX_UDS_SOCKET_PATH_PREFIX) + 1;
          ++i)
@@ -157,6 +160,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "292879cd-89b5-4ebe-8459-f71d13a7befe");
     UnixDomainSocket::UdsName_t socketFileName = platform::IOX_UDS_SOCKET_PATH_PREFIX;
     socketFileName.append(cxx::TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
     ASSERT_TRUE(createTestSocket(socketFileName));
@@ -166,6 +170,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "33019857-7a2c-4aed-92b1-4218332a254c");
     UnixDomainSocket::UdsName_t socketFileName = "iceoryx-hoofs-moduletest.socket";
     UnixDomainSocket::UdsName_t socketFileNameWithPrefix = platform::IOX_UDS_SOCKET_PATH_PREFIX;
     socketFileNameWithPrefix.append(cxx::TruncateToCapacity, socketFileName);
@@ -186,11 +191,13 @@ void sendOnServerLeadsToError(const sendCall_t& send)
 
 TEST_F(UnixDomainSocket_test, TimedSendOnServerLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d2a4986a-afe7-49bc-b870-d1baf069aad2");
     sendOnServerLeadsToError([&](auto& msg) { return server.timedSend(msg, 1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SendOnServerLeadsToError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "82721639-8514-410f-b761-54c9f519a6e4");
     sendOnServerLeadsToError([&](auto& msg) { return server.send(msg); });
 }
 
@@ -213,6 +220,7 @@ void successfulSendAndReceive(const std::vector<std::string>& messages,
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "69a2f9f4-2a4a-48e2-aa50-72b00e657f1d");
     successfulSendAndReceive(
         {"what's hypnotoads eye color?"},
         [&](auto& msg) { return client.send(msg); },
@@ -221,6 +229,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b5b2b116-04df-4ec8-ba2c-71ca2ff98b3a");
     successfulSendAndReceive(
         {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
          "elephant slips."},
@@ -230,6 +239,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7b5f4b19-4721-42e4-899f-9b61d5f2e467");
     successfulSendAndReceive(
         {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
@@ -238,6 +248,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "48dfea98-9b8f-4bc5-ba6b-b29229238c1c");
     successfulSendAndReceive(
         {"what is the most beautiful color in the world? it's hypnotoad."},
         [&](auto& msg) { return client.send(msg); },
@@ -246,30 +257,35 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1cbb2b57-5bde-4d36-b11d-879f55a313c0");
     successfulSendAndReceive(
         {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1fecbbc7-762c-4dcd-b7c2-c195d29d4023");
     successfulSendAndReceive(
         {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "22d0ed9c-6ab1-4239-909e-41dccc0f9510");
     successfulSendAndReceive(
         {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "16ee1bee-67a0-4d2f-8f13-5fe6ca67f3b8");
     successfulSendAndReceive(
         {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "51fb179e-7256-47e8-8af9-6f14493ef253");
     successfulSendAndReceive(
         {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.send(msg); },
@@ -278,6 +294,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendA
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimedSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c5e9dbea-c514-4335-a151-bd38a806f048");
     successfulSendAndReceive(
         {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
@@ -286,6 +303,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimedSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6359e2bc-46ea-4cfa-9c51-bb3e5ad36834");
     successfulSendAndReceive(
         {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
@@ -294,6 +312,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ec6b3ae4-5a87-499c-b41a-c759ee5a14f5");
     successfulSendAndReceive(
         {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
         [&](auto& msg) { return client.send(msg); },
@@ -302,6 +321,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendA
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d0dd293f-8dc5-493b-99bc-34859eaa7ca6");
     successfulSendAndReceive(
         {"Famous hypnotoad alike creators from around the world:",
          "Zoich, proposed mascot for the winter olympics 2014",
@@ -313,6 +333,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendA
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimedSendAndReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "92cb2d91-2fa8-4600-bb42-042cfe97de01");
     successfulSendAndReceive(
         {"Facts about hypnotoad",
          "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
@@ -327,6 +348,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimedSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "31daf91d-1b98-400e-a29b-e43643962dcc");
     successfulSendAndReceive(
         {"hypnotoad was part of the german pop band Modern Talking and produced songs like",
          "you're my, heart you're my seal",
@@ -339,6 +361,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendAndTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eb25f813-ab2d-40e4-a363-5e025a2d53c8");
     successfulSendAndReceive(
         {"most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
          "success",
@@ -360,11 +383,13 @@ void unableToSendTooLongMessage(const sendCall_t& send)
 
 TEST_F(UnixDomainSocket_test, UnableToSendTooLongMessageWithSend)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1af52c13-bc61-4d01-889b-4df7773edb44");
     unableToSendTooLongMessage([&](auto& msg) { return client.send(msg); });
 }
 
 TEST_F(UnixDomainSocket_test, UnableToSendTooLongMessageWithTimedSend)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "712f1bfe-4ca8-4337-83cd-4483afaeeab5");
     unableToSendTooLongMessage([&](auto& msg) { return client.timedSend(msg, 1_ms); });
 }
 
@@ -379,11 +404,13 @@ void receivingOnClientLeadsToError(const receiveCall_t& receive)
 
 TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "055b3e28-e958-43e7-ad9b-81a9702009cd");
     receivingOnClientLeadsToError([&] { return client.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithTimedReceive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f46991ff-29f5-4cf7-9d6d-d1d0b4da97dc");
     receivingOnClientLeadsToError([&] { return client.timedReceive(1_ms); });
 }
 
@@ -391,6 +418,7 @@ TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithTimedReceive)
 #if !defined(__APPLE__)
 TEST_F(UnixDomainSocket_test, TimedReceiveBlocks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5c43ae51-35ca-4e3e-b5bc-4261c80b7a4d");
     auto start = std::chrono::steady_clock::now();
     auto msg = server.timedReceive(units::Duration::fromMilliseconds(WAIT_IN_MS.count()));
     auto end = std::chrono::steady_clock::now();
@@ -402,6 +430,7 @@ TEST_F(UnixDomainSocket_test, TimedReceiveBlocks)
 
 TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76df3d40-d420-4c5f-b82a-3bf8b684a21b");
     std::string message = "asdasda";
     std::thread waitThread([&] {
         this->signalThreadReady();

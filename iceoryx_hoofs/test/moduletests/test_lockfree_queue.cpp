@@ -174,6 +174,7 @@ TYPED_TEST_SUITE(LockFreeQueueTest, TestConfigs);
 
 TEST(LockFreeQueueTest, capacityIsConsistent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b56ef76-2eac-4174-9999-e26495758e6a");
     constexpr uint64_t CAPACITY{37};
     IntegerQueue<CAPACITY> q;
     EXPECT_EQ(q.capacity(), CAPACITY);
@@ -181,6 +182,7 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
 
 TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9bb8a86e-c3d0-44ef-9fb7-999f50f0c4ac");
     auto& q = this->queue;
     EXPECT_TRUE(q.empty());
     EXPECT_EQ(q.size(), 0);
@@ -188,6 +190,7 @@ TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
 
 TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "381e13c3-d5dc-40c1-b4fd-65634578bdc8");
     auto& q = this->queue;
 
     int data = 42;
@@ -202,6 +205,7 @@ TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
 
 TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f9d4f232-e9e7-4089-bf61-2696a4bdc8f3");
     auto& q = this->queue;
 
     int data = 24;
@@ -213,6 +217,7 @@ TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
 
 TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6c6bb533-aab5-46bc-8368-977fc2503a74");
     auto& q = this->queue;
     auto capacity = q.capacity();
 
@@ -229,6 +234,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
 
 TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b793a3e-1e47-46d9-91c2-4967569b508b");
     auto& q = this->queue;
     this->fillQueue(38);
     int data{37};
@@ -237,6 +243,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
 
 TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fecc997a-ae8e-49d3-a1ea-7ec07b5a93ed");
     auto& q = this->queue;
     auto capacity = q.capacity();
 
@@ -259,6 +266,7 @@ TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
 
 TYPED_TEST(LockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2096033c-5631-480e-8b9c-a8b472721cdb");
     auto& q = this->queue;
     auto capacity = q.capacity();
 
@@ -274,6 +282,7 @@ TYPED_TEST(LockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
 
 TYPED_TEST(LockFreeQueueTest, pushReturnsOldestElementOnOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "df40eac8-11ba-4352-aef0-c1c4785a43f8");
     auto& q = this->queue;
     auto capacity = q.capacity();
 
@@ -293,6 +302,7 @@ TYPED_TEST(LockFreeQueueTest, pushReturnsOldestElementOnOverflow)
 
 TYPED_TEST(LockFreeQueueTest, pushInsertsInFifoOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "18698a63-de51-407a-a2f0-dce591c92223");
     auto& q = this->queue;
     auto capacity = q.capacity();
 
@@ -318,6 +328,7 @@ TYPED_TEST(LockFreeQueueTest, pushInsertsInFifoOrder)
 
 TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ef49cb74-9631-4804-b040-36cc28c2abfc");
     auto& q = this->queue;
 
     q.tryPush(37);
@@ -329,6 +340,7 @@ TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
 
 TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterFullQueueWasEmptied)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb0d2c27-25e6-41c6-a51a-909a01ec0052");
     auto& q = this->queue;
     auto capacity = q.capacity();
 

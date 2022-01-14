@@ -92,12 +92,14 @@ class AtomicRelocatablePointer_test : public Test
 
 TEST_F(AtomicRelocatablePointer_test, defaultConstructedPointerIsNull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f80ad898-472e-4991-86ff-b866604b9452");
     Ptr<int> rp;
     EXPECT_EQ(rp, nullptr);
 }
 
 TEST_F(AtomicRelocatablePointer_test, constructedPointerPointsToData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "73da26ee-c3bc-4829-8db1-00ecd04cb20a");
     int data = 38;
     Ptr<int> rp(&data);
     EXPECT_EQ(rp, &data);
@@ -106,6 +108,7 @@ TEST_F(AtomicRelocatablePointer_test, constructedPointerPointsToData)
 
 TEST_F(AtomicRelocatablePointer_test, assignRawPointer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "db7c8c51-3f94-434c-b876-f72e093aeb7e");
     Ptr<int> rp;
     int data = 39;
     rp = &data;
@@ -115,6 +118,7 @@ TEST_F(AtomicRelocatablePointer_test, assignRawPointer)
 
 TEST_F(AtomicRelocatablePointer_test, compareWithRawPointer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "97a89e33-3edf-40cd-8d93-907e08b9f9de");
     Ptr<int> rp;
     int data = 39;
     rp = &data;
@@ -123,6 +127,7 @@ TEST_F(AtomicRelocatablePointer_test, compareWithRawPointer)
 
 TEST_F(AtomicRelocatablePointer_test, resetToNull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2c6dda1a-255e-4f8e-b174-ce15b5238bed");
     Ptr<int> rp;
     int data = 40;
     rp = &data;
@@ -133,6 +138,7 @@ TEST_F(AtomicRelocatablePointer_test, resetToNull)
 
 TEST_F(AtomicRelocatablePointer_test, arrowOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1e995d34-c795-4361-8386-90a6abc4f7bb");
     Foo foo;
     Ptr<Foo> rp(&foo);
     EXPECT_EQ(rp->self(), foo.self());
@@ -140,6 +146,7 @@ TEST_F(AtomicRelocatablePointer_test, arrowOperator)
 
 TEST_F(AtomicRelocatablePointer_test, conversionOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "61b66183-a117-4029-9e88-954e3bb82169");
     Foo foo;
     Ptr<Foo> rp(&foo);
     Foo* p = rp;
@@ -148,6 +155,7 @@ TEST_F(AtomicRelocatablePointer_test, conversionOperator)
 
 TEST_F(AtomicRelocatablePointer_test, dereferenceOperator)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "13c6529e-9bc8-44ac-9e6c-c9725e8989fb");
     Foo foo;
     Ptr<Foo> rp(&foo);
     EXPECT_EQ((*rp).self(), foo.self());
@@ -159,6 +167,7 @@ TEST_F(AtomicRelocatablePointer_test, dereferenceOperator)
 // copied location
 TEST_F(AtomicRelocatablePointer_test, memoryRelocation)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "233ef018-6ded-4fba-a626-44e38f1e6e35");
     constexpr uint64_t ALIGNMENT_OF_PTR{alignof(Ptr<byte_t>)};
     constexpr size_t INDEX_OF_PTR{ALIGNMENT_OF_PTR};
     Memory<1024, ALIGNMENT_OF_PTR> memory;

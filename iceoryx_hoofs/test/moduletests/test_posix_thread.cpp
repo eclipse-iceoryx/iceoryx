@@ -65,6 +65,7 @@ class Thread_test : public Test
 #if !defined(__APPLE__)
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b805a0a6-29c0-41df-b5b7-3f66499d151a");
     ThreadName_t emptyString = "";
 
     setThreadName(m_thread->native_handle(), emptyString);
@@ -75,6 +76,7 @@ TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 
 TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "115cf4e9-4c7a-4fcc-8df8-65e3b3b547d1");
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
     EXPECT_THAT(stringEqualToThreadNameCapacitiy.capacity(), Eq(stringEqualToThreadNameCapacitiy.size()));
 
@@ -86,6 +88,7 @@ TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 
 TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d6c2d0b5-a6ee-43e6-8870-053feb6de845");
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
 
     setThreadName(m_thread->native_handle(), stringShorterThanThreadNameCapacitiy);

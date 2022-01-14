@@ -78,6 +78,7 @@ class CxxSet_test : public Test
 
 TEST_F(CxxSet_test, add)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "260f4df9-789e-4874-aab9-b07250ee3abe");
     EXPECT_THAT(testContainer.size(), Eq(0U));
     Foo foo(73);
     set::add(testContainer, foo);
@@ -123,6 +124,7 @@ TEST_F(CxxSet_test, add)
 
 TEST_F(CxxSet_test, remove)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a6e20947-8e7d-4c31-93ce-4b1b421ead08");
     EXPECT_THAT(testContainer.size(), Eq(0U));
     Foo foo(73);
     Foo otherFoo(37);
@@ -237,6 +239,7 @@ TEST_F(CxxSet_test, remove)
 
 TEST_F(CxxSet_test, hasElement)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "103d87d2-901e-4255-b267-59cde9a803d7");
     EXPECT_THAT(testContainer.size(), Eq(0U));
 
     Foo foo(73);

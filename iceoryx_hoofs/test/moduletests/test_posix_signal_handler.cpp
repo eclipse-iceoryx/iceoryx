@@ -84,6 +84,7 @@ TYPED_TEST_SUITE(SignalHandler_test, Implementations);
 
 TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7836be02-28ab-43b7-b7a7-7c43c4830eb4");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
 
@@ -95,6 +96,7 @@ TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 
 TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsRestored)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8d2efc2b-837b-446d-ba16-fbca9a539b82");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
     {
@@ -109,6 +111,7 @@ TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsResto
 
 TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8fcf886b-babb-41ab-a8ee-6ba123224aef");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
 
@@ -122,6 +125,7 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
 
 TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardRestoresPreviousState)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "718c396f-ab2f-4ea3-bb90-f67f7ab131d8");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
 
