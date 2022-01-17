@@ -87,35 +87,6 @@ ServiceDiscovery::findService(const cxx::variant<Wildcard_t, capro::IdString_t> 
     return {cxx::success<ServiceContainer>(serviceContainer)};
 }
 
-
-bool ServiceDiscovery::offerService(const capro::ServiceDescription& serviceDescription) noexcept
-{
-    if (serviceDescription.isValid())
-    {
-        capro::CaproMessage msg(
-            capro::CaproMessageType::OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
-        m_applicationPort.dispatchCaProMessage(msg);
-        return true;
-    }
-    LogWarn() << "Could not offer service " << serviceDescription.getServiceIDString() << ","
-              << " ServiceDescription is invalid\n";
-    return false;
-}
-
-bool ServiceDiscovery::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
-{
-    if (serviceDescription.isValid())
-    {
-        capro::CaproMessage msg(
-            capro::CaproMessageType::STOP_OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
-        m_applicationPort.dispatchCaProMessage(msg);
-        return true;
-    }
-    LogWarn() << "Could not stopOffer service " << serviceDescription.getServiceIDString() << ","
-              << " ServiceDescription is invalid\n";
-    return false;
-}
-
 const std::atomic<uint64_t>* ServiceDiscovery::getServiceRegistryChangeCounter() noexcept
 {
     IpcMessage sendBuffer;
