@@ -86,6 +86,7 @@ class ProcessIntrospection_test : public Test
 
 TEST_F(ProcessIntrospection_test, CTOR)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "74c1c79f-3c99-406b-8ccf-9e85defbd71b");
     {
         ProcessIntrospectionAccess introspectionAccess;
         EXPECT_THAT(introspectionAccess.getPublisherPort().has_value(), Eq(false));
@@ -94,6 +95,7 @@ TEST_F(ProcessIntrospection_test, CTOR)
 
 TEST_F(ProcessIntrospection_test, registerPublisherPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fcacaa4a-7883-43d6-850f-04b78558e45b");
     {
         ProcessIntrospectionAccess introspectionAccess;
         introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
@@ -103,6 +105,7 @@ TEST_F(ProcessIntrospection_test, registerPublisherPort)
 
 TEST_F(ProcessIntrospection_test, send)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7faf7880-c9be-4893-8f68-15cc77a4583c");
     {
         ProcessIntrospectionAccess introspectionAccess;
         introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
@@ -116,6 +119,7 @@ TEST_F(ProcessIntrospection_test, send)
 
 TEST_F(ProcessIntrospection_test, addRemoveProcess)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "50d5090f-c89e-400f-b400-313df15d4193");
     {
         ProcessIntrospectionAccess introspectionAccess;
         introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
@@ -152,6 +156,7 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
 
 TEST_F(ProcessIntrospection_test, thread)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3b3419dd-cc3a-4011-bf63-e2a68ab8c20f");
     {
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
@@ -196,6 +201,7 @@ TEST_F(ProcessIntrospection_test, thread)
 
 TEST_F(ProcessIntrospection_test, addRemoveNode)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "edae5283-400b-44c5-882c-60ad9bfb7957");
     {
         ProcessIntrospectionAccess introspectionAccess;
 

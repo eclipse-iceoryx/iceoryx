@@ -59,6 +59,7 @@ class BasePublisherTest : public Test
 
 TEST_F(BasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9fac841c-d067-47ec-8626-73ef7d4aa8db");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), offer).Times(1);
     // ===== Test ===== //
@@ -69,6 +70,7 @@ TEST_F(BasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 
 TEST_F(BasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e5c7b795-b996-4e87-9f2b-96fa0e01c4c3");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), stopOffer).Times(1);
     // ===== Test ===== //
@@ -79,6 +81,7 @@ TEST_F(BasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 
 TEST_F(BasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "323b75cb-539e-4888-9b2f-f3f0bcdc1d3d");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), isOffered).Times(1);
     // ===== Test ===== //
@@ -89,6 +92,7 @@ TEST_F(BasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 
 TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b361e985-5187-4e51-a833-697d08cb0588");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), hasSubscribers).Times(1);
     // ===== Test ===== //
@@ -99,6 +103,7 @@ TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 
 TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublisherPort)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c3b989a9-61d5-4d8f-81b0-eacb0e368a14");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), getServiceDescription).Times(1);
     // ===== Test ===== //
@@ -109,6 +114,7 @@ TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublishe
 
 TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7ecca6de-7331-493b-8985-cc37af368dba");
     EXPECT_CALL(sut.port(), destroy).Times(1);
 }
 

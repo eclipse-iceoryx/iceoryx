@@ -59,6 +59,7 @@ class GatewayDiscovery_test : public Test
 
 TEST_F(GatewayDiscovery_test, GetCaproMessage)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ee901042-940c-4929-b7d0-acad0b752cb3");
     InterfacePort_mock interfacePortImplMock;
     iox::gw::GatewayDiscovery<InterfacePort_mock> GatewayDiscovery =
         GatewayDiscoveryAccess<InterfacePort_mock>(interfacePortImplMock);

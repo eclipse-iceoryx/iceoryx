@@ -50,11 +50,13 @@ class MemoryBlock_Test : public Test
 
 TEST_F(MemoryBlock_Test, Initial)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dfda9855-c226-4810-ba59-e75f0877dcd6");
     EXPECT_THAT(sut.memory().has_value(), Eq(false));
 }
 
 TEST_F(MemoryBlock_Test, MemoryAvailableAfterCreation)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8bc3906f-6d3f-453e-b3b2-339138a8d4fc");
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
     EXPECT_THAT(memoryProvider.dummyMemory, Ne(nullptr));

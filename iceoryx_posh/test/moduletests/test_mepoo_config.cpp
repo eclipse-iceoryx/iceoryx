@@ -35,6 +35,7 @@ class MePooConfig_Test : public Test
 
 TEST_F(MePooConfig_Test, AddMemPoolMethodAddsTheCorrespondingMempoolInTheMemPoolConfigContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e2e10dcf-039a-4865-a8fa-5a716994f213");
     MePooConfig sut;
     constexpr uint32_t SIZE{128U};
     constexpr uint32_t CHUNK_COUNT{100U};
@@ -48,6 +49,7 @@ TEST_F(MePooConfig_Test, AddMemPoolMethodAddsTheCorrespondingMempoolInTheMemPool
 
 TEST_F(MePooConfig_Test, AddingMempoolWhenTheMemPoolConfigContainerIsFullReturnsError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67227cee-44e2-445f-ba6b-5066e7348757");
     MePooConfig sut;
     constexpr uint32_t SIZE{128U};
     constexpr uint32_t CHUNK_COUNT{100U};
@@ -61,6 +63,7 @@ TEST_F(MePooConfig_Test, AddingMempoolWhenTheMemPoolConfigContainerIsFullReturns
 
 TEST_F(MePooConfig_Test, SetDefaultMethodAddsTheDefaultMemPoolConfigurationToTheMemPoolConfigContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "744b4d55-9782-421d-aafb-4464ec00d2a1");
     MePooConfig sut;
     MePooConfig::Entry defaultEntry[7] = {{128U, 10000U},
                                           {1024U, 5000U},
@@ -82,6 +85,7 @@ TEST_F(MePooConfig_Test, SetDefaultMethodAddsTheDefaultMemPoolConfigurationToThe
 
 TEST_F(MePooConfig_Test, GetMemoryConfigMethodReturnsTheMemPoolConfigContainerWithAddedMempools)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "45abbd55-9d30-4fdc-abf8-4dd85c2d48b4");
     MePooConfig sut;
     constexpr uint32_t CHUNK_COUNT{100U};
     constexpr uint32_t SIZE{128U};
@@ -96,6 +100,7 @@ TEST_F(MePooConfig_Test, GetMemoryConfigMethodReturnsTheMemPoolConfigContainerWi
 
 TEST_F(MePooConfig_Test, OptimizeMethodCombinesTwoMempoolWithSameSizeAndDoublesTheChunkCountInTheMemPoolConfigContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b39e5bc5-4352-4427-be72-deeed45d937d");
     MePooConfig sut;
     constexpr uint32_t CHUNK_COUNT{100U};
     constexpr uint32_t SIZE{100U};
@@ -110,6 +115,7 @@ TEST_F(MePooConfig_Test, OptimizeMethodCombinesTwoMempoolWithSameSizeAndDoublesT
 
 TEST_F(MePooConfig_Test, OptimizeMethodRemovesTheMempoolWithSizeZeroInTheMemPoolConfigContainer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "56209c3e-8b69-45cd-8ea5-ef347152ff7c");
     MePooConfig sut;
     constexpr uint32_t CHUNK_COUNT{100U};
     constexpr uint32_t SIZE_1{64U};
@@ -128,6 +134,7 @@ TEST_F(MePooConfig_Test, OptimizeMethodRemovesTheMempoolWithSizeZeroInTheMemPool
 
 TEST_F(MePooConfig_Test, OptimizeMethodSortsTheAddedMempoolsInTheMemPoolConfigContainerInIncreasingOrderOfSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c9034d02-9fa9-404f-955c-12f647b3a946");
     MePooConfig sut;
     constexpr uint32_t CHUNK_COUNT{100U};
     constexpr uint32_t SIZE_1{512U};
@@ -147,6 +154,7 @@ TEST_F(MePooConfig_Test, OptimizeMethodSortsTheAddedMempoolsInTheMemPoolConfigCo
 
 TEST_F(MePooConfig_Test, VerifyOptimizeMethodOnMePooConfigWithNoAddedMemPools)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8ee01d92-acb6-4841-b844-2ae151c53200");
     MePooConfig sut;
 
     sut.optimize();

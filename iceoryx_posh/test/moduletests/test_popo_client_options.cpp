@@ -24,6 +24,7 @@ using namespace ::testing;
 
 TEST(ClientOptions_test, SerializationRoundTripIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1d803ab0-a657-4a84-b261-ec289a7353e6");
     iox::popo::ClientOptions defaultOptions;
     iox::popo::ClientOptions testOptions;
 
@@ -58,6 +59,7 @@ TEST(ClientOptions_test, SerializationRoundTripIsSuccessful)
 
 TEST(ClientOptions_test, DeserializingBogusDataFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eb7341fd-f216-4422-8065-cbbadefd567b");
     const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::ClientOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) {
@@ -85,6 +87,7 @@ iox::cxx::Serialization enumSerialization(QueueFullPolicyUT responseQueueFullPol
 
 TEST(ClientOptions_test, DeserializingValidResponseQueueFullAndServerTooSlowPolicyIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "877ad373-eb51-4613-9b68-b93baa4c6eae");
     constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{
         static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER)};
     constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{
@@ -104,6 +107,7 @@ TEST(ClientOptions_test, DeserializingValidResponseQueueFullAndServerTooSlowPoli
 
 TEST(ClientOptions_test, DeserializingInvalidResponseQueueFullPolicyFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a5495324-67d0-4f0c-b979-f93d4b68adc5");
     constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{111};
     constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{
         static_cast<ConsumerTooSlowPolicyUT>(iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA)};
@@ -122,6 +126,7 @@ TEST(ClientOptions_test, DeserializingInvalidResponseQueueFullPolicyFails)
 
 TEST(ClientOptions_test, DeserializingInvalidServerTooSlowPolicyFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6485377c-9a75-4aba-8045-8b129aa1c529");
     constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{
         static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER)};
     constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{111};

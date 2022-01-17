@@ -45,6 +45,7 @@ class InterfacePort_test : public Test
 
 TEST_F(InterfacePort_test, EveryMessageCanBeDispatchedWhenInterfacePortIsInternal)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a9700e7f-20cb-4cbe-baeb-c38701ce9ec4");
     InterfacePortData interfacePortData("", capro::Interfaces::INTERNAL);
 
     for (uint16_t interface = 0; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
@@ -60,6 +61,7 @@ TEST_F(InterfacePort_test, EveryMessageCanBeDispatchedWhenInterfacePortIsInterna
 
 TEST_F(InterfacePort_test, MessageDispatchedIfInterfacesDifferWhenInterfacePortIsNotInternal)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e0ee7518-2be0-4526-9562-f54070fe884e");
     for (uint16_t myInterface = 0; myInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++myInterface)
     {
         if (static_cast<capro::Interfaces>(myInterface) == capro::Interfaces::INTERNAL)
@@ -86,6 +88,7 @@ TEST_F(InterfacePort_test, MessageDispatchedIfInterfacesDifferWhenInterfacePortI
 
 TEST_F(InterfacePort_test, MessageDiscaredIfInterfacesAreEqualWhenInterfacePortIsNotInternal)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ca6d13f9-db06-4e45-8c59-449a69f9e8b5");
     for (uint16_t myInterface = 0; myInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++myInterface)
     {
         if (static_cast<capro::Interfaces>(myInterface) == capro::Interfaces::INTERNAL)

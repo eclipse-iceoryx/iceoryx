@@ -118,6 +118,7 @@ class IceoryxRoudiApp_test : public Test
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "530346f1-7405-4640-9f5f-37e45073f95d");
     constexpr uint8_t NUMBER_OF_ARGS{1U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -136,6 +137,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
 
 TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a095ea92-be03-4157-959a-72b1cb285b46");
     constexpr uint8_t NUMBER_OF_ARGS{1U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -154,6 +156,7 @@ TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessful)
 
 TEST_F(IceoryxRoudiApp_test, VerifyRunMethodWithFalseConditionReturnExitSuccess)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e25e69a5-4d41-4020-85ca-9f585ac09919");
     constexpr uint8_t NUMBER_OF_ARGS{1U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -174,6 +177,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyRunMethodWithFalseConditionReturnExitSuccess)
 
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "72ec1d9e-7e29-4a9b-a8dd-cb4de82683cb");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -204,6 +208,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
 
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "207dd5ea-a00c-48f1-a8de-5ef5a0c5235b");
     constexpr uint8_t NUMBER_OF_ARGS{2U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -222,6 +227,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0a193ef0-b6c5-4e5b-998d-7f86102814e0");
     constexpr uint8_t NUMBER_OF_ARGS{1U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
@@ -244,6 +250,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPoolSetRunVariableToFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "542ff7f7-9365-40a4-a7ed-e67ba5735b9e");
     constexpr uint8_t NUMBER_OF_ARGS{1U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";

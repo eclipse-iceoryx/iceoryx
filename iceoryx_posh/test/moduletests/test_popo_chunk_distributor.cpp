@@ -116,6 +116,7 @@ constexpr int64_t ChunkDistributor_test<PolicyType>::TIMEOUT_IN_MS;
 
 TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aa7eaa9e-c337-45dc-945a-d097b8916eaa");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -124,6 +125,7 @@ TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 
 TYPED_TEST(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a0a7cec8-ac5f-43c9-b627-0485bc26bbe7");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -132,6 +134,7 @@ TYPED_TEST(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
 
 TYPED_TEST(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c7c4683a-b58f-4932-ad82-edc1404da67c");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -143,6 +146,7 @@ TYPED_TEST(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
 
 TYPED_TEST(ChunkDistributor_test, QueueOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "581c8cec-b2c5-426c-bf32-eff1f84d59ff");
     std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueVector;
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -171,6 +175,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
 
 TYPED_TEST(ChunkDistributor_test, RemovingExistingQueueWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fc3876ae-24f9-4a3b-b98b-1f6e862bbb6e");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -183,6 +188,7 @@ TYPED_TEST(ChunkDistributor_test, RemovingExistingQueueWorks)
 
 TYPED_TEST(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6245045a-68b5-43c2-a026-e023a23d94c7");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -198,6 +204,7 @@ TYPED_TEST(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
 
 TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9dac0648-7a7f-4689-bfbd-977d91bb65a4");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -210,6 +217,7 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingOne)
 
 TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1dc5f2ee-f8d9-48d7-a5f0-e70fe48178fb");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -224,6 +232,7 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5bc10e0a-d67b-4123-887c-a50dc16cf680");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -242,6 +251,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOneChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "93a1f4af-b2e4-48a3-b4a4-56a98d1bb66e");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -258,6 +268,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOn
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDeliversOneChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1f361075-9296-45ac-b355-541e8cc248b2");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -277,6 +288,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a140a2e4-6450-42fe-a8e7-368d0ae795ae");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -299,6 +311,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMultipleChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b7472f6e-209d-4243-9f0a-04628a76b385");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -316,6 +329,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMul
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67669bb8-9413-4419-8bb4-8f362d457744");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -342,6 +356,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMultipleChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6930af8f-ab92-44ea-928b-239d45eed807");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -371,6 +386,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
 
 TYPED_TEST(ChunkDistributor_test, AddToHistoryWithoutQueues)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1ed709b1-9129-454b-8440-50463ba1c02e");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
     auto limit = 8u;
@@ -382,6 +398,7 @@ TYPED_TEST(ChunkDistributor_test, AddToHistoryWithoutQueues)
 
 TYPED_TEST(ChunkDistributor_test, HistoryEmptyWhenCreated)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d2df42d8-84a6-481b-811f-f8349693682c");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
     EXPECT_THAT(sut.getHistorySize(), Eq(0u));
@@ -389,6 +406,7 @@ TYPED_TEST(ChunkDistributor_test, HistoryEmptyWhenCreated)
 
 TYPED_TEST(ChunkDistributor_test, HistoryEmptyAfterClear)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "87a59dd5-8f85-4166-a296-74eed443290b");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
     auto limit = 8;
@@ -401,6 +419,7 @@ TYPED_TEST(ChunkDistributor_test, HistoryEmptyAfterClear)
 
 TYPED_TEST(ChunkDistributor_test, addToHistoryWithoutDelivery)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a01ca23c-c9c8-4695-84b3-0bfc936c96b4");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
     auto limit = 7u;
@@ -412,6 +431,7 @@ TYPED_TEST(ChunkDistributor_test, addToHistoryWithoutDelivery)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "168e0415-68fa-4a5c-902b-f0ff29b55dbf");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -429,6 +449,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4edaf3f4-5285-4a9d-b31d-8822f1e46b70");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -447,6 +468,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAddedDoesNotChangeHistory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "539e71d3-3ec5-4aeb-bcac-aa406e0e5828");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -460,6 +482,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAddedDoesNotChang
 
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAddedDoesNotChangeHistory)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9f594607-215e-4db5-bdae-433c185dbbcd");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -474,6 +497,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAddedDoesNotChangeHi
 
 TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "faff7ece-c84b-4455-bb12-c83792056e98");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -497,6 +521,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 
 TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "884f4041-f63d-47b7-a6d3-0a84360a3862");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -525,6 +550,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 
 TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "64f48f9a-f100-4944-a855-24317a36a97e");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -553,6 +579,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 
 TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToBlocking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c0500dec-bbd8-4958-9545-a14ef68108a1");
     auto sutData = this->getChunkDistributorData(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -590,6 +617,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
 
 TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBecomesSpaceAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8168749d-8472-4999-83b0-5b36a77b04ed");
     auto sutData = this->getChunkDistributorData(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 

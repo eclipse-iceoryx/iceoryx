@@ -164,12 +164,14 @@ class BasePort_test : public Test
 
 TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cb52f436-8ca4-46fd-8ae6-1518086898bc");
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
 }
 
 TYPED_TEST(BasePort_test, CallingGetRuntimeNameWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5df7c7cb-efe0-4ae7-9da1-5a5c977b5c22");
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getRuntimeName(), Eq(expectedProcessName<PortData_t>()));
 }

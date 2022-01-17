@@ -71,6 +71,7 @@ class SampleTest : public Test
 
 TEST_F(SampleTest, PublishesSampleViaPublisherInterfaceWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b13578c-d654-4802-80a4-f45e5fd73268");
     // ===== Setup ===== //
     ChunkMock<DummyData> chunk;
     iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
@@ -89,6 +90,7 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterfaceWorks)
 
 TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b49bdcb3-6f8a-42c1-bb6c-a745f1a49b0e");
     // ===== Setup ===== //
     ChunkMock<DummyData> chunk;
     iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
@@ -118,6 +120,7 @@ TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
 
 TEST_F(SampleTest, CallingGetUserHeaderFromNonConstTypeReturnsCorrectAddress)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d26dd24c-0c84-4c3d-96ab-bf51e52c9e9f");
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
     iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
@@ -136,6 +139,7 @@ TEST_F(SampleTest, CallingGetUserHeaderFromNonConstTypeReturnsCorrectAddress)
 
 TEST_F(SampleTest, CallingGetUserHeaderFromConstTypeReturnsCorrectAddress)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fb6b6706-7a15-4ae2-a77a-d4b21431ca57");
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
     iox::cxx::unique_ptr<const DummyData> testSamplePtr{chunk.sample(), [](const DummyData*) {}};

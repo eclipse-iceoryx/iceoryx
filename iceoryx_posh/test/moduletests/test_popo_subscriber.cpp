@@ -70,6 +70,7 @@ class SubscriberTest : public Test
 
 TEST_F(SubscriberTest, GetsUIDViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3b30966b-b50d-41f5-8be3-6f85ab14776d");
     // ===== Setup ===== //
     EXPECT_CALL(sut, getUid).Times(1);
     // ===== Test ===== //
@@ -80,6 +81,7 @@ TEST_F(SubscriberTest, GetsUIDViaBaseSubscriber)
 
 TEST_F(SubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5c08916d-69a4-436b-8ade-bcf43fdc7b6a");
     // ===== Setup ===== //
     EXPECT_CALL(sut, getServiceDescription).Times(1);
     // ===== Test ===== //
@@ -90,6 +92,7 @@ TEST_F(SubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
 
 TEST_F(SubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4050a941-5b42-4a30-b00e-6a9f2c6aba0d");
     // ===== Setup ===== //
     EXPECT_CALL(sut, getSubscriptionState).Times(1);
     // ===== Test ===== //
@@ -100,6 +103,7 @@ TEST_F(SubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
 
 TEST_F(SubscriberTest, SubscribesViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "067056dc-86a2-49a8-99fa-a4cac40d691f");
     // ===== Setup ===== //
     EXPECT_CALL(sut, subscribe).Times(1);
     // ===== Test ===== //
@@ -110,6 +114,7 @@ TEST_F(SubscriberTest, SubscribesViaBaseSubscriber)
 
 TEST_F(SubscriberTest, UnsubscribesViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9da25521-3cb1-4c09-ad6d-166408fa37f2");
     // ===== Setup ===== //
     EXPECT_CALL(sut, unsubscribe).Times(1);
     // ===== Test ===== //
@@ -120,6 +125,7 @@ TEST_F(SubscriberTest, UnsubscribesViaBaseSubscriber)
 
 TEST_F(SubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "27b37735-30db-422a-9b05-64c0a8daa18a");
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasData).Times(1);
     // ===== Test ===== //
@@ -130,6 +136,7 @@ TEST_F(SubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 
 TEST_F(SubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a1c5f6f0-196a-457e-9990-cbeb89400619");
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasMissedData).Times(1);
     // ===== Test ===== //
@@ -140,6 +147,7 @@ TEST_F(SubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 
 TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "57507fcd-c7db-4b78-9e75-17c28c6ae5d7");
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
         .Times(1)
@@ -155,6 +163,7 @@ TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
 
 TEST_F(SubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f32c401d-0620-4a4b-800f-eda94a493efd");
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
         .Times(1)
@@ -171,6 +180,7 @@ TEST_F(SubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
 
 TEST_F(SubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f30fe1ae-046c-48b3-b5cd-b9adbf9b864f");
     // ===== Setup ===== //
     EXPECT_CALL(sut, releaseQueuedData).Times(1);
     // ===== Test ===== //

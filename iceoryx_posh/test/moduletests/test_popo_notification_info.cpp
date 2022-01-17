@@ -55,6 +55,7 @@ class NotificationInfo_test : public Test
 
 TEST_F(NotificationInfo_test, defaultCTorConstructsEmptyNotificationInfo)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5677ccf1-4072-4600-a67c-b34c7a258444");
     int bla;
     NotificationInfo sut;
 
@@ -65,27 +66,32 @@ TEST_F(NotificationInfo_test, defaultCTorConstructsEmptyNotificationInfo)
 
 TEST_F(NotificationInfo_test, getNotificationIdReturnsValidNotificationId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68a5240f-e9ab-4bf7-93a3-2d36f4ddc176");
     EXPECT_EQ(m_sut.getNotificationId(), 1478U);
 }
 
 TEST_F(NotificationInfo_test, doesOriginateFromStatesOriginCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c9d362dc-cd25-42e6-907d-82da6d079061");
     EXPECT_EQ(m_sut.doesOriginateFrom(&m_origin), true);
     EXPECT_EQ(m_sut.doesOriginateFrom(&m_falseOrigin), false);
 }
 
 TEST_F(NotificationInfo_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a1ad935f-9658-460a-863b-57dedac07ff8");
     EXPECT_EQ(m_sut.getOrigin<NotificationOriginTest>(), &m_origin);
 }
 
 TEST_F(NotificationInfo_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "97a222ab-0ddf-4ab6-be27-056739844e20");
     EXPECT_EQ(const_cast<const NotificationInfo&>(m_sut).getOrigin<NotificationOriginTest>(), &m_origin);
 }
 
 TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "badb467b-bf64-4e43-af30-77c163e90c99");
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
@@ -102,6 +108,7 @@ TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
 
 TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4fdb2bed-9928-4181-b195-e411d1b16572");
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
@@ -118,12 +125,14 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
 
 TEST_F(NotificationInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b2ed19d1-cf45-4cc0-ad92-fa652d215a17");
     EXPECT_TRUE(m_sut());
     EXPECT_EQ(m_origin.m_callbackOrigin, &m_origin);
 }
 
 TEST_F(NotificationInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d015f42f-cc01-467a-b568-e957a45a97e6");
     m_sut = NotificationInfo{&m_origin, 9U, NotificationCallback<NotificationOriginTest, int>{}};
     EXPECT_FALSE(m_sut());
 }

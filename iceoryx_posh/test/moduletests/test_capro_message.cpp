@@ -37,6 +37,7 @@ class CaproMessage_test : public Test
 
 TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76ac087b-c931-4c96-8e6e-0490c97d4994");
     IdString_t testServiceID{"1"};
     IdString_t testEventID{"2"};
     IdString_t testInstanceID{"3"};
@@ -56,6 +57,7 @@ TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
 
 TEST_F(CaproMessage_test, DefaultArgsOfCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9192864e-3713-402e-9d92-1a5e803a93ee");
     CaproMessage testObj(CaproMessageType::OFFER, ServiceDescription("1", "2", "3"));
 
     EXPECT_EQ(CaproMessageSubType::NOSUBTYPE, testObj.m_subType);

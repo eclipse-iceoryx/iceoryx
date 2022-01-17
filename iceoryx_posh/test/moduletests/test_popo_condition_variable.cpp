@@ -64,6 +64,7 @@ class ConditionVariable_test : public Test
 
 TEST_F(ConditionVariable_test, ConditionListenerIsNeitherCopyNorMovable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2105fbcf-ed66-4042-aae3-46c2bb82a63c");
     EXPECT_FALSE(std::is_copy_constructible<ConditionListener>::value);
     EXPECT_FALSE(std::is_move_constructible<ConditionListener>::value);
     EXPECT_FALSE(std::is_copy_assignable<ConditionListener>::value);
@@ -72,6 +73,7 @@ TEST_F(ConditionVariable_test, ConditionListenerIsNeitherCopyNorMovable)
 
 TEST_F(ConditionVariable_test, ConditionNotifierIsNeitherCopyNorMovable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "51b971ea-2fb1-4280-8663-6f86c70ee06a");
     EXPECT_FALSE(std::is_copy_constructible<ConditionNotifier>::value);
     EXPECT_FALSE(std::is_move_constructible<ConditionNotifier>::value);
     EXPECT_FALSE(std::is_copy_assignable<ConditionNotifier>::value);
@@ -80,17 +82,20 @@ TEST_F(ConditionVariable_test, ConditionNotifierIsNeitherCopyNorMovable)
 
 TEST_F(ConditionVariable_test, NotifyOnceResultsInBeingTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "372125d2-82b4-4729-bc93-661578af4739");
     m_signaler.notify();
     EXPECT_TRUE(m_waiter.wasNotified());
 }
 
 TEST_F(ConditionVariable_test, NoNotifyResultsInNotBeingTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "abe8a485-63d3-486a-b62a-94648b7f7954");
     EXPECT_FALSE(m_waiter.wasNotified());
 }
 
 TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ebc9c42a-14e7-471c-a9df-9c5641b5767d");
     m_signaler.notify();
     m_signaler.notify();
     m_signaler.notify();
@@ -111,6 +116,7 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
 
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39b40c73-3dcc-4af6-9682-b62816c69854");
     std::atomic<int> counter{0};
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
@@ -126,6 +132,7 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThread
 
 TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4e5f6dbc-84cc-468a-9d64-f5ed88012ebc");
     ConditionVariableData sut;
     for (auto& notification : sut.m_activeNotifications)
     {
@@ -135,11 +142,13 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
 
 TEST_F(ConditionVariable_test, CorrectRuntimeNameAfterConstructionWithRuntimeName)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "acc65071-09ec-40ce-82b4-74964525fabf");
     EXPECT_THAT(m_condVarData.m_runtimeName.c_str(), StrEq(m_runtimeName));
 }
 
 TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithRuntimeName)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4825e152-08e3-414e-a34f-d93d048f84b8");
     for (auto& notification : m_condVarData.m_activeNotifications)
     {
         EXPECT_THAT(notification, Eq(false));
@@ -148,6 +157,7 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithRunt
 
 TEST_F(ConditionVariable_test, NotifyActivatesCorrectIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2c372bcc-7e91-47c1-8ab9-ccd5be048562");
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U;
     ConditionNotifier sut(m_condVarData, EVENT_INDEX);
     sut.notify();
@@ -166,18 +176,21 @@ TEST_F(ConditionVariable_test, NotifyActivatesCorrectIndex)
 
 TEST_F(ConditionVariable_test, TimedWaitWithZeroTimeoutWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "582f0b1c-c717-410e-8143-61459db672ad");
     ConditionListener sut(m_condVarData);
     EXPECT_TRUE(sut.timedWait(iox::units::Duration::fromSeconds(0)).empty());
 }
 
 TEST_F(ConditionVariable_test, TimedWaitWithoutNotificationReturnsEmptyVector)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "15aaf499-9731-4c53-88f3-88af4983eae0");
     ConditionListener sut(m_condVarData);
     EXPECT_TRUE(sut.timedWait(iox::units::Duration::fromMilliseconds(100)).empty());
 }
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsOneNotifiedIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bf9ed236-bba9-43cd-84b2-6769d7f47d50");
     ConditionListener sut(m_condVarData);
     ConditionNotifier(m_condVarData, 6U).notify();
 
@@ -189,6 +202,7 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsOneNotifiedIndex)
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsMultipleNotifiedIndices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "771c2c11-effb-435a-9c67-a7d9471fdb6e");
     ConditionListener sut(m_condVarData);
     ConditionNotifier(m_condVarData, 5U).notify();
     ConditionNotifier(m_condVarData, 15U).notify();
@@ -202,6 +216,7 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsMultipleNotifiedIndices)
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsAllNotifiedIndices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "38ee654b-228a-4462-9614-2901cb5272aa");
     ConditionListener sut(m_condVarData);
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
     {
@@ -261,6 +276,7 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5
 
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39bd43c0-c310-4f42-8baa-6873fbbbe705");
     ConditionListener sut(m_condVarData);
 
     sut.destroy();
@@ -271,6 +287,7 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVecto
 
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b803fc3e-f3a6-405c-86a0-ecedc06d0c05");
     ConditionListener sut(m_condVarData);
     sut.destroy();
 
@@ -283,6 +300,7 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsE
 
 TEST_F(ConditionVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ed0e434c-6efd-4218-88a8-9332e33f92fd");
     ConditionListener sut(m_condVarData);
 
     NotificationVector_t activeNotifications;
@@ -298,6 +316,7 @@ TEST_F(ConditionVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
 
 TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "41a25c52-a358-4e94-b4a5-f315fb5124cd");
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U;
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
@@ -311,6 +330,7 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
 
 TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b09bb18-e6c7-42cb-bb34-2da0dd26ca06");
     constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U;
     constexpr Type_t SECOND_EVENT_INDEX = 0U;
     ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
@@ -328,6 +348,7 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAn
 
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4cac0ad0-083b-43dd-867e-dd6abb0291e8");
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 5U;
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
@@ -432,11 +453,13 @@ void waitReturnsSortedListWhenTriggeredInOrder(ConditionVariable_test& test,
 
 TEST_F(ConditionVariable_test, WaitReturnsSortedListWhenTriggeredInOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d9cfc71a-3300-41f8-b66f-486bdf5d27bc");
     waitReturnsSortedListWhenTriggeredInOrder(*this, [this] { return m_waiter.wait(); });
 }
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e9f875f6-c8ff-4c9c-aafa-78f7c0942bba");
     waitReturnsSortedListWhenTriggeredInOrder(
         *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }
@@ -459,11 +482,13 @@ void waitReturnsSortedListWhenTriggeredInReverseOrder(
 
 TEST_F(ConditionVariable_test, WaitReturnsSortedListWhenTriggeredInReverseOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a28eb73d-c279-46ed-b6f8-369b10045ea5");
     waitReturnsSortedListWhenTriggeredInReverseOrder(*this, [this] { return m_waiter.wait(); });
 }
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInReverseOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "53050a1c-fb1c-42aa-a376-bfb095bf5f94");
     waitReturnsSortedListWhenTriggeredInReverseOrder(
         *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }

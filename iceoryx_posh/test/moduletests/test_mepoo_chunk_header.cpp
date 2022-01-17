@@ -32,6 +32,7 @@ using UserPayloadOffset_t = ChunkHeader::UserPayloadOffset_t;
 
 TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b998bcb8-7db0-457d-a25a-86eae34f68dd");
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t USER_PAYLOAD_SIZE{8U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
@@ -64,6 +65,7 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 
 TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "540e2e95-0890-4522-ae7f-c6d867679e0b");
     using ChunkSize_t = std::result_of<decltype (&MemPool::getChunkSize)(MemPool)>::type;
 
     auto maxOfChunkSizeType = std::numeric_limits<ChunkSize_t>::max();
@@ -76,6 +78,7 @@ TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChun
 
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d6b0fcce-8b49-429c-a1d2-c047b4b2e368");
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t USER_PAYLOAD_SIZE{8U};
 
@@ -93,6 +96,7 @@ TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderWorks)
 
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "091451db-09ed-4aa4-bcfe-d45c0c6d6c14");
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t USER_PAYLOAD_SIZE{8U};
 
@@ -110,18 +114,21 @@ TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderWorks)
 
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8876c866-2dda-4fb4-a96b-cee7f6b5e00b");
     auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userPayload()), void*>::value;
     EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderReturnsConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "34957f49-06b3-426b-a0ba-df9071611fb2");
     auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userPayload()), const void*>::value;
     EXPECT_TRUE(isConstReturn);
 }
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2ddbb681-e8bb-42e0-9546-e9fd64c44be0");
     alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
 
     constexpr uint32_t CHUNK_SIZE{753U};
@@ -144,6 +151,7 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "04f902b9-0870-4ba4-b761-856e9bbfcd85");
     alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
 
     constexpr uint32_t CHUNK_SIZE{753U};
@@ -167,18 +175,21 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "420fc560-c309-4fc2-9224-aec70c8212cc");
     auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader()), void*>::value;
     EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderReturnsConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ca80c797-a22a-4d47-ba79-0f858b5d7836");
     auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userHeader()), const void*>::value;
     EXPECT_TRUE(isConstReturn);
 }
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNullptrReturnsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9297471a-42ab-454c-9a10-ae2dd71e6bf9");
     constexpr void* USER_PAYLOAD{nullptr};
     auto chunkHeader = ChunkHeader::fromUserPayload(USER_PAYLOAD);
     EXPECT_THAT(chunkHeader, Eq(nullptr));
@@ -186,6 +197,7 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNullptrReturnsNullptr)
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstNullptrReturnsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "de23b1ac-6552-4613-ac66-707d22157a0c");
     constexpr const void* USER_PAYLOAD{nullptr};
     auto chunkHeader = ChunkHeader::fromUserPayload(USER_PAYLOAD);
     EXPECT_THAT(chunkHeader, Eq(nullptr));
@@ -193,6 +205,7 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstNullptrReturnsNullp
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNonConstParamReturnsNonConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "835d2c6e-490d-478d-a882-f51d113a73a3");
     auto isNonConstReturn =
         std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<void*>())), ChunkHeader*>::value;
     EXPECT_TRUE(isNonConstReturn);
@@ -200,6 +213,7 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNonConstParamReturnsNonC
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "57ea3b52-fad4-4250-ab4d-276d5472edf1");
     auto isConstReturn =
         std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<const void*>())), const ChunkHeader*>::value;
     EXPECT_TRUE(isConstReturn);
@@ -207,6 +221,7 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstTy
 
 TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithNullptrReturnsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "56fc6dd9-791b-4803-bd1a-5a0b53b0875d");
     constexpr void* USER_HEADER{nullptr};
     auto chunkHeader = ChunkHeader::fromUserHeader(USER_HEADER);
     EXPECT_THAT(chunkHeader, Eq(nullptr));
@@ -214,6 +229,7 @@ TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithNullptrReturnsNullptr)
 
 TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstNullptrReturnsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f388ae41-7102-4d35-806e-4a572890e7a0");
     constexpr const void* USER_HEADER{nullptr};
     auto chunkHeader = ChunkHeader::fromUserHeader(USER_HEADER);
     EXPECT_THAT(chunkHeader, Eq(nullptr));
@@ -221,6 +237,7 @@ TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstNullptrReturnsNullpt
 
 TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithNonConstParamReturnsNonConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "993df4e6-2cc2-4ae1-b4d4-01a4ded65ba4");
     auto isNonConstReturn =
         std::is_same<decltype(ChunkHeader::fromUserHeader(std::declval<void*>())), ChunkHeader*>::value;
     EXPECT_TRUE(isNonConstReturn);
@@ -228,6 +245,7 @@ TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithNonConstParamReturnsNonCo
 
 TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstParamReturnsConstType)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9b9a09b8-0baa-4a30-95e4-d081e01038d2");
     auto isConstReturn =
         std::is_same<decltype(ChunkHeader::fromUserHeader(std::declval<const void*>())), const ChunkHeader*>::value;
     EXPECT_TRUE(isConstReturn);
@@ -235,6 +253,7 @@ TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstParamReturnsConstTyp
 
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67d3907e-5090-4814-b726-2a37e8780395");
     constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
 
@@ -249,6 +268,7 @@ TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenUserPayloadIsOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5a0cd3a1-3edc-441a-9ba6-486a463ad9d7");
     constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
     constexpr uint32_t USER_PAYLOAD_SIZE{1U};
 
@@ -263,6 +283,7 @@ TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenUserPayloadIsO
 
 TEST(ChunkHeader_test, ConstructorTerminatesWhenUserPayloadSizeExceedsChunkSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c8f911eb-ed0d-495a-8858-9fc45f5a06e8");
     constexpr uint32_t CHUNK_SIZE{128U};
     constexpr uint32_t USER_PAYLOAD_SIZE{2U * CHUNK_SIZE};
 
@@ -443,6 +464,7 @@ INSTANTIATE_TEST_SUITE_P(ChunkHeader_test,
 
 TEST_P(ChunkHeader_AlteringUserPayloadWithoutUserHeader, CheckIntegrityOfChunkHeaderWithoutUserHeader)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e80e27f1-de7c-4be4-a83e-9f0eb766de12");
     const auto userPayloadParams = GetParam();
 
     SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayloadParams.size)
@@ -499,6 +521,7 @@ INSTANTIATE_TEST_SUITE_P(ChunkHeader_test,
 
 TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeaderWithUserHeader)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a0d45cb6-cf0c-44e7-b759-fdc25535c9c4");
     const auto userPayloadParams = GetParam();
 
     SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayloadParams.size)

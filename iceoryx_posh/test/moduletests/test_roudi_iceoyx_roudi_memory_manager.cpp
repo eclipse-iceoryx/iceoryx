@@ -44,41 +44,48 @@ class IceoryxRoudiMemoryManager_test : public Test
 
 TEST_F(IceoryxRoudiMemoryManager_test, ConstructorSuccess)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f435abe6-07da-44e8-9f1a-074fbcb66209");
     EXPECT_THAT(m_roudiMemoryManagerTest, Not(Eq(nullptr)));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNulloptWhenNotPresent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49daf0d5-41d3-46f8-a1c5-88b37534d38e");
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(result, Eq(iox::cxx::nullopt_t()));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, segmentManagerNulloptWhenNotPresent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "951b828b-a99c-4eb6-8ea0-34cb34cf7d28");
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Eq(iox::cxx::nullopt_t()));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, portPoolNulloptWhenNotPresent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67677e21-cc46-4734-b2ae-b3ad0a8aa5e2");
     auto testResult = m_roudiMemoryManagerTest->portPool();
     EXPECT_THAT(testResult, Eq(iox::cxx::nullopt_t()));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, CreateAndAnnouceMemoryHasNoError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0ce16e0f-1194-4544-84a2-446f8f8b06a6");
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     EXPECT_THAT(testResult.has_error(), Eq(false));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, MgmtMemoryProviderReturnNonNullPtr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e89c1ba8-34ca-410f-bb23-45fb41e24e77");
     auto testResult = m_roudiMemoryManagerTest->mgmtMemoryProvider();
     EXPECT_THAT(testResult, Not(Eq(nullptr)));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterCreateAndAnnounceMemoryIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b4d5286-288d-4bbc-b134-15437bafbbcd");
     auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
 
     EXPECT_THAT(tr.has_error(), Eq(false));
@@ -89,6 +96,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterC
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringSegmentManagerAfterCreateAndAnnounceMemoryIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5c7fa6c4-d6db-41d8-9111-b6991fac0802");
     auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
 
     EXPECT_THAT(tr.has_error(), Eq(false));
@@ -99,6 +107,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringSegmentManagerAfterCreateAndAnno
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringPortPoolAfterCreateAndAnnounceMemoryIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7131820d-950f-493a-8884-282380d80d05");
     auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
 
     EXPECT_THAT(tr.has_error(), Eq(false));
@@ -109,6 +118,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringPortPoolAfterCreateAndAnnounceMe
 
 TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryReturnNoError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9928be24-88c1-4296-92a1-fd8e2cd860d8");
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     EXPECT_FALSE(testResult.has_error());
 
@@ -119,6 +129,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryReturnNoError)
 
 TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerReturnNullOpt)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b8085b0d-7557-4032-874e-dbd327e7db39");
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     ASSERT_FALSE(testResult.has_error());
 
@@ -131,6 +142,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerRe
 
 TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemorySegmentManagerReturnNullOpt)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "105509a6-21fd-4503-b431-1fdf069ac767");
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     ASSERT_FALSE(testResult.has_error());
 
@@ -143,6 +155,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemorySegmentManagerReturnNullOpt)
 
 TEST_F(IceoryxRoudiMemoryManager_test, CreateAndAnnouceMemoryFailingAfterCalledTwoTimes)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2ac68454-77f3-4764-8198-e2ddb9c301fa");
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     ASSERT_FALSE(testResult.has_error());
 
@@ -154,6 +167,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, CreateAndAnnouceMemoryFailingAfterCalledT
 
 TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryNotFailingAfterCalledTwoTimes)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fe5bd74e-632d-47b6-ad77-92f2d97fa4ff");
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     ASSERT_FALSE(testResult.has_error());
 

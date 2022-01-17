@@ -102,16 +102,19 @@ class ChunkQueue_test : public Test, public ChunkQueue_testBase
 
 TYPED_TEST(ChunkQueue_test, InitialEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "589beb23-5ec7-4ca1-863a-ea0a06920502");
     EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
 TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7e6116fa-9bbd-4d63-bfd1-ad49edb7a24e");
     EXPECT_THAT(this->m_popper.isConditionVariableSet(), Eq(false));
 }
 
 TYPED_TEST(ChunkQueue_test, PushOneChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b73a7167-33f6-4ad3-af1d-71d4ee7feb75");
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
     EXPECT_THAT(this->m_popper.empty(), Eq(false));
@@ -124,6 +127,7 @@ TYPED_TEST(ChunkQueue_test, PushOneChunk)
 
 TYPED_TEST(ChunkQueue_test, PopOneChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8fac3e28-5d2a-4321-a176-c7b7a58a93c7");
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
 
@@ -138,6 +142,7 @@ TYPED_TEST(ChunkQueue_test, PopOneChunk)
 
 TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6cbc1535-aea1-4d85-ae0a-a20e4fce3032");
     constexpr int32_t NUMBER_CHUNKS{5};
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
@@ -157,6 +162,7 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
 
 TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "597f1da3-6f64-4254-9e41-0c4776746a14");
     auto chunk = this->allocateChunk();
     // this is currently the only possibility to test an invalid CHUNK_HEADER_VERSION
     auto chunkHeaderAddress = reinterpret_cast<uint64_t>(chunk.getChunkHeader());
@@ -179,12 +185,14 @@ TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler
 
 TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9923de92-5c69-4b79-9f3b-793e790d07f3");
     this->m_popper.clear();
     EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
 TYPED_TEST(ChunkQueue_test, ClearWithData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "797f2fba-1734-4d16-be3b-46c0bf2ead8c");
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
     this->m_popper.clear();
@@ -193,6 +201,7 @@ TYPED_TEST(ChunkQueue_test, ClearWithData)
 
 TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5893ac55-bc8d-47b6-baa7-1282dbf4c849");
     ConditionVariableData condVar("Horscht");
 
     this->m_popper.setConditionVariable(condVar, 0U);
@@ -202,6 +211,7 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 
 TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf87457d-fb2d-4d65-a8f2-9b4457e50b51");
     ConditionVariableData condVar("Horscht");
     ConditionListener condVarWaiter{condVar};
 
@@ -216,6 +226,7 @@ TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 
 TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3e55346f-62e1-44bb-bfe8-cef929935edf");
     ConditionVariableData condVar1("Horscht");
     ConditionVariableData condVar2("Schnuppi");
     ConditionListener condVarWaiter1{condVar1};
@@ -257,23 +268,27 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 
 TYPED_TEST(ChunkQueueFiFo_test, InitialSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f5bf5cc0-0822-47a0-bbe2-76bbc9b12592");
     EXPECT_THAT(this->m_popper.size(), Eq(0U));
 }
 
 TYPED_TEST(ChunkQueueFiFo_test, Capacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "080fb9a1-7266-45a5-9c5c-e12a189b4b64");
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
 
 /// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f2e1c144-bb55-4423-b62b-bfd8d5a64927");
     this->m_popper.setCapacity(this->RESIZED_CAPACITY);
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(this->RESIZED_CAPACITY));
 }
 
 TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "04378227-277b-486b-9acd-f9ada80f4b4e");
     for (auto i = 0U; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
@@ -317,23 +332,27 @@ class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
 
 TYPED_TEST(ChunkQueueSoFi_test, InitialSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2521ae60-85bb-45df-9dd0-5159f9dc90ce");
     EXPECT_THAT(this->m_popper.size(), Eq(0U));
 }
 
 TYPED_TEST(ChunkQueueSoFi_test, Capacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "093a05f5-fa09-4e6a-9b32-e3a716c16464");
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
 
 
 TYPED_TEST(ChunkQueueSoFi_test, SetCapacity)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e15eaaf0-2858-4f17-999a-4a2e03a86e99");
     this->m_popper.setCapacity(this->RESIZED_CAPACITY);
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(this->RESIZED_CAPACITY));
 }
 
 TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "74fca742-d53a-4503-ab9a-95733f94844a");
     for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
@@ -358,11 +377,13 @@ TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 
 TYPED_TEST(ChunkQueueSoFi_test, InitialNoLostChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf7298e9-fd5b-4b7e-8688-37580713050f");
     EXPECT_FALSE(this->m_popper.hasLostChunks());
 }
 
 TYPED_TEST(ChunkQueueSoFi_test, IndicateALostChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "adec2b96-2589-4974-8877-4dd1b46603c6");
     this->m_pusher.lostAChunk();
 
     EXPECT_TRUE(this->m_popper.hasLostChunks());
@@ -370,6 +391,7 @@ TYPED_TEST(ChunkQueueSoFi_test, IndicateALostChunk)
 
 TYPED_TEST(ChunkQueueSoFi_test, LostChunkInfoIsResetAfterRead)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a739477d-1b27-46da-8682-cc52d2c05bfd");
     this->m_pusher.lostAChunk();
     this->m_popper.hasLostChunks();
 

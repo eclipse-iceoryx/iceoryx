@@ -119,6 +119,7 @@ class CMqInterfaceStartupRace_test : public Test
 #if !defined(__APPLE__)
 TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a94080de-e07d-433b-be0d-6ca748006664");
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue
@@ -164,6 +165,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
 
 TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e7594a83-d0d1-49fb-8882-9d4dcc0372ef");
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue, the obsolete mqueue was filled up to the max message size, e.g. by the KEEP_ALIVE messages
@@ -218,6 +220,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
 
 TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "16eb0dff-ef66-4943-b7a4-c0c0f079a0ae");
     /// @note this test checks if the application handles the situation when it sends an REG request to RouDi,
     /// terminates, gets restarted and sends a new REG request while RouDi has not yet processed the first REG request;
     /// this results in a message in the application mqueue which will be read with the next command and results in a

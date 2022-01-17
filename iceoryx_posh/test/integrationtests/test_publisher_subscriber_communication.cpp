@@ -97,6 +97,7 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
 
 TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscribedToPublisherWithInternalInterface)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aba18b27-bf64-49a7-8ad6-06a84b23a455");
     auto publisher = createPublisher<int>();
     this->InterOpWait();
 
@@ -127,6 +128,7 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
 
 TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenInterfaceDiffersFromPublisher)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c01fa002-84ae-4017-a801-e790a3a04702");
     for (uint16_t publisherInterface = 0U; publisherInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END);
          ++publisherInterface)
     {
@@ -179,6 +181,7 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_list)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "97cbebbe-d430-4437-881d-90329e73dd42");
     using Type_t = ComplexDataType<forward_list<string<5>, 5>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -208,6 +211,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_lis
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_list)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4c5fa83a-935d-46ba-8adf-91e1de6acc89");
     using Type_t = ComplexDataType<list<int64_t, 5>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -240,6 +244,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_list)
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_optional)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "341ff552-a7a7-4dd9-be83-29d41bf142ec");
     using Type_t = ComplexDataType<list<optional<int32_t>, 5>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -272,6 +277,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_optional)
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_stack)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c378e0db-d863-4cad-9efa-4daec364b266");
     using Type_t = ComplexDataType<stack<int64_t, 10>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -306,6 +312,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_stack)
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_string)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0603b4ca-f41a-4280-9984-cf1465ee05c7");
     using Type_t = ComplexDataType<string<128>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -330,6 +337,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_string)
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_vector)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fdfe4d05-c61a-4a99-b0b7-5e79da2700d5");
     using Type_t = ComplexDataType<vector<string<128>, 20>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -359,6 +367,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_vector)
 
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b5688ff-2367-4c76-93a2-6e447403c5ed");
     using Type_t = ComplexDataType<vector<variant<string<128>, int>, 20>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
@@ -394,6 +403,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
 
 TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivatedOnBothSidesAndSubscriberQueueIsFull)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e97f1665-3488-4288-8fde-f485067bfeb4");
     auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     this->InterOpWait();
 
@@ -436,6 +446,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
 
 TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSamplesWhenNonBlockingActivated)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1d92226d-fb3a-487c-bf52-6eb3c7946dc6");
     auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
@@ -470,6 +481,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
 
 TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsBlockingAndPublisherDoesNotOfferBlocking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c0144704-6dd7-4354-a41d-d4e512633484");
     auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
@@ -485,6 +497,7 @@ TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsB
 
 TEST_F(PublisherSubscriberCommunication_test, SubscriptionWhenSubscriberDoesNotRequireBlockingButPublisherSupportsIt)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "228ea848-8926-4779-9e38-4d92eeb87feb");
     auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     this->InterOpWait();
 
@@ -501,6 +514,7 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriptionWhenSubscriberDoesNotR
 
 TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c60ade45-1765-40ca-bc4b-7452c82ba127");
     auto publisherBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     auto publisherNonBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();

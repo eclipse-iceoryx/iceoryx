@@ -44,6 +44,7 @@ class RoudiConfigTomlFileProvider_test : public TestWithParam<ParseErrorInputFil
 
 TEST_F(RoudiConfigTomlFileProvider_test, ParseDefaultConfigIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "37a5ad49-1af2-4e4e-a1ba-85826589d560");
     iox::roudi::ConfigFilePathString_t emptyConfigFilePath;
     m_cmdLineArgs.configFilePath = emptyConfigFilePath;
 
@@ -79,6 +80,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a49e2732-df35-4e4d-b312-bb8b9b9fef52");
     const auto parseErrorInputFile = GetParam();
 
     m_cmdLineArgs.configFilePath.append(iox::cxx::TruncateToCapacity, parseErrorInputFile.second);

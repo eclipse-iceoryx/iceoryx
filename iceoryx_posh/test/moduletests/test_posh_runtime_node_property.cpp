@@ -43,6 +43,7 @@ class PoshRuntimeNodeProperty_test : public Test
 
 TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithNodeNameIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "07f17e12-212f-42c5-ba12-b9de909042aa");
     const NodeName_t nodeName{"Node"};
     uint64_t nodeDeviceIdentifier = 1U;
 
@@ -54,6 +55,7 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithNodeNameIsSucces
 
 TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithSerializationIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4c99e39-bc32-4826-a4e8-7200afe0c64b");
     const NodeName_t nodeName{"Node"};
     uint64_t nodeDeviceIdentifier = 1U;
 
@@ -70,6 +72,7 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithSerializationIsS
 
 TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithWrongSerializationIsNotSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9674c2bd-27a0-486c-9309-8081f514020a");
     const NodeName_t nodeName{""};
     NodeProperty sut(cxx::Serialization("Node"));
 

@@ -372,6 +372,7 @@ constexpr uint32_t Mepoo_IntegrationTest::DEFAULT_NUMBER_OF_CHUNKS;
 
 TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aa78a873-ee8d-445c-a42a-6548bd7c2c6b");
     MemPoolInfoContainer memPoolTestContainer;
 
     auto testMempoolConfig = defaultMemPoolConfig();
@@ -408,6 +409,7 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
 
 TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f03bfe1c-5892-4638-979c-2532097347c1");
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
@@ -427,6 +429,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
 
 TEST_F(Mepoo_IntegrationTest, SampleOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "62fcd41b-426a-4dbb-b69f-24288044deff");
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);

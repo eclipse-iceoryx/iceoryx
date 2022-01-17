@@ -47,6 +47,7 @@ class PoshRuntimeSingleProcess_test : public Test
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSuccess)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9faf7053-86af-4d26-b3a7-fb3c6319ab86");
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
@@ -61,6 +62,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1cc7ad5d-5878-454a-94ba-5cf412c22682");
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
     const RuntimeName_t m_runtimeName{"App"};

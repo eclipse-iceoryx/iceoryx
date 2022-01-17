@@ -39,6 +39,7 @@ class MonitoringModeLogStreamTest : public Test
 
 TEST_F(MonitoringModeLogStreamTest, MonitoringModeOffLeadsToCorrectString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "09670bca-f358-475e-b202-cb56c09d825a");
     auto sut = MonitoringMode::OFF;
 
     {
@@ -53,6 +54,7 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOffLeadsToCorrectString)
 
 TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0747ce58-58de-449a-ac07-9bffe2b33435");
     auto sut = MonitoringMode::ON;
 
     {

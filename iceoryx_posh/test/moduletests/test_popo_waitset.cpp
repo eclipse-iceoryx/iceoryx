@@ -403,6 +403,7 @@ SimpleState2 WaitSet_test::SimpleEventClass::m_simpleState2TriggerCallback = Sim
 
 TEST_F(WaitSet_test, AttachEventOnceIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "67eb525b-e991-42e0-8dc6-b19640ed095b");
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     EXPECT_TRUE(m_simpleEvents[0].hasEventSet());
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
@@ -412,11 +413,13 @@ TEST_F(WaitSet_test, AttachEventOnceIsSuccessful)
 
 TEST_F(WaitSet_test, AttachMaxEventsIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "13f533a2-fe92-4180-8729-50ff3ab7c53a");
     EXPECT_TRUE(attachAllEvents());
 }
 
 TEST_F(WaitSet_test, AttachMoreThanMaxEventsFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6047fc25-6e1c-42d7-89a4-21510f579855");
     EXPECT_TRUE(attachAllEvents());
 
     EXPECT_TRUE(m_sut->attachEvent(m_simpleEvents[iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET]).has_error());
@@ -428,6 +431,7 @@ TEST_F(WaitSet_test, AttachMoreThanMaxEventsFails)
 
 TEST_F(WaitSet_test, AttachStateOnceIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "62b8b76c-a5c0-41ea-ab6b-156b2540917a");
     EXPECT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());
     EXPECT_FALSE(m_simpleEvents[0].hasEventSet());
@@ -437,11 +441,13 @@ TEST_F(WaitSet_test, AttachStateOnceIsSuccessful)
 
 TEST_F(WaitSet_test, AttachMaxStatesIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cb0bc6ec-adc3-46a3-b511-cd98cc66c656");
     EXPECT_TRUE(attachAllStates());
 }
 
 TEST_F(WaitSet_test, AttachMoreThanMaxStatesFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f877bbdc-6219-4a3b-9395-7decd2c30715");
     EXPECT_TRUE(attachAllStates());
 
     EXPECT_TRUE(m_sut->attachState(m_simpleEvents[iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET]).has_error());
@@ -453,6 +459,7 @@ TEST_F(WaitSet_test, AttachMoreThanMaxStatesFails)
 
 TEST_F(WaitSet_test, AttachMoreThanMaxFailsWithMixedEventsStates)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7616ed90-080c-422a-8a52-798e92f3d097");
     EXPECT_TRUE(attachAllWithEventStateMix());
 
     EXPECT_TRUE(m_sut->attachEvent(m_simpleEvents[iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET]).has_error());
@@ -464,6 +471,7 @@ TEST_F(WaitSet_test, AttachMoreThanMaxFailsWithMixedEventsStates)
 
 TEST_F(WaitSet_test, AttachingSameEventTwiceResultsInError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cbbedc2a-68dc-4a77-be61-34ff70d7a3dc");
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
@@ -476,6 +484,7 @@ TEST_F(WaitSet_test, AttachingSameEventTwiceResultsInError)
 
 TEST_F(WaitSet_test, AttachingSameStateTwiceResultsInError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "abe4f5f5-9360-4743-b88a-e741f2706aef");
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
@@ -488,6 +497,7 @@ TEST_F(WaitSet_test, AttachingSameStateTwiceResultsInError)
 
 TEST_F(WaitSet_test, AttachingSameEventWithNonNullIdTwiceResultsInError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "14074c98-6cd1-4152-842f-d769402ea7b4");
     constexpr uint64_t USER_DEFINED_EVENT_ID = 121U;
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
@@ -500,6 +510,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithNonNullIdTwiceResultsInError)
 
 TEST_F(WaitSet_test, AttachingSameStateWithNonNullIdTwiceResultsInError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "12f82b42-2357-4f9e-93f5-7433418629e8");
     constexpr uint64_t USER_DEFINED_EVENT_ID = 121U;
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
@@ -512,6 +523,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithNonNullIdTwiceResultsInError)
 
 TEST_F(WaitSet_test, AttachingSameEventWithDifferentIdResultsInError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7dc5a359-025a-48d1-9040-e0ba408e3ed7");
     constexpr uint64_t USER_DEFINED_EVENT_ID = 2101U;
     constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 9121U;
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
@@ -523,6 +535,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithDifferentIdResultsInError)
 
 TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2a5670bd-5160-47be-a9f5-a9029d7566af");
     constexpr uint64_t USER_DEFINED_EVENT_ID = 2101U;
     constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 9121U;
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
@@ -534,6 +547,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
 
 TEST_F(WaitSet_test, DetachingAttachedEventIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b4358d62-2670-4817-bfee-65c45da6405b");
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     m_sut->detachEvent(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
@@ -543,6 +557,7 @@ TEST_F(WaitSet_test, DetachingAttachedEventIsSuccessful)
 
 TEST_F(WaitSet_test, DetachingAttachedStateIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fed30b7f-d6b7-46a3-bec6-ccb414318f2e");
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
     m_sut->detachState(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
@@ -552,6 +567,7 @@ TEST_F(WaitSet_test, DetachingAttachedStateIsSuccessful)
 
 TEST_F(WaitSet_test, DetachingAttachedEventTwiceWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dd76f97e-d221-421a-9884-5f546a39421f");
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     m_sut->detachEvent(m_simpleEvents[0]);
     m_sut->detachEvent(m_simpleEvents[0]);
@@ -562,6 +578,7 @@ TEST_F(WaitSet_test, DetachingAttachedEventTwiceWorks)
 
 TEST_F(WaitSet_test, DetachingAttachedStateTwiceWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8a7ba7bb-6b45-41e5-8032-56608be23d69");
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
     m_sut->detachState(m_simpleEvents[0]);
     m_sut->detachState(m_simpleEvents[0]);
@@ -572,6 +589,7 @@ TEST_F(WaitSet_test, DetachingAttachedStateTwiceWorks)
 
 TEST_F(WaitSet_test, DetachingMakesSpaceForAnotherEvent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "98b70d41-2845-46a8-8fc3-b7d05b76765c");
     ASSERT_TRUE(attachAllEvents());
 
     m_sut->detachEvent(m_simpleEvents[0]);
@@ -585,6 +603,7 @@ TEST_F(WaitSet_test, DetachingMakesSpaceForAnotherEvent)
 
 TEST_F(WaitSet_test, DetachingMakesSpaceForAnotherState)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eb1abaf9-3be3-4050-9b73-e7b08ed25e10");
     ASSERT_TRUE(attachAllStates());
 
     m_sut->detachState(m_simpleEvents[0]);
@@ -598,6 +617,7 @@ TEST_F(WaitSet_test, DetachingMakesSpaceForAnotherState)
 
 TEST_F(WaitSet_test, DetachingMakesSpaceForAnotherAttachmentWithMixedEventsStates)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "87db3ed1-b949-412a-80f0-4455f17602b8");
     ASSERT_TRUE(attachAllWithEventStateMix());
 
     m_sut->detachState(m_simpleEvents[0]);
@@ -611,24 +631,28 @@ TEST_F(WaitSet_test, DetachingMakesSpaceForAnotherAttachmentWithMixedEventsState
 
 TEST_F(WaitSet_test, DetachingAllEventAttachmentsOfFullWaitSetIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ab3a1cd7-fd54-48f1-ae0b-a2e596c43d77");
     EXPECT_TRUE(attachAllEvents());
     EXPECT_TRUE(detachAllEvents());
 }
 
 TEST_F(WaitSet_test, DetachingAllStateAttachmentsOfFullWaitSetIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "36a006dd-9f7f-442d-88ea-37a79f4193fd");
     EXPECT_TRUE(attachAllStates());
     EXPECT_TRUE(detachAllStates());
 }
 
 TEST_F(WaitSet_test, DetachingAllMixedAttachmentsOfFullWaitSetIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cbaa0de2-908f-478d-936d-d6e16f3bcc87");
     EXPECT_TRUE(attachAllWithEventStateMix());
     EXPECT_TRUE(detachAllWithEventStateMix());
 }
 
 TEST_F(WaitSet_test, DetachingAttachedEventWithDetachStateChangesNothing)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4ddf3a17-64d7-44ce-a228-2b8d147ca8ab");
     EXPECT_TRUE(m_sut->attachEvent(m_simpleEvents[0]));
 
     m_sut->detachState(m_simpleEvents[0]);
@@ -639,6 +663,7 @@ TEST_F(WaitSet_test, DetachingAttachedEventWithDetachStateChangesNothing)
 
 TEST_F(WaitSet_test, DetachingAttachedStateWithDetachEventChangesNothing)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "25c185f1-180a-4caa-86d5-fc02eb5d65d2");
     EXPECT_TRUE(m_sut->attachState(m_simpleEvents[0]));
 
     m_sut->detachEvent(m_simpleEvents[0]);
@@ -649,6 +674,7 @@ TEST_F(WaitSet_test, DetachingAttachedStateWithDetachEventChangesNothing)
 
 TEST_F(WaitSet_test, AttachingEventWithEnumIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ad4a906f-4f1e-4d85-b2ab-d5e8ad4ce872");
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1).has_error());
     EXPECT_THAT(m_sut->size(), Eq(1U));
     EXPECT_THAT(SimpleEventClass::m_simpleEvent1, Eq(SimpleEvent1::EVENT1));
@@ -658,6 +684,7 @@ TEST_F(WaitSet_test, AttachingEventWithEnumIsSuccessful)
 
 TEST_F(WaitSet_test, AttachingSameEventWithEnumFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eede8515-f406-4b96-a132-06cec1afe3ba");
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1).has_error());
 
     auto result = m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1);
@@ -671,6 +698,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithEnumFails)
 
 TEST_F(WaitSet_test, AttachingSameEventWithDifferentEnumValueSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "809101ea-f2cd-4023-bf56-d1480ccdde4c");
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1).has_error());
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT2).has_error());
 
@@ -684,6 +712,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithDifferentEnumValueSucceeds)
 
 TEST_F(WaitSet_test, AttachingSameEventWithDifferentEnumTypeSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0132cb70-afc9-4b80-87d0-692e20715350");
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1).has_error());
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent2::EVENT1).has_error());
 
@@ -697,6 +726,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithDifferentEnumTypeSucceeds)
 
 TEST_F(WaitSet_test, AttachingStateWithEnumIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e45cc4ea-26d0-4395-8d04-090ec48dcb30");
     EXPECT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1).has_error());
     EXPECT_THAT(m_sut->size(), Eq(1U));
     EXPECT_THAT(SimpleEventClass::m_simpleState1, Eq(SimpleState1::STATE1));
@@ -706,6 +736,7 @@ TEST_F(WaitSet_test, AttachingStateWithEnumIsSuccessful)
 
 TEST_F(WaitSet_test, AttachingSameStateWithEnumFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "de485c47-195e-490b-8028-97647bed21aa");
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1).has_error());
 
     auto result = m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1);
@@ -719,6 +750,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithEnumFails)
 
 TEST_F(WaitSet_test, AttachingSameStateWithDifferentEnumValueSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5fac3148-affb-4cbc-867f-08dd6bf4bbca");
     EXPECT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1).has_error());
     EXPECT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE2).has_error());
 
@@ -732,6 +764,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentEnumValueSucceeds)
 
 TEST_F(WaitSet_test, AttachingSameStateWithDifferentEnumTypeSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7ea90219-6fb6-4907-9992-e94304f5fb6c");
     EXPECT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1).has_error());
     EXPECT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState2::STATE1).has_error());
 
@@ -753,6 +786,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentEnumTypeSucceeds)
 
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e6505b19-2d92-4bae-a7fe-55b2d7933787");
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[1]).has_error());
     std::vector<uint64_t> uniqueTriggerIds;
@@ -768,6 +802,7 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenFullWaitsetGoesOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ba745725-e0f9-4085-a513-49d5e5f7bb16");
     attachAllWithEventStateMix();
     std::vector<uint64_t> uniqueTriggerIds;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
@@ -791,6 +826,7 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenFullWaitsetGoesOutOfScope)
 
 TEST_F(WaitSet_test, EventAttachmentRemovesItselfFromWaitsetWhenGoingOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "81efdd57-7986-4533-84f5-676aca90ec04");
     for (uint64_t i = 0U; i + 1U < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[i], 100U + i).has_error());
@@ -812,6 +848,7 @@ TEST_F(WaitSet_test, EventAttachmentRemovesItselfFromWaitsetWhenGoingOutOfScope)
 
 TEST_F(WaitSet_test, StateAttachmentRemovesItselfFromWaitsetWhenGoingOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "06062f01-c814-427d-91ed-f1ed4d2e4b07");
     for (uint64_t i = 0U; i + 1U < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut->attachState(m_simpleEvents[i], 100U + i).has_error());
@@ -833,6 +870,7 @@ TEST_F(WaitSet_test, StateAttachmentRemovesItselfFromWaitsetWhenGoingOutOfScope)
 
 TEST_F(WaitSet_test, MultipleAttachmentsRemovingThemselfFromWaitsetWhenGoingOutOfScope)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a3e7bd84-8af9-49e8-9e22-e28e0ce00bab");
     attachAllWithEventStateMix();
 
     // here the attachments go out of scope
@@ -843,6 +881,7 @@ TEST_F(WaitSet_test, MultipleAttachmentsRemovingThemselfFromWaitsetWhenGoingOutO
 
 TEST_F(WaitSet_test, AttachmentsGoingOutOfScopeReducesSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f798143f-4bd3-4776-b086-7239cedf2031");
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[1]).has_error());
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[2]).has_error());
@@ -865,6 +904,7 @@ TEST_F(WaitSet_test, AttachmentsGoingOutOfScopeReducesSize)
 ////////////////////////
 TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "66c4d11f-f330-4629-b74a-faa87440a9a0");
     std::atomic_bool doStartWaiting{false};
     std::atomic_bool isThreadFinished{false};
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
@@ -894,6 +934,7 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 
 TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bf1a8c00-e9c9-43e1-813e-64fd12d4e055");
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
@@ -923,11 +964,13 @@ void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
 
 TEST_F(WaitSet_test, WaitReturnsTheOneTriggeredCondition)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1e631eb4-c4d6-4b62-a8dc-44500a3f497f");
     WaitReturnsTheOneTriggeredCondition(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9312f87a-13ca-494e-81e8-f2100cc56646");
     WaitReturnsTheOneTriggeredCondition(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -955,11 +998,13 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 
 TEST_F(WaitSet_test, WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1292fbcb-df42-47c4-9888-e71f1243f8ef");
     WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c651b1ff-3622-4da9-98d9-23376d6863a7");
     WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -989,11 +1034,13 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(
 
 TEST_F(WaitSet_test, WaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a5ef3060-e636-4bf7-acc3-47d7de8796c8");
     WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a1e6d732-1f25-461c-b061-4418e1d25dd9");
     WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -1017,11 +1064,13 @@ void WaitReturnsEventTriggersWithOneCorrectCallback(WaitSet_test* test,
 
 TEST_F(WaitSet_test, WaitReturnsEventTriggersWithOneCorrectCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e6c1f551-4d1b-4e85-80fc-aa7d135478b0");
     WaitReturnsEventTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5e1dbc44-db59-479a-ab59-a30486c33b82");
     WaitReturnsEventTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -1059,11 +1108,13 @@ void WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(
 
 TEST_F(WaitSet_test, WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6215eb19-9304-40b8-a700-96ac3331338e");
     WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ee21de8a-ba45-42aa-9428-5cfd83d66fa2");
     WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -1087,11 +1138,13 @@ void WaitReturnsStateTriggersWithOneCorrectCallback(WaitSet_test* test,
 
 TEST_F(WaitSet_test, WaitReturnsStateTriggersWithOneCorrectCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d5a1d84a-0882-494f-a3e8-3781e3adba96");
     WaitReturnsStateTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsStateTriggersWithTwoCorrectCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3a087010-496d-4e0e-9352-a8a8dc7a16be");
     WaitReturnsStateTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -1129,11 +1182,13 @@ void WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(
 
 TEST_F(WaitSet_test, WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "27fa9ad0-b1a4-45e7-be4a-e620ec083ac3");
     WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, TimedWaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "03746599-c01f-4d9c-b4bc-68890f3b4cc5");
     WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
@@ -1160,11 +1215,13 @@ void NonResetStatesAreReturnedAgain(WaitSet_test* test,
 
 TEST_F(WaitSet_test, NonResetStatesAreReturnedAgainInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ac2001d2-29fa-4c87-a874-6052e7158000");
     NonResetStatesAreReturnedAgain(this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, NonResetStatesAreReturnedAgainInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c0968c3d-82d1-4f4a-89d3-9495c417de32");
     NonResetStatesAreReturnedAgain(this, [&] { return m_sut->wait(); });
 }
 
@@ -1188,12 +1245,14 @@ void TriggeredEventsAreNotReturnedTwice(WaitSet_test* test,
 
 TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwiceInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1f2ea5d1-ebd0-4d1c-818a-3ee160f09266");
     TriggeredEventsAreNotReturnedTwice(this,
                                        [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwiceInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "627f5612-724b-45d7-86dd-78cb28c7c6e6");
     TriggeredEventsAreNotReturnedTwice(this, [&] { return m_sut->wait(); });
 }
 
@@ -1222,12 +1281,14 @@ void InMixSetupOnlyStateTriggerAreReturnedTwice(WaitSet_test* test,
 
 TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwiceInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4ddc13f8-0a50-4446-977b-701606b6e972");
     InMixSetupOnlyStateTriggerAreReturnedTwice(
         this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwiceInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cf4a8278-3999-46df-8ef0-d26752eecc03");
     InMixSetupOnlyStateTriggerAreReturnedTwice(this, [&] { return m_sut->wait(); });
 }
 
@@ -1253,12 +1314,14 @@ void WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgainInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "afce92a2-e6a8-489b-bef6-6c225ce69e41");
     WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(
         this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgainInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "903f03d9-14a4-4b93-864d-b4cc9dc2af36");
     WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(this, [&] { return m_sut->wait(); });
 }
 
@@ -1284,12 +1347,14 @@ void WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgainInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "40ab8422-1b9b-4d0a-837d-2f7317b93c03");
     WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(
         this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgainInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39050968-20d7-4e10-9d03-ad4c30368497");
     WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(this, [&] { return m_sut->wait(); });
 }
 
@@ -1327,12 +1392,14 @@ void WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgainInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c49a11fc-66fc-46dc-b957-582a315f963a");
     WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(
         this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgainInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39235ee8-1687-4d36-b5b6-3a22931297b8");
     WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(this, [&] { return m_sut->wait(); });
 }
 
@@ -1358,17 +1425,20 @@ void NotifyingWaitSetTwiceWithSameTriggersWorks(WaitSet_test* test,
 
 TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorksInTimedWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49365392-7052-44b8-a731-d33853494be9");
     NotifyingWaitSetTwiceWithSameTriggersWorks(
         this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
 TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorksInWait)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1700eb0f-0517-45c2-8e30-7c3ccbd97a12");
     NotifyingWaitSetTwiceWithSameTriggersWorks(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "84da1aef-eaef-4a4b-a089-3ccd2f543b5a");
     m_simpleEvents[0].m_isEventBased = true;
     m_simpleEvents[0].m_autoResetTrigger = false;
 
@@ -1386,6 +1456,7 @@ TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
 
 TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWaitCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1df0d6ca-1190-4f5a-bb76-dbb7f155c3fb");
     m_simpleEvents[0].m_autoResetTrigger = false;
     m_simpleEvents[1].m_autoResetTrigger = false;
 
@@ -1407,6 +1478,7 @@ TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWai
 
 TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a7c0b153-65da-4603-bd82-5f5db5841a2b");
     std::atomic_bool doStartWaiting{false};
     std::atomic_bool isThreadFinished{false};
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
@@ -1434,6 +1506,7 @@ TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
 
 TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "63573915-bb36-4ece-93be-2adc853582e6");
     std::atomic_bool doStartWaiting{false};
     std::atomic_bool isThreadFinished{false};
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());

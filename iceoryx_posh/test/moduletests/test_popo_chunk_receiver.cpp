@@ -96,6 +96,7 @@ class ChunkReceiver_test : public Test
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "27846f97-8882-408f-9de3-f74c0aa7e0d8");
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
     ASSERT_TRUE(maybeChunkHeader.has_error());
     EXPECT_EQ(maybeChunkHeader.get_error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
@@ -103,6 +104,7 @@ TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
 
 TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eb7a28f5-24e7-4eb3-a48e-641a46e1bcf4");
     {
         // have a scope her to release the shared chunk we allocate
         auto sharedChunk = getChunkFromMemoryManager();
@@ -122,6 +124,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
 
 TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "32bfe8a5-8d17-4912-9591-c4f29bdd390e");
     std::vector<const iox::mepoo::ChunkHeader*> chunks;
 
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY; i++)
@@ -155,6 +158,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
 
 TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "58ff9db1-7ab9-471d-9492-4bd8fab47fcf");
     // one more is OK, but we assume that one is released then (aligned with ara::com behavior)
     // therefore MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY+1
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1; i++)
@@ -181,6 +185,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
 
 TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2a47fd0e-a217-4565-98af-05779c938340");
     {
         // have a scope her to release the shared chunk we allocate
         auto sharedChunk = getChunkFromMemoryManager();
@@ -208,6 +213,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 
 TEST_F(ChunkReceiver_test, Cleanup)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "36ed48ca-21e6-4075-b439-6353a1773733");
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; i++)
     {
         // MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY on user side and MAX_SUBSCRIBER_QUEUE_CAPACITY in the queue

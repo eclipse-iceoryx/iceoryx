@@ -37,6 +37,7 @@ class InterfacePortRequestStackBlowup_test : public RouDi_GTest
 
 TEST_F(InterfacePortRequestStackBlowup_test, RouDiMustContinue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d912182d-2a74-4056-be1d-19b538c10c9c");
     iox::runtime::PoshRuntime::initRuntime("interface_port_request_stack_blowup");
     GatewayBase sut(iox::capro::Interfaces::INTERNAL);
     iox::capro::CaproMessage caproMessage;
