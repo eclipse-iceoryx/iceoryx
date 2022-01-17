@@ -28,6 +28,7 @@ using namespace iox;
 
 TEST(iox_cfg, valuesAreCorrectlyConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d62b1b3c-60c6-461b-8ca4-80c850fa65a0");
     EXPECT_EQ(iox_cfg_max_publishers(), iox::MAX_PUBLISHERS);
     EXPECT_EQ(iox_cfg_max_subscribers_per_publisher(), iox::MAX_SUBSCRIBERS_PER_PUBLISHER);
     EXPECT_EQ(iox_cfg_max_chunks_allocated_per_publisher_simultaneously(),

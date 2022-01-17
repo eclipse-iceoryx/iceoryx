@@ -26,6 +26,7 @@ using namespace iox::capro;
 
 TEST(iox_service_description_translation_test, TranslatesStringCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0f3c056e-0f3c-4266-85dd-6d9021616c16");
     iox::capro::ServiceDescription service(
         IdString_t("SomeService"), IdString_t("FunkyInstance"), IdString_t("BumbleBeeSighted"));
     auto cServiceDescription = TranslateServiceDescription(service);

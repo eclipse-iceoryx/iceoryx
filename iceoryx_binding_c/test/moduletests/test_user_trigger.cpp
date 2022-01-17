@@ -63,22 +63,26 @@ bool iox_user_trigger_test::wasTriggerCallbackCalled = false;
 
 TEST_F(iox_user_trigger_test, initUserTriggerWithNullptrForStorageReturnsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f1529267-af64-43eb-a0f8-4db6a8557b6e");
     EXPECT_EQ(iox_user_trigger_init(nullptr), nullptr);
 }
 
 TEST_F(iox_user_trigger_test, isNotTriggeredWhenCreated)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "10fbcb9f-f9ef-4886-b154-757f62a5ec2f");
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
 TEST_F(iox_user_trigger_test, cannotBeTriggeredWhenNotAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d988e34b-8b45-4dcb-b663-32eee5f9d9df");
     iox_user_trigger_trigger(m_sut);
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d48b92b0-ab26-4a36-9c83-68699ca3e1b0");
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, triggerCallback);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
@@ -86,6 +90,7 @@ TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectNotificationId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "03858b17-f08c-4fba-b973-03a651fcb3c6");
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 88191U, triggerCallback);
     iox_user_trigger_trigger(m_sut);
 
@@ -97,6 +102,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectNotificationId)
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cfb59955-a3dd-4514-805d-9718072bd99b");
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, iox_user_trigger_test::triggerCallback);
     iox_user_trigger_trigger(m_sut);
 
@@ -110,6 +116,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 
 TEST_F(iox_user_trigger_test, attachingToAnotherWaitSetCleansupFirstWaitset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8fb7b119-b0ca-4bcc-9776-189a4468822e");
     WaitSetMock m_waitSet2{m_condVar};
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, triggerCallback);
 
@@ -121,6 +128,7 @@ TEST_F(iox_user_trigger_test, attachingToAnotherWaitSetCleansupFirstWaitset)
 
 TEST_F(iox_user_trigger_test, disable_trigger_eventingItFromWaitsetCleansup)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "10d8d416-57f5-4c9f-aa71-7ee917e3d97e");
     WaitSetMock m_waitSet2{m_condVar};
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, triggerCallback);
 
