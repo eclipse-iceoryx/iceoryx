@@ -8,11 +8,11 @@ settings are called options and can be used to optimize and tailor the communica
 
 The three most important settings are:
 
-| Option                              | Explanation                                                                                                                    |
-|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `PublisherOptions::historyCapacity` | This enables late-joining subscribers to request the n last samples                                                            |
-| `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored before they are passed to the user                                       |
-| `SubscriberOptions::historyRequest` | The number of samples a late-joining subscriber will request from a publisher, must be equal or smaller than `historyCapacity` |
+| Option                              | Explanation                                                                                                                                       |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PublisherOptions::historyCapacity` | This enables late-joining subscribers to request the n last samples                                                                               |
+| `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored before they are passed to the user                                                          |
+| `SubscriberOptions::historyRequest` | The number of samples a late-joining subscriber will request from a publisher, should be equal or smaller than `historyCapacity` otherwise capped |
 
 For more information about the options see the corresponding example [`iceoptions`](../getting-started/examples/iceoptions.md).
 
