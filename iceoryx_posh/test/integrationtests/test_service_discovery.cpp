@@ -15,12 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
-#include "iceoryx_hoofs/testing/watch_dog.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
