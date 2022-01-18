@@ -47,7 +47,6 @@ PoshRuntimeImpl::PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name, const
                                                       m_ipcChannelInterface.getSegmentId(),
                                                       m_ipcChannelInterface.getSegmentManagerAddressOffset()});
     }())
-    , m_applicationPort(getMiddlewareApplication())
 {
 }
 
@@ -76,29 +75,6 @@ PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
     else
     {
         LogError() << "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'";
-    }
-}
-
-const std::atomic<uint64_t>* PoshRuntimeImpl::getServiceRegistryChangeCounter() noexcept
-{
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::SERVICE_REGISTRY_CHANGE_COUNTER) << m_appName;
-    IpcMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2U == receiveBuffer.getNumberOfElements()))
-    {
-        rp::BaseRelativePointer::offset_t offset{0U};
-        cxx::convert::fromString(receiveBuffer.getElementAtIndex(0U).c_str(), offset);
-        rp::BaseRelativePointer::id_t segmentId{0U};
-        cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), segmentId);
-        auto ptr = rp::BaseRelativePointer::getPtr(segmentId, offset);
-
-        return reinterpret_cast<std::atomic<uint64_t>*>(ptr);
-    }
-    else
-    {
-        LogError() << "unable to request service registry change counter caused by wrong response from RouDi: \""
-                   << receiveBuffer.getMessage() << "\" with request: \"" << sendBuffer.getMessage() << "\"";
-        return nullptr;
     }
 }
 
@@ -366,100 +342,6 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
     LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
     errorHandler(Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
-}
-
-cxx::expected<ServiceContainer, FindServiceError>
-PoshRuntimeImpl::findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
-                             const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept
-{
-    /// @todo #415 remove the string mapping, once the find call is done via shared memory
-    capro::IdString_t serviceString;
-    capro::IdString_t instanceString;
-
-    if (service.index() == 0U)
-    {
-        serviceString = "*";
-    }
-    else
-    {
-        serviceString = *service.get_at_index<1U>();
-    }
-
-    if (instance.index() == 0U)
-    {
-        instanceString = "*";
-    }
-    else
-    {
-        instanceString = *instance.get_at_index<1U>();
-    }
-
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << m_appName << serviceString << instanceString;
-
-    IpcMessage requestResponse;
-
-    if (!sendRequestToRouDi(sendBuffer, requestResponse))
-    {
-        LogError() << "Could not send FIND_SERVICE request to RouDi\n";
-        errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<FindServiceError>(FindServiceError::UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
-    }
-
-    ServiceContainer serviceContainer;
-    uint32_t numberOfElements = requestResponse.getNumberOfElements();
-    uint32_t capacity = static_cast<uint32_t>(serviceContainer.capacity());
-
-    // Limit the services (max value is the capacity of serviceContainer)
-    uint32_t numberOfServices = algorithm::min(capacity, numberOfElements);
-    for (uint32_t i = 0U; i < numberOfServices; ++i)
-    {
-        auto deserializationResult =
-            capro::ServiceDescription::deserialize(cxx::Serialization(requestResponse.getElementAtIndex(i)));
-        if (deserializationResult.has_error())
-        {
-            return cxx::error<FindServiceError>(FindServiceError::DESERIALIZATION_FAILED);
-        }
-        serviceContainer.push_back(deserializationResult.value());
-    }
-
-    if (numberOfElements > capacity)
-    {
-        LogWarn() << numberOfElements << " instances found for service \"" << serviceString
-                  << "\" which is more than supported number of services(" << MAX_NUMBER_OF_SERVICES << "\n";
-        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
-    }
-    return {cxx::success<ServiceContainer>(serviceContainer)};
-}
-
-
-bool PoshRuntimeImpl::offerService(const capro::ServiceDescription& serviceDescription) noexcept
-{
-    if (serviceDescription.isValid())
-    {
-        capro::CaproMessage msg(
-            capro::CaproMessageType::OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
-        m_applicationPort.dispatchCaProMessage(msg);
-        return true;
-    }
-    LogWarn() << "Could not offer service " << serviceDescription.getServiceIDString() << ","
-              << " ServiceDescription is invalid\n";
-    return false;
-}
-
-bool PoshRuntimeImpl::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
-{
-    if (serviceDescription.isValid())
-    {
-        capro::CaproMessage msg(
-            capro::CaproMessageType::STOP_OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
-        m_applicationPort.dispatchCaProMessage(msg);
-        return true;
-    }
-    LogWarn() << "Could not stopOffer service " << serviceDescription.getServiceIDString() << ","
-              << " ServiceDescription is invalid\n";
-    return false;
 }
 
 popo::ApplicationPortData* PoshRuntimeImpl::getMiddlewareApplication() noexcept

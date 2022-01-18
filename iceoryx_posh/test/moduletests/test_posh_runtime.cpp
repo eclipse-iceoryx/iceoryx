@@ -184,8 +184,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
             EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW));
         });
 
-    // i = 1 because there is already an active runtime in test fixture class which acquired an application port
-    for (auto i = 1U; i < iox::MAX_PROCESS_NUMBER; ++i)
+    for (auto i = 0U; i < iox::MAX_PROCESS_NUMBER; ++i)
     {
         auto appPort = m_runtime->getMiddlewareApplication();
         ASSERT_NE(nullptr, appPort);
@@ -654,22 +653,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     EXPECT_TRUE(conditionVariableListOverflowDetected);
 }
 
-TIMING_TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
-    auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
-    auto initialCout = serviceCounter->load();
-
-    m_runtime->offerService({"service1", "instance1", "event1"});
-    this->InterOpWait();
-
-    TIMING_TEST_EXPECT_TRUE(initialCout + 1 == serviceCounter->load());
-
-    m_runtime->stopOfferService({"service1", "instance1", "event1"});
-    this->InterOpWait();
-
-    TIMING_TEST_EXPECT_TRUE(initialCout + 2 == serviceCounter->load());
-});
-
-
 TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f56126d-6920-491f-ba6b-d8e543a15c6a");
@@ -702,33 +685,6 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE));
-}
-
-TEST_F(PoshRuntime_test, OfferEmptyServiceIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "087b965f-79ac-4629-837e-accfc43bce6d");
-    auto isServiceOffered = m_runtime->offerService(iox::capro::ServiceDescription());
-
-    EXPECT_FALSE(isServiceOffered);
-}
-
-TEST_F(PoshRuntime_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServices)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
-    PoshRuntime* m_receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("subscriber")};
-
-    EXPECT_FALSE(m_runtime->offerService(iox::capro::ServiceDescription()));
-    this->InterOpWait();
-
-    auto serviceContainer = m_receiverRuntime->findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
-    ASSERT_FALSE(serviceContainer.has_error());
-
-    auto searchResult = serviceContainer.value();
-
-    for (auto& service : searchResult)
-    {
-        EXPECT_THAT(service.getServiceIDString().c_str(), StrEq("Introspection"));
-    }
 }
 
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)

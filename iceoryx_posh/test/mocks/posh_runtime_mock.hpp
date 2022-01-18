@@ -45,13 +45,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         mockRuntime().reset();
     }
 
-    MOCK_METHOD((iox::cxx::expected<iox::runtime::ServiceContainer, iox::runtime::FindServiceError>),
-                findService,
-                ((const iox::cxx::variant<iox::runtime::Wildcard_t, iox::capro::IdString_t>),
-                 (const iox::cxx::variant<iox::runtime::Wildcard_t, iox::capro::IdString_t>)),
-                (noexcept, override));
-    MOCK_METHOD(bool, offerService, (const iox::capro::ServiceDescription&), (noexcept, override));
-    MOCK_METHOD(bool, stopOfferService, (const iox::capro::ServiceDescription&), (noexcept, override));
     MOCK_METHOD(iox::PublisherPortUserType::MemberType_t*,
                 getMiddlewarePublisher,
                 (const iox::capro::ServiceDescription&,
@@ -71,7 +64,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     MOCK_METHOD(iox::popo::ApplicationPortData*, getMiddlewareApplication, (), (noexcept, override));
     MOCK_METHOD(iox::popo::ConditionVariableData*, getMiddlewareConditionVariable, (), (noexcept, override));
     MOCK_METHOD(iox::runtime::NodeData*, createNode, (const iox::runtime::NodeProperty&), (noexcept, override));
-    MOCK_METHOD(const std::atomic<uint64_t>*, getServiceRegistryChangeCounter, (), (noexcept, override));
     MOCK_METHOD(bool,
                 sendRequestToRouDi,
                 (const iox::runtime::IpcMessage&, iox::runtime::IpcMessage&),

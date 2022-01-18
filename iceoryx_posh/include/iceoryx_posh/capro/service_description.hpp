@@ -179,6 +179,12 @@ class ServiceDescription
 /// @return                                 Bool if comparison match or not
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept;
 
+/// @brief Convenience stream operator to easily use the `ServiceDescription` with std::ostream
+/// @param[in] stream output stream to write the message to
+/// @param[in] service ServiceDescription that shall be converted
+/// @return the reference to `stream` which was provided as input parameter
+std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service) noexcept;
+
 } // namespace capro
 } // namespace iox
 
