@@ -112,6 +112,7 @@ codebase follows these rules, things are work in progress.
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an
     `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
+9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 
 See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional
 information about logging and error handling.

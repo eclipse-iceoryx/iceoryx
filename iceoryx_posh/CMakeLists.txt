@@ -80,7 +80,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 ########## posh core lib ##########
 #
-add_library(iceoryx_posh
+add_library(iceoryx_posh # @todo iox-#590 Rename this to iceoryx_posh_core
     source/log/posh_logging.cpp
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
@@ -137,17 +137,18 @@ add_library(iceoryx_posh
     source/runtime/ipc_runtime_interface.cpp
     source/runtime/ipc_message.cpp
     source/runtime/port_config_info.cpp
-    source/runtime/posh_runtime.cpp
-    source/runtime/posh_runtime_impl.cpp
-    source/runtime/posh_runtime_single_process.cpp
-    source/runtime/service_discovery.cpp
+    source/runtime/posh_runtime.cpp                #
+    source/runtime/posh_runtime_impl.cpp           # @todo iox-#590 These files should go into a separate library iceoryx_posh_runtime
+    source/runtime/posh_runtime_single_process.cpp #
+    source/runtime/service_discovery.cpp           #
     source/runtime/node.cpp
     source/runtime/node_data.cpp
     source/runtime/node_property.cpp
     source/runtime/shared_memory_user.cpp
 )
 
-add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh)
+add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh) # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
+                                                                   # and include both iceoryx_posh_core and iceoryx_posh_runtime
 
 set_target_properties(iceoryx_posh PROPERTIES
     CXX_STANDARD_REQUIRED ON
@@ -291,7 +292,7 @@ target_include_directories(iceoryx_posh_roudi PRIVATE
 
 target_link_libraries(iceoryx_posh_roudi
     PUBLIC
-    ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
+    ${PROJECT_NAMESPACE}::iceoryx_posh     # @todo iox-#590 Only link against iceoryx_posh_core
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}
     iceoryx_hoofs::iceoryx_hoofs
