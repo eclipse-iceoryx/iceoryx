@@ -1,5 +1,5 @@
 # Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -106,11 +106,11 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_h
         ${CMAKE_DL_LIBS}
     )
 
-    target_compile_options(iceoryx_hoofs_testing PRIVATE ${ICEORYX_WARNINGS})
-
     if(LINUX)
         target_link_libraries(iceoryx_hoofs_testing PRIVATE rt)
     endif()
+
+    target_compile_options(iceoryx_hoofs_testing PRIVATE ${ICEORYX_WARNINGS})
 
     setup_install_directories_and_export_package(
         TARGETS iceoryx_hoofs_testing
@@ -183,68 +183,25 @@ set_target_properties(iceoryx_hoofs PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-if(LINUX)
-    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
-    target_link_libraries(iceoryx_hoofs PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
-elseif(QNX)
-    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
-elseif(APPLE)
-    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/)
-elseif(WIN32)
-    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/win/)
-else()
-    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
-endif()
-
-# this must be recurse since every platform has potentially different cpp files
-file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
-    ${ICEORYX_PLATFORM}/source/*.cpp
-)
-add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
-target_include_directories(iceoryx_platform
-    PUBLIC
-    $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-add_library(iceoryx_hoofs::iceoryx_platform ALIAS iceoryx_platform)
-set_target_properties(iceoryx_platform PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
-
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-if(LINUX)
-    target_link_libraries(iceoryx_platform
-        PUBLIC
-        rt
-        pthread
-    )
-endif(LINUX)
-
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_hoofs PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
     )
 endif(PERFORM_CLANG_TIDY)
 
-if(QNX)
-    target_link_libraries(iceoryx_hoofs
-        PUBLIC
-        iceoryx_hoofs::iceoryx_platform
-        PRIVATE
-        socket
-        ${ICEORYX_SANITIZER_FLAGS})
-else()
-    target_link_libraries(iceoryx_hoofs
-        PUBLIC
-        iceoryx_hoofs::iceoryx_platform
-        PRIVATE
-        ${ICEORYX_SANITIZER_FLAGS})
-endif(QNX)
+add_subdirectory(platform)
+add_library(iceoryx_hoofs::iceoryx_platform ALIAS iceoryx_platform)
+
+target_link_libraries(iceoryx_hoofs
+    PUBLIC
+    iceoryx_hoofs::iceoryx_platform
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}
+)
+
+if(LINUX)
+    target_link_libraries(iceoryx_hoofs PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
+endif()
 
 target_compile_options(iceoryx_hoofs PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
@@ -254,8 +211,6 @@ target_include_directories(iceoryx_hoofs
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
-
-
 
 #
 ########## exporting library ##########
@@ -267,6 +222,7 @@ install(
     DESTINATION include/${PREFIX}
     COMPONENT dev
 )
+
 setup_install_directories_and_export_package(
     TARGETS iceoryx_hoofs iceoryx_platform
     INCLUDE_DIRECTORY include/
