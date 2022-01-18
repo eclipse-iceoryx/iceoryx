@@ -35,10 +35,10 @@ if [ "$COMPILER" == "clang" ]; then
     msg "installing latest stable clang"
     wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
     chmod +x /tmp/llvm.sh
-    # set LLVM_VERSION
+    # set CURRENT_LLVM_STABLE
     # shellcheck disable=SC2002
-    eval "$(cat /tmp/llvm.sh | grep LLVM_VERSION= -m 1)"
-    sudo /tmp/llvm.sh "${LLVM_VERSION}"
+    eval "$(cat /tmp/llvm.sh | grep CURRENT_LLVM_STABLE= -m 1)"
+    sudo /tmp/llvm.sh "${CURRENT_LLVM_STABLE}"
 fi
 
 msg "creating local test users and groups for testing access control"
@@ -52,7 +52,7 @@ if [ "$COMPILER" == "gcc" ]; then
 fi
 
 if [ "$COMPILER" == "clang" ]; then
-    export CC=clang-${LLVM_VERSION}
-    export CXX=clang++-${LLVM_VERSION}
+    export CC=clang-${CURRENT_LLVM_STABLE}
+    export CXX=clang++-${CURRENT_LLVM_STABLE}
     ./tools/iceoryx_build_test.sh clean clang release build-all out-of-tree build-shared test-add-user
 fi

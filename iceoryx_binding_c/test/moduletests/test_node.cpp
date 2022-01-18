@@ -49,6 +49,7 @@ class iox_node_test : public RouDi_GTest
 
 TEST_F(iox_node_test, createdNodeHasCorrectNodeName)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e104fa1c-675f-4488-b19b-09063da8ed73");
     char name[100];
     ASSERT_EQ(iox_node_get_name(m_sut, name, 100), m_nodeName.size());
     EXPECT_EQ(std::string(name), m_nodeName);
@@ -56,6 +57,7 @@ TEST_F(iox_node_test, createdNodeHasCorrectNodeName)
 
 TEST_F(iox_node_test, getNodeNameBufferIsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b35feed7-15e4-4b0b-a87e-8df8b8453c4b");
     auto nameLength = iox_node_get_name(m_sut, nullptr, 100);
 
     ASSERT_THAT(nameLength, Eq(0U));
@@ -63,6 +65,7 @@ TEST_F(iox_node_test, getNodeNameBufferIsNullptr)
 
 TEST_F(iox_node_test, getNodeNameBufferIsLessThanNodeNameLength)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "19dd16d9-b1ee-4275-9df7-4027dd469645");
     constexpr uint64_t NODE_NAME_BUFFER_LENGTH{10};
     char truncatedNodeName[NODE_NAME_BUFFER_LENGTH];
     for (auto& c : truncatedNodeName)
@@ -79,6 +82,7 @@ TEST_F(iox_node_test, getNodeNameBufferIsLessThanNodeNameLength)
 
 TEST_F(iox_node_test, createdNodeHasCorrectProcessName)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ae0d1b9e-38b1-4b50-bf36-770ee32cf518");
     char name[100];
     ASSERT_EQ(iox_node_get_runtime_name(m_sut, name, 100), m_runtimeName.size());
     EXPECT_EQ(std::string(name), m_runtimeName);
@@ -86,6 +90,7 @@ TEST_F(iox_node_test, createdNodeHasCorrectProcessName)
 
 TEST_F(iox_node_test, getNodeRuntimeNameBufferIsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a684e40b-4ac9-4f79-945f-e94aee778e82");
     auto nameLength = iox_node_get_runtime_name(m_sut, nullptr, 100);
 
     ASSERT_THAT(nameLength, Eq(0U));
@@ -93,6 +98,7 @@ TEST_F(iox_node_test, getNodeRuntimeNameBufferIsNullptr)
 
 TEST_F(iox_node_test, getNodeRuntimeNameBufferIsLessThanNodeProcessNameLength)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e9ef5e9c-353f-4c7d-8a30-13a277e1adcd");
     constexpr uint64_t PROCESS_NAME_BUFFER_LENGTH{9};
     char truncatedProcessName[PROCESS_NAME_BUFFER_LENGTH];
     for (auto& c : truncatedProcessName)

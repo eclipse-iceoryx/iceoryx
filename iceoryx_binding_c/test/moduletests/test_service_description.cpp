@@ -32,6 +32,7 @@ using namespace iox::capro;
 
 TEST(iox_service_description_test, StringSizesAreCorrect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f32a6d19-9ff7-4913-a1d8-39d46267b114");
     EXPECT_THAT(sizeof(decltype(std::declval<iox_service_description_t>().serviceString)),
                 Eq(iox::capro::IdString_t().capacity()));
     EXPECT_THAT(sizeof(decltype(std::declval<iox_service_description_t>().instanceString)),

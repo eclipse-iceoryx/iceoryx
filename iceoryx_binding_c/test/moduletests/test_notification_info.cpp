@@ -119,6 +119,7 @@ UserTrigger* iox_notification_info_test::m_lastNotificationCallbackArgument = nu
 
 TEST_F(iox_notification_info_test, notificationInfoHasCorrectId)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "72799415-e149-42ee-84c9-3764f59e342e");
     constexpr uint64_t ARBITRARY_EVENT_ID = 123U;
     ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
@@ -131,6 +132,7 @@ TEST_F(iox_notification_info_test, notificationInfoHasCorrectId)
 
 TEST_F(iox_notification_info_test, notificationOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e11b79d7-94f4-43e4-91c1-5364bd5e8834");
     constexpr uint64_t ARBITRARY_EVENT_ID = 124U;
     ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
@@ -143,6 +145,7 @@ TEST_F(iox_notification_info_test, notificationOriginIsUserTriggerPointerWhenIts
 
 TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsOriginatingFromThemStateBased)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "942d1187-86ac-4bc6-8378-5c70e7efaa1d");
     iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
@@ -155,6 +158,7 @@ TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsO
 
 TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsOriginatingFromThemEventBased)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "afbf8b47-4a8d-4bd8-bb5a-c4ee22c89c4d");
     iox_ws_attach_subscriber_event(
         &m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
@@ -168,6 +172,7 @@ TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsO
 
 TEST_F(iox_notification_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1c70e972-0a75-4c22-a14e-b943dd529f23");
     constexpr uint64_t ARBITRARY_EVENT_ID = 89121U;
     ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
@@ -180,6 +185,7 @@ TEST_F(iox_notification_info_test, getOriginReturnsPointerToUserTriggerWhenOrigi
 
 TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemStateBased)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4b83b81b-8b64-4775-a720-456dfc7430ca");
     iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
@@ -192,6 +198,7 @@ TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOrigin
 
 TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemEventBased)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bd27cf8b-48de-46cb-a365-f877802f23c9");
     iox_ws_attach_subscriber_event(
         &m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, triggerCallback);
     this->Subscribe(&m_portPtr);
@@ -205,6 +212,7 @@ TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOrigin
 
 TEST_F(iox_notification_info_test, callbackCanBeCalledOnce)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "44fee15b-f48f-4168-8fb1-2437f1d233d8");
     constexpr uint64_t ARBITRARY_EVENT_ID = 80U;
     ASSERT_FALSE(m_waitSet
                      .attachEvent(m_userTrigger,
@@ -221,6 +229,7 @@ TEST_F(iox_notification_info_test, callbackCanBeCalledOnce)
 
 TEST_F(iox_notification_info_test, callbackCanBeCalledMultipleTimes)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2be7bad5-9edc-46f2-8086-535ca73e8ad4");
     constexpr uint64_t ARBITRARY_EVENT_ID = 180U;
     ASSERT_FALSE(m_waitSet
                      .attachEvent(m_userTrigger,

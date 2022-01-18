@@ -172,21 +172,25 @@ constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 
 TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ee5f8898-c178-4546-9bb4-6e3329f1b632");
     EXPECT_EQ(iox_listener_init(nullptr), nullptr);
 }
 
 TEST_F(iox_listener_test, CapacityIsCorrect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0fa5465e-f757-4b04-abc2-ca6f346d66ec");
     EXPECT_THAT(iox_listener_capacity(&m_sut), Eq(MAX_NUMBER_OF_EVENTS_PER_LISTENER));
 }
 
 TEST_F(iox_listener_test, SizeIsZeroWhenCreated)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ab82bb49-476d-4edc-8d39-25656b1e5ca8");
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
 }
 
 TEST_F(iox_listener_test, SizeIsOneWhenOneClassIsAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6b5a685d-eb8b-4efa-9e4b-6bc764c156b9");
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], &userTriggerCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
@@ -194,12 +198,14 @@ TEST_F(iox_listener_test, SizeIsOneWhenOneClassIsAttached)
 
 TEST_F(iox_listener_test, SizeEqualsCapacityWhenMaximumIsAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1d1c1fa4-1e47-4b96-99d1-5766ef068a74");
     AttachAllUserTrigger();
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(iox_listener_capacity(&m_sut)));
 }
 
 TEST_F(iox_listener_test, SizeDecreasesWhenUserTriggersAreDetached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "907f0ea4-6ad9-4744-8f38-b1619fa62cfc");
     AttachAllUserTrigger();
 
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
@@ -211,6 +217,7 @@ TEST_F(iox_listener_test, SizeDecreasesWhenUserTriggersAreDetached)
 
 TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherUserTriggerIsAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9392e16c-52e9-4754-b332-12da0022b346");
     AttachAllUserTrigger();
 
     EXPECT_THAT(iox_listener_attach_user_trigger_event(
@@ -220,6 +227,7 @@ TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherUserTrigger
 
 TEST_F(iox_listener_test, AttachingTheSameUserTriggerTwiceLeadsToEVENT_ALREADY_ATTACHED)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f3e25bef-7f69-4cdc-a70c-98f24bccb177");
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], &userTriggerCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], &userTriggerCallback),
@@ -228,6 +236,7 @@ TEST_F(iox_listener_test, AttachingTheSameUserTriggerTwiceLeadsToEVENT_ALREADY_A
 
 TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3863617a-8483-4f38-afd4-25436158bc45");
     EXPECT_THAT(iox_listener_attach_subscriber_event(
                     &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
@@ -235,6 +244,7 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
 
 TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "db39c3ef-1518-4769-942e-642d0f58abdb");
     EXPECT_THAT(iox_listener_attach_subscriber_event(
                     &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, NULL),
                 Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
@@ -242,17 +252,20 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
 
 TEST_F(iox_listener_test, AttachingUserTriggerEventWithNullptrCallbackFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "990e8f3c-36f0-4687-8246-ce8a02f969ae");
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], NULL),
                 Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
 }
 
 TEST_F(iox_listener_test, AttachingSubscriberTillListenerFullWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "11636d73-8850-416e-ac84-357d8bf73477");
     AttachAllSubscriber();
 }
 
 TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherSubscriberIsAttached)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ec1d34c1-d5bb-4648-845b-4a89e5ef2c74");
     AttachAllSubscriber();
     EXPECT_THAT(iox_listener_attach_subscriber_event(&m_sut,
                                                      &m_subscriber[MAX_NUMBER_OF_EVENTS_PER_LISTENER],
@@ -263,6 +276,7 @@ TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherSubscriberI
 
 TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "af90d50f-1b01-46e5-8a82-3c8a5e1d00e8");
     AttachAllSubscriber();
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
@@ -274,6 +288,7 @@ TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
 
 TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_ATTACHED)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6d84fd37-b170-4028-99f2-848f41de0b35");
     EXPECT_THAT(iox_listener_attach_subscriber_event(
                     &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));

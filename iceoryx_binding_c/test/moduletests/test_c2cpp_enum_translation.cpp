@@ -32,6 +32,7 @@ struct EnumMapping
 
 TEST(c2cpp_enum_translation_test, SubscriberState)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7f942bb1-be58-4aff-b05c-2e78c4648be3");
     constexpr EnumMapping<iox::popo::SubscriberState, iox_SubscriberState> SUBSCRIBER_STATES[]{
         {iox::popo::SubscriberState::HAS_DATA, SubscriberState_HAS_DATA}};
 
@@ -68,6 +69,7 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
 
 TEST(c2cpp_enum_translation_test, SubscriberEvent)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eac05952-7bb1-4265-bd96-1c9c2b5f7327");
     constexpr EnumMapping<iox::popo::SubscriberEvent, iox_SubscriberEvent> SUBSCRIBER_EVENTS[]{
         {iox::popo::SubscriberEvent::DATA_RECEIVED, SubscriberEvent_DATA_RECEIVED}};
 
