@@ -59,9 +59,6 @@ class PoshRuntimeImpl : public PoshRuntime
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
                                                     const NodeName_t& nodeName = {""}) noexcept override;
 
-    /// @copydoc PoshRuntime::getMiddlewareApplication
-    popo::ApplicationPortData* getMiddlewareApplication() noexcept override;
-
     /// @copydoc PoshRuntime::getMiddlewareConditionVariable
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept override;
 

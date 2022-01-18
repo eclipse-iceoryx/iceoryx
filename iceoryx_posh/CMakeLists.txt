@@ -98,8 +98,6 @@ add_library(iceoryx_posh # @todo iox-#590 Rename this to iceoryx_posh_core
     source/mepoo/memory_info.cpp
     source/popo/ports/interface_port.cpp
     source/popo/ports/interface_port_data.cpp
-    source/popo/ports/application_port.cpp
-    source/popo/ports/application_port_data.cpp
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
     source/popo/ports/publisher_port_data.cpp

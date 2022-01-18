@@ -21,7 +21,6 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
@@ -114,10 +113,6 @@ class PoshRuntime
     /// @return pointer to a created interface port data
     virtual popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
                                                             const NodeName_t& nodeName = {}) noexcept = 0;
-
-    /// @brief request the RouDi daemon to create an application port
-    /// @return pointer to a created application port data
-    virtual popo::ApplicationPortData* getMiddlewareApplication() noexcept = 0;
 
     /// @brief request the RouDi daemon to create a condition variable
     /// @return pointer to a created condition variable data

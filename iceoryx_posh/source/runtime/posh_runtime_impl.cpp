@@ -344,34 +344,6 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
     return nullptr;
 }
 
-popo::ApplicationPortData* PoshRuntimeImpl::getMiddlewareApplication() noexcept
-{
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_APPLICATION) << m_appName;
-
-    IpcMessage receiveBuffer;
-
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
-    {
-        std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
-
-        if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_APPLICATION_ACK)
-        {
-            rp::BaseRelativePointer::id_t segmentId{0U};
-            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::BaseRelativePointer::offset_t offset{0U};
-            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::BaseRelativePointer::getPtr(segmentId, offset);
-            return reinterpret_cast<popo::ApplicationPortData*>(ptr);
-        }
-    }
-
-    LogError() << "Get mw application got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-    return nullptr;
-}
-
 cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
 PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
