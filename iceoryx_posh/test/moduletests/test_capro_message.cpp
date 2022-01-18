@@ -29,9 +29,6 @@ using namespace iox::capro;
 
 class CaproMessage_test : public Test
 {
-  public:
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 

@@ -122,9 +122,6 @@ class PortManager_test : public Test
                 iox::capro::IdString_t(TruncateToCapacity, convert::toString(m_instIdCounter))};
     }
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     void acquireMaxNumberOfInterfaces(
         std::string runtimeName,
         std::function<void(iox::popo::InterfacePortData*)> f = std::function<void(iox::popo::InterfacePortData*)>())

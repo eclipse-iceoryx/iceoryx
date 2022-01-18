@@ -21,8 +21,9 @@ namespace iox
 {
 namespace popo
 {
+// start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0
 template <typename T>
-std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
+std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{1U};
 
 template <typename T>
 inline TypedUniqueId<T>::TypedUniqueId() noexcept
@@ -31,6 +32,8 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
                    + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << ROUDI_ID_BIT_LENGTH)
                       >> ROUDI_ID_BIT_LENGTH))
 {
+    internal::finalizeSetUniqueRouDiId();
+
     if (globalIDCounter.load() >= (static_cast<uint64_t>(1u) << UNIQUE_ID_BIT_LENGTH))
     {
         errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, nullptr, ErrorLevel::FATAL);
@@ -43,6 +46,7 @@ inline TypedUniqueId<T>::TypedUniqueId(InvalidId_t) noexcept
     /// with gcc-7.x - gcc-10.x. Who knows why?!
     : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<uint64_t>(INVALID_UNIQUE_ID))
 {
+    // finalizeSetUniqueRouDiId intentionally not called since the
 }
 
 template <typename T>

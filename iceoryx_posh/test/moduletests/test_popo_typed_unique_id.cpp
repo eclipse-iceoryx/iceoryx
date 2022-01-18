@@ -17,6 +17,8 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "test.hpp"
 
@@ -30,39 +32,49 @@ TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "473467bf-1a6f-4cd2-acd8-447a623a5301");
     uint16_t someId = 1243u;
+    // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
     iox::popo::internal::setUniqueRouDiId(someId);
     EXPECT_EQ(iox::popo::internal::getUniqueRouDiId(), someId);
-    iox::popo::internal::unsetUniqueRouDiId();
+
+    // reset unique RouDi ID
+    iox::popo::internal::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdTwiceFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe468314-cd38-4363-bbf9-f106bf9ec1f4");
     uint16_t someId = 1243u;
-    bool errorHandlerCalled = false;
+    optional<iox::Error> detectedError;
+    optional<iox::ErrorLevel> detectedErrorLevel;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
-                              const std::function<void()>,
-                              const iox::ErrorLevel) { errorHandlerCalled = true; });
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            detectedErrorLevel.emplace(errorLevel);
+        });
 
     iox::popo::internal::setUniqueRouDiId(someId);
-    EXPECT_FALSE(errorHandlerCalled);
+    // we don't know if setUniqueRouDiId was called before, therefore ignore any error
+    detectedError.reset();
+    detectedErrorLevel.reset();
+
     iox::popo::internal::setUniqueRouDiId(someId);
-    EXPECT_TRUE(errorHandlerCalled);
-    iox::popo::internal::unsetUniqueRouDiId();
+    // now we know that setUniqueRouDiId was called and therefore the error handler must also be called
+    ASSERT_TRUE(detectedError.has_value());
+    ASSERT_TRUE(detectedErrorLevel.has_value());
+    EXPECT_THAT(detectedError.value(),
+                Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
+    EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
+
+    // reset unique RouDi ID
+    iox::popo::internal::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
-TEST(TypedUniqueId_RouDiId, GettingTheRouDiIdWithoutSettingFails)
+TEST(TypedUniqueId_RouDiId, GettingTheRouDiIdWithoutSettingReturnsDefaultId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68de213f-7009-4573-8791-9f09f8ba413c");
-    bool errorHandlerCalled = false;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
-                              const std::function<void()>,
-                              const iox::ErrorLevel) { errorHandlerCalled = true; });
 
-    iox::popo::internal::getUniqueRouDiId();
-    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_THAT(iox::popo::internal::getUniqueRouDiId(), Eq(iox::DEFAULT_UNIQUE_ROUDI_ID));
 }
 
 template <typename T>
@@ -70,9 +82,6 @@ class TypedUniqueId_test : public Test
 {
   protected:
     using UniqueIDType = T;
-
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 using Implementations = Types<TypedUniqueId<int>, TypedUniqueId<float>>;

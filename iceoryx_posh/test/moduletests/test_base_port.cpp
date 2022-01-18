@@ -142,9 +142,6 @@ class BasePort_test : public Test
     {
     }
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     std::unique_ptr<PortData> sutData{createPortData<PortData>()};
     BasePort sut{sutData.get()};
 };

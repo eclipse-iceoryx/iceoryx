@@ -103,9 +103,6 @@ class PortUser_IntegrationTest : public Test
         static_cast<void>(m_subscriberPortRouDiMultiProducer.tryGetCaProMessage());
     }
 
-    GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0U); },
-                                [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     uint64_t m_receiveCounter{0U};
     std::atomic<uint64_t> m_sendCounter{0U};
     std::atomic<uint64_t> m_publisherRunFinished{0U};

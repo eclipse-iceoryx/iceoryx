@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
@@ -192,18 +193,29 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
     ASSERT_FALSE(cmdLineArgs.has_error());
 
     iox::cxx::optional<iox::Error> detectedError;
+    iox::cxx::optional<iox::ErrorLevel> detectedErrorLevel;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::MODERATE);
+            detectedErrorLevel.emplace(errorLevel);
         });
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    // we don't know if setUniqueRouDiId was called before, therefore ignore any error
+    detectedError.reset();
+    detectedErrorLevel.reset();
 
     IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
+    // now we know that setUniqueRouDiId was called and therefore the error handler must also be called
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID);
+    ASSERT_TRUE(detectedErrorLevel.has_value());
+    EXPECT_THAT(detectedError.value(),
+                Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
+    EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
+
+    // reset unique RouDi ID
+    iox::popo::internal::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)

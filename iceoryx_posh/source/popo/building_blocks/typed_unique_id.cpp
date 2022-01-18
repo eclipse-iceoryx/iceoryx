@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {
@@ -23,30 +24,28 @@ namespace popo
 {
 namespace internal
 {
-static uint16_t uniqueRouDiId{0u};
-static bool hasDefinedUniqueRouDiId{false};
+static uint16_t uniqueRouDiId{DEFAULT_UNIQUE_ROUDI_ID};
 
 void setUniqueRouDiId(const uint16_t id) noexcept
 {
-    if (hasDefinedUniqueRouDiId)
+    if (finalizeSetUniqueRouDiId())
     {
-        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID, nullptr, ErrorLevel::MODERATE);
+        errorHandler(
+            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID, nullptr, ErrorLevel::SEVERE);
     }
     uniqueRouDiId = id;
-    hasDefinedUniqueRouDiId = true;
 }
 
-void unsetUniqueRouDiId() noexcept
+bool finalizeSetUniqueRouDiId() noexcept
 {
-    hasDefinedUniqueRouDiId = false;
+    static bool finalized{false};
+    auto oldFinalized = finalized;
+    finalized = true;
+    return oldFinalized;
 }
 
 uint16_t getUniqueRouDiId() noexcept
 {
-    if (!hasDefinedUniqueRouDiId)
-    {
-        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID, nullptr, ErrorLevel::FATAL);
-    }
     return uniqueRouDiId;
 }
 

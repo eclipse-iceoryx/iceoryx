@@ -137,9 +137,6 @@ class PortIntrospection_test : public Test
         return true;
     }
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     MockPublisherPortUser m_mockPublisherPortUserIntrospection;
     MockPublisherPortUser m_mockPublisherPortUserIntrospection2;
 

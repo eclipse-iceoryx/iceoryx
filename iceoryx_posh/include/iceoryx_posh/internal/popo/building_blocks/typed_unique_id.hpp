@@ -32,13 +32,15 @@ namespace internal
 /// @brief Has to be set on roudi startup so that a unique roudi id is set
 ///         for all newly generated unique ids. If you call it when a unique
 ///         id is already set an error is generated in the errorHandler.
-///         If you would like to reset the unique id you have to call
-///         unsetUniqueRouDiId first.
 /// @param[in] id the unique id which you would like to set
 void setUniqueRouDiId(const uint16_t id) noexcept;
 
-/// @brief Sets the RouDi id to an undefined state
-void unsetUniqueRouDiId() noexcept;
+/// @brief This finalizes setting the unique roudi id and is used by setUniqueRouDiId
+///        to check whether the id was already set or TypedUniqueId were created before
+///        calling setUniqueRouDiId
+/// @return true if setUniqueRouDiId was already called or a non-invalid TypedUniqueId
+///         was created, otherwise false
+bool finalizeSetUniqueRouDiId() noexcept;
 
 /// @brief returns the unique roudi id
 /// @return value of the unique roudi id
@@ -121,7 +123,7 @@ class TypedUniqueId : public cxx::NewType<uint64_t,
     static constexpr uint64_t INVALID_UNIQUE_ID = 0u;
     static constexpr uint64_t ROUDI_ID_BIT_LENGTH = 16u;
     static constexpr uint64_t UNIQUE_ID_BIT_LENGTH = 48u;
-    static std::atomic<uint64_t> globalIDCounter; // = 0u
+    static std::atomic<uint64_t> globalIDCounter; // initialized in cpp file
 };
 
 } // namespace popo
