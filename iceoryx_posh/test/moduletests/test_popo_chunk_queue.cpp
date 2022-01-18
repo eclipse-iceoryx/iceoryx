@@ -116,6 +116,7 @@ TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 
 TYPED_TEST(ChunkQueue_test, UniqueIdIsMonotonicallyIncreasing)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e984db40-b43c-4a32-8fda-9618a1c1eecd");
     using ChunkQueueData_t = typename ChunkQueue_test<TypeParam>::ChunkQueueData_t;
 
     ChunkQueueData_t m_chunkData1{QueueFullPolicy::DISCARD_OLDEST_DATA, this->m_variantQueueType};

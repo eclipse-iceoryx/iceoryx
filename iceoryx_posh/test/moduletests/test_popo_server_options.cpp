@@ -24,6 +24,7 @@ using namespace ::testing;
 
 TEST(ServerOptions_test, SerializationRoundTripIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "888f49c2-0b70-4033-a13a-175dbc1b8e38");
     iox::popo::ServerOptions defaultOptions;
     iox::popo::ServerOptions testOptions;
 
@@ -51,6 +52,7 @@ TEST(ServerOptions_test, SerializationRoundTripIsSuccessful)
 
 TEST(ServerOptions_test, DeserializingBogusDataFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ebc97c23-87df-484c-8c3c-1b76f1351997");
     const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::ServerOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) { FAIL() << "Deserialization is expected to fail!"; })
@@ -69,6 +71,7 @@ iox::cxx::Serialization enumSerialization(ConsumerTooSlowPolicyUT clientTooSlowP
 
 TEST(ServerOptions_test, DeserializingValidClientTooSlowPolicyIsSuccessful)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "95cd1efc-63c8-4eee-9f4e-ed105e653d71");
     constexpr ConsumerTooSlowPolicyUT CLIENT_TOO_SLOW_POLICY{
         static_cast<ConsumerTooSlowPolicyUT>(iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER)};
 
@@ -80,6 +83,7 @@ TEST(ServerOptions_test, DeserializingValidClientTooSlowPolicyIsSuccessful)
 
 TEST(ServerOptions_test, DeserializingInvalidClientTooSlowPolicyFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "35b85d5a-7e59-4f0c-8afc-38f1eec914b8");
     constexpr ConsumerTooSlowPolicyUT CLIENT_TOO_SLOW_POLICY{111};
 
     const auto serialized = enumSerialization(CLIENT_TOO_SLOW_POLICY);

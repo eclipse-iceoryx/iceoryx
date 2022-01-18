@@ -248,6 +248,7 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithoutAddedQueueReturnsNoIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "92a9e4a8-3964-4d34-b144-10024914ab0d");
     constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
 
     auto sutData = this->getChunkDistributorData();
@@ -262,6 +263,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithoutAddedQueueReturnsNoIndex)
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithAddedQueueReturnsIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "31228aa0-d4b8-4f7d-98e4-ebdab8f0acd1");
     constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
 
     auto sutData = this->getChunkDistributorData();
@@ -277,6 +279,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithAddedQueueReturnsIndex)
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0183bea6-6189-437c-b15c-0d9ade511975");
     constexpr uint32_t EXPECTED_QUEUE_INDEX_1{0U};
     constexpr uint32_t EXPECTED_QUEUE_INDEX_2{1U};
     constexpr uint32_t EXPECTED_QUEUE_INDEX_3{2U};
@@ -306,6 +309,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsInd
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknownLastIndexReturnsIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3870dd6b-535c-497a-85cf-54709e2edd46");
     constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t EXPECTED_QUEUE_INDEX_1{0U};
     constexpr uint32_t EXPECTED_QUEUE_INDEX_2{1U};
@@ -336,6 +340,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknown
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithPreviouslyAddedQueueRemovedReturnsNoIndex)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7680b79d-8e72-4441-8038-fa5a3fdfd182");
     constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
 
     auto sutData = this->getChunkDistributorData();

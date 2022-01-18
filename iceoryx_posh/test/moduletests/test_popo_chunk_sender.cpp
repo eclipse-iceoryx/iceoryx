@@ -447,6 +447,7 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
 
 TEST_F(ChunkSender_test, sendToQueueWithoutReceiverReturnsFalse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7139bfdc-3df9-4def-a292-407f8e650b34");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
@@ -461,6 +462,7 @@ TEST_F(ChunkSender_test, sendToQueueWithoutReceiverReturnsFalse)
 
 TEST_F(ChunkSender_test, sendToQueueWithReceiverReturnsTrueAndDeliversSample)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1636bd5d-b2ad-495c-bacf-f505f51ae19b");
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> queuePopper(&m_chunkQueueData);
 
@@ -485,6 +487,7 @@ TEST_F(ChunkSender_test, sendToQueueWithReceiverReturnsTrueAndDeliversSample)
 
 TEST_F(ChunkSender_test, sendToQueueWithInvalidChunkTriggersTheErrorHandler)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5409c4f2-9b33-424c-aaa7-001d7c33e184");
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
