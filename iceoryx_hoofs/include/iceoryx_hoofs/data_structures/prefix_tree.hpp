@@ -115,8 +115,8 @@ class PrefixTree
     // This is left as a space optimization in the future, but with static memory we cannot really benefit
     // since we need to be prepared for single letter nodes anyway.
 
-    using NodeAllocator = relocatable_allocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
-    using DataNodeAllocator = relocatable_allocator<DataNode, Capacity>;
+    using NodeAllocator = PoolAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
+    using DataNodeAllocator = PoolAllocator<DataNode, Capacity>;
 
   private:
     node_ptr_t m_root{nullptr};
