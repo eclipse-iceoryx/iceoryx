@@ -25,7 +25,7 @@ namespace
 {
 using namespace ::testing;
 
-using namespace iox;
+using namespace iox::cxx;
 
 // test with non-primitive comparable types
 struct Integer
@@ -402,7 +402,7 @@ TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements
     EXPECT_TRUE(sut.insert("cab", Integer{21}));
 }
 
-// TODO: fails, we need to extract keys differently
+// TODO: fails, we need to extract keys differently and cannot guarantee order for now
 TEST_F(PrefixTree_test, collectingAllKeysInTreeReturnsAllKeysInLexigographicalOrder)
 {
     sut.insert("abc", Integer{73});

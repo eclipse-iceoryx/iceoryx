@@ -30,10 +30,13 @@
 
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/data_structures/relocatable_ptr.hpp"
 #include "iceoryx_hoofs/data_structures/typed_allocator.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relocatable_ptr.hpp"
 
+// TODO: discuss location
 namespace iox
+{
+namespace cxx
 {
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength = 128>
 class PrefixTree
@@ -68,7 +71,7 @@ class PrefixTree
     // could be made available in a template argument and set raw_ptr by default
     template <typename T>
     // using ptr_t = raw_ptr<T>;
-    using ptr_t = relocatable_ptr<T>;
+    using ptr_t = rp::relocatable_ptr<T>;
 
     // The advantage of using relocatble_ptrs is that we can switch hem of when we do not need
     // the feature but can develop structures (almost) as with normal pointers
@@ -699,6 +702,7 @@ class PrefixTree
     }
 };
 
+} // namespace cxx
 } // namespace iox
 
 

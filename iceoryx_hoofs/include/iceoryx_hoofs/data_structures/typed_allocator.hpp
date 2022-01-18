@@ -23,6 +23,8 @@
 
 namespace iox
 {
+namespace cxx
+{
 // since all the blocks have a fixed size, allocation and deallocation takes constant time
 // allocator can be used e.g. to create linked data structures
 template <typename T, uint64_t Capacity>
@@ -185,6 +187,7 @@ class relocatable_allocator
     }
 };
 
+} // namespace cxx
 } // namespace iox
 
 
