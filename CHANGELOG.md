@@ -35,6 +35,7 @@
 - Fix typos in goals/non-goals document [\#968](https://github.com/eclipse-iceoryx/iceoryx/issues/968)
 - Catch deserialization errors for enums in publisher and subscriber options [\#989](https://github.com/eclipse-iceoryx/iceoryx/issues/989)
 - Fix linker error on QNX [\#1013](https://github.com/eclipse-iceoryx/iceoryx/issues/1013)
+- When posix mutex fails a correct error message is reported on the console [\#999](https://github.com/eclipse-iceoryx/iceoryx/issues/999)
 
 **Refactoring:**
 
