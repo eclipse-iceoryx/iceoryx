@@ -56,6 +56,8 @@ class ServiceDiscovery
 
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter
+    /// @todo #415 If this method is still used after refactoring, consider to return a reference so that a nullptr
+    /// check is not necessary
     virtual const std::atomic<uint64_t>* getServiceRegistryChangeCounter() noexcept;
 
   private:
