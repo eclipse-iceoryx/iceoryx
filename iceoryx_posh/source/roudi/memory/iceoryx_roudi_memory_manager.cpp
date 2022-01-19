@@ -29,8 +29,9 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
             PoshError::kICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
     });
     m_memoryManager.addMemoryProvider(&m_defaultMemory.m_managementShm).or_else([](auto) {
-        errorHandler(
-            PoshError::kICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK,
+                     nullptr,
+                     ErrorLevel::FATAL);
     });
 }
 
