@@ -265,10 +265,7 @@ void Timer::OsTimer::executeCallback() noexcept
 {
     cxx::Ensures(m_isInitialized && m_callback && "Timer fired but state is invalid");
 
-    if (m_isInitialized && m_callback)
-    {
-        m_callback();
-    }
+    m_callback();
 }
 
 cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
