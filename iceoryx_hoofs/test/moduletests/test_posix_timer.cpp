@@ -379,35 +379,43 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 
 TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
     ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
-
-    EXPECT_DEATH(std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)), ".*");
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+    // EXPECT_NO_DEATH
+    EXPECT_TRUE(true);
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
     ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::IMMEDIATE).has_error());
-
-    EXPECT_DEATH(std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)), ".*");
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+    // EXPECT_NO_DEATH
+    EXPECT_TRUE(true);
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyTerminateTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
-    Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
-    ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
-
-    EXPECT_DEATH(std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)), ".*");
+    EXPECT_DEATH(
+        {
+            Timer sut(TIMEOUT,
+                      [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
+            ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+        },
+        ".*");
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyChangeToTerminateChangesBehaviorToTerminate, Repeat(5), [&] {
-    Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
+    EXPECT_DEATH(
+        {
+            Timer sut(TIMEOUT,
+                      [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
 
-    ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
-    ASSERT_FALSE(sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
-    EXPECT_DEATH(std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)), ".*");
+            ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+            ASSERT_FALSE(sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+        },
+        ".*");
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatSkipsCallbackWhenStillRunning, Repeat(5), [&] {
