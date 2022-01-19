@@ -14,10 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
-#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
-
-/// @todo #590 rename this file to error_handler.cpp
+#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
+#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
 
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
@@ -175,4 +173,4 @@ inline cxx::GenericRAII ErrorHandler<Error>::setTemporaryErrorHandler(const Hand
 
 } // namespace iox
 
-#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
+#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP

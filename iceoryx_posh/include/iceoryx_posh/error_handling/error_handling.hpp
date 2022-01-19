@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_ERROR_HANDLING_ERROR_HANDLING_HPP
 #define IOX_POSH_ERROR_HANDLING_ERROR_HANDLING_HPP
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
 namespace iox
 {
