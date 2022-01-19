@@ -20,10 +20,6 @@
 
 namespace iox
 {
-// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
-template <>
-HandlerFunction<Error> ErrorHandler<Error>::handler = {ErrorHandler::defaultHandler};
-
 const char* ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
 const char* toString(const Error error) noexcept
