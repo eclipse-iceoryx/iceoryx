@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
-#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
+#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL
+#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL
 
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
@@ -30,4 +30,4 @@ inline void errorHandler(const Error error,
 
 } // namespace iox
 
-#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
+#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL
