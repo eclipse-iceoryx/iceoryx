@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -36,7 +36,7 @@ void ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& caProMessa
     if (!getMembers()->m_caproMessageFiFo.push(caProMessage))
     {
         // information loss from application to RouDi daemon
-        errorHandler(Error::kPOPO__APPLICATION_PORT_QUEUE_OVERFLOW, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__APPLICATION_PORT_QUEUE_OVERFLOW, nullptr, ErrorLevel::SEVERE);
     }
 }
 

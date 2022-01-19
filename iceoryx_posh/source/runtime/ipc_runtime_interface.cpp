@@ -35,7 +35,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 {
     if (!m_AppIpcInterface.isInitialized())
     {
-        errorHandler(Error::kIPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
+        errorHandler(PoshError::kIPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
         return;
     }
 
@@ -128,13 +128,13 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
     {
     case RegState::WAIT_FOR_ROUDI:
         LogFatal() << "Timeout registering at RouDi. Is RouDi running?";
-        errorHandler(Error::kIPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
+        errorHandler(PoshError::kIPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
-        errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
+        errorHandler(PoshError::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
         break;
     case RegState::WAIT_FOR_REGISTER_ACK:
-        errorHandler(Error::kIPC_INTERFACE__REG_ACK_NO_RESPONSE);
+        errorHandler(PoshError::kIPC_INTERFACE__REG_ACK_NO_RESPONSE);
         break;
     case RegState::FINISHED:
         // nothing to do, move along
@@ -226,7 +226,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 constexpr uint32_t REGISTER_ACK_PARAMETERS = 5U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
-                    errorHandler(Error::kIPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
+                    errorHandler(PoshError::kIPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it

@@ -18,7 +18,7 @@
 #define IOX_POSH_MEPOO_SEGMENT_MANAGER_INL
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -77,7 +77,7 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
                 }
                 else
                 {
-                    errorHandler(Error::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
+                    errorHandler(PoshError::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
                 }
             }
         }

@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
@@ -50,7 +50,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (!maybePortPool.has_value())
     {
         LogFatal() << "Could not get PortPool!";
-        errorHandler(Error::kPORT_MANAGER__PORT_POOL_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
+        errorHandler(PoshError::kPORT_MANAGER__PORT_POOL_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     }
     m_portPool = maybePortPool.value();
 
@@ -58,7 +58,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Could not get MemoryManager for introspection!";
-        errorHandler(Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
+        errorHandler(PoshError::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -73,7 +73,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortService";
         errorHandler(
-            Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
+            PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
     }
     auto portGeneric = maybePublisher.value();
 
@@ -85,7 +85,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
-        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTTHROUGHPUTSERVICE,
+        errorHandler(PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTTHROUGHPUTSERVICE,
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
@@ -99,7 +99,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionSubscriberPortChangingDataService";
-        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE,
+        errorHandler(PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE,
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
@@ -165,7 +165,7 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         {
             // protocol error
             errorHandler(
-                Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
+                PoshError::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
         }
 
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
@@ -212,7 +212,7 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
         else
         {
             // protocol error
-            errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
+            errorHandler(PoshError::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
                          nullptr,
                          iox::ErrorLevel::MODERATE);
         }
@@ -647,7 +647,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                     << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
             }))
     {
-        errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
@@ -739,7 +739,7 @@ void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& ser
 {
     m_serviceRegistry.add(service).or_else([&](auto&) {
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
-        errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }

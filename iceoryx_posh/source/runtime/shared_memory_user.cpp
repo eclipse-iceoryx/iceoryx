@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
@@ -47,7 +47,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
 
             m_shmObject.emplace(std::move(sharedMemoryObject));
         })
-        .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_MAPP_ERR); });
+        .or_else([](auto&) { errorHandler(PoshError::kPOSH__SHM_APP_MAPP_ERR); });
 }
 
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
@@ -68,7 +68,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {
-                    errorHandler(Error::kPOSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
+                    errorHandler(PoshError::kPOSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
                 rp::BaseRelativePointer::registerPtr(
@@ -80,7 +80,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })
-            .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_SEGMENT_MAPP_ERR); });
+            .or_else([](auto&) { errorHandler(PoshError::kPOSH__SHM_APP_SEGMENT_MAPP_ERR); });
     }
 }
 } // namespace runtime

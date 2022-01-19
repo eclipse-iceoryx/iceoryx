@@ -30,7 +30,7 @@ void setUniqueRouDiId(const uint16_t id) noexcept
     if (hasDefinedUniqueRouDiId)
     {
         errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::MODERATE);
+            PoshError::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::MODERATE);
     }
     uniqueRouDiId = id;
     hasDefinedUniqueRouDiId = true;
@@ -46,7 +46,7 @@ uint16_t getUniqueRouDiId() noexcept
     if (!hasDefinedUniqueRouDiId)
     {
         errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::FATAL);
+            PoshError::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::FATAL);
     }
     return uniqueRouDiId;
 }

@@ -132,7 +132,7 @@ inline void Sample<T, H>::publish() noexcept
     else
     {
         LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
-        errorHandler(Error::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
     }
 }
 

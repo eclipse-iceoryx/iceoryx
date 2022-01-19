@@ -17,6 +17,7 @@
 
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
@@ -26,6 +27,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 
 using namespace iox;
 using namespace iox::cxx;
@@ -88,7 +90,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
             LogFatal() << "subscriber options may not have been initialized with iox_sub_init";
-            errorHandler(Error::kBINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
+            errorHandler(CBindingError::kBINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
         }
         subscriberOptions.queueCapacity = options->queueCapacity;
         subscriberOptions.historyRequest = options->historyRequest;

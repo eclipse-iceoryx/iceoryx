@@ -16,7 +16,7 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 
 namespace c2cpp
 {
@@ -31,7 +31,7 @@ iox::popo::SubscriberTooSlowPolicy subscriberTooSlowPolicy(const ENUM iox_Subscr
     }
 
     errorHandler(
-        iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY, nullptr, iox::ErrorLevel::MODERATE);
+        iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY, nullptr, iox::ErrorLevel::MODERATE);
     return iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
 }
 
@@ -45,7 +45,7 @@ iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy
         return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
     }
 
-    errorHandler(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY, nullptr, iox::ErrorLevel::MODERATE);
+    errorHandler(iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY, nullptr, iox::ErrorLevel::MODERATE);
     return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
 }
 
@@ -58,7 +58,7 @@ iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noex
     }
 
     iox::LogFatal() << "invalid iox_SubscriberEvent value";
-    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE);
+    errorHandler(iox::CBindingError::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE);
     return iox::popo::SubscriberEvent::DATA_RECEIVED;
 }
 
@@ -71,7 +71,7 @@ iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noex
     }
 
     iox::LogFatal() << "invalid iox_SubscriberState value";
-    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE);
+    errorHandler(iox::CBindingError::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE);
     return iox::popo::SubscriberState::HAS_DATA;
 }
 } // namespace c2cpp

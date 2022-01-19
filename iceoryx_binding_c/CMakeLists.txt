@@ -71,6 +71,7 @@ add_library(${PROJECT_NAME}
     source/cpp2c_publisher.cpp
     source/cpp2c_subscriber.cpp
     source/cpp2c_service_description_translation.cpp
+    source/error_handling.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

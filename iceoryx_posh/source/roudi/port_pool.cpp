@@ -59,7 +59,7 @@ PortPool::addInterfacePort(const RuntimeName_t& runtimeName, const capro::Interf
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__INTERFACELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__INTERFACELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::INTERFACE_PORT_LIST_FULL);
     }
 }
@@ -74,7 +74,7 @@ PortPool::addApplicationPort(const RuntimeName_t& runtimeName) noexcept
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__APPLICATIONLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::APPLICATION_PORT_LIST_FULL);
     }
 }
@@ -90,7 +90,7 @@ cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const Run
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::NODE_DATA_LIST_FULL);
     }
 }
@@ -105,7 +105,7 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
 }
@@ -160,7 +160,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::PUBLISHER_PORT_LIST_FULL);
     }
 }
@@ -180,7 +180,7 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
     }
 }

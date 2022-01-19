@@ -101,9 +101,9 @@ TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
     EXPECT_CALL(mockPublisherInterface, publishMock).Times(1);
     sut.publish();
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
+        [&detectedError](const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
@@ -113,7 +113,7 @@ TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
 
     // ===== Verify ===== //
     ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__PUBLISHING_EMPTY_SAMPLE));
+    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__PUBLISHING_EMPTY_SAMPLE));
 
     // ===== Cleanup ===== //
 }

@@ -110,7 +110,7 @@ PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::Capr
         }
         else
         {
-            errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+            errorHandler(PoshError::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
         }
     }
 

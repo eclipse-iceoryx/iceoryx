@@ -33,7 +33,7 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
     if (globalIDCounter.load() >= (static_cast<uint64_t>(1u) << UNIQUE_ID_BIT_LENGTH))
     {
         errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, [] {}, ErrorLevel::FATAL);
+            PoshError::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, [] {}, ErrorLevel::FATAL);
     }
 }
 

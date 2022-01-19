@@ -63,7 +63,7 @@ void ClientPortUser::freeRequest(RequestHeader* const requestHeader) noexcept
     }
     else
     {
-        errorHandler(Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
 }
 
@@ -79,7 +79,7 @@ void ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
         }
         else
         {
-            errorHandler(Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
+            errorHandler(PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
         }
     }
     else
@@ -130,7 +130,7 @@ void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
     else
     {
-        errorHandler(Error::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
 }
 

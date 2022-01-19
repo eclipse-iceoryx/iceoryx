@@ -40,7 +40,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     else
     {
         LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
-        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
+        errorHandler(PoshError::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
     }
 }
 
@@ -82,17 +82,17 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
     if (!name.has_value())
     {
         LogError() << "Cannot initialize runtime. Application name has not been specified!";
-        errorHandler(Error::kPOSH__RUNTIME_NO_NAME_PROVIDED, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kPOSH__RUNTIME_NO_NAME_PROVIDED, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->empty())
     {
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        errorHandler(Error::kPOSH__RUNTIME_NAME_EMPTY, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kPOSH__RUNTIME_NAME_EMPTY, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->c_str()[0] == '/')
     {
         LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
-        errorHandler(Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED, nullptr, ErrorLevel::FATAL);
     }
 
     return *name.value();

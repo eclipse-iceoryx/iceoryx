@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
-
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 
 namespace iox
 {
+// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
+template <>
+HandlerFunction<PoshError> ErrorHandler<PoshError>::handler = {ErrorHandler::defaultHandler};
+
+const char* POSH_ERROR_NAMES[] = {POSH_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+
+const char* toString(const PoshError error) noexcept
+{
+    return POSH_ERROR_NAMES[static_cast<uint32_t>(error) - 1];
+}
+
+std::ostream& operator<<(std::ostream& stream, PoshError value) noexcept
+{
+    stream << toString(value);
+    return stream;
+}
 } // namespace iox

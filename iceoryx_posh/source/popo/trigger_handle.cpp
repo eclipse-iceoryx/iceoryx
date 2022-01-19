@@ -35,7 +35,7 @@ TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
 {
     if (!m_resetCallback)
     {
-        errorHandler(Error::kPOPO__TRIGGER_HANDLE_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kPOPO__TRIGGER_HANDLE_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
     }
 }
 

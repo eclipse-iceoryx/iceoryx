@@ -94,11 +94,11 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4d5c133-bf93-45a4-aa4f-9c3c2a50f91a");
     iox::runtime::IpcMessage data{""};
-    iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
+    iox::cxx::optional<iox::PoshError> sendViaIpcChannelStatusFail;
 
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
         [&sendViaIpcChannelStatusFail](
-            const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             sendViaIpcChannelStatusFail.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
@@ -107,7 +107,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
     roudiproc.sendViaIpcChannel(data);
 
     ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
-    EXPECT_THAT(sendViaIpcChannelStatusFail.value(), Eq(iox::Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
+    EXPECT_THAT(sendViaIpcChannelStatusFail.value(), Eq(iox::PoshError::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
 }
 
 TEST_F(Process_test, TimeStamp)

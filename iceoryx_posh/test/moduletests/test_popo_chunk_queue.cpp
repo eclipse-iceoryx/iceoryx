@@ -172,15 +172,15 @@ TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler
 
     this->m_pusher.push(chunk);
 
-    iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    iox::PoshError receivedError{iox::PoshError::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
+        [&](const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             receivedError = error;
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
     EXPECT_FALSE(this->m_popper.tryPop().has_value());
-    EXPECT_EQ(receivedError, iox::Error::kPOPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION);
+    EXPECT_EQ(receivedError, iox::PoshError::kPOPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION);
 }
 
 TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
