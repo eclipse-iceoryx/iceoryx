@@ -64,7 +64,7 @@ using HandlerFunction = std::function<void(const Error error, const std::functio
 template <typename Error>
 class ErrorHandler
 {
-    template <typename ErrorType>
+    template <typename ErrorType, typename>
     friend void
     errorHandler(const ErrorType error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept;
 
@@ -122,8 +122,7 @@ class ErrorHandler
 /// errorHandler(Error::kTEST__ASSERT_CALLED);
 /// ASSERT_TRUE(called);
 /// @endcode
-/// @todo #590 use enable_if with is_enum
-template <typename Error>
+template <typename Error, typename = std::enable_if_t<std::is_enum<Error>::value>>
 inline void errorHandler(const Error error,
                          const std::function<void()>& errorCallBack = std::function<void()>(),
                          const ErrorLevel level = ErrorLevel::FATAL) noexcept
@@ -134,6 +133,6 @@ inline void errorHandler(const Error error,
 
 } // namespace iox
 
-# include "iceoryx_hoofs/internal/error_handling/error_handler.inl"
+#include "iceoryx_hoofs/internal/error_handling/error_handler.inl"
 
 #endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
