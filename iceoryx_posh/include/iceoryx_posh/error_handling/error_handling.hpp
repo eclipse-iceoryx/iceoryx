@@ -162,10 +162,6 @@ namespace iox
 
 // clang-format on
 
-// DO NOT TOUCH START, you can doodle around with the lines above!!!
-#define CREATE_ICEORYX_ERROR_ENUM(name) k##name,
-#define CREATE_ICEORYX_ERROR_STRING(name) #name,
-
 enum class PoshError : uint32_t
 {
     kNO_ERROR = 1000,
