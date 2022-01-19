@@ -110,8 +110,8 @@ codebase follows these rules, things are work in progress.
     our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
-8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an
-    `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
+8) **Always use `iox::ErrorHandler()` or `cxx::Expects`/`cxx::Ensures`**, when an error occurs that cannot or shall not be propagated via an
+    `iox::cxx::expected`
 9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 
 See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional

@@ -68,7 +68,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
     const RuntimeName_t m_runtimeName{"App"};
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));

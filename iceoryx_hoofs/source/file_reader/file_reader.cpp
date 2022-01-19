@@ -16,7 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 
+#include <iostream>
 #include <string>
 
 namespace iox
@@ -33,34 +35,31 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
 
     if (!isOpen())
     {
-        errorHandler(Error::kFILEREADER__FAILED_TO_OPEN_FILE, [=]() {
-            switch (m_errorMode)
-            {
-            case ErrorMode::Ignore:
-            {
-                break;
-            }
-            default:
-            case ErrorMode::Inform:
-            {
-                std::cerr << "\033[5;31m"
-                          << "Could not open file '" << m_file << "'."
-                          << "\033[0m" << std::endl;
-                break;
-            }
-            case ErrorMode::Terminate:
-            {
-                std::cerr << "\033[5;31m"
-                          << "Could not open file '" << m_file << "'. Exiting!"
-                          << "\033[0m" << std::endl;
-                std::terminate();
-                break;
-            }
-            }
-        });
+        switch (m_errorMode)
+        {
+        case ErrorMode::Ignore:
+        {
+            return;
+        }
+        default:
+        case ErrorMode::Inform:
+        {
+            std::cerr << "\033[5;31m"
+                      << "Could not open file '" << m_file << "'."
+                      << "\033[0m" << std::endl;
+            return;
+        }
+        case ErrorMode::Terminate:
+        {
+            std::cerr << "\033[5;31m"
+                      << "Could not open file '" << m_file << "'. Exiting!"
+                      << "\033[0m" << std::endl;
+            cxx::Ensures(false);
+            return;
+        }
+        }
     }
 }
-
 bool FileReader::isOpen() const noexcept
 {
     return m_fileStream.is_open();

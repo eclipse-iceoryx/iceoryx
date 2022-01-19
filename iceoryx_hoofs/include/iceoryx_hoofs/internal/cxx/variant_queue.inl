@@ -17,8 +17,6 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 #define IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
-
 namespace iox
 {
 namespace cxx

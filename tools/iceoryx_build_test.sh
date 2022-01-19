@@ -119,7 +119,7 @@ while (( "$#" )); do
         shift 1
         ;;
     "binding-c")
-        echo " [i] Including DDS gateway in build"
+        echo " [i] Including C binding in build"
         BINDING_C_FLAG="ON"
         shift 1
         ;;
