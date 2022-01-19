@@ -194,7 +194,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
 
     iox::cxx::optional<iox::Error> detectedError;
     iox::cxx::optional<iox::ErrorLevel> detectedErrorLevel;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             detectedErrorLevel.emplace(errorLevel);

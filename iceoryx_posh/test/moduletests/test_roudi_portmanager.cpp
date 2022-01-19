@@ -244,7 +244,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     { // test if overflow errors get hit
 
         bool errorHandlerCalled = false;
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
@@ -304,8 +304,8 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
         });
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard =
-        iox::ErrorHandler::setTemporaryErrorHandler([&](const auto error, const auto, const auto errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
+        [&](const auto error, const auto, const auto errorLevel) {
             EXPECT_THAT(error, Eq(iox::Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             detectedError.emplace(error);
@@ -344,7 +344,7 @@ TEST_F(PortManager_test,
     publisherPortDataResult.value()->m_toBeDestroyed = true;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const auto error, const auto, const auto) { detectedError.emplace(error); });
 
     // second call must now also succeed
@@ -373,7 +373,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
     { // test if overflow errors get hit
 
         bool errorHandlerCalled = false;
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
@@ -395,7 +395,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
                 errorHandlerCalled = true;
             });
@@ -634,7 +634,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
             [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
                 errorHandlerCalled = true;
             });
@@ -708,7 +708,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 
     // test if overflow errors get hit
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });

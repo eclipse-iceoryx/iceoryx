@@ -36,8 +36,8 @@ void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
     bool wasErrorHandlerCalled = false;
     SutType sut = FactoryType::createValidObject();
     {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+        auto handle = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
+            [&](auto, auto, auto) { wasErrorHandlerCalled = true; });
         callExpect(sut);
     }
 
@@ -75,8 +75,8 @@ void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
     bool wasErrorHandlerCalled = true;
     SutType sut = FactoryType::createInvalidObject();
     {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+        auto handle = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
+            [&](auto, auto, auto) { wasErrorHandlerCalled = true; });
         callExpect(sut);
     }
 

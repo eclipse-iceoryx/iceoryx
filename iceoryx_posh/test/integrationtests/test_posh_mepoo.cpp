@@ -414,7 +414,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     constexpr uint32_t SAMPLE_SIZE = 2048U;
     constexpr uint32_t REPETITION = 1U;
     iox::cxx::optional<iox::Error> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             receivedError.emplace(error);
         });
@@ -434,7 +434,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     constexpr uint32_t SAMPLE_SIZE_1 = 200U;
     constexpr uint32_t REPETITION = 1U;
     iox::cxx::optional<iox::Error> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             receivedError.emplace(error);
         });

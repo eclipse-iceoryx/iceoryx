@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_APP_HPP
 #define IOX_POSH_ROUDI_ROUDI_APP_HPP
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/log/logcommon.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"

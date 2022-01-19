@@ -17,20 +17,23 @@
 #ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
 #define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
 
+/// @todo #590 rename this file to error_handler.hpp
+
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_hoofs/log/logmanager.hpp"
 
 #include <cassert>
 #include <functional>
 #include <iostream>
 #include <mutex>
-
+#include <sstream>
 namespace iox
 {
 // clang-format off
 #define ICEORYX_ERRORS(error) \
     error(NO_ERROR)\
-    error(FILEREADER__FAILED_TO_OPEN_FILE) \
     error(POSH__ROUDI_PROCESS_SHUTDOWN_FAILED) \
     error(POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED)\
     error(POSH__RUNTIME_FACTORY_IS_NOT_SET) \
@@ -168,8 +171,6 @@ namespace iox
     error(ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING) \
     error(ICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK) \
     error(ICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK) \
-    error(MQ_UNKNOWN_MSG) \
-    error(MQ_INVALID_MSG) \
     error(IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL) \
     error(IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE) \
     error(IPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL) \
@@ -178,11 +179,6 @@ namespace iox
     error(IPC_INTERFACE__CHECK_MQ_MAPS_TO_FILE) \
     error(IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING) \
     error(IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK) \
-    error(POSIX_WRAPPER__FAILED_TO_CREATE_SEMAPHORE) \
-    error(POSIX_TIMER__FIRED_TIMER_BUT_STATE_IS_INVALID) \
-    error(POSIX_TIMER__TIMERPOOL_OVERFLOW) \
-    error(POSIX_TIMER__INCONSISTENT_STATE) \
-    error(POSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME) \
     error(BINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY) \
     error(BINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY) \
     error(BINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED) \
@@ -242,20 +238,21 @@ enum class ErrorLevel : uint32_t
     MODERATE
 };
 
+template <typename Error>
 using HandlerFunction = std::function<void(const Error error, const std::function<void()>, const ErrorLevel)>;
 
 /// @brief This handler is needed for unit testing, special debugging cases and
 ///         other corner cases where we'd like to explicitly suppress the
 ///         error handling.
+template <typename Error>
 class ErrorHandler
 {
+    template <typename ErrorType>
     friend void
-    errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept;
+    errorHandler(const ErrorType error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept;
 
   public:
-    static cxx::GenericRAII setTemporaryErrorHandler(const HandlerFunction& newHandler) noexcept;
-
-    static const char* toString(const Error error) noexcept;
+    static cxx::GenericRAII setTemporaryErrorHandler(const HandlerFunction<Error>& newHandler) noexcept;
 
   protected:
     static void reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept;
@@ -265,8 +262,7 @@ class ErrorHandler
                                const std::function<void()>& errorCallBack,
                                const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 
-    static const char* ERROR_NAMES[];
-    static iox::HandlerFunction handler;
+    static iox::HandlerFunction<Error> handler;
     /// Needed, if you want to exchange the handler. Remember the old one and call it if it is not your error. The error
     /// mock needs to be the last one exchanging the handler in tests.
     static std::mutex handler_mutex;
@@ -309,9 +305,74 @@ class ErrorHandler
 /// errorHandler(Error::kTEST__ASSERT_CALLED);
 /// ASSERT_TRUE(called);
 /// @endcode
-void errorHandler(const Error error,
-                  const std::function<void()>& errorCallBack = std::function<void()>(),
-                  const ErrorLevel level = ErrorLevel::FATAL) noexcept;
+/// @todo use enable_if with is_enum
+template <typename Error>
+inline void errorHandler(const Error error,
+                         const std::function<void()>& errorCallBack = std::function<void()>(),
+                         const ErrorLevel level = ErrorLevel::FATAL) noexcept
+{
+    ErrorHandler<Error>::handler(error, errorCallBack, level);
+}
+
+/// @todo #590 specialise for posh and c binding error handling
+template <>
+inline void ErrorHandler<Error>::defaultHandler(const Error error,
+                                                const std::function<void()>& errorCallBack,
+                                                const ErrorLevel level) noexcept
+{
+    if (errorCallBack)
+    {
+        errorCallBack();
+    }
+    else
+    {
+        std::stringstream ss;
+        ss << "iceoryx_posh error! " << error;
+
+        reactOnErrorLevel(level, ss.str().c_str());
+    }
+}
+
+/// @todo #590 move the below to .inl
+
+template <typename Error>
+std::mutex ErrorHandler<Error>::handler_mutex;
+
+template <typename Error>
+inline void ErrorHandler<Error>::reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
+{
+    static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
+    switch (level)
+    {
+    case ErrorLevel::FATAL:
+        logger.LogError() << errorText;
+        assert(false);
+        std::terminate();
+        break;
+    case ErrorLevel::SEVERE:
+        logger.LogWarn() << errorText;
+        assert(false);
+        break;
+    case ErrorLevel::MODERATE:
+        logger.LogWarn() << errorText;
+        break;
+    }
+}
+
+template <typename Error>
+inline cxx::GenericRAII ErrorHandler<Error>::setTemporaryErrorHandler(const HandlerFunction<Error>& newHandler) noexcept
+{
+    return cxx::GenericRAII(
+        [&newHandler] {
+            std::lock_guard<std::mutex> lock(handler_mutex);
+            handler = newHandler;
+        },
+        [] {
+            std::lock_guard<std::mutex> lock(handler_mutex);
+            handler = defaultHandler;
+        });
+}
+
 } // namespace iox
 
 #endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP

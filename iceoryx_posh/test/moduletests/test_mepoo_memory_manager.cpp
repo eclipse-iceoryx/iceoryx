@@ -92,7 +92,7 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
     mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::FATAL);
@@ -112,7 +112,7 @@ TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::FATAL);
@@ -158,7 +158,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dff31ea2-8ae0-4786-8c97-633af59c287d");
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
@@ -189,7 +189,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
@@ -222,7 +222,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
     auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings);
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::MODERATE);

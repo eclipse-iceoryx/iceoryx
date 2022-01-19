@@ -96,7 +96,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
     iox::runtime::IpcMessage data{""};
     iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
 
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&sendViaIpcChannelStatusFail](
             const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             sendViaIpcChannelStatusFail.emplace(error);

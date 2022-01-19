@@ -200,7 +200,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
 
     bool hasTerminated = false;
     iox::Error errorType = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             hasTerminated = true;
             errorType = error;
@@ -232,7 +232,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
 
     bool hasTerminated = false;
     iox::Error errorType = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             hasTerminated = true;
             errorType = error;
@@ -303,7 +303,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     constexpr uint64_t type = 0U;
     constexpr uint64_t typeHash = 0U;
 
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {});
 
     Trigger sut(StateBasedTrigger,
@@ -699,7 +699,7 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
 
     bool hasTerminated = false;
     iox::Error errorType = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             hasTerminated = true;
             errorType = error;

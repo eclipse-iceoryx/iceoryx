@@ -77,7 +77,7 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
     EXPECT_FALSE(sutProducer.send().has_error());
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
@@ -98,7 +98,7 @@ TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
     constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::INVALID_RESPONSE};
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));

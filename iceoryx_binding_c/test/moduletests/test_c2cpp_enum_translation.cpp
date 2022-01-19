@@ -55,7 +55,7 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::subscriberState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberState>()),
               iox::popo::SubscriberState::HAS_DATA);
@@ -88,7 +88,7 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::subscriberEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberEvent>()),
               iox::popo::SubscriberEvent::DATA_RECEIVED);
@@ -125,7 +125,7 @@ TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::consumerTooSlowPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ConsumerTooSlowPolicy>()),
               iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
@@ -162,7 +162,7 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::queueFullPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_QueueFullPolicy>()),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
@@ -195,7 +195,7 @@ TEST(c2cpp_enum_translation_test, ClientState)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::clientState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientState>()),
               iox::popo::ClientState::HAS_RESPONSE);
@@ -228,7 +228,7 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::clientEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientEvent>()),
               iox::popo::ClientEvent::RESPONSE_RECEIVED);
@@ -261,7 +261,7 @@ TEST(c2cpp_enum_translation_test, ServerState)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::serverState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerState>()),
               iox::popo::ServerState::HAS_REQUEST);
@@ -294,7 +294,7 @@ TEST(c2cpp_enum_translation_test, ServerEvent)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::serverEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerEvent>()),
               iox::popo::ServerEvent::REQUEST_RECEIVED);
@@ -328,7 +328,7 @@ TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::serviceDiscoveryEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServiceDiscoveryEvent>()),
               iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
@@ -366,7 +366,7 @@ TEST(c2cpp_enum_translation_test, MessagingPattern)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::messagingPattern(iox_test_binding_c::maxUnderlyingCEnumValue<iox_MessagingPattern>()),
               iox::popo::MessagingPattern::PUB_SUB);
