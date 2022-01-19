@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,31 +49,13 @@ class MePooSegmentMock
 class SegmentManager_test : public Test
 {
   public:
-    SegmentManager_test()
-        : surpressOutput{SurpressOutput(true)}
+    void SetUp() override
     {
     }
-
-    ~SegmentManager_test()
-    {
-        if (surpressOutput)
-        {
-            if (Test::HasFailure())
-            {
-                std::cout << testing::internal::GetCapturedStderr() << std::endl;
-            }
-            else
-            {
-                (void)testing::internal::GetCapturedStderr();
-            }
-        }
-    }
-
-    void SetUp(){};
-    void TearDown()
+    void TearDown() override
     {
         iox::rp::BaseRelativePointer::unregisterAll();
-    };
+    }
 
     MePooConfig getMempoolConfig()
     {
@@ -109,16 +91,6 @@ class SegmentManager_test : public Test
         return config;
     }
 
-    bool SurpressOutput(const bool v)
-    {
-        if (v)
-        {
-            testing::internal::CaptureStderr();
-        }
-        return v;
-    }
-
-    bool surpressOutput;
     static constexpr size_t MEM_SIZE{20000};
     char memory[MEM_SIZE];
     iox::posix::Allocator allocator{memory, MEM_SIZE};
@@ -186,21 +158,20 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWriterGroupFails))
 {
     ::testing::Test::RecordProperty("TEST_ID", "3fa29560-7341-43bf-a22e-2d3550b49e4e");
-    auto errorHandlerCalled{false};
-    iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&errorHandlerCalled,
-         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-            receivedError = error;
-        });
-
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
     SegmentManager<> sut{segmentConfig, &allocator};
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
+
     sut.getSegmentMappings(PosixUser("iox_roudi_test1"));
 
-    EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(receivedError, Eq(iox::Error::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMaximumNumberOfSegmentsWorks))
