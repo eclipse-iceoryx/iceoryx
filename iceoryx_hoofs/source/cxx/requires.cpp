@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
 #include <iostream>
 

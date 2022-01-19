@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
 #define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
 namespace iox
 {
