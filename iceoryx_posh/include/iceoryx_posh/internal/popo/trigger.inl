@@ -42,7 +42,7 @@ inline Trigger::Trigger(T* const notificationOrigin,
 {
     if (!resetCallback)
     {
-        errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
         invalidate();
     }
 }
@@ -69,7 +69,7 @@ inline Trigger::Trigger(StateBasedTrigger_t,
 {
     if (!hasTriggeredCallback)
     {
-        errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
         invalidate();
     }
 }

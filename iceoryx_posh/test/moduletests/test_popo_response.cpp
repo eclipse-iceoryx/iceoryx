@@ -76,9 +76,9 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
 
     EXPECT_FALSE(sutProducer.send().has_error());
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const auto errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const auto errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
@@ -89,7 +89,7 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
     EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__SENDING_EMPTY_RESPONSE));
 }
 
 TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
@@ -97,9 +97,9 @@ TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
     ::testing::Test::RecordProperty("TEST_ID", "4e8d7aa2-58d6-421f-9df8-f0fff3f1b9ee");
     constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::INVALID_RESPONSE};
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const auto errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const auto errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
@@ -111,7 +111,7 @@ TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
     EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__SENDING_EMPTY_RESPONSE));
 }
 
 TEST_F(Response_test, GetResponseHeaderWorks)

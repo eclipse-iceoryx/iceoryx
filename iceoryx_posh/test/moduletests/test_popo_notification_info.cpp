@@ -93,9 +93,9 @@ TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "badb467b-bf64-4e43-af30-77c163e90c99");
     auto errorHandlerCalled{false};
-    iox::Error errorHandlerType;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+    iox::PoshError errorHandlerType;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -103,16 +103,16 @@ TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
     m_sut.getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    EXPECT_EQ(errorHandlerType, iox::PoshError::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4fdb2bed-9928-4181-b195-e411d1b16572");
     auto errorHandlerCalled{false};
-    iox::Error errorHandlerType;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+    iox::PoshError errorHandlerType;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -120,7 +120,7 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
     const_cast<NotificationInfo&>(m_sut).getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    EXPECT_EQ(errorHandlerType, iox::PoshError::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(NotificationInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)

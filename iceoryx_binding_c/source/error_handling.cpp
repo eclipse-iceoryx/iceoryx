@@ -14,30 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_SAMPLE_INL
-#define IOX_POSH_POPO_SAMPLE_INL
-
-#include "iceoryx_posh/popo/sample.hpp"
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 
 namespace iox
 {
-namespace popo
-{
-template <typename T, typename H>
-template <typename S, typename>
-void Sample<T, H>::publish() noexcept
-{
-    if (BaseType::m_members.smartChunkUniquePtr)
-    {
-        BaseType::m_members.producerRef.get().publish(std::move(*(this)));
-    }
-    else
-    {
-        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
-        errorHandler(PoshError::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
-    }
-}
-} // namespace popo
-} // namespace iox
+const char* C_BINDING_ERROR_NAMES[] = {C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
-#endif
+const char* toString(const CBindingError error) noexcept
+{
+    return C_BINDING_ERROR_NAMES[static_cast<uint32_t>(error) - 1];
+}
+} // namespace iox

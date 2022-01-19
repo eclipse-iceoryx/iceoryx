@@ -49,7 +49,7 @@ IceOryxPortPool::addPublisherPort(const capro::ServiceDescription& serviceDescri
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::PUBLISHER_PORT_LIST_FULL);
     }
 }
@@ -68,7 +68,7 @@ IceOryxPortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescr
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
     }
 }

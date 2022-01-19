@@ -34,7 +34,7 @@ inline cxx::expected<ServerSendError> Response<T>::send() noexcept
     else
     {
         LogError() << "Tried to send empty Response! Might be an already sent or moved Response!";
-        errorHandler(Error::kPOSH__SENDING_EMPTY_RESPONSE, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPOSH__SENDING_EMPTY_RESPONSE, nullptr, ErrorLevel::MODERATE);
         return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 }

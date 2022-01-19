@@ -174,7 +174,7 @@ inline void ChunkSender<ChunkSenderDataType>::release(const mepoo::ChunkHeader* 
     // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
     if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
-        errorHandler(Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
 }
 
@@ -264,7 +264,7 @@ inline bool ChunkSender<ChunkSenderDataType>::getChunkReadyForSend(const mepoo::
     }
     else
     {
-        errorHandler(Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
         return false;
     }
 }

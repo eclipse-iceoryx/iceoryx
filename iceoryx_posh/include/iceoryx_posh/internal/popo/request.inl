@@ -34,7 +34,7 @@ inline cxx::expected<ClientSendError> Request<T>::send() noexcept
     else
     {
         LogError() << "Tried to send empty Request! Might be an already sent or moved Request!";
-        errorHandler(Error::kPOSH__SENDING_EMPTY_REQUEST, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPOSH__SENDING_EMPTY_REQUEST, nullptr, ErrorLevel::MODERATE);
         return cxx::error<ClientSendError>(ClientSendError::INVALID_REQUEST);
     }
 }

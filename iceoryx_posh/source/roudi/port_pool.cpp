@@ -55,7 +55,7 @@ PortPool::addInterfacePort(const RuntimeName_t& runtimeName, const capro::Interf
     else
     {
         LogWarn() << "Out of interface ports! Requested by runtime '" << runtimeName << "'";
-        errorHandler(Error::kPORT_POOL__INTERFACELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__INTERFACELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::INTERFACE_PORT_LIST_FULL);
     }
 }
@@ -73,7 +73,7 @@ cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const Run
     {
         LogWarn() << "Out of node data! Requested by runtime '" << runtimeName << "' and node name '" << nodeName
                   << "'";
-        errorHandler(Error::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::NODE_DATA_LIST_FULL);
     }
 }
@@ -89,7 +89,7 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     else
     {
         LogWarn() << "Out of condition variables! Requested by runtime '" << runtimeName << "'";
-        errorHandler(Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
 }
@@ -136,7 +136,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
     {
         LogWarn() << "Out of publisher ports! Requested by runtime '" << runtimeName
                   << "' and with service description '" << serviceDescription << "'";
-        errorHandler(Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::PUBLISHER_PORT_LIST_FULL);
     }
 }
@@ -158,7 +158,7 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
     {
         LogWarn() << "Out of subscriber ports! Requested by runtime '" << runtimeName
                   << "' and with service description '" << serviceDescription << "'";
-        errorHandler(Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
     }
 }
@@ -184,7 +184,7 @@ PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
     {
         LogWarn() << "Out of client ports! Requested by runtime '" << runtimeName << "' and with service description '"
                   << serviceDescription << "'";
-        errorHandler(Error::kPORT_POOL__CLIENTLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__CLIENTLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::CLIENT_PORT_LIST_FULL);
     }
 
@@ -204,7 +204,7 @@ PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
     {
         LogWarn() << "Out of server ports! Requested by runtime '" << runtimeName << "' and with service description '"
                   << serviceDescription << "'";
-        errorHandler(Error::kPORT_POOL__SERVERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::kPORT_POOL__SERVERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::SERVER_PORT_LIST_FULL);
     }
 

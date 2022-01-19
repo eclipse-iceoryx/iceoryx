@@ -34,12 +34,12 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                                  << " is still running. Using the "
                                     "same name twice is not supported.";
                       errorHandler(
-                          Error::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+                          PoshError::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
                   }
                   else
                   {
                       LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
-                      errorHandler(Error::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
+                      errorHandler(PoshError::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
                   }
               })
               .value()))

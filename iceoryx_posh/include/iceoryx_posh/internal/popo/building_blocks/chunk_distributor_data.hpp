@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"

@@ -50,7 +50,7 @@ inline T* NotificationInfo::getOrigin() const noexcept
     if (m_notificationOriginTypeHash != typeid(T).hash_code())
     {
         errorHandler(
-            Error::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
+            PoshError::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
         return nullptr;
     }
 

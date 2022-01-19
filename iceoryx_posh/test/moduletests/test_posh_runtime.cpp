@@ -155,9 +155,9 @@ TEST(PoshRuntime, LeadingSlashAppName)
     const iox::RuntimeName_t invalidAppName = "/miau";
 
     auto errorHandlerCalled{false};
-    iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled, &receivedError](const iox::Error error, const iox::ErrorLevel) {
+    iox::PoshError receivedError{iox::PoshError::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled, &receivedError](const iox::PoshError error, const iox::ErrorLevel) {
             errorHandlerCalled = true;
             receivedError = error;
         });
@@ -165,7 +165,7 @@ TEST(PoshRuntime, LeadingSlashAppName)
     PoshRuntime::initRuntime(invalidAppName);
 
     EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED));
+    ASSERT_THAT(receivedError, Eq(iox::PoshError::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED));
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
@@ -192,9 +192,9 @@ TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d207e121-d7c2-4a23-a202-1af311f6982b");
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
@@ -202,7 +202,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessfu
     m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
@@ -219,10 +219,10 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0e164d07-dede-46c3-b2a3-ad78a11c0691");
     auto interfacelistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&interfacelistOverflowDetected](const iox::Error error, const iox::ErrorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&interfacelistOverflowDetected](const iox::PoshError error, const iox::ErrorLevel) {
             interfacelistOverflowDetected = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__INTERFACELIST_OVERFLOW));
+            EXPECT_THAT(error, Eq(iox::PoshError::kPORT_POOL__INTERFACELIST_OVERFLOW));
         });
 
     for (auto i = 0U; i < iox::MAX_INTERFACE_NUMBER; ++i)
@@ -308,9 +308,9 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
     ::testing::Test::RecordProperty("TEST_ID", "f1f1a662-9580-40a1-a116-6ea1cb791516");
     auto publisherlistOverflowDetected{false};
 
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&publisherlistOverflowDetected](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW)
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&publisherlistOverflowDetected](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPORT_POOL__PUBLISHERLIST_OVERFLOW)
             {
                 publisherlistOverflowDetected = true;
             }
@@ -339,9 +339,9 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
 {
     ::testing::Test::RecordProperty("TEST_ID", "77fb6dfd-a00d-459e-9dd3-90010d7b8af7");
     auto publisherDuplicateDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&publisherDuplicateDetected](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE)
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&publisherDuplicateDetected](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE)
             {
                 publisherDuplicateDetected = true;
             }
@@ -372,9 +372,9 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithForbiddenServiceDescriptionsF
 {
     ::testing::Test::RecordProperty("TEST_ID", "130541c9-94de-4bc4-9471-0a65de310232");
     uint16_t forbiddenServiceDescriptionDetected{0U};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&forbiddenServiceDescriptionDetected](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPOSH__RUNTIME_SERVICE_DESCRIPTION_FORBIDDEN)
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&forbiddenServiceDescriptionDetected](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPOSH__RUNTIME_SERVICE_DESCRIPTION_FORBIDDEN)
             {
                 forbiddenServiceDescriptionDetected++;
             }
@@ -542,9 +542,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1281cbd-6520-424e-aace-fbd3aa5d73e9");
     auto subscriberlistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&subscriberlistOverflowDetected](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW)
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&subscriberlistOverflowDetected](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW)
             {
                 subscriberlistOverflowDetected = true;
             }
@@ -706,8 +706,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
     ::testing::Test::RecordProperty("TEST_ID", "6f2de2bf-5e7e-47b1-be42-92cf3fa71ba6");
     auto clientOverflowDetected{false};
     auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__CLIENTLIST_OVERFLOW)
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPORT_POOL__CLIENTLIST_OVERFLOW)
             {
                 clientOverflowDetected = true;
             }
@@ -739,9 +739,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandl
     iox::popo::ClientOptions clientOptions;
     clientOptions.nodeName = m_invalidNodeName;
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
@@ -749,7 +749,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandl
     m_runtime->getMiddlewareClient(sd, clientOptions);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
@@ -817,8 +817,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
     ::testing::Test::RecordProperty("TEST_ID", "8f679838-3332-440c-aa95-d5c82d53a7cd");
     auto serverOverflowDetected{false};
     auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__SERVERLIST_OVERFLOW)
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPORT_POOL__SERVERLIST_OVERFLOW)
             {
                 serverOverflowDetected = true;
             }
@@ -850,9 +850,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandl
     iox::popo::ServerOptions serverOptions;
     serverOptions.nodeName = m_invalidNodeName;
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
@@ -860,7 +860,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandl
     m_runtime->getMiddlewareServer(sd, serverOptions);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_INVALID_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
@@ -875,9 +875,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6776a648-03c7-4bd0-ab24-72ed7e118e4f");
     auto conditionVariableListOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&conditionVariableListOverflowDetected](const iox::Error error, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW)
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&conditionVariableListOverflowDetected](const iox::PoshError error, const iox::ErrorLevel) {
+            if (error == iox::PoshError::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW)
             {
                 conditionVariableListOverflowDetected = true;
             }
@@ -916,9 +916,9 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
     const uint32_t nodeDeviceIdentifier = 1U;
     iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
@@ -926,7 +926,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
     m_runtime->createNode(nodeProperty);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_INVALID_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)

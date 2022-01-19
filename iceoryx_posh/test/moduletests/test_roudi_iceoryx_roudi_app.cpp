@@ -192,10 +192,10 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    iox::cxx::optional<iox::Error> detectedError;
+    iox::cxx::optional<iox::PoshError> detectedError;
     iox::cxx::optional<iox::ErrorLevel> detectedErrorLevel;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             detectedErrorLevel.emplace(errorLevel);
         });
@@ -211,7 +211,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
     ASSERT_TRUE(detectedError.has_value());
     ASSERT_TRUE(detectedErrorLevel.has_value());
     EXPECT_THAT(detectedError.value(),
-                Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
+                Eq(iox::PoshError::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
 
     // reset unique RouDi ID

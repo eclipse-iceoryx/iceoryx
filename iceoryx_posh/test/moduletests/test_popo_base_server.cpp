@@ -261,12 +261,11 @@ TYPED_TEST(BaseServer_test, EnableStateCallsUnderlyingPortAndTriggerHandle)
         EXPECT_CALL(this->sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
 
         bool errorDetected{false};
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error,
-                                                                                                 const iox::ErrorLevel
-                                                                                                     errorLevel) {
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<
+            iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             EXPECT_THAT(
                 error,
-                Eq(iox::Error::
+                Eq(iox::PoshError::
                        kPOPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             errorDetected = true;
@@ -323,12 +322,12 @@ TYPED_TEST(BaseServer_test, EnableEventCallsUnderlyingPortAndTriggerHandle)
         EXPECT_CALL(this->sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
 
         bool errorDetected{false};
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error,
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error,
                                                                                                  const iox::ErrorLevel
                                                                                                      errorLevel) {
             EXPECT_THAT(
                 error,
-                Eq(iox::Error::
+                Eq(iox::PoshError::
                        kPOPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             errorDetected = true;

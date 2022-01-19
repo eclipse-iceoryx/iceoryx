@@ -15,12 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 
 using namespace iox;
 using namespace iox::cxx;
@@ -78,8 +80,8 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         {
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
-            LogFatal() << "publisher options may not have been initialized with iox_pub_options_init";
-            errorHandler(Error::kBINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
+            LogFatal() << "publisher options may not have been initialized with iox_pub_init";
+            errorHandler(CBindingError::kBINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
         }
         publisherOptions.historyCapacity = options->historyCapacity;
         if (options->nodeName != nullptr)

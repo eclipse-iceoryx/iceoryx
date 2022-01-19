@@ -90,7 +90,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMes
     else
     {
         // but others should not be received here
-        errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
         return cxx::nullopt_t();
     }
 }

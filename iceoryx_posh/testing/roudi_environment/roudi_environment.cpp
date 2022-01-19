@@ -31,7 +31,7 @@ namespace roudi
 RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
 {
     // setUniqueRouDiId is called multiple times but it is okay for the tests
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([](auto, auto) {});
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
     iox::popo::UniquePortId::setUniqueRouDiId(uniqueRouDiId);
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kWarn,
                                                              iox::log::LogLevelOutput::kHideLogLevel);
@@ -53,7 +53,7 @@ RouDiEnvironment::~RouDiEnvironment()
     if (m_runtimes.m_doCleanupOnDestruction)
     {
         // setUniqueRouDiId is called multiple times but it is okay for the tests
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([](auto, auto) {});
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
         popo::UniquePortId::setUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     }
     CleanupRuntimes();

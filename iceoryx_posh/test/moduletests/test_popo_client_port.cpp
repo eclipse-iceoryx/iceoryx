@@ -259,9 +259,9 @@ TEST_F(ClientPort_test, ReleaseRequestWithNullptrCallsErrorHandler)
     ::testing::Test::RecordProperty("TEST_ID", "f21bc4ab-4080-4994-b862-5cb8c8738b46");
     auto& sut = clientPortWithConnectOnCreate;
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
@@ -269,7 +269,7 @@ TEST_F(ClientPort_test, ReleaseRequestWithNullptrCallsErrorHandler)
     sut.portUser.releaseRequest(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, ReleaseRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
@@ -293,9 +293,9 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortCallsErrorHan
     ::testing::Test::RecordProperty("TEST_ID", "e50da541-7621-46e8-accb-46a6b5d7e69b");
     auto& sut = clientPortWithConnectOnCreate;
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
@@ -305,7 +305,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortCallsErrorHan
         .or_else([&](auto error) { EXPECT_THAT(error, Eq(ClientSendError::INVALID_REQUEST)); });
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER);
 }
 
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
@@ -417,9 +417,9 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
     ::testing::Test::RecordProperty("TEST_ID", "b6ad4c2a-7c52-45ee-afd3-29c286489311");
     auto& sut = clientPortWithConnectOnCreate;
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
@@ -427,7 +427,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
     sut.portUser.releaseResponse(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempool)
@@ -983,9 +983,9 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
                 tryAdvanceToState(sut, targetState);
             }
 
-            iox::cxx::optional<iox::Error> detectedError;
-            auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-                [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+            iox::cxx::optional<iox::PoshError> detectedError;
+            auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+                [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
                     detectedError.emplace(error);
                     EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
                 });
@@ -994,7 +994,7 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
             auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
             ASSERT_FALSE(responseCaproMessage.has_value());
             ASSERT_TRUE(detectedError.has_value());
-            EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR);
+            EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CAPRO_PROTOCOL_ERROR);
         }
     }
 }

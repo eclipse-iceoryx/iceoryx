@@ -64,7 +64,7 @@ void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     else
     {
         LogFatal() << "Provided RequestHeader is a nullptr";
-        errorHandler(Error::kPOPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
 }
 
@@ -118,7 +118,7 @@ void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     else
     {
         LogFatal() << "Provided ResponseHeader is a nullptr";
-        errorHandler(Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
 }
 
@@ -127,7 +127,7 @@ cxx::expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* cons
     if (responseHeader == nullptr)
     {
         LogFatal() << "Provided ResponseHeader is a nullptr";
-        errorHandler(Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
         return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 

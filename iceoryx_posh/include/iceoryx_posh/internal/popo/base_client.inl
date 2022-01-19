@@ -112,7 +112,7 @@ inline void BaseClient<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
                    "attaching it to the new one with ClientState::HAS_RESPONSE. Best practice is to call detach first.";
 
             errorHandler(
-                Error::
+                PoshError::
                     kPOPO__BASE_CLIENT_OVERRIDING_WITH_STATE_SINCE_HAS_RESPONSE_OR_RESPONSE_RECEIVED_ALREADY_ATTACHED,
                 nullptr,
                 ErrorLevel::MODERATE);
@@ -162,7 +162,7 @@ inline void BaseClient<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
                    "attaching it to the new one with ClientEvent::RESPONSE_RECEIVED. Best practice is to call detach "
                    "first.";
             errorHandler(
-                Error::
+                PoshError::
                     kPOPO__BASE_CLIENT_OVERRIDING_WITH_EVENT_SINCE_HAS_RESPONSE_OR_RESPONSE_RECEIVED_ALREADY_ATTACHED,
                 nullptr,
                 ErrorLevel::MODERATE);
