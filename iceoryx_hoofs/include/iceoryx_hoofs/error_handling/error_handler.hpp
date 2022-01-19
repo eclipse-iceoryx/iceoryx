@@ -29,6 +29,10 @@
 #include <sstream>
 namespace iox
 {
+
+#define CREATE_ICEORYX_ERROR_ENUM(name) k##name,
+#define CREATE_ICEORYX_ERROR_STRING(name) #name,
+
 /// @brief the available error levels
 /// FATAL
 /// - Log message with FATAL
