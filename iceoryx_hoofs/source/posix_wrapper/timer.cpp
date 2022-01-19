@@ -112,7 +112,7 @@ void Timer::OsTimer::callbackHelper(sigval data) noexcept
             // prohibits other threads from entering the flag protected region
             handle.m_callbackIsAboutToBeExecuted.test_and_set(std::memory_order_acq_rel);
 
-            cxx::Ensures((handle.m_timer != nullptr) && "Timer in inconsistent state");
+            cxx::Expects((handle.m_timer != nullptr) && "Timer in inconsistent state");
 
             if (!handle.m_inUse.load(std::memory_order::memory_order_relaxed))
             {
@@ -263,7 +263,7 @@ Timer::OsTimer::~OsTimer() noexcept
 
 void Timer::OsTimer::executeCallback() noexcept
 {
-    cxx::Ensures(m_isInitialized && m_callback && "Timer fired but state is invalid");
+    cxx::Expects(m_isInitialized && m_callback && "Timer fired but state is invalid");
 
     m_callback();
 }

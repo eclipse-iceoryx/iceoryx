@@ -346,6 +346,10 @@ inline void ErrorHandler<Error>::defaultHandler(const Error error,
 template <typename Error>
 std::mutex ErrorHandler<Error>::handler_mutex;
 
+// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
+template <typename Error>
+HandlerFunction<Error> ErrorHandler<Error>::handler = {ErrorHandler::defaultHandler};
+
 template <typename Error>
 inline void ErrorHandler<Error>::reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
 {
