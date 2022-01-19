@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_FUNCTIONAL_POLICY_INL
-#define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_INL
+#ifndef IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
+#define IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 
 namespace iox
 {
 namespace cxx
 {
-namespace functional_policy
+namespace internal
 {
 template <typename T>
 inline T& Expect<T>::expect(const char* const msg) & noexcept
@@ -54,7 +54,27 @@ inline const T&& Expect<T>::expect(const char* const msg) const&& noexcept
 {
     return const_cast<const T&&>(std::move(const_cast<Expect<T>*>(this)->expect(msg)));
 }
-} // namespace functional_policy
+
+template <typename T>
+inline T& AndThenWithValue<T>::and_then(const and_then_callback_t& callable) & noexcept
+{
+    T* upcastedThis = static_cast<T*>(this);
+
+    if (*upcastedThis)
+    {
+        callable(upcastedThis->value());
+    }
+
+    return *upcastedThis;
+}
+
+template <typename T>
+inline const T& AndThenWithValue<T>::and_then(const and_then_callback_t& callable) const& noexcept
+{
+    return const_cast<const T&>(const_cast<AndThenWithValue<T>*>(this)->and_then(callable));
+}
+
+} // namespace internal
 } // namespace cxx
 } // namespace iox
 #endif
