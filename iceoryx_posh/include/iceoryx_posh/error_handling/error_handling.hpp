@@ -142,7 +142,7 @@ enum class PoshError : uint32_t
     POSH_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
-/// @brief Convenience stream operator to easily use the Error enum with std::ostream
+/// @brief Convenience stream operator to easily use the PoshError enum with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
