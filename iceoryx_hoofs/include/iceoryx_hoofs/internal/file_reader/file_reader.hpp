@@ -17,8 +17,6 @@
 #ifndef IOX_HOOFS_FILE_READER_FILE_READER_HPP
 #define IOX_HOOFS_FILE_READER_FILE_READER_HPP
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
-
 #include <fstream>
 
 namespace iox

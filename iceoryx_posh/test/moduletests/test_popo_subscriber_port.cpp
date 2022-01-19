@@ -318,7 +318,7 @@ TEST_F(SubscriberPortSingleProducer_test, InvalidMessageResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "23aaa4fd-5567-4831-b539-802c5de238ab");
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -335,7 +335,7 @@ TEST_F(SubscriberPortSingleProducer_test, AckWhenNotWaitingForResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "541719e5-fdfa-4ef8-86f6-a9baf4919fe8");
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
         });
@@ -353,7 +353,7 @@ TEST_F(SubscriberPortSingleProducer_test, NackWhenNotWaitingForResultsInError)
     ::testing::Test::RecordProperty("TEST_ID", "063e3a61-209b-4755-abfa-69aed6258ab3");
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
@@ -539,7 +539,7 @@ TEST_F(SubscriberPortMultiProducer_test, InvalidMessageResultsInError)
     ::testing::Test::RecordProperty("TEST_ID", "419aa91f-991b-4814-b1ee-11637ee14d30");
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
