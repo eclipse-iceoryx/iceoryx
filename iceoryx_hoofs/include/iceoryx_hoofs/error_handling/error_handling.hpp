@@ -244,6 +244,7 @@ using HandlerFunction = std::function<void(const Error error, const std::functio
 /// @brief This handler is needed for unit testing, special debugging cases and
 ///         other corner cases where we'd like to explicitly suppress the
 ///         error handling.
+/// @tparam[in] Error type of the enum which is used to report the error
 template <typename Error>
 class ErrorHandler
 {
@@ -269,14 +270,20 @@ class ErrorHandler
 };
 
 /// @brief Howto use the error handler correctly
-///     1.) If the error you would like to handle is not listed in ICEORYX_ERRORS(error)\...
-///             macro just add them like:
+///     1.) Use the macro ICEORYX_ERRORS(error)\ to create the enum for your component and
+///             add new errors like:
 ///             error(MODULE_NAME__MY_FUNKY_ERROR)
 ///         Attention: Create an error after the following convention:
 ///             MODULE_NAME__A_CLEAR_BUT_SHORT_ERROR_DESCRIPTION
 ///         And a long name is alright!
 ///
-///     2.) Call errorHandler(Error::kMODULE_NAME__MY_FUNKY_ERROR);
+///     2.) Specialize the following methods for your NewEnumErrorType:
+///         - defaultHandler(const NewEnumErrorType error, const std::function<void()>& errorCallBack, const
+///         ErrorLevel level)
+///         - std::ostream& operator<<(std::ostream& stream, NewEnumErrorType value)
+///         - const char* toString(const NewEnumErrorType error)
+///
+///     3.) Call errorHandler(Error::kMODULE_NAME__MY_FUNKY_ERROR);
 ///             Please pay attention to the "k" prefix
 ///         The defaults for errorCallback and ErrorLevel can also be overwritten:
 ///             errorHandler(
@@ -297,7 +304,7 @@ class ErrorHandler
 ///
 /// @code
 /// bool called = false;
-/// auto temporaryErrorHandler = ErrorHandler::setTemporaryErrorHandler(
+/// auto temporaryErrorHandler = ErrorHandler<ErrorType>::setTemporaryErrorHandler(
 ///     [&](const Error e, std::function<void()>, const ErrorLevel) {
 ///         called = true;
 ///     });
@@ -305,6 +312,7 @@ class ErrorHandler
 /// errorHandler(Error::kTEST__ASSERT_CALLED);
 /// ASSERT_TRUE(called);
 /// @endcode
+/// @tparam[in] Error type of the enum which is used to report the error
 /// @todo use enable_if with is_enum
 template <typename Error>
 inline void errorHandler(const Error error,
