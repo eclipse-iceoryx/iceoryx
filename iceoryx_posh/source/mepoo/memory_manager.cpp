@@ -196,7 +196,8 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         printMemPoolVector(log);
         log.Flush();
 
-        errorHandler(iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, nullptr, ErrorLevel::MODERATE);
+        errorHandler(
+            iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, nullptr, ErrorLevel::MODERATE);
         return cxx::error<Error>(Error::MEMPOOL_OUT_OF_CHUNKS);
     }
     else

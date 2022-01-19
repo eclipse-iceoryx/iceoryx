@@ -30,12 +30,14 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
     , m_managementShm(SHM_NAME, posix::AccessMode::READ_WRITE, posix::OpenMode::PURGE_AND_CREATE)
 {
     m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock).or_else([](auto) {
-        errorHandler(
-            PoshError::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK,
+                     nullptr,
+                     ErrorLevel::FATAL);
     });
     m_managementShm.addMemoryBlock(&m_segmentManagerBlock).or_else([](auto) {
-        errorHandler(
-            PoshError::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK,
+                     nullptr,
+                     ErrorLevel::FATAL);
     });
 }
 mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const noexcept

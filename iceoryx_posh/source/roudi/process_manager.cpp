@@ -607,8 +607,9 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for application " << process_name;
-        errorHandler(
-            PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTION_SENDER_PORT, nullptr, iox::ErrorLevel::SEVERE);
+        errorHandler(PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTION_SENDER_PORT,
+                     nullptr,
+                     iox::ErrorLevel::SEVERE);
     }
     return maybePublisher.value();
 }

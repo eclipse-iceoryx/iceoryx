@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
-#include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
 namespace c2cpp
 {
@@ -30,8 +30,9 @@ iox::popo::SubscriberTooSlowPolicy subscriberTooSlowPolicy(const ENUM iox_Subscr
         return iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
     }
 
-    errorHandler(
-        iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY, nullptr, iox::ErrorLevel::MODERATE);
+    errorHandler(iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY,
+                 nullptr,
+                 iox::ErrorLevel::MODERATE);
     return iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
 }
 
@@ -45,7 +46,8 @@ iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy
         return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
     }
 
-    errorHandler(iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY, nullptr, iox::ErrorLevel::MODERATE);
+    errorHandler(
+        iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY, nullptr, iox::ErrorLevel::MODERATE);
     return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
 }
 

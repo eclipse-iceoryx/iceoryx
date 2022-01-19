@@ -35,8 +35,9 @@ void ConditionListener::resetSemaphore() noexcept
            && getMembers()
                   ->m_semaphore.tryWait()
                   .or_else([&](posix::SemaphoreError) {
-                      errorHandler(
-                          PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET, nullptr, ErrorLevel::FATAL);
+                      errorHandler(PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET,
+                                   nullptr,
+                                   ErrorLevel::FATAL);
                       hasFatalError = true;
                   })
                   .value())
@@ -57,7 +58,8 @@ bool ConditionListener::wasNotified() const noexcept
     auto result = getMembers()->m_semaphore.getValue();
     if (result.has_error())
     {
-        errorHandler(PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
+        errorHandler(
+            PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
         return false;
     }
 

@@ -58,7 +58,8 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Could not get MemoryManager for introspection!";
-        errorHandler(PoshError::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
+        errorHandler(
+            PoshError::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -164,8 +165,9 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         else
         {
             // protocol error
-            errorHandler(
-                PoshError::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
+            errorHandler(PoshError::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
+                         nullptr,
+                         iox::ErrorLevel::MODERATE);
         }
 
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);

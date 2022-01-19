@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"

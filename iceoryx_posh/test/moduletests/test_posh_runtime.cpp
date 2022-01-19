@@ -179,7 +179,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
     ::testing::Test::RecordProperty("TEST_ID", "4dab3186-d840-4a6f-bb01-eebb7a05afca");
     auto applicationlistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
-        [&applicationlistOverflowDetected](const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
+        [&applicationlistOverflowDetected](
+            const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
             applicationlistOverflowDetected = true;
             EXPECT_THAT(error, Eq(iox::PoshError::kPORT_POOL__APPLICATIONLIST_OVERFLOW));
         });
@@ -215,7 +216,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
     ::testing::Test::RecordProperty("TEST_ID", "0e164d07-dede-46c3-b2a3-ad78a11c0691");
     auto interfacelistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
-        [&interfacelistOverflowDetected](const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
+        [&interfacelistOverflowDetected](
+            const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
             interfacelistOverflowDetected = true;
             EXPECT_THAT(error, Eq(iox::PoshError::kPORT_POOL__INTERFACELIST_OVERFLOW));
         });
@@ -322,7 +324,8 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
     auto publisherlistOverflowDetected{false};
 
     auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
-        [&publisherlistOverflowDetected](const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
+        [&publisherlistOverflowDetected](
+            const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
             if (error == iox::PoshError::kPORT_POOL__PUBLISHERLIST_OVERFLOW)
             {
                 publisherlistOverflowDetected = true;
@@ -524,7 +527,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
     ::testing::Test::RecordProperty("TEST_ID", "d1281cbd-6520-424e-aace-fbd3aa5d73e9");
     auto subscriberlistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler<iox::PoshError>::setTemporaryErrorHandler(
-        [&subscriberlistOverflowDetected](const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
+        [&subscriberlistOverflowDetected](
+            const iox::PoshError error, const std::function<void()>, const iox::ErrorLevel) {
             if (error == iox::PoshError::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW)
             {
                 subscriberlistOverflowDetected = true;

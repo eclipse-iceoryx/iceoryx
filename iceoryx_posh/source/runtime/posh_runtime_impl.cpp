@@ -138,7 +138,8 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
         default:
             LogWarn() << "Unknown error occurred while creating service '"
                       << service.operator cxx::Serialization().toString() << "'.";
-            errorHandler(PoshError::kPOSH__RUNTIME_PUBLISHER_PORT_CREATION_UNKNOWN_ERROR, nullptr, iox::ErrorLevel::SEVERE);
+            errorHandler(
+                PoshError::kPOSH__RUNTIME_PUBLISHER_PORT_CREATION_UNKNOWN_ERROR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;
@@ -340,7 +341,8 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
     }
 
     LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
-    errorHandler(PoshError::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    errorHandler(
+        PoshError::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
@@ -367,8 +369,9 @@ popo::ApplicationPortData* PoshRuntimeImpl::getMiddlewareApplication() noexcept
     }
 
     LogError() << "Get mw application got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    errorHandler(
-        PoshError::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    errorHandler(PoshError::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_IPC_MESSAGE_RESPONSE,
+                 nullptr,
+                 iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
@@ -421,7 +424,8 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
         {
         case IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL:
             LogWarn() << "Could not create condition variable as we are out of memory for condition variables.";
-            errorHandler(PoshError::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            errorHandler(
+                PoshError::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Could not create condition variables; received wrong IPC channel response.";
