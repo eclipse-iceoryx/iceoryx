@@ -21,7 +21,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 
 #include <atomic>
 

@@ -118,7 +118,7 @@ add_library(iceoryx_posh # @todo iox-#590 Rename this to iceoryx_posh_core
     source/popo/building_blocks/condition_notifier.cpp
     source/popo/building_blocks/condition_variable_data.cpp
     source/popo/building_blocks/locking_policy.cpp
-    source/popo/building_blocks/typed_unique_id.cpp
+    source/popo/building_blocks/unique_port_id.cpp
     source/popo/client_options.cpp
     source/popo/listener.cpp
     source/popo/notification_info.cpp

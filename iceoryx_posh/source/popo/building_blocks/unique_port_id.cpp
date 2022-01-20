@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox

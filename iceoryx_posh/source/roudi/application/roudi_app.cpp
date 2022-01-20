@@ -30,7 +30,7 @@
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 

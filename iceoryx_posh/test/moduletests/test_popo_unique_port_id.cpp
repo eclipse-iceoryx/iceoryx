@@ -19,7 +19,7 @@
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "test.hpp"
 
 namespace
