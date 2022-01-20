@@ -49,10 +49,17 @@ struct HasGetErrorMethod<T, std::void_t<decltype(&T::get_error)>> : std::true_ty
 template <typename T>
 struct Expect
 {
-    T& expect(const char* const msg) & noexcept;
-    const T& expect(const char* const msg) const& noexcept;
-    T&& expect(const char* const msg) && noexcept;
-    const T&& expect(const char* const msg) const&& noexcept;
+    void expect(const char* const msg) const noexcept;
+};
+
+template <typename T>
+struct ExpectWithValue
+{
+    using expect_value_t = typename T::value_t;
+    expect_value_t& expect(const char* const msg) & noexcept;
+    const expect_value_t& expect(const char* const msg) const& noexcept;
+    expect_value_t&& expect(const char* const msg) && noexcept;
+    const expect_value_t&& expect(const char* const msg) const&& noexcept;
 };
 
 template <typename T>
@@ -108,12 +115,13 @@ struct FunctionalInterfaceImpl<T, false, false> : public Expect<T>, public AndTh
 };
 
 template <typename T>
-struct FunctionalInterfaceImpl<T, true, false> : public Expect<T>, public AndThenWithValue<T>, public OrElse<T>
+struct FunctionalInterfaceImpl<T, true, false> : public ExpectWithValue<T>, public AndThenWithValue<T>, public OrElse<T>
 {
 };
 
 template <typename T>
-struct FunctionalInterfaceImpl<T, true, true> : public Expect<T>, public AndThenWithValue<T>, public OrElseWithValue<T>
+struct FunctionalInterfaceImpl<T, true, true>
+    : public ExpectWithValue<T>, public AndThenWithValue<T>, public OrElseWithValue<T>
 {
 };
 

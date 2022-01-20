@@ -24,7 +24,17 @@ namespace cxx
 namespace internal
 {
 template <typename T>
-inline T& Expect<T>::expect(const char* const msg) & noexcept
+inline void Expect<T>::expect(const char* const msg) const noexcept
+{
+    if (!(*static_cast<const T*>(this)))
+    {
+        std::cout << msg << std::endl;
+        Ensures(false);
+    }
+}
+
+template <typename T>
+inline typename ExpectWithValue<T>::expect_value_t& ExpectWithValue<T>::expect(const char* const msg) & noexcept
 {
     T* upcastedThis = static_cast<T*>(this);
 
@@ -38,19 +48,21 @@ inline T& Expect<T>::expect(const char* const msg) & noexcept
 }
 
 template <typename T>
-inline const T& Expect<T>::expect(const char* const msg) const& noexcept
+inline const typename ExpectWithValue<T>::expect_value_t&
+ExpectWithValue<T>::expect(const char* const msg) const& noexcept
 {
     return const_cast<const T&>(const_cast<Expect<T>*>(this)->expect(msg));
 }
 
 template <typename T>
-inline T&& Expect<T>::expect(const char* const msg) && noexcept
+inline typename ExpectWithValue<T>::expect_value_t&& ExpectWithValue<T>::expect(const char* const msg) && noexcept
 {
     return std::move(this->expect(msg));
 }
 
 template <typename T>
-inline const T&& Expect<T>::expect(const char* const msg) const&& noexcept
+inline const typename ExpectWithValue<T>::expect_value_t&&
+ExpectWithValue<T>::expect(const char* const msg) const&& noexcept
 {
     return const_cast<const T&&>(std::move(const_cast<Expect<T>*>(this)->expect(msg)));
 }

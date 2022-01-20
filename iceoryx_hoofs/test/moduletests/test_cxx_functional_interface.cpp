@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
+#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "test.hpp"
 
 #include <memory>
@@ -23,11 +24,17 @@ namespace
 {
 using namespace ::testing;
 
+bool wasTerminateHandlerCalled = false;
+void terminateHandler()
+{
+    wasTerminateHandlerCalled = true;
+}
+
 template <typename T>
 class FunctionalInterface_test : public Test
 {
   public:
-    using TestType = T;
+    using TestControllerType = T;
 
     void SetUp() override
     {
@@ -35,6 +42,14 @@ class FunctionalInterface_test : public Test
 
     void TearDown() override
     {
+    }
+
+    iox::cxx::GenericRAII overrideTerminateHandler()
+    {
+        wasTerminateHandlerCalled = false;
+        auto oldTerminateHandler = std::set_terminate(terminateHandler);
+
+        return iox::cxx::GenericRAII([oldTerminateHandler] { std::set_terminate(oldTerminateHandler); });
     }
 };
 
@@ -49,7 +64,7 @@ struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueErro
     {
     }
 
-    operator bool() const noexcept
+    explicit operator bool() const noexcept
     {
         return m_value != 0;
     }
@@ -87,17 +102,82 @@ struct GenericValueErrorTest
 {
     using Type = GenericValueError;
 
-    static Type CreateValid() noexcept
+    static Type CreateValidObject() noexcept
     {
+        return GenericValueError(5, 6);
+    }
+
+    static Type CreateInvalidObject() noexcept
+    {
+        return GenericValueError(0, 0);
     }
 };
 
 
-using Implementations = Types<GenericValueError>;
+using Implementations = Types<GenericValueErrorTest>;
 
 TYPED_TEST_SUITE(FunctionalInterface_test, Implementations);
 
-TYPED_TEST(FunctionalInterface_test, DefaultCTorHasValue)
+template <typename T, typename ExpectCall>
+void ExpectDoesNotCallTerminateWhenObjectIsValid(T& test, const ExpectCall& expectCall)
 {
+    using ControllerType = typename T::TestControllerType;
+
+    auto sut = ControllerType::CreateValidObject();
+    {
+        auto handle = test.overrideTerminateHandler();
+        expectCall(sut);
+    }
+
+    EXPECT_FALSE(wasTerminateHandlerCalled);
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)
+{
+    ExpectDoesNotCallTerminateWhenObjectIsValid(
+        *this, [](auto& sut) { sut.expect("a seal on the head is better then a roof on a pidgin"); });
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_ConstLValueCase)
+{
+    using SutType = typename TestFixture::TestControllerType::Type;
+    ExpectDoesNotCallTerminateWhenObjectIsValid(*this, [](auto& sut) {
+        const_cast<const SutType&>(sut).expect(
+            "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");
+    });
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_RValueCase)
+{
+    ExpectDoesNotCallTerminateWhenObjectIsValid(
+        *this, [](auto& sut) { std::move(sut).expect("hypnotoad is a friend of david hasselhof"); });
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_ConstRValueCase)
+{
+    using SutType = typename TestFixture::TestControllerType::Type;
+    ExpectDoesNotCallTerminateWhenObjectIsValid(*this, [](auto& sut) {
+        std::move(const_cast<const SutType&>(sut)).expect("hypnotoads favorite animal is the leaf sheep");
+    });
+}
+
+template <typename T, typename ExpectCall>
+void ExpectDoesCallTerminateWhenObjectIsInvalid(T& test, const ExpectCall& expectCall)
+{
+    using ControllerType = typename T::TestControllerType;
+
+    auto sut = ControllerType::CreateInvalidObject();
+    {
+        auto handle = test.overrideTerminateHandler();
+        expectCall(sut);
+    }
+
+    EXPECT_TRUE(wasTerminateHandlerCalled);
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)
+{
+    ExpectDoesCallTerminateWhenObjectIsInvalid(
+        *this, [](auto& sut) { sut.expect("a seal on the head is better then a roof on a pidgin"); });
 }
 } // namespace
