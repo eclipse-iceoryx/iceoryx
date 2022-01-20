@@ -53,7 +53,7 @@ RouDiEnvironment::~RouDiEnvironment()
     {
         // setUniqueRouDiId is called multiple times but it is okay for the tests
         auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
-        popo::UniquePortId::setUniqueRouDiId(DEFAULT_UNIQUE_ROUDI_ID);
+        popo::UniquePortId::setUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     }
     CleanupRuntimes();
 }

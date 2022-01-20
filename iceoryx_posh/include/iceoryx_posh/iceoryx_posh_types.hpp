@@ -51,10 +51,6 @@ using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortRouDiType = iox::popo::SubscriberPortRouDi;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 
-// this is used by the UniquePortId
-constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
-using UniquePortId = popo::UniquePortId;
-
 using SubscriberPortType = iox::build::CommunicationPolicy;
 
 //--------- Communication Resources Start---------------------
@@ -214,6 +210,9 @@ constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr const char SHM_NAME[] = "/iceoryx_mgmt";
+
+// this is used by the UniquePortId
+constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
 
 // Timeout
 using namespace units::duration_literals;

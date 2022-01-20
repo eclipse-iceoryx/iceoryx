@@ -48,7 +48,7 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
     // deliberately used a magic number to make the test fail when CHUNK_HEADER_VERSION changes
     EXPECT_THAT(sut.chunkHeaderVersion(), Eq(1U));
 
-    EXPECT_THAT(sut.originId(), Eq(iox::UniquePortId(iox::popo::InvalidPortId)));
+    EXPECT_THAT(sut.originId(), Eq(iox::popo::UniquePortId(iox::popo::InvalidPortId)));
 
     EXPECT_THAT(sut.sequenceNumber(), Eq(0U));
 

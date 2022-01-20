@@ -200,12 +200,12 @@ uint32_t ChunkHeader::userPayloadAlignment() const noexcept
     return m_userPayloadAlignment;
 }
 
-UniquePortId ChunkHeader::originId() const noexcept
+popo::UniquePortId ChunkHeader::originId() const noexcept
 {
     return m_originId;
 }
 
-void ChunkHeader::setOriginId(UniquePortId originId) noexcept
+void ChunkHeader::setOriginId(popo::UniquePortId originId) noexcept
 {
     m_originId = originId;
 }

@@ -132,7 +132,7 @@ struct ChunkHeader
 
     /// @brief The unique identifier of the publisher the chunk was sent from
     /// @return the id of the publisher the chunk was sent from
-    UniquePortId originId() const noexcept;
+    popo::UniquePortId originId() const noexcept;
 
     /// @brief A serial number for the sent chunks
     /// @brief the serquence number of the chunk
@@ -142,7 +142,7 @@ struct ChunkHeader
     template <typename T>
     friend class popo::ChunkSender;
 
-    void setOriginId(UniquePortId originId) noexcept;
+    void setOriginId(popo::UniquePortId originId) noexcept;
 
     void setSequenceNumber(uint64_t sequenceNumber) noexcept;
 
@@ -161,7 +161,7 @@ struct ChunkHeader
     uint8_t m_reserved{0};
     // currently just a placeholder
     uint16_t m_userHeaderId{NO_USER_HEADER};
-    UniquePortId m_originId{popo::InvalidPortId};
+    popo::UniquePortId m_originId{popo::InvalidPortId};
     uint64_t m_sequenceNumber{0U};
     uint32_t m_userHeaderSize{0U};
     uint32_t m_userPayloadSize{0U};

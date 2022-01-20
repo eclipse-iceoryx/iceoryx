@@ -38,7 +38,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
     EXPECT_EQ(iox::popo::UniquePortId::getUniqueRouDiId(), someId);
 
     // reset unique RouDi ID
-    iox::popo::UniquePortId::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
+    iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
@@ -67,14 +67,14 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
 
     // reset unique RouDi ID
-    iox::popo::UniquePortId::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
+    iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(UniquePortId_test, GettingTheRouDiIdWithoutSettingReturnsDefaultId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68de213f-7009-4573-8791-9f09f8ba413c");
 
-    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::DEFAULT_UNIQUE_ROUDI_ID));
+    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID));
 }
 
 TEST(UniquePortId_test, DefaultConstructorIncrementsID)

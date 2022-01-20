@@ -69,7 +69,7 @@ class MockPublisherPortUser
         return true;
     }
 
-    MOCK_CONST_METHOD0(getUniqueID, iox::UniquePortId());
+    MOCK_CONST_METHOD0(getUniqueID, iox::popo::UniquePortId());
     MOCK_METHOD0(destroy, void());
 };
 

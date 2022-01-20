@@ -96,7 +96,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             m_chunkSender
-                .tryAllocate(iox::UniquePortId(),
+                .tryAllocate(UniquePortId(),
                              sizeof(DummySample),
                              iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
                              iox::CHUNK_NO_USER_HEADER_SIZE,
