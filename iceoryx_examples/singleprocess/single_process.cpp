@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/log/logmanager.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
@@ -33,18 +33,12 @@
 #include <mutex>
 #include <thread>
 
-std::atomic_bool keepRunning{true};
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    keepRunning = false;
-}
-
 struct TransmissionData_t
 {
     uint64_t counter;
 };
+
+constexpr std::chrono::milliseconds CYCLE_TIME{100};
 
 void consoleOutput(const char* source, const char* arrow, const uint64_t counter)
 {
@@ -56,13 +50,16 @@ void consoleOutput(const char* source, const char* arrow, const uint64_t counter
 
 void publisher()
 {
+    //! [publisher]
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
     iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
+    //! [publisher]
 
+    //! [send]
     uint64_t counter{0};
     constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
-    while (keepRunning.load())
+    while (!iox::posix::hasTerminationRequested())
     {
         publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
@@ -70,19 +67,23 @@ void publisher()
             sample.publish();
         });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(CYCLE_TIME);
     }
+    //! [send]
 }
 
 void subscriber()
 {
+    //! [subscriber]
     iox::popo::SubscriberOptions options;
     options.queueCapacity = 10U;
     options.historyRequest = 5U;
     iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
+    //! [subscriber]
 
+    //! [receive]
     constexpr const char ORANGE_LEFT_ARROW[] = "\033[33m<-\033[m ";
-    while (keepRunning.load())
+    while (!iox::posix::hasTerminationRequested())
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
         {
@@ -102,37 +103,42 @@ void subscriber()
             } while (hasMoreSamples);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(CYCLE_TIME);
     }
+    //! [receive]
 }
 
 int main()
 {
-    // Register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     // set the log level to error to see the essence of the example
+    //! [log level]
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+    //! [log level]
 
+    //! [roudi config]
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+    //! [roudi config]
 
+    //! [roudi]
     iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager,
                             roudiComponents.portManager,
                             iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
+    //! [roudi]
 
     // create a single process runtime for inter thread communication
+    //! [runtime]
     iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
+    //! [runtime]
 
+    //! [run]
     std::thread publisherThread(publisher), subscriberThread(subscriber);
 
-    // communicate for 2 seconds and then stop the example
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    keepRunning.store(false);
+    iox::posix::waitForTerminationRequest();
 
     publisherThread.join();
     subscriberThread.join();
 
     std::cout << "Finished" << std::endl;
+    //! [run]
 }

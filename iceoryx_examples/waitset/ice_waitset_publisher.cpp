@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -22,19 +22,12 @@
 #include <chrono>
 #include <iostream>
 
-bool killswitch = false;
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    killswitch = true;
-}
-
 void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-publisher-waitset");
     iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
 
-    for (uint32_t counter = 0U; !killswitch; ++counter)
+    for (uint32_t counter = 0U; !iox::posix::hasTerminationRequested(); ++counter)
     {
         myPublisher.publishCopyOf(CounterTopic{counter})
             .and_then([&] { std::cout << "Sending: " << counter << std::endl; })
@@ -48,9 +41,6 @@ void sending()
 
 int main()
 {
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     std::thread tx(sending);
     tx.join();
 

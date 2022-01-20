@@ -17,25 +17,14 @@
 #include "topic_data.hpp"
 
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-subscriber-complexdata";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
 
 int main()
 {
-    // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
@@ -43,7 +32,7 @@ int main()
     iox::popo::Subscriber<ComplexDataType> subscriber({"Group", "Instance", "ComplexDataTopic"});
 
     // run until interrupted by Ctrl-C
-    while (!killswitch)
+    while (!iox::posix::hasTerminationRequested())
     {
         subscriber.take()
             .and_then([](auto& sample) {

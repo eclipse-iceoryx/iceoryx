@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -23,13 +23,7 @@
 #include <csignal>
 #include <iostream>
 
-bool keepRunning = true;
 constexpr char APP_NAME[] = "iox-cpp-callbacks-publisher";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    keepRunning = false;
-}
 
 void sending()
 {
@@ -38,7 +32,7 @@ void sending()
     iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
     iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
 
-    for (uint32_t counter = 0U; keepRunning; ++counter)
+    for (uint32_t counter = 0U; !iox::posix::hasTerminationRequested(); ++counter)
     {
         if (counter % 3 == 0)
         {
@@ -60,9 +54,6 @@ void sending()
 
 int main()
 {
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     sending();
 
     return (EXIT_SUCCESS);

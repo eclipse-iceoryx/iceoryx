@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
@@ -27,24 +27,12 @@
 #include <csignal>
 #include <iostream>
 
-std::atomic_bool keepRunning{true};
 constexpr char APP_NAME[] = "iox-cpp-callbacks-listener-as-class-member";
-
-iox::posix::Semaphore shutdownSemaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    shutdownSemaphore.post().or_else([](auto) {
-        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
-    keepRunning = false;
-}
 
 class CounterService
 {
   public:
+    //! [ctor]
     CounterService()
         : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
         , m_subscriberRight({"Radar", "FrontRight", "Counter"})
@@ -72,17 +60,13 @@ class CounterService
                 std::exit(EXIT_FAILURE);
             });
     }
-
-    void waitForShutdown() noexcept
-    {
-        shutdownSemaphore.wait().or_else(
-            [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
-    }
+    //! [ctor]
 
   private:
     /// This method has to be static since only c functions are allowed as callback.
     /// To gain access to the members and methods of CounterClass we provide as an additional argument the this pointer
     /// which is stored in self
+    //! [callback]
     static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterService* self)
     {
         subscriber->take().and_then([subscriber, self](auto& sample) {
@@ -111,24 +95,26 @@ class CounterService
             self->m_rightCache.reset();
         }
     }
+    //! [callback]
 
+    //! [members]
     iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
     iox::popo::Subscriber<CounterTopic> m_subscriberRight;
     iox::cxx::optional<CounterTopic> m_leftCache;
     iox::cxx::optional<CounterTopic> m_rightCache;
     iox::popo::Listener m_listener;
+    //! [members]
 };
 
 int main()
 {
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
+    //! [init]
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     CounterService counterService;
 
-    counterService.waitForShutdown();
+    iox::posix::waitForTerminationRequest();
+    //! [init]
 
     return (EXIT_SUCCESS);
 }

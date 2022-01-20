@@ -15,32 +15,26 @@ It provides a publisher and a subscriber application.
 
 At first, we need to define what kind of data type the publisher and subscriber application will exchange:
 
+<!--[geoffrey][iceoryx_examples/icehello/topic_data.hpp][radar object]-->
 ```cpp
 struct RadarObject
 {
-    RadarObject() noexcept
-    {
-    }
-    RadarObject(double x, double y, double z) noexcept
-        : x(x)
-        , y(y)
-        , z(z)
-    {
-    }
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
 };
 ```
 
-It is included by:
+It is included via:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include topic]-->
 ```cpp
 #include "topic_data.hpp"
 ```
 
 Next up, we include the publisher and the runtime:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include]-->
 ```cpp
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -48,6 +42,7 @@ Next up, we include the publisher and the runtime:
 
 We create a runtime object to communicate with the RouDi daemon. We use a unique string for identifying our application:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][initialize runtime]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -56,6 +51,7 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 Up next, we create a publisher instance for our charming struct. Notice that the topic type is passed as a template
 parameter:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][create publisher]-->
 ```cpp
 iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
@@ -66,23 +62,28 @@ The three strings which are passed as parameter to the constructor of `iox::popo
 an instance of the service `Radar` and the third string the specific event `Object` of the instance.
 In iceoryx a publisher and a subscriber are connected only if all the three IDs match.
 
-For exiting on Ctrl-C, we register a `signalHandler`, that flips `bool killswitch`:
-
+For exiting on Ctrl-C, we use the `SignalWatcher`
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include sig watcher]-->
 ```cpp
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-// snip
-auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+```
+and loop in our `while` loop until it states that `SIGINT` or `SIGTERM` was send via
+the function `hasTerminationRequested`.
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][wait for term]-->
+```cpp
+while (!iox::posix::hasTerminationRequested())
 ```
 
 In order to send our sample, we loan some shared memory inside the `while` loop:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][loan]-->
 ```cpp
 auto loanResult = publisher.loan();
 ```
 
 If loaning was successful, we assign the incremented counter to all three values in `RadarObject` and `publish()` to the subscriber application:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][publish]-->
 ```cpp
 if (!loanResult.has_error())
 {
@@ -97,6 +98,7 @@ if (!loanResult.has_error())
 
 In case an error occurred during loaning, we need to handle it:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][error]-->
 ```cpp
 else
 {
@@ -108,6 +110,7 @@ else
 
 Topics are printed and published every second:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][msg]-->
 ```cpp
 std::cout << APP_NAME << " sent value: " << ct << std::endl;
 std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -117,16 +120,18 @@ std::this_thread::sleep_for(std::chrono::seconds(1));
 
 The subscriber needs to have similar includes, but unlike the publisher `subscriber.hpp` is included:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][include]-->
 ```cpp
 #include "topic_data.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 ```
 
 As well as the publisher, also the subscriber needs to register with the daemon RouDi:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][initialize runtime]-->
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -134,6 +139,7 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
 Next, the subscriber object is created, again passing the topic type `RadarObject` as template parameter:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][initialize subscriber]-->
 ```cpp
 iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 ```
@@ -142,6 +148,7 @@ Publisher and subscriber will only be connected if they both use exactly these s
 
 Inside the `while` loop, we take the sample from shared memory and print it if we acquired it successfully.
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][receive]-->
 ```cpp
 auto takeResult = subscriber.take();
 if (!takeResult.has_error())
@@ -152,6 +159,7 @@ if (!takeResult.has_error())
 
 In case an error occurred during taking, we need to handle it:
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][error]-->
 ```cpp
 if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
 {
@@ -165,6 +173,7 @@ else
 
 The subscriber application polls for the sample ten times faster than the publisher is sending it. Therefore no samples should be missed.
 
+<!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][wait]-->
 ```cpp
 std::this_thread::sleep_for(std::chrono::milliseconds(100));
 ```

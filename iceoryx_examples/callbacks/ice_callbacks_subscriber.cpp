@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
@@ -27,31 +27,22 @@
 #include <csignal>
 #include <iostream>
 
-iox::posix::Semaphore shutdownSemaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
-
-std::atomic_bool keepRunning{true};
 constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;
 
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    shutdownSemaphore.post().or_else([](auto) {
-        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
-    keepRunning = false;
-}
-
+//! [heartbeat callback]
 void heartbeatCallback(iox::popo::UserTrigger*)
 {
     std::cout << "heartbeat received " << std::endl;
 }
+//! [heartbeat callback]
 
+//! [subscriber callback]
 void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
+    //! [get data]
     subscriber->take().and_then([subscriber](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
 
@@ -67,7 +58,9 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 
         std::cout << "received: " << sample->counter << std::endl;
     });
+    //! [get data]
 
+    //! [process data]
     // if both caches are filled we can process them
     if (leftCache && rightCache)
     {
@@ -76,33 +69,39 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
         leftCache.reset();
         rightCache.reset();
     }
+    //! [process data]
 }
+//! [subscriber callback]
 
 int main()
 {
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // the listener starts a background thread and the callbacks of the attached events
     // will be called in this background thread when they are triggered
+    //! [create listener]
     iox::popo::Listener listener;
+    //! [create listener]
 
+    //! [create heartbeat and subscribers]
     iox::popo::UserTrigger heartbeat;
     iox::popo::Subscriber<CounterTopic> subscriberLeft({"Radar", "FrontLeft", "Counter"});
     iox::popo::Subscriber<CounterTopic> subscriberRight({"Radar", "FrontRight", "Counter"});
+    //! [create heartbeat and subscribers]
 
     // send a heartbeat every 4 seconds
+    //! [create heartbeat]
     std::thread heartbeatThread([&] {
-        while (keepRunning)
+        while (!iox::posix::hasTerminationRequested())
         {
             heartbeat.trigger();
             std::this_thread::sleep_for(std::chrono::seconds(4));
         }
     });
+    //! [create heartbeat]
 
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
+    //! [attach everything]
     listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback)).or_else([](auto) {
         std::cerr << "unable to attach heartbeat event" << std::endl;
         std::exit(EXIT_FAILURE);
@@ -129,19 +128,23 @@ int main()
             std::cerr << "unable to attach subscriberRight" << std::endl;
             std::exit(EXIT_FAILURE);
         });
+    //! [attach everything]
 
     // wait until someone presses CTRL+c
-    shutdownSemaphore.wait().or_else(
-        [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
+    //! [wait for sigterm]
+    iox::posix::waitForTerminationRequest();
+    //! [wait for sigterm]
 
     // optional detachEvent, but not required.
     //   when the listener goes out of scope it will detach all events and when a
     //   subscriber goes out of scope it will detach itself from the listener
+    //! [cleanup]
     listener.detachEvent(heartbeat);
     listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED);
     listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED);
 
     heartbeatThread.join();
+    //! [cleanup]
 
     return (EXIT_SUCCESS);
 }

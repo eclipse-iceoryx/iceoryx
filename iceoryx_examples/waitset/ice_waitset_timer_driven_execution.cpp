@@ -31,6 +31,7 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
     shutdownTrigger.trigger();
 }
 
+//! [cyclic run]
 class SomeClass
 {
   public:
@@ -39,6 +40,7 @@ class SomeClass
         std::cout << "activation callback\n";
     }
 };
+//! [cyclic run]
 
 int main()
 {
@@ -49,6 +51,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-sync");
     std::atomic_bool keepRunning{true};
 
+    //! [create waitset]
     iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
@@ -56,16 +59,20 @@ int main()
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create waitset]
 
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
+    //! [create trigger]
     iox::popo::UserTrigger cyclicTrigger;
     waitset.attachEvent(cyclicTrigger, 0U, createNotificationCallback(SomeClass::cyclicRun)).or_else([](auto) {
         std::cerr << "failed to attach cyclic trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create trigger]
 
     // start a thread which triggers cyclicTrigger every second
+    //! [cyclic thread]
     std::thread cyclicTriggerThread([&] {
         while (keepRunning.load())
         {
@@ -73,28 +80,34 @@ int main()
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     });
+    //! [cyclic thread]
 
-    // event loop
+    //! [event loop]
     while (keepRunning.load())
     {
         auto notificationVector = waitset.wait();
 
         for (auto& notification : notificationVector)
         {
+            //! [shutdown path]
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
             }
+            //! [shutdown path]
+            //! [data path]
             else
             {
                 // call SomeClass::myCyclicRun
                 (*notification)();
             }
+            //! [data path]
         }
 
         std::cout << std::endl;
     }
+    //! [event loop]
 
     cyclicTriggerThread.join();
     return (EXIT_SUCCESS);

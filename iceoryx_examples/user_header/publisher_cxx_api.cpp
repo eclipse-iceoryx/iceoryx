@@ -17,7 +17,7 @@
 //! [iceoryx includes]
 #include "user_header_and_payload_types.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 //! [iceoryx includes]
@@ -25,23 +25,8 @@
 #include <atomic>
 #include <iostream>
 
-//! [signal handling]
-std::atomic<bool> killswitch{false};
-
-static void sigHandler(int sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
-//! [signal handling]
-
 int main()
 {
-    //! [register sigHandler]
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-    //! [register sigHandler]
-
     //! [initialize runtime]
     constexpr char APP_NAME[] = "iox-cpp-user-header-publisher";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
@@ -57,7 +42,7 @@ int main()
     uint64_t timestamp = 42;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
-    while (!killswitch)
+    while (!iox::posix::hasTerminationRequested())
     {
         auto fibonacciNext = fibonacciCurrent + fibonacciLast;
         fibonacciLast = fibonacciCurrent;

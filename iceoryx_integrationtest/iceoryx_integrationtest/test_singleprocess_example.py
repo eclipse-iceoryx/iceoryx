@@ -64,10 +64,6 @@ class TestSingleProcessExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'Receiving '+'\033[33m<-\033[m '+'10', strip_ansi_escape_sequences=False, timeout=45, stream='stdout')
 
-    def test_singleprocess_finished(self, proc_output):
-        proc_output.assertWaitFor(
-            'Finished', timeout=45, stream='stdout')
-
 # These tests run after shutdown and examine the stdout log
 
 

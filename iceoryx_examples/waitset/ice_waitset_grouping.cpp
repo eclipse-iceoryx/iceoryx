@@ -24,6 +24,7 @@
 #include <chrono>
 #include <iostream>
 
+std::atomic_bool keepRunning{true};
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
@@ -41,6 +42,7 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-grouping");
+    //! [create waitset]
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
@@ -48,21 +50,22 @@ int main()
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create waitset]
 
     // create subscriber and subscribe them to our service
+    //! [create subscribers]
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
-        auto& subscriber = subscriberVector.back();
-        // Ignore unused variable warning
-        (void)subscriber;
     }
+    //! [create subscribers]
 
     constexpr uint64_t FIRST_GROUP_ID = 123U;
     constexpr uint64_t SECOND_GROUP_ID = 456U;
 
     // attach the first two subscribers to waitset with a id of FIRST_GROUP_ID
+    //! [configure subscribers]
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
         waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
@@ -81,20 +84,23 @@ int main()
                 std::exit(EXIT_FAILURE);
             });
     }
+    //! [configure subscribers]
 
-    // event loop
-    while (true)
+    //! [event loop]
+    while (keepRunning)
     {
         auto notificationVector = waitset.wait();
 
         for (auto& notification : notificationVector)
         {
+            //! [shutdown path]
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
-                return (EXIT_SUCCESS);
+                keepRunning = false;
             }
+            //! [shutdown path]
             // we print the received data for the first group
+            //! [data path]
             else if (notification->getNotificationId() == FIRST_GROUP_ID)
             {
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
@@ -116,10 +122,12 @@ int main()
                 // instantly.
                 subscriber->releaseQueuedData();
             }
+            //! [data path]
         }
 
         std::cout << std::endl;
     }
+    //! [event loop]
 
     return (EXIT_SUCCESS);
 }

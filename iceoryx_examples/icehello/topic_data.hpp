@@ -16,20 +16,13 @@
 #ifndef IOX_EXAMPLES_ICEHELLO_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_ICEHELLO_TOPIC_DATA_HPP
 
+//! [radar object]
 struct RadarObject
 {
-    RadarObject() noexcept
-    {
-    }
-    RadarObject(double x, double y, double z) noexcept
-        : x(x)
-        , y(y)
-        , z(z)
-    {
-    }
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
 };
+//! [radar object]
 
 #endif // IOX_EXAMPLES_ICEHELLO_TOPIC_DATA_HPP

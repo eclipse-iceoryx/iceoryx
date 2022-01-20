@@ -16,54 +16,50 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 
-bool killswitch = false;
 constexpr char APP_NAME[] = "iox-cpp-publisher-with-options";
-
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-    // this is optional, but since the iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option is used,
-    // a slow subscriber might block the shutdown and this call unblocks the publisher
-    iox::runtime::PoshRuntime::getInstance().shutdown();
-}
 
 int main()
 {
-    // Register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // create publisher with some options set
     iox::popo::PublisherOptions publisherOptions;
 
     // the publishers stores the last 10 samples for possible late joiners
+    //! [history capacity]
     publisherOptions.historyCapacity = 10U;
+    //! [history capacity]
 
     // when the publisher is created, it is not yet visible
+    //! [offer on create]
     publisherOptions.offerOnCreate = false;
+    //! [offer on create]
 
     // grouping of publishers and subscribers within a process
+    //! [node name]
     publisherOptions.nodeName = "Pub_Node_With_Options";
+    //! [node name]
 
     //  we allow the subscribers to block the publisher if they want to ensure that no samples are lost
+    //! [too slow policy]
     publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    //! [too slow policy]
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
 
     // we have to explicitely offer the publisher for making it visible to subscribers
+    //! [offer]
     publisher.offer();
+    //! [offer]
 
     double ct = 0.0;
-    while (!killswitch)
+    while (!iox::posix::hasTerminationRequested())
     {
         ++ct;
 
@@ -74,6 +70,12 @@ int main()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }
+
+    // this is optional, but since the iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option is used,
+    // a slow subscriber might block the shutdown and this call unblocks the publisher
+    //! [shutdown]
+    iox::runtime::PoshRuntime::getInstance().shutdown();
+    //! [shutdown]
 
     return 0;
 }

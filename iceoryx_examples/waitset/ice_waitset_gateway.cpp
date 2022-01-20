@@ -24,6 +24,7 @@
 #include <chrono>
 #include <iostream>
 
+std::atomic_bool keepRunning{true};
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
@@ -31,14 +32,17 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
     shutdownTrigger.trigger();
 }
 
+//! [shutdown callback]
 void shutdownCallback(iox::popo::UserTrigger*)
 {
     std::cout << "CTRL+c pressed - exiting now" << std::endl;
 }
+//! [shutdown callback]
 
 // The callback of the event. Every callback must have an argument which is
 // a pointer to the origin of the Trigger. In our case the event origin is
 // the untyped subscriber.
+//! [subscriber callback]
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t* const sumOfAllSamples)
 {
     while (subscriber->hasData())
@@ -55,6 +59,7 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t
         ++(*sumOfAllSamples);
     }
 }
+//! [subscriber callback]
 
 int main()
 {
@@ -67,6 +72,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-gateway");
 
+    //! [create waitset]
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
@@ -74,7 +80,9 @@ int main()
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+    //! [create waitset]
 
+    //! [configure]
     uint64_t sumOfAllSamples = 0U;
 
     // create subscriber and subscribe them to our service
@@ -96,9 +104,10 @@ int main()
                 std::exit(EXIT_FAILURE);
             });
     }
+    //! [configure]
 
-    // event loop
-    while (true)
+    //! [event loop]
+    while (keepRunning)
     {
         auto notificationVector = waitset.wait();
 
@@ -106,8 +115,8 @@ int main()
         {
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
-                return (EXIT_SUCCESS);
+                (*notification)();
+                keepRunning = false;
             }
             else
             {
@@ -120,6 +129,7 @@ int main()
         std::cout << "sum of all samples: " << std::dec << sumOfAllSamples << std::endl;
         std::cout.setf(flags);
     }
+    //! [event loop]
 
     return (EXIT_SUCCESS);
 }
