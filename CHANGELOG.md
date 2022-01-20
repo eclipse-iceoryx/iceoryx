@@ -58,6 +58,7 @@
 - Add unique test identifers [\#988](https://github.com/eclipse-iceoryx/iceoryx/issues/988)
 - Remove `ApplicationPort` and `ApplicationPortData` classes [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 - Remove creation pattern from `MemoryMap` and replace it with `MemoryMapBuilder` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+- Fix error handling of `TypedUniqueId` and refactor it to `UniquePortId` [\#861](https://github.com/eclipse-iceoryx/iceoryx/issues/861)
 
 **API Breaking Changes:**
 
