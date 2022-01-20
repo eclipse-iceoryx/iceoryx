@@ -48,10 +48,10 @@ uint16_t getUniqueRouDiId() noexcept;
 } // namespace internal
 
 /// @brief Struct to signal the constructor to create an invalid id
-struct InvalidId_t // TODO rename to InvalidPortId
+struct InvalidPortId_t
 {
 };
-constexpr InvalidId_t InvalidId = InvalidId_t();
+constexpr InvalidPortId_t InvalidPortId = InvalidPortId_t();
 
 /// @brief Unique ID depending on a type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
@@ -75,7 +75,7 @@ class UniquePortId : public cxx::NewType<uint64_t,
     UniquePortId() noexcept;
 
     /// @brief constructor which creates an invalid id
-    UniquePortId(InvalidId_t) noexcept;
+    UniquePortId(InvalidPortId_t) noexcept;
 
     bool isValid() const noexcept;
 

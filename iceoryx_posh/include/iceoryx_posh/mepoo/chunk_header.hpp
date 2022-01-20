@@ -161,7 +161,7 @@ struct ChunkHeader
     uint8_t m_reserved{0};
     // currently just a placeholder
     uint16_t m_userHeaderId{NO_USER_HEADER};
-    UniquePortId m_originId{popo::InvalidId};
+    UniquePortId m_originId{popo::InvalidPortId};
     uint64_t m_sequenceNumber{0U};
     uint32_t m_userHeaderSize{0U};
     uint32_t m_userPayloadSize{0U};

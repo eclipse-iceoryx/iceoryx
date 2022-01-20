@@ -68,7 +68,7 @@ UniquePortId::UniquePortId() noexcept
     }
 }
 
-UniquePortId::UniquePortId(InvalidId_t) noexcept
+UniquePortId::UniquePortId(InvalidPortId_t) noexcept
     /// we have to cast INVALID_UNIQUE_ID with static_cast<value_type> otherwise it will not link
     /// with gcc-7.x - gcc-10.x. Who knows why?!
     : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<UniquePortId::value_type>(INVALID_UNIQUE_ID))
@@ -78,7 +78,7 @@ UniquePortId::UniquePortId(InvalidId_t) noexcept
 
 bool UniquePortId::isValid() const noexcept
 {
-    return UniquePortId(InvalidId) != *this;
+    return UniquePortId(InvalidPortId) != *this;
 }
 
 } // namespace popo

@@ -176,7 +176,7 @@ TEST(UniquePortId_test, CreatingAnUniqueIdWithDefaultCTorIsValid)
 TEST(UniquePortId_test, InvalidIdIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0576b8d-65d2-4b53-88c0-05078f434a41");
-    UniquePortId a(InvalidId);
+    UniquePortId a(InvalidPortId);
     EXPECT_FALSE(a.isValid());
 }
 
