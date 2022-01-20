@@ -36,9 +36,9 @@ namespace internal
 void setUniqueRouDiId(const uint16_t id) noexcept;
 
 /// @brief This finalizes setting the unique roudi id and is used by setUniqueRouDiId
-///        to check whether the id was already set or TypedUniqueId were created before
+///        to check whether the id was already set or UniquePortId were created before
 ///        calling setUniqueRouDiId
-/// @return true if setUniqueRouDiId was already called or a non-invalid TypedUniqueId
+/// @return true if setUniqueRouDiId was already called or a non-invalid UniquePortId
 ///         was created, otherwise false
 bool finalizeSetUniqueRouDiId() noexcept;
 
@@ -57,63 +57,25 @@ constexpr InvalidId_t InvalidId = InvalidId_t();
 ///         types consistent unique ids use this class. Every types gets its
 ///         own distinct set of ids starting with 0. If the types are the same the
 ///         ids are the same.
-///
-/// @code
-///     struct MyClass {
-///         // some members;
-///         iox::port::TypedUniqueId<MyClass> id;
-///     };
-///
-///     struct MySecondClass {
-///         // some members;
-///         iox::port::TypedUniqueId<MySecondClass> id;
-///     };
-//
-///     std::vector<MyClass> myClassVector;
-///     std::vector<MyClass> mySecondClassVector;
-///
-///     uint64_t AddClass() {
-///         myClassVector.emplace_back();
-///         return myClassVector.back().id.getID();
-///     }
-///
-///     uint64_t AddSecondClass() {
-///         mySecondClassVector.emplace_back();
-///         // we use the uint64_t conversion
-///         return mySecondClassVector.back().id;
-///     }
-///
-///     void RemoveClass(const uint64_t id) {
-///         auto iter = std::find_if(myClassVector.begin(), myClassVector.end(), [&](MyClass & c){ return c.id == id;});
-///         if ( iter != myClassVector.end() ) myClassVector.erase(iter);
-///     }
-///
-///     uint64_t id = AddClass();
-///     RemoveClass(id);
-///
-///     // it can be that id == id2 since the id is unique per type
-///     uint64_t id2 = AddSecondClass();
-/// @endcode
-///
-class TypedUniqueId : public cxx::NewType<uint64_t,
-                                          cxx::newtype::ProtectedConstructByValueCopy,
-                                          cxx::newtype::Comparable,
-                                          cxx::newtype::Sortable,
-                                          cxx::newtype::Convertable,
-                                          cxx::newtype::CopyConstructable,
-                                          cxx::newtype::MoveConstructable,
-                                          cxx::newtype::CopyAssignable,
-                                          cxx::newtype::MoveAssignable>
+class UniquePortId : public cxx::NewType<uint64_t,
+                                         cxx::newtype::ProtectedConstructByValueCopy,
+                                         cxx::newtype::Comparable,
+                                         cxx::newtype::Sortable,
+                                         cxx::newtype::Convertable,
+                                         cxx::newtype::CopyConstructable,
+                                         cxx::newtype::MoveConstructable,
+                                         cxx::newtype::CopyAssignable,
+                                         cxx::newtype::MoveAssignable>
 {
   public:
     using ThisType::ThisType;
 
     /// @brief the constructor creates an id which is greater than the
     ///         previous created id
-    TypedUniqueId() noexcept;
+    UniquePortId() noexcept;
 
     /// @brief constructor which creates an invalid id
-    TypedUniqueId(InvalidId_t) noexcept;
+    UniquePortId(InvalidId_t) noexcept;
 
     bool isValid() const noexcept;
 
