@@ -50,5 +50,36 @@ uint16_t getUniqueRouDiId() noexcept
 }
 
 } // namespace internal
+
+// start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0
+std::atomic<TypedUniqueId::value_type> TypedUniqueId::globalIDCounter{1U};
+
+TypedUniqueId::TypedUniqueId() noexcept
+    : ThisType(cxx::newtype::internal::ProtectedConstructor,
+               (static_cast<TypedUniqueId::value_type>(internal::getUniqueRouDiId()) << UNIQUE_ID_BIT_LENGTH)
+                   + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << ROUDI_ID_BIT_LENGTH)
+                      >> ROUDI_ID_BIT_LENGTH))
+{
+    internal::finalizeSetUniqueRouDiId();
+
+    if (globalIDCounter.load() >= (static_cast<TypedUniqueId::value_type>(1u) << UNIQUE_ID_BIT_LENGTH))
+    {
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, nullptr, ErrorLevel::FATAL);
+    }
+}
+
+TypedUniqueId::TypedUniqueId(InvalidId_t) noexcept
+    /// we have to cast INVALID_UNIQUE_ID with static_cast<value_type> otherwise it will not link
+    /// with gcc-7.x - gcc-10.x. Who knows why?!
+    : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<TypedUniqueId::value_type>(INVALID_UNIQUE_ID))
+{
+    // finalizeSetUniqueRouDiId intentionally not called since the
+}
+
+bool TypedUniqueId::isValid() const noexcept
+{
+    return TypedUniqueId(InvalidId) != *this;
+}
+
 } // namespace popo
 } // namespace iox

@@ -33,7 +33,6 @@ namespace iox
 {
 namespace popo
 {
-template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
@@ -54,7 +53,7 @@ using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 
 // this is used by the UniquePortId
 constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
-using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
+using UniquePortId = popo::TypedUniqueId;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
 

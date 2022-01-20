@@ -48,7 +48,7 @@ uint16_t getUniqueRouDiId() noexcept;
 } // namespace internal
 
 /// @brief Struct to signal the constructor to create an invalid id
-struct InvalidId_t
+struct InvalidId_t // TODO rename to InvalidPortId
 {
 };
 constexpr InvalidId_t InvalidId = InvalidId_t();
@@ -94,9 +94,7 @@ constexpr InvalidId_t InvalidId = InvalidId_t();
 ///     // it can be that id == id2 since the id is unique per type
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
-/// @param[in] T type for which the unique ids should be generated
 ///
-template <typename T>
 class TypedUniqueId : public cxx::NewType<uint64_t,
                                           cxx::newtype::ProtectedConstructByValueCopy,
                                           cxx::newtype::Comparable,
@@ -120,15 +118,13 @@ class TypedUniqueId : public cxx::NewType<uint64_t,
     bool isValid() const noexcept;
 
   private:
-    static constexpr uint64_t INVALID_UNIQUE_ID = 0u;
-    static constexpr uint64_t ROUDI_ID_BIT_LENGTH = 16u;
-    static constexpr uint64_t UNIQUE_ID_BIT_LENGTH = 48u;
-    static std::atomic<uint64_t> globalIDCounter; // initialized in cpp file
+    static constexpr ThisType::value_type INVALID_UNIQUE_ID = 0u;
+    static constexpr ThisType::value_type ROUDI_ID_BIT_LENGTH = 16u;
+    static constexpr ThisType::value_type UNIQUE_ID_BIT_LENGTH = 48u;
+    static std::atomic<ThisType::value_type> globalIDCounter; // initialized in cpp file
 };
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.inl"
 
 #endif
