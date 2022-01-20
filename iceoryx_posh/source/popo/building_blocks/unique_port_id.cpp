@@ -22,45 +22,20 @@ namespace iox
 {
 namespace popo
 {
-namespace internal
-{
-static uint16_t uniqueRouDiId{DEFAULT_UNIQUE_ROUDI_ID};
-
-void setUniqueRouDiId(const uint16_t id) noexcept
-{
-    if (finalizeSetUniqueRouDiId())
-    {
-        errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID, nullptr, ErrorLevel::SEVERE);
-    }
-    uniqueRouDiId = id;
-}
-
-bool finalizeSetUniqueRouDiId() noexcept
-{
-    static bool finalized{false};
-    auto oldFinalized = finalized;
-    finalized = true;
-    return oldFinalized;
-}
-
-uint16_t getUniqueRouDiId() noexcept
-{
-    return uniqueRouDiId;
-}
-
-} // namespace internal
+// in the future this should probably be moved to RouDi but currently it is only used for the ports
+// and to prevent a dependency from popo to RouDi this is done here
+std::atomic<uint16_t> UniquePortId::uniqueRouDiId{DEFAULT_UNIQUE_ROUDI_ID};
 
 // start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0
 std::atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{1U};
 
 UniquePortId::UniquePortId() noexcept
     : ThisType(cxx::newtype::internal::ProtectedConstructor,
-               (static_cast<UniquePortId::value_type>(internal::getUniqueRouDiId()) << UNIQUE_ID_BIT_LENGTH)
+               (static_cast<UniquePortId::value_type>(getUniqueRouDiId()) << UNIQUE_ID_BIT_LENGTH)
                    + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << ROUDI_ID_BIT_LENGTH)
                       >> ROUDI_ID_BIT_LENGTH))
 {
-    internal::finalizeSetUniqueRouDiId();
+    UniquePortId::finalizeSetUniqueRouDiId();
 
     if (globalIDCounter.load() >= (static_cast<UniquePortId::value_type>(1u) << UNIQUE_ID_BIT_LENGTH))
     {
@@ -79,6 +54,29 @@ UniquePortId::UniquePortId(InvalidPortId_t) noexcept
 bool UniquePortId::isValid() const noexcept
 {
     return UniquePortId(InvalidPortId) != *this;
+}
+
+void UniquePortId::setUniqueRouDiId(const uint16_t id) noexcept
+{
+    if (finalizeSetUniqueRouDiId())
+    {
+        errorHandler(
+            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID, nullptr, ErrorLevel::SEVERE);
+    }
+    uniqueRouDiId.store(id, std::memory_order_relaxed);
+}
+
+bool UniquePortId::finalizeSetUniqueRouDiId() noexcept
+{
+    static bool finalized{false};
+    auto oldFinalized = finalized;
+    finalized = true;
+    return oldFinalized;
+}
+
+uint16_t UniquePortId::getUniqueRouDiId() noexcept
+{
+    return uniqueRouDiId.load(std::memory_order_relaxed);
 }
 
 } // namespace popo

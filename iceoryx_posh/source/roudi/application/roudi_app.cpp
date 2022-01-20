@@ -90,7 +90,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     m_run &= cmdLineArgs.run;
     if (cmdLineArgs.uniqueRouDiId)
     {
-        popo::internal::setUniqueRouDiId(cmdLineArgs.uniqueRouDiId.value());
+        popo::UniquePortId::setUniqueRouDiId(cmdLineArgs.uniqueRouDiId.value());
     }
 
     // be silent if not running

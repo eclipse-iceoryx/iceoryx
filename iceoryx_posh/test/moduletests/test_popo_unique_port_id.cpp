@@ -34,11 +34,11 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
     uint16_t someId = 1243u;
     // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
-    iox::popo::internal::setUniqueRouDiId(someId);
-    EXPECT_EQ(iox::popo::internal::getUniqueRouDiId(), someId);
+    iox::popo::UniquePortId::setUniqueRouDiId(someId);
+    EXPECT_EQ(iox::popo::UniquePortId::getUniqueRouDiId(), someId);
 
     // reset unique RouDi ID
-    iox::popo::internal::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
+    iox::popo::UniquePortId::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
@@ -53,12 +53,12 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
             detectedErrorLevel.emplace(errorLevel);
         });
 
-    iox::popo::internal::setUniqueRouDiId(someId);
+    iox::popo::UniquePortId::setUniqueRouDiId(someId);
     // we don't know if setUniqueRouDiId was called before, therefore ignore any error
     detectedError.reset();
     detectedErrorLevel.reset();
 
-    iox::popo::internal::setUniqueRouDiId(someId);
+    iox::popo::UniquePortId::setUniqueRouDiId(someId);
     // now we know that setUniqueRouDiId was called and therefore the error handler must also be called
     ASSERT_TRUE(detectedError.has_value());
     ASSERT_TRUE(detectedErrorLevel.has_value());
@@ -67,14 +67,14 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
 
     // reset unique RouDi ID
-    iox::popo::internal::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
+    iox::popo::UniquePortId::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(UniquePortId_test, GettingTheRouDiIdWithoutSettingReturnsDefaultId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68de213f-7009-4573-8791-9f09f8ba413c");
 
-    EXPECT_THAT(iox::popo::internal::getUniqueRouDiId(), Eq(iox::DEFAULT_UNIQUE_ROUDI_ID));
+    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::DEFAULT_UNIQUE_ROUDI_ID));
 }
 
 TEST(UniquePortId_test, DefaultConstructorIncrementsID)

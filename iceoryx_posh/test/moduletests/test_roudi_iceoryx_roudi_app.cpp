@@ -215,7 +215,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
 
     // reset unique RouDi ID
-    iox::popo::internal::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
+    iox::popo::UniquePortId::setUniqueRouDiId(iox::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)

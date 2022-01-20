@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,26 +28,6 @@ namespace iox
 {
 namespace popo
 {
-namespace internal
-{
-/// @brief Has to be set on roudi startup so that a unique roudi id is set
-///         for all newly generated unique ids. If you call it when a unique
-///         id is already set an error is generated in the errorHandler.
-/// @param[in] id the unique id which you would like to set
-void setUniqueRouDiId(const uint16_t id) noexcept;
-
-/// @brief This finalizes setting the unique roudi id and is used by setUniqueRouDiId
-///        to check whether the id was already set or UniquePortId were created before
-///        calling setUniqueRouDiId
-/// @return true if setUniqueRouDiId was already called or a non-invalid UniquePortId
-///         was created, otherwise false
-bool finalizeSetUniqueRouDiId() noexcept;
-
-/// @brief returns the unique roudi id
-/// @return value of the unique roudi id
-uint16_t getUniqueRouDiId() noexcept;
-} // namespace internal
-
 /// @brief Struct to signal the constructor to create an invalid id
 struct InvalidPortId_t
 {
@@ -79,11 +60,27 @@ class UniquePortId : public cxx::NewType<uint64_t,
 
     bool isValid() const noexcept;
 
+    /// @brief Has to be set on roudi startup so that a unique roudi id is set
+    ///         for all newly generated unique ids. If you call it when a unique
+    ///         id is already set an error is generated in the errorHandler.
+    /// @param[in] id the unique id which you would like to set
+    static void setUniqueRouDiId(const uint16_t id) noexcept;
+
+    /// @brief Getter for the unique roudi id
+    /// @return value of the unique roudi id
+    static uint16_t getUniqueRouDiId() noexcept;
+
+  private:
+    // returns true if setUniqueRouDiId was already called or a non-invalid UniquePortId
+    // was created, otherwise false
+    static bool finalizeSetUniqueRouDiId() noexcept;
+
   private:
     static constexpr ThisType::value_type INVALID_UNIQUE_ID = 0u;
     static constexpr ThisType::value_type ROUDI_ID_BIT_LENGTH = 16u;
     static constexpr ThisType::value_type UNIQUE_ID_BIT_LENGTH = 48u;
     static std::atomic<ThisType::value_type> globalIDCounter; // initialized in cpp file
+    static std::atomic<uint16_t> uniqueRouDiId;               // initialized in cpp file
 };
 
 } // namespace popo
