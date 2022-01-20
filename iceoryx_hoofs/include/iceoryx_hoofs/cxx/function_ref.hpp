@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CXX_FUNCTION_REF_HPP
 #define IOX_HOOFS_CXX_FUNCTION_REF_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <cstddef>

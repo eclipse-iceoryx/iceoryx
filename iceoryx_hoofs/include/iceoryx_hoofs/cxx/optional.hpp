@@ -18,7 +18,7 @@
 #define IOX_HOOFS_CXX_OPTIONAL_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/types.hpp"
 
 #include <new> // needed for placement new in the construct_value member function

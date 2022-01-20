@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_VECTOR_HPP
 #define IOX_HOOFS_CXX_VECTOR_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 
 #include <algorithm>
 #include <cstdint>

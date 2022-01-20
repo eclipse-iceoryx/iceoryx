@@ -31,7 +31,8 @@ enum class Signal : int
     BUS = SIGBUS,
     INT = SIGINT,
     TERM = SIGTERM,
-    HUP = SIGHUP
+    HUP = SIGHUP,
+    ABORT = SIGABRT,
     /// @attention never add SIGKILL or SIGSTOP into this list, they cannot be caught
     ///            and sigaction returns the errno EINVAL
 };
