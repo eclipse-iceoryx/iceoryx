@@ -342,19 +342,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         break;
     }
-    case runtime::IpcMessageType::CREATE_APPLICATION:
-    {
-        if (message.getNumberOfElements() != 2)
-        {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_APPLICATION\" from \"" << runtimeName
-                       << "\"received!";
-        }
-        else
-        {
-            m_prcMgr->addApplicationForProcess(runtimeName);
-        }
-        break;
-    }
     case runtime::IpcMessageType::CREATE_NODE:
     {
         if (message.getNumberOfElements() != 3)

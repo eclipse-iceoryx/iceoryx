@@ -114,8 +114,6 @@ class ProcessManager : public ProcessManagerInterface
     void
     addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
 
-    void addApplicationForProcess(const RuntimeName_t& name) noexcept;
-
     void addNodeForProcess(const RuntimeName_t& process, const NodeName_t& node) noexcept;
 
     void addSubscriberForProcess(const RuntimeName_t& name,

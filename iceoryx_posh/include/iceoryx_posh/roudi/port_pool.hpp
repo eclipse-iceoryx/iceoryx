@@ -20,7 +20,6 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
@@ -44,7 +43,6 @@ enum class PortPoolError : uint8_t
     PUBLISHER_PORT_LIST_FULL,
     SUBSCRIBER_PORT_LIST_FULL,
     INTERFACE_PORT_LIST_FULL,
-    APPLICATION_PORT_LIST_FULL,
     NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
     EVENT_VARIABLE_LIST_FULL,
@@ -64,7 +62,6 @@ class PortPool
     cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
     cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
-    cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> getApplicationPortDataList() noexcept;
     cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
     cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
     getConditionVariableDataList() noexcept;
@@ -97,9 +94,6 @@ class PortPool
     cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
                                                                             const capro::Interfaces interface) noexcept;
 
-    cxx::expected<popo::ApplicationPortData*, PortPoolError>
-    addApplicationPort(const RuntimeName_t& runtimeName) noexcept;
-
     cxx::expected<runtime::NodeData*, PortPoolError> addNodeData(const RuntimeName_t& runtimeName,
                                                                  const NodeName_t& nodeName,
                                                                  const uint64_t nodeDeviceIdentifier) noexcept;
@@ -110,7 +104,6 @@ class PortPool
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
-    void removeApplicationPort(popo::ApplicationPortData* const portData) noexcept;
     void removeNodeData(runtime::NodeData* const nodeData) noexcept;
     void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
 

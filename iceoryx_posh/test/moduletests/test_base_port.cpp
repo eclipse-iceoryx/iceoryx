@@ -19,7 +19,6 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
@@ -41,13 +40,11 @@ const iox::RuntimeName_t RUNTIME_NAME_EMPTY = {""};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
-const iox::RuntimeName_t RUNTIME_NAME_FOR_APPLICATION_PORTS = {"AppPort"};
 
 iox::mepoo::MemoryManager m_memoryManager;
 std::vector<iox::UniquePortId> uniquePortIds;
 
-using PortDataTypes =
-    Types<BasePortData, PublisherPortData, SubscriberPortData, InterfacePortData, ApplicationPortData>;
+using PortDataTypes = Types<BasePortData, PublisherPortData, SubscriberPortData, InterfacePortData>;
 
 TYPED_TEST_SUITE(BasePort_test, PortDataTypes);
 
@@ -83,11 +80,6 @@ template <>
 InterfacePortData* createPortData()
 {
     return new InterfacePortData(RUNTIME_NAME_FOR_INTERFACE_PORTS, iox::capro::Interfaces::INTERNAL);
-}
-template <>
-ApplicationPortData* createPortData()
-{
-    return new ApplicationPortData(RUNTIME_NAME_FOR_APPLICATION_PORTS);
 }
 
 // expected ServiceDescription factories
@@ -129,11 +121,6 @@ template <>
 const iox::RuntimeName_t& expectedProcessName<InterfacePortData>()
 {
     return RUNTIME_NAME_FOR_INTERFACE_PORTS;
-}
-template <>
-const iox::RuntimeName_t& expectedProcessName<ApplicationPortData>()
-{
-    return RUNTIME_NAME_FOR_APPLICATION_PORTS;
 }
 
 template <typename PortData>

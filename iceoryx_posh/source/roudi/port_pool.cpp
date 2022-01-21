@@ -33,11 +33,6 @@ cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> PortPool::getInterfa
     return m_portPoolData->m_interfacePortMembers.content();
 }
 
-cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::getApplicationPortDataList() noexcept
-{
-    return m_portPoolData->m_applicationPortMembers.content();
-}
-
 cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> PortPool::getNodeDataList() noexcept
 {
     return m_portPoolData->m_nodeMembers.content();
@@ -61,21 +56,6 @@ PortPool::addInterfacePort(const RuntimeName_t& runtimeName, const capro::Interf
     {
         errorHandler(Error::kPORT_POOL__INTERFACELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::INTERFACE_PORT_LIST_FULL);
-    }
-}
-
-cxx::expected<popo::ApplicationPortData*, PortPoolError>
-PortPool::addApplicationPort(const RuntimeName_t& runtimeName) noexcept
-{
-    if (m_portPoolData->m_applicationPortMembers.hasFreeSpace())
-    {
-        auto applicationPortData = m_portPoolData->m_applicationPortMembers.insert(runtimeName);
-        return cxx::success<popo::ApplicationPortData*>(applicationPortData);
-    }
-    else
-    {
-        errorHandler(Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::APPLICATION_PORT_LIST_FULL);
     }
 }
 
@@ -113,11 +93,6 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 void PortPool::removeInterfacePort(popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolData->m_interfacePortMembers.erase(portData);
-}
-
-void PortPool::removeApplicationPort(popo::ApplicationPortData* const portData) noexcept
-{
-    m_portPoolData->m_applicationPortMembers.erase(portData);
 }
 
 void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept

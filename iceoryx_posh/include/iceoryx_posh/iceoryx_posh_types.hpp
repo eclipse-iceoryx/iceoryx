@@ -109,8 +109,6 @@ static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_C
               "The Listener capacity is restricted by the maximum amount of notifiers per condition variable.");
 //--------- Communication Resources End---------------------
 
-constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
-
 // Memory
 constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32U;
 constexpr uint32_t MAX_SHM_SEGMENTS = 100U;

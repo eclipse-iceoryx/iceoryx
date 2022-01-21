@@ -397,25 +397,6 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName
         [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
 }
 
-void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcept
-{
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
-            popo::ApplicationPortData* port = m_portManager.acquireApplicationPortData(name);
-
-            auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, port);
-
-            runtime::IpcMessage sendBuffer;
-            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_APPLICATION_ACK)
-                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-            process.sendViaIpcChannel(sendBuffer);
-
-            LogDebug() << "Created new ApplicationPort for application " << name;
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested an ApplicationPort." << name; });
-}
-
 void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
 {
     searchForProcessAndThen(

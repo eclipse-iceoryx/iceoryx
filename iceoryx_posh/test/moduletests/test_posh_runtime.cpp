@@ -145,18 +145,6 @@ TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
     EXPECT_EQ(sut.getInstanceName(), appname);
 }
 
-
-TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "cb1e927c-cad4-4c85-a693-815a0070198f");
-    const auto applicationPortData = m_runtime->getMiddlewareApplication();
-
-    ASSERT_NE(nullptr, applicationPortData);
-    EXPECT_EQ(m_runtimeName, applicationPortData->m_runtimeName);
-    EXPECT_FALSE(applicationPortData->m_serviceDescription.isValid());
-    EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
-}
-
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d207e121-d7c2-4a23-a202-1af311f6982b");
@@ -172,30 +160,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessfu
     ASSERT_THAT(detectedError.has_value(), Eq(true));
     EXPECT_THAT(detectedError.value(),
                 Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_IPC_MESSAGE_RESPONSE));
-}
-
-TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4dab3186-d840-4a6f-bb01-eebb7a05afca");
-    auto applicationlistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&applicationlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            applicationlistOverflowDetected = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW));
-        });
-
-    for (auto i = 0U; i < iox::MAX_PROCESS_NUMBER; ++i)
-    {
-        auto appPort = m_runtime->getMiddlewareApplication();
-        ASSERT_NE(nullptr, appPort);
-    }
-
-    EXPECT_FALSE(applicationlistOverflowDetected);
-
-    auto appPort = m_runtime->getMiddlewareApplication();
-
-    EXPECT_EQ(nullptr, appPort);
-    EXPECT_TRUE(applicationlistOverflowDetected);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)

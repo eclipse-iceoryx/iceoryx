@@ -56,6 +56,7 @@
 - Upgrade GTest/GMock to v1.10 [\#841](https://github.com/eclipse-iceoryx/iceoryx/issues/841)
 - Remove the requirement for INVALID_STATE for the cxx::expected [\#987](https://github.com/eclipse-iceoryx/iceoryx/issues/987)
 - Add unique test identifers [\#988](https://github.com/eclipse-iceoryx/iceoryx/issues/988)
+- Remove `ApplicationPort` and `ApplicationPortData` classes [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 
 **API Breaking Changes:**
 

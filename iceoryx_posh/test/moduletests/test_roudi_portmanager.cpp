@@ -142,23 +142,6 @@ class PortManager_test : public Test
         }
     }
 
-    void acquireMaxNumberOfApplications(
-        std::string runtimeName,
-        std::function<void(iox::popo::ApplicationPortData*)> f = std::function<void(iox::popo::ApplicationPortData*)>())
-    {
-        for (unsigned int i = 0; i < iox::MAX_PROCESS_NUMBER; i++)
-        {
-            auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
-            auto applicationPort = m_portManager->acquireApplicationPortData(
-                iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
-            ASSERT_NE(applicationPort, nullptr);
-            if (f)
-            {
-                f(applicationPort);
-            }
-        }
-    }
-
     void acquireMaxNumberOfConditionVariables(std::string runtimeName,
                                               std::function<void(iox::popo::ConditionVariableData*)> f =
                                                   std::function<void(iox::popo::ConditionVariableData*)>())
@@ -638,82 +621,6 @@ TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquir
 
     // so we should able to get some more now
     acquireMaxNumberOfInterfaces(runtimeName);
-}
-
-TEST_F(PortManager_test, DoDiscoveryWithInvalidServiceDescriptionInApplicationPortLeadsToTermination)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1f6973d5-aa2d-4781-b5b6-861793660c33");
-    auto applicationPortData = m_portManager->acquireApplicationPortData(iox::RuntimeName_t("OhWieSchoenIsPanama"));
-    ASSERT_NE(applicationPortData, nullptr);
-
-    iox::capro::CaproMessage request{
-        iox::capro::CaproMessageType::OFFER,
-        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString}};
-
-    iox::popo::ApplicationPort{applicationPortData}.dispatchCaProMessage(request);
-
-    EXPECT_DEATH({ m_portManager->doDiscovery(); }, ".*");
-}
-
-TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "0d13e636-2a8d-462d-a361-cbb62a922162");
-    std::string runtimeName = "app";
-
-    // first aquire all possible applications
-    acquireMaxNumberOfApplications(runtimeName);
-
-    // test if overflow errors get hit
-    {
-        auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-            [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-                errorHandlerCalled = true;
-            });
-
-        auto appPort = m_portManager->acquireApplicationPortData("appPenguin");
-        EXPECT_EQ(appPort, nullptr);
-        EXPECT_TRUE(errorHandlerCalled);
-    }
-}
-
-TEST_F(PortManager_test, DeleteApplicationPortfromMaximumNumberAndAddOneIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4512b3a6-3e23-49b4-90a5-9464ac2f0cde");
-    std::string runtimeName = "app";
-
-    // first aquire all possible applications
-    acquireMaxNumberOfApplications(runtimeName);
-
-    // delete one and add one should be possible now
-    {
-        unsigned int testi = 0;
-        auto newruntimeName = runtimeName + iox::cxx::convert::toString(testi);
-        // this is done because there is no removeApplicationData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newruntimeName));
-
-        auto appPort =
-            m_portManager->acquireApplicationPortData(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newruntimeName));
-        EXPECT_NE(appPort, nullptr);
-    }
-}
-
-TEST_F(PortManager_test, AcquireApplicationPortAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d4a59ba7-7858-4d6d-b43e-f4617e784590");
-    std::vector<iox::popo::ApplicationPortData*> appContainer;
-
-    std::string runtimeName = "app";
-
-    // first aquire all possible applications
-    acquireMaxNumberOfApplications(runtimeName, [&](auto appPort) { appContainer.push_back(appPort); });
-
-    // set the destroy flag and let the discovery loop take care
-    setDestroyFlagAndClearContainer(appContainer);
-    m_portManager->doDiscovery();
-
-    // so we should able to get some more now
-    acquireMaxNumberOfApplications(runtimeName);
 }
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFails)

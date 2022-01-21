@@ -122,8 +122,6 @@ void PortManager::doDiscovery() noexcept
 
     handleSubscriberPorts();
 
-    handleApplications();
-
     handleInterfaces();
 
     handleNodes();
@@ -280,51 +278,6 @@ void PortManager::handleInterfaces() noexcept
             {
                 popo::InterfacePort(interfacePortData).dispatchCaProMessage(caproMessage);
             }
-        }
-    }
-}
-
-void PortManager::handleApplications() noexcept
-{
-    capro::CaproMessage caproMessage;
-
-    for (auto applicationPortData : m_portPool->getApplicationPortDataList())
-    {
-        iox::popo::ApplicationPort applicationPort(applicationPortData);
-
-        while (auto maybeCaproMessage = applicationPort.tryGetCaProMessage())
-        {
-            auto& caproMessage = maybeCaproMessage.value();
-            auto& serviceDescription = caproMessage.m_serviceDescription;
-
-            cxx::Expects(serviceDescription.isValid() && "invalid service description!");
-            switch (caproMessage.m_type)
-            {
-            case capro::CaproMessageType::OFFER:
-            {
-                addEntryToServiceRegistry(caproMessage.m_serviceDescription);
-                break;
-            }
-            case capro::CaproMessageType::STOP_OFFER:
-            {
-                removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
-                break;
-            }
-            default:
-            {
-                LogError() << "Roudi: Something went wrong in receiving CaproMessage in ApplicationPortList!";
-            }
-            }
-
-            // forward to interfaces
-            sendToAllMatchingInterfacePorts(caproMessage);
-        }
-
-        // check if we have to destroy this application port
-        if (applicationPort.toBeDestroyed())
-        {
-            m_portPool->removeApplicationPort(applicationPortData);
-            LogDebug() << "Destroyed ApplicationPortData";
         }
     }
 }
@@ -523,16 +476,6 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
         }
     }
 
-    for (auto port : m_portPool->getApplicationPortDataList())
-    {
-        popo::ApplicationPort application(port);
-        if (runtimeName == application.getRuntimeName())
-        {
-            m_portPool->removeApplicationPort(port);
-            LogDebug() << "Deleted ApplicationPort of application " << runtimeName;
-        }
-    }
-
     for (auto nodeData : m_portPool->getNodeDataList())
     {
         if (runtimeName == nodeData->m_runtimeName)
@@ -711,20 +654,6 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
                                                                const NodeName_t& /*node*/) noexcept
 {
     auto result = m_portPool->addInterfacePort(runtimeName, interface);
-    if (!result.has_error())
-    {
-        return result.value();
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
-/// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept
-{
-    auto result = m_portPool->addApplicationPort(runtimeName);
     if (!result.has_error())
     {
         return result.value();

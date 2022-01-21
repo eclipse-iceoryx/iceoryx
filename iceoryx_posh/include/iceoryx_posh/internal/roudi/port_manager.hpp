@@ -25,7 +25,6 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -81,8 +80,6 @@ class PortManager
                                                       const RuntimeName_t& runtimeName,
                                                       const NodeName_t& nodeName = {""}) noexcept;
 
-    popo::ApplicationPortData* acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept;
-
     cxx::expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& runtimeName,
                                                                      const NodeName_t& nodeName) noexcept;
 
@@ -117,8 +114,6 @@ class PortManager
     void doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept;
 
     void handleInterfaces() noexcept;
-
-    void handleApplications() noexcept;
 
     void handleNodes() noexcept;
 
