@@ -92,11 +92,60 @@ inline T& AndThenWithValue<T, ValueType>::and_then(const and_then_callback_t& ca
 }
 
 template <typename T, typename ValueType>
-inline const T& AndThenWithValue<T, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
+inline T&& AndThenWithValue<T, ValueType>::and_then(const and_then_callback_t& callable) && noexcept
 {
-    return const_cast<const T&>(const_cast<AndThenWithValue<T, ValueType>*>(this)->and_then(callable));
+    return std::move(this->and_then(callable));
 }
 
+template <typename T, typename ValueType>
+inline const T& AndThenWithValue<T, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
+{
+    const T* upcastedThis = static_cast<const T*>(this);
+
+    if (*upcastedThis)
+    {
+        callable(upcastedThis->value());
+    }
+
+    return *upcastedThis;
+}
+
+template <typename T, typename ValueType>
+inline const T&& AndThenWithValue<T, ValueType>::and_then(const const_and_then_callback_t& callable) const&& noexcept
+{
+    return std::move(this->and_then(callable));
+}
+
+template <typename T>
+inline T& AndThen<T>::and_then(const and_then_callback_t& callable) & noexcept
+{
+    T* upcastedThis = static_cast<T*>(this);
+
+    if (*upcastedThis)
+    {
+        callable();
+    }
+
+    return *upcastedThis;
+}
+
+template <typename T>
+inline const T& AndThen<T>::and_then(const and_then_callback_t& callable) const& noexcept
+{
+    return const_cast<const T&>(const_cast<AndThen<T>*>(this)->and_then(callable));
+}
+
+template <typename T>
+inline T&& AndThen<T>::and_then(const and_then_callback_t& callable) && noexcept
+{
+    return std::move(this->and_then(callable));
+}
+
+template <typename T>
+inline const T&& AndThen<T>::and_then(const and_then_callback_t& callable) const&& noexcept
+{
+    return std::move(const_cast<const T&>(const_cast<AndThen<T>*>(this)->and_then(callable)));
+}
 } // namespace internal
 } // namespace cxx
 } // namespace iox
