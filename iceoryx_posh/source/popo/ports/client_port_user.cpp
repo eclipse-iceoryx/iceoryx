@@ -50,7 +50,7 @@ ClientPortUser::allocateRequest(const uint32_t userPayloadSize, const uint32_t u
     }
 
     auto requestHeader = new (allocateResult.value()->userHeader())
-        RequestHeader(getMembers()->m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
+        RequestHeader(getMembers()->m_chunkReceiverData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
 
     return cxx::success<RequestHeader*>(requestHeader);
 }

@@ -445,6 +445,71 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
+TEST_F(ChunkSender_test, sendToQueueWithoutReceiverReturnsFalse)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7139bfdc-3df9-4def-a292-407f8e650b34");
+    auto maybeChunkHeader = m_chunkSender.tryAllocate(
+        iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    auto chunkHeader = *maybeChunkHeader;
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    EXPECT_FALSE(m_chunkSender.sendToQueue(chunkHeader, m_chunkQueueData.m_uniqueId, EXPECTED_QUEUE_INDEX));
+    // chunk is still used because last chunk is stored
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+}
+
+TEST_F(ChunkSender_test, sendToQueueWithReceiverReturnsTrueAndDeliversSample)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1636bd5d-b2ad-495c-bacf-f505f51ae19b");
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
+    iox::popo::ChunkQueuePopper<ChunkQueueData_t> queuePopper(&m_chunkQueueData);
+
+    auto maybeChunkHeader = m_chunkSender.tryAllocate(
+        iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    auto chunkHeader = *maybeChunkHeader;
+    uint64_t EXPECTED_SAMPLE_DATA{73};
+    new (chunkHeader->userPayload()) DummySample{EXPECTED_SAMPLE_DATA};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    EXPECT_TRUE(m_chunkSender.sendToQueue(chunkHeader, m_chunkQueueData.m_uniqueId, EXPECTED_QUEUE_INDEX));
+    // chunk is still used because last chunk is stored
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    auto maybeSharedChunk = queuePopper.tryPop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    auto receivedData = *(static_cast<DummySample*>(maybeSharedChunk.value().getUserPayload()));
+    EXPECT_THAT(receivedData.dummy, Eq(EXPECTED_SAMPLE_DATA));
+}
+
+TEST_F(ChunkSender_test, sendToQueueWithInvalidChunkTriggersTheErrorHandler)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5409c4f2-9b33-424c-aaa7-001d7c33e184");
+    auto maybeChunkHeader = m_chunkSender.tryAllocate(
+        iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            errorHandlerCalled = true;
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    ChunkMock<bool> myCrazyChunk;
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    EXPECT_FALSE(
+        m_chunkSender.sendToQueue(myCrazyChunk.chunkHeader(), m_chunkQueueData.m_uniqueId, EXPECTED_QUEUE_INDEX));
+
+    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+}
+
 TEST_F(ChunkSender_test, pushToHistory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5ef98161-c7f9-455b-a9db-8eaa1a6b3342");

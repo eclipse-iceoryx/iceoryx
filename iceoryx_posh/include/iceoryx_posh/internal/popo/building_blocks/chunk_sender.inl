@@ -102,7 +102,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     }
     else
     {
-        // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
+        // BEGIN of critical section, chunk will be lost if the process terminates in this section
         // get a new chunk
         auto getChunkResult = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
@@ -113,7 +113,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             // if the application allocated too much chunks, return no more chunks
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
-                // END of critical section, chunk will be lost if process gets hard terminated in between
+                // END of critical section
                 chunk.getChunkHeader()->setOriginId(originId);
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
@@ -147,7 +147,7 @@ template <typename ChunkSenderDataType>
 inline void ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
+    // BEGIN of critical section, chunk will be lost if the process terminates in this section
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
         this->deliverToAllStoredQueues(chunk);
@@ -155,14 +155,35 @@ inline void ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chu
         getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
         getMembers()->m_lastChunkUnmanaged = chunk;
     }
-    // END of critical section, chunk will be lost if process gets hard terminated in between
+    // END of critical section
+}
+
+template <typename ChunkSenderDataType>
+inline bool ChunkSender<ChunkSenderDataType>::sendToQueue(mepoo::ChunkHeader* const chunkHeader,
+                                                          const cxx::UniqueId uniqueQueueId,
+                                                          const uint32_t lastKnownQueueIndex) noexcept
+{
+    mepoo::SharedChunk chunk(nullptr);
+    // BEGIN of critical section, chunk will be lost if the process terminates in this section
+    if (getChunkReadyForSend(chunkHeader, chunk))
+    {
+        auto deliveryResult = this->deliverToQueue(uniqueQueueId, lastKnownQueueIndex, chunk);
+
+        getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
+        getMembers()->m_lastChunkUnmanaged = chunk;
+
+        return !deliveryResult.has_error();
+    }
+    // END of critical section
+
+    return false;
 }
 
 template <typename ChunkSenderDataType>
 inline void ChunkSender<ChunkSenderDataType>::pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
+    // BEGIN of critical section, chunk will be lost if the process terminates in this section
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
         this->addToHistoryWithoutDelivery(chunk);
@@ -170,7 +191,7 @@ inline void ChunkSender<ChunkSenderDataType>::pushToHistory(mepoo::ChunkHeader* 
         getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
         getMembers()->m_lastChunkUnmanaged = chunk;
     }
-    // END of critical section, chunk will be lost if process gets hard terminated in between
+    // END of critical section
 }
 
 template <typename ChunkSenderDataType>

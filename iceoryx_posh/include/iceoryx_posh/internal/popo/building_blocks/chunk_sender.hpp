@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
@@ -92,8 +93,20 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     void release(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Send an allocated chunk to all connected ChunkQueuePopper
-    /// @param[in] chunkHeader, pointer to the ChunkHeader to send
+    /// @param[in] chunkHeader, pointer to the ChunkHeader to send; the ownership of the pointer is transferred to this
+    /// method
     void send(mepoo::ChunkHeader* const chunkHeader) noexcept;
+
+    /// @brief Send an allocated chunk to a specific ChunkQueuePopper
+    /// @param[in] chunkHeader, pointer to the ChunkHeader to send; the ownership of the pointer is transferred to this
+    /// method
+    /// @param[in] uniqueQueueId is an unique ID which identifies the queue to which this chunk shall be delivered
+    /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
+    /// @return true when successful, false otherwise
+    /// @note This method does not add the chunk to the history
+    bool sendToQueue(mepoo::ChunkHeader* const chunkHeader,
+                     const cxx::UniqueId uniqueQueueId,
+                     const uint32_t lastKnownQueueIndex) noexcept;
 
     /// @brief Push an allocated chunk to the history without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to push to the history

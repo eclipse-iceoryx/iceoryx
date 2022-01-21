@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
@@ -83,7 +84,7 @@ class ChunkDistributor
                                                      const uint64_t requestedHistory = 0u) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
-    /// @param[in] chunk queue to remove from the list
+    /// @param[in] queueToRemove is the queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
     cxx::expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
@@ -96,19 +97,30 @@ class ChunkDistributor
 
     /// @brief Deliver the provided shared chunk to all the stored chunk queues. The chunk will be added to the chunk
     /// history
-    /// @param[in] shared chunk to be delivered
+    /// @param[in] chunk is the SharedChunk to be delivered
     void deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept;
 
-    /// @brief Deliver the provided shared chunk to the provided chunk queue. The chunk will NOT be added to the chunk
-    /// history
-    /// @param[in] chunk queue to which this chunk shall be delivered
-    /// @param[in] shared chunk to be delivered
-    /// @return false if a queue overflow occured, otherwise true
-    bool deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
+    /// @brief Deliver the provided shared chunk to the chunk queue with the provided ID. The chunk will NOT be added
+    /// to the chunk history
+    /// @param[in] uniqueQueueId is an unique ID which identifies the queue to which this chunk shall be delivered
+    /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
+    /// @param[in] chunk is the SharedChunk to be delivered
+    /// @return ChunkDistributorError if the queue was not found
+    cxx::expected<ChunkDistributorError> deliverToQueue(const cxx::UniqueId uniqueQueueId,
+                                                        const uint32_t lastKnownQueueIndex,
+                                                        mepoo::SharedChunk chunk) noexcept;
+
+    /// @brief Lookup for the index of a queue with a specific cxx::UniqueId
+    /// @param[in] uniqueQueueId is the unique ID of the queue to query the index
+    /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId; if the queue is not
+    /// found at the index, the queue is searched by iteration over all stored queues
+    /// @return the index of the queue with uniqueQueueId or cxx::nullopt if the queue was not found
+    cxx::optional<uint32_t> getQueueIndex(const cxx::UniqueId uniqueQueueId,
+                                          const uint32_t lastKnownQueueIndex) const noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara
-    /// @param[in] shared chunk add to the chunk history
+    /// @param[in] chunk to add to the chunk history
     void addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Get the current size of the chunk history
@@ -128,6 +140,8 @@ class ChunkDistributor
   protected:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
+
+    bool pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
   private:
     MemberType_t* m_chunkDistrubutorDataPtr{nullptr};

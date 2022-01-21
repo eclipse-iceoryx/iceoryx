@@ -80,14 +80,14 @@ It must be ensured that only one server with a given `ServiceDescription` can ru
 ![rpc header](diagrams/request_response/request_response_header.svg)
 
 Since request and response need to encode different meta-information, we also need different header for the messages.
-The common data is aggregated in `RpcBaseHeader` which contains a `UniquePortId` to the port owning the `ClientChunkQueueData_t` and a sequence ID.
-The `UniquePortId` is used to identify the queue which receives the response and used as identifier for `ChunkDistributor::deliverToPort`.
+The common data is aggregated in `RpcBaseHeader` which contains a `cxx::UniqueId` to the `ClientChunkQueueData_t` and a sequence ID.
+The `cxx::UniqueId` is used to identify the queue which receives the response and used as identifier for `ChunkDistributor::deliverToQueue`.
 This method will iterate over all stored queues and matches the `ChunkQueueData::m_uniqueIdOfOwner`.
-As optimization, the `ChunkDistributor::deliverToPort` returns the index of the queue to do a fast lookup and downgrades to a full lookup if the port IDs don't match.
+As optimization, the `lastKnownQueueIndex` will be used to do a fast lookup and downgrades to a full lookup if the queue IDs don't match.
 ```cpp
 class ChunkDistributor {
     ...
-    cxx::expected<uint64_t, Error> deliverToPort(UniquePortId uniquePortId, uint64_t lastKnownQueueIndex);
+    cxx::expected<Error> deliverToQueue(cxx::UniqueId uniqueQueueId, uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk);
     ...
 };
 ```

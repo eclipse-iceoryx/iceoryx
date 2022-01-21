@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_RPC_HEADER_HPP
 #define IOX_POSH_POPO_RPC_HEADER_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <cstdint>
@@ -31,13 +31,12 @@ class RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] clientQueueUniquePortId is the UniquePortId of the port owning the client queue where the response
-    /// shall be delivered
+    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue where the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     /// @param[in] sequenceId is a custom ID to map a response to a request
     /// @param[in] rpcHeaderVersion is set by RequestHeader/ResponseHeader and should be RPC_HEADER_VERSION
-    explicit RpcBaseHeader(const UniquePortId& clientQueueUniquePortId,
+    explicit RpcBaseHeader(const cxx::UniqueId& uniqueClientQueueId,
                            const uint32_t lastKnownClientQueueIndex,
                            const int64_t sequenceId,
                            const uint8_t rpcHeaderVersion) noexcept;
@@ -87,7 +86,7 @@ class RpcBaseHeader
   protected:
     uint8_t m_rpcHeaderVersion{RPC_HEADER_VERSION};
     uint32_t m_lastKnownClientQueueIndex{UNKNOWN_CLIENT_QUEUE_INDEX};
-    UniquePortId m_clientQueueUniquePortId;
+    cxx::UniqueId m_uniqueClientQueueId;
     int64_t m_sequenceId{0};
 };
 
@@ -95,12 +94,10 @@ class RequestHeader : public RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] clientQueueUniquePortId is the UniquePortId of the port owning the client queue where the response
-    /// shall be delivered
+    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue to which the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
-    explicit RequestHeader(const UniquePortId& clientQueueUniquePortId,
-                           const uint32_t lastKnownClientQueueIndex) noexcept;
+    explicit RequestHeader(const cxx::UniqueId& uniqueClientQueueId, const uint32_t lastKnownClientQueueIndex) noexcept;
 
     RequestHeader(const RequestHeader& other) = delete;
     RequestHeader& operator=(const RequestHeader&) = delete;
@@ -130,12 +127,11 @@ class ResponseHeader : public RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] clientQueueUniquePortId is the UniquePortId of the port owning the client queue where the response
-    /// shall be delivered
+    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue to which the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     /// @param[in] sequenceId is a custom ID to map a response to a request
-    explicit ResponseHeader(const UniquePortId& clientQueueUniquePortId,
+    explicit ResponseHeader(const cxx::UniqueId& uniqueClientQueueId,
                             const uint32_t lastKnownClientQueueIndex,
                             const int64_t sequenceId) noexcept;
 
