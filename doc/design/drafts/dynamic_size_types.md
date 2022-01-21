@@ -77,7 +77,7 @@ vector/string {
 
 ### Static Layout
 
-When we require a sample with our publisher and write `MyData` we acquire a
+When we require a sample with our publisher and write `MyData`, we acquire a
 chunk where all the contents are stored inside one chunk. Hereby is the
 Memory Manager the class which handles the distribution of shared memory chunks.
 To support different sizes the Memory Manager uses bucket allocators with
@@ -137,13 +137,13 @@ its local process.
 ## Design Allocator
 
 The allocator should be designed in a manner so that it can be used inside the
-shared memory in an IPC context. This means the design has to consider that
+shared memory within an IPC context. This means the design has to consider that
 vtables, virtual and inheritance are not allowed as well as function pointers
 or the use of `cxx::function` or `cxx::function_ref`.
 
 Therefore this allocator concept is less flexible and more complex as it would
 be when everything would run in the same process since we have to use relative
-pointer and have to allocate everything on the stack.
+pointers and have to allocate everything on the stack.
 
 ```
   +------------------------------+
@@ -204,7 +204,7 @@ pointer and have to allocate everything on the stack.
                +---------------------------------------------------------------+
 ```
 The `Allocator` described in this diagram is similar to a C++20 concept which can
-be verified at compiletime without inheritance. The verification can be realized
+be verified at compile time without inheritance. The verification can be realized
 with a `IsAllocatorTypeTrait` in C++14.
 The shared memory and IPC restrictions are forcing us to implement a
 VariantAllocator which provides us type independent access to the underlying
@@ -297,7 +297,7 @@ The design pursues the following goals.
      provide it as an alternative.
 
 6. The allocator type should not change the underlying container type, e.g. the
-   allocator should not provided as template argument, otherwise
+   allocator should not be provided as template argument, otherwise
    it becomes impossible to reuse defined structures in a non shared memory
    context. This is for instance required when a user would like to store some
    received data locally in a cache for later use.
@@ -324,7 +324,7 @@ The design pursues the following goals.
 
    * Real copy- and move operations could have some unwanted side effects. Lets
      assume one would like to copy/move a shared memory located vector into a local
-     cache. If the allocator would change the container has to allocate another
+     cache. If the allocator would change, the container has to allocate another
      chunk inside the shared memory for the data copy. This would use up a lot
      of shared memory for local copies but the purpose of the shared memory is
      to store data for zero copy communication.
@@ -340,7 +340,7 @@ The design pursues the following goals.
      cache = dataOnSharedMemory; // would suddenly allocate shared memory
      ```
 
-The draft we provide here is using the `cxx::vector` but the techniques
+The provided draft uses the `cxx::vector` but the techniques
 described can be easily applied to the `cxx::string` or other cxx containers.
 
 ```
@@ -377,7 +377,7 @@ described can be easily applied to the `cxx::string` or other cxx containers.
        |  # RangeAllocator m_allocator               |
        +---------------------------------------------+
 ```
-All non stack based version of cxx containers will not have constructors similar
+All non stack based versions of cxx containers will not have constructors similar
 to the STL. The only provided constructor has one argument which specifies the
 type of allocator one would like to use for that container. The default constructor
 shall construct a vector which has a capacity of 0.
@@ -416,7 +416,7 @@ f(v1);
 f(v2);
 ```
 
-The only restriction are functions which require a stack based vector of a 
+The only limitation is functions which require a stack based vector of a 
 specific size as non const reference. This is usally the case when some function
 would like to set the contents of a vector.
 ```cpp
@@ -494,7 +494,7 @@ class vector {
   T * memoryStorageOfVectorElements;
 };
 ```
-The pointer hereby is an absolut pointer pointing to a piece of memory in the
+The pointer hereby is an absolute pointer pointing to a piece of memory in the
 local virtual address space. Assume we have two processes A and B which would
 like to communicate via a `std::vector`.
 
