@@ -32,7 +32,7 @@ struct HasValueMethod : std::false_type
 };
 
 template <typename T>
-struct HasValueMethod<T, std::void_t<decltype(std::declval<T>().value())>> : std::true_type
+struct HasValueMethod<T, cxx::void_t<decltype(std::declval<T>().value())>> : std::true_type
 {
 };
 
@@ -42,7 +42,7 @@ struct HasGetErrorMethod : std::false_type
 };
 
 template <typename T>
-struct HasGetErrorMethod<T, std::void_t<decltype(std::declval<T>().get_error())>> : std::true_type
+struct HasGetErrorMethod<T, cxx::void_t<decltype(std::declval<T>().get_error())>> : std::true_type
 {
 };
 
