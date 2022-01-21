@@ -22,8 +22,6 @@ namespace iox
 {
 namespace popo
 {
-// in the future this should probably be moved to RouDi but currently it is only used for the ports
-// and to prevent a dependency from popo to RouDi this is done here
 std::atomic<uint16_t> UniquePortId::uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID};
 
 // start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0

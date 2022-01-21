@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 
 #include "iceoryx_hoofs/cxx/newtype.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
@@ -34,10 +34,11 @@ struct InvalidPortId_t
 };
 constexpr InvalidPortId_t InvalidPortId = InvalidPortId_t();
 
-/// @brief Unique ID depending on a type. If you would like to assign different
-///         types consistent unique ids use this class. Every types gets its
-///         own distinct set of ids starting with 0. If the types are the same the
-///         ids are the same.
+/// @brief A counter which is monotonically advancing with each newly created instance of UniquePortId. Additionally
+///        it contains a unique RouDi id to be able to differentiate the sample sources in a multi publisher multi
+///        subscriber pattern where samples are exchanged over network via a third party middleware.
+///        The unique RouDi id must be set manually when RouDi is started and it must be ensured to be unique for a
+///        given instance for this feature to be used to its full extend.
 class UniquePortId : public cxx::NewType<uint64_t,
                                          cxx::newtype::ProtectedConstructByValueCopy,
                                          cxx::newtype::Comparable,
@@ -51,18 +52,20 @@ class UniquePortId : public cxx::NewType<uint64_t,
   public:
     using ThisType::ThisType;
 
-    /// @brief the constructor creates an id which is greater than the
+    /// @brief The constructor creates an id which is greater than the
     ///         previous created id
     UniquePortId() noexcept;
 
-    /// @brief constructor which creates an invalid id
+    /// @brief Constructor which creates an invalid id
     UniquePortId(InvalidPortId_t) noexcept;
 
+    /// @brief Indicates whether the object contains an invalid port id
+    /// @return true if a valid id is present, false otherwise
     bool isValid() const noexcept;
 
-    /// @brief Has to be set on roudi startup so that a unique roudi id is set
-    ///         for all newly generated unique ids. If you call it when a unique
-    ///         id is already set an error is generated in the errorHandler.
+    /// @brief Has to be set on RouDi startup so that a unique RouDi id is set
+    ///        for all newly generated unique ids. If you call it when a unique
+    ///        id is already set, an error is generated in the errorHandler.
     /// @param[in] id the unique id which you would like to set
     static void setUniqueRouDiId(const uint16_t id) noexcept;
 
@@ -86,4 +89,4 @@ class UniquePortId : public cxx::NewType<uint64_t,
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP

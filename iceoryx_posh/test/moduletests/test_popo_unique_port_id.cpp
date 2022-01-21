@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ using namespace iox::cxx;
 TEST(UniquePortId_test, SettingTheRouDiIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "473467bf-1a6f-4cd2-acd8-447a623a5301");
-    uint16_t someId = 1243u;
+    uint16_t someId = 1243U;
     // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
@@ -44,7 +44,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
 TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe468314-cd38-4363-bbf9-f106bf9ec1f4");
-    uint16_t someId = 1243u;
+    uint16_t someId = 1243U;
     optional<iox::Error> detectedError;
     optional<iox::ErrorLevel> detectedErrorLevel;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
