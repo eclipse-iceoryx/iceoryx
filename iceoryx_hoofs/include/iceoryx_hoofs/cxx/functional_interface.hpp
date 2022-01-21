@@ -32,7 +32,7 @@ struct HasValueMethod : std::false_type
 };
 
 template <typename T>
-struct HasValueMethod<T, std::void_t<decltype(&T::value)>> : std::true_type
+struct HasValueMethod<T, std::void_t<decltype(std::declval<T>().value())>> : std::true_type
 {
 };
 
@@ -42,7 +42,7 @@ struct HasGetErrorMethod : std::false_type
 };
 
 template <typename T>
-struct HasGetErrorMethod<T, std::void_t<decltype(&T::get_error)>> : std::true_type
+struct HasGetErrorMethod<T, std::void_t<decltype(std::declval<T>().get_error())>> : std::true_type
 {
 };
 
@@ -52,31 +52,31 @@ struct Expect
     void expect(const char* const msg) const noexcept;
 };
 
-template <typename T>
+template <typename T, typename ValueType>
 struct ExpectWithValue
 {
-    using expect_value_t = typename T::value_t;
-    expect_value_t& expect(const char* const msg) & noexcept;
-    const expect_value_t& expect(const char* const msg) const& noexcept;
-    expect_value_t&& expect(const char* const msg) && noexcept;
-    const expect_value_t&& expect(const char* const msg) const&& noexcept;
+    ValueType& expect(const char* const msg) & noexcept;
+    const ValueType& expect(const char* const msg) const& noexcept;
+    ValueType&& expect(const char* const msg) && noexcept;
+    const ValueType&& expect(const char* const msg) const&& noexcept;
 };
 
-template <typename T>
+template <typename T, typename ValueType>
 struct ValueOr
 {
-    typename T::value_t value_or(const typename T::value_t& value) const noexcept;
+    ValueType value_or(const ValueType& value) const noexcept;
 };
 
-template <typename T>
+template <typename T, typename ValueType>
 struct AndThenWithValue
 {
-    using and_then_callback_t = cxx::function_ref<void(typename T::value_t&)>;
+    using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
+    using const_and_then_callback_t = cxx::function_ref<void(const ValueType&)>;
 
     T& and_then(const and_then_callback_t& callable) & noexcept;
-    const T& and_then(const and_then_callback_t& callable) const& noexcept;
+    const T& and_then(const const_and_then_callback_t& callable) const& noexcept;
     T&& and_then(const and_then_callback_t& callable) && noexcept;
-    const T&& and_then(const and_then_callback_t& callable) const&& noexcept;
+    const T&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
 };
 
 template <typename T>
@@ -90,15 +90,16 @@ struct AndThen
     const T&& and_then(const and_then_callback_t& callable) const&& noexcept;
 };
 
-template <typename T>
+template <typename T, typename ErrorType>
 struct OrElseWithValue
 {
-    using or_else_callback_t = cxx::function_ref<void(typename T::error_t&)>;
+    using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
+    using const_or_else_callback_t = cxx::function_ref<void(const ErrorType&)>;
 
     T& or_else(const or_else_callback_t& callable) & noexcept;
-    const T& or_else(const or_else_callback_t& callable) const& noexcept;
+    const T& or_else(const const_or_else_callback_t& callable) const& noexcept;
     T&& or_else(const or_else_callback_t& callable) && noexcept;
-    const T&& or_else(const or_else_callback_t& callable) const&& noexcept;
+    const T&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
 };
 
 template <typename T>
@@ -112,34 +113,36 @@ struct OrElse
     const T&& or_else(const or_else_callback_t& callable) const&& noexcept;
 };
 
-template <typename T, bool HasValue, bool HasError>
-struct FunctionalInterfaceImpl;
-
-template <typename T>
-struct FunctionalInterfaceImpl<T, false, false> : public Expect<T>, public AndThen<T>, public OrElse<T>
+template <typename T, typename ValueType, typename ErrorType>
+struct FunctionalInterfaceImpl : public ExpectWithValue<T, ValueType>,
+                                 public ValueOr<T, ValueType>,
+                                 public AndThenWithValue<T, ValueType>,
+                                 public OrElseWithValue<T, ErrorType>
 {
 };
 
 template <typename T>
-struct FunctionalInterfaceImpl<T, true, false> : public ExpectWithValue<T>, public AndThenWithValue<T>, public OrElse<T>
+struct FunctionalInterfaceImpl<T, void, void> : public Expect<T>, public AndThen<T>, public OrElse<T>
 {
 };
 
-template <typename T>
-struct FunctionalInterfaceImpl<T, true, true>
-    : public ExpectWithValue<T>, public AndThenWithValue<T>, public OrElseWithValue<T>
+template <typename T, typename ValueType>
+struct FunctionalInterfaceImpl<T, ValueType, void> : public ExpectWithValue<T, ValueType>,
+                                                     public ValueOr<T, ValueType>,
+                                                     public AndThenWithValue<T, ValueType>,
+                                                     public OrElse<T>
 {
 };
 
-template <typename T>
-struct FunctionalInterfaceImpl<T, false, true> : public Expect<T>, public AndThen<T>, public OrElseWithValue<T>
+template <typename T, typename ErrorType>
+struct FunctionalInterfaceImpl<T, void, ErrorType>
+    : public Expect<T>, public AndThen<T>, public OrElseWithValue<T, ErrorType>
 {
 };
 } // namespace internal
 
-template <typename T>
-using FunctionalInterface =
-    internal::FunctionalInterfaceImpl<T, internal::HasValueMethod<T>::value, internal::HasGetErrorMethod<T>::value>;
+template <typename T, typename ValueType, typename ErrorType>
+using FunctionalInterface = internal::FunctionalInterfaceImpl<T, ValueType, ErrorType>;
 
 } // namespace cxx
 } // namespace iox

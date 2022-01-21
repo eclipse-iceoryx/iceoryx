@@ -33,8 +33,8 @@ inline void Expect<T>::expect(const char* const msg) const noexcept
     }
 }
 
-template <typename T>
-inline typename ExpectWithValue<T>::expect_value_t& ExpectWithValue<T>::expect(const char* const msg) & noexcept
+template <typename T, typename ValueType>
+inline ValueType& ExpectWithValue<T, ValueType>::expect(const char* const msg) & noexcept
 {
     T* upcastedThis = static_cast<T*>(this);
 
@@ -44,31 +44,42 @@ inline typename ExpectWithValue<T>::expect_value_t& ExpectWithValue<T>::expect(c
         Ensures(false);
     }
 
-    return *upcastedThis;
+    return upcastedThis->value();
 }
 
-template <typename T>
-inline const typename ExpectWithValue<T>::expect_value_t&
-ExpectWithValue<T>::expect(const char* const msg) const& noexcept
+template <typename T, typename ValueType>
+inline const ValueType& ExpectWithValue<T, ValueType>::expect(const char* const msg) const& noexcept
 {
-    return const_cast<const T&>(const_cast<Expect<T>*>(this)->expect(msg));
+    return const_cast<const ValueType&>(const_cast<ExpectWithValue<T, ValueType>*>(this)->expect(msg));
 }
 
-template <typename T>
-inline typename ExpectWithValue<T>::expect_value_t&& ExpectWithValue<T>::expect(const char* const msg) && noexcept
+template <typename T, typename ValueType>
+inline ValueType&& ExpectWithValue<T, ValueType>::expect(const char* const msg) && noexcept
 {
     return std::move(this->expect(msg));
 }
 
-template <typename T>
-inline const typename ExpectWithValue<T>::expect_value_t&&
-ExpectWithValue<T>::expect(const char* const msg) const&& noexcept
+template <typename T, typename ValueType>
+inline const ValueType&& ExpectWithValue<T, ValueType>::expect(const char* const msg) const&& noexcept
 {
-    return const_cast<const T&&>(std::move(const_cast<Expect<T>*>(this)->expect(msg)));
+    return const_cast<const ValueType&&>(std::move(const_cast<ExpectWithValue<T, ValueType>*>(this)->expect(msg)));
 }
 
-template <typename T>
-inline T& AndThenWithValue<T>::and_then(const and_then_callback_t& callable) & noexcept
+template <typename T, typename ValueType>
+inline ValueType ValueOr<T, ValueType>::value_or(const ValueType& value) const noexcept
+{
+    const T* upcastedThis = static_cast<const T*>(this);
+
+    if (!(*upcastedThis))
+    {
+        return value;
+    }
+
+    return upcastedThis->value();
+}
+
+template <typename T, typename ValueType>
+inline T& AndThenWithValue<T, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
 {
     T* upcastedThis = static_cast<T*>(this);
 
@@ -80,10 +91,10 @@ inline T& AndThenWithValue<T>::and_then(const and_then_callback_t& callable) & n
     return *upcastedThis;
 }
 
-template <typename T>
-inline const T& AndThenWithValue<T>::and_then(const and_then_callback_t& callable) const& noexcept
+template <typename T, typename ValueType>
+inline const T& AndThenWithValue<T, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
 {
-    return const_cast<const T&>(const_cast<AndThenWithValue<T>*>(this)->and_then(callable));
+    return const_cast<const T&>(const_cast<AndThenWithValue<T, ValueType>*>(this)->and_then(callable));
 }
 
 } // namespace internal
