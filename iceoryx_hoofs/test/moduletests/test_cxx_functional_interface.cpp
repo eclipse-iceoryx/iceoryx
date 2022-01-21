@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "test.hpp"
 
 #include <memory>
@@ -23,12 +24,6 @@
 namespace
 {
 using namespace ::testing;
-
-bool wasTerminateHandlerCalled = false;
-void terminateHandler()
-{
-    wasTerminateHandlerCalled = true;
-}
 
 template <typename T>
 class FunctionalInterface_test : public Test
@@ -42,14 +37,6 @@ class FunctionalInterface_test : public Test
 
     void TearDown() override
     {
-    }
-
-    iox::cxx::GenericRAII overrideTerminateHandler()
-    {
-        wasTerminateHandlerCalled = false;
-        auto oldTerminateHandler = std::set_terminate(terminateHandler);
-
-        return iox::cxx::GenericRAII([oldTerminateHandler] { std::set_terminate(oldTerminateHandler); });
     }
 };
 
@@ -118,30 +105,30 @@ using Implementations = Types<GenericValueErrorTest>;
 
 TYPED_TEST_SUITE(FunctionalInterface_test, Implementations);
 
-template <typename T, typename ExpectCall>
-void ExpectDoesNotCallTerminateWhenObjectIsValid(T& test, const ExpectCall& expectCall)
+template <typename ControllerType, typename ExpectCall>
+void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& expectCall)
 {
-    using ControllerType = typename T::TestControllerType;
-
+    bool wasErrorHandlerCalled = false;
     auto sut = ControllerType::CreateValidObject();
     {
-        auto handle = test.overrideTerminateHandler();
+        auto handle =
+            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
         expectCall(sut);
     }
 
-    EXPECT_FALSE(wasTerminateHandlerCalled);
+    EXPECT_FALSE(wasErrorHandlerCalled);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)
 {
-    ExpectDoesNotCallTerminateWhenObjectIsValid(
-        *this, [](auto& sut) { sut.expect("a seal on the head is better then a roof on a pidgin"); });
+    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestControllerType>(
+        [](auto& sut) { sut.expect("a seal on the head is better then a roof on a pidgin"); });
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_ConstLValueCase)
 {
     using SutType = typename TestFixture::TestControllerType::Type;
-    ExpectDoesNotCallTerminateWhenObjectIsValid(*this, [](auto& sut) {
+    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestControllerType>([](auto& sut) {
         const_cast<const SutType&>(sut).expect(
             "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");
     });
@@ -149,35 +136,56 @@ TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_RValueCase)
 {
-    ExpectDoesNotCallTerminateWhenObjectIsValid(
-        *this, [](auto& sut) { std::move(sut).expect("hypnotoad is a friend of david hasselhof"); });
+    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestControllerType>(
+        [](auto& sut) { std::move(sut).expect("hypnotoad is a friend of david hasselhof"); });
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_ConstRValueCase)
 {
     using SutType = typename TestFixture::TestControllerType::Type;
-    ExpectDoesNotCallTerminateWhenObjectIsValid(*this, [](auto& sut) {
+    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestControllerType>([](auto& sut) {
         std::move(const_cast<const SutType&>(sut)).expect("hypnotoads favorite animal is the leaf sheep");
     });
 }
 
-template <typename T, typename ExpectCall>
-void ExpectDoesCallTerminateWhenObjectIsInvalid(T& test, const ExpectCall& expectCall)
+template <typename ControllerType, typename ExpectCall>
+void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& expectCall)
 {
-    using ControllerType = typename T::TestControllerType;
-
+    bool wasErrorHandlerCalled = true;
     auto sut = ControllerType::CreateInvalidObject();
     {
-        auto handle = test.overrideTerminateHandler();
+        auto handle =
+            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
         expectCall(sut);
     }
 
-    EXPECT_TRUE(wasTerminateHandlerCalled);
+    EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)
 {
-    ExpectDoesCallTerminateWhenObjectIsInvalid(
-        *this, [](auto& sut) { sut.expect("a seal on the head is better then a roof on a pidgin"); });
+    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestControllerType>(
+        [](auto& sut) { sut.expect("the chocolate rations will be increased soon"); });
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_constLValueCase)
+{
+    using SutType = typename TestFixture::TestControllerType::Type;
+    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestControllerType>(
+        [](auto& sut) { const_cast<const SutType&>(sut).expect("the chocolate rations will be increased soon"); });
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_RValueCase)
+{
+    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestControllerType>(
+        [](auto& sut) { std::move(sut).expect("the chocolate rations will be increased soon"); });
+}
+
+TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_constRValueCase)
+{
+    using SutType = typename TestFixture::TestControllerType::Type;
+    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestControllerType>([](auto& sut) {
+        std::move(const_cast<const SutType&>(sut)).expect("the chocolate rations will be increased soon");
+    });
 }
 } // namespace

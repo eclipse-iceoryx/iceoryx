@@ -63,6 +63,12 @@ struct ExpectWithValue
 };
 
 template <typename T>
+struct ValueOr
+{
+    typename T::value_t value_or(const typename T::value_t& value) const noexcept;
+};
+
+template <typename T>
 struct AndThenWithValue
 {
     using and_then_callback_t = cxx::function_ref<void(typename T::value_t&)>;
