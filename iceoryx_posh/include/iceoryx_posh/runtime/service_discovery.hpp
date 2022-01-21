@@ -44,24 +44,11 @@ class ServiceDiscovery
     findService(const cxx::variant<Wildcard_t, capro::IdString_t> service,
                 const cxx::variant<Wildcard_t, capro::IdString_t> instance) noexcept;
 
-    /// @brief offer the provided service, sends the offer from application to RouDi daemon
-    /// @param[in] service valid ServiceDescription to offer
-    /// @return bool, if service is offered returns true else false
-    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
-
-    /// @brief stop offering the provided service
-    /// @param[in] service valid ServiceDescription that shall be no more offered
-    /// @return bool, if service is not offered anymore returns true else false
-    bool stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
-
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter
     /// @todo #415 If this method is still used after refactoring, consider to return a reference so that a nullptr
     /// check is not necessary
     virtual const std::atomic<uint64_t>* getServiceRegistryChangeCounter() noexcept;
-
-  private:
-    popo::ApplicationPort m_applicationPort{PoshRuntime::getInstance().getMiddlewareApplication()};
 };
 
 
