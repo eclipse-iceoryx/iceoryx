@@ -46,28 +46,81 @@ enum class MemoryMapError
     UNKNOWN_ERROR
 };
 
-struct MemoryMapConfig
+/// @brief Flags defining how the mapped data should be handled
+enum class MemoryMapFlags : int32_t
 {
-    const void* baseAddressHint = nullptr;
-    const uint64_t length = 0U;
-    const int32_t fileDescriptor = 0;
-    const AccessMode accessMode = AccessMode::READ_WRITE;
-    const int32_t flags = MAP_SHARED;
-    const off_t offset = 0;
+    /// @brief changes are shared
+    SHARE_CHANGES = MAP_SHARED,
+
+    /// @brief changes are private
+    PRIVATE_CHANGES = MAP_PRIVATE,
+
+    /// @brief SHARED and enforce the base address hint
+    SHARE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_SHARED | MAP_FIXED,
+
+    /// @brief PRIVATE and enforce the base address hint
+    PRIVATE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_PRIVATE | MAP_FIXED,
 };
 
+/// @brief The configuration of a MemoryMap object
+struct MemoryMapConfig
+{
+    /// @brief The base address suggestion to which the memory should be mapped. But
+    ///        there is not guarantee that it is really mapped at this position.
+    ///        One has to verify with .getBaseAddress if the hint was accepted.
+    ///        Setting it to nullptr means no suggestion
+    const void* baseAddressHint = nullptr;
+
+    /// @brief The length of the memory which should be mapped
+    uint64_t length = 0U;
+
+    /// @brief The file descriptor which should be mapped into process space
+    int32_t fileDescriptor = 0;
+
+    /// @brief Defines if the memory should be mapped read only or with write access.
+    ///        A read only memory section will cause a segmentation fault when be written to.
+    AccessMode accessMode = AccessMode::READ_WRITE;
+
+    /// @brief Sets the flags defining how the mapped data should be handled
+    MemoryMapFlags flags = MemoryMapFlags::SHARE_CHANGES;
+
+    /// @brief Offset of the memory location
+    off_t offset = 0;
+};
+
+/// @brief C++ abstraction of mmap and munmap. When a MemoryMap object is
+///        created the configured memory is mapped into the process space until
+///        that object goes out of scope - then munmap is called and the memory
+///        region is removed from the process space.
 class MemoryMap
 {
   public:
+    /// @brief copy operations are removed since we are handling a system resource
     MemoryMap(const MemoryMap&) = delete;
     MemoryMap& operator=(const MemoryMap&) = delete;
+
+    /// @brief move constructor
+    /// @param[in] rhs the source object
     MemoryMap(MemoryMap&& rhs) noexcept;
+
+    /// @brief move assignment operator
+    /// @param[in] rhs the source object
+    /// @return reference to *this
     MemoryMap& operator=(MemoryMap&& rhs) noexcept;
 
+    /// @brief destructor, calls munmap when the underlying memory is mapped
     ~MemoryMap() noexcept;
+
+    /// @brief returns the base address, if the object was moved it returns nullptr
     const void* getBaseAddress() const noexcept;
+
+    /// @brief returns the base address, if the object was moved it returns nullptr
     void* getBaseAddress() noexcept;
 
+    /// @brief creates a valid MemoryMap object. If the construction failed the expected
+    ///        contains an enum value describing the error.
+    /// @param[in] config the mmap configuration
+    /// @return expected containing MemoryMap on success otherwise MemoryMapError
     static cxx::expected<MemoryMap, MemoryMapError> create(const MemoryMapConfig& config) noexcept;
 
   private:

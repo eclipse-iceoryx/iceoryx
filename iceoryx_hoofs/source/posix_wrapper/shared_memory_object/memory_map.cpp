@@ -42,7 +42,7 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMap::create(const MemoryMapConfig
     auto result = posixCall(mmap)(const_cast<void*>(config.baseAddressHint),
                                   config.length,
                                   l_memoryProtection,
-                                  config.flags,
+                                  static_cast<int32_t>(config.flags),
                                   config.fileDescriptor,
                                   config.offset)
                       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
