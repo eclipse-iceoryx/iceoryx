@@ -39,7 +39,6 @@ struct GenericValueErrorFactory
     static GenericValueError createInvalidObject() noexcept;
 };
 
-
 struct GenericPlainFactory
 {
     using Type = GenericPlain;
@@ -48,6 +47,48 @@ struct GenericPlainFactory
     static Type createValidObject() noexcept;
     static Type createInvalidObject() noexcept;
 };
+
+/// @brief Add here a type which inherits from FunctionalInterface and should
+///        be tested. Please consider GenericValueErrorFactory and GenericPlainFactory
+///        as a template.
+///
+///     Nullable class:
+///        If the class is just nullable but does not contain a value or an error
+///        then you have to create a struct like GenericPlainFactory with the methods
+///        * using Type =;
+///            type alias for the type which will be tested
+///
+///        * static void configureNextTestCase();
+///            called before every test case, can be useful to bring some randomisation into the
+///            createValidObject/createInvalidObject process.
+///
+///        * static Type createValidObject();
+///            creates a valid object (the operator bool has to return true, required for and_then case)
+///
+///        * static Type createInvalidObject();
+///            creates an invalid object (the operator bool has to return false, required for or_else case)
+///
+///     Class with value:
+///        A class with a value method requires additionally:
+///        * using value_t = ;
+///            Type alias of the value type
+///
+///        * static value_t usedTestValue;
+///            Value which was used while creating a valid object
+///
+///        * static value_t anotherTestValue;
+///            Another value which can be compared to usedTestValue and is not equal to it
+///
+///     Class with error:
+///        A class with a get_error method requires additionally:
+///        * using error_t = ;
+///            Type alias of the error type
+///
+///        * static error_t usedErrorValue;
+///            Error value which was used while creating an invalid object
+///
+///        * static error_t anotherErrorValue
+///            Another error value which can be compared to usedErrorValue and is not equal to it
 
 using FunctionalInterfaceImplementations = testing::Types<GenericValueErrorFactory, GenericPlainFactory>;
 TYPED_TEST_SUITE(FunctionalInterface_test, FunctionalInterfaceImplementations);

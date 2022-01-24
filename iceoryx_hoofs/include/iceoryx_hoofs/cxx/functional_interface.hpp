@@ -51,7 +51,7 @@ struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
     ///        provided message and induces a fatal error
-    /// @param[in] msg Message which will be print when the object is invalid
+    /// @param[in] msg Message which will be printed when the object is invalid
     void expect(const char* const msg) const noexcept;
 };
 
@@ -60,26 +60,26 @@ struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @param[in] msg Message which will be print when the object is invalid
-    /// @return the contained value type
+    /// @param[in] msg Message which will be printed when the object is invalid
+    /// @return a reference to the contained value
     ValueType& expect(const char* const msg) & noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @param[in] msg Message which will be print when the object is invalid
-    /// @return the contained value type
+    /// @param[in] msg Message which will be printed when the object is invalid
+    /// @return a const reference the contained value
     const ValueType& expect(const char* const msg) const& noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @param[in] msg Message which will be print when the object is invalid
-    /// @return the contained value type
+    /// @param[in] msg Message which will be printed when the object is invalid
+    /// @return rvalue reference to the contained value
     ValueType&& expect(const char* const msg) && noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @param[in] msg Message which will be print when the object is invalid
-    /// @return the contained value type
+    /// @param[in] msg Message which will be printed when the object is invalid
+    /// @return const rvalue reference to the contained value
     const ValueType&& expect(const char* const msg) const&& noexcept;
 };
 
@@ -100,32 +100,32 @@ struct AndThenWithValue
     using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
     using const_and_then_callback_t = cxx::function_ref<void(const ValueType&)>;
 
-    /// @brief Calls the provided callable when the object is valid and provide the underlying
+    /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
     /// @return reference to *this
     T& and_then(const and_then_callback_t& callable) & noexcept;
 
-    /// @brief Calls the provided callable when the object is valid and provide the underlying
+    /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
-    /// @return reference to *this
+    /// @return const reference to *this
     const T& and_then(const const_and_then_callback_t& callable) const& noexcept;
 
-    /// @brief Calls the provided callable when the object is valid and provide the underlying
+    /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
-    /// @return reference to *this
+    /// @return rvalue reference to *this
     T&& and_then(const and_then_callback_t& callable) && noexcept;
 
-    /// @brief Calls the provided callable when the object is valid and provide the underlying
+    /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
-    /// @return reference to *this
+    /// @return const rvalue reference to *this
     const T&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
 };
 
@@ -143,19 +143,19 @@ struct AndThen
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
-    /// @return reference to *this
+    /// @return const reference to *this
     const T& and_then(const and_then_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
-    /// @return reference to *this
+    /// @return rvalue reference to *this
     T&& and_then(const and_then_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
-    /// @return reference to *this
+    /// @return const rvalue reference to *this
     const T&& and_then(const and_then_callback_t& callable) const&& noexcept;
 };
 
@@ -176,21 +176,21 @@ struct OrElseWithValue
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
-    /// @return reference to *this
+    /// @return const reference to *this
     const T& or_else(const const_or_else_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
-    /// @return reference to *this
+    /// @return rvalue reference to *this
     T&& or_else(const or_else_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
-    /// @return reference to *this
+    /// @return const rvalue reference to *this
     const T&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
 };
 
@@ -208,19 +208,19 @@ struct OrElse
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
-    /// @return reference to *this
+    /// @return const reference to *this
     const T& or_else(const or_else_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
-    /// @return reference to *this
+    /// @return rvalue reference to *this
     T&& or_else(const or_else_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
-    /// @return reference to *this
+    /// @return const rvalue reference to *this
     const T&& or_else(const or_else_callback_t& callable) const&& noexcept;
 };
 
@@ -265,8 +265,9 @@ struct FunctionalInterfaceImpl<T, void, ErrorType>
 ///        a reference to the underlying error.
 ///
 /// @note When inheriting from this type one does not have to write additional unit tests.
-///       Instead add a factory for your class to `test_cxx_functional_interface.cpp` and
-///       all typed tests are generated.
+///       Instead add a factory for your class to `test_cxx_functional_interface_types.hpp`,
+///       add the type to the FunctionalInterfaceImplementations and all typed tests will be
+///       generated.
 template <typename T, typename ValueType, typename ErrorType>
 using FunctionalInterface = internal::FunctionalInterfaceImpl<T, ValueType, ErrorType>;
 
