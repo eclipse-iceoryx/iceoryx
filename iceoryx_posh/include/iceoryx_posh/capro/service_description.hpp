@@ -103,8 +103,7 @@ class ServiceDescription
                        ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
-    /// @brief compare operator. If wildcards AnyServiceString, AnyInstanceString or AnyEventString are used, the
-    /// corresponding member comparisons are skipped.
+    /// @brief compare operator.
     bool operator==(const ServiceDescription& rhs) const noexcept;
 
     /// @brief negation of compare operator.
@@ -139,7 +138,7 @@ class ServiceDescription
     bool isValid() const noexcept;
 
     ///@{
-    /// Getters for the integer and string IDs
+    /// Getters for the string IDs
     IdString_t getServiceIDString() const noexcept;
     IdString_t getInstanceIDString() const noexcept;
     IdString_t getEventIDString() const noexcept;

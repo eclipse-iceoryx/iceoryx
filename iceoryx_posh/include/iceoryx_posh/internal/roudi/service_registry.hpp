@@ -58,7 +58,7 @@ class ServiceRegistry
     /// @param[in] serviceDescription, service to be removed
     void remove(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry
+    /// @brief Searches for given service description in registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
     /// @param[in] service, string or wildcard to search for
     /// @param[in] instance, string or wildcard to search for
