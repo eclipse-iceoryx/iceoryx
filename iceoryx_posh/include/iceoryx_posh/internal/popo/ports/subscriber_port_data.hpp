@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 
 #include <atomic>
 
@@ -45,7 +46,9 @@ struct SubscriberPortData : public BasePortData
     using ChunkReceiverData_t = ChunkReceiverData<MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
 
     ChunkReceiverData_t m_chunkReceiverData;
-    const uint64_t m_historyRequest;
+
+    SubscriberOptions m_options;
+
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
 };

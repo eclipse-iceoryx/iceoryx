@@ -32,6 +32,11 @@ SubscriberTooSlowPolicy PublisherPortRouDi::getSubscriberTooSlowPolicy() const n
     return getMembers()->m_chunkSenderData.m_subscriberTooSlowPolicy;
 }
 
+const PublisherOptions& PublisherPortRouDi::getOptions() const noexcept
+{
+    return getMembers()->m_options;
+}
+
 const PublisherPortRouDi::MemberType_t* PublisherPortRouDi::getMembers() const noexcept
 {
     return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());

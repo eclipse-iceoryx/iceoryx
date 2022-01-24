@@ -32,6 +32,11 @@ QueueFullPolicy SubscriberPortRouDi::getQueueFullPolicy() const noexcept
     return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
 }
 
+const SubscriberOptions& SubscriberPortRouDi::getOptions() const noexcept
+{
+    return getMembers()->m_options;
+}
+
 const SubscriberPortRouDi::MemberType_t* SubscriberPortRouDi::getMembers() const noexcept
 {
     return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());

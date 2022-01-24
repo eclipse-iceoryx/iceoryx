@@ -50,6 +50,9 @@ struct PublisherPortData : public BasePortData
         ChunkSenderData<MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
 
     ChunkSenderData_t m_chunkSenderData;
+
+    PublisherOptions m_options;
+
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
 };
