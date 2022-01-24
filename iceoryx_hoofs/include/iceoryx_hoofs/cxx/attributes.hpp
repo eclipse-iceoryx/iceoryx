@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,15 @@ namespace cxx
 /// @endcode
 // NOLINTNEXTLINE
 #define IOX_DISCARD_RESULT(expr) static_cast<void>(expr)
+
+/// @brief designated initializers are supported from C++20, to support them with
+///        previous C++ versions we introduce DESIGNATE which activates them only
+///        with C++20 or higher but keeps the much improved readability
+#if __cplusplus >= 202002L
+#define IOX_DESIGNATE(structMember, value) .structMember = value
+#else
+#define IOX_DESIGNATE(structMember, value) value
+#endif
 
 /// @brief IOX_NO_DISCARD adds the [[nodiscard]] keyword if it is available for the current compiler.
 ///        If additionally the keyword [[gnu::warn_unused]] is present it will be added as well.

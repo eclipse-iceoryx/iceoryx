@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +46,17 @@ enum class MemoryMapError
     UNKNOWN_ERROR
 };
 
-class MemoryMap : public DesignPattern::Creation<MemoryMap, MemoryMapError>
+struct MemoryMapConfig
+{
+    const void* baseAddressHint = nullptr;
+    const uint64_t length = 0U;
+    const int32_t fileDescriptor = 0;
+    const AccessMode accessMode = AccessMode::READ_WRITE;
+    const int32_t flags = MAP_SHARED;
+    const off_t offset = 0;
+};
+
+class MemoryMap
 {
   public:
     MemoryMap(const MemoryMap&) = delete;
@@ -55,18 +65,13 @@ class MemoryMap : public DesignPattern::Creation<MemoryMap, MemoryMapError>
     MemoryMap& operator=(MemoryMap&& rhs) noexcept;
 
     ~MemoryMap() noexcept;
-    void* getBaseAddress() const noexcept;
+    const void* getBaseAddress() const noexcept;
+    void* getBaseAddress() noexcept;
 
-    friend class DesignPattern::Creation<MemoryMap, MemoryMapError>;
+    static cxx::expected<MemoryMap, MemoryMapError> create(const MemoryMapConfig& config) noexcept;
 
   private:
-    MemoryMap(const void* baseAddressHint,
-              const uint64_t length,
-              const int32_t fileDescriptor,
-              const AccessMode accessMode,
-              const int32_t flags = MAP_SHARED,
-              const off_t offset = 0) noexcept;
-    bool isInitialized() const noexcept;
+    MemoryMap(void* const baseAddress, const uint64_t length) noexcept;
     bool destroy() noexcept;
     static MemoryMapError errnoToEnum(const int32_t errnum) noexcept;
 
