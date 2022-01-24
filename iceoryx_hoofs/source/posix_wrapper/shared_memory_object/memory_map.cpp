@@ -24,10 +24,10 @@ namespace iox
 {
 namespace posix
 {
-cxx::expected<MemoryMap, MemoryMapError> MemoryMap::create(const MemoryMapConfig& config) noexcept
+cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 {
     int32_t l_memoryProtection{PROT_NONE};
-    switch (config.accessMode)
+    switch (m_accessMode)
     {
     case AccessMode::READ_ONLY:
         l_memoryProtection = PROT_READ;
@@ -39,29 +39,28 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMap::create(const MemoryMapConfig
     // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
-    auto result = posixCall(mmap)(const_cast<void*>(config.baseAddressHint),
-                                  config.length,
+    auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
+                                  m_length,
                                   l_memoryProtection,
-                                  static_cast<int32_t>(config.flags),
-                                  config.fileDescriptor,
-                                  config.offset)
+                                  static_cast<int32_t>(m_flags),
+                                  m_fileDescriptor,
+                                  m_offset)
                       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
                       .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
                       .evaluate();
 
     if (result)
     {
-        return cxx::success<MemoryMap>(MemoryMap(result.value().value, config.length));
+        return cxx::success<MemoryMap>(MemoryMap(result.value().value, m_length));
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
     auto flags = std::cerr.flags();
     std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
-              << config.baseAddressHint << ", length = " << std::dec << config.length
-              << ", fileDescriptor = " << config.fileDescriptor
-              << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(config.accessMode)]
+              << m_baseAddressHint << ", length = " << std::dec << m_length << ", fileDescriptor = " << m_fileDescriptor
+              << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
               << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags)) << ", offset = " << std::hex
-              << config.offset << std::dec << " ]" << std::endl;
+              << m_offset << std::dec << " ]" << std::endl;
     std::cerr.setf(flags);
     return cxx::error<MemoryMapError>(MemoryMap::errnoToEnum(result.get_error().errnum));
 }

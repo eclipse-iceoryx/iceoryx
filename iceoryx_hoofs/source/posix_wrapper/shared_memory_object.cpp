@@ -68,12 +68,14 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (m_isInitialized)
     {
-        MemoryMap::create({baseAddressHint,
-                           m_memorySizeInBytes,
-                           m_sharedMemory->getHandle(),
-                           accessMode,
-                           MemoryMapFlags::SHARE_CHANGES,
-                           0})
+        MemoryMapBuilder()
+            .baseAddressHint(baseAddressHint)
+            .length(memorySizeInBytes)
+            .fileDescriptor(m_sharedMemory->getHandle())
+            .accessMode(accessMode)
+            .flags(MemoryMapFlags::SHARE_CHANGES)
+            .offset(0)
+            .create()
             .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
             .or_else([this](auto) {
                 std::cerr << "Failed to map created shared memory into process!" << std::endl;

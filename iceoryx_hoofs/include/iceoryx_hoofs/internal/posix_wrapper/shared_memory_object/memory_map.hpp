@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
@@ -62,30 +63,37 @@ enum class MemoryMapFlags : int32_t
     PRIVATE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_PRIVATE | MAP_FIXED,
 };
 
-/// @brief The configuration of a MemoryMap object
-struct MemoryMapConfig
+class MemoryMap;
+/// @brief The builder of a MemoryMap object
+class MemoryMapBuilder
 {
     /// @brief The base address suggestion to which the memory should be mapped. But
     ///        there is not guarantee that it is really mapped at this position.
     ///        One has to verify with .getBaseAddress if the hint was accepted.
     ///        Setting it to nullptr means no suggestion
-    const void* baseAddressHint = nullptr;
+    IOX_BUILDER_PARAMETER(const void*, baseAddressHint, nullptr)
 
     /// @brief The length of the memory which should be mapped
-    uint64_t length = 0U;
+    IOX_BUILDER_PARAMETER(uint64_t, length, 0U)
 
     /// @brief The file descriptor which should be mapped into process space
-    int32_t fileDescriptor = 0;
+    IOX_BUILDER_PARAMETER(int32_t, fileDescriptor, 0)
 
     /// @brief Defines if the memory should be mapped read only or with write access.
     ///        A read only memory section will cause a segmentation fault when be written to.
-    AccessMode accessMode = AccessMode::READ_WRITE;
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
 
     /// @brief Sets the flags defining how the mapped data should be handled
-    MemoryMapFlags flags = MemoryMapFlags::SHARE_CHANGES;
+    IOX_BUILDER_PARAMETER(MemoryMapFlags, flags, MemoryMapFlags::SHARE_CHANGES)
 
     /// @brief Offset of the memory location
-    off_t offset = 0;
+    IOX_BUILDER_PARAMETER(off_t, offset, 0)
+
+  public:
+    /// @brief creates a valid MemoryMap object. If the construction failed the expected
+    ///        contains an enum value describing the error.
+    /// @return expected containing MemoryMap on success otherwise MemoryMapError
+    cxx::expected<MemoryMap, MemoryMapError> create() noexcept;
 };
 
 /// @brief C++ abstraction of mmap and munmap. When a MemoryMap object is
@@ -117,11 +125,7 @@ class MemoryMap
     /// @brief returns the base address, if the object was moved it returns nullptr
     void* getBaseAddress() noexcept;
 
-    /// @brief creates a valid MemoryMap object. If the construction failed the expected
-    ///        contains an enum value describing the error.
-    /// @param[in] config the mmap configuration
-    /// @return expected containing MemoryMap on success otherwise MemoryMapError
-    static cxx::expected<MemoryMap, MemoryMapError> create(const MemoryMapConfig& config) noexcept;
+    friend class MemoryMapBuilder;
 
   private:
     MemoryMap(void* const baseAddress, const uint64_t length) noexcept;
