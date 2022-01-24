@@ -50,11 +50,6 @@ enum class FindServiceError
     INSTANCE_CONTAINER_OVERFLOW       /// @todo #415 set container to iox::MAX_NUMBER_OF_SERVICES and remove error
 };
 
-/// @brief Used to search for any string
-struct Wildcard_t
-{
-};
-
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
 {

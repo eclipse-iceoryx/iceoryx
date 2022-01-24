@@ -33,8 +33,8 @@ using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::popo;
 
-const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
-const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(InvalidIdString, InvalidIdString, InvalidIdString);
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Radar", "FrontRight", "ChuckNorrisDetected");
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY_STRINGS("", "", "");
 
 const iox::RuntimeName_t RUNTIME_NAME_EMPTY = {""};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
@@ -65,13 +65,12 @@ PublisherPortData* createPortData()
 {
     PublisherOptions options;
     options.historyCapacity = 1U;
-    return new PublisherPortData(
-        SERVICE_DESCRIPTION_VALID, RUNTIME_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, options);
+    return new PublisherPortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, options);
 }
 template <>
 SubscriberPortData* createPortData()
 {
-    return new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
+    return new SubscriberPortData(SERVICE_DESCRIPTION,
                                   RUNTIME_NAME_FOR_SUBSCRIBER_PORTS,
                                   iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
                                   SubscriberOptions());
@@ -87,17 +86,17 @@ InterfacePortData* createPortData()
 template <typename T>
 const ServiceDescription& expectedServiceDescription()
 {
-    return SERVICE_DESCRIPTION_EMPTY;
+    return SERVICE_DESCRIPTION_EMPTY_STRINGS;
 }
 template <>
 const ServiceDescription& expectedServiceDescription<PublisherPortData>()
 {
-    return SERVICE_DESCRIPTION_VALID;
+    return SERVICE_DESCRIPTION;
 }
 template <>
 const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
 {
-    return SERVICE_DESCRIPTION_VALID;
+    return SERVICE_DESCRIPTION;
 }
 
 // expected ProcessName factories

@@ -29,11 +29,11 @@ ServiceDescription::ClassHash::ClassHash() noexcept
 
 ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& values) noexcept
 {
-    uint64_t index = 0u;
+    uint64_t index = 0U;
     for (auto& v : values)
     {
         data[index++] = v;
-        if (index == 4u)
+        if (index == 4U)
         {
             return;
         }
@@ -54,7 +54,7 @@ const uint32_t& ServiceDescription::ClassHash::operator[](
 
 bool ServiceDescription::ClassHash::operator==(const ClassHash& rhs) const noexcept
 {
-    for (size_t i = 0u; i < CLASS_HASH_ELEMENT_COUNT; ++i)
+    for (size_t i = 0U; i < CLASS_HASH_ELEMENT_COUNT; ++i)
     {
         if (data[i] != rhs[i])
         {
@@ -70,7 +70,7 @@ bool ServiceDescription::ClassHash::operator!=(const ClassHash& rhs) const noexc
 }
 
 ServiceDescription::ServiceDescription() noexcept
-    : ServiceDescription(InvalidIdString, InvalidIdString, InvalidIdString)
+    : ServiceDescription("", "", "")
 {
 }
 
@@ -142,10 +142,10 @@ ServiceDescription::operator cxx::Serialization() const noexcept
     return cxx::Serialization::create(m_serviceString,
                                       m_instanceString,
                                       m_eventString,
-                                      m_classHash[0u],
-                                      m_classHash[1u],
-                                      m_classHash[2u],
-                                      m_classHash[3u],
+                                      m_classHash[0U],
+                                      m_classHash[1U],
+                                      m_classHash[2U],
+                                      m_classHash[3U],
                                       scope,
                                       interface);
 }
@@ -164,10 +164,10 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
     auto deserializationSuccessful = serialized.extract(deserializedObject.m_serviceString,
                                                         deserializedObject.m_instanceString,
                                                         deserializedObject.m_eventString,
-                                                        deserializedObject.m_classHash[0u],
-                                                        deserializedObject.m_classHash[1u],
-                                                        deserializedObject.m_classHash[2u],
-                                                        deserializedObject.m_classHash[3u],
+                                                        deserializedObject.m_classHash[0U],
+                                                        deserializedObject.m_classHash[1U],
+                                                        deserializedObject.m_classHash[2U],
+                                                        deserializedObject.m_classHash[3U],
                                                         scope,
                                                         interfaceSource);
     if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
@@ -220,12 +220,6 @@ ServiceDescription::ClassHash ServiceDescription::getClassHash() const noexcept
 Interfaces ServiceDescription::getSourceInterface() const noexcept
 {
     return m_interfaceSource;
-}
-
-bool ServiceDescription::isValid() const noexcept
-{
-    return !(m_serviceString == iox::capro::InvalidIdString || m_instanceString == iox::capro::InvalidIdString
-             || m_eventString == iox::capro::InvalidIdString);
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept

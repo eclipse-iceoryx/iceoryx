@@ -30,7 +30,6 @@ namespace iox
 {
 namespace capro
 {
-static const IdString_t InvalidIdString{""};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
 
@@ -100,7 +99,7 @@ class ServiceDescription
     ServiceDescription(const IdString_t& service,
                        const IdString_t& instance,
                        const IdString_t& event,
-                       ClassHash m_classHash = {0u, 0u, 0u, 0u},
+                       ClassHash m_classHash = {0U, 0U, 0U, 0U},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
     /// @brief compare operator.
@@ -132,10 +131,6 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() const noexcept;
 
-    /// @brief Returns true for valid ServiceDescription
-    /// false for ServiceDescription that contain InvalidStrings.
-    /// @return bool, true if ServiceDescription is valid, false otherwise
-    bool isValid() const noexcept;
 
     ///@{
     /// Getters for the string IDs
@@ -154,11 +149,11 @@ class ServiceDescription
 
   private:
     /// @brief string representation of the service
-    IdString_t m_serviceString{InvalidIdString};
+    IdString_t m_serviceString;
     /// @brief string representation of the instance
-    IdString_t m_instanceString{InvalidIdString};
+    IdString_t m_instanceString;
     /// @brief string representation of the event
-    IdString_t m_eventString{InvalidIdString};
+    IdString_t m_eventString;
 
     /// @brief 128-Bit class hash (32-Bit * 4)
     ClassHash m_classHash{0, 0, 0, 0};

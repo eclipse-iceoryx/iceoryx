@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -60,7 +61,7 @@ TIMING_TEST_F(ServiceDiscovery_test, GetServiceRegistryChangeCounterOfferStopOff
 TEST_F(ServiceDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
-    auto serviceContainer = sut.findService(iox::runtime::Wildcard_t(), iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(iox::cxx::Wildcard_t(), iox::cxx::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
 
     auto searchResult = serviceContainer.value();
@@ -221,7 +222,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsAllMatchingS
     serviceContainerExp.push_back(SERVICE_DESCRIPTION2);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = sut.findService(SERVICE, iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(SERVICE, iox::cxx::Wildcard_t());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(3U));
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
@@ -242,7 +243,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsAllServices)
     serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = sut.findService(iox::runtime::Wildcard_t(), INSTANCE);
+    auto serviceContainer = sut.findService(iox::cxx::Wildcard_t(), INSTANCE);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(2U));
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
@@ -401,7 +402,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxServices)
         serviceContainerExp.push_back(SERVICE_DESCRIPTION);
     }
 
-    auto serviceContainer = sut.findService(SERVICE, iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(SERVICE, iox::cxx::Wildcard_t());
 
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
@@ -422,7 +423,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsContainerOverflowErrorWhenMoreTh
         publishers.emplace_back(SERVICE_DESCRIPTION);
     }
 
-    auto serviceContainer = sut.findService(IdString_t("s"), iox::runtime::Wildcard_t());
+    auto serviceContainer = sut.findService(IdString_t("s"), iox::cxx::Wildcard_t());
 
     ASSERT_THAT(serviceContainer.has_error(), Eq(true));
 }

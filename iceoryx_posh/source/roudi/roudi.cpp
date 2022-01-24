@@ -246,12 +246,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& service = deserializationResult.value();
 
-            if (!service.isValid())
-            {
-                LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
-                break;
-            }
-
             auto publisherOptionsDeserializationResult =
                 popo::PublisherOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
             if (publisherOptionsDeserializationResult.has_error())
@@ -288,12 +282,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
 
             const auto& service = deserializationResult.value();
-
-            if (!service.isValid())
-            {
-                LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
-                break;
-            }
 
             auto subscriberOptionsDeserializationResult =
                 popo::SubscriberOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));

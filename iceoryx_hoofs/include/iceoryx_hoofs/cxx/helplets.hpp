@@ -378,6 +378,10 @@ constexpr T into(const F value) noexcept;
   private:                                                                                                             \
     type m_##name = defaultValue;
 
+/// @brief Used to search for any string
+struct Wildcard_t
+{
+};
 
 } // namespace cxx
 } // namespace iox

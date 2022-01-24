@@ -248,9 +248,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsT
     ::testing::Test::RecordProperty("TEST_ID", "707156f8-8145-4710-b6ac-3e94dbac7237");
     ServiceDescription serviceDescription1 = ServiceDescription();
 
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(InvalidIdString));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(InvalidIdString));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(InvalidIdString));
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(""));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(""));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(""));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScopeToWorldWide)
@@ -411,50 +411,6 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     serviceDescription1.setInternal();
 
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "008bbc55-894f-4083-bc78-b0dac7bd52f0");
-    IdString_t testServiceID = InvalidIdString;
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8b5b66fd-5d04-4200-bb7a-bf8afea9c2c4");
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = InvalidIdString;
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "afea0f45-d40a-41e3-931c-46b0cc2f8f5b");
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = InvalidIdString;
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c88a8049-abf5-44f0-9b08-99fb83ce861f");
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_TRUE(serviceDescription1.isValid());
 }
 
 TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfServiceStringOfFirstServiceDescriptionIsLessThanSecond)
