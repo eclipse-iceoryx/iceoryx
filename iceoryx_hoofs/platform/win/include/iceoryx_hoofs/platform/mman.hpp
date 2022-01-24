@@ -30,7 +30,9 @@
 // windows will define some macros which makes the code uncompilable
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 
-#define MAP_SHARED 0
+#define MAP_SHARED 0x01
+#define MAP_PRIVATE 0x02
+#define MAP_FIXED 0x10
 #define MAP_FAILED 1
 #define PROT_NONE 0
 #define PROT_READ 3
