@@ -558,22 +558,14 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::IpcMessage PortManager::findService(const capro::IdString_t& service,
-                                             const capro::IdString_t& instance) noexcept
+runtime::IpcMessage PortManager::findService(const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
+                                             const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) noexcept
 {
-    // send find to all interfaces
-    capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, {service, instance, roudi::Wildcard});
-
-    for (auto interfacePortData : m_portPool->getInterfacePortDataList())
-    {
-        iox::popo::InterfacePort interfacePort(interfacePortData);
-        interfacePort.dispatchCaProMessage(caproMessage);
-    }
-
     runtime::IpcMessage response;
 
     ServiceRegistry::ServiceDescriptionVector_t searchResult;
     m_serviceRegistry.find(searchResult, service, instance);
+
     for (auto& service : searchResult)
     {
         response << static_cast<cxx::Serialization>(service.serviceDescription).toString();

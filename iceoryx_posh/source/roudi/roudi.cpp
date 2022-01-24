@@ -346,15 +346,35 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::FIND_SERVICE:
     {
-        if (message.getNumberOfElements() != 4)
+        if (message.getNumberOfElements() != 6)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
-            capro::IdString_t service{cxx::TruncateToCapacity, message.getElementAtIndex(2)};
-            capro::IdString_t instance{cxx::TruncateToCapacity, message.getElementAtIndex(3)};
+            cxx::variant<cxx::Wildcard_t, capro::IdString_t> service;
+            cxx::variant<cxx::Wildcard_t, capro::IdString_t> instance;
+            bool isServiceWildcard = false;
+            bool isInstanceWildcard = false;
+            cxx::convert::fromString(message.getElementAtIndex(2).c_str(), isServiceWildcard);
+            if (!isServiceWildcard)
+            {
+                service.emplace<capro::IdString_t>(cxx::TruncateToCapacity, message.getElementAtIndex(3));
+            }
+            else
+            {
+                service.emplace<cxx::Wildcard_t>();
+            }
+            cxx::convert::fromString(message.getElementAtIndex(4).c_str(), isInstanceWildcard);
+            if (!isInstanceWildcard)
+            {
+                instance.emplace<capro::IdString_t>(cxx::TruncateToCapacity, message.getElementAtIndex(5));
+            }
+            else
+            {
+                instance.emplace<cxx::Wildcard_t>();
+            }
 
             m_prcMgr->findServiceForProcess(runtimeName, service, instance);
         }

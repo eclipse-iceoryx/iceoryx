@@ -100,25 +100,25 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
 }
 
 void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
-                           const capro::IdString_t& service,
-                           const capro::IdString_t& instance) const noexcept
+                           const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
+                           const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) const noexcept
 {
     cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
 
     // Find (K1, K2)
     // O(log n + log n + max(#PossibleServices + #possiblesInstances) + #intersection)
-    if (instance != Wildcard && service != Wildcard)
+    if (instance.index() != 0 && service.index() != 0)
     {
         cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> possibleServices;
         cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> possibleInstances;
 
-        auto rangeServiceMap = m_serviceMap.equal_range(service);
+        auto rangeServiceMap = m_serviceMap.equal_range(*service.get_at_index<1>());
         for (auto entry = rangeServiceMap.first; entry != rangeServiceMap.second; ++entry)
         {
             possibleServices.push_back(entry->second);
         }
 
-        auto rangeInstanceMap = m_instanceMap.equal_range(instance);
+        auto rangeInstanceMap = m_instanceMap.equal_range(*instance.get_at_index<1>());
         for (auto entry = rangeInstanceMap.first; entry != rangeInstanceMap.second; ++entry)
         {
             possibleInstances.push_back(entry->second);
@@ -137,9 +137,9 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
     }
     // Find (*, K2)
     // O(log n + #result)
-    else if (service == Wildcard && instance != Wildcard)
+    else if (service.index() == 0 && instance.index() != 0)
     {
-        auto range = m_instanceMap.equal_range(instance);
+        auto range = m_instanceMap.equal_range(*instance.get_at_index<1>());
         for (auto entry = range.first; entry != range.second; ++entry)
         {
             searchResult.push_back(m_serviceDescriptionVector[entry->second]);
@@ -147,9 +147,9 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
     }
     // Find (K1, *)
     // O(log n + #result)
-    else if (instance == Wildcard && service != Wildcard)
+    else if (instance.index() == 0 && service.index() != 0)
     {
-        auto range = m_serviceMap.equal_range(service);
+        auto range = m_serviceMap.equal_range(*service.get_at_index<1>());
         for (auto entry = range.first; entry != range.second; ++entry)
         {
             searchResult.push_back(m_serviceDescriptionVector[entry->second]);

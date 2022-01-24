@@ -288,18 +288,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
     EXPECT_EQ(uint32_t(45), serviceDescription1.getClassHash()[3]);
 }
 
-TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceAnyEventIDsAreEqual)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f149fab2-b1a3-406e-aee1-30a3c2e9e169");
-    IdString_t testService = iox::roudi::Wildcard;
-    IdString_t testEvent = iox::roudi::Wildcard;
-    IdString_t testInstance = iox::roudi::Wildcard;
-    ServiceDescription serviceDescription1 = ServiceDescription(testService, testEvent, testInstance);
-    ServiceDescription serviceDescription2 = ServiceDescription(testService, testEvent, testInstance);
-
-    EXPECT_TRUE(serviceDescription1 == serviceDescription2);
-}
-
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidServicesAreNotEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42329498-78b4-4cef-8629-918ca2783529");
@@ -370,8 +358,8 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceStringI
 {
     ::testing::Test::RecordProperty("TEST_ID", "47bb698b-bb13-4885-afab-b5a975b67715");
     IdString_t sameService = "1";
-    ServiceDescription description1 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
-    ServiceDescription description2 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
+    ServiceDescription description1 = ServiceDescription(sameService, "instance1", "event1");
+    ServiceDescription description2 = ServiceDescription(sameService, "instance2", "event2");
 
     EXPECT_TRUE(iox::capro::serviceMatch(description1, description2));
 }
@@ -381,8 +369,8 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
     ::testing::Test::RecordProperty("TEST_ID", "9ccd5f69-aca9-4e3d-9ba7-83581abde0f3");
     IdString_t serviceID1 = "1";
     IdString_t serviceID2 = "2";
-    ServiceDescription description1 = ServiceDescription(serviceID1, iox::roudi::Wildcard, iox::roudi::Wildcard);
-    ServiceDescription description2 = ServiceDescription(serviceID2, iox::roudi::Wildcard, iox::roudi::Wildcard);
+    ServiceDescription description1 = ServiceDescription(serviceID1, "instance", "event");
+    ServiceDescription description2 = ServiceDescription(serviceID2, "instance", "event");
 
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }

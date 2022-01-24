@@ -28,10 +28,12 @@ ServiceDiscovery::findService(const cxx::variant<cxx::Wildcard_t, capro::IdStrin
     /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;
     capro::IdString_t instanceString;
+    bool isServiceWildcard = false;
+    bool isInstanceWildcard = false;
 
     if (service.index() == 0U)
     {
-        serviceString = "*";
+        isServiceWildcard = true;
     }
     else
     {
@@ -40,7 +42,7 @@ ServiceDiscovery::findService(const cxx::variant<cxx::Wildcard_t, capro::IdStrin
 
     if (instance.index() == 0U)
     {
-        instanceString = "*";
+        isInstanceWildcard = true;
     }
     else
     {
@@ -49,7 +51,8 @@ ServiceDiscovery::findService(const cxx::variant<cxx::Wildcard_t, capro::IdStrin
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << PoshRuntime::getInstance().getInstanceName()
-               << serviceString << instanceString;
+               << cxx::convert::toString(isServiceWildcard) << serviceString
+               << cxx::convert::toString(isInstanceWildcard) << instanceString;
 
     IpcMessage requestResponse;
 

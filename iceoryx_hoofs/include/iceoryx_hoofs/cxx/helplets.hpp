@@ -382,6 +382,7 @@ constexpr T into(const F value) noexcept;
 struct Wildcard_t
 {
 };
+constexpr Wildcard_t Wildcard{};
 
 } // namespace cxx
 } // namespace iox

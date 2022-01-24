@@ -96,7 +96,8 @@ class PortManager
     void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
-    runtime::IpcMessage findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
+    runtime::IpcMessage findService(const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
+                                    const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) noexcept;
 
   protected:
     void makeAllPublisherPortsToStopOffer() noexcept;

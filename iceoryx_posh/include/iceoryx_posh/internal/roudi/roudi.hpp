@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"

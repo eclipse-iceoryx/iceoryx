@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
@@ -50,7 +51,7 @@ class ServiceRegistry_test : public Test
 TEST_F(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3a050209-01d8-4d0e-9e70-c0662b9dbe76");
-    sut.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, iox::cxx::Wildcard, iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
@@ -104,7 +105,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
     auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result2.has_error());
 
-    sut.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, iox::cxx::Wildcard, iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
@@ -122,7 +123,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
 
     sut.remove(ServiceDescription("Li", "La", "Launebaerli"));
 
-    sut.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, iox::cxx::Wildcard, iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
@@ -155,7 +156,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildc
 {
     ::testing::Test::RecordProperty("TEST_ID", "be3e4b13-d930-47b2-aeaa-95c65f06deed");
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
-    sut.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, iox::cxx::Wildcard, iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
@@ -165,7 +166,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmpty
 {
     ::testing::Test::RecordProperty("TEST_ID", "1af0137f-6bf5-422e-a6ec-513f7d3f6191");
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
-    sut.find(searchResults, "", "");
+    sut.find(searchResults, iox::capro::IdString_t(""), iox::capro::IdString_t(""));
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
@@ -176,7 +177,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
     ::testing::Test::RecordProperty("TEST_ID", "a12c9d39-6379-4296-8987-df56a87169f7");
     auto result = sut.add(ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_FALSE(result.has_error());
-    sut.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, iox::cxx::Wildcard, iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
@@ -187,7 +188,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
     ::testing::Test::RecordProperty("TEST_ID", "1dfaa836-f1da-466f-a794-a7ac1b599ce3");
     auto result = sut.add(ServiceDescription("Baz", "Bar", "Foo"));
     ASSERT_FALSE(result.has_error());
-    sut.find(searchResults, Wildcard, "Bar");
+    sut.find(searchResults, iox::cxx::Wildcard, iox::capro::IdString_t("Bar"));
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Baz", "Bar", "Foo")));
@@ -198,7 +199,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
     ::testing::Test::RecordProperty("TEST_ID", "0890013c-e14b-4ae2-89cb-757624c12b4e");
     iox::capro::ServiceDescription service1("a", "b", "c");
     ASSERT_FALSE(sut.add(service1).has_error());
-    sut.find(searchResults, "a", Wildcard);
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
@@ -212,7 +213,7 @@ TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWith
 
     ASSERT_FALSE(sut.add(service1).has_error());
     ASSERT_FALSE(sut.add(service2).has_error());
-    sut.find(searchResults, Wildcard, Wildcard);
+    sut.find(searchResults, iox::cxx::Wildcard, iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(2));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
@@ -229,7 +230,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAll
     ASSERT_FALSE(sut.add(service1).has_error());
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service3).has_error());
-    sut.find(searchResults, "a", Wildcard);
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(3));
 
@@ -258,13 +259,13 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceNameC
 
     ASSERT_FALSE(sut.add(service1).has_error());
     ASSERT_FALSE(sut.add(service2).has_error());
-    sut.find(searchResults, "a", Wildcard);
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
     searchResults.clear();
 
-    sut.find(searchResults, "c", Wildcard);
+    sut.find(searchResults, iox::capro::IdString_t("c"), iox::cxx::Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
 }
@@ -279,7 +280,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsS
     ASSERT_FALSE(sut.add(service1).has_error());
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service3).has_error());
-    sut.find(searchResults, "a", "c");
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"));
 
     EXPECT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
@@ -303,7 +304,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFind
     sut.remove(service5);
     sut.remove(service1);
     EXPECT_THAT(sut.getServices().size(), Eq(3));
-    sut.find(searchResults, "a", Wildcard);
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::cxx::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
@@ -318,7 +319,7 @@ TEST_F(ServiceRegistry_test, FindSpecificNonExistingServiceDescriptionFails)
     ASSERT_FALSE(sut.add(service1).has_error());
     ASSERT_FALSE(sut.add(service2).has_error());
     ASSERT_FALSE(sut.add(service3).has_error());
-    sut.find(searchResults, "a", "g");
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("g"));
 
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
@@ -337,7 +338,7 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameServicesAnd
     sut.remove(service2);
     EXPECT_THAT(sut.getServices().size(), Eq(2));
 
-    sut.find(searchResults, "a", "c");
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"));
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
@@ -355,7 +356,7 @@ TEST_F(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceRegis
     sut.remove(service2);
     EXPECT_THAT(sut.getServices().size(), Eq(2));
 
-    sut.find(searchResults, "b", "c");
+    sut.find(searchResults, iox::capro::IdString_t("b"), iox::capro::IdString_t("c"));
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
@@ -374,7 +375,7 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllDoesN
     sut.remove(service2);
     sut.remove(service3);
 
-    sut.find(searchResults, "a", Wildcard);
+    sut.find(searchResults, iox::capro::IdString_t("a"), iox::cxx::Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
