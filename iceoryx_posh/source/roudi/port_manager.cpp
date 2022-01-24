@@ -314,8 +314,6 @@ void PortManager::handleConditionVariables() noexcept
 ///@todo consider making the matching function available in some interface
 bool isCompatible(const PublisherPortRouDiType& publisher, const SubscriberPortType& subscriber)
 {
-    std::cerr << "isCompatible " << std::endl;
-
     const bool servicesMatch = subscriber.getCaProServiceDescription() == publisher.getCaProServiceDescription();
 
     auto& pubOpts = publisher.getOptions();

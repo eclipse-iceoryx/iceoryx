@@ -33,6 +33,7 @@ TEST(SubscriberOptions_test, SerializationRoundTripIsSuccessful)
     testOptions.nodeName = "hypnotoad";
     testOptions.subscribeOnCreate = false;
     testOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    testOptions.requiresPublisherHistorySupport = true;
 
     iox::popo::SubscriberOptions::deserialize(testOptions.serialize())
         .and_then([&](auto& roundTripOptions) {
@@ -50,6 +51,8 @@ TEST(SubscriberOptions_test, SerializationRoundTripIsSuccessful)
 
             EXPECT_THAT(roundTripOptions.queueFullPolicy, Ne(defaultOptions.queueFullPolicy));
             EXPECT_THAT(roundTripOptions.queueFullPolicy, Eq(testOptions.queueFullPolicy));
+            EXPECT_THAT(roundTripOptions.requiresPublisherHistorySupport,
+                        Eq(testOptions.requiresPublisherHistorySupport));
         })
         .or_else([&](auto&) { FAIL() << "Serialization/Deserialization of SubscriberOptions failed!"; });
 }

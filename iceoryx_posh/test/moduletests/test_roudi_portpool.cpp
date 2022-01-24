@@ -279,7 +279,7 @@ TEST_F(PortPool_test, AddSubscriberPortIsSuccessful)
     EXPECT_EQ(subscriberPort.value()->m_serviceDescription, m_serviceDescription);
     EXPECT_EQ(subscriberPort.value()->m_runtimeName, m_applicationName);
     EXPECT_EQ(subscriberPort.value()->m_nodeName, m_subscriberOptions.nodeName);
-    EXPECT_EQ(subscriberPort.value()->m_historyRequest, m_subscriberOptions.historyRequest);
+    EXPECT_EQ(subscriberPort.value()->m_options.historyRequest, m_subscriberOptions.historyRequest);
     EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_queue.capacity(), 256U);
     EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
     EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);

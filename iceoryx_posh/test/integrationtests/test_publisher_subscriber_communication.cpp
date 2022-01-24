@@ -71,6 +71,21 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
             options);
     }
 
+    // additional overload for convenient use in the test cases
+    template <typename T>
+    std::unique_ptr<iox::popo::Publisher<T>> createPublisher(const uint64_t historyCapacity)
+    {
+        iox::popo::PublisherOptions options;
+        options.historyCapacity = historyCapacity;
+        return std::make_unique<iox::popo::Publisher<T>>(
+            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
+                                      m_serviceDescription.getInstanceIDString(),
+                                      m_serviceDescription.getEventIDString(),
+                                      {0U, 0U, 0U, 0U},
+                                      capro::Interfaces::INTERNAL},
+            options);
+    }
+
     template <typename T>
     std::unique_ptr<iox::popo::Subscriber<T>>
     createSubscriber(const QueueFullPolicy policy = QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -89,6 +104,22 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
             options);
     }
 
+    // additional overload for convenient use in the test cases
+    template <typename T>
+    std::unique_ptr<iox::popo::Subscriber<T>> createSubscriber(const uint64_t historyRequest,
+                                                               const bool requiresPublisherHistorySupport = false)
+    {
+        iox::popo::SubscriberOptions options;
+        options.historyRequest = historyRequest;
+        options.requiresPublisherHistorySupport = requiresPublisherHistorySupport;
+        return std::make_unique<iox::popo::Subscriber<T>>(
+            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
+                                      m_serviceDescription.getInstanceIDString(),
+                                      m_serviceDescription.getEventIDString(),
+                                      {0U, 0U, 0U, 0U},
+                                      capro::Interfaces::INTERNAL},
+            options);
+    }
 
     Watchdog m_watchdog{units::Duration::fromSeconds(5)};
     capro::ServiceDescription m_serviceDescription{
@@ -124,6 +155,111 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
                          .and_then([&](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
                          .has_error());
     }
+}
+
+TEST_F(PublisherSubscriberCommunication_test, SubscriberRequiringHistoryDoesNotConnectToPublisherWithoutHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "31cbd36d-32f1-4bc7-9980-0cdf5f248035");
+
+    constexpr uint64_t historyRequest = 1;
+    constexpr uint64_t historyCapacity = 0;
+    constexpr bool requireHistory = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requireHistory);
+
+    this->InterOpWait();
+
+    ASSERT_TRUE(publisher);
+    EXPECT_FALSE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test, SubscriberRequiringNoHistoryDoesConnectToPublisherWithNoHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c47f5ebd-044c-480b-a4bb-d700655105ac");
+
+    constexpr uint64_t historyRequest = 1;
+    constexpr uint64_t historyCapacity = 0;
+    constexpr bool requireHistory = false;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requireHistory);
+
+    this->InterOpWait();
+
+    ASSERT_TRUE(publisher);
+    EXPECT_TRUE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberRequiringHistoryDoesConnectToPublisherWithSufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0ca391fe-c4f6-48b5-bd36-96854513c6bb");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 3;
+    constexpr bool requireHistory = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requireHistory);
+
+    this->InterOpWait();
+
+    ASSERT_TRUE(publisher);
+    EXPECT_TRUE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberRequiringHistoryDoesNotConnectToPublisherWithInSufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "46b917e6-75f1-4cd2-8ffa-1c254f3423a7");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 2;
+    constexpr bool requireHistory = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requireHistory);
+
+    this->InterOpWait();
+
+    ASSERT_TRUE(publisher);
+    EXPECT_FALSE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test, SubscriberRequiringHistoryDoesNotConnectToPublisherWithNoHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "46b917e6-75f1-4cd2-8ffa-1c254f3423a7");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 0;
+    constexpr bool requireHistory = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requireHistory);
+
+    this->InterOpWait();
+
+    ASSERT_TRUE(publisher);
+    EXPECT_FALSE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberRequiringNoHistoryDoesConnectToPublisherWithInsufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b672c382-f81b-4cd4-8049-36d2691bb532");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 2;
+    constexpr bool requireHistory = false;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requireHistory);
+
+    this->InterOpWait();
+
+    ASSERT_TRUE(publisher);
+    EXPECT_TRUE(publisher->hasSubscribers());
 }
 
 TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenInterfaceDiffersFromPublisher)
