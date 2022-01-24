@@ -60,8 +60,8 @@ class PrefixTree
     // We may use this and not prepare for the worst case but make this number configruable in a reasonable way.
     static constexpr uint64_t NUMBER_OF_ALLOCATABLE_NODES = Capacity * MaxKeyLength;
 
-    static_assert(Capacity <= CAPACITY_LIMIT);
-    static_assert(MaxKeyLength <= MAX_KEY_LENGTH_LIMIT);
+    static_assert(Capacity <= CAPACITY_LIMIT, "Capacity exceeds limit");
+    static_assert(MaxKeyLength <= MAX_KEY_LENGTH_LIMIT, "MaxKeyLength exceeds limit");
 
     template <typename T>
     using raw_ptr = T*;
@@ -114,8 +114,8 @@ class PrefixTree
     // This is left as a space optimization in the future, but with static memory we cannot really benefit
     // since we need to be prepared for single letter nodes anyway.
 
-    using NodeAllocator = PoolAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
-    using DataNodeAllocator = PoolAllocator<DataNode, Capacity>;
+    using NodeAllocator = iox::cxx::PoolAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
+    using DataNodeAllocator = iox::cxx::PoolAllocator<DataNode, Capacity>;
 
   private:
     node_ptr_t m_root{nullptr};
@@ -145,9 +145,15 @@ class PrefixTree
     // TODO: do we want a value version? - findValues (can just copy the data out)
     // container can be changed or be a reference input (with fixed size)
     // can also return them by value ... inefficient
-    cxx::vector<const Value*, Capacity> find(const Key& key) noexcept;
+    cxx::vector<Value*, Capacity> find(const Key& key) const noexcept;
 
-    cxx::vector<const Value*, Capacity> findPrefix(const Key& prefix) noexcept;
+    cxx::vector<Value*, Capacity> findPrefix(const Key& prefix) const noexcept;
+
+    cxx::vector<Value*, Capacity> values() const noexcept
+    {
+        Key emptyPrefix;
+        return findPrefix(emptyPrefix);
+    }
 
     bool remove(const Key& key) noexcept;
 
@@ -171,10 +177,10 @@ class PrefixTree
 
     void deallocateDataNode(DataNode* node) noexcept;
 
-    Node* findInChildren(Node* node, char letter) noexcept;
+    Node* findInChildren(Node* node, char letter) const noexcept;
 
     // prefixLength will return the length of the existing maximum prefix in the tree
-    Node* findPrefix(const char* letters, uint32_t length, uint32_t& prefixLength) noexcept;
+    Node* findPrefix(const char* letters, uint32_t length, uint32_t& prefixLength) const noexcept;
 
     Node* addSuffix(Node* node, const char* suffix, uint32_t length) noexcept;
 
@@ -182,7 +188,7 @@ class PrefixTree
 
     Node* addChild(Node* node, char letter) noexcept;
 
-    Node* findNode(const Key& key) noexcept;
+    Node* findNode(const Key& key) const noexcept;
 
     void deleteData(Node* node) noexcept;
 
@@ -194,9 +200,9 @@ class PrefixTree
 
     void removeNodes(const Key& key) noexcept;
 
-    void getValuesFromNode(Node* node, cxx::vector<const Value*, Capacity>& result) noexcept;
+    void getValuesFromNode(Node* node, cxx::vector<Value*, Capacity>& result) const noexcept;
 
-    void getValuesFromSubTree(Node* node, cxx::vector<const Value*, Capacity>& result) noexcept;
+    void getValuesFromSubTree(Node* node, cxx::vector<Value*, Capacity>& result) const noexcept;
 
     void getKeys(Node* node, uint32_t depth, char* currentString, cxx::vector<Key, Capacity>& result) noexcept;
 };

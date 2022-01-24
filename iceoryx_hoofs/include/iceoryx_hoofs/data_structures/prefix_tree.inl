@@ -35,7 +35,7 @@ PrefixTree<Value, Capacity, MaxKeyLength>::~PrefixTree() noexcept
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 bool PrefixTree<Value, Capacity, MaxKeyLength>::insert(const Key& key, const Value& value) noexcept
 {
-    uint32_t length = key.size();
+    uint32_t length = (uint32_t)key.size(); // todo: fix conversion
     if (length > MaxKeyLength)
     {
         return false;
@@ -103,11 +103,11 @@ bool PrefixTree<Value, Capacity, MaxKeyLength>::insert(const Key& key, const Val
 }
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
-cxx::vector<const Value*, Capacity> PrefixTree<Value, Capacity, MaxKeyLength>::find(const Key& key) noexcept
+cxx::vector<Value*, Capacity> PrefixTree<Value, Capacity, MaxKeyLength>::find(const Key& key) const noexcept
 {
     auto node = findNode(key);
 
-    cxx::vector<const Value*, Capacity> result;
+    cxx::vector<Value*, Capacity> result;
 
     if (!node)
     {
@@ -119,11 +119,11 @@ cxx::vector<const Value*, Capacity> PrefixTree<Value, Capacity, MaxKeyLength>::f
 }
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
-cxx::vector<const Value*, Capacity> PrefixTree<Value, Capacity, MaxKeyLength>::findPrefix(const Key& prefix) noexcept
+cxx::vector<Value*, Capacity> PrefixTree<Value, Capacity, MaxKeyLength>::findPrefix(const Key& prefix) const noexcept
 {
     auto node = findNode(prefix);
 
-    cxx::vector<const Value*, Capacity> result;
+    cxx::vector<Value*, Capacity> result;
 
     if (!node)
     {
@@ -282,7 +282,7 @@ void PrefixTree<Value, Capacity, MaxKeyLength>::deallocateDataNode(DataNode* nod
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 typename PrefixTree<Value, Capacity, MaxKeyLength>::Node*
-PrefixTree<Value, Capacity, MaxKeyLength>::findInChildren(Node* node, char letter) noexcept
+PrefixTree<Value, Capacity, MaxKeyLength>::findInChildren(Node* node, char letter) const noexcept
 {
     node = node->child;
     while (node)
@@ -298,7 +298,7 @@ PrefixTree<Value, Capacity, MaxKeyLength>::findInChildren(Node* node, char lette
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 typename PrefixTree<Value, Capacity, MaxKeyLength>::Node* PrefixTree<Value, Capacity, MaxKeyLength>::findPrefix(
-    const char* letters, uint32_t length, uint32_t& prefixLength) noexcept
+    const char* letters, uint32_t length, uint32_t& prefixLength) const noexcept
 {
     prefixLength = 0;
     auto node = m_root;
@@ -402,11 +402,11 @@ PrefixTree<Value, Capacity, MaxKeyLength>::addChild(Node* node, char letter) noe
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 typename PrefixTree<Value, Capacity, MaxKeyLength>::Node*
-PrefixTree<Value, Capacity, MaxKeyLength>::findNode(const Key& key) noexcept
+PrefixTree<Value, Capacity, MaxKeyLength>::findNode(const Key& key) const noexcept
 {
     const char* letters = key.c_str();
     uint32_t prefixLength;
-    uint32_t length = key.size();
+    uint32_t length = (uint32_t)key.size(); // todo: fix conversion
     auto node = findPrefix(letters, length, prefixLength);
     if (prefixLength < length)
     {
@@ -542,7 +542,14 @@ PrefixTree<Value, Capacity, MaxKeyLength>::findClosestNodeToRootToDelete(const c
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 void PrefixTree<Value, Capacity, MaxKeyLength>::removeNodes(const Key& key) noexcept
 {
-    uint32_t length = key.size();
+    uint32_t length = (uint32_t)key.size(); // todo fix cast
+    if (length == 0)
+    {
+        // we are at root (empty string),
+        // nothing to delete on the path from root to the node storing the empty string (= root)
+        return;
+    }
+
     const char* letters = key.c_str();
     Node* parent{nullptr};
 
@@ -577,7 +584,7 @@ void PrefixTree<Value, Capacity, MaxKeyLength>::removeNodes(const Key& key) noex
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 void PrefixTree<Value, Capacity, MaxKeyLength>::getValuesFromNode(Node* node,
-                                                                  cxx::vector<const Value*, Capacity>& result) noexcept
+                                                                  cxx::vector<Value*, Capacity>& result) const noexcept
 {
     auto data = node->data;
     while (data)
@@ -589,7 +596,7 @@ void PrefixTree<Value, Capacity, MaxKeyLength>::getValuesFromNode(Node* node,
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 void PrefixTree<Value, Capacity, MaxKeyLength>::getValuesFromSubTree(
-    Node* node, cxx::vector<const Value*, Capacity>& result) noexcept
+    Node* node, cxx::vector<Value*, Capacity>& result) const noexcept
 {
     getValuesFromNode(node, result);
 
