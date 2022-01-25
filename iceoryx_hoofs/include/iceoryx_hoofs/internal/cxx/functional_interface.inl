@@ -23,195 +23,200 @@ namespace cxx
 {
 namespace internal
 {
-template <typename T>
-inline void Expect<T>::expect(const char* const msg) const noexcept
+template <typename Derived>
+inline void Expect<Derived>::expect(const char* const msg) const noexcept
 {
-    if (!(*static_cast<const T*>(this)))
+    if (!(*static_cast<const Derived*>(this)))
     {
         std::cout << msg << std::endl;
         Ensures(false);
     }
 }
 
-template <typename T, typename ValueType>
-inline ValueType& ExpectWithValue<T, ValueType>::expect(const char* const msg) & noexcept
+template <typename Derived, typename ValueType>
+inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) & noexcept
 {
-    T* upcastedThis = static_cast<T*>(this);
+    Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*upcastedThis))
+    if (!(*derivedThis))
     {
         std::cout << msg << std::endl;
         Ensures(false);
     }
 
-    return upcastedThis->value();
+    return derivedThis->value();
 }
 
-template <typename T, typename ValueType>
-inline const ValueType& ExpectWithValue<T, ValueType>::expect(const char* const msg) const& noexcept
+template <typename Derived, typename ValueType>
+inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) const& noexcept
 {
-    return const_cast<const ValueType&>(const_cast<ExpectWithValue<T, ValueType>*>(this)->expect(msg));
+    return const_cast<const ValueType&>(const_cast<ExpectWithValue<Derived, ValueType>*>(this)->expect(msg));
 }
 
-template <typename T, typename ValueType>
-inline ValueType&& ExpectWithValue<T, ValueType>::expect(const char* const msg) && noexcept
+template <typename Derived, typename ValueType>
+inline ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) && noexcept
 {
     return std::move(this->expect(msg));
 }
 
-template <typename T, typename ValueType>
-inline const ValueType&& ExpectWithValue<T, ValueType>::expect(const char* const msg) const&& noexcept
+template <typename Derived, typename ValueType>
+inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) const&& noexcept
 {
-    return const_cast<const ValueType&&>(std::move(const_cast<ExpectWithValue<T, ValueType>*>(this)->expect(msg)));
+    return const_cast<const ValueType&&>(
+        std::move(const_cast<ExpectWithValue<Derived, ValueType>*>(this)->expect(msg)));
 }
 
-template <typename T, typename ValueType>
-inline ValueType ValueOr<T, ValueType>::value_or(const ValueType& value) const noexcept
+template <typename Derived, typename ValueType>
+inline ValueType ValueOr<Derived, ValueType>::value_or(const ValueType& alternative) const noexcept
 {
-    const T* upcastedThis = static_cast<const T*>(this);
+    const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (!(*upcastedThis))
+    if (!(*derivedThis))
     {
-        return value;
+        return alternative;
     }
 
-    return upcastedThis->value();
+    return derivedThis->value();
 }
 
-template <typename T, typename ValueType>
-inline T& AndThenWithValue<T, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
+template <typename Derived, typename ValueType>
+inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
 {
-    T* upcastedThis = static_cast<T*>(this);
+    Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*upcastedThis)
+    if (*derivedThis)
     {
-        callable(upcastedThis->value());
+        callable(derivedThis->value());
     }
 
-    return *upcastedThis;
+    return *derivedThis;
 }
 
-template <typename T, typename ValueType>
-inline T&& AndThenWithValue<T, ValueType>::and_then(const and_then_callback_t& callable) && noexcept
+template <typename Derived, typename ValueType>
+inline Derived&& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) && noexcept
 {
     return std::move(this->and_then(callable));
 }
 
-template <typename T, typename ValueType>
-inline const T& AndThenWithValue<T, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
+template <typename Derived, typename ValueType>
+inline const Derived&
+AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
 {
-    const T* upcastedThis = static_cast<const T*>(this);
+    const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (*upcastedThis)
+    if (*derivedThis)
     {
-        callable(upcastedThis->value());
+        callable(derivedThis->value());
     }
 
-    return *upcastedThis;
+    return *derivedThis;
 }
 
-template <typename T, typename ValueType>
-inline const T&& AndThenWithValue<T, ValueType>::and_then(const const_and_then_callback_t& callable) const&& noexcept
+template <typename Derived, typename ValueType>
+inline const Derived&&
+AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& callable) const&& noexcept
 {
     return std::move(this->and_then(callable));
 }
 
-template <typename T>
-inline T& AndThen<T>::and_then(const and_then_callback_t& callable) & noexcept
+template <typename Derived>
+inline Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) & noexcept
 {
-    T* upcastedThis = static_cast<T*>(this);
+    Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*upcastedThis)
+    if (*derivedThis)
     {
         callable();
     }
 
-    return *upcastedThis;
+    return *derivedThis;
 }
 
-template <typename T>
-inline const T& AndThen<T>::and_then(const and_then_callback_t& callable) const& noexcept
+template <typename Derived>
+inline const Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) const& noexcept
 {
-    return const_cast<const T&>(const_cast<AndThen<T>*>(this)->and_then(callable));
+    return const_cast<const Derived&>(const_cast<AndThen<Derived>*>(this)->and_then(callable));
 }
 
-template <typename T>
-inline T&& AndThen<T>::and_then(const and_then_callback_t& callable) && noexcept
+template <typename Derived>
+inline Derived&& AndThen<Derived>::and_then(const and_then_callback_t& callable) && noexcept
 {
     return std::move(this->and_then(callable));
 }
 
-template <typename T>
-inline const T&& AndThen<T>::and_then(const and_then_callback_t& callable) const&& noexcept
+template <typename Derived>
+inline const Derived&& AndThen<Derived>::and_then(const and_then_callback_t& callable) const&& noexcept
 {
-    return std::move(const_cast<const T&>(const_cast<AndThen<T>*>(this)->and_then(callable)));
+    return std::move(const_cast<const Derived&>(const_cast<AndThen<Derived>*>(this)->and_then(callable)));
 }
 
-template <typename T, typename ErrorType>
-inline T& OrElseWithValue<T, ErrorType>::or_else(const or_else_callback_t& callable) & noexcept
+template <typename Derived, typename ErrorType>
+inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) & noexcept
 {
-    T* upcastedThis = static_cast<T*>(this);
+    Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*upcastedThis))
+    if (!(*derivedThis))
     {
-        callable(upcastedThis->get_error());
+        callable(derivedThis->get_error());
     }
 
-    return *upcastedThis;
+    return *derivedThis;
 }
 
-template <typename T, typename ErrorType>
-inline T&& OrElseWithValue<T, ErrorType>::or_else(const or_else_callback_t& callable) && noexcept
+template <typename Derived, typename ErrorType>
+inline Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) && noexcept
 {
     return std::move(this->or_else(callable));
 }
 
-template <typename T, typename ErrorType>
-inline const T& OrElseWithValue<T, ErrorType>::or_else(const const_or_else_callback_t& callable) const& noexcept
+template <typename Derived, typename ErrorType>
+inline const Derived&
+OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& callable) const& noexcept
 {
-    const T* upcastedThis = static_cast<const T*>(this);
+    const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (!(*upcastedThis))
+    if (!(*derivedThis))
     {
-        callable(upcastedThis->get_error());
+        callable(derivedThis->get_error());
     }
 
-    return *upcastedThis;
+    return *derivedThis;
 }
 
-template <typename T, typename ErrorType>
-inline const T&& OrElseWithValue<T, ErrorType>::or_else(const const_or_else_callback_t& callable) const&& noexcept
+template <typename Derived, typename ErrorType>
+inline const Derived&&
+OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& callable) const&& noexcept
 {
     return std::move(this->or_else(callable));
 }
 
-template <typename T>
-inline T& OrElse<T>::or_else(const or_else_callback_t& callable) & noexcept
+template <typename Derived>
+inline Derived& OrElse<Derived>::or_else(const or_else_callback_t& callable) & noexcept
 {
-    T* upcastedThis = static_cast<T*>(this);
+    Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*upcastedThis))
+    if (!(*derivedThis))
     {
         callable();
     }
 
-    return *upcastedThis;
+    return *derivedThis;
 }
 
-template <typename T>
-inline T&& OrElse<T>::or_else(const or_else_callback_t& callable) && noexcept
+template <typename Derived>
+inline Derived&& OrElse<Derived>::or_else(const or_else_callback_t& callable) && noexcept
 {
     return std::move(this->or_else(callable));
 }
 
-template <typename T>
-inline const T& OrElse<T>::or_else(const or_else_callback_t& callable) const& noexcept
+template <typename Derived>
+inline const Derived& OrElse<Derived>::or_else(const or_else_callback_t& callable) const& noexcept
 {
-    return const_cast<const T&>(const_cast<OrElse<T>*>(this)->or_else(callable));
+    return const_cast<const Derived&>(const_cast<OrElse<Derived>*>(this)->or_else(callable));
 }
 
-template <typename T>
-inline const T&& OrElse<T>::or_else(const or_else_callback_t& callable) const&& noexcept
+template <typename Derived>
+inline const Derived&& OrElse<Derived>::or_else(const or_else_callback_t& callable) const&& noexcept
 {
     return std::move(this->or_else(callable));
 }

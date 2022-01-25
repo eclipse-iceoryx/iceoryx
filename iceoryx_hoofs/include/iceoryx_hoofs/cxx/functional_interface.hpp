@@ -26,27 +26,27 @@ namespace cxx
 {
 namespace internal
 {
-template <typename T, class = void>
+template <typename Derived, class = void>
 struct HasValueMethod : std::false_type
 {
 };
 
-template <typename T>
-struct HasValueMethod<T, cxx::void_t<decltype(std::declval<T>().value())>> : std::true_type
+template <typename Derived>
+struct HasValueMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().value())>> : std::true_type
 {
 };
 
-template <typename T, class = void>
+template <typename Derived, class = void>
 struct HasGetErrorMethod : std::false_type
 {
 };
 
-template <typename T>
-struct HasGetErrorMethod<T, cxx::void_t<decltype(std::declval<T>().get_error())>> : std::true_type
+template <typename Derived>
+struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().get_error())>> : std::true_type
 {
 };
 
-template <typename T>
+template <typename Derived>
 struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
@@ -55,7 +55,7 @@ struct Expect
     void expect(const char* const msg) const noexcept;
 };
 
-template <typename T, typename ValueType>
+template <typename Derived, typename ValueType>
 struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
@@ -83,7 +83,7 @@ struct ExpectWithValue
     const ValueType&& expect(const char* const msg) const&& noexcept;
 };
 
-template <typename T, typename ValueType>
+template <typename Derived, typename ValueType>
 struct ValueOr
 {
     /// @brief When the object contains a value a copy will be returned otherwise a
@@ -94,7 +94,7 @@ struct ValueOr
     ValueType value_or(const ValueType& alternative) const noexcept;
 };
 
-template <typename T, typename ValueType>
+template <typename Derived, typename ValueType>
 struct AndThenWithValue
 {
     using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
@@ -105,31 +105,31 @@ struct AndThenWithValue
     ///        happens.
     /// @param[in] callable Callable to be called when valid
     /// @return reference to *this
-    T& and_then(const and_then_callback_t& callable) & noexcept;
+    Derived& and_then(const and_then_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
     /// @return const reference to *this
-    const T& and_then(const const_and_then_callback_t& callable) const& noexcept;
+    const Derived& and_then(const const_and_then_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
     /// @return rvalue reference to *this
-    T&& and_then(const and_then_callback_t& callable) && noexcept;
+    Derived&& and_then(const and_then_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when valid
     /// @return const rvalue reference to *this
-    const T&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
+    const Derived&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
 };
 
-template <typename T>
+template <typename Derived>
 struct AndThen
 {
     using and_then_callback_t = cxx::function_ref<void()>;
@@ -138,28 +138,28 @@ struct AndThen
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
     /// @return reference to *this
-    T& and_then(const and_then_callback_t& callable) & noexcept;
+    Derived& and_then(const and_then_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
     /// @return const reference to *this
-    const T& and_then(const and_then_callback_t& callable) const& noexcept;
+    const Derived& and_then(const and_then_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
     /// @return rvalue reference to *this
-    T&& and_then(const and_then_callback_t& callable) && noexcept;
+    Derived&& and_then(const and_then_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
     /// @param[in] callable Callable to be called when valid
     /// @return const rvalue reference to *this
-    const T&& and_then(const and_then_callback_t& callable) const&& noexcept;
+    const Derived&& and_then(const and_then_callback_t& callable) const&& noexcept;
 };
 
-template <typename T, typename ErrorType>
+template <typename Derived, typename ErrorType>
 struct OrElseWithValue
 {
     using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
@@ -170,31 +170,31 @@ struct OrElseWithValue
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return reference to *this
-    T& or_else(const or_else_callback_t& callable) & noexcept;
+    Derived& or_else(const or_else_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return const reference to *this
-    const T& or_else(const const_or_else_callback_t& callable) const& noexcept;
+    const Derived& or_else(const const_or_else_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return rvalue reference to *this
-    T&& or_else(const or_else_callback_t& callable) && noexcept;
+    Derived&& or_else(const or_else_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return const rvalue reference to *this
-    const T&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
+    const Derived&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
 };
 
-template <typename T>
+template <typename Derived>
 struct OrElse
 {
     using or_else_callback_t = cxx::function_ref<void()>;
@@ -203,51 +203,52 @@ struct OrElse
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return reference to *this
-    T& or_else(const or_else_callback_t& callable) & noexcept;
+    Derived& or_else(const or_else_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return const reference to *this
-    const T& or_else(const or_else_callback_t& callable) const& noexcept;
+    const Derived& or_else(const or_else_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return rvalue reference to *this
-    T&& or_else(const or_else_callback_t& callable) && noexcept;
+    Derived&& or_else(const or_else_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
     /// @param[in] callable Callable to be called when invalid
     /// @return const rvalue reference to *this
-    const T&& or_else(const or_else_callback_t& callable) const&& noexcept;
+    const Derived&& or_else(const or_else_callback_t& callable) const&& noexcept;
 };
 
-template <typename T, typename ValueType, typename ErrorType>
-struct FunctionalInterfaceImpl : public ExpectWithValue<T, ValueType>,
-                                 public ValueOr<T, ValueType>,
-                                 public AndThenWithValue<T, ValueType>,
-                                 public OrElseWithValue<T, ErrorType>
+template <typename Derived, typename ValueType, typename ErrorType>
+struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
+                                 public ValueOr<Derived, ValueType>,
+                                 public AndThenWithValue<Derived, ValueType>,
+                                 public OrElseWithValue<Derived, ErrorType>
 {
 };
 
-template <typename T>
-struct FunctionalInterfaceImpl<T, void, void> : public Expect<T>, public AndThen<T>, public OrElse<T>
+template <typename Derived>
+struct FunctionalInterfaceImpl<Derived, void, void>
+    : public Expect<Derived>, public AndThen<Derived>, public OrElse<Derived>
 {
 };
 
-template <typename T, typename ValueType>
-struct FunctionalInterfaceImpl<T, ValueType, void> : public ExpectWithValue<T, ValueType>,
-                                                     public ValueOr<T, ValueType>,
-                                                     public AndThenWithValue<T, ValueType>,
-                                                     public OrElse<T>
+template <typename Derived, typename ValueType>
+struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValue<Derived, ValueType>,
+                                                           public ValueOr<Derived, ValueType>,
+                                                           public AndThenWithValue<Derived, ValueType>,
+                                                           public OrElse<Derived>
 {
 };
 
-template <typename T, typename ErrorType>
-struct FunctionalInterfaceImpl<T, void, ErrorType>
-    : public Expect<T>, public AndThen<T>, public OrElseWithValue<T, ErrorType>
+template <typename Derived, typename ErrorType>
+struct FunctionalInterfaceImpl<Derived, void, ErrorType>
+    : public Expect<Derived>, public AndThen<Derived>, public OrElseWithValue<Derived, ErrorType>
 {
 };
 } // namespace internal
@@ -256,7 +257,6 @@ struct FunctionalInterfaceImpl<T, void, ErrorType>
 ///        operator. This provides the methods
 ///          * and_then
 ///          * or_else
-///          * map
 ///          * expect
 ///        When the class has a value method the method
 ///          * value_or
@@ -268,8 +268,8 @@ struct FunctionalInterfaceImpl<T, void, ErrorType>
 ///       Instead add a factory for your class to `test_cxx_functional_interface_types.hpp`,
 ///       add the type to the FunctionalInterfaceImplementations and all typed tests will be
 ///       generated.
-template <typename T, typename ValueType, typename ErrorType>
-using FunctionalInterface = internal::FunctionalInterfaceImpl<T, ValueType, ErrorType>;
+template <typename Derived, typename ValueType, typename ErrorType>
+using FunctionalInterface = internal::FunctionalInterfaceImpl<Derived, ValueType, ErrorType>;
 
 } // namespace cxx
 } // namespace iox
