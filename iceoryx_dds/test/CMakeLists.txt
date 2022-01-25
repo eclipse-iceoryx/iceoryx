@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(test_iox_to_dds VERSION 0)
 
 find_package(iceoryx_hoofs_testing REQUIRED)
