@@ -29,7 +29,7 @@ subscriber available.
 To accomplish dynamic size types we require:
 
 1. an allocator concept which supports states for allocators
-2. have to adjust the containers like `cxx::string`, `cxx::vector` and 
+2. have to adjust the containers like `cxx::string`, `cxx::vector` and
    `cxx::{forward}list`
 3. the publisher has to provide access to the shared memory allocator via the
    sample
@@ -52,7 +52,7 @@ like a `SharedMemoryAllocator`.
 
 ## Memory Layout
 
-In the following section we would like to send the structure 
+In the following section we would like to send the structure
 
 ```cpp
 struct MyData {
@@ -105,8 +105,10 @@ preconfigured bucket sizes called Memory Pool.
 
 ### Layout With Dynamic Sized Types
 
-With dynamic sized types we move the data part outside of the container and
-add an allocator to the container which allows the container to acquire
+With dynamic sized types we split the container data into two parts, the
+the actual data and a management part which contains a pointer to the data part.
+The data part lives then outside of the container and an allocator inside the
+management part of the container allows the container to acquire
 memory for their data part. When we assume that `MyData::image` and
 `MyData::text` require 100 bytes for their data part the memory layout could
 look like this.
@@ -131,7 +133,7 @@ look like this.
 ```
 
 This does not require any adaptions on the subscriber side since the subscriber
-already mapped this memory region which is handled by the memory manager into 
+already mapped this memory region which is handled by the memory manager into
 its local process.
 
 ## Design Allocator
@@ -249,7 +251,7 @@ struct IsAllocatorTypeTrait {
                void>>> : std::true_type {};
 
     // test all other methods
-    static_assert(HasAllocateMethod<T>::value, 
+    static_assert(HasAllocateMethod<T>::value,
               "Type is not an allocator, void* allocate(uint64_t) missing");
 };
 ```
@@ -281,7 +283,7 @@ The design pursues the following goals.
 
 4. All containers must be shared memory compatible, this means no vtables and
    virtual. Furthermore the usage of function pointers, `cxx::function` and
-   `cxx::function_ref` is forbidden in all containers and their underlying 
+   `cxx::function_ref` is forbidden in all containers and their underlying
    constructs.
 
 5. Before using any cxx container the user as to call `reserve()` once otherwise
@@ -410,13 +412,13 @@ vector<int, 20> v2;
 
 // this works since vector<int, 10> is also a vector<int> and can be converted
 v2 = v1;
-v1 = v2; // this can fail when v1 capacity is smaller then v2.size, previously 
+v1 = v2; // this can fail when v1 capacity is smaller then v2.size, previously
          // it was only possible when v1.capacity < v2.capacity
 f(v1);
 f(v2);
 ```
 
-The only limitation is functions which require a stack based vector of a 
+The only limitation is functions which require a stack based vector of a
 specific size as non const reference. This is usally the case when some function
 would like to set the contents of a vector.
 ```cpp
@@ -465,7 +467,7 @@ cxx::vector<int> c(heapAllocator);
 // isMoveCompatible() will return false since stack allocated memory cannot be moved
 // will call release on b and acquires a new fitting chunk with reserve to store
 // the contents of a via copy
-b = std::move(a); 
+b = std::move(a);
 
 // isMoveCompatible() will return true therefore only the internal data pointer
 // will be copied
@@ -498,13 +500,13 @@ The pointer hereby is an absolute pointer pointing to a piece of memory in the
 local virtual address space. Assume we have two processes A and B which would
 like to communicate via a `std::vector`.
 
-Further, lets assume process A has a virtual address space [1 - 100] and 
+Further, lets assume process A has a virtual address space [1 - 100] and
 process B [1000 - 1200] (the numbers are representing the memory addresses of
 the beginning and end of the virtual address space).
-When process A creates a `std::vector` with a shared memory allocator the 
+When process A creates a `std::vector` with a shared memory allocator the
 internal `memoryStorageOfVectorElements` pointer may point to an address like
 42 which is inside the virtual address space of process A and pointing to the
-correct shared memory position from the point of view of process A. When this 
+correct shared memory position from the point of view of process A. When this
 vector is then transmitted to process B the internal `memoryStorageOfVectorElements`
 still points to 42 which is no longer in the virtual address space [1000 - 1200]
 of process B which would lead to a segmentation fault.
@@ -529,12 +531,12 @@ option to realize dynamic sized containers.
    pointCloud.emplace_back(123); // would be stored directly on the gpu
 
    cxx::vector<float, 100> someOtherPointcloud;
-   pointCloud = someOtherPointcloud; // would be copied directly to the gpu 
+   pointCloud = someOtherPointcloud; // would be copied directly to the gpu
    ```
 
 2. When the allocator is successfully integrated we can adapt the internal publisher
    and subscriber lists to be dynamic in size and configurable via config file.
-   Furthermore, we could optimize the publishers subscriber list to be a little bit 
+   Furthermore, we could optimize the publishers subscriber list to be a little bit
    more dynamic.
 
 3. When using the heap as default allocator is it possible that a developer by
@@ -548,7 +550,7 @@ option to realize dynamic sized containers.
    This means without an registered runtime and a mapped shared memory partition.
 
 5. Is it possible to get rid of the `VariantAllocator` so that iceoryx does not
-   need to know the allocator types at compile time? If not, can we simplify the 
+   need to know the allocator types at compile time? If not, can we simplify the
    allocator integration so that the user only has to add any additional allocator
    to a type list defined in `iceoryx_posh_types.hpp`?
 
@@ -560,3 +562,124 @@ option to realize dynamic sized containers.
    cxx::vector<int, 20> bla;
    myFunc(bla); // whoopsie object slicing
    ```
+
+7. elBoberido drafted another slightly adjusted idea during the pull request
+   review. The following section documents this draft for further investigation.
+
+I had something similar to this in mind, yet with the allocator as part of the type.
+
+```cpp
+// ignore this; this is just to have a working example
+template <typename T>
+class RelocatablePointer {
+public:
+    RelocatablePointer& operator=(T& data) {
+        m_ptrDiff = reinterpret_cast<uint64_t>(&data) - reinterpret_cast<uint64_t>(this);
+        return *this;
+    }
+    RelocatablePointer& operator=(const T& data) {
+        m_ptrDiff = reinterpret_cast<uint64_t>(&data) - reinterpret_cast<uint64_t>(this);
+        return *this;
+    }
+
+    T* operator*() {
+        return reinterpret_cast<T*>(m_ptrDiff + reinterpret_cast<uint64_t>(this));
+    }
+
+private:
+    uint64_t m_ptrDiff{0};
+};
+
+// the base vector which can be passed as reference to functions
+template <typename T>
+class vector {
+public:
+    void push_back(T data) {
+        (*m_dataBegin)[m_size] = data;
+        ++m_size;
+    }
+
+    T& back() {
+        return (*m_dataBegin)[m_size-1];
+    }
+
+protected:
+    uint64_t m_capacity{0};
+    uint64_t m_size{0};
+    RelocatablePointer<T> m_dataBegin;
+};
+
+// fixed size vector like we have it now
+template <typename T, uint64_t N>
+class fixed_size_vector : public vector<T> {
+public:
+    fixed_size_vector() {
+        vector<T>::m_dataBegin = *m_data;
+        vector<T>::m_capacity = N;
+    }
+private:
+    T m_data[N];
+};
+
+// vector which uses the heap; could overload push_back and automatically resize
+template <typename T>
+class heap_vector : public vector<T> {
+public:
+    heap_vector() {
+        m_data = static_cast<T*>(malloc(sizeof(T) * 8));
+        vector<T>::m_dataBegin = *m_data;
+        vector<T>::m_capacity = 8;
+    }
+
+    ~heap_vector() {
+        free(m_data);
+    }
+
+private:
+    T* m_data{nullptr};
+};
+
+void printBack(vector<int>& v, const char* type) {
+    std::cout << type << ": " << v.back() << std::endl;
+}
+
+int main() {
+    fixed_size_vector<int, 10> fixedSizeVector;
+    heap_vector<int> heapVector;
+
+    fixedSizeVector.push_back(42);
+    heapVector.push_back(13);
+
+    printBack(fixedSizeVector, "Stack");
+    printBack(heapVector, "Heap");
+
+    return 0;
+}
+```
+
+We could have something like a `PayloadAllocator` which would use the same allocator
+like the the publisher and the topic data would look like this
+```cpp
+struct MyData {
+    int value;
+    payload_vector<int> image;
+    payload_string text;
+};
+```
+I haven't fully thought this out, yet. There are basically three options for this.
+1. `Publisher::allocate()` sets the current `PayloadAllocator` by using thread local
+   storage and initializes `MyData` which takes the `PayloadAllocator` from the
+   thread local storage. One can use `image.reserve(1024)` to get the memory
+2. `Publisher::allocate()` does not use thread local store and initializes `MyData`.
+   `payload_vector<int> image` is not yet usable since it does not yet have storage.
+   In order to get storage, `Publisher::allocate(image, 1024)` must be called, which
+   allocates the memory and assigns it to `image`
+3. `Publisher::allocate()` gets a parameter which can be used to specify the memory
+   needed for `image` and `text`. A bump allocator can be used to assign the memory
+   to `image` and `text`. For this, option 1 or 2 can be used.
+
+The advantages of this design is that it cannot easily be used in a wrong way.
+The container uses always the same storage type like the remaining data and with
+option 3 everything would be in the same memory chunk which makes it easy to just
+memcopy the full sample for recording or from CPU to GPU, which is the biggest
+disadvantage with the current proposal.
