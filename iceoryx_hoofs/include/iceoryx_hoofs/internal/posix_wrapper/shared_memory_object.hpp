@@ -66,7 +66,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
                        const uint64_t memorySizeInBytes,
                        const AccessMode accessMode,
                        const OpenMode openMode,
-                       const void* const baseAddressHint,
+                       const cxx::optional<const void*>& baseAddressHint = cxx::nullopt,
                        const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) noexcept;
 
     bool isInitialized() const noexcept;

@@ -343,9 +343,6 @@ constexpr T into(const F value) noexcept;
 ///   class MyBuilder {
 ///     IOX_BUILDER_PARAMETER(TypeA, NameB, ValueC)
 ///     // START generates the following code
-///     private:
-///       TypeA m_NameB = ValueC;
-///
 ///     public:
 ///       decltype(auto) NameB(TypeA const& value) &&
 ///       {
@@ -358,13 +355,13 @@ constexpr T into(const F value) noexcept;
 ///           m_NameB = std::move(value);
 ///           return std::move(*this);
 ///       }
+///
+///     private:
+///       TypeA m_NameB = ValueC;
 ///     // END
 ///   };
 /// @endcode
 #define IOX_BUILDER_PARAMETER(type, name, defaultValue)                                                                \
-  private:                                                                                                             \
-    type m_##name = defaultValue;                                                                                      \
-                                                                                                                       \
   public:                                                                                                              \
     decltype(auto) name(type const& value)&&                                                                           \
     {                                                                                                                  \
@@ -376,7 +373,10 @@ constexpr T into(const F value) noexcept;
     {                                                                                                                  \
         m_##name = std::move(value);                                                                                   \
         return std::move(*this);                                                                                       \
-    }
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    type m_##name = defaultValue;
 
 
 } // namespace cxx

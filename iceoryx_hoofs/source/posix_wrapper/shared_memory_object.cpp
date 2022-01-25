@@ -51,7 +51,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
                                        const OpenMode openMode,
-                                       const void* const baseAddressHint,
+                                       const cxx::optional<const void*>& baseAddressHint,
                                        const mode_t permissions) noexcept
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
 {
@@ -69,7 +69,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
     if (m_isInitialized)
     {
         MemoryMapBuilder()
-            .baseAddressHint(baseAddressHint)
+            .baseAddressHint((baseAddressHint) ? *baseAddressHint : nullptr)
             .length(memorySizeInBytes)
             .fileDescriptor(m_sharedMemory->getHandle())
             .accessMode(accessMode)
@@ -90,9 +90,16 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
-                  << ", baseAddressHint = " << std::hex << baseAddressHint << std::dec
-                  << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
+                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)] << ", baseAddressHint = ";
+        if (baseAddressHint)
+        {
+            std::cerr << std::hex << *baseAddressHint << std::dec;
+        }
+        else
+        {
+            std::cerr << "no hint set";
+        }
+        std::cerr << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
         std::cerr.setf(flags);
         return;
     }
@@ -120,7 +127,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 static_cast<unsigned long long>(memorySizeInBytes),
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
                 OPEN_MODE_STRING[static_cast<uint64_t>(openMode)],
-                baseAddressHint,
+                *baseAddressHint,
                 std::bitset<sizeof(mode_t)>(permissions).to_ulong());
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
