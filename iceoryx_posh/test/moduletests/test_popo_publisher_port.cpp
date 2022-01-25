@@ -135,7 +135,7 @@ TEST_F(PublisherPort_test, initialStateIsNoSubscribers)
 TEST_F(PublisherPort_test, noWaitingForSubscriberWithDefaultOptions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1f74874-257a-4e8f-aabf-8eadad5b4367");
-    EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getSubscriberTooSlowPolicy(),
+    EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getOptions().subscriberTooSlowPolicy,
                 Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
 }
 
@@ -160,7 +160,7 @@ TEST_F(PublisherPort_test, initialStateReturnsNoCaProMessageWhenNoOfferOnCreate)
 TEST_F(PublisherPort_test, waitingForSubscriberWhenDesired)
 {
     ::testing::Test::RecordProperty("TEST_ID", "49526d1a-e81a-4e4a-8fb4-1a96dee83ae7");
-    EXPECT_THAT(m_sutWaitForSubscriberRouDiSide.getSubscriberTooSlowPolicy(),
+    EXPECT_THAT(m_sutWaitForSubscriberRouDiSide.getOptions().subscriberTooSlowPolicy,
                 Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
 }
 

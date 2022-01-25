@@ -45,11 +45,6 @@ class PublisherPortRouDi : public BasePort
     PublisherPortRouDi& operator=(PublisherPortRouDi&& rhs) noexcept = default;
     ~PublisherPortRouDi() = default;
 
-    /// @todo remove accessor and replace with getOptions where required
-    /// @brief Returns behaviour in case of a full delivery queue
-    /// @return SubScriberTooSlowPolicy What happens if the delivery queue is full
-    SubscriberTooSlowPolicy getSubscriberTooSlowPolicy() const noexcept;
-
     /// @brief Returns publisher options
     /// @return publisher options
     const PublisherOptions& getOptions() const noexcept;
