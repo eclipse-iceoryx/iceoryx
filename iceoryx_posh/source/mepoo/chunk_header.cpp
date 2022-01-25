@@ -207,7 +207,7 @@ popo::UniquePortId ChunkHeader::originId() const noexcept
     return m_originId;
 }
 
-void ChunkHeader::setOriginId(popo::UniquePortId originId) noexcept
+void ChunkHeader::setOriginId(const popo::UniquePortId originId) noexcept
 {
     m_originId = originId;
 }
@@ -217,7 +217,7 @@ uint64_t ChunkHeader::sequenceNumber() const noexcept
     return m_sequenceNumber;
 }
 
-void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber) noexcept
+void ChunkHeader::setSequenceNumber(const uint64_t sequenceNumber) noexcept
 {
     m_sequenceNumber = sequenceNumber;
 }

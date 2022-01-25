@@ -142,9 +142,9 @@ struct ChunkHeader
     template <typename T>
     friend class popo::ChunkSender;
 
-    void setOriginId(popo::UniquePortId originId) noexcept;
+    void setOriginId(const popo::UniquePortId originId) noexcept;
 
-    void setSequenceNumber(uint64_t sequenceNumber) noexcept;
+    void setSequenceNumber(const uint64_t sequenceNumber) noexcept;
 
     uint64_t overflowSafeUsedSizeOfChunk() const noexcept;
 
