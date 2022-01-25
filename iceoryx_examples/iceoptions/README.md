@@ -72,11 +72,20 @@ would encounter an overflow, the oldest sample is released to create space for t
 subscriberOptions.queueCapacity = 10U;
 ```
 
-`historyRequest` will enable a subscriber to receive the last n samples on subscription e.g. in case it was started later than the publisher. The publisher needs to have its `historyCapacity` enabled, too.
+`historyRequest` will enable a subscriber to receive the last n samples on subscription e.g. in case it was started later than the publisher.
+If the publisher does not have a sufficient `historyCapacity` (larger than `historyRequest`), it will still be connected but we will not be able to
+receive the requested amount of historical data (if it was available). Instead we will receive the largest amount of historical sample
+the publisher has available, i.e. best-effort.
+
+If we want to enforce the contract that the publisher needs to support a `historyCapacity` of at least `historyRequest`, we can do so by setting
+`requirePublisherHistorySupport` to `true`. In this case the subscriber will only connect if the publisher history support is at least as large as is request.
+By default this is set to `false` and best-effort behavior is used.
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][history]-->
 ```cpp
 subscriberOptions.historyRequest = 5U;
+
+subscriberOptions.requiresPublisherHistorySupport = false;
 ```
 
 Topics are automatically subscribed on creation, if you want to disable that feature and control the subscription
