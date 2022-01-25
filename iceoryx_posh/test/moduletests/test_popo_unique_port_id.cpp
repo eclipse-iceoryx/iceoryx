@@ -34,11 +34,10 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
     uint16_t someId = 1243U;
     // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
+    auto uniqueRouDiIdResetScopeGuard =
+        GenericRAII{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
     EXPECT_EQ(iox::popo::UniquePortId::getUniqueRouDiId(), someId);
-
-    // reset unique RouDi ID
-    iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
@@ -52,6 +51,8 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
             detectedError.emplace(error);
             detectedErrorLevel.emplace(errorLevel);
         });
+    auto uniqueRouDiIdResetScopeGuard =
+        GenericRAII{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
 
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
     // we don't know if setUniqueRouDiId was called before, therefore ignore any error
@@ -65,9 +66,6 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
     EXPECT_THAT(detectedError.value(),
                 Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
-
-    // reset unique RouDi ID
-    iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
 }
 
 TEST(UniquePortId_test, GettingTheRouDiIdWithoutSettingReturnsDefaultId)
