@@ -23,6 +23,8 @@ namespace iox
 {
 namespace mepoo
 {
+constexpr uint8_t ChunkHeader::CHUNK_HEADER_VERSION;
+
 ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept
     : m_chunkSize(chunkSize)
     , m_userHeaderSize(chunkSettings.userHeaderSize())

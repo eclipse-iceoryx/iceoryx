@@ -23,6 +23,8 @@
 
 #include "test.hpp"
 
+#include <type_traits>
+
 namespace
 {
 using namespace ::testing;
@@ -61,6 +63,79 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
     const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
     EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, ChunkHeaderBinaryCompatibilityCheck)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8f88f81a-7e18-11ec-b34d-dd7741c14c43");
+
+    // NOTE: when this test fails and needs to be changed,
+    //       most probably one needs to increment the CHUNK_HEADER_VERSION
+
+    // When this struct is touched, the CHUNK_HEADER_VERSION must be changed
+    struct ExpectedChunkHeaderLayout
+    {
+        uint32_t chunkSize{0U};
+        uint8_t chunkHeaderVersion{0U};
+        uint8_t reserved{0U};
+        uint16_t userHeaderId{0};
+        uint64_t originId{0U};
+        uint64_t sequenceNumber{0U};
+        uint32_t userHeaderSize{0U};
+        uint32_t userPayloadSize{0U};
+        uint32_t userPayloadAlignment{0U};
+        uint32_t userPayloadOffset{0U};
+    };
+
+    constexpr auto EXPECTED_CHUNK_HEADER_VERSION{1U};
+    EXPECT_THAT(ChunkHeader::CHUNK_HEADER_VERSION, Eq(EXPECTED_CHUNK_HEADER_VERSION));
+
+    EXPECT_THAT(sizeof(ChunkHeader), Eq(sizeof(ExpectedChunkHeaderLayout)));
+    EXPECT_THAT(alignof(ChunkHeader), Eq(alignof(ExpectedChunkHeaderLayout)));
+
+    // The sut is always zeroized and a single member is set to a specific value
+    // if a reinterpret cast to a ChunkHeader and access to the corresponding value
+    // results in the previously set pattern, the layout matches and the ChunkHeader
+    // did not change its ABI
+    // Unfortunately offsetof cannot be used since the members of ChunkHeader are private
+    ExpectedChunkHeaderLayout sut{};
+
+    auto zeroizeSut = [&] { std::memset(static_cast<void*>(&sut), 0, sizeof(ExpectedChunkHeaderLayout)); };
+
+    constexpr uint8_t PATTERN{42U};
+
+#define IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(member)                                                             \
+    zeroizeSut();                                                                                                      \
+    sut.member = PATTERN;                                                                                              \
+    ASSERT_TRUE((std::is_same<decltype(std::declval<ChunkHeader>().member()),                                          \
+                              decltype(ExpectedChunkHeaderLayout::member)>::value));                                   \
+    EXPECT_THAT(reinterpret_cast<ChunkHeader*>(&sut)->member(), Eq(PATTERN));
+
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(chunkSize);
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(chunkHeaderVersion);
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(userHeaderId);
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(sequenceNumber);
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(userHeaderSize);
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(userPayloadSize);
+    IOX_TEST_CHUNK_HEADER_MEMBER_COMPATIBILITY(userPayloadAlignment);
+
+    // special handling for originId since it is a UniquePortId
+    zeroizeSut();
+    sut.originId = PATTERN;
+    using OriginIdType = decltype(ExpectedChunkHeaderLayout::originId);
+    ASSERT_TRUE((std::is_same<decltype(std::declval<ChunkHeader>().originId())::value_type, OriginIdType>::value));
+    auto originId = static_cast<OriginIdType>(reinterpret_cast<ChunkHeader*>(&sut)->originId());
+    EXPECT_THAT(originId, Eq(PATTERN));
+
+    // special handling for userPayloadOffset since it cannot easily be accessed
+    zeroizeSut();
+    sut.userPayloadOffset = PATTERN;
+    ASSERT_TRUE((
+        std::is_same<ChunkHeader::UserPayloadOffset_t, decltype(ExpectedChunkHeaderLayout::userPayloadOffset)>::value));
+    auto userPayloadPointer = reinterpret_cast<ChunkHeader*>(&sut)->userPayload();
+    // this is a bit of a white box test but after all, all the other stuff in this test case is also white box
+    auto userPayloadOffset = reinterpret_cast<uint64_t>(userPayloadPointer) - reinterpret_cast<uint64_t>(&sut);
+    EXPECT_THAT(userPayloadOffset, Eq(static_cast<uint64_t>(PATTERN)));
 }
 
 TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChunk)
