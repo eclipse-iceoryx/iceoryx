@@ -311,7 +311,7 @@ void PortManager::handleConditionVariables() noexcept
     }
 }
 
-///@todo consider making the matching function available in some interface
+/// @todo consider making the matching function available in some interface
 bool isCompatible(const PublisherPortRouDiType& publisher, const SubscriberPortType& subscriber)
 {
     const bool servicesMatch = subscriber.getCaProServiceDescription() == publisher.getCaProServiceDescription();
