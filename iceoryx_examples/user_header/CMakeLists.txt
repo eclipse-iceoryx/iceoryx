@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Build user_header example
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(example_user_header)
 
 include(GNUInstallDirs)

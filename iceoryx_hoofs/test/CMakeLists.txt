@@ -15,7 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 set(test_iceoryx_hoofs_VERSION 0)
 project(test_iceoryx_hoofs VERSION ${test_iceoryx_hoofs_VERSION})
 

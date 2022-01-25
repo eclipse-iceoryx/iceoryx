@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Build iceperf example
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(example_iceperf)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)

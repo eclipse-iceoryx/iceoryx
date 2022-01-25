@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(iceoryx_meta)
 
 if(NOT CMAKE_BUILD_TYPE)
