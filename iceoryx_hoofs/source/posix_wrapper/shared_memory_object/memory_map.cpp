@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,18 +24,10 @@ namespace iox
 {
 namespace posix
 {
-// TODO: reduce number of arguments by moving them to struct
-// NOLINTNEXTLINE(readability-function-size)
-MemoryMap::MemoryMap(const void* baseAddressHint,
-                     const uint64_t length,
-                     const int32_t fileDescriptor,
-                     const AccessMode accessMode,
-                     const int32_t flags,
-                     const off_t offset) noexcept
-    : m_length(length)
+cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 {
     int32_t l_memoryProtection{PROT_NONE};
-    switch (accessMode)
+    switch (m_accessMode)
     {
     case AccessMode::READ_ONLY:
         l_memoryProtection = PROT_READ;
@@ -47,29 +39,36 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
     // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
-    posixCall(mmap)(const_cast<void*>(baseAddressHint), m_length, l_memoryProtection, flags, fileDescriptor, offset)
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
-        .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
-        .evaluate()
-        .and_then([this](auto& r) {
-            this->m_isInitialized = true;
-            this->m_baseAddress = r.value;
-        })
-        .or_else([&](auto& r) {
-            constexpr uint64_t FLAGS_BIT_SIZE = 32U;
-            auto flags = std::cerr.flags();
-            std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
-                      << baseAddressHint << ", length = " << std::dec << m_length
-                      << ", fileDescriptor = " << fileDescriptor
-                      << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                      << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags))
-                      << ", offset = " << std::hex << offset << std::dec << " ]" << std::endl;
-            std::cerr.setf(flags);
-            this->m_errorValue = this->errnoToEnum(r.errnum);
-            this->m_isInitialized = false;
-            this->m_baseAddress = nullptr;
-            this->m_length = 0U;
-        });
+    auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
+                                  m_length,
+                                  l_memoryProtection,
+                                  static_cast<int32_t>(m_flags),
+                                  m_fileDescriptor,
+                                  m_offset)
+                      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
+                      .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
+                      .evaluate();
+
+    if (result)
+    {
+        return cxx::success<MemoryMap>(MemoryMap(result.value().value, m_length));
+    }
+
+    constexpr uint64_t FLAGS_BIT_SIZE = 32U;
+    auto flags = std::cerr.flags();
+    std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
+              << m_baseAddressHint << ", length = " << std::dec << m_length << ", fileDescriptor = " << m_fileDescriptor
+              << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
+              << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags)) << ", offset = " << std::hex
+              << m_offset << std::dec << " ]" << std::endl;
+    std::cerr.setf(flags);
+    return cxx::error<MemoryMapError>(MemoryMap::errnoToEnum(result.get_error().errnum));
+}
+
+MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept
+    : m_baseAddress(baseAddress)
+    , m_length(length)
+{
 }
 
 MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
@@ -148,8 +147,6 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
             std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
         }
 
-        CreationPattern_t::operator=(std::move(rhs));
-
         m_baseAddress = std::move(rhs.m_baseAddress);
         m_length = std::move(rhs.m_length);
 
@@ -167,26 +164,27 @@ MemoryMap::~MemoryMap() noexcept
     }
 }
 
-bool MemoryMap::isInitialized() const noexcept
+const void* MemoryMap::getBaseAddress() const noexcept
 {
-    return m_isInitialized;
+    return m_baseAddress;
 }
 
-void* MemoryMap::getBaseAddress() const noexcept
+void* MemoryMap::getBaseAddress() noexcept
 {
     return m_baseAddress;
 }
 
 bool MemoryMap::destroy() noexcept
 {
-    if (m_isInitialized)
+    if (m_baseAddress != nullptr)
     {
-        m_isInitialized = false;
         auto unmapResult = posixCall(munmap)(m_baseAddress, m_length).failureReturnValue(-1).evaluate();
+        m_baseAddress = nullptr;
+        m_length = 0U;
 
         if (unmapResult.has_error())
         {
-            m_errorValue = errnoToEnum(unmapResult.get_error().errnum);
+            errnoToEnum(unmapResult.get_error().errnum);
             std::cerr << "unable to unmap mapped memory [ address = " << std::hex << m_baseAddress
                       << ", size = " << std::dec << m_length << " ]" << std::endl;
             return false;

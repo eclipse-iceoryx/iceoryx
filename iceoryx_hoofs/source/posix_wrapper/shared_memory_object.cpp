@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
@@ -50,7 +51,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
                                        const OpenMode openMode,
-                                       const void* baseAddressHint,
+                                       const cxx::optional<const void*>& baseAddressHint,
                                        const mode_t permissions) noexcept
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
 {
@@ -67,7 +68,14 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (m_isInitialized)
     {
-        MemoryMap::create(baseAddressHint, m_memorySizeInBytes, m_sharedMemory->getHandle(), accessMode, MAP_SHARED, 0)
+        MemoryMapBuilder()
+            .baseAddressHint((baseAddressHint) ? *baseAddressHint : nullptr)
+            .length(memorySizeInBytes)
+            .fileDescriptor(m_sharedMemory->getHandle())
+            .accessMode(accessMode)
+            .flags(MemoryMapFlags::SHARE_CHANGES)
+            .offset(0)
+            .create()
             .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
             .or_else([this](auto) {
                 std::cerr << "Failed to map created shared memory into process!" << std::endl;
@@ -82,9 +90,16 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
-                  << ", baseAddressHint = " << std::hex << baseAddressHint << std::dec
-                  << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
+                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)] << ", baseAddressHint = ";
+        if (baseAddressHint)
+        {
+            std::cerr << std::hex << *baseAddressHint << std::dec;
+        }
+        else
+        {
+            std::cerr << "no hint set";
+        }
+        std::cerr << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
         std::cerr.setf(flags);
         return;
     }
@@ -112,7 +127,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 static_cast<unsigned long long>(memorySizeInBytes),
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
                 OPEN_MODE_STRING[static_cast<uint64_t>(openMode)],
-                baseAddressHint,
+                (baseAddressHint) ? *baseAddressHint : nullptr,
                 std::bitset<sizeof(mode_t)>(permissions).to_ulong());
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
@@ -141,7 +156,12 @@ Allocator* SharedMemoryObject::getAllocator() noexcept
     return &*m_allocator;
 }
 
-void* SharedMemoryObject::getBaseAddress() const noexcept
+const void* SharedMemoryObject::getBaseAddress() const noexcept
+{
+    return m_memoryMap->getBaseAddress();
+}
+
+void* SharedMemoryObject::getBaseAddress() noexcept
 {
     return m_memoryMap->getBaseAddress();
 }

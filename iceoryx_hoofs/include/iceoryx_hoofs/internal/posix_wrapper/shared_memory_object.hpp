@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     void finalizeAllocation() noexcept;
 
     Allocator* getAllocator() noexcept;
-    void* getBaseAddress() const noexcept;
+    const void* getBaseAddress() const noexcept;
+    void* getBaseAddress() noexcept;
 
     uint64_t getSizeInBytes() const noexcept;
     int getFileHandle() const noexcept;
@@ -65,7 +66,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
                        const uint64_t memorySizeInBytes,
                        const AccessMode accessMode,
                        const OpenMode openMode,
-                       const void* baseAddressHint,
+                       const cxx::optional<const void*>& baseAddressHint = cxx::nullopt,
                        const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) noexcept;
 
     bool isInitialized() const noexcept;

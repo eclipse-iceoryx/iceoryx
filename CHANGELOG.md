@@ -57,10 +57,23 @@
 - Remove the requirement for INVALID_STATE for the cxx::expected [\#987](https://github.com/eclipse-iceoryx/iceoryx/issues/987)
 - Add unique test identifers [\#988](https://github.com/eclipse-iceoryx/iceoryx/issues/988)
 - Remove `ApplicationPort` and `ApplicationPortData` classes [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
+- Remove creation pattern from `MemoryMap` and replace it with `MemoryMapBuilder` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 
 **API Breaking Changes:**
 
 Dependency for building the iceoryx_dds gateway changed from `openjdk` (Java) to `bison`
+
+Replace Creation pattern from `MemoryMap` with `MemoryMapBuilder`.
+```cpp
+// before 
+auto memoryMapResult = posix::MemoryMap::create(baseAddress, length, fileDescriptor, accessMode, flags, offset);
+
+// after
+auto memoryMapResult = posix::MemoryMapBuilder().baseAddressHint(baseAddress)
+                                                .length(length).fileDescriptor(fileDescriptor)
+                                                .accessMode(accessMode).flags(flags)
+                                                .offset(0).create();
+```
 
 Rename utils to hoofs:
 

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
@@ -46,27 +47,88 @@ enum class MemoryMapError
     UNKNOWN_ERROR
 };
 
-class MemoryMap : public DesignPattern::Creation<MemoryMap, MemoryMapError>
+/// @brief Flags defining how the mapped data should be handled
+enum class MemoryMapFlags : int32_t
+{
+    /// @brief changes are shared
+    SHARE_CHANGES = MAP_SHARED,
+
+    /// @brief changes are private
+    PRIVATE_CHANGES = MAP_PRIVATE,
+
+    /// @brief SHARED and enforce the base address hint
+    SHARE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_SHARED | MAP_FIXED,
+
+    /// @brief PRIVATE and enforce the base address hint
+    PRIVATE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_PRIVATE | MAP_FIXED,
+};
+
+class MemoryMap;
+/// @brief The builder of a MemoryMap object
+class MemoryMapBuilder
+{
+    /// @brief The base address suggestion to which the memory should be mapped. But
+    ///        there is no guarantee that it is really mapped at this position.
+    ///        One has to verify with .getBaseAddress if the hint was accepted.
+    ///        Setting it to nullptr means no suggestion
+    IOX_BUILDER_PARAMETER(const void*, baseAddressHint, nullptr)
+
+    /// @brief The length of the memory which should be mapped
+    IOX_BUILDER_PARAMETER(uint64_t, length, 0U)
+
+    /// @brief The file descriptor which should be mapped into process space
+    IOX_BUILDER_PARAMETER(int32_t, fileDescriptor, 0)
+
+    /// @brief Defines if the memory should be mapped read only or with write access.
+    ///        A read only memory section will cause a segmentation fault when written to.
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
+
+    /// @brief Sets the flags defining how the mapped data should be handled
+    IOX_BUILDER_PARAMETER(MemoryMapFlags, flags, MemoryMapFlags::SHARE_CHANGES)
+
+    /// @brief Offset of the memory location
+    IOX_BUILDER_PARAMETER(off_t, offset, 0)
+
+  public:
+    /// @brief creates a valid MemoryMap object. If the construction failed the expected
+    ///        contains an enum value describing the error.
+    /// @return expected containing MemoryMap on success otherwise MemoryMapError
+    cxx::expected<MemoryMap, MemoryMapError> create() noexcept;
+};
+
+/// @brief C++ abstraction of mmap and munmap. When a MemoryMap object is
+///        created the configured memory is mapped into the process space until
+///        that object goes out of scope - then munmap is called and the memory
+///        region is removed from the process space.
+class MemoryMap
 {
   public:
+    /// @brief copy operations are removed since we are handling a system resource
     MemoryMap(const MemoryMap&) = delete;
     MemoryMap& operator=(const MemoryMap&) = delete;
+
+    /// @brief move constructor
+    /// @param[in] rhs the source object
     MemoryMap(MemoryMap&& rhs) noexcept;
+
+    /// @brief move assignment operator
+    /// @param[in] rhs the source object
+    /// @return reference to *this
     MemoryMap& operator=(MemoryMap&& rhs) noexcept;
 
+    /// @brief destructor, calls munmap when the underlying memory is mapped
     ~MemoryMap() noexcept;
-    void* getBaseAddress() const noexcept;
 
-    friend class DesignPattern::Creation<MemoryMap, MemoryMapError>;
+    /// @brief returns the base address, if the object was moved it returns nullptr
+    const void* getBaseAddress() const noexcept;
+
+    /// @brief returns the base address, if the object was moved it returns nullptr
+    void* getBaseAddress() noexcept;
+
+    friend class MemoryMapBuilder;
 
   private:
-    MemoryMap(const void* baseAddressHint,
-              const uint64_t length,
-              const int32_t fileDescriptor,
-              const AccessMode accessMode,
-              const int32_t flags = MAP_SHARED,
-              const off_t offset = 0) noexcept;
-    bool isInitialized() const noexcept;
+    MemoryMap(void* const baseAddress, const uint64_t length) noexcept;
     bool destroy() noexcept;
     static MemoryMapError errnoToEnum(const int32_t errnum) noexcept;
 
