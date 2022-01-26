@@ -142,6 +142,7 @@ add_library(iceoryx_hoofs
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
     source/cxx/deadline_timer.cpp
+    source/cxx/filesystem.cpp
     source/cxx/helplets.cpp
     source/cxx/requires.cpp
     source/cxx/generic_raii.cpp
