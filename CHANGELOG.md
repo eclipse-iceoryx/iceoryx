@@ -61,14 +61,19 @@
 - Remove `ApplicationPort` and `ApplicationPortData` classes [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 - Remove creation pattern from `MemoryMap` and replace it with `MemoryMapBuilder` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 - Fix error handling of `TypedUniqueId` and refactor it to `UniquePortId` [\#861](https://github.com/eclipse-iceoryx/iceoryx/issues/861)
+- Updating Codecov API and enforce CMake version 3.16 for building iceoryx [\#774](https://github.com/eclipse-iceoryx/iceoryx/issues/774) and [\#1031](https://github.com/eclipse-iceoryx/iceoryx/issues/1031)
 
 **API Breaking Changes:**
+
+The CMake files in iceoryx expect to have CMake version 3.16 or greater installed, otherwise the build fails.
+(Hint: Ubuntu 18 users can install `cmake-mozilla` from the universe repository provided by Canonical)
 
 Dependency for building the iceoryx_dds gateway changed from `openjdk` (Java) to `bison`
 
 Replace Creation pattern from `MemoryMap` with `MemoryMapBuilder`.
+
 ```cpp
-// before 
+// before
 auto memoryMapResult = posix::MemoryMap::create(baseAddress, length, fileDescriptor, accessMode, flags, offset);
 
 // after
