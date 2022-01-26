@@ -174,6 +174,4 @@ TEST(filesystem_test, streamOperatorPrintsCorrectlyWhenSetToUnknown)
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.m_logs[0].message, Eq("unknown permissions"));
 }
-
-
 } // namespace
