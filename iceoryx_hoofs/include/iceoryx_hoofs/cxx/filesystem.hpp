@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_CXX_FILESYSTEM_HPP
 #define IOX_HOOFS_CXX_FILESYSTEM_HPP
 
+#include <cstdint>
+
 namespace iox
 {
 namespace cxx
@@ -23,7 +25,10 @@ namespace cxx
 /// @brief this enum class implements the filesystem perms feature of C++17. The
 ///        API is identical to the C++17 one so that the class can be removed
 ///        as soon as iceoryx switches to C++17.
-enum class perms
+///        The enum satisfies also all requirements of the BitmaskType, this means
+///        the operators `|`, `&`, `^`, `~`, `|=`, `&=` and `^=` are implemented as
+///        free functions as C++17 requires it.
+enum class perms : uint64_t
 {
     /// @brief Deny everything
     none = 0,
@@ -68,6 +73,49 @@ enum class perms
     /// @brief all permissions for everyone as well as uid, gid and sticky bit
     mask = 07777
 };
+
+/// @brief Implements the binary or operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs | rhs
+perms operator|(const perms& lhs, const perms& rhs) noexcept;
+
+/// @brief Implements the binary and operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs & rhs
+perms operator&(const perms& lhs, const perms& rhs) noexcept;
+
+/// @brief Implements the binary exclusive or operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs ^ rhs
+perms operator^(const perms& lhs, const perms& rhs) noexcept;
+
+/// @brief Implements the binary complement operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs ~ rhs
+perms operator~(const perms& value) noexcept;
+
+/// @brief Implements the binary or assignment operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs = lhs | rhs
+perms operator|=(perms& lhs, const perms& rhs) noexcept;
+
+/// @brief Implements the binary and assignment operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs = lhs & rhs
+perms operator&=(perms& lhs, const perms& rhs) noexcept;
+
+/// @brief Implements the binary exclusive or assignment operation
+/// @param[in] lhs left hand side of the operation
+/// @param[in] rhs right hand side of the operation
+/// @return lhs = lhs ^ rhs
+perms operator^=(perms& lhs, const perms& rhs) noexcept;
+
 } // namespace cxx
 } // namespace iox
 
