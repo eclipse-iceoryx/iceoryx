@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 #define IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
 #include "port_queue_policies.hpp"
 
 #include "iceoryx_hoofs/cxx/serialization.hpp"
@@ -33,7 +33,7 @@ struct SubscriberOptions
 {
     /// @brief The size of the receiver queue where chunks are stored before they are passed to the user
     /// @attention Depending on the underlying queue there can be a different overflow behavior
-    uint64_t queueCapacity{iox::MAX_SUBSCRIBER_QUEUE_CAPACITY};
+    uint64_t queueCapacity{SubscriberChunkQueueData_t::MAX_CAPACITY};
 
     /// @brief The max number of chunks received after subscription if chunks are available
     uint64_t historyRequest{0U};

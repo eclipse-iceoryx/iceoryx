@@ -616,100 +616,97 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     EXPECT_THAT(**sample, Eq(string<128>("third a tiny black hole smells like butter")));
 }
 
-    TEST_F(PublisherSubscriberCommunication_test,
-           NoSubscriptionWhenSubscriberWantsBlockingAndPublisherDoesNotOfferBlocking)
-    {
-        ::testing::Test::RecordProperty("TEST_ID", "c0144704-6dd7-4354-a41d-d4e512633484");
-        auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
-        this->InterOpWait();
+TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsBlockingAndPublisherDoesNotOfferBlocking)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c0144704-6dd7-4354-a41d-d4e512633484");
+    auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
+    this->InterOpWait();
 
-        auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
-        this->InterOpWait();
+    auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
+    this->InterOpWait();
 
-        EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
-        this->InterOpWait();
+    EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
+    this->InterOpWait();
 
-        auto sample = subscriber->take();
-        EXPECT_THAT(sample.has_error(), Eq(true));
-    }
+    auto sample = subscriber->take();
+    EXPECT_THAT(sample.has_error(), Eq(true));
+}
 
-    TEST_F(PublisherSubscriberCommunication_test,
-           SubscriptionWhenSubscriberDoesNotRequireBlockingButPublisherSupportsIt)
-    {
-        ::testing::Test::RecordProperty("TEST_ID", "228ea848-8926-4779-9e38-4d92eeb87feb");
-        auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
-        this->InterOpWait();
+TEST_F(PublisherSubscriberCommunication_test, SubscriptionWhenSubscriberDoesNotRequireBlockingButPublisherSupportsIt)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "228ea848-8926-4779-9e38-4d92eeb87feb");
+    auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    this->InterOpWait();
 
-        auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
-        this->InterOpWait();
+    auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
+    this->InterOpWait();
 
-        EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
-        this->InterOpWait();
+    EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
+    this->InterOpWait();
 
-        auto sample = subscriber->take();
-        EXPECT_THAT(sample.has_error(), Eq(false));
-        EXPECT_THAT(**sample, Eq(string<128>("never kiss the hypnotoad")));
-    }
+    auto sample = subscriber->take();
+    EXPECT_THAT(sample.has_error(), Eq(false));
+    EXPECT_THAT(**sample, Eq(string<128>("never kiss the hypnotoad")));
+}
 
-    TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking)
-    {
-        ::testing::Test::RecordProperty("TEST_ID", "c60ade45-1765-40ca-bc4b-7452c82ba127");
-        auto publisherBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
-        auto publisherNonBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
-        this->InterOpWait();
+TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c60ade45-1765-40ca-bc4b-7452c82ba127");
+    auto publisherBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    auto publisherNonBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
+    this->InterOpWait();
 
-        auto subscriberBlocking = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
-        auto subscriberNonBlocking = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
-        this->InterOpWait();
+    auto subscriberBlocking = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
+    auto subscriberNonBlocking = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
+    this->InterOpWait();
 
-        EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoads real name is Salsabarh Slimekirkdingle").has_error());
-        EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoad wants a cookie").has_error());
-        EXPECT_FALSE(publisherNonBlocking->publishCopyOf("hypnotoad has a sister named hypnoodle").has_error());
+    EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoads real name is Salsabarh Slimekirkdingle").has_error());
+    EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoad wants a cookie").has_error());
+    EXPECT_FALSE(publisherNonBlocking->publishCopyOf("hypnotoad has a sister named hypnoodle").has_error());
 
-        auto threadSyncSemaphore = posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    auto threadSyncSemaphore = posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
 
-        std::atomic_bool wasSampleDelivered{false};
-        std::thread t1([&] {
-            ASSERT_FALSE(threadSyncSemaphore->post().has_error());
-            EXPECT_FALSE(
-                publisherBlocking->publishCopyOf("chucky is the only one who can ride the hypnotoad").has_error());
-            wasSampleDelivered.store(true);
-        });
+    std::atomic_bool wasSampleDelivered{false};
+    std::thread t1([&] {
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        EXPECT_FALSE(publisherBlocking->publishCopyOf("chucky is the only one who can ride the hypnotoad").has_error());
+        wasSampleDelivered.store(true);
+    });
 
-        constexpr int64_t TIMEOUT_IN_MS = 100;
+    constexpr int64_t TIMEOUT_IN_MS = 100;
 
-        ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
-        std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
-        EXPECT_FALSE(wasSampleDelivered.load());
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
+    EXPECT_FALSE(wasSampleDelivered.load());
 
-        // verify blocking subscriber
-        auto sample = subscriberBlocking->take();
-        EXPECT_THAT(sample.has_error(), Eq(false));
-        EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoads real name is Salsabarh Slimekirkdingle")));
-        t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the
-                   // read
-        EXPECT_TRUE(wasSampleDelivered.load());
+    // verify blocking subscriber
+    auto sample = subscriberBlocking->take();
+    EXPECT_THAT(sample.has_error(), Eq(false));
+    EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoads real name is Salsabarh Slimekirkdingle")));
+    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the
+               // read
+    EXPECT_TRUE(wasSampleDelivered.load());
 
-        EXPECT_FALSE(subscriberBlocking->hasMissedData()); // we don't loose samples here
-        sample = subscriberBlocking->take();
-        EXPECT_THAT(sample.has_error(), Eq(false));
-        EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad wants a cookie")));
+    EXPECT_FALSE(subscriberBlocking->hasMissedData()); // we don't loose samples here
+    sample = subscriberBlocking->take();
+    EXPECT_THAT(sample.has_error(), Eq(false));
+    EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad wants a cookie")));
 
-        sample = subscriberBlocking->take();
-        EXPECT_THAT(sample.has_error(), Eq(false));
-        EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
-        EXPECT_THAT(subscriberBlocking->take().has_error(), Eq(true));
+    sample = subscriberBlocking->take();
+    EXPECT_THAT(sample.has_error(), Eq(false));
+    EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
+    EXPECT_THAT(subscriberBlocking->take().has_error(), Eq(true));
 
-        // verify non blocking subscriber
-        EXPECT_TRUE(subscriberNonBlocking->hasMissedData()); // we do loose samples here
-        sample = subscriberNonBlocking->take();
-        EXPECT_THAT(sample.has_error(), Eq(false));
-        EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad has a sister named hypnoodle")));
+    // verify non blocking subscriber
+    EXPECT_TRUE(subscriberNonBlocking->hasMissedData()); // we do loose samples here
+    sample = subscriberNonBlocking->take();
+    EXPECT_THAT(sample.has_error(), Eq(false));
+    EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad has a sister named hypnoodle")));
 
-        sample = subscriberNonBlocking->take();
-        EXPECT_THAT(sample.has_error(), Eq(false));
-        EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
-        EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
-    }
+    sample = subscriberNonBlocking->take();
+    EXPECT_THAT(sample.has_error(), Eq(false));
+    EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
+    EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
+}
 
 } // namespace
