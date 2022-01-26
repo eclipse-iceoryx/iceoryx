@@ -109,15 +109,18 @@ enter_docker() {
         start_docker
     fi
 
-    docker exec -it $CONTAINER_NAME fish -C "
+    docker exec -it $CONTAINER_NAME fish -c "
     echo
-    echo gcc version..............: $(gcc --version | head -1 | cut -d ' ' -f 3)
-    echo g++ version..............: $(g++ --version | head -1 | cut -d ' ' -f 3)
-    echo clang version............: $(clang --version | head -1 | cut -d ' ' -f 3)
-    echo clang++ version..........: $(clang++ --version | head -1 | cut -d ' ' -f 3)
-    echo cmake version............: $(cmake --version | head -1 | cut -d ' ' -f 3)
+    # we use eval here since we would like to evaluate the expression inside of the docker
+    # container and not right away in this script
+    eval 'echo \"  gcc version..............: \"(gcc --version | head -1 )'
+    eval 'echo \"  g++ version..............: \"(g++ --version | head -1 )'
+    eval 'echo \"  clang version............: \"(clang --version | head -1 )'
+    eval 'echo \"  clang++ version..........: \"(clang++ --version | head -1 )'
+    eval 'echo \"  cmake version............: \"(cmake --version | head -1 )'
     echo
-    cd /iceoryx;"
+    cd /iceoryx
+    fish"
 }
 
 ACTION=$1
