@@ -22,8 +22,13 @@ setup_docker_image() {
     apt update
     echo "Europe/Berlin" > /etc/timezone
     ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-    apt -y install libbison-dev g++ gcc sudo cmake git fish gdb
-    echo "PATH=$PATH:/iceoryx/tools/ci:/iceoryx/scripts/" >> /etc/profile
+    apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
+    mkdir -p /root/.config/fish
+    echo "set -gx PATH /iceoryx/tools/ci /iceoryx/scripts \$PATH" >> /root/.config/fish/config.fish
+    echo "set -gx ASAN_OPTIONS 'symbolize=1,detect_leaks=1,abort_on_error=1,quarantine_size_mb=8192'" >> /root/.config/fish/config.fish
+    echo "set -gx UBSAN_OPTIONS 'print_stacktrace=1'" >> /root/.config/fish/config.fish
+    echo "set -gx ASAN_SYMBOLIZER_PATH '/usr/bin/llvm-symbolizer'" >> /root/.config/fish/config.fish
+
     exit
 }
 
@@ -88,7 +93,7 @@ enter_docker() {
         start_docker
     fi
 
-    docker exec -it $CONTAINER_NAME fish
+    docker exec -it $CONTAINER_NAME fish -C "cd /iceoryx"
 }
 
 ACTION=$1
