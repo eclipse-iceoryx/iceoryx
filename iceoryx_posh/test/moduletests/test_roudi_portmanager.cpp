@@ -180,6 +180,21 @@ class PortManager_test : public Test
 
     void setupAndTestBlockingPublisher(const iox::RuntimeName_t& publisherRuntimeName,
                                        std::function<void()> testHook) noexcept;
+
+    PublisherPortUser createPublisher(const PublisherOptions& options)
+    {
+        return PublisherPortUser(
+            m_portManager
+                ->acquirePublisherPortData(
+                    {"1", "1", "1"}, options, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                .value());
+    }
+
+    SubscriberPortUser createSubscriber(const SubscriberOptions& options)
+    {
+        return SubscriberPortUser(
+            m_portManager->acquireSubscriberPortData({"1", "1", "1"}, options, "schlomo", PortConfigInfo()).value());
+    }
 };
 
 template <typename vector>
@@ -190,6 +205,16 @@ void setDestroyFlagAndClearContainer(vector& container)
         item->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     }
     container.clear();
+}
+
+PublisherOptions createTestPubOptions()
+{
+    return PublisherOptions{0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+}
+
+SubscriberOptions createTestSubOptions()
+{
+    return SubscriberOptions{1U, 0U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, false};
 }
 
 TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
@@ -584,161 +609,118 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLe
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistoryDoesNotConnectToPublisherWithoutHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithoutHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "43f3ea1e-777a-4cc6-8478-13f981b7c941");
 
-    constexpr uint64_t historyRequest = 1;
-    constexpr uint64_t historyCapacity = 0;
-    constexpr bool requireHistory = true;
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
 
-    PublisherOptions publisherOptions{
-        historyCapacity, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{
-        1U, historyRequest, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, requireHistory};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    publisherOptions.historyCapacity = 0;
+    subscriberOptions.historyRequest = 1;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
     ASSERT_TRUE(publisher);
-    SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
-            .value());
     ASSERT_TRUE(subscriber);
-
-    ASSERT_FALSE(publisher.hasSubscribers());
+    EXPECT_FALSE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringNoHistoryDoesConnectToPublisherWithNoHistorySupport)
+TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithNoHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "080a94db-3a89-4d98-94a6-900015e608e2");
 
-    constexpr uint64_t historyRequest = 1;
-    constexpr uint64_t historyCapacity = 0;
-    constexpr bool requireHistory = false;
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
 
-    PublisherOptions publisherOptions{
-        historyCapacity, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{
-        1U, historyRequest, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, requireHistory};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    publisherOptions.historyCapacity = 0;
+    subscriberOptions.historyRequest = 1;
+    subscriberOptions.requiresPublisherHistorySupport = false;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
     ASSERT_TRUE(publisher);
-    SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
-            .value());
     ASSERT_TRUE(subscriber);
-
-    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_TRUE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistoryDoesConnectToPublisherWithSufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisherWithSufficientHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2567667-4583-482b-9999-029f91c0cb71");
 
-    constexpr uint64_t historyRequest = 3;
-    constexpr uint64_t historyCapacity = 3;
-    constexpr bool requireHistory = true;
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
 
-    PublisherOptions publisherOptions{
-        historyCapacity, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{
-        1U, historyRequest, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, requireHistory};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    publisherOptions.historyCapacity = 3;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
     ASSERT_TRUE(publisher);
-    SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
-            .value());
     ASSERT_TRUE(subscriber);
-
-    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_TRUE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistoryDoesNotConnectToPublisherWithInSufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInSufficientHistorySupport)
 {
-    // TODO: new test id
-    ::testing::Test::RecordProperty("TEST_ID", "31d879bf-ca07-4f29-90cd-a46f09a98f7c");
+    ::testing::Test::RecordProperty("TEST_ID", "20749a22-2771-4ec3-92f8-81bbdbd4aab6");
 
-    constexpr uint64_t historyRequest = 3;
-    constexpr uint64_t historyCapacity = 2;
-    constexpr bool requireHistory = true;
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
 
-    PublisherOptions publisherOptions{
-        historyCapacity, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{
-        1U, historyRequest, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, requireHistory};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    publisherOptions.historyCapacity = 2;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
     ASSERT_TRUE(publisher);
-    SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
-            .value());
     ASSERT_TRUE(subscriber);
-
-    ASSERT_FALSE(publisher.hasSubscribers());
+    EXPECT_FALSE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistoryDoesNotConnectToPublisherWithNoHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithNoHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f17d9cb-8f46-4742-99c3-b609a4d2319a");
 
-    constexpr uint64_t historyRequest = 3;
-    constexpr uint64_t historyCapacity = 0;
-    constexpr bool requireHistory = true;
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
 
-    PublisherOptions publisherOptions{
-        historyCapacity, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{
-        1U, historyRequest, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, requireHistory};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    publisherOptions.historyCapacity = 0;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
     ASSERT_TRUE(publisher);
-    SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
-            .value());
     ASSERT_TRUE(subscriber);
-
-    ASSERT_FALSE(publisher.hasSubscribers());
+    EXPECT_FALSE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringNoHistoryDoesConnectToPublisherWithInsufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithInsufficientHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e6c7cee4-cb4a-4a14-8790-4dbfce7d8584");
 
-    constexpr uint64_t historyRequest = 3;
-    constexpr uint64_t historyCapacity = 2;
-    constexpr bool requireHistory = false;
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
 
-    PublisherOptions publisherOptions{
-        historyCapacity, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{
-        1U, historyRequest, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, requireHistory};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    publisherOptions.historyCapacity = 2;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = false;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
     ASSERT_TRUE(publisher);
-    SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
-            .value());
     ASSERT_TRUE(subscriber);
-
-    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_TRUE(publisher.hasSubscribers());
 }
 
 TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)
@@ -918,8 +900,6 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
     // so we should be able to get some more now
     acquireMaxNumberOfNodes(nodeName, runtimeName);
 }
-
-// MAKI tests
 
 TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 {
