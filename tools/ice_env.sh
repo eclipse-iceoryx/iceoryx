@@ -19,10 +19,21 @@
 CONTAINER_NAME="ice_env"
 
 setup_docker_image() {
-    apt update
     echo "Europe/Berlin" > /etc/timezone
     ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-    apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
+
+    local BASE_OS_VERSION=$(echo $OS_VERSION | sed -n "s/\([^\:]*\).*/\1/p")
+
+    if [[ $BASE_OS_VERSION == "ubuntu" ]]; then
+        apt update
+        apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
+    elif [[ $BASE_OS_VERSION == "archlinux" ]]; then
+        pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm
+    else 
+        echo Please install the following packages to have a working iceoryx environment
+        echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
+    fi
+
     mkdir -p /root/.config/fish
     echo "set -gx PATH /iceoryx/tools/ci /iceoryx/scripts \$PATH" >> /root/.config/fish/config.fish
     echo "set -gx ASAN_OPTIONS 'symbolize=1,detect_leaks=1,abort_on_error=1,quarantine_size_mb=8192'" >> /root/.config/fish/config.fish
@@ -56,17 +67,23 @@ help() {
     echo "    ubuntu:18.04"
     echo "    archlinux"
     echo
+    echo "Example:"
+    echo "  $0 start archlinux     # starts iceoryx environment with archlinux docker container"
+    echo "  $0 enter ubuntu:18.04  # enters (and starts if not running) iceoryx environment with ubuntu"
+    echo
     exit
 }
 
 start_docker() {
-    if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME) == "true" ]]; then
+    local ICEORYX_PATH=$(git rev-parse --show-toplevel)
+    if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME 2>/dev/null) == "true" ]]; then
         echo iceoryx development environment already running \(docker container: $CONTAINER_NAME\)
         exit
     fi
 
     docker run --name $CONTAINER_NAME \
                --mount type=bind,source=${ICEORYX_PATH},target=/iceoryx \
+               --hostname ${OS_VERSION} \
                -dt --memory "4g" ${OS_VERSION}
     echo iceoryx development environment started
 
@@ -82,8 +99,8 @@ start_docker() {
 }
 
 stop_docker() {
-    docker container stop $CONTAINER_NAME
-    docker rm $CONTAINER_NAME
+    docker container stop $CONTAINER_NAME > /dev/null
+    docker rm $CONTAINER_NAME > /dev/null
     echo iceoryx development environment stopped
 }
 
@@ -92,12 +109,19 @@ enter_docker() {
         start_docker
     fi
 
-    docker exec -it $CONTAINER_NAME fish -C "cd /iceoryx"
+    docker exec -it $CONTAINER_NAME fish -C "
+    echo
+    echo gcc version..............: $(gcc --version | head -1 | cut -d ' ' -f 3)
+    echo g++ version..............: $(g++ --version | head -1 | cut -d ' ' -f 3)
+    echo clang version............: $(clang --version | head -1 | cut -d ' ' -f 3)
+    echo clang++ version..........: $(clang++ --version | head -1 | cut -d ' ' -f 3)
+    echo cmake version............: $(cmake --version | head -1 | cut -d ' ' -f 3)
+    echo
+    cd /iceoryx;"
 }
 
 ACTION=$1
 OS_VERSION=$2
-ICEORYX_PATH=$(pwd)
 
 if [[ -z $OS_VERSION ]]; then
     OS_VERSION="ubuntu:20.04"
