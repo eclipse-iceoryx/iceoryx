@@ -68,7 +68,7 @@ class MemoryMap;
 class MemoryMapBuilder
 {
     /// @brief The base address suggestion to which the memory should be mapped. But
-    ///        there is not guarantee that it is really mapped at this position.
+    ///        there is no guarantee that it is really mapped at this position.
     ///        One has to verify with .getBaseAddress if the hint was accepted.
     ///        Setting it to nullptr means no suggestion
     IOX_BUILDER_PARAMETER(const void*, baseAddressHint, nullptr)
@@ -80,7 +80,7 @@ class MemoryMapBuilder
     IOX_BUILDER_PARAMETER(int32_t, fileDescriptor, 0)
 
     /// @brief Defines if the memory should be mapped read only or with write access.
-    ///        A read only memory section will cause a segmentation fault when be written to.
+    ///        A read only memory section will cause a segmentation fault when written to.
     IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
 
     /// @brief Sets the flags defining how the mapped data should be handled

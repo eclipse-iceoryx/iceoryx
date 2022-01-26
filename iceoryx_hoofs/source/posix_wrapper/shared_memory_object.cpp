@@ -127,7 +127,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 static_cast<unsigned long long>(memorySizeInBytes),
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
                 OPEN_MODE_STRING[static_cast<uint64_t>(openMode)],
-                *baseAddressHint,
+                (baseAddressHint) ? *baseAddressHint : nullptr,
                 std::bitset<sizeof(mode_t)>(permissions).to_ulong());
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
