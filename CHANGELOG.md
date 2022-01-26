@@ -22,6 +22,7 @@
 - Add templated `from`/`into` free functions to formalize conversions from enums and other types [#992](https://github.com/eclipse-iceoryx/iceoryx/issues/992)
 - UniqueId class for unique IDs within a process [#1010](https://github.com/eclipse-iceoryx/iceoryx/issues/1010)
 - Add requirePublisherHistorySupport option at subscriber side (if set to true requires historyRequest <= historyCapacity to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029)
+- Add `/tools/scripts/ice_env.sh` shell script to provide simple access to docker containers for CI debugging [#1049](https://github.com/eclipse-iceoryx/iceoryx/issues/1049)
 
 **Bugfixes:**
 
