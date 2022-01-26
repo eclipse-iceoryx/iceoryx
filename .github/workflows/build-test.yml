@@ -27,6 +27,13 @@ jobs:
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v2
+      - uses: egor-tensin/setup-gcc@v1.2
+        with:
+          version: 8
+          platform: x64
+      - uses: jwlawson/actions-setup-cmake@v1.12
+        with:
+          cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
 
   build-test-macos:
@@ -60,7 +67,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-gcc@v1
+      - uses: egor-tensin/setup-gcc@v1.2
         with:
           version: latest
           platform: x64
