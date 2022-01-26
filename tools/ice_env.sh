@@ -65,10 +65,9 @@ start_docker() {
         exit
     fi
 
-    docker run --name $CONTAINER_NAME --mount type=bind,source="/dev",target=/dev \
+    docker run --name $CONTAINER_NAME \
                --mount type=bind,source=${ICEORYX_PATH},target=/iceoryx \
-               --mount type=bind,source=/tmp,target=/tmp \
-               -dt ${OS_VERSION}
+               -dt --memory "4g" ${OS_VERSION}
     echo iceoryx development environment started
 
     docker exec -it $CONTAINER_NAME /iceoryx/$0 setup $OS_VERSION 
