@@ -46,7 +46,7 @@ UniquePortId::UniquePortId(InvalidPortId_t) noexcept
     /// with gcc-7.x - gcc-10.x. Who knows why?!
     : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<UniquePortId::value_type>(INVALID_UNIQUE_ID))
 {
-    // finalizeSetUniqueRouDiId intentionally not called since the
+    // finalizeSetUniqueRouDiId intentionally not called since the InvalidPortId does not have a unique RouDi ID anyway
 }
 
 bool UniquePortId::isValid() const noexcept
