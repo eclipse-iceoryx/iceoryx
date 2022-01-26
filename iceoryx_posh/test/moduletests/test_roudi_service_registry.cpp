@@ -130,7 +130,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
     EXPECT_THAT(searchResults[0].referenceCounter, Eq(1));
 }
 
-TEST_F(ServiceRegistry_test, AddInvalidServiceDescriptionsWorks)
+TEST_F(ServiceRegistry_test, AddEmptyServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3cff55b0-d12f-48f5-8f0c-6501d0c2bf79");
     auto result = sut.add(ServiceDescription());
@@ -144,7 +144,7 @@ TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
     EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
-TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsWorks)
+TEST_F(ServiceRegistry_test, RemovingEmptyServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "523f2320-c0e5-4590-a1b0-604e756ecaa5");
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
@@ -152,7 +152,7 @@ TEST_F(ServiceRegistry_test, RemovingInvalidServiceDescriptionsWorks)
     EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
-TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildcardSearch)
+TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithWildcardSearch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be3e4b13-d930-47b2-aeaa-95c65f06deed");
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
@@ -162,7 +162,7 @@ TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithWildc
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
 }
 
-TEST_F(ServiceRegistry_test, SingleInvalidServiceDescriptionsCanBeFoundWithEmptyString)
+TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1af0137f-6bf5-422e-a6ec-513f7d3f6191");
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
@@ -205,7 +205,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
 }
 
-TEST_F(ServiceRegistry_test, ValidAndInvalidServiceDescriptionsCanAllBeFoundWithWildcardSearch)
+TEST_F(ServiceRegistry_test, EmptyAndNotEmptyServiceDescriptionsCanAllBeFoundWithWildcardSearch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4f34e604-5217-4e47-9c6f-26c5cbdcd3ec");
     ServiceDescription service1;

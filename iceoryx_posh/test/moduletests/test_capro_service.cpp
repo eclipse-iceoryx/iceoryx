@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -243,7 +243,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
     EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
+TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "707156f8-8145-4710-b6ac-3e94dbac7237");
     ServiceDescription serviceDescription1 = ServiceDescription();
