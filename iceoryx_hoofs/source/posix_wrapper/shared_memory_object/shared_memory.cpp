@@ -33,29 +33,98 @@ namespace iox
 {
 namespace posix
 {
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
-SharedMemory::SharedMemory(const Name_t& name,
-                           const AccessMode accessMode,
-                           const OpenMode openMode,
-                           const mode_t permissions,
-                           const uint64_t size) noexcept
+static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept
 {
-    m_isInitialized = true;
+    int oflags = 0;
+    oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
+    oflags |= (openMode != OpenMode::OPEN_EXISTING) ? O_CREAT : 0;
+    oflags |= (openMode == OpenMode::EXCLUSIVE_CREATE) ? O_EXCL : 0;
+    return oflags;
+}
+
+cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
+{
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (name.empty())
+    if (m_name.empty())
     {
         std::cerr << "No shared memory name specified!" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = SharedMemoryError::EMPTY_NAME;
+        return cxx::error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
     }
-    // empty case handled above, so it's fine to get first element
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    else if (name.c_str()[0] != '/')
+
+    if (!cxx::isValidFileName(m_name))
     {
-        std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = SharedMemoryError::NAME_WITHOUT_LEADING_SLASH;
+        std::cerr << "Shared memory requires a valid file name (not path) as name and \"" << m_name
+                  << "\" is not a valid file name" << std::endl;
+        return cxx::error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
     }
+
+    cxx::string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
+    nameWithLeadingSlash.append(cxx::TruncateToCapacity, m_name);
+
+    bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
+                         || m_openMode == OpenMode::OPEN_OR_CREATE);
+    // the mask will be applied to the permissions, therefore we need to set it to 0
+    int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
+    mode_t umaskSaved = umask(0U);
+    {
+        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
+
+        if (m_openMode == OpenMode::PURGE_AND_CREATE)
+        {
+            IOX_DISCARD_RESULT(posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                                   .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                                   .ignoreErrnos(ENOENT)
+                                   .evaluate());
+        }
+
+        auto result =
+            posixCall(iox_shm_open)(
+                nameWithLeadingSlash.c_str(),
+                getOflagsFor(m_accessMode,
+                             (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
+                static_cast<mode_t>(m_filePermissions))
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
+                .evaluate();
+        if (result.has_error())
+        {
+            // if it was not possible to create the shm exclusively someone else has the
+            // ownership and we just try to open it
+            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
+            {
+                hasOwnership = false;
+                result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
+                                                 getOflagsFor(m_accessMode, OpenMode::OPEN_EXISTING),
+                                                 static_cast<mode_t>(m_filePermissions))
+                             .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                             .evaluate();
+                if (!result.has_error())
+                {
+                    sharedMemoryFileHandle = result->value;
+                    return true;
+                }
+            }
+
+            m_errorValue = errnoToEnum(result.get_error().errnum);
+            return false;
+        }
+        m_handle = result->value;
+    }
+
+    if (hasOwnership)
+    {
+        if (posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .evaluate()
+                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
+                .has_error())
+        {
+            return false;
+        }
+    }
+
+    return true;
+
 
     if (m_isInitialized)
     {
@@ -74,18 +143,17 @@ SharedMemory::SharedMemory(const Name_t& name,
     }
 }
 
+// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
+SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
+    : m_name{name}
+    , m_handle{handle}
+    , m_hasOwnership{hasOwnership}
+{
+}
+
 SharedMemory::~SharedMemory() noexcept
 {
     destroy();
-}
-
-int SharedMemory::getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept
-{
-    int oflags = 0;
-    oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
-    oflags |= (openMode != OpenMode::OPEN_EXISTING) ? O_CREAT : 0;
-    oflags |= (openMode == OpenMode::EXCLUSIVE_CREATE) ? O_EXCL : 0;
-    return oflags;
 }
 
 void SharedMemory::destroy() noexcept
@@ -143,68 +211,6 @@ bool SharedMemory::open(const AccessMode accessMode,
                         const mode_t permissions,
                         const uint64_t size) noexcept
 {
-    cxx::Expects(size <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max()));
-
-    m_hasOwnership = (openMode == OpenMode::EXCLUSIVE_CREATE || openMode == OpenMode::PURGE_AND_CREATE
-                      || openMode == OpenMode::OPEN_OR_CREATE);
-    // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0U);
-    {
-        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
-
-        if (openMode == OpenMode::PURGE_AND_CREATE)
-        {
-            IOX_DISCARD_RESULT(posixCall(iox_shm_unlink)(m_name.c_str())
-                                   .failureReturnValue(INVALID_HANDLE)
-                                   .ignoreErrnos(ENOENT)
-                                   .evaluate());
-        }
-
-        auto result = posixCall(iox_shm_open)(
-                          m_name.c_str(),
-                          getOflagsFor(accessMode,
-                                       (openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : openMode),
-                          permissions)
-                          .failureReturnValue(INVALID_HANDLE)
-                          .suppressErrorMessagesForErrnos((openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
-                          .evaluate();
-        if (result.has_error())
-        {
-            // if it was not possible to create the shm exclusively someone else has the
-            // ownership and we just try to open it
-            if (openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
-            {
-                m_hasOwnership = false;
-                result = posixCall(iox_shm_open)(
-                             m_name.c_str(), getOflagsFor(accessMode, OpenMode::OPEN_EXISTING), permissions)
-                             .failureReturnValue(INVALID_HANDLE)
-                             .evaluate();
-                if (!result.has_error())
-                {
-                    m_handle = result->value;
-                    return true;
-                }
-            }
-
-            m_errorValue = errnoToEnum(result.get_error().errnum);
-            return false;
-        }
-        m_handle = result->value;
-    }
-
-    if (m_hasOwnership)
-    {
-        if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
-                .failureReturnValue(INVALID_HANDLE)
-                .evaluate()
-                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
-                .has_error())
-        {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept

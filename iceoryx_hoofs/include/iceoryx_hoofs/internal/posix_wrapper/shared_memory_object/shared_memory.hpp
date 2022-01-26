@@ -17,10 +17,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/filesystem.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/design_pattern/creation.hpp"
-#include "iceoryx_hoofs/platform/mman.hpp"
 
 #include <cstdint>
 
@@ -54,7 +55,7 @@ static constexpr const char* OPEN_MODE_STRING[] = {
 enum class SharedMemoryError
 {
     EMPTY_NAME,
-    NAME_WITHOUT_LEADING_SLASH,
+    INVALID_FILE_NAME,
     INSUFFICIENT_PERMISSIONS,
     DOES_EXIST,
     PROCESS_LIMIT_OF_OPEN_FILES_REACHED,
@@ -74,7 +75,7 @@ enum class SharedMemoryError
 ///        shm_open, shm_unlink etc.
 ///        It must be used in combination with MemoryMap (or manual mmap calls)
 //         to gain access to the created/opened shared memory
-class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
+class SharedMemory
 {
   public:
     static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
@@ -103,28 +104,15 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     ///         SharedMemoryError when the underlying shm_unlink call failed.
     static cxx::expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
 
-    friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
+    friend class SharedMemoryBuilder;
 
   private:
-    /// @brief constructs or opens existing shared memory
-    /// @param[in] name the name of the shared memory, must start with a leading /
-    /// @param[in] accessMode defines if the shared memory is mapped read only or with read write rights
-    /// @param[in] openMode states how the shared memory is created/opened
-    /// @param[in] permissions the permissions the shared memory should have
-    /// @param[in] size the size in bytes of the shared memory
-    SharedMemory(const Name_t& name,
-                 const AccessMode accessMode,
-                 const OpenMode openMode,
-                 const mode_t permissions,
-                 const uint64_t size) noexcept;
+    SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept;
 
-    bool
-    open(const AccessMode accessMode, const OpenMode openMode, const mode_t permissions, const uint64_t size) noexcept;
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
     void reset() noexcept;
-    static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept;
 
     static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
 
@@ -132,6 +120,19 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     int m_handle{INVALID_HANDLE};
     bool m_hasOwnership{false};
 };
+
+class SharedMemoryBuilder
+{
+    IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
+    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_OR_CREATE)
+    IOX_BUILDER_PARAMETER(cxx::perms, filePermissions, cxx::perms::owner_all | cxx::perms::group_read)
+    IOX_BUILDER_PARAMETER(uint64_t, size, 0U)
+
+  public:
+    cxx::expected<SharedMemory, SharedMemoryError> create() noexcept;
+};
+
 } // namespace posix
 } // namespace iox
 
