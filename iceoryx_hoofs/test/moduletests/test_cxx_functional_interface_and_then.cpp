@@ -20,6 +20,11 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
+#define Test(TestName, variationPoint)                                                                                 \
+    using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
+    TestName<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<                                \
+        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { variationPoint.and_then(callback); })
+
 template <bool HasValue>
 struct AndThenIsCalledCorrectlyWhenValid;
 
@@ -27,11 +32,12 @@ template <>
 struct AndThenIsCalledCorrectlyWhenValid<false>
 {
     template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& andThenCall)
+    static void performTest(const AndThenCall& callAndThen)
     {
         auto sut = TestFactory::createValidObject();
         bool wasCallbackCalled = false;
-        andThenCall(sut, [&] { wasCallbackCalled = true; });
+        auto andThenCallbackArgument = [&] { wasCallbackCalled = true; };
+        callAndThen(sut, andThenCallbackArgument);
         EXPECT_TRUE(wasCallbackCalled);
     }
 };
@@ -40,46 +46,37 @@ template <>
 struct AndThenIsCalledCorrectlyWhenValid<true>
 {
     template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& andThenCall)
+    static void performTest(const AndThenCall& callAndThen)
     {
         auto sut = TestFactory::createValidObject();
         bool wasCallbackCalled = false;
-        andThenCall(sut, [&](auto& arg) {
+        auto andThenCallbackArgument = [&](auto& arg) {
             wasCallbackCalled = true;
             EXPECT_EQ(arg, TestFactory::usedTestValue);
-        });
+        };
+        callAndThen(sut, andThenCallbackArgument);
         EXPECT_TRUE(wasCallbackCalled);
     }
 };
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_LValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsCalledCorrectlyWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { sut.and_then(callback); });
+    Test(AndThenIsCalledCorrectlyWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsCalledCorrectlyWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>(
-        [](auto& sut, auto callback) { const_cast<const SutType&>(sut).and_then(callback); });
+    Test(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_RValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsCalledCorrectlyWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { std::move(sut).and_then(callback); });
+    Test(AndThenIsCalledCorrectlyWhenValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsCalledCorrectlyWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>(
-        [](auto& sut, auto callback) { std::move(const_cast<const SutType&>(sut)).and_then(callback); });
+    Test(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
 template <bool HasValue>
@@ -89,11 +86,12 @@ template <>
 struct AndThenIsNotCalledWhenInvalid<false>
 {
     template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& andThenCall)
+    static void performTest(const AndThenCall& callAndThen)
     {
         auto sut = TestFactory::createInvalidObject();
         bool wasCallbackCalled = false;
-        andThenCall(sut, [&] { wasCallbackCalled = true; });
+        auto andThenCallbackArgument = [&] { wasCallbackCalled = true; };
+        callAndThen(sut, andThenCallbackArgument);
         EXPECT_FALSE(wasCallbackCalled);
     }
 };
@@ -102,42 +100,35 @@ template <>
 struct AndThenIsNotCalledWhenInvalid<true>
 {
     template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& andThenCall)
+    static void performTest(const AndThenCall& callAndThen)
     {
         auto sut = TestFactory::createInvalidObject();
         bool wasCallbackCalled = false;
-        andThenCall(sut, [&](auto&) { wasCallbackCalled = true; });
+        auto andThenCallbackArgument = [&](auto&) { wasCallbackCalled = true; };
+        callAndThen(sut, andThenCallbackArgument);
         EXPECT_FALSE(wasCallbackCalled);
     }
 };
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_LValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsNotCalledWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { sut.and_then(callback); });
+    Test(AndThenIsNotCalledWhenInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsNotCalledWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>(
-        [](auto& sut, auto callback) { const_cast<const SutType&>(sut).and_then(callback); });
+    Test(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_RValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsNotCalledWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { std::move(sut).and_then(callback); });
+    Test(AndThenIsNotCalledWhenInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenIsNotCalledWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>(
-        [](auto& sut, auto callback) { std::move(const_cast<const SutType&>(sut)).and_then(callback); });
+    Test(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
+
+#undef Test
 } // namespace
