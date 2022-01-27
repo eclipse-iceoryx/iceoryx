@@ -22,31 +22,22 @@ namespace iox
 namespace runtime
 {
 cxx::expected<ServiceContainer, FindServiceError>
-ServiceDiscovery::findService(const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
-                              const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) noexcept
+ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
+                              const cxx::optional<capro::IdString_t>& instance) noexcept
 {
     /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;
     capro::IdString_t instanceString;
-    bool isServiceWildcard = false;
-    bool isInstanceWildcard = false;
+    bool isServiceWildcard = !service;
+    bool isInstanceWildcard = !instance;
 
-    if (service.index() == 0U)
+    if (!isServiceWildcard)
     {
-        isServiceWildcard = true;
+        serviceString = service.value();
     }
-    else
+    if (!isInstanceWildcard)
     {
-        serviceString = *service.get_at_index<1U>();
-    }
-
-    if (instance.index() == 0U)
-    {
-        isInstanceWildcard = true;
-    }
-    else
-    {
-        instanceString = *instance.get_at_index<1U>();
+        instanceString = instance.value();
     }
 
     IpcMessage sendBuffer;

@@ -59,11 +59,11 @@ class ServiceRegistry
 
     /// @brief Searches for given service description in registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
-    /// @param[in] service, string or wildcard to search for
-    /// @param[in] instance, string or wildcard to search for
+    /// @param[in] service, string or wildcard (= iox::cxx::nullopt) to search for
+    /// @param[in] instance, string or wildcard (= iox::cxx::nullopt) to search for
     void find(ServiceDescriptionVector_t& searchResult,
-              const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
-              const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) const noexcept;
+              const cxx::optional<capro::IdString_t>& service,
+              const cxx::optional<capro::IdString_t>& instance) const noexcept;
 
     /// @brief Returns all service descriptions as copy
     /// @return ServiceDescriptionVector_t, copy of complete service registry

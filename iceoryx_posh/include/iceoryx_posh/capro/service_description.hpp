@@ -31,10 +31,7 @@ namespace capro
 {
 
 /// @brief Used to search for any string
-struct Wildcard_t
-{
-};
-constexpr Wildcard_t Wildcard{};
+constexpr iox::cxx::nullopt_t Wildcard;
 
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};

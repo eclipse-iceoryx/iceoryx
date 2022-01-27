@@ -346,8 +346,8 @@ void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexce
 }
 
 void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
-                                           const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
-                                           const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) noexcept
+                                           const cxx::optional<capro::IdString_t>& service,
+                                           const cxx::optional<capro::IdString_t>& instance) noexcept
 {
     searchForProcessAndThen(
         name,
