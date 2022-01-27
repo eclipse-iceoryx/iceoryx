@@ -6,7 +6,7 @@
 # - performance-move-const-arg (duplicate of hicpp-move-const-arg)
 # - bugprone-use-after-move (duplicate of hicpp-move-const-arg)
 
-WarningsAsErrors: '
+Checks: '
 -*,
 readability-*,
 clang-analyzer-*,
@@ -34,6 +34,12 @@ bugprone-*,
 -bugprone-use-after-move,
 -hicpp-move-const-arg,
 -hicpp-invalid-access-moved'
+
+
+WarningsAsErrors:     '' # Treat all Checks from above as errors
+HeaderFilterRegex:    '' # Enable once the headers files in iceoryx are cleaned up
+FormatStyle:          file
+InheritParentConfig:  false
 
 # ToDo iox-#889: re-enable the following tests:
 # -hicpp-move-const-arg
