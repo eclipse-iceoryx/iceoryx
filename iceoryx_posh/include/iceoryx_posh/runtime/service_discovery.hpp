@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 #define IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -42,8 +41,8 @@ class ServiceDiscovery
     /// ServiceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
     cxx::expected<ServiceContainer, FindServiceError>
-    findService(const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
-                const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) noexcept;
+    findService(const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
+                const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) noexcept;
 
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter

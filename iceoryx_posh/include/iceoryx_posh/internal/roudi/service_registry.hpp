@@ -62,8 +62,8 @@ class ServiceRegistry
     /// @param[in] service, string or wildcard to search for
     /// @param[in] instance, string or wildcard to search for
     void find(ServiceDescriptionVector_t& searchResult,
-              const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
-              const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) const noexcept;
+              const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
+              const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) const noexcept;
 
     /// @brief Returns all service descriptions as copy
     /// @return ServiceDescriptionVector_t, copy of complete service registry

@@ -353,8 +353,8 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            cxx::variant<cxx::Wildcard_t, capro::IdString_t> service;
-            cxx::variant<cxx::Wildcard_t, capro::IdString_t> instance;
+            cxx::variant<capro::Wildcard_t, capro::IdString_t> service;
+            cxx::variant<capro::Wildcard_t, capro::IdString_t> instance;
             bool isServiceWildcard = false;
             bool isInstanceWildcard = false;
             cxx::convert::fromString(message.getElementAtIndex(2).c_str(), isServiceWildcard);
@@ -364,7 +364,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             else
             {
-                service.emplace<cxx::Wildcard_t>();
+                service.emplace<capro::Wildcard_t>();
             }
             cxx::convert::fromString(message.getElementAtIndex(4).c_str(), isInstanceWildcard);
             if (!isInstanceWildcard)
@@ -373,7 +373,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             else
             {
-                instance.emplace<cxx::Wildcard_t>();
+                instance.emplace<capro::Wildcard_t>();
             }
 
             m_prcMgr->findServiceForProcess(runtimeName, service, instance);

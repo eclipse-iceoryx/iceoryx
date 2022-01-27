@@ -100,8 +100,8 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
 }
 
 void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
-                           const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
-                           const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) const noexcept
+                           const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
+                           const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) const noexcept
 {
     cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
 

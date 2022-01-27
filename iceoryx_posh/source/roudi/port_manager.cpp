@@ -558,8 +558,9 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::IpcMessage PortManager::findService(const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
-                                             const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) noexcept
+runtime::IpcMessage
+PortManager::findService(const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
+                         const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) noexcept
 {
     runtime::IpcMessage response;
 

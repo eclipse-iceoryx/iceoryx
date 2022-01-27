@@ -22,8 +22,8 @@ namespace iox
 namespace runtime
 {
 cxx::expected<ServiceContainer, FindServiceError>
-ServiceDiscovery::findService(const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
-                              const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) noexcept
+ServiceDiscovery::findService(const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
+                              const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) noexcept
 {
     /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;

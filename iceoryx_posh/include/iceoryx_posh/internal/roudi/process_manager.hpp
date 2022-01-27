@@ -108,8 +108,8 @@ class ProcessManager : public ProcessManagerInterface
     void updateLivelinessOfProcess(const RuntimeName_t& name) noexcept;
 
     void findServiceForProcess(const RuntimeName_t& name,
-                               const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& service,
-                               const cxx::variant<cxx::Wildcard_t, capro::IdString_t>& instance) noexcept;
+                               const cxx::variant<capro::Wildcard_t, capro::IdString_t>& service,
+                               const cxx::variant<capro::Wildcard_t, capro::IdString_t>& instance) noexcept;
 
     void
     addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;

@@ -33,7 +33,7 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
     for (auto& v : values)
     {
         data[index++] = v;
-        if (index == 4U)
+        if (index == CLASS_HASH_ELEMENT_COUNT)
         {
             return;
         }
