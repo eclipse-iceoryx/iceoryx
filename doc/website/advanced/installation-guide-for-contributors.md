@@ -114,3 +114,16 @@ If you want to share iceoryx to other users, you can create a debian package. Th
 
 !!! note
     The CMake libraries export their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_hoofs)` when you have it done for iceoryx_posh. It includes it already.
+
+## Tips & Tricks
+
+Sometimes one can encounter a failing CI target which is not reproducible locally on the developer
+machine. With `./tools/scripts/ice_env.sh` one can create a
+docker container with preinstalled dependencies and a configuration similar to
+the CI target container.
+
+When for instance the target ubuntu 18.04 fails we can start the container with
+```sh
+./tools/scripts/ice_env.sh enter ubuntu:18.04
+```
+which enters the environment automatically and one can start debugging.

@@ -35,6 +35,19 @@ if you have enough memory available. In this exemplary error message we require
 `59736448` (iceoryx management data) + `27902400` (user samples) ~ `83.57mb`
 of shared memory.
 
+### CI fails but error is locally not reproducable
+
+One can use `tools/scripts/ice_env.sh` to create an iceoryx development environment
+with a configuration very similar to the CI target.
+When for instance the target ubuntu 18.04 fails one can create a docker container
+with
+```sh
+cd tools/scripts
+./ice-env.sh enter ubuntu:18.04
+```
+This starts the container, installs all dependencies which iceoryx requires and enters
+the environment.
+
 ### docker
 
 When you are in a docker environment check if there is enough memory available
