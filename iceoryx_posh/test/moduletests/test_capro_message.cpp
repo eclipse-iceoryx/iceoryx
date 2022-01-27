@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "test.hpp"
@@ -29,9 +29,6 @@ using namespace iox::capro;
 
 class CaproMessage_test : public Test
 {
-  public:
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 

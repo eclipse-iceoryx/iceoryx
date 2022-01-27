@@ -74,9 +74,6 @@ class PublisherPort_test : public Test
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig, iox::popo::ThreadSafePolicy>;
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;

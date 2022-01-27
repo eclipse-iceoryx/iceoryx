@@ -58,9 +58,6 @@ class SubscriberPortSingleProducer_test : public Test
     {
     }
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     iox::popo::SubscriberOptions m_noSubscribeOnCreateOptions{
         iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 0U, iox::NodeName_t(""), false};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
@@ -388,8 +385,6 @@ class SubscriberPortMultiProducer_test : public Test
     {
     }
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
         SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
         "myApp",

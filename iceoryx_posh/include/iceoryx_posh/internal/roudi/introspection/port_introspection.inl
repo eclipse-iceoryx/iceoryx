@@ -48,7 +48,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(cons
 
 template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message,
-                                                                            const UniquePortId& id) noexcept
+                                                                            const popo::UniquePortId& id) noexcept
 {
     m_portData.updateSubscriberConnectionState(message, id);
 }
@@ -203,7 +203,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateCo
 
 template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSubscriberConnectionState(
-    const capro::CaproMessage& message, const UniquePortId& id) noexcept
+    const capro::CaproMessage& message, const popo::UniquePortId& id) noexcept
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
     capro::CaproMessageType messageType = message.m_type;
@@ -250,7 +250,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
     if (iter == m_publisherMap.end())
     {
         // service is new, create new map
-        std::map<UniquePortId, typename PublisherContainer::Index_t> innerPublisherMap;
+        std::map<popo::UniquePortId, typename PublisherContainer::Index_t> innerPublisherMap;
         innerPublisherMap.insert(std::make_pair(uniqueId, index));
         m_publisherMap.insert(std::make_pair(service, innerPublisherMap));
     }
@@ -311,7 +311,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     if (iter == m_connectionMap.end())
     {
         // service is new, create new map
-        std::map<UniquePortId, typename ConnectionContainer::Index_t> innerConnectionMap;
+        std::map<popo::UniquePortId, typename ConnectionContainer::Index_t> innerConnectionMap;
         innerConnectionMap.insert(std::make_pair(uniqueId, index));
         m_connectionMap.insert(std::make_pair(service, innerConnectionMap));
     }

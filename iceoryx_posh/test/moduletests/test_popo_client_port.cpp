@@ -32,10 +32,6 @@ using namespace iox::popo;
 
 class ClientPort_test : public Test
 {
-    // keep this the very first and also private
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0U); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
     static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
 

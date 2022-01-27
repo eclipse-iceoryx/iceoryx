@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ namespace iox
 {
 namespace mepoo
 {
+constexpr uint8_t ChunkHeader::CHUNK_HEADER_VERSION;
+
 ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept
     : m_chunkSize(chunkSize)
     , m_userHeaderSize(chunkSettings.userHeaderSize())
@@ -200,12 +202,12 @@ uint32_t ChunkHeader::userPayloadAlignment() const noexcept
     return m_userPayloadAlignment;
 }
 
-UniquePortId ChunkHeader::originId() const noexcept
+popo::UniquePortId ChunkHeader::originId() const noexcept
 {
     return m_originId;
 }
 
-void ChunkHeader::setOriginId(UniquePortId originId) noexcept
+void ChunkHeader::setOriginId(const popo::UniquePortId originId) noexcept
 {
     m_originId = originId;
 }
@@ -215,7 +217,7 @@ uint64_t ChunkHeader::sequenceNumber() const noexcept
     return m_sequenceNumber;
 }
 
-void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber) noexcept
+void ChunkHeader::setSequenceNumber(const uint64_t sequenceNumber) noexcept
 {
     m_sequenceNumber = sequenceNumber;
 }

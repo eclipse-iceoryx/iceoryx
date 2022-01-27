@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define IOX_POSH_MEPOO_CHUNK_HEADER_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
 
 #include <cstdint>
@@ -132,7 +132,7 @@ struct ChunkHeader
 
     /// @brief The unique identifier of the publisher the chunk was sent from
     /// @return the id of the publisher the chunk was sent from
-    UniquePortId originId() const noexcept;
+    popo::UniquePortId originId() const noexcept;
 
     /// @brief A serial number for the sent chunks
     /// @brief the serquence number of the chunk
@@ -142,9 +142,9 @@ struct ChunkHeader
     template <typename T>
     friend class popo::ChunkSender;
 
-    void setOriginId(UniquePortId originId) noexcept;
+    void setOriginId(const popo::UniquePortId originId) noexcept;
 
-    void setSequenceNumber(uint64_t sequenceNumber) noexcept;
+    void setSequenceNumber(const uint64_t sequenceNumber) noexcept;
 
     uint64_t overflowSafeUsedSizeOfChunk() const noexcept;
 
@@ -161,7 +161,7 @@ struct ChunkHeader
     uint8_t m_reserved{0};
     // currently just a placeholder
     uint16_t m_userHeaderId{NO_USER_HEADER};
-    UniquePortId m_originId{popo::InvalidId};
+    popo::UniquePortId m_originId{popo::InvalidPortId};
     uint64_t m_sequenceNumber{0U};
     uint32_t m_userHeaderSize{0U};
     uint32_t m_userPayloadSize{0U};

@@ -175,7 +175,7 @@ class PortIntrospection
         /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
         /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
         /// which are subscribed to the same topic
-        bool updateSubscriberConnectionState(const capro::CaproMessage& message, const UniquePortId& id) noexcept;
+        bool updateSubscriberConnectionState(const capro::CaproMessage& message, const popo::UniquePortId& id) noexcept;
 
         /// @brief prepare the topic to be send based on the internal connection state of all tracked ports
         /// @param[out] topic data structure to be prepared for sending
@@ -216,11 +216,11 @@ class PortIntrospection
         using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
         /// @brief inner map maps from unique port IDs to indices in the PublisherContainer
-        std::map<capro::ServiceDescription, std::map<UniquePortId, typename PublisherContainer::Index_t>>
+        std::map<capro::ServiceDescription, std::map<popo::UniquePortId, typename PublisherContainer::Index_t>>
             m_publisherMap;
 
         /// inner map maps from unique port IDs to indices in the ConnectionContainer
-        std::map<capro::ServiceDescription, std::map<UniquePortId, typename ConnectionContainer::Index_t>>
+        std::map<capro::ServiceDescription, std::map<popo::UniquePortId, typename ConnectionContainer::Index_t>>
             m_connectionMap;
 
         /// @note we avoid allocating the objects on the heap but can still use a map
@@ -279,7 +279,7 @@ class PortIntrospection
     /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
     /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
     /// which are subscribed to the same topic
-    void reportMessage(const capro::CaproMessage& message, const UniquePortId& id) noexcept;
+    void reportMessage(const capro::CaproMessage& message, const popo::UniquePortId& id) noexcept;
 
     /// @brief register publisher port used to send introspection
     /// @param[in] publisherPort publisher port to be registered

@@ -19,7 +19,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/log/logmanager.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -29,7 +29,9 @@ namespace roudi
 {
 RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
 {
-    iox::popo::internal::setUniqueRouDiId(uniqueRouDiId);
+    // setUniqueRouDiId is called multiple times but it is okay for the tests
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
+    iox::popo::UniquePortId::setUniqueRouDiId(uniqueRouDiId);
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kWarn,
                                                              iox::log::LogLevelOutput::kHideLogLevel);
 }
@@ -49,7 +51,9 @@ RouDiEnvironment::~RouDiEnvironment()
 {
     if (m_runtimes.m_doCleanupOnDestruction)
     {
-        iox::popo::internal::unsetUniqueRouDiId();
+        // setUniqueRouDiId is called multiple times but it is okay for the tests
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
+        popo::UniquePortId::setUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     }
     CleanupRuntimes();
 }

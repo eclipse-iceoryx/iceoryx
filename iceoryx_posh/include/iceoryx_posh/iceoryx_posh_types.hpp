@@ -33,8 +33,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename>
-class TypedUniqueId;
+class UniquePortId;
 struct BasePortData;
 
 class PublisherPortRouDi;
@@ -51,7 +50,6 @@ using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortRouDiType = iox::popo::SubscriberPortRouDi;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
-using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
 
@@ -212,6 +210,9 @@ constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr const char SHM_NAME[] = "/iceoryx_mgmt";
+
+// this is used by the UniquePortId
+constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
 
 // Timeout
 using namespace units::duration_literals;

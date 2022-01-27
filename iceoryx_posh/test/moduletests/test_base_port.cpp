@@ -42,7 +42,7 @@ const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
 
 iox::mepoo::MemoryManager m_memoryManager;
-std::vector<iox::UniquePortId> uniquePortIds;
+std::vector<UniquePortId> uniquePortIds;
 
 using PortDataTypes = Types<BasePortData, PublisherPortData, SubscriberPortData, InterfacePortData>;
 
@@ -141,9 +141,6 @@ class BasePort_test : public Test
     virtual void TearDown()
     {
     }
-
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
     std::unique_ptr<PortData> sutData{createPortData<PortData>()};
     BasePort sut{sutData.get()};

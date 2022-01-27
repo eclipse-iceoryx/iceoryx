@@ -106,8 +106,6 @@ class iox_sub_test : public Test
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
                                             "myApp",

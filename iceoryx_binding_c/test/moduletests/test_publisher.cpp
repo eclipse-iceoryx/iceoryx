@@ -106,9 +106,6 @@ class iox_pub_test : public Test
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                       iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
-    GenericRAII m_uniqueRouDiId{[] { popo::internal::setUniqueRouDiId(0); },
-                                [] { popo::internal::unsetUniqueRouDiId(); }};
-
     Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
