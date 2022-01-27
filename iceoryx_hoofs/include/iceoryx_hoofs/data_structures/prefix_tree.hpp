@@ -114,8 +114,8 @@ class PrefixTree
     // This is left as a space optimization in the future, but with static memory we cannot really benefit
     // since we need to be prepared for single letter nodes anyway.
 
-    using NodeAllocator = iox::cxx::PoolAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
-    using DataNodeAllocator = iox::cxx::PoolAllocator<DataNode, Capacity>;
+    using NodeAllocator = iox::cxx::TypedAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
+    using DataNodeAllocator = iox::cxx::TypedAllocator<DataNode, Capacity>;
 
   private:
     node_ptr_t m_root{nullptr};

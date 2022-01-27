@@ -19,35 +19,32 @@
 
 #include <stdint.h>
 
-#include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
 
 namespace iox
 {
 namespace cxx
 {
-// TODO: It is critical that it is relocatable.
+// It is crucial that objects of this type are relocatable.
 template <typename T, uint64_t Capacity>
-class PoolAllocator
+class TypedAllocator
 {
     using index_t = decltype(Capacity);
 
     static constexpr index_t INVALID_INDEX = Capacity;
 
   public:
-    PoolAllocator()
+    TypedAllocator()
     {
-        for (uint64_t i = 0; i < Capacity; ++i)
-        {
-            m_freeIndices.push(i);
-        }
     }
 
-    // we do not need a specific dtor
-    // The dtor does not check whether all pointers were deallocated
-    // (the memory will just be gone)
-    // This is ok since for regular memory allocation it is also an error not to free
-    // something allocated etc and the user must ensure the allocator outlives any allocation.
+    // We do not need a specific dtor.
+    // The dtor does not check whether all pointers were deallocated (the memory will just be gone).
 
+    // This is ok since for regular memory allocation it is also an error not to free
+    // something allocated.
+
+    // convenience to ensure we get a valid object (like operator new)
     template <typename... Args>
     T* create(Args&&... args)
     {
@@ -86,16 +83,14 @@ class PoolAllocator
         m_freeIndices.push(toIndex(element));
     }
 
-
   private:
     using block_t = alignas(alignof(T)) uint8_t[sizeof(T)];
+    using queue_t = iox::concurrent::IndexQueue<Capacity, index_t>;
 
     block_t m_blocks[Capacity];
 
-    // must be relocatable
-    // cannot store pointers if we want the allocator to be relocatable
-    // this adds some conversion overhead (pointer to index and vice versa)
-    iox::concurrent::FiFo<index_t, Capacity> m_freeIndices;
+    // NB: must be relocatable
+    queue_t m_freeIndices{queue_t::ConstructFull};
 
     T* toPtr(index_t index)
     {
