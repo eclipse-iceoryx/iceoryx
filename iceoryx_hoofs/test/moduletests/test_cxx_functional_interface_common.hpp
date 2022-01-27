@@ -22,6 +22,14 @@
 
 namespace test_cxx_functional_interface
 {
+/// @brief Every test file uses this as a common base and extends the TYPED_TEST
+///        for a specific part of the functional interface.
+///
+///        The idea is to have a test setup which is so generic that a user
+///        which would like to enrich its class with the functional interface
+///        has to write only a test factory in `test_cxx_functional_types.hpp`
+///        for its specific type and then can add its type to the typelist and
+///        the tests are generated for them.
 template <typename T>
 class FunctionalInterface_test : public testing::Test
 {
@@ -30,7 +38,11 @@ class FunctionalInterface_test : public testing::Test
 
     void SetUp() override
     {
-        T::configureNextTestCase();
+        // Whenever we start the next test case we inform the factory of our
+        // test types that we started a new test.
+        // This enables the factory to vary the underlying value/error values
+        // in each test
+        TestFactoryType::configureNextTestCase();
     }
 
     void TearDown() override
@@ -38,6 +50,8 @@ class FunctionalInterface_test : public testing::Test
     }
 };
 
+/// @brief This types is used for testing the functional interface in the case
+///        of a value and a get_error method
 struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueError, int, int>
 {
     GenericValueError(const int value, const int error) noexcept;
@@ -58,10 +72,12 @@ struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueErro
     int m_error = 0;
 };
 
+/// @brief This types is used for testing the functional interface in the case
+///        that it is only nullable
 struct GenericPlain : public iox::cxx::FunctionalInterface<GenericPlain, void, void>
 {
     explicit GenericPlain(const int value, const int);
-    operator bool() const noexcept;
+    explicit operator bool() const noexcept;
 
     bool m_isValid = false;
 };

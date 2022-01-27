@@ -21,11 +21,14 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
+constexpr bool TYPE_HAS_VALUE_METHOD = true;
+constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
+
 template <bool HasValue>
 struct ValueOrReturnsValueWhenValid;
 
 template <>
-struct ValueOrReturnsValueWhenValid<false>
+struct ValueOrReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory>
     static void performTest()
@@ -34,7 +37,7 @@ struct ValueOrReturnsValueWhenValid<false>
 };
 
 template <>
-struct ValueOrReturnsValueWhenValid<true>
+struct ValueOrReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 {
     template <typename TestFactory>
     static void performTest()
@@ -55,7 +58,7 @@ template <bool HasValue>
 struct ValueOrReturnsArgumentWhenInalid;
 
 template <>
-struct ValueOrReturnsArgumentWhenInalid<false>
+struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory>
     static void performTest()
@@ -64,7 +67,7 @@ struct ValueOrReturnsArgumentWhenInalid<false>
 };
 
 template <>
-struct ValueOrReturnsArgumentWhenInalid<true>
+struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_VALUE_METHOD>
 {
     template <typename TestFactory>
     static void performTest()
