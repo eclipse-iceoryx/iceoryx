@@ -20,16 +20,19 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
-#define Test(TestName, variationPoint)                                                                                 \
+#define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     TestName<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<                                \
         typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { variationPoint.and_then(callback); })
+
+constexpr bool TYPE_HAS_VALUE_METHOD = true;
+constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
 
 template <bool HasValue>
 struct AndThenIsCalledCorrectlyWhenValid;
 
 template <>
-struct AndThenIsCalledCorrectlyWhenValid<false>
+struct AndThenIsCalledCorrectlyWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename AndThenCall>
     static void performTest(const AndThenCall& callAndThen)
@@ -43,7 +46,7 @@ struct AndThenIsCalledCorrectlyWhenValid<false>
 };
 
 template <>
-struct AndThenIsCalledCorrectlyWhenValid<true>
+struct AndThenIsCalledCorrectlyWhenValid<TYPE_HAS_VALUE_METHOD>
 {
     template <typename TestFactory, typename AndThenCall>
     static void performTest(const AndThenCall& callAndThen)
@@ -61,29 +64,29 @@ struct AndThenIsCalledCorrectlyWhenValid<true>
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_LValueCase)
 {
-    Test(AndThenIsCalledCorrectlyWhenValid, sut);
+    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstLValueCase)
 {
-    Test(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
+    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_RValueCase)
 {
-    Test(AndThenIsCalledCorrectlyWhenValid, std::move(sut));
+    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstRValueCase)
 {
-    Test(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
 template <bool HasValue>
 struct AndThenIsNotCalledWhenInvalid;
 
 template <>
-struct AndThenIsNotCalledWhenInvalid<false>
+struct AndThenIsNotCalledWhenInvalid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename AndThenCall>
     static void performTest(const AndThenCall& callAndThen)
@@ -97,7 +100,7 @@ struct AndThenIsNotCalledWhenInvalid<false>
 };
 
 template <>
-struct AndThenIsNotCalledWhenInvalid<true>
+struct AndThenIsNotCalledWhenInvalid<TYPE_HAS_VALUE_METHOD>
 {
     template <typename TestFactory, typename AndThenCall>
     static void performTest(const AndThenCall& callAndThen)
@@ -112,23 +115,23 @@ struct AndThenIsNotCalledWhenInvalid<true>
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_LValueCase)
 {
-    Test(AndThenIsNotCalledWhenInvalid, sut);
+    IOX_TEST(AndThenIsNotCalledWhenInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstLValueCase)
 {
-    Test(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
+    IOX_TEST(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_RValueCase)
 {
-    Test(AndThenIsNotCalledWhenInvalid, std::move(sut));
+    IOX_TEST(AndThenIsNotCalledWhenInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstRValueCase)
 {
-    Test(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
 
-#undef Test
+#undef IOX_TEST
 } // namespace

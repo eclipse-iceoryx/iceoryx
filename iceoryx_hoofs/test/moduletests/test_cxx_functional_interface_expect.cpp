@@ -23,15 +23,22 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
-template <typename FactoryType, typename ExpectCall>
-void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& expectCall)
+#define IOX_TEST(TestName, variationPoint)                                                                             \
+    using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
+    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestFactoryType, SutType>([](auto& sut) {        \
+        variationPoint.expect(                                                                                         \
+            "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");         \
+    })
+
+template <typename FactoryType, typename SutType, typename ExpectCall>
+void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
 {
     bool wasErrorHandlerCalled = false;
-    auto sut = FactoryType::createValidObject();
+    SutType sut = FactoryType::createValidObject();
     {
         auto handle =
             iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        expectCall(sut);
+        callExpect(sut);
     }
 
     EXPECT_FALSE(wasErrorHandlerCalled);
@@ -39,42 +46,33 @@ void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& expectCall)
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)
 {
-    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestFactoryType>(
-        [](auto& sut) { sut.expect("a seal on the head is better then a roof on a pidgin"); });
+    IOX_TEST(ExpectDoesNotCallTerminateWhenObjectIsValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_ConstLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestFactoryType>([](auto& sut) {
-        const_cast<const SutType&>(sut).expect(
-            "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");
-    });
+    IOX_TEST(ExpectDoesNotCallTerminateWhenObjectIsValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_RValueCase)
 {
-    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestFactoryType>(
-        [](auto& sut) { std::move(sut).expect("hypnotoad is a friend of david hasselhof"); });
+    IOX_TEST(ExpectDoesNotCallTerminateWhenObjectIsValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_ConstRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestFactoryType>([](auto& sut) {
-        std::move(const_cast<const SutType&>(sut)).expect("hypnotoads favorite animal is the leaf sheep");
-    });
+    IOX_TEST(ExpectDoesNotCallTerminateWhenObjectIsValid, std::move(const_cast<const SutType&>(sut)));
 }
 
-template <typename FactoryType, typename ExpectCall>
-void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& expectCall)
+template <typename FactoryType, typename SutType, typename ExpectCall>
+void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
 {
     bool wasErrorHandlerCalled = true;
-    auto sut = FactoryType::createInvalidObject();
+    SutType sut = FactoryType::createInvalidObject();
     {
         auto handle =
             iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        expectCall(sut);
+        callExpect(sut);
     }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
@@ -82,36 +80,32 @@ void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& expectCall)
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)
 {
-    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestFactoryType>(
-        [](auto& sut) { sut.expect("the chocolate rations will be increased soon"); });
+    IOX_TEST(ExpectDoesCallTerminateWhenObjectIsInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_constLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestFactoryType>(
-        [](auto& sut) { const_cast<const SutType&>(sut).expect("hypnotoad ate the spagetti monster"); });
+    IOX_TEST(ExpectDoesCallTerminateWhenObjectIsInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_RValueCase)
 {
-    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestFactoryType>(
-        [](auto& sut) { std::move(sut).expect("the spagetti monster ate hypnotoad"); });
+    IOX_TEST(ExpectDoesCallTerminateWhenObjectIsInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_constRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectDoesCallTerminateWhenObjectIsInvalid<typename TestFixture::TestFactoryType>([](auto& sut) {
-        std::move(const_cast<const SutType&>(sut)).expect("all glory to the hypno noodle monster toad");
-    });
+    IOX_TEST(ExpectDoesCallTerminateWhenObjectIsInvalid, std::move(const_cast<const SutType&>(sut)));
 }
+
+constexpr bool TYPE_HAS_VALUE_METHOD = true;
+constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
 
 template <bool HasValue>
 struct ExpectReturnsValueWhenValid;
 
 template <>
-struct ExpectReturnsValueWhenValid<false>
+struct ExpectReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename ExpectCall>
     static void performTest(const ExpectCall&)
@@ -120,46 +114,35 @@ struct ExpectReturnsValueWhenValid<false>
 };
 
 template <>
-struct ExpectReturnsValueWhenValid<true>
+struct ExpectReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 {
     template <typename TestFactory, typename ExpectCall>
-    static void performTest(const ExpectCall& expectCall)
+    static void performTest(const ExpectCall& callExpect)
     {
         auto sut = TestFactory::createValidObject();
-        EXPECT_THAT(expectCall(sut), Eq(TestFactory::usedTestValue));
+        EXPECT_THAT(callExpect(sut), Eq(TestFactory::usedTestValue));
     }
 };
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_LValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>([](auto& sut) { return sut.expect("Earl grey with a toad flavor."); });
+    IOX_TEST(ExpectReturnsValueWhenValid, return sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_ConstLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>(
-        [](auto& sut) { return const_cast<const SutType&>(sut).expect("Some cookies with flies."); });
+    IOX_TEST(ExpectReturnsValueWhenValid, return const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_RValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>(
-        [](auto& sut) { return std::move(sut).expect("Sauce hollandaise with strawberries"); });
+    IOX_TEST(ExpectReturnsValueWhenValid, return std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_ConstRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ExpectReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>([](auto& sut) {
-        return std::move(const_cast<const SutType&>(sut))
-            .expect("Those are the ingredients for a perfect breakfast for hypnotoad.");
-    });
+    IOX_TEST(ExpectReturnsValueWhenValid, return std::move(const_cast<const SutType&>(sut)));
 }
+
+#undef IOX_TEST
 } // namespace
