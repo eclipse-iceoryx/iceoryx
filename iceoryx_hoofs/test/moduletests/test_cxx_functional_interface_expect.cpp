@@ -25,7 +25,7 @@ using namespace ::testing;
 
 #define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    ExpectDoesNotCallTerminateWhenObjectIsValid<typename TestFixture::TestFactoryType, SutType>([](auto& sut) {        \
+    TestName<typename TestFixture::TestFactoryType, SutType>([](auto& sut) {                                           \
         variationPoint.expect(                                                                                         \
             "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");         \
     })
@@ -124,24 +124,34 @@ struct ExpectReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
     }
 };
 
+#undef IOX_TEST
+#define IOX_TEST(TestName, variationPoint)                                                                             \
+    using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
+    TestName<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<                                \
+        typename TestFixture::TestFactoryType>([](auto& sut) {                                                         \
+        return variationPoint.expect(                                                                                  \
+            "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");         \
+    })
+
+
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_LValueCase)
 {
-    IOX_TEST(ExpectReturnsValueWhenValid, return sut);
+    IOX_TEST(ExpectReturnsValueWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_ConstLValueCase)
 {
-    IOX_TEST(ExpectReturnsValueWhenValid, return const_cast<const SutType&>(sut));
+    IOX_TEST(ExpectReturnsValueWhenValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_RValueCase)
 {
-    IOX_TEST(ExpectReturnsValueWhenValid, return std::move(sut));
+    IOX_TEST(ExpectReturnsValueWhenValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectReturnsValueWhenValid_ConstRValueCase)
 {
-    IOX_TEST(ExpectReturnsValueWhenValid, return std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST(ExpectReturnsValueWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
 #undef IOX_TEST
