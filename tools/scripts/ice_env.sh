@@ -17,6 +17,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 CONTAINER_NAME="ice_env"
+CONTAINER_MEMORY_SIZE="4g"
+CONTAINER_SHM_MEMORY_SIZE="2g"
+DEFAULT_OS_VERSION="ubuntu:20.04"
 
 setup_docker_image() {
     echo "Europe/Berlin" > /etc/timezone
@@ -29,7 +32,7 @@ setup_docker_image() {
         apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
     elif [[ $BASE_OS_VERSION == "archlinux" ]]; then
         pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm
-    else 
+    else
         echo Please install the following packages to have a working iceoryx environment
         echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
     fi
@@ -62,7 +65,7 @@ help() {
     echo
     echo "OS_VERSION:"
     echo "  A string which will be forwarded to \"-t\" in the docker command."
-    echo "  The version of operating system to load. Default value is ubuntu:20.04."
+    echo "  The version of operating system to load. Default value is ${DEFAULT_OS_VERSION}."
     echo "  Other possibilities (not all) are:"
     echo "    ubuntu:18.04"
     echo "    archlinux"
@@ -84,16 +87,20 @@ start_docker() {
     docker run --name $CONTAINER_NAME \
                --mount type=bind,source=${ICEORYX_PATH},target=/iceoryx \
                --hostname ${OS_VERSION} \
-               -dt --memory "4g" ${OS_VERSION}
+               -dt --memory $CONTAINER_MEMORY_SIZE \
+               --shm-size $CONTAINER_SHM_MEMORY_SIZE ${OS_VERSION}
     echo iceoryx development environment started
 
-    docker exec -it $CONTAINER_NAME /iceoryx/$0 setup $OS_VERSION 
+    docker exec -it $CONTAINER_NAME /iceoryx/$(git rev-parse --show-prefix)/$0 setup $OS_VERSION
 
     echo
     echo "  iceoryx development environment setup and started"
     echo "  #################################################"
     echo
+    echo "    container name..........: ${CONTAINER_NAME}"
     echo "    OS-Version..............: ${OS_VERSION}"
+    echo "    memory..................: ${CONTAINER_MEMORY_SIZE}"
+    echo "    shared memory...........: ${CONTAINER_SHM_MEMORY_SIZE}"
     echo "    iceoryx-path............: ${ICEORYX_PATH}"
     echo
 }
@@ -127,7 +134,7 @@ ACTION=$1
 OS_VERSION=$2
 
 if [[ -z $OS_VERSION ]]; then
-    OS_VERSION="ubuntu:20.04"
+    OS_VERSION=$DEFAULT_OS_VERSION
 fi
 
 if [[ $ACTION == "start" ]]; then
@@ -138,6 +145,6 @@ elif [[ $ACTION == "enter" ]]; then
     enter_docker
 elif [[ $ACTION == "setup" ]]; then
     setup_docker_image
-else 
+else
     help
 fi
