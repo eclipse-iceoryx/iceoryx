@@ -666,7 +666,7 @@ TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisher
     EXPECT_TRUE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInSufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInsufficientHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "20749a22-2771-4ec3-92f8-81bbdbd4aab6");
 
@@ -674,25 +674,6 @@ TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublis
     auto subscriberOptions = createTestSubOptions();
 
     publisherOptions.historyCapacity = 2;
-    subscriberOptions.historyRequest = 3;
-    subscriberOptions.requiresPublisherHistorySupport = true;
-
-    auto publisher = createPublisher(publisherOptions);
-    auto subscriber = createSubscriber(subscriberOptions);
-
-    ASSERT_TRUE(publisher);
-    ASSERT_TRUE(subscriber);
-    EXPECT_FALSE(publisher.hasSubscribers());
-}
-
-TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithNoHistorySupport)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8f17d9cb-8f46-4742-99c3-b609a4d2319a");
-
-    auto publisherOptions = createTestPubOptions();
-    auto subscriberOptions = createTestSubOptions();
-
-    publisherOptions.historyCapacity = 0;
     subscriberOptions.historyRequest = 3;
     subscriberOptions.requiresPublisherHistorySupport = true;
 
