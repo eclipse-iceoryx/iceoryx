@@ -20,11 +20,25 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
+#define IOX_TEST(TestName, variationPoint)                                                                             \
+    using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
+    TestName<iox::cxx::internal::HasValueMethod<SutType>::value,                                                       \
+             iox::cxx::internal::HasGetErrorMethod<SutType>::value>::                                                  \
+        template performTest<typename TestFixture::TestFactoryType>(                                                   \
+            [](auto& sut, auto andThenCallback, auto orElseCallback) {                                                 \
+                variationPoint.and_then(andThenCallback).or_else(orElseCallback);                                      \
+            })
+
+constexpr bool TYPE_HAS_VALUE_METHOD = true;
+constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
+constexpr bool TYPE_HAS_GET_ERROR_METHOD = true;
+constexpr bool TYPE_HAS_NO_GET_ERROR_METHOD = false;
+
 template <bool HasValue, bool HasError>
 struct AndThenOrElseConcatenatedWorksWhenInvalid;
 
 template <>
-struct AndThenOrElseConcatenatedWorksWhenInvalid<false, false>
+struct AndThenOrElseConcatenatedWorksWhenInvalid<TYPE_HAS_NO_VALUE_METHOD, TYPE_HAS_NO_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -41,7 +55,7 @@ struct AndThenOrElseConcatenatedWorksWhenInvalid<false, false>
 };
 
 template <>
-struct AndThenOrElseConcatenatedWorksWhenInvalid<true, false>
+struct AndThenOrElseConcatenatedWorksWhenInvalid<TYPE_HAS_VALUE_METHOD, TYPE_HAS_NO_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -58,7 +72,7 @@ struct AndThenOrElseConcatenatedWorksWhenInvalid<true, false>
 };
 
 template <>
-struct AndThenOrElseConcatenatedWorksWhenInvalid<false, true>
+struct AndThenOrElseConcatenatedWorksWhenInvalid<TYPE_HAS_NO_VALUE_METHOD, TYPE_HAS_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -80,7 +94,7 @@ struct AndThenOrElseConcatenatedWorksWhenInvalid<false, true>
 };
 
 template <>
-struct AndThenOrElseConcatenatedWorksWhenInvalid<true, true>
+struct AndThenOrElseConcatenatedWorksWhenInvalid<TYPE_HAS_VALUE_METHOD, TYPE_HAS_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -103,53 +117,29 @@ struct AndThenOrElseConcatenatedWorksWhenInvalid<true, true>
 
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_LValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenOrElseConcatenatedWorksWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                              iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                sut.and_then(andThenCallback).or_else(orElseCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorksWhenInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_ConstLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenOrElseConcatenatedWorksWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                              iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                const_cast<const SutType&>(sut).and_then(andThenCallback).or_else(orElseCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorksWhenInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_RValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenOrElseConcatenatedWorksWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                              iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                std::move(sut).and_then(andThenCallback).or_else(orElseCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorksWhenInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_ConstRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    AndThenOrElseConcatenatedWorksWhenInvalid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                              iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                std::move(const_cast<const SutType&>(sut)).and_then(andThenCallback).or_else(orElseCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorksWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
 
 template <bool HasValue, bool HasError>
-struct OrElseAndThenConcatenatedWorkWhenValid;
+struct AndThenOrElseConcatenatedWorkWhenValid;
 
 template <>
-struct OrElseAndThenConcatenatedWorkWhenValid<false, false>
+struct AndThenOrElseConcatenatedWorkWhenValid<TYPE_HAS_NO_VALUE_METHOD, TYPE_HAS_NO_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -166,7 +156,7 @@ struct OrElseAndThenConcatenatedWorkWhenValid<false, false>
 };
 
 template <>
-struct OrElseAndThenConcatenatedWorkWhenValid<true, false>
+struct AndThenOrElseConcatenatedWorkWhenValid<TYPE_HAS_VALUE_METHOD, TYPE_HAS_NO_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -188,7 +178,7 @@ struct OrElseAndThenConcatenatedWorkWhenValid<true, false>
 };
 
 template <>
-struct OrElseAndThenConcatenatedWorkWhenValid<false, true>
+struct AndThenOrElseConcatenatedWorkWhenValid<TYPE_HAS_NO_VALUE_METHOD, TYPE_HAS_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -205,7 +195,7 @@ struct OrElseAndThenConcatenatedWorkWhenValid<false, true>
 };
 
 template <>
-struct OrElseAndThenConcatenatedWorkWhenValid<true, true>
+struct AndThenOrElseConcatenatedWorkWhenValid<TYPE_HAS_VALUE_METHOD, TYPE_HAS_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename SutCall>
     static void performTest(const SutCall& sutCall)
@@ -226,47 +216,23 @@ struct OrElseAndThenConcatenatedWorkWhenValid<true, true>
     }
 };
 
-TYPED_TEST(FunctionalInterface_test, OrElseAndThenConcatenatedWorkWhenValid_LValueCase)
+TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_LValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    OrElseAndThenConcatenatedWorkWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                           iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                sut.or_else(orElseCallback).and_then(andThenCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorkWhenValid, sut);
 }
 
-TYPED_TEST(FunctionalInterface_test, OrElseAndThenConcatenatedWorkWhenValid_ConstLValueCase)
+TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_ConstLValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    OrElseAndThenConcatenatedWorkWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                           iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                const_cast<const SutType&>(sut).or_else(orElseCallback).and_then(andThenCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorkWhenValid, const_cast<SutType&>(sut));
 }
 
-TYPED_TEST(FunctionalInterface_test, OrElseAndThenConcatenatedWorkWhenValid_RValueCase)
+TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_RValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    OrElseAndThenConcatenatedWorkWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                           iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                std::move(sut).or_else(orElseCallback).and_then(andThenCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorkWhenValid, std::move(sut));
 }
 
-TYPED_TEST(FunctionalInterface_test, OrElseAndThenConcatenatedWorkWhenValid_ConstRValueCase)
+TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_ConstRValueCase)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    OrElseAndThenConcatenatedWorkWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value,
-                                           iox::cxx::internal::HasGetErrorMethod<SutType>::value>::
-        template performTest<typename TestFixture::TestFactoryType>(
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {
-                std::move(const_cast<const SutType&>(sut)).or_else(orElseCallback).and_then(andThenCallback);
-            });
+    IOX_TEST(AndThenOrElseConcatenatedWorkWhenValid, std::move(const_cast<SutType&>(sut)));
 }
 } // namespace
