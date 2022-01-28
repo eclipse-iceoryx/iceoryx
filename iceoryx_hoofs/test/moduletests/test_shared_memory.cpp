@@ -18,6 +18,7 @@
 #include "test.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_hoofs/platform/mman.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -48,16 +49,17 @@ class SharedMemory_Test : public Test
         }
     }
 
-    static constexpr const char SUT_SHM_NAME[] = "/ignatz";
+    static constexpr const char SUT_SHM_NAME[] = "ignatz";
 
     iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
     createSut(const iox::posix::SharedMemory::Name_t& name, const iox::posix::OpenMode openMode)
     {
-        return iox::posix::SharedMemory::create(name,
-                                                iox::posix::AccessMode::READ_WRITE,
-                                                openMode,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
+        return iox::posix::SharedMemoryBuilder()
+            .name(name)
+            .accessMode(iox::posix::AccessMode::READ_WRITE)
+            .openMode(openMode)
+            .size(128)
+            .create();
     }
 
     bool createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
@@ -94,7 +96,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76ed82b1-eef7-4a5a-8794-b333c679e726");
     EXPECT_THAT(createSut("", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
-    EXPECT_THAT(createSut("ignatz", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSut("/ignatz", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
@@ -115,7 +117,6 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
     {
         iox::posix::SharedMemory sut2(std::move(*sut));
         EXPECT_THAT(handle, Eq(sut2.getHandle()));
-        EXPECT_THAT(sut->isInitialized(), Eq(false));
     }
 }
 

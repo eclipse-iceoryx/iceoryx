@@ -68,17 +68,14 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};
 
-    // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    constexpr char SHARED_MEMORY_NAME_PREFIX[] = "/";
-    posix::SharedMemory::Name_t shmName = SHARED_MEMORY_NAME_PREFIX + writerGroup.getName();
-
     return std::move(
-        SharedMemoryObjectType::create(shmName,
+        SharedMemoryObjectType::create(writerGroup.getName(),
                                        MemoryManager::requiredChunkMemorySize(mempoolConfig),
                                        posix::AccessMode::READ_WRITE,
                                        posix::OpenMode::PURGE_AND_CREATE,
                                        BASE_ADDRESS_HINT,
-                                       static_cast<mode_t>(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
+                                       cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read
+                                           | cxx::perms::group_write)
             .and_then([this](auto& sharedMemoryObject) {
                 this->setSegmentId(iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
                                                                              sharedMemoryObject.getSizeInBytes()));

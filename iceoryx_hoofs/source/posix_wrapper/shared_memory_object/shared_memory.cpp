@@ -44,6 +44,15 @@ static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) no
 
 cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 {
+    auto printError = [this] {
+        std::cerr << "Unable to create shared memory with the following properties [ name = " << m_name
+                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
+                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)]
+                  << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions))
+                  << ", sizeInBytes = " << m_size << " ]" << std::endl;
+    };
+
+
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
     if (m_name.empty())
     {
@@ -101,46 +110,29 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
                 if (!result.has_error())
                 {
                     sharedMemoryFileHandle = result->value;
-                    return true;
+                    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
                 }
             }
 
-            m_errorValue = errnoToEnum(result.get_error().errnum);
-            return false;
+            printError();
+            return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
         }
-        m_handle = result->value;
+        sharedMemoryFileHandle = result->value;
     }
 
     if (hasOwnership)
     {
-        if (posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
-                .failureReturnValue(SharedMemory::INVALID_HANDLE)
-                .evaluate()
-                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
-                .has_error())
+        auto result = posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
+                          .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                          .evaluate();
+        if (result.has_error())
         {
-            return false;
+            printError();
+            return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
         }
     }
 
-    return true;
-
-
-    if (m_isInitialized)
-    {
-        m_name = name;
-        m_isInitialized = open(accessMode, openMode, permissions, size);
-    }
-
-    if (!m_isInitialized)
-    {
-        std::cerr << "Unable to create shared memory with the following properties [ name = " << name
-                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
-                  << ", mode = " << std::bitset<sizeof(mode_t)>(permissions) << ", sizeInBytes = " << size << " ]"
-                  << std::endl;
-        return;
-    }
+    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
 // NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
@@ -158,16 +150,12 @@ SharedMemory::~SharedMemory() noexcept
 
 void SharedMemory::destroy() noexcept
 {
-    if (m_isInitialized)
-    {
-        close();
-        unlink();
-    }
+    close();
+    unlink();
 }
 
 void SharedMemory::reset() noexcept
 {
-    m_isInitialized = false;
     m_hasOwnership = false;
     m_name = Name_t();
     m_handle = INVALID_HANDLE;
@@ -183,8 +171,6 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     if (this != &rhs)
     {
         destroy();
-
-        CreationPattern_t::operator=(std::move(rhs));
 
         m_name = rhs.m_name;
         m_hasOwnership = std::move(rhs.m_hasOwnership);
@@ -205,14 +191,6 @@ bool SharedMemory::hasOwnership() const noexcept
     return m_hasOwnership;
 }
 
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
-bool SharedMemory::open(const AccessMode accessMode,
-                        const OpenMode openMode,
-                        const mode_t permissions,
-                        const uint64_t size) noexcept
-{
-}
-
 cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
     auto result =
@@ -228,7 +206,7 @@ cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t&
 
 bool SharedMemory::unlink() noexcept
 {
-    if (m_isInitialized && m_hasOwnership)
+    if (m_hasOwnership)
     {
         auto unlinkResult = unlinkIfExist(m_name);
         if (unlinkResult.has_error() || !unlinkResult.value())
@@ -236,6 +214,7 @@ bool SharedMemory::unlink() noexcept
             std::cerr << "Unable to unlink SharedMemory (shm_unlink failed)." << std::endl;
             return false;
         }
+        m_hasOwnership = false;
     }
 
     reset();
@@ -244,7 +223,7 @@ bool SharedMemory::unlink() noexcept
 
 bool SharedMemory::close() noexcept
 {
-    if (m_isInitialized)
+    if (m_handle != INVALID_HANDLE)
     {
         auto call = posixCall(iox_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum()
