@@ -29,7 +29,6 @@ namespace iox
 {
 namespace capro
 {
-
 /// @brief Used to search for any string
 constexpr iox::cxx::nullopt_t Wildcard;
 
