@@ -137,9 +137,9 @@ class ServiceDescription
 
     ///@{
     /// Getters for the string IDs
-    IdString_t getServiceIDString() const noexcept;
-    IdString_t getInstanceIDString() const noexcept;
-    IdString_t getEventIDString() const noexcept;
+    const IdString_t& getServiceIDString() const noexcept;
+    const IdString_t& getInstanceIDString() const noexcept;
+    const IdString_t& getEventIDString() const noexcept;
     ///@}
 
     ///@{

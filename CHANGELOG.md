@@ -62,7 +62,7 @@
 - Remove creation pattern from `MemoryMap` and replace it with `MemoryMapBuilder` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 - Fix error handling of `TypedUniqueId` and refactor it to `UniquePortId` [\#861](https://github.com/eclipse-iceoryx/iceoryx/issues/861)
 - Updating Codecov API and enforce CMake version 3.16 for building iceoryx [\#774](https://github.com/eclipse-iceoryx/iceoryx/issues/774) and [\#1031](https://github.com/eclipse-iceoryx/iceoryx/issues/1031)
-- Remove `InvalidIdString` and `isValid()` from `ServiceDescription`, replace Wildcard string with struct [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
+- Remove `InvalidIdString` and `isValid()` from `ServiceDescription`, replace Wildcard string with `iox::cxx::nullopt` [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 
 **API Breaking Changes:**
 
@@ -226,8 +226,8 @@ The `iox::cxx::expected` has dropped the requirement for `INVALID_STATE`. With t
 of `ErrorTypeAdapter` for custom types must therefore also be removed in the user code.
 
 The `InvalidIdString` was removed from `ServiceDescription` and the Wildcard string was replaced
-with a struct. With this, every string is allowed within the `ServiceDescription`. The default
-`ServiceDescription` consists of empty strings.
+with a `iox::cxx::nullopt`. With this, every string is allowed within the `ServiceDescription`.
+The default `ServiceDescription` consists of empty strings.
 
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 

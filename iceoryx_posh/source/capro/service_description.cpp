@@ -182,17 +182,17 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
     return cxx::success<ServiceDescription>(deserializedObject);
 }
 
-IdString_t ServiceDescription::getServiceIDString() const noexcept
+const IdString_t& ServiceDescription::getServiceIDString() const noexcept
 {
     return m_serviceString;
 }
 
-IdString_t ServiceDescription::getInstanceIDString() const noexcept
+const IdString_t& ServiceDescription::getInstanceIDString() const noexcept
 {
     return m_instanceString;
 }
 
-IdString_t ServiceDescription::getEventIDString() const noexcept
+const IdString_t& ServiceDescription::getEventIDString() const noexcept
 {
     return m_eventString;
 }
