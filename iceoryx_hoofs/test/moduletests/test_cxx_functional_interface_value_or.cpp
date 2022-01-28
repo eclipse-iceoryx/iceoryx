@@ -24,14 +24,21 @@ using namespace ::testing;
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
 constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
 
+#define IOX_TEST(TestName, variationPoint)                                                                             \
+    using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
+    ValueOrReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<            \
+        typename TestFixture::TestFactoryType>(                                                                        \
+        [](auto& sut, auto alternativeValue) { return variationPoint.value_or(alternativeValue); });
+
+
 template <bool HasValue>
 struct ValueOrReturnsValueWhenValid;
 
 template <>
 struct ValueOrReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
-    template <typename TestFactory>
-    static void performTest()
+    template <typename TestFactory, typename ValueOrCall>
+    static void performTest(const ValueOrCall&)
     {
     }
 };
@@ -39,19 +46,22 @@ struct ValueOrReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 template <>
 struct ValueOrReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 {
-    template <typename TestFactory>
-    static void performTest()
+    template <typename TestFactory, typename ValueOrCall>
+    static void performTest(const ValueOrCall& callValueOr)
     {
         auto sut = TestFactory::createValidObject();
-        EXPECT_THAT(sut.value_or(TestFactory::anotherTestValue), Eq(TestFactory::usedTestValue));
+        EXPECT_THAT(callValueOr(sut, TestFactory::anotherTestValue), Eq(TestFactory::usedTestValue));
     }
 };
 
-TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid)
+TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid_LValue)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ValueOrReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>();
+    IOX_TEST(ValueOrReturnsValueWhenValid, sut);
+}
+
+TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid_RValue)
+{
+    IOX_TEST(ValueOrReturnsValueWhenValid, std::move(sut));
 }
 
 template <bool HasValue>
@@ -60,8 +70,8 @@ struct ValueOrReturnsArgumentWhenInalid;
 template <>
 struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_NO_VALUE_METHOD>
 {
-    template <typename TestFactory>
-    static void performTest()
+    template <typename TestFactory, typename ValueOrCall>
+    static void performTest(const ValueOrCall&)
     {
     }
 };
@@ -69,19 +79,23 @@ struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_NO_VALUE_METHOD>
 template <>
 struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_VALUE_METHOD>
 {
-    template <typename TestFactory>
-    static void performTest()
+    template <typename TestFactory, typename ValueOrCall>
+    static void performTest(const ValueOrCall& callValueOr)
     {
         auto sut = TestFactory::createInvalidObject();
-        EXPECT_THAT(sut.value_or(TestFactory::anotherTestValue), Eq(TestFactory::anotherTestValue));
+        EXPECT_THAT(callValueOr(sut, TestFactory::anotherTestValue), Eq(TestFactory::anotherTestValue));
     }
 };
 
-TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid)
+TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid_LValue)
 {
-    using SutType = typename TestFixture::TestFactoryType::Type;
-    ValueOrReturnsArgumentWhenInalid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<
-        typename TestFixture::TestFactoryType>();
+    IOX_TEST(ValueOrReturnsArgumentWhenInalid, sut);
 }
 
+TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid_RValue)
+{
+    IOX_TEST(ValueOrReturnsArgumentWhenInalid, std::move(sut));
+}
+
+#undef IOX_TEST
 } // namespace

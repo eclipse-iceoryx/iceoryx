@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include <iostream>
+#include <utility>
 
 namespace iox
 {
@@ -86,12 +87,23 @@ struct ExpectWithValue
 template <typename Derived, typename ValueType>
 struct ValueOr
 {
-    /// @brief When the object contains a value a copy will be returned otherwise a
-    ///        a copy of alternative will be returned
+    /// @brief When the object contains a value a copy will be returned otherwise
+    ///        alternative is perfectly forwarded to the ValueType constructor
     /// @param[in]  alternative the return value which will be used when the object does
     ///             not contain a value
-    /// @return A copy of the contained value if possible otherwise a copy of alternative
-    ValueType value_or(const ValueType& alternative) const noexcept;
+    /// @return A copy of the contained value when present otherwise return new ValueType
+    ///         with alternative as constructor argument
+    template <typename U>
+    ValueType value_or(U&& alternative) const& noexcept;
+
+    /// @brief When the object contains a value the value will be returned via move otherwise
+    ///        alternative is perfectly forwarded to the ValueType constructor
+    /// @param[in]  alternative the return value which will be used when the object does
+    ///             not contain a value
+    /// @return The contained value is returned via move when present otherwise return new ValueType
+    ///         with alternative as constructor argument
+    template <typename U>
+    ValueType value_or(U&& alternative) && noexcept;
 };
 
 template <typename Derived, typename ValueType>

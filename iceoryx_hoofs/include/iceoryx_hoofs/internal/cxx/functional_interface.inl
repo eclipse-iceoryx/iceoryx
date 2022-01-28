@@ -67,16 +67,31 @@ inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char*
 }
 
 template <typename Derived, typename ValueType>
-inline ValueType ValueOr<Derived, ValueType>::value_or(const ValueType& alternative) const noexcept
+template <typename U>
+inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) const& noexcept
 {
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
     if (!(*derivedThis))
     {
-        return alternative;
+        return std::forward<U>(alternative);
     }
 
     return derivedThis->value();
+}
+
+template <typename Derived, typename ValueType>
+template <typename U>
+inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) && noexcept
+{
+    const Derived* derivedThis = static_cast<const Derived*>(this);
+
+    if (!(*derivedThis))
+    {
+        return std::forward<U>(alternative);
+    }
+
+    return std::move(derivedThis->value());
 }
 
 template <typename Derived, typename ValueType>
