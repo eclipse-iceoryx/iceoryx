@@ -123,13 +123,28 @@ class SharedMemory
 
 class SharedMemoryBuilder
 {
+    /// @brief A valid file name for the shared memory with the restriction that
+    ///        no leading dot is allowed since it is not compatible with every
+    ///        file system
     IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+
+    /// @brief Defines if the memory should be mapped read only or with write access.
+    ///        A read only memory section will cause a segmentation fault when written to.
     IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
+
+    /// @brief Defines how the shared memory is acquired
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_OR_CREATE)
+
+    /// @brief Defines the access permissions of the shared memory
     IOX_BUILDER_PARAMETER(cxx::perms, filePermissions, cxx::perms::owner_all | cxx::perms::group_read)
+
+    /// @brief Defines the size of the shared memory
     IOX_BUILDER_PARAMETER(uint64_t, size, 0U)
 
   public:
+    /// @brief creates a valid SharedMemory object. If the construction failed the expected
+    ///        contains an enum value describing the error.
+    /// @return expected containing SharedMemory on success otherwise SharedMemoryError
     cxx::expected<SharedMemory, SharedMemoryError> create() noexcept;
 };
 
