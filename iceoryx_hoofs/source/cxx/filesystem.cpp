@@ -15,6 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
+#include <iostream>
 #include <type_traits>
 
 namespace iox
@@ -59,6 +61,123 @@ perms operator^=(perms& lhs, const perms& rhs) noexcept
 {
     return lhs = lhs ^ rhs;
 }
+
+template <typename StreamType>
+StreamType& operator<<(StreamType& stream, perms value) noexcept
+{
+    bool doAddComma = false;
+    auto outputToStream = [&](const char* text) {
+        if (doAddComma)
+        {
+            stream << ", ";
+        }
+        doAddComma = true;
+
+        stream << text;
+    };
+
+    auto finishEntry = [&](bool isLastEntry = false) {
+        if (doAddComma)
+        {
+            stream << "}";
+        }
+        else
+        {
+            stream << "none}";
+        }
+
+        if (!isLastEntry)
+        {
+            stream << ",  ";
+        }
+        doAddComma = false;
+    };
+
+    // owner
+    stream << "owner: {";
+
+    if ((value & perms::owner_read) != perms::none)
+    {
+        outputToStream("read");
+    }
+
+    if ((value & perms::owner_write) != perms::none)
+    {
+        outputToStream("write");
+    }
+
+    if ((value & perms::owner_exec) != perms::none)
+    {
+        outputToStream("execute");
+    }
+
+    finishEntry();
+
+    // group
+    stream << "group: {";
+
+    if ((value & perms::group_read) != perms::none)
+    {
+        outputToStream("read");
+    }
+
+    if ((value & perms::group_write) != perms::none)
+    {
+        outputToStream("write");
+    }
+
+    if ((value & perms::group_exec) != perms::none)
+    {
+        outputToStream("execute");
+    }
+
+    finishEntry();
+
+    // other
+    stream << "others: {";
+
+    if ((value & perms::others_read) != perms::none)
+    {
+        outputToStream("read");
+    }
+
+    if ((value & perms::others_write) != perms::none)
+    {
+        outputToStream("write");
+    }
+
+    if ((value & perms::others_exec) != perms::none)
+    {
+        outputToStream("execute");
+    }
+
+    finishEntry();
+
+    // special bits
+    stream << "special bits: {";
+    if ((value & perms::set_uid) != perms::none)
+    {
+        outputToStream("set_uid");
+    }
+
+    if ((value & perms::set_gid) != perms::none)
+    {
+        outputToStream("set_git");
+    }
+
+    if ((value & perms::sticky_bit) != perms::none)
+    {
+        outputToStream("sticky_bit");
+    }
+
+    constexpr bool IS_LAST_ENTRY = true;
+    finishEntry(IS_LAST_ENTRY);
+
+    return stream;
+}
+
+template std::ostream& operator<<(std::ostream&, perms) noexcept;
+template log::LogStream& operator<<(log::LogStream&, perms) noexcept;
 } // namespace cxx
 } // namespace iox
 

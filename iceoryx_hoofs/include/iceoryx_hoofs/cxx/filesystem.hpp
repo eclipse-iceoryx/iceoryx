@@ -116,6 +116,13 @@ perms operator&=(perms& lhs, const perms& rhs) noexcept;
 /// @return lhs = lhs ^ rhs
 perms operator^=(perms& lhs, const perms& rhs) noexcept;
 
+/// @brief The streaming operator for the perms enum. It handles the enum as if
+///        it was a bitset and always lists the values for owner, group, others, special bits
+/// @param[in] stream reference to the stream
+/// @param[in] value the file permission
+/// @return the reference to the stream
+template <typename StreamType>
+StreamType& operator<<(StreamType& stream, perms value) noexcept;
 } // namespace cxx
 } // namespace iox
 
