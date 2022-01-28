@@ -25,7 +25,17 @@ namespace iox
 {
 namespace cxx
 {
-// It is crucial that objects of this type are relocatable.
+/// @brief An allocator for objects of a specific type T.
+///        Supports allocation of initialized objects and aligned raw memory where objects
+///        of type T can be constructed.
+///        All allocate and deallocate operations have O(1) complexity.
+///        Wink-out: if T does not require a destructor call (non-RAII object, e.g a struct of PODs)
+///        or have not been initialized then it is legal to call the destructor of the allocator
+///        *without* deallocating or destroying outstanding allocations for added efficiency.
+/// @tparam T object type to allocate
+/// @tparam Capacity maximum number of objects of T to be allocated at the same time
+/// @note relocatable, i.e. logical state can be copied using memcpy
+/// @note interface is thread-safe, lock-free
 template <typename T, uint64_t Capacity>
 class TypedAllocator
 {
@@ -34,62 +44,51 @@ class TypedAllocator
     static constexpr index_t INVALID_INDEX = Capacity;
 
   public:
-    TypedAllocator()
-    {
-    }
+    TypedAllocator() = default;
+    TypedAllocator(const TypedAllocator&) = delete;
+    TypedAllocator(TypedAllocator&&) = delete;
+    TypedAllocator& operator=(const TypedAllocator&) = delete;
+    TypedAllocator& operator=(TypedAllocator&&) = delete;
 
-    // We do not need a specific dtor.
-    // The dtor does not check whether all pointers were deallocated (the memory will just be gone).
+    /// @brief Allocate memory for an object of type T.
+    /// @return T-aligned pointer to object if memory could be obtained, nullptr otherwise
+    /// @note thread-safe, lock-free
+    T* allocate();
 
-    // This is ok since for regular memory allocation it is also an error not to free
-    // something allocated.
+    /// @brief Deallocate memory for an object of type T.
+    /// @param element element to be deallocated, must have been obtained by allocate before
+    /// @note thread-safe, lock-free
+    /// @note There is no efficient way to check whether this element is legal to be deallocated (i.e. has
+    ///       been obtained with allocate by this allocator and was not yet dellocated).
+    ///       The user is therefore responsible to do so.
+    void deallocate(T* element);
 
-    // convenience to ensure we get a valid object (like operator new)
+    // NB: We do not need a specific dtor.
+    // The dtor does not check whether all pointers were deallocated (wink out - the memory will just be gone).
+    // This is ok since for regular memory allocation it is also an error not to free something allocated.
+
+    /// @brief Allocate memory for an object of type T and construct it with the given arguments in this memory
+    /// @param args construction arguments
+    /// @return pointer to object if memory could be obtained, nullptr otherwise
+    /// @note thread-safe, lock-free
+    /// @note equivalent to allocate followed by emplacement new
     template <typename... Args>
-    T* create(Args&&... args)
-    {
-        auto element = allocate();
-        if (element)
-        {
-            return new (element) T(std::forward<Args>(args)...);
-        }
+    T* create(Args&&... args);
 
-        return nullptr;
-    }
-
-    void destroy(T* element)
-    {
-        if (element)
-        {
-            element->~T();
-            deallocate(element);
-        }
-    }
-
-    T* allocate()
-    {
-        auto maybeIndex = m_freeIndices.pop();
-        if (maybeIndex.has_value())
-        {
-            return toPtr(*maybeIndex);
-        }
-        return nullptr;
-    }
-
-    void deallocate(T* element)
-    {
-        // no checking whether this is a pointer allocated by this allocator (
-        // (not possible without serious overhead)
-        m_freeIndices.push(toIndex(element));
-    }
+    /// @brief Destroy an object previously obtained with create and deallocate its memory for further
+    /// @param element element to be destroyed
+    /// @note thread-safe, lock-free
+    /// @note There is no efficient way to check whether this element is legal to be destroyed (i.e. has
+    ///       been obtained by this allocator and was not yet destroyed).
+    ///       The user is therefore responsible to do so.
+    void destroy(T* element);
 
   private:
+    // NB: types must be relocatable
     using block_t = alignas(alignof(T)) uint8_t[sizeof(T)];
     using queue_t = iox::concurrent::IndexQueue<Capacity, index_t>;
 
     block_t m_blocks[Capacity];
-
-    // NB: must be relocatable
     queue_t m_freeIndices{queue_t::ConstructFull};
 
     T* toPtr(index_t index)
@@ -108,5 +107,6 @@ class TypedAllocator
 } // namespace cxx
 } // namespace iox
 
+#include "iceoryx_hoofs/data_structures/typed_allocator.inl"
 
-#endif
+#endif // IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_HPP
