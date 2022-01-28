@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -311,6 +311,24 @@ void PortManager::handleConditionVariables() noexcept
     }
 }
 
+/// @todo consider making the matching function available in some interface
+bool isCompatible(const PublisherPortRouDiType& publisher, const SubscriberPortType& subscriber)
+{
+    const bool servicesMatch = subscriber.getCaProServiceDescription() == publisher.getCaProServiceDescription();
+
+    auto& pubOpts = publisher.getOptions();
+    auto& subOpts = subscriber.getOptions();
+
+    const bool blockingPoliciesAreCompatible =
+        !(pubOpts.subscriberTooSlowPolicy == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
+          && subOpts.queueFullPolicy == popo::QueueFullPolicy::BLOCK_PUBLISHER);
+
+    const bool historyRequestIsCompatible =
+        !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;
+
+    return servicesMatch && blockingPoliciesAreCompatible && historyRequestIsCompatible;
+}
+
 bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                                   SubscriberPortType& subscriberSource) noexcept
 {
@@ -329,9 +347,7 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
             break;
         }
 
-        if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription()
-            && !(publisherPort.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
-                 && subscriberSource.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
+        if (isCompatible(publisherPort, subscriberSource))
         {
             auto publisherResponse = publisherPort.dispatchCaProMessageAndGetPossibleResponse(message);
             if (publisherResponse.has_value())
@@ -369,9 +385,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
             break;
         }
 
-        if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription()
-            && !(publisherSource.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
-                 && subscriberPort.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
+        if (isCompatible(publisherSource, subscriberPort))
         {
             auto subscriberResponse = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(message);
 

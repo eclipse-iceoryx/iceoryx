@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +40,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessa
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
-        caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
+        caproMessage.m_historyCapacity = getMembers()->m_options.historyRequest;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
@@ -69,7 +70,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMes
     {
         capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
-        caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
+        caproMessage.m_historyCapacity = getMembers()->m_options.historyRequest;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }

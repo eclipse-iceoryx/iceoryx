@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ class SubscriberPortRouDi : public BasePort
     SubscriberPortRouDi& operator=(SubscriberPortRouDi&& rhs) noexcept = default;
     virtual ~SubscriberPortRouDi() = default;
 
-    /// @brief Returns behaviour in case of a full delivery queue
-    /// @return QueueFullPolicy What happens if the delivery queue is full
-    QueueFullPolicy getQueueFullPolicy() const noexcept;
+    /// @brief Returns subscriber options
+    /// @return subscriber options
+    const SubscriberOptions& getOptions() const noexcept;
 
     /// @brief get an optional CaPro message that requests changes to the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change

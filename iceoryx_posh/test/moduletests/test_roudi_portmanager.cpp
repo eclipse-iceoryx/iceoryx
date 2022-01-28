@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
@@ -178,6 +177,21 @@ class PortManager_test : public Test
 
     void setupAndTestBlockingPublisher(const iox::RuntimeName_t& publisherRuntimeName,
                                        std::function<void()> testHook) noexcept;
+
+    PublisherPortUser createPublisher(const PublisherOptions& options)
+    {
+        return PublisherPortUser(
+            m_portManager
+                ->acquirePublisherPortData(
+                    {"1", "1", "1"}, options, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                .value());
+    }
+
+    SubscriberPortUser createSubscriber(const SubscriberOptions& options)
+    {
+        return SubscriberPortUser(
+            m_portManager->acquireSubscriberPortData({"1", "1", "1"}, options, "schlomo", PortConfigInfo()).value());
+    }
 };
 
 template <typename vector>
@@ -188,6 +202,16 @@ void setDestroyFlagAndClearContainer(vector& container)
         item->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     }
     container.clear();
+}
+
+PublisherOptions createTestPubOptions()
+{
+    return PublisherOptions{0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+}
+
+SubscriberOptions createTestSubOptions()
+{
+    return SubscriberOptions{1U, 0U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, false};
 }
 
 TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
@@ -580,6 +604,101 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLe
 
     ASSERT_TRUE(publisher.hasSubscribers());
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithoutHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "43f3ea1e-777a-4cc6-8478-13f981b7c941");
+
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
+
+    publisherOptions.historyCapacity = 0;
+    subscriberOptions.historyRequest = 1;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
+    ASSERT_TRUE(publisher);
+    ASSERT_TRUE(subscriber);
+    EXPECT_FALSE(publisher.hasSubscribers());
+}
+
+TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithNoHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "080a94db-3a89-4d98-94a6-900015e608e2");
+
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
+
+    publisherOptions.historyCapacity = 0;
+    subscriberOptions.historyRequest = 1;
+    subscriberOptions.requiresPublisherHistorySupport = false;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
+    ASSERT_TRUE(publisher);
+    ASSERT_TRUE(subscriber);
+    EXPECT_TRUE(publisher.hasSubscribers());
+}
+
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisherWithSufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e2567667-4583-482b-9999-029f91c0cb71");
+
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
+
+    publisherOptions.historyCapacity = 3;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
+    ASSERT_TRUE(publisher);
+    ASSERT_TRUE(subscriber);
+    EXPECT_TRUE(publisher.hasSubscribers());
+}
+
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInsufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "20749a22-2771-4ec3-92f8-81bbdbd4aab6");
+
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
+
+    publisherOptions.historyCapacity = 2;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = true;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
+    ASSERT_TRUE(publisher);
+    ASSERT_TRUE(subscriber);
+    EXPECT_FALSE(publisher.hasSubscribers());
+}
+
+TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithInsufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e6c7cee4-cb4a-4a14-8790-4dbfce7d8584");
+
+    auto publisherOptions = createTestPubOptions();
+    auto subscriberOptions = createTestSubOptions();
+
+    publisherOptions.historyCapacity = 2;
+    subscriberOptions.historyRequest = 3;
+    subscriberOptions.requiresPublisherHistorySupport = false;
+
+    auto publisher = createPublisher(publisherOptions);
+    auto subscriber = createSubscriber(subscriberOptions);
+
+    ASSERT_TRUE(publisher);
+    ASSERT_TRUE(subscriber);
+    EXPECT_TRUE(publisher.hasSubscribers());
 }
 
 TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -445,7 +445,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription("99", "1", "20"), subscriberPort->m_serviceDescription);
-    EXPECT_EQ(subscriberOptions.historyRequest, subscriberPort->m_historyRequest);
+    EXPECT_EQ(subscriberOptions.historyRequest, subscriberPort->m_options.historyRequest);
     EXPECT_EQ(subscriberOptions.queueCapacity, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 

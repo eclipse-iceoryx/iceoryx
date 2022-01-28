@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,6 +71,21 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
             options);
     }
 
+    // additional overload for convenient use in the test cases
+    template <typename T>
+    std::unique_ptr<iox::popo::Publisher<T>> createPublisher(const uint64_t historyCapacity)
+    {
+        iox::popo::PublisherOptions options;
+        options.historyCapacity = historyCapacity;
+        return std::make_unique<iox::popo::Publisher<T>>(
+            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
+                                      m_serviceDescription.getInstanceIDString(),
+                                      m_serviceDescription.getEventIDString(),
+                                      {0U, 0U, 0U, 0U},
+                                      capro::Interfaces::INTERNAL},
+            options);
+    }
+
     template <typename T>
     std::unique_ptr<iox::popo::Subscriber<T>>
     createSubscriber(const QueueFullPolicy policy = QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -89,11 +104,46 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
             options);
     }
 
+    // additional overload for convenient use in the test cases
+    template <typename T>
+    std::unique_ptr<iox::popo::Subscriber<T>> createSubscriber(const uint64_t historyRequest,
+                                                               const bool requiresPublisherHistorySupport = false)
+    {
+        iox::popo::SubscriberOptions options;
+        options.historyRequest = historyRequest;
+        options.requiresPublisherHistorySupport = requiresPublisherHistorySupport;
+        return std::make_unique<iox::popo::Subscriber<T>>(
+            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
+                                      m_serviceDescription.getInstanceIDString(),
+                                      m_serviceDescription.getEventIDString(),
+                                      {0U, 0U, 0U, 0U},
+                                      capro::Interfaces::INTERNAL},
+            options);
+    }
 
     Watchdog m_watchdog{units::Duration::fromSeconds(5)};
     capro::ServiceDescription m_serviceDescription{
         "PublisherSubscriberCommunication", "IntegrationTest", "AllHailHypnotoad"};
 };
+
+// intentional reference to unique pointer, we do not want to pass ownership in this helper function
+// and at call site we already have unique pointers
+template <typename T>
+void publishAndExpectReceivedData(const std::unique_ptr<iox::popo::Publisher<T>>& pub,
+                                  const std::unique_ptr<iox::popo::Subscriber<T>>& sub,
+                                  T data)
+{
+    ASSERT_FALSE(pub->loan()
+                     .and_then([&](auto& sample) {
+                         *sample = data;
+                         sample.publish();
+                     })
+                     .has_error());
+
+    auto result = sub->take();
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result.value().get(), data);
+}
 
 TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscribedToPublisherWithInternalInterface)
 {
@@ -124,6 +174,92 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
                          .and_then([&](auto& sample) { EXPECT_THAT(*sample, Eq(TRANSMISSION_DATA)); })
                          .has_error());
     }
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithoutHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "31cbd36d-32f1-4bc7-9980-0cdf5f248035");
+
+    constexpr uint64_t historyRequest = 1;
+    constexpr uint64_t historyCapacity = 0;
+    constexpr bool requiresHistorySupport = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requiresHistorySupport);
+
+    ASSERT_TRUE(publisher);
+    EXPECT_FALSE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithNoHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c47f5ebd-044c-480b-a4bb-d700655105ac");
+
+    constexpr uint64_t historyRequest = 1;
+    constexpr uint64_t historyCapacity = 0;
+    constexpr bool requiresHistorySupport = false;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requiresHistorySupport);
+
+    ASSERT_TRUE(publisher);
+    EXPECT_TRUE(publisher->hasSubscribers());
+
+    publishAndExpectReceivedData(publisher, subscriber, 73);
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberRequiringHistorySupportDoesConnectToPublisherWithSufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0ca391fe-c4f6-48b5-bd36-96854513c6bb");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 3;
+    constexpr bool requiresHistorySupport = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requiresHistorySupport);
+
+    ASSERT_TRUE(publisher);
+    EXPECT_TRUE(publisher->hasSubscribers());
+
+    publishAndExpectReceivedData(publisher, subscriber, 74);
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInSufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "46b917e6-75f1-4cd2-8ffa-1c254f3423a7");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 2;
+    constexpr bool requiresHistorySupport = true;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requiresHistorySupport);
+
+    ASSERT_TRUE(publisher);
+    EXPECT_FALSE(publisher->hasSubscribers());
+}
+
+TEST_F(PublisherSubscriberCommunication_test,
+       SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithInsufficientHistorySupport)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b672c382-f81b-4cd4-8049-36d2691bb532");
+
+    constexpr uint64_t historyRequest = 3;
+    constexpr uint64_t historyCapacity = 2;
+    constexpr bool requiresHistorySupport = false;
+
+    auto publisher = createPublisher<int>(historyCapacity);
+    auto subscriber = createSubscriber<int>(historyRequest, requiresHistorySupport);
+
+    ASSERT_TRUE(publisher);
+    EXPECT_TRUE(publisher->hasSubscribers());
+
+    publishAndExpectReceivedData(publisher, subscriber, 75);
 }
 
 TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenInterfaceDiffersFromPublisher)
@@ -431,7 +567,8 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     auto sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("start your day with a smile")));
-    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
+    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the
+               // read
     EXPECT_TRUE(wasSampleDelivered.load());
 
     EXPECT_FALSE(subscriber->hasMissedData());
@@ -546,7 +683,8 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     auto sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoads real name is Salsabarh Slimekirkdingle")));
-    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
+    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the
+               // read
     EXPECT_TRUE(wasSampleDelivered.load());
 
     EXPECT_FALSE(subscriberBlocking->hasMissedData()); // we don't loose samples here

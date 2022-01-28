@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,11 @@ typedef struct
 
     /// @brief describes whether a publisher blocks when subscriber queue is full
     ENUM iox_QueueFullPolicy queueFullPolicy;
+
+    /// @brief Indicates whether we require the publisher to have historyCapacity >= historyRequest.
+    ///        If true and the condition is not met (i.e. historyCapacity < historyRequest), the subscriber will
+    ///        not be connected to the publisher.
+    bool requirePublisherHistorySupport;
 
     /// @brief this value will be set exclusively by iox_sub_options_init and is not supposed to be modified otherwise
     uint64_t initCheck;

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ SubscriberPortRouDi::SubscriberPortRouDi(cxx::not_null<MemberType_t* const> subs
 {
 }
 
-QueueFullPolicy SubscriberPortRouDi::getQueueFullPolicy() const noexcept
+const SubscriberOptions& SubscriberPortRouDi::getOptions() const noexcept
 {
-    return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
+    return getMembers()->m_options;
 }
 
 const SubscriberPortRouDi::MemberType_t* SubscriberPortRouDi::getMembers() const noexcept

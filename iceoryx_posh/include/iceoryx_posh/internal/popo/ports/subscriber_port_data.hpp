@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,9 @@
 
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 
 #include <atomic>
 
@@ -41,11 +40,15 @@ struct SubscriberPortData : public BasePortData
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;
-    using ChunkReceiverData_t = ChunkReceiverData<MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
+    /// @todo iox#1051 remove these aliases here and only depend on pub_sub_port_types.hpp
+    ///       (move relevant types and constants there)
+    using ChunkQueueData_t = iox::popo::SubscriberChunkQueueData_t;
+    using ChunkReceiverData_t = iox::popo::SubscriberChunkReceiverData_t;
 
     ChunkReceiverData_t m_chunkReceiverData;
-    const uint64_t m_historyRequest;
+
+    SubscriberOptions m_options;
+
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
 };

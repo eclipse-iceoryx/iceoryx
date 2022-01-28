@@ -27,7 +27,8 @@ cxx::Serialization SubscriberOptions::serialize() const noexcept
                                       historyRequest,
                                       nodeName,
                                       subscribeOnCreate,
-                                      static_cast<std::underlying_type_t<QueueFullPolicy>>(queueFullPolicy));
+                                      static_cast<std::underlying_type_t<QueueFullPolicy>>(queueFullPolicy),
+                                      requiresPublisherHistorySupport);
 }
 
 cxx::expected<SubscriberOptions, cxx::Serialization::Error>
@@ -42,7 +43,8 @@ SubscriberOptions::deserialize(const cxx::Serialization& serialized) noexcept
                                                         subscriberOptions.historyRequest,
                                                         subscriberOptions.nodeName,
                                                         subscriberOptions.subscribeOnCreate,
-                                                        queueFullPolicy);
+                                                        queueFullPolicy,
+                                                        subscriberOptions.requiresPublisherHistorySupport);
 
     if (!deserializationSuccessful
         || queueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA))

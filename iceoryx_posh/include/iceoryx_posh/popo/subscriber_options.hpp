@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 #define IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 
-#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
 #include "port_queue_policies.hpp"
 
 #include "iceoryx_hoofs/cxx/serialization.hpp"
@@ -33,7 +33,7 @@ struct SubscriberOptions
 {
     /// @brief The size of the receiver queue where chunks are stored before they are passed to the user
     /// @attention Depending on the underlying queue there can be a different overflow behavior
-    uint64_t queueCapacity{SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY};
+    uint64_t queueCapacity{SubscriberChunkQueueData_t::MAX_CAPACITY};
 
     /// @brief The max number of chunks received after subscription if chunks are available
     uint64_t historyRequest{0U};
@@ -46,6 +46,10 @@ struct SubscriberOptions
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
     QueueFullPolicy queueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
+
+    /// @brief Indicates whether to enforce sufficient history support of the publisher,
+    ///        i.e. require historyCapacity >= historyRequest to be eligible to be connected
+    bool requiresPublisherHistorySupport{false};
 
     /// @brief serialization of the SubscriberOptions
     cxx::Serialization serialize() const noexcept;

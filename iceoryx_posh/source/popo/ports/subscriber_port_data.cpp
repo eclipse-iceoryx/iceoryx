@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceD
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, subscriberOptions.nodeName)
     , m_chunkReceiverData(queueType, subscriberOptions.queueFullPolicy, memoryInfo)
-    , m_historyRequest(subscriberOptions.historyRequest)
+    , m_options{subscriberOptions}
     , m_subscribeRequested(subscriberOptions.subscribeOnCreate)
 {
     m_chunkReceiverData.m_queue.setCapacity(subscriberOptions.queueCapacity);

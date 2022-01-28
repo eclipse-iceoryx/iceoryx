@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,8 +41,14 @@ int main()
     // publisher has send. The history request ensures that we at least get the last 5
     // samples sent by the publisher when we subscribe (if at least 5 were already sent
     // and the publisher has history enabled).
+
+    // we do not require the publisher to support the history we request,
+    // i.e. we will still connect even if its historyCapacity is smaller than what we request
+
     //! [history]
     subscriberOptions.historyRequest = 5U;
+
+    subscriberOptions.requiresPublisherHistorySupport = false;
     //! [history]
 
     // when the subscriber is created, no attempts are made to connect to any publishers that may exist
