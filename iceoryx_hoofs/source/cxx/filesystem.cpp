@@ -180,4 +180,3 @@ template std::ostream& operator<<(std::ostream&, perms) noexcept;
 template log::LogStream& operator<<(log::LogStream&, perms) noexcept;
 } // namespace cxx
 } // namespace iox
-

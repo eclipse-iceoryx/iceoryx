@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "test.hpp"
 
 namespace
@@ -103,5 +104,46 @@ TEST(filesystem_test, permsSatisfiesBinaryExclusiveOrAssignmentOperationCorrectl
     perms sut = TEST_VALUE;
 
     EXPECT_THAT(static_cast<permsBaseType_t>(sut ^= TEST_VALUE_RHS), Eq(sutBaseValue ^= BASE_VALUE_RHS));
+}
+
+TEST(filesystem_test, permsWhenEverythingIsSetTheOutputPrintsEverything)
+{
+    Logger_Mock loggerMock;
+    {
+        auto logStream = iox::log::LogStream(loggerMock);
+        logStream << perms::mask;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message,
+                Eq("owner: {read, write, execute},  group: {read, write, execute},  others: {read, write, execute},  "
+                   "special bits: {set_uid, set_git, sticky_bit}"));
+}
+
+TEST(filesystem_test, permsWhenNothingIsSetEveryEntryIsNone)
+{
+    Logger_Mock loggerMock;
+    {
+        auto logStream = iox::log::LogStream(loggerMock);
+        logStream << perms::none;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message,
+                Eq("owner: {none},  group: {none},  others: {none},  special bits: {none}"));
+}
+
+TEST(filesystem_test, permsWhenSomeOrSetTheOutputIsCorrect)
+{
+    Logger_Mock loggerMock;
+    {
+        auto logStream = iox::log::LogStream(loggerMock);
+        logStream << (perms::owner_write | perms::owner_exec | perms::group_read | perms::group_exec | perms::others_all
+                      | perms::sticky_bit);
+    }
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message,
+                Eq("owner: {write, execute},  group: {read, execute},  others: {read, write, execute},  special bits: "
+                   "{sticky_bit}"));
 }
 } // namespace
