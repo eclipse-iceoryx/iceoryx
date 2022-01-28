@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Build icedelivery example
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(benchmark_optional_and_expected)
 
 include(GNUInstallDirs)

@@ -23,10 +23,17 @@ jobs:
       - run: ./tools/ci/run-clang-tidy.sh
 
   build-test-ubuntu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v2
+      - uses: egor-tensin/setup-gcc@v1.2
+        with:
+          version: 8
+          platform: x64
+      - uses: jwlawson/actions-setup-cmake@v1.12
+        with:
+          cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
 
   build-test-macos:
@@ -60,7 +67,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-gcc@v1
+      - uses: egor-tensin/setup-gcc@v1.2
         with:
           version: latest
           platform: x64
@@ -125,7 +132,7 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
@@ -133,7 +140,7 @@ jobs:
           fail_ci_if_error: true
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
           name: iceoryx

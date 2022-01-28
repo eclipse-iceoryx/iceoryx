@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 set(IOX_VERSION_STRING "1.90.0")
 
 project(iceoryx_package VERSION ${IOX_VERSION_STRING})

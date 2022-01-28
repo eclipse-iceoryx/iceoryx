@@ -7,9 +7,9 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 ### :octicons-package-dependencies-16: Dependencies
 
 - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
-- [CMake](https://cmake.org), 3.10 or later
+- [CMake](https://cmake.org), 3.16 or later
 - One of the following compilers:
-    - [GCC](https://gcc.gnu.org), 7.4 or later (5.4 currently supported too)
+    - [GCC](https://gcc.gnu.org), 8.3 or later (5.4 currently supported too)
     - [Clang](https://clang.llvm.org), 9.0 or later
     - [MSVC](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
