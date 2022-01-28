@@ -65,7 +65,7 @@ class SharedMemory_Test : public Test
     bool createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
     {
         return !iox::posix::posixCall(iox_shm_open)(
-                    name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+                    (std::string("/") + name.c_str()).c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
                     .failureReturnValue(SharedMemory::INVALID_HANDLE)
                     .evaluate()
                     .has_error();

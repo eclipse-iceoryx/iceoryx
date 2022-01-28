@@ -68,7 +68,7 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
                 // process
                 if (!foundInWriterGroup)
                 {
-                    mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
+                    mappingContainer.emplace_back(segment.getWriterGroup().getName(),
                                                   segment.getSharedMemoryObject().getBaseAddress(),
                                                   segment.getSharedMemoryObject().getSizeInBytes(),
                                                   true,
@@ -94,7 +94,7 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
                        return mapping.m_startAddress == segment.getSharedMemoryObject().getBaseAddress();
                    }) == mappingContainer.end())
             {
-                mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
+                mappingContainer.emplace_back(segment.getWriterGroup().getName(),
                                               segment.getSharedMemoryObject().getBaseAddress(),
                                               segment.getSharedMemoryObject().getSizeInBytes(),
                                               false,
