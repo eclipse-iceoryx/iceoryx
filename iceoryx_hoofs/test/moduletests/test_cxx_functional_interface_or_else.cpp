@@ -84,7 +84,7 @@ template <bool HasError>
 struct OrElseIsNotCalledWhenValid;
 
 template <>
-struct OrElseIsNotCalledWhenValid<false>
+struct OrElseIsNotCalledWhenValid<TYPE_HAS_NO_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename OrElseCall>
     static void performTest(const OrElseCall& orElseCall)
@@ -97,7 +97,7 @@ struct OrElseIsNotCalledWhenValid<false>
 };
 
 template <>
-struct OrElseIsNotCalledWhenValid<true>
+struct OrElseIsNotCalledWhenValid<TYPE_HAS_GET_ERROR_METHOD>
 {
     template <typename TestFactory, typename OrElseCall>
     static void performTest(const OrElseCall& orElseCall)

@@ -115,28 +115,28 @@ struct AndThenWithValue
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return reference to *this
     Derived& and_then(const and_then_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return const reference to *this
     const Derived& and_then(const const_and_then_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return rvalue reference to *this
     Derived&& and_then(const and_then_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return const rvalue reference to *this
     const Derived&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
 };
@@ -148,25 +148,25 @@ struct AndThen
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return reference to *this
     Derived& and_then(const and_then_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return const reference to *this
     const Derived& and_then(const and_then_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return rvalue reference to *this
     Derived&& and_then(const and_then_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
-    /// @param[in] callable Callable to be called when valid
+    /// @param[in] callable will be called when valid
     /// @return const rvalue reference to *this
     const Derived&& and_then(const and_then_callback_t& callable) const&& noexcept;
 };
@@ -180,28 +180,28 @@ struct OrElseWithValue
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return reference to *this
     Derived& or_else(const or_else_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return const reference to *this
     const Derived& or_else(const const_or_else_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return rvalue reference to *this
     Derived&& or_else(const or_else_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return const rvalue reference to *this
     const Derived&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
 };
@@ -213,25 +213,25 @@ struct OrElse
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return reference to *this
     Derived& or_else(const or_else_callback_t& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return const reference to *this
     const Derived& or_else(const or_else_callback_t& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return rvalue reference to *this
     Derived&& or_else(const or_else_callback_t& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
-    /// @param[in] callable Callable to be called when invalid
+    /// @param[in] callable will be called when invalid
     /// @return const rvalue reference to *this
     const Derived&& or_else(const or_else_callback_t& callable) const&& noexcept;
 };

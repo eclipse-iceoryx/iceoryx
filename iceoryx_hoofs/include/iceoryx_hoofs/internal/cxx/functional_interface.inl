@@ -23,6 +23,9 @@ namespace cxx
 {
 namespace internal
 {
+///////////////
+// BEGIN expect
+///////////////
 template <typename Derived>
 inline void Expect<Derived>::expect(const char* const msg) const noexcept
 {
@@ -50,7 +53,8 @@ inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const 
 template <typename Derived, typename ValueType>
 inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) const& noexcept
 {
-    return const_cast<const ValueType&>(const_cast<ExpectWithValue<Derived, ValueType>*>(this)->expect(msg));
+    using Self = ExpectWithValue<Derived, ValueType>;
+    return const_cast<const ValueType&>(const_cast<Self*>(this)->expect(msg));
 }
 
 template <typename Derived, typename ValueType>
@@ -62,10 +66,13 @@ inline ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char* const
 template <typename Derived, typename ValueType>
 inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) const&& noexcept
 {
-    return const_cast<const ValueType&&>(
-        std::move(const_cast<ExpectWithValue<Derived, ValueType>*>(this)->expect(msg)));
+    using Self = ExpectWithValue<Derived, ValueType>;
+    return const_cast<const ValueType&&>(std::move(const_cast<Self*>(this)->expect(msg)));
 }
 
+/////////////////
+// BEGIN value_or
+/////////////////
 template <typename Derived, typename ValueType>
 template <typename U>
 inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) const& noexcept
@@ -94,6 +101,9 @@ inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) && noexc
     return std::move(derivedThis->value());
 }
 
+//////////////////
+/// BEGIN and_then
+//////////////////
 template <typename Derived, typename ValueType>
 inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
 {
@@ -150,7 +160,8 @@ inline Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) 
 template <typename Derived>
 inline const Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) const& noexcept
 {
-    return const_cast<const Derived&>(const_cast<AndThen<Derived>*>(this)->and_then(callable));
+    using Self = AndThen<Derived>;
+    return const_cast<const Derived&>(const_cast<Self*>(this)->and_then(callable));
 }
 
 template <typename Derived>
@@ -162,9 +173,13 @@ inline Derived&& AndThen<Derived>::and_then(const and_then_callback_t& callable)
 template <typename Derived>
 inline const Derived&& AndThen<Derived>::and_then(const and_then_callback_t& callable) const&& noexcept
 {
-    return std::move(const_cast<const Derived&>(const_cast<AndThen<Derived>*>(this)->and_then(callable)));
+    using Self = AndThen<Derived>;
+    return std::move(const_cast<const Derived&>(const_cast<Self*>(this)->and_then(callable)));
 }
 
+/////////////////
+/// BEGIN or_else
+/////////////////
 template <typename Derived, typename ErrorType>
 inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) & noexcept
 {
@@ -227,7 +242,8 @@ inline Derived&& OrElse<Derived>::or_else(const or_else_callback_t& callable) &&
 template <typename Derived>
 inline const Derived& OrElse<Derived>::or_else(const or_else_callback_t& callable) const& noexcept
 {
-    return const_cast<const Derived&>(const_cast<OrElse<Derived>*>(this)->or_else(callable));
+    using Self = OrElse<Derived>;
+    return const_cast<const Derived&>(const_cast<Self*>(this)->or_else(callable));
 }
 
 template <typename Derived>
