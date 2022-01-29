@@ -42,6 +42,13 @@ static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) no
     return oflags;
 }
 
+cxx::string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory::Name_t& name) noexcept
+{
+    cxx::string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
+    nameWithLeadingSlash.append(cxx::TruncateToCapacity, name);
+    return nameWithLeadingSlash;
+}
+
 cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 {
     auto printError = [this] {
@@ -67,8 +74,7 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
         return cxx::error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
     }
 
-    cxx::string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
-    nameWithLeadingSlash.append(cxx::TruncateToCapacity, m_name);
+    auto nameWithLeadingSlash = addLeadingSlash(m_name);
 
     bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
                          || m_openMode == OpenMode::OPEN_OR_CREATE);
@@ -193,8 +199,12 @@ bool SharedMemory::hasOwnership() const noexcept
 
 cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
-    auto result =
-        posixCall(iox_shm_unlink)(name.c_str()).failureReturnValue(INVALID_HANDLE).ignoreErrnos(ENOENT).evaluate();
+    auto nameWithLeadingSlash = addLeadingSlash(name);
+
+    auto result = posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                      .failureReturnValue(INVALID_HANDLE)
+                      .ignoreErrnos(ENOENT)
+                      .evaluate();
 
     if (!result.has_error())
     {

@@ -139,7 +139,7 @@ TEST_F(SharedMemory_Test, UnlinkNonExistingShmFails)
 TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11f0b2f2-b891-41e4-bb82-648a9541582f");
-    constexpr const char SHM_NAME[] = "/its_a_mee_monukulius";
+    constexpr const char SHM_NAME[] = "its_a_mee_monukulius";
     ASSERT_TRUE(createRawSharedMemory(SHM_NAME));
     auto result = iox::posix::SharedMemory::unlinkIfExist(SHM_NAME);
     ASSERT_FALSE(result.has_error());
