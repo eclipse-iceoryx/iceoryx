@@ -65,4 +65,10 @@ elseif(QNX)
         PRIVATE
         socket
     )
+elseif(UNIX)
+    target_link_libraries(iceoryx_platform
+        PUBLIC
+        rt
+        pthread
+    )
 endif()
