@@ -223,7 +223,7 @@ cxx::expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t&
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0);
     auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
-                      .failureReturnValue(ERROR_CODE)
+                      .failureReturnValue(INVALID_DESCRIPTOR)
                       .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
 
@@ -323,13 +323,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg,
 
 cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated() noexcept
 {
-    struct stat sb = {};
-    auto fstatCall = posixCall(fstat)(m_mqDescriptor, &sb).failureReturnValue(-1).evaluate();
-    if (fstatCall.has_error())
-    {
-        return createErrorFromErrnum(fstatCall.get_error().errnum);
-    }
-    return cxx::success<bool>(sb.st_nlink == 0);
+    return cxx::success<bool>(false);
 }
 
 cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t errnum) const noexcept

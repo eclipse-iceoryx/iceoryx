@@ -35,7 +35,7 @@ class MQ : public IcePerfBase
     static constexpr uint32_t MAX_MESSAGE_SIZE = 4 * IcePerfBase::ONE_KILOBYTE;
     static constexpr uint32_t MAX_MESSAGES = 8;
     static constexpr int32_t ERROR_CODE = -1;
-    static constexpr mqd_t INVALID_DESCRIPTOR = -1;
+    static constexpr mqd_t INVALID_DESCRIPTOR = std::numeric_limits<mqd_t>::max();
 
     MQ(const std::string& publisherName, const std::string& subscriberName) noexcept;
     /// @brief Cleans up outdated message queues, e.g. from a previous test
