@@ -138,7 +138,7 @@ TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
 {
     ::testing::Test::RecordProperty("TEST_ID", "349cdf0d-987e-4e2f-aa35-98a40fdf979b");
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
-    auto semaphore2 = iox::posix::Semaphore::create(iox::posix::OpenNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR);
+    auto semaphore2 = iox::posix::Semaphore::create(iox::posix::OpenNamedSemaphore, "/fuuSem", O_CREAT);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
     EXPECT_THAT(semaphore2.has_error(), Eq(false));
 }
