@@ -205,7 +205,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const noexce
 }
 
 cxx::expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
-                                                           const IpcChannelSide channelSide) noexcept
+                                                         const IpcChannelSide channelSide) noexcept
 {
     IpcChannelName_t l_name;
     if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())

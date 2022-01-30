@@ -131,7 +131,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Unix (FreeBSD) test
       id: Test
-      uses: vmactions/freebsd-vm@0.1.5
+      uses: vmactions/freebsd-vm@v0.1.6
       with:
         usesh: true
         prepare: pkg install -y cmake git ncurses bash wget bison

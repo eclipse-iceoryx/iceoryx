@@ -59,42 +59,42 @@ inline int acl_free(void*)
     return 0;
 }
 
-inline int acl_create_entry(acl_t*, acl_entry_t* )
+inline int acl_create_entry(acl_t*, acl_entry_t*)
 {
     return 0;
 }
 
-inline int acl_set_tag_type(acl_entry_t , acl_tag_t )
+inline int acl_set_tag_type(acl_entry_t, acl_tag_t)
 {
     return 0;
 }
 
-inline int acl_set_qualifier(acl_entry_t , const void* )
+inline int acl_set_qualifier(acl_entry_t, const void*)
 {
     return 0;
 }
 
-inline int acl_get_permset(acl_entry_t , acl_permset_t* )
+inline int acl_get_permset(acl_entry_t, acl_permset_t*)
 {
     return 0;
 }
 
-inline int acl_add_perm(acl_permset_t , acl_perm_t )
+inline int acl_add_perm(acl_permset_t, acl_perm_t)
 {
     return 0;
 }
 
-inline char* acl_to_text(acl_t , ssize_t* )
+inline char* acl_to_text(acl_t, ssize_t*)
 {
     return nullptr;
 }
 
-inline acl_t acl_from_text(const char* )
+inline acl_t acl_from_text(const char*)
 {
     return acl_t();
 }
 
-inline acl_t acl_get_fd(int )
+inline acl_t acl_get_fd(int)
 {
     return acl_t();
 }

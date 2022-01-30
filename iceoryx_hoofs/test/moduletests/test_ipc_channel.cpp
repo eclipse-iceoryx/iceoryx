@@ -366,7 +366,7 @@ TYPED_TEST(IpcChannel_test, wildCreate)
     ASSERT_THAT(result.has_error(), Eq(true));
 }
 
-#if !( defined(__APPLE__) || defined(unix) || defined(__unix) || defined(__unix__) )
+#if !(defined(__APPLE__) || defined(unix) || defined(__unix) || defined(__unix__))
 TYPED_TEST(IpcChannel_test, TimedSendWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "12fe0ee5-37f8-4c34-ba44-ed50872a5fd9");
