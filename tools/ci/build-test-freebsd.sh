@@ -19,6 +19,8 @@
 
 set -e
 
+ln -s /usr/local/bin/bash /bin/bash
+
 msg() {
     printf "\033[1;32m%s: %s\033[0m\n" "${FUNCNAME[1]}" "$1"
 }
