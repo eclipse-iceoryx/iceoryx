@@ -65,6 +65,8 @@ elseif(QNX)
         PRIVATE
         socket
     )
+elseif(APPLE)
+elseif(WIN32)
 elseif(UNIX)
     target_link_libraries(iceoryx_platform
         PUBLIC
