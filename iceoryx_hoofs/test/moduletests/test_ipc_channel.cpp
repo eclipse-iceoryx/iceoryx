@@ -209,9 +209,10 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 {
     ::testing::Test::RecordProperty("TEST_ID", "441c4480-57e7-4607-a7e1-df7a9f2f19d0");
     if (std::is_same<typename TestFixture::IpcChannelType, UnixDomainSocket>::value
-        || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
+        || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value
+        || std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value)
     {
-        // isOutdated cannot be realized for unix domain sockets or named pipes
+        // isOutdated cannot be realized for unix domain sockets, named pipes or message queues
         return;
     }
 

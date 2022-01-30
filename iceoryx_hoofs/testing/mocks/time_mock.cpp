@@ -26,30 +26,30 @@ time_MOCK::time_MOCK()
 {
 }
 
-#if defined(QNX) || defined(QNX__) || defined(__QNX__) || defined(unix) || defined(__unix) || defined(__unix__)
-int clock_getres(clockid_t clk_id, struct timespec* res)
-#else
+#if defined(__linux__)
 int clock_getres(clockid_t clk_id, struct timespec* res) noexcept
+#else
+int clock_getres(clockid_t clk_id, struct timespec* res)
 #endif
 {
     return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_getres(clk_id, res)
                                   : STATIC_FUNCTION_LOADER_AUTO_DEDUCE(clock_getres)(clk_id, res);
 }
 
-#if defined(QNX) || defined(QNX__) || defined(__QNX__) || defined(unix) || defined(__unix) || defined(__unix__)
-int clock_gettime(clockid_t clk_id, struct timespec* res)
-#else
+#if defined(__linux__)
 int clock_gettime(clockid_t clk_id, struct timespec* res) noexcept
+#else
+int clock_gettime(clockid_t clk_id, struct timespec* res)
 #endif
 {
     return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_gettime(clk_id, res)
                                   : STATIC_FUNCTION_LOADER_AUTO_DEDUCE(clock_gettime)(clk_id, res);
 }
 
-#if defined(QNX) || defined(QNX__) || defined(__QNX__) || defined(unix) || defined(__unix) || defined(__unix__)
-int clock_settime(clockid_t clk_id, const struct timespec* res)
-#else
+#if defined(__linux__)
 int clock_settime(clockid_t clk_id, const struct timespec* res) noexcept
+#else
+int clock_settime(clockid_t clk_id, const struct timespec* res)
 #endif
 {
     return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_settime(clk_id, res)

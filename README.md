@@ -55,6 +55,9 @@ You can find the full API documentation on 🌐 [https://iceoryx.io](https://ice
 | QNX            | yes                                      | yes                     |
 | MacOS          | no, not planned for implementation       | yes                     |
 | Windows 10     | no, not planned for implementation       | will be implemented     |
+| FreeBSD (Unix) | no, not planned for implementation       | yes                     |
+
+In general unix platforms should work with iceoryx but we only test FreeBSD on our CI.
 
 ### Where is Eclipse iceoryx used?
 
