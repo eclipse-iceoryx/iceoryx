@@ -87,14 +87,14 @@ TEST_F(PrefixTree_test, ctorConstructsEmptyTree)
     EXPECT_TRUE(sut.empty());
 }
 
-TEST_F(PrefixTree_test, insertionInEmptyTreeWorks)
+TEST_F(PrefixTree_test, InsertionInEmptyTreeWorks)
 {
     auto result = sut.insert("abc", Integer{73});
     EXPECT_TRUE(result);
     EXPECT_EQ(sut.size(), 1U);
 }
 
-TEST_F(PrefixTree_test, insertionUpToCapacityWorks)
+TEST_F(PrefixTree_test, InsertionUpToCapacityWorks)
 {
     auto result = sut.insert("abc", Integer{73});
     EXPECT_TRUE(result);
@@ -115,7 +115,7 @@ TEST_F(PrefixTree_test, insertionUpToCapacityWorks)
     EXPECT_EQ(sut.size(), TEST_CAPACITY);
 }
 
-TEST_F(PrefixTree_test, insertionIntoFullTreeDoesNotWork)
+TEST_F(PrefixTree_test, InsertionIntoFullTreeDoesNotWork)
 {
     insertTreeDefault();
     for (uint i = 4; i < TEST_CAPACITY; ++i)
@@ -129,7 +129,7 @@ TEST_F(PrefixTree_test, insertionIntoFullTreeDoesNotWork)
     EXPECT_FALSE(result);
 }
 
-TEST_F(PrefixTree_test, insertionWithMaximumKeyLengthWorks)
+TEST_F(PrefixTree_test, InsertionWithMaximumKeyLengthWorks)
 {
     insertTreeDefault();
     sut.insert("abcdeeee", Integer{21});
@@ -137,7 +137,7 @@ TEST_F(PrefixTree_test, insertionWithMaximumKeyLengthWorks)
     EXPECT_EQ(sut.size(), 5);
 }
 
-TEST_F(PrefixTree_test, insertedValueIsFound)
+TEST_F(PrefixTree_test, InsertedValueIsFound)
 {
     insertTreeDefault();
 
@@ -147,7 +147,7 @@ TEST_F(PrefixTree_test, insertedValueIsFound)
     EXPECT_EQ(value, 42);
 }
 
-TEST_F(PrefixTree_test, searchingNonExistingKeyReturnsNoValue)
+TEST_F(PrefixTree_test, SearchingNonExistingKeyReturnsNoValue)
 {
     insertTreeDefault();
 
@@ -155,7 +155,7 @@ TEST_F(PrefixTree_test, searchingNonExistingKeyReturnsNoValue)
     EXPECT_EQ(searchResult.size(), 0);
 }
 
-TEST_F(PrefixTree_test, searchingKeyWithMultipleValuesReturnsAllValues)
+TEST_F(PrefixTree_test, SearchingKeyWithMultipleValuesReturnsAllValues)
 {
     insertTreeDefault();
 
@@ -176,8 +176,7 @@ TEST_F(PrefixTree_test, searchingKeyWithMultipleValuesReturnsAllValues)
     EXPECT_EQ(valuesFound, valuesExpected);
 }
 
-// TODO: do we want this?
-TEST_F(PrefixTree_test, searchingKeyWithDuplicateValuesReturnsDuplicateValues)
+TEST_F(PrefixTree_test, SearchingKeyWithDuplicateValuesReturnsDuplicateValues)
 {
     insertTreeDefault();
 
@@ -196,7 +195,7 @@ TEST_F(PrefixTree_test, searchingKeyWithDuplicateValuesReturnsDuplicateValues)
     EXPECT_EQ(value3, 21);
 }
 
-TEST_F(PrefixTree_test, searchingPrefixReturnsAllValues)
+TEST_F(PrefixTree_test, SearchingPrefixReturnsAllValues)
 {
     sut.insert("abc", Integer{73});
     sut.insert("acb", Integer{37});
@@ -220,7 +219,7 @@ TEST_F(PrefixTree_test, searchingPrefixReturnsAllValues)
     EXPECT_EQ(valuesFound, valuesExpected);
 }
 
-TEST_F(PrefixTree_test, removingKeyRemovesAllItsAssociatedValues)
+TEST_F(PrefixTree_test, RemovingKeyRemovesAllItsAssociatedValues)
 {
     insertTreeDefault();
     auto previousSize = sut.size();
@@ -249,7 +248,7 @@ TEST_F(PrefixTree_test, removingKeyRemovesAllItsAssociatedValues)
     }
 }
 
-TEST_F(PrefixTree_test, removingAllKeysLeadsToEmptyTree)
+TEST_F(PrefixTree_test, RemovingAllKeysLeadsToEmptyTree)
 {
     insertTreeDefault();
 
@@ -271,7 +270,7 @@ TEST_F(PrefixTree_test, removingAllKeysLeadsToEmptyTree)
     EXPECT_TRUE(sut.empty());
 }
 
-TEST_F(PrefixTree_test, removingNonExistingKeyDoesNothing)
+TEST_F(PrefixTree_test, RemovingNonExistingKeyDoesNothing)
 {
     insertTreeDefault();
 
@@ -285,7 +284,7 @@ TEST_F(PrefixTree_test, removingNonExistingKeyDoesNothing)
     EXPECT_EQ(sut.size(), previousSize);
 }
 
-TEST_F(PrefixTree_test, removingValueFromKeyWithSingleValueRemovesKey)
+TEST_F(PrefixTree_test, RemovingValueFromKeyWithSingleValueRemovesKey)
 {
     insertTreeDefault();
     auto previousSize = sut.size();
@@ -308,7 +307,7 @@ TEST_F(PrefixTree_test, removingValueFromKeyWithSingleValueRemovesKey)
     }
 }
 
-TEST_F(PrefixTree_test, removingValueFromKeyWithMultipleValuesKeepsOtherValues)
+TEST_F(PrefixTree_test, RemovingValueFromKeyWithMultipleValuesKeepsOtherValues)
 {
     insertTreeDefault();
     auto previousSize = sut.size();
@@ -334,7 +333,7 @@ TEST_F(PrefixTree_test, removingValueFromKeyWithMultipleValuesKeepsOtherValues)
     }
 }
 
-TEST_F(PrefixTree_test, removingValueFromKeyWithDuplicateValuesRemovesAllValues)
+TEST_F(PrefixTree_test, RemovingValueFromKeyWithDuplicateValuesRemovesAllValues)
 {
     insertTreeDefault();
     auto previousSize = sut.size();
@@ -358,7 +357,7 @@ TEST_F(PrefixTree_test, removingValueFromKeyWithDuplicateValuesRemovesAllValues)
     }
 }
 
-TEST_F(PrefixTree_test, removingNonExistingValueFromExistingKeyDoesNothing)
+TEST_F(PrefixTree_test, RemovingNonExistingValueFromExistingKeyDoesNothing)
 {
     insertTreeDefault();
 
@@ -372,7 +371,7 @@ TEST_F(PrefixTree_test, removingNonExistingValueFromExistingKeyDoesNothing)
     EXPECT_EQ(sut.size(), previousSize);
 }
 
-TEST_F(PrefixTree_test, removingValueFromNonExistingKeyDoesNothing)
+TEST_F(PrefixTree_test, RemovingValueFromNonExistingKeyDoesNothing)
 {
     insertTreeDefault();
 
@@ -386,7 +385,7 @@ TEST_F(PrefixTree_test, removingValueFromNonExistingKeyDoesNothing)
     EXPECT_EQ(sut.size(), previousSize);
 }
 
-TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements)
+TEST_F(PrefixTree_test, RemovingElementsFromFullTreeAllowsInsertionOfNewElements)
 {
     insertTreeDefault();
     for (uint i = 4; i < TEST_CAPACITY; ++i)
@@ -402,8 +401,7 @@ TEST_F(PrefixTree_test, removingElementsFromFullTreeAllowsInsertionOfNewElements
     EXPECT_TRUE(sut.insert("cab", Integer{21}));
 }
 
-// TODO: fails, we need to extract keys differently and cannot guarantee order for now
-TEST_F(PrefixTree_test, DISABLED_collectingAllKeysInTreeReturnsAllKeysInLexigographicalOrder)
+TEST_F(PrefixTree_test, CollectingAllValuesInTreeWorks)
 {
     sut.insert("abc", Integer{73});
     sut.insert("acb", Integer{37});
@@ -415,26 +413,82 @@ TEST_F(PrefixTree_test, DISABLED_collectingAllKeysInTreeReturnsAllKeysInLexigogr
     sut.insert("abcd", Integer{12});
 
     // we can compare and initialize std::vector, but not cxx::vector...
-    std::vector<TestPrefixTree<>::Key> expectedKeyOrder({"", "c", "ab", "abb", "abc", "acb", "bbc", "abcd"});
-    std::vector<TestPrefixTree<>::Key> actualKeyOrder;
+    const std::vector<uint32_t> sortedValues({0, 10, 12, 21, 37, 42, 66, 73});
 
-    auto keys = sut.keys();
-    for (auto& key : keys)
+    auto result = sut.values();
+    std::vector<uint32_t> sortedResult;
+
+    // we return by ptr for efficiency and to enable value access for modification
+    for (auto ptr : result)
     {
-        std::cout << "<" << key << "> ";
-        actualKeyOrder.push_back(key);
+        sortedResult.push_back(ptr->value);
     }
-    std::cout << std::endl;
+    std::sort(sortedResult.begin(), sortedResult.end());
 
-    // check element-wise equality
-    EXPECT_EQ(expectedKeyOrder.size(), actualKeyOrder.size());
-    EXPECT_EQ(expectedKeyOrder, actualKeyOrder);
+    // check element-wise equality (easier by sorting first)
+    EXPECT_EQ(sortedValues, sortedResult);
 }
 
-// this test requires relocate_ptr to be used internally
-TEST(PrefixTreeRelocation_test, relocatedTreeIsAnIndependentLogicalCopy)
+TEST_F(PrefixTree_test, CollectingAllKeysInTreeWorks)
 {
-    // TODO: we can use an optional<Tree> to simplify this
+    sut.insert("abc", Integer{73});
+    sut.insert("acb", Integer{37});
+    sut.insert("abb", Integer{42});
+    sut.insert("bbc", Integer{66});
+    sut.insert("c", Integer{10});
+    sut.insert("ab", Integer{21});
+    sut.insert("", Integer{0});
+    sut.insert("abcd", Integer{12});
+
+    // we can compare and initialize std::vector, but not cxx::vector...
+    const std::vector<TestPrefixTree<>::Key> sortedKeys({"", "c", "ab", "abb", "abc", "acb", "bbc", "abcd"});
+
+
+    auto result = sut.keys();
+    std::vector<TestPrefixTree<>::Key> sortedResult;
+
+    for (auto key : result)
+    {
+        sortedResult.push_back(key);
+    }
+    std::sort(sortedResult.begin(), sortedResult.end());
+
+    // check element-wise equality (easier by sorting first)
+    EXPECT_EQ(sortedKeys, sortedResult);
+}
+
+TEST_F(PrefixTree_test, CollectingAllKeyValuePairsInTreeWorks)
+{
+    sut.insert("abc", Integer{73});
+    sut.insert("acb", Integer{37});
+    sut.insert("abb", Integer{42});
+    sut.insert("bbc", Integer{66});
+    sut.insert("c", Integer{10});
+    sut.insert("ab", Integer{21});
+    sut.insert("", Integer{0});
+    sut.insert("abcd", Integer{12});
+
+    // sorted by key
+    const std::vector<std::pair<TestPrefixTree<>::Key, uint32_t>> sortedPairs(
+        {{"", 0}, {"c", 10}, {"ab", 21}, {"abb", 42}, {"abc", 73}, {"acb", 37}, {"bbc", 66}, {"abcd", 12}});
+
+    auto result = sut.keyValuePairs();
+    std::vector<std::pair<TestPrefixTree<>::Key, uint32_t>> sortedResult;
+
+    for (auto pair : result)
+    {
+        // get the value to compare
+        auto p = std::make_pair(pair.first, pair.second->value);
+        sortedResult.push_back(p);
+    }
+    std::sort(sortedResult.begin(), sortedResult.end());
+
+    // check element-wise equality (easier by sorting first)
+    EXPECT_EQ(sortedPairs, sortedResult);
+}
+
+TEST(PrefixTreeRelocation_test, RelocatedTreeIsAnIndependentLogicalCopy)
+{
     // we want to zero out the memory after copy (and have to own it to do so)
     // we can get the memory from heap as well / + address sanitizer
     using Tree = TestPrefixTree<>;

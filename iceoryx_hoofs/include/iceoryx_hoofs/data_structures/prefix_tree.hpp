@@ -142,6 +142,8 @@ class PrefixTree
     // TODO: do we want to eliminate duplicate values?
     inline bool insert(const Key& key, const Value& value) noexcept;
 
+    // Value* interface is intentional for efficiency and access of values for modification
+
     // TODO: do we want a value version? - findValues (can just copy the data out)
     // container can be changed or be a reference input (with fixed size)
     // can also return them by value ... inefficient
@@ -149,11 +151,9 @@ class PrefixTree
 
     cxx::vector<Value*, Capacity> findPrefix(const Key& prefix) const noexcept;
 
-    cxx::vector<Value*, Capacity> values() const noexcept
-    {
-        Key emptyPrefix;
-        return findPrefix(emptyPrefix);
-    }
+    cxx::vector<Value*, Capacity> values() const noexcept;
+
+    cxx::vector<std::pair<Key, Value*>, Capacity> keyValuePairs() noexcept;
 
     bool remove(const Key& key) noexcept;
 
@@ -205,6 +205,11 @@ class PrefixTree
     void getValuesFromSubTree(Node* node, cxx::vector<Value*, Capacity>& result) const noexcept;
 
     void getKeys(Node* node, uint32_t depth, char* currentString, cxx::vector<Key, Capacity>& result) noexcept;
+
+    void getPairs(Node* node,
+                  uint32_t depth,
+                  char* currentString,
+                  cxx::vector<std::pair<Key, Value*>, Capacity>& result) noexcept;
 };
 
 

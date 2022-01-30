@@ -195,7 +195,6 @@ PrefixTree<Value, Capacity, MaxKeyLength>::keys() noexcept
     currentString[MaxKeyLength] = '\0';
 
     // root must be handled differently, it represents the empty string key
-
     if (m_root->data)
     {
         result.emplace_back("");
@@ -205,6 +204,44 @@ PrefixTree<Value, Capacity, MaxKeyLength>::keys() noexcept
     while (child)
     {
         getKeys(child, 1, currentString, result);
+        child = child->sibling;
+    }
+
+    return result;
+}
+
+template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
+cxx::vector<Value*, Capacity> PrefixTree<Value, Capacity, MaxKeyLength>::values() const noexcept
+{
+    Key emptyPrefix;
+    return findPrefix(emptyPrefix);
+}
+
+template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
+cxx::vector<std::pair<typename PrefixTree<Value, Capacity, MaxKeyLength>::Key, Value*>, Capacity>
+PrefixTree<Value, Capacity, MaxKeyLength>::keyValuePairs() noexcept
+{
+    cxx::vector<std::pair<Key, Value*>, Capacity> result;
+    char currentString[MaxKeyLength + 1];
+    currentString[MaxKeyLength] = '\0';
+
+    // root must be handled differently, it represents the empty string key
+    if (m_root->data)
+    {
+        Key key(iox::cxx::TruncateToCapacity, "");
+        auto data = m_root->data;
+        do
+        {
+            auto pair = std::make_pair(key, &data->value);
+            result.push_back(pair);
+            data = data->next;
+        } while (data);
+    }
+
+    Node* child = m_root->child;
+    while (child)
+    {
+        getPairs(child, 1, currentString, result);
         child = child->sibling;
     }
 
@@ -636,6 +673,40 @@ void PrefixTree<Value, Capacity, MaxKeyLength>::getKeys(Node* node,
     }
 }
 
+template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
+void PrefixTree<Value, Capacity, MaxKeyLength>::getPairs(Node* node,
+                                                         uint32_t depth,
+                                                         char* currentString,
+                                                         cxx::vector<std::pair<Key, Value*>, Capacity>& result) noexcept
+{
+    if (!node)
+    {
+        return;
+    }
+
+    currentString[depth - 1] = node->letter;
+
+    if (node->data)
+    {
+        currentString[depth] = '\0';
+        Key key(iox::cxx::TruncateToCapacity, currentString);
+
+        auto data = node->data;
+        do
+        {
+            auto pair = std::make_pair(key, &data->value);
+            result.push_back(pair);
+            data = data->next;
+        } while (data);
+    }
+
+    Node* child = node->child;
+    while (child)
+    {
+        getPairs(child, depth + 1, currentString, result);
+        child = child->sibling;
+    }
+}
 
 } // namespace cxx
 
