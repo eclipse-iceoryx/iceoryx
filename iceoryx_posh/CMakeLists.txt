@@ -190,8 +190,9 @@ if(LINUX)
 elseif(QNX)
 elseif(APPLE)
 elseif(WIN32)
+elseif(UNIX)
 else()
-    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today. Maybe its Unix." )
 endif()
 
 install(
