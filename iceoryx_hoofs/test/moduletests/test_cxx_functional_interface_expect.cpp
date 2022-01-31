@@ -127,8 +127,8 @@ struct ExpectReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 #undef IOX_TEST
 #define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    TestName<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<                                \
-        typename TestFixture::TestFactoryType>([](auto& sut) {                                                         \
+    constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
+    TestName<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>([](auto& sut) {            \
         return variationPoint.expect(                                                                                  \
             "hypnotoad eats unicorns for breakfast - just kidding, hypnotoad would never harm another being");         \
     })

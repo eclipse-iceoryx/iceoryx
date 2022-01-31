@@ -28,6 +28,9 @@ struct GenericValueErrorFactory
     using value_t = typename Type::value_t;
     using error_t = typename Type::error_t;
 
+    static constexpr bool EXPECT_AND_THEN_WITH_VALUE = true;
+    static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;
+
     static value_t usedTestValue;
     static value_t anotherTestValue;
 
@@ -42,6 +45,9 @@ struct GenericValueErrorFactory
 struct GenericPlainFactory
 {
     using Type = GenericPlain;
+
+    static constexpr bool EXPECT_AND_THEN_WITH_VALUE = false;
+    static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = false;
 
     static void configureNextTestCase() noexcept;
     static Type createValidObject() noexcept;

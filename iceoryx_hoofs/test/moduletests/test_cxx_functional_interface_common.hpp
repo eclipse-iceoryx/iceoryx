@@ -57,6 +57,9 @@ struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueErro
     using value_t = int;
     using error_t = int;
 
+    static constexpr value_t VALID_VALUE = 5;
+    static constexpr value_t INVALID_VALUE = 0;
+
     GenericValueError(const value_t value, const error_t error) noexcept;
 
     explicit operator bool() const noexcept;
@@ -79,6 +82,9 @@ struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueErro
 ///        that it is only nullable
 struct GenericPlain : public iox::cxx::FunctionalInterface<GenericPlain, void, void>
 {
+    static constexpr int VALID_VALUE = 5;
+    static constexpr int INVALID_VALUE = 0;
+
     explicit GenericPlain(const int value, const int);
     explicit operator bool() const noexcept;
 

@@ -70,7 +70,7 @@ const GenericValueError::error_t&& GenericValueError::get_error() const&& noexce
 }
 
 GenericPlain::GenericPlain(const int value, const int)
-    : m_isValid{value != 0}
+    : m_isValid{value != INVALID_VALUE}
 {
 }
 

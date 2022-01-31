@@ -69,6 +69,7 @@ inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char*
     using Self = ExpectWithValue<Derived, ValueType>;
     return const_cast<const ValueType&&>(std::move(const_cast<Self*>(this)->expect(msg)));
 }
+// END expect
 
 /////////////////
 // BEGIN value_or
@@ -100,10 +101,11 @@ inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) && noexc
 
     return std::move(derivedThis->value());
 }
+// END value_or
 
-//////////////////
-/// BEGIN and_then
-//////////////////
+/////////////////
+// BEGIN and_then
+/////////////////
 template <typename Derived, typename ValueType>
 inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
 {
@@ -176,10 +178,11 @@ inline const Derived&& AndThen<Derived>::and_then(const and_then_callback_t& cal
     using Self = AndThen<Derived>;
     return std::move(const_cast<const Derived&>(const_cast<Self*>(this)->and_then(callable)));
 }
+// END and_then
 
-/////////////////
-/// BEGIN or_else
-/////////////////
+////////////////
+// BEGIN or_else
+////////////////
 template <typename Derived, typename ErrorType>
 inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) & noexcept
 {
@@ -251,6 +254,7 @@ inline const Derived&& OrElse<Derived>::or_else(const or_else_callback_t& callab
 {
     return std::move(this->or_else(callable));
 }
+// END or_else
 
 
 } // namespace internal

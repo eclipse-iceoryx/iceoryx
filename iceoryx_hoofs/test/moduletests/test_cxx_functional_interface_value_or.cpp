@@ -26,8 +26,8 @@ constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
 
 #define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    ValueOrReturnsValueWhenValid<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<            \
-        typename TestFixture::TestFactoryType>(                                                                        \
+    constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
+    ValueOrReturnsValueWhenValid<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>(       \
         [](auto& sut, auto alternativeValue) { return variationPoint.value_or(alternativeValue); });
 
 

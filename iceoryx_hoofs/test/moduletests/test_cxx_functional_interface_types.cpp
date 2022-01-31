@@ -25,6 +25,9 @@ GenericValueErrorFactory::error_t GenericValueErrorFactory::anotherErrorValue = 
 
 void GenericValueErrorFactory::configureNextTestCase() noexcept
 {
+    // we increment all the values with an arbitrary value (23) int every test case
+    // so that we have some variation with every test and reduce the false positives
+    // probability due to memory corruptions
     usedTestValue += 23;
     anotherTestValue += 23;
     usedErrorValue += 23;
@@ -33,12 +36,12 @@ void GenericValueErrorFactory::configureNextTestCase() noexcept
 
 GenericValueErrorFactory::Type GenericValueErrorFactory::createValidObject() noexcept
 {
-    return GenericValueError(usedTestValue, 0);
+    return GenericValueError(usedTestValue, usedErrorValue);
 }
 
 GenericValueErrorFactory::Type GenericValueErrorFactory::createInvalidObject() noexcept
 {
-    return GenericValueError(0, usedErrorValue);
+    return GenericValueError(GenericValueError::INVALID_VALUE, usedErrorValue);
 }
 
 void GenericPlainFactory::configureNextTestCase() noexcept
@@ -47,11 +50,11 @@ void GenericPlainFactory::configureNextTestCase() noexcept
 
 GenericPlain GenericPlainFactory::createValidObject() noexcept
 {
-    return GenericPlain(5, 6);
+    return GenericPlain(GenericPlain::VALID_VALUE, GenericPlain::VALID_VALUE);
 }
 
 GenericPlain GenericPlainFactory::createInvalidObject() noexcept
 {
-    return GenericPlain(0, 0);
+    return GenericPlain(GenericPlain::INVALID_VALUE, GenericPlain::INVALID_VALUE);
 }
 } // namespace test_cxx_functional_interface

@@ -20,10 +20,19 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
+TYPED_TEST(FunctionalInterface_test, OrElseHasCorrectSignature)
+{
+    using Factory = typename TestFixture::TestFactoryType;
+    constexpr bool DOES_OR_ELSE_HAVE_A_VALUE = iox::cxx::internal::HasGetErrorMethod<typename Factory::Type>::value;
+
+    EXPECT_THAT(DOES_OR_ELSE_HAVE_A_VALUE, Eq(Factory::EXPECT_OR_ELSE_WITH_VALUE));
+}
+
 #define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    TestName<iox::cxx::internal::HasGetErrorMethod<SutType>::value>::template performTest<                             \
-        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { variationPoint.or_else(callback); })
+    constexpr bool HAS_GET_ERROR_METHOD = iox::cxx::internal::HasGetErrorMethod<SutType>::value;                       \
+    TestName<HAS_GET_ERROR_METHOD>::template performTest<typename TestFixture::TestFactoryType>(                       \
+        [](auto& sut, auto callback) { variationPoint.or_else(callback); })
 
 constexpr bool TYPE_HAS_GET_ERROR_METHOD = true;
 constexpr bool TYPE_HAS_NO_GET_ERROR_METHOD = false;

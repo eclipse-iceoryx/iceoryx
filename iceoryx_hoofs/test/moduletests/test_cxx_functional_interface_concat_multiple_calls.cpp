@@ -22,12 +22,12 @@ using namespace ::testing;
 
 #define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    TestName<iox::cxx::internal::HasValueMethod<SutType>::value,                                                       \
-             iox::cxx::internal::HasGetErrorMethod<SutType>::value>::                                                  \
-        template performTest<typename TestFixture::TestFactoryType>(                                                   \
-            [](auto& sut, auto andThenCallback, auto orElseCallback) {                                                 \
-                variationPoint.and_then(andThenCallback).or_else(orElseCallback);                                      \
-            })
+    constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
+    constexpr bool HAS_GET_ERROR_METHOD = iox::cxx::internal::HasGetErrorMethod<SutType>::value;                       \
+    TestName<HAS_VALUE_METHOD, HAS_GET_ERROR_METHOD>::template performTest<typename TestFixture::TestFactoryType>(     \
+        [](auto& sut, auto andThenCallback, auto orElseCallback) {                                                     \
+            variationPoint.and_then(andThenCallback).or_else(orElseCallback);                                          \
+        })
 
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
 constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;

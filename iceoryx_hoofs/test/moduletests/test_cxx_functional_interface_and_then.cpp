@@ -20,10 +20,19 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
+TYPED_TEST(FunctionalInterface_test, AndThenHasCorrectSignature)
+{
+    using Factory = typename TestFixture::TestFactoryType;
+    constexpr bool DOES_AND_THEN_HAVE_A_VALUE = iox::cxx::internal::HasValueMethod<typename Factory::Type>::value;
+
+    EXPECT_THAT(DOES_AND_THEN_HAVE_A_VALUE, Eq(Factory::EXPECT_AND_THEN_WITH_VALUE));
+}
+
 #define IOX_TEST(TestName, variationPoint)                                                                             \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    TestName<iox::cxx::internal::HasValueMethod<SutType>::value>::template performTest<                                \
-        typename TestFixture::TestFactoryType>([](auto& sut, auto callback) { variationPoint.and_then(callback); })
+    constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
+    TestName<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>(                           \
+        [](auto& sut, auto callback) { variationPoint.and_then(callback); })
 
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
 constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
