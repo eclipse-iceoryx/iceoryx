@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/cxx/prefix_tree.hpp"
 
 #include <set>
+#include <type_traits>
 #include <vector>
 
 namespace
@@ -490,9 +491,9 @@ TEST_F(PrefixTree_test, CollectingAllKeyValuePairsInTreeWorks)
 TEST(PrefixTreeRelocation_test, RelocatedTreeIsAnIndependentLogicalCopy)
 {
     // we want to zero out the memory after copy (and have to own it to do so)
-    // we can get the memory from heap as well / + address sanitizer
     using Tree = TestPrefixTree<>;
-    uint8_t originalMemory[sizeof(Tree)] alignas(alignof(Tree));
+    using Storage = std::aligned_storage_t<sizeof(Tree), alignof(Tree)>;
+    Storage originalMemory;
 
     // create and populate original tree
     auto original = new (&originalMemory) Tree;
@@ -504,7 +505,7 @@ TEST(PrefixTreeRelocation_test, RelocatedTreeIsAnIndependentLogicalCopy)
     original->insert("bbc", Integer{66});
 
     // relocate memory by bitwise copy
-    uint8_t relocationMemory[sizeof(Tree)] alignas(alignof(Tree));
+    Storage relocationMemory;
     std::memcpy(&relocationMemory, original, sizeof(Tree));
 
     // zero original memory - we do not want a false positive test result

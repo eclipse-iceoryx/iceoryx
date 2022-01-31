@@ -16,9 +16,11 @@
 
 #include "test.hpp"
 
+#include "iceoryx_hoofs/internal/relocatable_pointer/relocatable_ptr.hpp"
 #include "iceoryx_hoofs/memory/typed_allocator.hpp"
 
 #include <algorithm>
+#include <type_traits>
 #include <vector>
 
 namespace
@@ -70,17 +72,11 @@ struct Integer : Counter<Integer>
     uint32_t value;
 };
 
-// bool operator==(const Integer& lhs, const Integer& rhs)
-// {
-//     return lhs.value == rhs.value;
-// }
-
 static constexpr uint32_t TEST_CAPACITY = 4;
 using TestValue = Integer;
 
 
-// todo: typed test
-using TestAlloator = TypedAllocator<Integer, TEST_CAPACITY>;
+using TestAllocator = TypedAllocator<Integer, TEST_CAPACITY>;
 
 class TypedAllocator_test : public ::testing::Test
 {
@@ -101,7 +97,7 @@ class TypedAllocator_test : public ::testing::Test
     {
     }
 
-    TestAlloator sut;
+    TestAllocator sut;
 };
 
 TEST_F(TypedAllocator_test, CanAllocateExactlyCapacityBlocks)
@@ -302,7 +298,75 @@ TEST_F(TypedAllocator_test, CreatedElementsHaveUniqueAdresses)
     }
 }
 
-// todo: relocation test
+TEST(TypedAllocatorRelocation_test, RelocatedAllocatorIsAnIndependentLogicalCopy)
+{
+    struct Allocator
+    {
+        TestAllocator allocator;
 
+        // the allocation will be relocated as well to be able to
+        // deallocate it
+        iox::rp::relocatable_ptr<Integer> allocation;
+    };
+
+    // we want to zero out the memory after copy (and have to own it to do so)
+    using Storage = std::aligned_storage_t<sizeof(Allocator), alignof(Allocator)>;
+
+    Storage originalMemory;
+
+    auto original = new (&originalMemory) Allocator;
+    ASSERT_NE(original, nullptr);
+
+    constexpr auto VALUE = 66;
+
+    auto p = original->allocator.create(VALUE);
+    ASSERT_NE(p, nullptr);
+    // to translate the corresponding allocation into the relocated are
+    original->allocation = p;
+
+    // Allocator is in use and will now be relocated
+    Storage relocationMemory;
+    std::memcpy(&relocationMemory, original, sizeof(Allocator));
+
+    original->~Allocator();
+    std::memset(&originalMemory, 0, sizeof(Allocator));
+
+    // original memory is now zero but we have relocated the allocator
+    // and its allocation (requires T = Integer to be relocatable as well)
+
+    Allocator* relocated = reinterpret_cast<Allocator*>(&relocationMemory);
+
+    // value was relocated to new memory managed by the relocataed allocator
+    // (would be the same with remap as long as the allocation pointer is memorized
+    // with a relocatable_ptr)
+    EXPECT_EQ(relocated->allocation->value, VALUE);
+
+    // There is one outstanding allocation, so we expect capacity - 1 to be free
+    // for new allocations.
+    constexpr auto EXPECTED_NUM_FREE = TEST_CAPACITY - 1;
+
+    for (uint32_t i = 0; i < EXPECTED_NUM_FREE; ++i)
+    {
+        p = relocated->allocator.allocate();
+        ASSERT_NE(p, nullptr);
+    }
+
+    p = relocated->allocator.allocate();
+    ASSERT_EQ(p, nullptr);
+
+    // free the original allocation
+    relocated->allocator.deallocate(relocated->allocation);
+
+    // now we can allocate one more
+    p = relocated->allocator.allocate();
+    ASSERT_NE(p, nullptr);
+
+    // should fail since we only deallocated one allocation
+    p = relocated->allocator.allocate();
+    ASSERT_EQ(p, nullptr);
+
+    // wink out of outstanding allocations of the relocated allocator
+    relocated->~Allocator();
+}
 
 } // namespace
