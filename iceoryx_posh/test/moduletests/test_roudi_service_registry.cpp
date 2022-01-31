@@ -186,7 +186,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
 /// @todo #415 enable once the prefix tree is integrated into the service registry
 TEST_F(ServiceRegistry_test, DISABLED_SingleServiceDescriptionCanBeFoundWithEventName)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "0890013c-e14b-4ae2-89cb-757624c12b4e");
+    ::testing::Test::RecordProperty("TEST_ID", "6df8fd7d-e4d1-4c51-8ad7-2fbe82e4ed09");
     iox::capro::ServiceDescription service1("a", "b", "c");
     ASSERT_FALSE(sut.add(service1).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::IdString_t("c"));

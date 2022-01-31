@@ -26,6 +26,7 @@
 - Introduce `cxx::FunctionalInterface` to enrich nullable classes with `and_then`, `or_else`, `value_or`, `expect` [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 - Add C++17 `std::perms` as `cxx::perms` to `iceoryx_hoofs/cxx/filesystem.hpp`. [#1059](https://github.com/eclipse-iceoryx/iceoryx/issues/1059)
 - Support FreeBSD as a representative for the UNIX platforms [#1054](https://github.com/eclipse-iceoryx/iceoryx/issues/1054)
+- Add event parameter to `findService` method [#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 
 **Bugfixes:**
 
@@ -240,8 +241,8 @@ capro::ServiceDescription::deserialize(serialisedObj)
     });
 ```
 
-The service-related methods have been moved from `PoshRuntime` to `ServiceDiscovery`. Additionally, the
-`offerService` and `stopOfferService` methods have been removed:
+The service-related methods have been moved from `PoshRuntime` to `ServiceDiscovery`. The `offerService`
+and `stopOfferService` methods have been removed and `findService` has now an additional event paramter:
 
 ```cpp
 // before
@@ -250,7 +251,7 @@ poshRuntime.stopOfferService(myServiceDescription);
 poshRuntime.findService({"ServiceA", iox::capro::AnyInstanceString});
 
 // after
-serviceDiscovery.findService("ServiceA", Wildcard);
+serviceDiscovery.findService("ServiceA", Wildcard, Wildcard);
 ```
 
 The `iox::cxx::expected` has dropped the requirement for `INVALID_STATE`. With this, the

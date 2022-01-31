@@ -264,6 +264,7 @@ TEST_F(ServiceDiscovery_test, DISABLED_FindServiceWithServiceWildcardReturnsCorr
 
 TEST_F(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e78b35f4-b3c3-4c39-b10a-67712c72e28a");
     const IdString_t SERVICE = "service";
     const IdString_t INSTANCE = "instance";
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, INSTANCE, "event1");
@@ -288,6 +289,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices
 /// @todo #415 enable once the prefix tree is integrated into the service registry
 TEST_F(ServiceDiscovery_test, DISABLED_FindServiceWithInstanceWildcardReturnsCorrectServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2ec4b422-3ded-4af3-9e72-3b870c55031c");
     const IdString_t SERVICE = "service";
     const IdString_t EVENT = "event";
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", EVENT);
