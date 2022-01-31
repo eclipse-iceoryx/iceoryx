@@ -14,7 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/data_structures/prefix_tree.hpp"
+#ifndef IOX_HOOFS_CXX_PREFIX_TREE_INL
+#define IOX_HOOFS_CXX_PREFIX_TREE_INL
+
+#include "iceoryx_hoofs/cxx/prefix_tree.hpp"
 
 namespace iox
 {
@@ -717,5 +720,6 @@ void PrefixTree<Value, Capacity, MaxKeyLength>::getPairs(Node* node,
 }
 
 } // namespace cxx
-
 } // namespace iox
+
+#endif // IOX_HOOFS_CXX_PREFIX_TREE_INL

@@ -16,7 +16,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/data_structures/prefix_tree.hpp"
+#include "iceoryx_hoofs/cxx/prefix_tree.hpp"
 
 #include <set>
 #include <vector>

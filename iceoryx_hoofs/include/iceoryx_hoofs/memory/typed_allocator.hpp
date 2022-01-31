@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_HPP
-#define IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_HPP
+#ifndef IOX_HOOFS_MEMORY_TYPED_ALLOCATOR_HPP
+#define IOX_HOOFS_MEMORY_TYPED_ALLOCATOR_HPP
 
 #include <stdint.h>
 
@@ -23,7 +23,7 @@
 
 namespace iox
 {
-namespace cxx
+namespace memory
 {
 /// @brief An allocator for objects of a specific type T.
 ///        Supports allocation of initialized objects and aligned raw memory where objects
@@ -104,9 +104,9 @@ class TypedAllocator
     }
 };
 
-} // namespace cxx
+} // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/data_structures/typed_allocator.inl"
+#include "iceoryx_hoofs/internal/memory/typed_allocator.inl"
 
-#endif // IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_HPP
+#endif // IOX_HOOFS_MEMORY_TYPED_ALLOCATOR_HPP

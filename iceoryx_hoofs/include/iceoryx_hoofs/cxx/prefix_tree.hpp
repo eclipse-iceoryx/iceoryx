@@ -14,18 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_DATA_STRUCTURES_PREFIX_TREE_HPP
-#define IOX_HOOFS_DATA_STRUCTURES_PREFIX_TREE_HPP
+#ifndef IOX_HOOFS_CXX_PREFIX_TREE_HPP
+#define IOX_HOOFS_CXX_PREFIX_TREE_HPP
 
-#include <iostream>
 #include <stdint.h>
-#include <string>
-#include <vector>
 
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/data_structures/typed_allocator.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relocatable_ptr.hpp"
+#include "iceoryx_hoofs/memory/typed_allocator.hpp"
 
 namespace iox
 {
@@ -102,8 +99,9 @@ class PrefixTree
 
     /// @brief Find all values corresponding to keys with a given prefix.
     /// @param prefix prefix of keys whose values we want to find
-    /// @return pointers to values matching the key
+    /// @return pointers to values matching a key containing the prefix
     /// @note returned pointers allow modification of corresponding values in the tree
+    /// @note exact matches are included if there is a key equal to prefix
     cxx::vector<Value*, Capacity> findPrefix(const Key& prefix) const noexcept;
 
     /// @brief Get all key strings currently in the tree.
@@ -224,8 +222,8 @@ class PrefixTree
     // suitable external allocators.
     // The allocators can allocate enough nodes to support the specified capacity.
 
-    using NodeAllocator = iox::cxx::TypedAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
-    using DataNodeAllocator = iox::cxx::TypedAllocator<DataNode, Capacity>;
+    using NodeAllocator = iox::memory::TypedAllocator<Node, NUMBER_OF_ALLOCATABLE_NODES>;
+    using DataNodeAllocator = iox::memory::TypedAllocator<DataNode, Capacity>;
 
     DataNodeAllocator m_dataNodeAllocator;
     NodeAllocator m_nodeAllocator;
@@ -287,7 +285,7 @@ class PrefixTree
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/data_structures/prefix_tree.inl"
+#include "iceoryx_hoofs/internal/cxx/prefix_tree.inl"
 
 
-#endif // IOX_HOOFS_DATA_STRUCTURES_PREFIX_TREE_HPP
+#endif // IOX_HOOFS_CXX_PREFIX_TREE_HPP

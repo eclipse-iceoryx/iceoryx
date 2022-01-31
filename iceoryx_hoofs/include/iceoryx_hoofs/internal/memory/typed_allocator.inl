@@ -14,19 +14,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_INL
-#define IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_INL
+#ifndef IOX_HOOFS_MEMORY_TYPED_ALLOCATOR_INL
+#define IOX_HOOFS_MEMORY_TYPED_ALLOCATOR_INL
 
-#include "iceoryx_hoofs/data_structures/typed_allocator.hpp"
+#include "iceoryx_hoofs/memory/typed_allocator.hpp"
 
 #include <stdint.h>
 
 namespace iox
 {
-namespace cxx
+namespace memory
 {
 template <typename T, uint64_t Capacity>
-T* iox::cxx::TypedAllocator<T, Capacity>::allocate()
+T* TypedAllocator<T, Capacity>::allocate()
 {
     auto maybeIndex = m_freeIndices.pop();
     if (maybeIndex.has_value())
@@ -37,7 +37,7 @@ T* iox::cxx::TypedAllocator<T, Capacity>::allocate()
 }
 
 template <typename T, uint64_t Capacity>
-void iox::cxx::TypedAllocator<T, Capacity>::deallocate(T* element)
+void TypedAllocator<T, Capacity>::deallocate(T* element)
 {
     // no checking whether this is a pointer allocated by this allocator (
     // (not possible without serious overhead)
@@ -46,7 +46,7 @@ void iox::cxx::TypedAllocator<T, Capacity>::deallocate(T* element)
 
 template <typename T, uint64_t Capacity>
 template <typename... Args>
-T* iox::cxx::TypedAllocator<T, Capacity>::create(Args&&... args)
+T* TypedAllocator<T, Capacity>::create(Args&&... args)
 {
     auto element = allocate();
     if (element)
@@ -58,7 +58,7 @@ T* iox::cxx::TypedAllocator<T, Capacity>::create(Args&&... args)
 }
 
 template <typename T, uint64_t Capacity>
-void iox::cxx::TypedAllocator<T, Capacity>::destroy(T* element)
+void TypedAllocator<T, Capacity>::destroy(T* element)
 {
     if (element)
     {
@@ -67,7 +67,7 @@ void iox::cxx::TypedAllocator<T, Capacity>::destroy(T* element)
     }
 }
 
-} // namespace cxx
+} // namespace memory
 } // namespace iox
 
-#endif IOX_HOOFS_DATA_STRUCTURES_TYPED_ALLOCATOR_INL
+#endif // IOX_HOOFS_MEMORY_TYPED_ALLOCATOR_INL

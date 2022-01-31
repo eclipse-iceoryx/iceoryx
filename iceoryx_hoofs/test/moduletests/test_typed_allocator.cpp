@@ -16,7 +16,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/data_structures/typed_allocator.hpp"
+#include "iceoryx_hoofs/memory/typed_allocator.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -25,7 +25,7 @@ namespace
 {
 using namespace ::testing;
 
-using namespace iox::cxx;
+using namespace iox::memory;
 
 // count #ctor and #dtor calls
 template <typename T>
@@ -301,6 +301,8 @@ TEST_F(TypedAllocator_test, CreatedElementsHaveUniqueAdresses)
         sut.destroy(element);
     }
 }
+
+// todo: relocation test
 
 
 } // namespace
