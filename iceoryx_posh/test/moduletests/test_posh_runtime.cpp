@@ -169,7 +169,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 
     ASSERT_NE(nullptr, interfacePortData);
     EXPECT_EQ(m_runtimeName, interfacePortData->m_runtimeName);
-    EXPECT_FALSE(interfacePortData->m_serviceDescription.isValid());
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
 }
@@ -221,24 +220,6 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
     EXPECT_FALSE(successfullySent);
-}
-
-TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithInvalidServiceDescriptionFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "9eb179ea-346b-4381-b0e6-f864f1618cc3");
-    iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.historyCapacity = 13U;
-    publisherOptions.nodeName = m_nodeName;
-
-    EXPECT_DEATH(
-        {
-            m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(iox::capro::InvalidIdString,
-                                                                             iox::capro::InvalidIdString,
-                                                                             iox::capro::InvalidIdString),
-                                              publisherOptions,
-                                              iox::runtime::PortConfigInfo(11U, 22U, 33U));
-        },
-        ".*");
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
@@ -410,25 +391,6 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSu
 
     EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
                 Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
-}
-
-TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithInvalidServiceDescriptionFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "08c6601e-2662-4c50-a230-e71c97730f13");
-    iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.historyRequest = 13U;
-    subscriberOptions.queueCapacity = 42U;
-    subscriberOptions.nodeName = m_nodeName;
-
-    EXPECT_DEATH(
-        {
-            m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(iox::capro::InvalidIdString,
-                                                                              iox::capro::InvalidIdString,
-                                                                              iox::capro::InvalidIdString),
-                                               subscriberOptions,
-                                               iox::runtime::PortConfigInfo(11U, 22U, 33U));
-        },
-        ".*");
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)

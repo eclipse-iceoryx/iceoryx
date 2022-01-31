@@ -246,12 +246,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& service = deserializationResult.value();
 
-            if (!service.isValid())
-            {
-                LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
-                break;
-            }
-
             auto publisherOptionsDeserializationResult =
                 popo::PublisherOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
             if (publisherOptionsDeserializationResult.has_error())
@@ -288,12 +282,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
 
             const auto& service = deserializationResult.value();
-
-            if (!service.isValid())
-            {
-                LogError() << "Invalid service description '" << message.getElementAtIndex(2).c_str() << "' provided\n";
-                break;
-            }
 
             auto subscriberOptionsDeserializationResult =
                 popo::SubscriberOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
@@ -358,15 +346,27 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::FIND_SERVICE:
     {
-        if (message.getNumberOfElements() != 4)
+        if (message.getNumberOfElements() != 6)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
-            capro::IdString_t service{cxx::TruncateToCapacity, message.getElementAtIndex(2)};
-            capro::IdString_t instance{cxx::TruncateToCapacity, message.getElementAtIndex(3)};
+            cxx::optional<capro::IdString_t> service;
+            cxx::optional<capro::IdString_t> instance;
+            bool isServiceWildcard = false;
+            bool isInstanceWildcard = false;
+            cxx::convert::fromString(message.getElementAtIndex(2).c_str(), isServiceWildcard);
+            if (!isServiceWildcard)
+            {
+                service.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(3));
+            }
+            cxx::convert::fromString(message.getElementAtIndex(4).c_str(), isInstanceWildcard);
+            if (!isInstanceWildcard)
+            {
+                instance.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(5));
+            }
 
             m_prcMgr->findServiceForProcess(runtimeName, service, instance);
         }

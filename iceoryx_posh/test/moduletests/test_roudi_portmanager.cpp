@@ -214,37 +214,6 @@ SubscriberOptions createTestSubOptions()
     return SubscriberOptions{1U, 0U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, false};
 }
 
-TEST_F(PortManager_test, AcquirePubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "314ccda9-962d-416c-a631-74d1c5b15b41");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-
-    auto result = m_portManager->acquirePublisherPortData(
-        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
-        publisherOptions,
-        "guiseppe",
-        m_payloadDataSegmentMemoryManager,
-        PortConfigInfo());
-
-    ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), PortPoolError::SERVICE_DESCRIPTION_INVALID);
-}
-
-TEST_F(PortManager_test, AcquireSubWithInvalidServiceDescriptionResultsInServiceDescriptionInvalidError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5a821353-3300-47be-9ffe-367a3740df02");
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
-
-    auto result = m_portManager->acquireSubscriberPortData(
-        {iox::capro::InvalidIdString, iox::capro::InvalidIdString, iox::capro::InvalidIdString},
-        subscriberOptions,
-        "guiseppe",
-        PortConfigInfo());
-
-    ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), PortPoolError::SERVICE_DESCRIPTION_INVALID);
-}
-
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f767cb6a-ae82-45e5-9969-d75be1077fc0");

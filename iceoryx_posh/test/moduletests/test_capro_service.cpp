@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -243,14 +243,14 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
     EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToInvalidString)
+TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "707156f8-8145-4710-b6ac-3e94dbac7237");
     ServiceDescription serviceDescription1 = ServiceDescription();
 
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(InvalidIdString));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(InvalidIdString));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(InvalidIdString));
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(""));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(""));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(""));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScopeToWorldWide)
@@ -286,18 +286,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
     EXPECT_EQ(uint32_t(23), serviceDescription1.getClassHash()[1]);
     EXPECT_EQ(uint32_t(34), serviceDescription1.getClassHash()[2]);
     EXPECT_EQ(uint32_t(45), serviceDescription1.getClassHash()[3]);
-}
-
-TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceAnyEventIDsAreEqual)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f149fab2-b1a3-406e-aee1-30a3c2e9e169");
-    IdString_t testService = iox::roudi::Wildcard;
-    IdString_t testEvent = iox::roudi::Wildcard;
-    IdString_t testInstance = iox::roudi::Wildcard;
-    ServiceDescription serviceDescription1 = ServiceDescription(testService, testEvent, testInstance);
-    ServiceDescription serviceDescription2 = ServiceDescription(testService, testEvent, testInstance);
-
-    EXPECT_TRUE(serviceDescription1 == serviceDescription2);
 }
 
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidServicesAreNotEqual)
@@ -370,8 +358,8 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceStringI
 {
     ::testing::Test::RecordProperty("TEST_ID", "47bb698b-bb13-4885-afab-b5a975b67715");
     IdString_t sameService = "1";
-    ServiceDescription description1 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
-    ServiceDescription description2 = ServiceDescription(sameService, iox::roudi::Wildcard, iox::roudi::Wildcard);
+    ServiceDescription description1 = ServiceDescription(sameService, "instance1", "event1");
+    ServiceDescription description2 = ServiceDescription(sameService, "instance2", "event2");
 
     EXPECT_TRUE(iox::capro::serviceMatch(description1, description2));
 }
@@ -381,8 +369,8 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
     ::testing::Test::RecordProperty("TEST_ID", "9ccd5f69-aca9-4e3d-9ba7-83581abde0f3");
     IdString_t serviceID1 = "1";
     IdString_t serviceID2 = "2";
-    ServiceDescription description1 = ServiceDescription(serviceID1, iox::roudi::Wildcard, iox::roudi::Wildcard);
-    ServiceDescription description2 = ServiceDescription(serviceID2, iox::roudi::Wildcard, iox::roudi::Wildcard);
+    ServiceDescription description1 = ServiceDescription(serviceID1, "instance", "event");
+    ServiceDescription description2 = ServiceDescription(serviceID2, "instance", "event");
 
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
@@ -411,50 +399,6 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     serviceDescription1.setInternal();
 
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "008bbc55-894f-4083-bc78-b0dac7bd52f0");
-    IdString_t testServiceID = InvalidIdString;
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8b5b66fd-5d04-4200-bb7a-bf8afea9c2c4");
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = InvalidIdString;
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenEventIDIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "afea0f45-d40a-41e3-931c-46b0cc2f8f5b");
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = InvalidIdString;
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_FALSE(serviceDescription1.isValid());
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventIDsAreValid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c88a8049-abf5-44f0-9b08-99fb83ce861f");
-    IdString_t testServiceID = "1";
-    IdString_t testEventID = "1";
-    IdString_t testInstanceID = "1";
-    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-
-    EXPECT_TRUE(serviceDescription1.isValid());
 }
 
 TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfServiceStringOfFirstServiceDescriptionIsLessThanSecond)

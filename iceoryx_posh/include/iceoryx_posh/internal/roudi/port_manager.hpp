@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,7 +96,8 @@ class PortManager
     void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
-    runtime::IpcMessage findService(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
+    runtime::IpcMessage findService(const cxx::optional<capro::IdString_t>& service,
+                                    const cxx::optional<capro::IdString_t>& instance) noexcept;
 
   protected:
     void makeAllPublisherPortsToStopOffer() noexcept;

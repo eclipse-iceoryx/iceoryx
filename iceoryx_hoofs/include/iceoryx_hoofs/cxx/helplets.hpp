@@ -378,7 +378,6 @@ constexpr T into(const F value) noexcept;
   private:                                                                                                             \
     type m_##name = defaultValue;
 
-
 } // namespace cxx
 } // namespace iox
 

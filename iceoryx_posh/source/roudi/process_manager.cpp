@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -346,8 +346,8 @@ void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexce
 }
 
 void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
-                                           const capro::IdString_t& service,
-                                           const capro::IdString_t& instance) noexcept
+                                           const cxx::optional<capro::IdString_t>& service,
+                                           const cxx::optional<capro::IdString_t>& instance) noexcept
 {
     searchForProcessAndThen(
         name,

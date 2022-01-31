@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/serialization.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
@@ -30,7 +29,9 @@ namespace iox
 {
 namespace capro
 {
-static const IdString_t InvalidIdString{""};
+/// @brief Used to search for any string
+constexpr iox::cxx::nullopt_t Wildcard;
+
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
 
@@ -100,11 +101,10 @@ class ServiceDescription
     ServiceDescription(const IdString_t& service,
                        const IdString_t& instance,
                        const IdString_t& event,
-                       ClassHash m_classHash = {0u, 0u, 0u, 0u},
+                       ClassHash m_classHash = {0U, 0U, 0U, 0U},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
-    /// @brief compare operator. If wildcards AnyServiceString, AnyInstanceString or AnyEventString are used, the
-    /// corresponding member comparisons are skipped.
+    /// @brief compare operator.
     bool operator==(const ServiceDescription& rhs) const noexcept;
 
     /// @brief negation of compare operator.
@@ -133,16 +133,12 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() const noexcept;
 
-    /// @brief Returns true for valid ServiceDescription
-    /// false for ServiceDescription that contain InvalidStrings.
-    /// @return bool, true if ServiceDescription is valid, false otherwise
-    bool isValid() const noexcept;
 
     ///@{
-    /// Getters for the integer and string IDs
-    IdString_t getServiceIDString() const noexcept;
-    IdString_t getInstanceIDString() const noexcept;
-    IdString_t getEventIDString() const noexcept;
+    /// Getters for the string IDs
+    const IdString_t& getServiceIDString() const noexcept;
+    const IdString_t& getInstanceIDString() const noexcept;
+    const IdString_t& getEventIDString() const noexcept;
     ///@}
 
     ///@{
@@ -155,11 +151,11 @@ class ServiceDescription
 
   private:
     /// @brief string representation of the service
-    IdString_t m_serviceString{InvalidIdString};
+    IdString_t m_serviceString;
     /// @brief string representation of the instance
-    IdString_t m_instanceString{InvalidIdString};
+    IdString_t m_instanceString;
     /// @brief string representation of the event
-    IdString_t m_eventString{InvalidIdString};
+    IdString_t m_eventString;
 
     /// @brief 128-Bit class hash (32-Bit * 4)
     ClassHash m_classHash{0, 0, 0, 0};

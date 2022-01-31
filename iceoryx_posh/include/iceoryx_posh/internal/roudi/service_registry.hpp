@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ namespace iox
 {
 namespace roudi
 {
-static const capro::IdString_t Wildcard{"*"};
 class ServiceRegistry
 {
   public:
@@ -58,13 +57,13 @@ class ServiceRegistry
     /// @param[in] serviceDescription, service to be removed
     void remove(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry
+    /// @brief Searches for given service description in registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
-    /// @param[in] service, string or wildcard to search for
-    /// @param[in] instance, string or wildcard to search for
+    /// @param[in] service, string or wildcard (= iox::cxx::nullopt) to search for
+    /// @param[in] instance, string or wildcard (= iox::cxx::nullopt) to search for
     void find(ServiceDescriptionVector_t& searchResult,
-              const capro::IdString_t& service = Wildcard,
-              const capro::IdString_t& instance = Wildcard) const noexcept;
+              const cxx::optional<capro::IdString_t>& service,
+              const cxx::optional<capro::IdString_t>& instance) const noexcept;
 
     /// @brief Returns all service descriptions as copy
     /// @return ServiceDescriptionVector_t, copy of complete service registry
