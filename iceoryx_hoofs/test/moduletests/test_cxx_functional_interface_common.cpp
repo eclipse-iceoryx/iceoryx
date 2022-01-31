@@ -18,7 +18,7 @@
 
 namespace test_cxx_functional_interface
 {
-GenericValueError::GenericValueError(const int value, const int error) noexcept
+GenericValueError::GenericValueError(const value_t value, const error_t error) noexcept
     : m_value{value}
     , m_error{error}
 {
@@ -29,42 +29,42 @@ GenericValueError::operator bool() const noexcept
     return m_value != 0;
 }
 
-int& GenericValueError::value() & noexcept
+GenericValueError::value_t& GenericValueError::value() & noexcept
 {
     return m_value;
 }
 
-const int& GenericValueError::value() const& noexcept
+const GenericValueError::value_t& GenericValueError::value() const& noexcept
 {
     return m_value;
 }
 
-int&& GenericValueError::value() && noexcept
+GenericValueError::value_t&& GenericValueError::value() && noexcept
 {
     return std::move(m_value);
 }
 
-const int&& GenericValueError::value() const&& noexcept
+const GenericValueError::value_t&& GenericValueError::value() const&& noexcept
 {
     return std::move(m_value);
 }
 
-int& GenericValueError::get_error() & noexcept
+GenericValueError::error_t& GenericValueError::get_error() & noexcept
 {
     return m_error;
 }
 
-const int& GenericValueError::get_error() const& noexcept
+const GenericValueError::error_t& GenericValueError::get_error() const& noexcept
 {
     return m_error;
 }
 
-int&& GenericValueError::get_error() && noexcept
+GenericValueError::error_t&& GenericValueError::get_error() && noexcept
 {
     return std::move(m_error);
 }
 
-const int&& GenericValueError::get_error() const&& noexcept
+const GenericValueError::error_t&& GenericValueError::get_error() const&& noexcept
 {
     return std::move(m_error);
 }

@@ -25,18 +25,18 @@ struct GenericValueErrorFactory
 {
     using Type = GenericValueError;
 
-    using value_t = int;
-    using error_t = int;
+    using value_t = typename Type::value_t;
+    using error_t = typename Type::error_t;
 
-    static int usedTestValue;
-    static int anotherTestValue;
+    static value_t usedTestValue;
+    static value_t anotherTestValue;
 
-    static int usedErrorValue;
-    static int anotherErrorValue;
+    static error_t usedErrorValue;
+    static error_t anotherErrorValue;
 
     static void configureNextTestCase() noexcept;
-    static GenericValueError createValidObject() noexcept;
-    static GenericValueError createInvalidObject() noexcept;
+    static Type createValidObject() noexcept;
+    static Type createInvalidObject() noexcept;
 };
 
 struct GenericPlainFactory

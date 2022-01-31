@@ -18,10 +18,10 @@
 
 namespace test_cxx_functional_interface
 {
-int GenericValueErrorFactory::usedTestValue = 1;
-int GenericValueErrorFactory::anotherTestValue = 2;
-int GenericValueErrorFactory::usedErrorValue = 3;
-int GenericValueErrorFactory::anotherErrorValue = 4;
+GenericValueErrorFactory::value_t GenericValueErrorFactory::usedTestValue = 1;
+GenericValueErrorFactory::value_t GenericValueErrorFactory::anotherTestValue = 2;
+GenericValueErrorFactory::error_t GenericValueErrorFactory::usedErrorValue = 3;
+GenericValueErrorFactory::error_t GenericValueErrorFactory::anotherErrorValue = 4;
 
 void GenericValueErrorFactory::configureNextTestCase() noexcept
 {
@@ -31,12 +31,12 @@ void GenericValueErrorFactory::configureNextTestCase() noexcept
     anotherErrorValue += 23;
 }
 
-GenericValueError GenericValueErrorFactory::createValidObject() noexcept
+GenericValueErrorFactory::Type GenericValueErrorFactory::createValidObject() noexcept
 {
     return GenericValueError(usedTestValue, 0);
 }
 
-GenericValueError GenericValueErrorFactory::createInvalidObject() noexcept
+GenericValueErrorFactory::Type GenericValueErrorFactory::createInvalidObject() noexcept
 {
     return GenericValueError(0, usedErrorValue);
 }

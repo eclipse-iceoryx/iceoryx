@@ -54,22 +54,25 @@ class FunctionalInterface_test : public testing::Test
 ///        of a value and a get_error method
 struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueError, int, int>
 {
-    GenericValueError(const int value, const int error) noexcept;
+    using value_t = int;
+    using error_t = int;
+
+    GenericValueError(const value_t value, const error_t error) noexcept;
 
     explicit operator bool() const noexcept;
 
-    int& value() & noexcept;
-    const int& value() const& noexcept;
-    int&& value() && noexcept;
-    const int&& value() const&& noexcept;
+    value_t& value() & noexcept;
+    const value_t& value() const& noexcept;
+    value_t&& value() && noexcept;
+    const value_t&& value() const&& noexcept;
 
-    int& get_error() & noexcept;
-    const int& get_error() const& noexcept;
-    int&& get_error() && noexcept;
-    const int&& get_error() const&& noexcept;
+    error_t& get_error() & noexcept;
+    const error_t& get_error() const& noexcept;
+    error_t&& get_error() && noexcept;
+    const error_t&& get_error() const&& noexcept;
 
-    int m_value = 0;
-    int m_error = 0;
+    value_t m_value = 0;
+    error_t m_error = 0;
 };
 
 /// @brief This types is used for testing the functional interface in the case
