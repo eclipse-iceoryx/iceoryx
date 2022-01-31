@@ -35,7 +35,7 @@ PrefixTree<Value, Capacity, MaxKeyLength>::~PrefixTree() noexcept
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 bool PrefixTree<Value, Capacity, MaxKeyLength>::insert(const Key& key, const Value& value) noexcept
 {
-    uint32_t length = (uint32_t)key.size(); // todo: fix conversion
+    uint32_t length = static_cast<uint32_t>(key.size());
     if (length > MaxKeyLength)
     {
         return false;
@@ -66,7 +66,6 @@ bool PrefixTree<Value, Capacity, MaxKeyLength>::insert(const Key& key, const Val
         {
             // data already exists for this key, we add our value to the list
             // we could check for duplicates here, but would need to traverse the list
-            // TODO: do we want to allow duplicates?
 
             data->next = node->data;
             node->data = data;
@@ -274,7 +273,7 @@ template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 typename PrefixTree<Value, Capacity, MaxKeyLength>::Node*
 PrefixTree<Value, Capacity, MaxKeyLength>::allocateNode() noexcept
 {
-    auto node = nodeAllocator.create();
+    auto node = m_nodeAllocator.create();
     return node;
 }
 
@@ -290,7 +289,7 @@ void PrefixTree<Value, Capacity, MaxKeyLength>::deallocateNode(Node* node) noexc
         deallocateDataNode(data);
         data = next;
     }
-    nodeAllocator.destroy(node);
+    m_nodeAllocator.destroy(node);
 }
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
@@ -299,7 +298,7 @@ PrefixTree<Value, Capacity, MaxKeyLength>::allocateDataNode() noexcept
 {
     if (m_size < Capacity)
     {
-        auto node = dataNodeAllocator.create();
+        auto node = m_dataNodeAllocator.create();
 
         if (node)
         {
@@ -314,7 +313,7 @@ template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 void PrefixTree<Value, Capacity, MaxKeyLength>::deallocateDataNode(DataNode* node) noexcept
 {
     --m_size;
-    dataNodeAllocator.destroy(node);
+    m_dataNodeAllocator.destroy(node);
 }
 
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
@@ -443,7 +442,7 @@ PrefixTree<Value, Capacity, MaxKeyLength>::findNode(const Key& key) const noexce
 {
     const char* letters = key.c_str();
     uint32_t prefixLength;
-    uint32_t length = (uint32_t)key.size(); // todo: fix conversion
+    uint32_t length = static_cast<uint32_t>(key.size());
     auto node = findPrefix(letters, length, prefixLength);
     if (prefixLength < length)
     {
@@ -539,6 +538,13 @@ PrefixTree<Value, Capacity, MaxKeyLength>::findClosestNodeToRootToDelete(const c
                                                                          uint32_t length,
                                                                          Node** parent) noexcept
 {
+    // After removing a key (e.g. letters), there may be nodes not needed corresponding to a suffix of the key.
+    // This could be the whole key, but if there are keys sharing some prefix we cannot delete this prefix.
+    // This function locates the node on the path corresponding to the removed key (letters) which
+    // is closest to the root.
+    // This corresponds to the largest suffix of the key that is not needed anymore.
+    // The path from there to a leaf can then safely be deleted.
+
     uint32_t prefix = 0;
     auto node = m_root;
     Node* deleteableNode{nullptr};
@@ -548,8 +554,8 @@ PrefixTree<Value, Capacity, MaxKeyLength>::findClosestNodeToRootToDelete(const c
         char letter = letters[prefix];
         auto next = findInChildren(node, letter);
 
-        // Note: we could do this in the first downward pass of a search implementation for remove (but not the one
-        // for find, there it is not needed)
+        // Note: we could do this in the first downward pass of a search implementation for remove
+        // (but not the one for find, there it is not needed)
         if (next->data)
         {
             deleteableNode = nullptr;
@@ -579,7 +585,9 @@ PrefixTree<Value, Capacity, MaxKeyLength>::findClosestNodeToRootToDelete(const c
 template <typename Value, uint32_t Capacity, uint32_t MaxKeyLength>
 void PrefixTree<Value, Capacity, MaxKeyLength>::removeNodes(const Key& key) noexcept
 {
-    uint32_t length = (uint32_t)key.size(); // todo fix cast
+    // The cast is safe since we will never be able to support string lengths that
+    // cannot be represented with 32 bit.
+    uint32_t length = static_cast<uint32_t>(key.size());
     if (length == 0)
     {
         // we are at root (empty string),
