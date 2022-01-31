@@ -99,9 +99,11 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     }
 }
 
+/// @todo #415 add logic for event search once the prefix tree is integrated into the service registry
 void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const cxx::optional<capro::IdString_t>& service,
-                           const cxx::optional<capro::IdString_t>& instance) const noexcept
+                           const cxx::optional<capro::IdString_t>& instance,
+                           const cxx::optional<capro::IdString_t>& /*event*/) const noexcept
 {
     cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
 

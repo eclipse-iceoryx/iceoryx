@@ -37,12 +37,14 @@ class ServiceDiscovery
     /// @brief find all services that match the provided service description
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
     /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
+    /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
     /// @return cxx::expected<ServiceContainer, FindServiceError>
     /// ServiceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
     cxx::expected<ServiceContainer, FindServiceError>
     findService(const cxx::optional<capro::IdString_t>& service,
-                const cxx::optional<capro::IdString_t>& instance) noexcept;
+                const cxx::optional<capro::IdString_t>& instance,
+                const cxx::optional<capro::IdString_t>& event) noexcept;
 
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter

@@ -347,12 +347,13 @@ void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexce
 
 void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
                                            const cxx::optional<capro::IdString_t>& service,
-                                           const cxx::optional<capro::IdString_t>& instance) noexcept
+                                           const cxx::optional<capro::IdString_t>& instance,
+                                           const cxx::optional<capro::IdString_t>& event) noexcept
 {
     searchForProcessAndThen(
         name,
         [&](Process& process) {
-            process.sendViaIpcChannel({m_portManager.findService(service, instance)});
+            process.sendViaIpcChannel({m_portManager.findService(service, instance, event)});
             LogDebug() << "Sent all found services to application " << name;
         },
         [&]() { LogWarn() << "Unknown process " << name << " requested to find services."; });

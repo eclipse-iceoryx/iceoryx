@@ -61,7 +61,7 @@ TIMING_TEST_F(ServiceDiscovery_test, GetServiceRegistryChangeCounterOfferStopOff
 TEST_F(ServiceDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
-    auto serviceContainer = sut.findService(iox::capro::Wildcard, iox::capro::Wildcard);
+    auto serviceContainer = sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
     ASSERT_FALSE(serviceContainer.has_error());
 
     auto searchResult = serviceContainer.value();
@@ -78,8 +78,9 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsOfferedService)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
 
-    auto serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                            SERVICE_DESCRIPTION.getInstanceIDString(),
+                                            SERVICE_DESCRIPTION.getEventIDString());
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
@@ -92,24 +93,27 @@ TEST_F(ServiceDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFo
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
 
-    auto serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                            SERVICE_DESCRIPTION.getInstanceIDString(),
+                                            SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION));
 
     publisher.stopOffer();
     this->InterOpWait();
-    serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                       SERVICE_DESCRIPTION.getInstanceIDString(),
+                                       SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_TRUE(serviceContainer.value().empty());
 
     publisher.offer();
     this->InterOpWait();
 
-    serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                       SERVICE_DESCRIPTION.getInstanceIDString(),
+                                       SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION));
@@ -123,8 +127,9 @@ TEST_F(ServiceDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
     publisher.offer();
     this->InterOpWait();
 
-    auto serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                            SERVICE_DESCRIPTION.getInstanceIDString(),
+                                            SERVICE_DESCRIPTION.getEventIDString());
 
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
@@ -137,20 +142,22 @@ TEST_F(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
 
-    auto serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                            SERVICE_DESCRIPTION.getInstanceIDString(),
+                                            SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION));
 
-    serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION.getServiceIDString(), SERVICE_DESCRIPTION.getInstanceIDString());
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                       SERVICE_DESCRIPTION.getInstanceIDString(),
+                                       SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION));
 }
 
-TEST_F(ServiceDiscovery_test, OfferDifferentServicesWithSameInstance)
+TEST_F(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "25bf794d-450e-47ce-a920-ab2ea479af39");
 
@@ -163,23 +170,24 @@ TEST_F(ServiceDiscovery_test, OfferDifferentServicesWithSameInstance)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
     iox::popo::UntypedPublisher publisher_sd3(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE);
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION1));
 
-    serviceContainer = sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE);
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
 
-    serviceContainer = sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE);
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION3));
 }
 
-TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenServiceAndIdStringDoNotMatch)
+/// @todo #415 enable once the prefix tree is integrated into the service registry
+TEST_F(ServiceDiscovery_test, DISABLED_FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1984e907-e990-48b2-8cbd-eab3f67cd162");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", "instance1", "event1");
@@ -187,25 +195,26 @@ TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenServiceAndIdStr
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "instance2", "event2");
     iox::popo::UntypedPublisher publisher_sd2(SERVICE_DESCRIPTION2);
 
-    auto serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(), SERVICE_DESCRIPTION1.getInstanceIDString());
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                                            SERVICE_DESCRIPTION1.getInstanceIDString(),
+                                            SERVICE_DESCRIPTION2.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
-    ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION1));
+    ASSERT_THAT(serviceContainer.value().size(), Eq(0U));
 
-    serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), SERVICE_DESCRIPTION1.getInstanceIDString());
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                                       SERVICE_DESCRIPTION2.getInstanceIDString(),
+                                       SERVICE_DESCRIPTION1.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 
-    serviceContainer =
-        sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), SERVICE_DESCRIPTION2.getInstanceIDString());
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                                       SERVICE_DESCRIPTION2.getInstanceIDString(),
+                                       SERVICE_DESCRIPTION2.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
-    ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
+    EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 }
 
-TEST_F(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsAllMatchingServices)
+TEST_F(ServiceDiscovery_test, FindServiceWithInstanceAndEventWildcardReturnsAllMatchingServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6e0b1a12-6995-45f4-8fd8-59acbca9bfa8");
 
@@ -222,28 +231,79 @@ TEST_F(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsAllMatchingS
     serviceContainerExp.push_back(SERVICE_DESCRIPTION2);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard);
+    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(3U));
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
 }
 
-TEST_F(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsAllServices)
+/// @todo #415 enable once the prefix tree is integrated into the service registry
+TEST_F(ServiceDiscovery_test, DISABLED_FindServiceWithServiceWildcardReturnsCorrectServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f4731a52-39d8-4d49-b247-008a2e9181f9");
     const IdString_t INSTANCE = "instance";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, "event1");
+    const IdString_t EVENT = "event";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
     iox::popo::UntypedPublisher publisher_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "another_instance", "event2");
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "another_instance", EVENT);
     iox::popo::UntypedPublisher publisher_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, "event3");
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
     iox::popo::UntypedPublisher publisher_sd3(SERVICE_DESCRIPTION3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4("service4", INSTANCE, "another_event");
+    iox::popo::UntypedPublisher publisher_sd4(SERVICE_DESCRIPTION4);
 
     ServiceContainer serviceContainerExp;
     serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = sut.findService(iox::capro::Wildcard, INSTANCE);
+    auto serviceContainer = sut.findService(iox::capro::Wildcard, INSTANCE, EVENT);
+    ASSERT_FALSE(serviceContainer.has_error());
+    ASSERT_THAT(serviceContainer.value().size(), Eq(2U));
+    EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
+}
+
+TEST_F(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices)
+{
+    const IdString_t SERVICE = "service";
+    const IdString_t INSTANCE = "instance";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, INSTANCE, "event1");
+    iox::popo::UntypedPublisher publisher_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("another_service", INSTANCE, "event2");
+    iox::popo::UntypedPublisher publisher_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, INSTANCE, "event3");
+    iox::popo::UntypedPublisher publisher_sd3(SERVICE_DESCRIPTION3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4(SERVICE, "another_instance", "event4");
+    iox::popo::UntypedPublisher publisher_sd4(SERVICE_DESCRIPTION4);
+
+    ServiceContainer serviceContainerExp;
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
+
+    auto serviceContainer = sut.findService(SERVICE, INSTANCE, iox::capro::Wildcard);
+    ASSERT_FALSE(serviceContainer.has_error());
+    ASSERT_THAT(serviceContainer.value().size(), Eq(2U));
+    EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
+}
+
+/// @todo #415 enable once the prefix tree is integrated into the service registry
+TEST_F(ServiceDiscovery_test, DISABLED_FindServiceWithInstanceWildcardReturnsCorrectServices)
+{
+    const IdString_t SERVICE = "service";
+    const IdString_t EVENT = "event";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", EVENT);
+    iox::popo::UntypedPublisher publisher_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("another_service", "instance2", EVENT);
+    iox::popo::UntypedPublisher publisher_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", EVENT);
+    iox::popo::UntypedPublisher publisher_sd3(SERVICE_DESCRIPTION3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4(SERVICE, "instance4", "another_event");
+    iox::popo::UntypedPublisher publisher_sd4(SERVICE_DESCRIPTION4);
+
+    ServiceContainer serviceContainerExp;
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
+
+    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(2U));
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
@@ -261,78 +321,73 @@ TEST_F(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", "event3");
     iox::popo::UntypedPublisher publisher_sd3(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = sut.findService(SERVICE, SERVICE_DESCRIPTION1.getInstanceIDString());
+    auto serviceContainer =
+        sut.findService(SERVICE, SERVICE_DESCRIPTION1.getInstanceIDString(), SERVICE_DESCRIPTION1.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION1));
 
-    serviceContainer = sut.findService(SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString());
+    serviceContainer =
+        sut.findService(SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString(), SERVICE_DESCRIPTION2.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
 
-    serviceContainer = sut.findService(SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString());
+    serviceContainer =
+        sut.findService(SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString(), SERVICE_DESCRIPTION3.getEventIDString());
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION3));
 }
 
-TEST_F(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinations)
+/// @todo #415 enable once the prefix tree is integrated into the service registry
+TEST_F(ServiceDiscovery_test, DISABLED_FindServiceReturnsCorrectServiceInstanceCombinations)
 {
     ::testing::Test::RecordProperty("TEST_ID", "360839a7-9309-4e7e-8e89-892097a87f7a");
 
     const IdString_t SERVICE1 = "service1";
-    const IdString_t SERVICE2 = "service2";
     const IdString_t INSTANCE1 = "instance1";
     const IdString_t INSTANCE2 = "instance2";
-    const IdString_t INSTANCE3 = "instance3";
     const IdString_t EVENT1 = "event1";
     const IdString_t EVENT2 = "event2";
     const IdString_t EVENT3 = "event3";
 
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1(SERVICE1, INSTANCE1, EVENT1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2(SERVICE1, INSTANCE2, EVENT2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_3(SERVICE1, INSTANCE3, EVENT3);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_2_1(SERVICE2, INSTANCE1, EVENT1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_2_2(SERVICE2, INSTANCE2, EVENT2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_2_3(SERVICE2, INSTANCE3, EVENT3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1_1(SERVICE1, INSTANCE1, EVENT1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1_2(SERVICE1, INSTANCE1, EVENT2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_1(SERVICE1, INSTANCE2, EVENT1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_2(SERVICE1, INSTANCE2, EVENT2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_3(SERVICE1, INSTANCE2, EVENT3);
 
-    iox::popo::UntypedPublisher publisher_sd_1_1(SERVICE_DESCRIPTION_1_1);
-    iox::popo::UntypedPublisher publisher_sd_1_2(SERVICE_DESCRIPTION_1_2);
-    iox::popo::UntypedPublisher publisher_sd_1_3(SERVICE_DESCRIPTION_1_3);
-    iox::popo::UntypedPublisher publisher_sd_2_1(SERVICE_DESCRIPTION_2_1);
-    iox::popo::UntypedPublisher publisher_sd_2_2(SERVICE_DESCRIPTION_2_2);
-    iox::popo::UntypedPublisher publisher_sd_2_3(SERVICE_DESCRIPTION_2_3);
+    iox::popo::UntypedPublisher publisher_sd_1_1_1(SERVICE_DESCRIPTION_1_1_1);
+    iox::popo::UntypedPublisher publisher_sd_1_1_2(SERVICE_DESCRIPTION_1_1_2);
+    iox::popo::UntypedPublisher publisher_sd_1_2_1(SERVICE_DESCRIPTION_1_2_1);
+    iox::popo::UntypedPublisher publisher_sd_1_2_2(SERVICE_DESCRIPTION_1_2_2);
+    iox::popo::UntypedPublisher publisher_sd_1_2_3(SERVICE_DESCRIPTION_1_2_3);
 
-    auto serviceContainer = sut.findService(SERVICE1, INSTANCE1);
+    auto serviceContainer = sut.findService(SERVICE1, INSTANCE1, EVENT1);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_1));
+    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_1_1));
 
-    serviceContainer = sut.findService(SERVICE1, INSTANCE2);
+    serviceContainer = sut.findService(SERVICE1, INSTANCE1, EVENT2);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2));
+    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_1_2));
 
-    serviceContainer = sut.findService(SERVICE1, INSTANCE3);
+    serviceContainer = sut.findService(SERVICE1, INSTANCE2, EVENT1);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_3));
+    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2_1));
 
-    serviceContainer = sut.findService(SERVICE2, INSTANCE1);
+    serviceContainer = sut.findService(SERVICE1, INSTANCE2, EVENT2);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_2_1));
+    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2_2));
 
-    serviceContainer = sut.findService(SERVICE2, INSTANCE2);
+    serviceContainer = sut.findService(SERVICE1, INSTANCE2, EVENT3);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_2_2));
-
-    serviceContainer = sut.findService(SERVICE2, INSTANCE3);
-    ASSERT_FALSE(serviceContainer.has_error());
-    ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_2_3));
+    EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2_3));
 }
 
 TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
@@ -352,35 +407,52 @@ TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
     publisher_sd3.stopOffer();
     this->InterOpWait();
 
-    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE);
+    auto serviceContainer = sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 
-    serviceContainer = sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE);
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
 
-    serviceContainer = sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE);
+    serviceContainer = sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 }
 
-TEST_F(ServiceDiscovery_test, NonExistingServicesAreNotFound)
+/// @todo #415 enable once the prefix tree is integrated into the service registry
+TEST_F(ServiceDiscovery_test, DISABLED_NonExistingServicesAreNotFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "86b87264-4df4-4d20-9357-06391ca1d57f");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     iox::popo::UntypedPublisher publisher_sd(SERVICE_DESCRIPTION);
 
-    auto serviceContainer = sut.findService(IdString_t("service"), IdString_t("schlomo"));
+    auto serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("schlomo"), IdString_t("hypnotoad"));
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 
-    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("instance"));
+    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("schlomo"), IdString_t("event"));
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 
-    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("schlomo"));
+    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("instance"), IdString_t("hypnotoad"));
+    ASSERT_FALSE(serviceContainer.has_error());
+    EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
+
+    serviceContainer = sut.findService(IdString_t("ignatz"), IdString_t("instance"), IdString_t("event"));
+    ASSERT_FALSE(serviceContainer.has_error());
+    EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
+
+    serviceContainer = sut.findService(IdString_t("service"), IdString_t("schlomo"), IdString_t("hypnotoad"));
+    ASSERT_FALSE(serviceContainer.has_error());
+    EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
+
+    serviceContainer = sut.findService(IdString_t("service"), IdString_t("schlomo"), IdString_t("hypnotoad"));
+    ASSERT_FALSE(serviceContainer.has_error());
+    EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
+
+    serviceContainer = sut.findService(IdString_t("service"), IdString_t("instance"), IdString_t("hypnotoad"));
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 }
@@ -402,7 +474,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxServices)
         serviceContainerExp.push_back(SERVICE_DESCRIPTION);
     }
 
-    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard);
+    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_FALSE(serviceContainer.has_error());
     EXPECT_THAT(serviceContainer.value().size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
@@ -423,7 +495,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsContainerOverflowErrorWhenMoreTh
         publishers.emplace_back(SERVICE_DESCRIPTION);
     }
 
-    auto serviceContainer = sut.findService(IdString_t("s"), iox::capro::Wildcard);
+    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_THAT(serviceContainer.has_error(), Eq(true));
 }
