@@ -24,7 +24,7 @@ using namespace ::testing;
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
 constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
 
-#define IOX_TEST(TestName, variationPoint)                                                                             \
+#define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
     ValueOrReturnsValueWhenValid<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>(       \
@@ -56,12 +56,12 @@ struct ValueOrReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid_LValue)
 {
-    IOX_TEST(ValueOrReturnsValueWhenValid, sut);
+    IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsValueWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid_RValue)
 {
-    IOX_TEST(ValueOrReturnsValueWhenValid, std::move(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsValueWhenValid, std::move(sut));
 }
 
 template <bool HasValue>
@@ -89,13 +89,13 @@ struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid_LValue)
 {
-    IOX_TEST(ValueOrReturnsArgumentWhenInalid, sut);
+    IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsArgumentWhenInalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid_RValue)
 {
-    IOX_TEST(ValueOrReturnsArgumentWhenInalid, std::move(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsArgumentWhenInalid, std::move(sut));
 }
 
-#undef IOX_TEST
+#undef IOX_TEST_FUNCTIONAL_INTERFACE
 } // namespace

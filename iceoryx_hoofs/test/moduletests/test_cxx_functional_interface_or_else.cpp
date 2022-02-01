@@ -28,7 +28,7 @@ TYPED_TEST(FunctionalInterface_test, OrElseHasCorrectSignature)
     EXPECT_THAT(DOES_OR_ELSE_HAVE_A_VALUE, Eq(Factory::EXPECT_OR_ELSE_WITH_VALUE));
 }
 
-#define IOX_TEST(TestName, variationPoint)                                                                             \
+#define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     constexpr bool HAS_GET_ERROR_METHOD = iox::cxx::internal::HasGetErrorMethod<SutType>::value;                       \
     TestName<HAS_GET_ERROR_METHOD>::template performTest<typename TestFixture::TestFactoryType>(                       \
@@ -71,22 +71,22 @@ struct OrElseIsCalledCorrectlyWhenInvalid<TYPE_HAS_GET_ERROR_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsCalledCorrectlyWhenInvalid_LValueCase)
 {
-    IOX_TEST(OrElseIsCalledCorrectlyWhenInvalid, sut);
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsCalledCorrectlyWhenInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsCalledCorrectlyWhenInvalid_ConstLValueCase)
 {
-    IOX_TEST(OrElseIsCalledCorrectlyWhenInvalid, const_cast<const SutType&>(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsCalledCorrectlyWhenInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsCalledCorrectlyWhenInvalid_RValueCase)
 {
-    IOX_TEST(OrElseIsCalledCorrectlyWhenInvalid, std::move(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsCalledCorrectlyWhenInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsCalledCorrectlyWhenInvalid_ConstRValueCase)
 {
-    IOX_TEST(OrElseIsCalledCorrectlyWhenInvalid, std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsCalledCorrectlyWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
 
 template <bool HasError>
@@ -120,23 +120,23 @@ struct OrElseIsNotCalledWhenValid<TYPE_HAS_GET_ERROR_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsNotCalledWhenValid_LValueCase)
 {
-    IOX_TEST(OrElseIsNotCalledWhenValid, sut);
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsNotCalledWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsNotCalledWhenValid_ConstLValueCase)
 {
-    IOX_TEST(OrElseIsNotCalledWhenValid, const_cast<const SutType&>(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsNotCalledWhenValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsNotCalledWhenValid_RValueCase)
 {
-    IOX_TEST(OrElseIsNotCalledWhenValid, std::move(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsNotCalledWhenValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseIsNotCalledWhenValid_ConstRValueCase)
 {
-    IOX_TEST(OrElseIsNotCalledWhenValid, std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsNotCalledWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
-#undef IOX_TEST
+#undef IOX_TEST_FUNCTIONAL_INTERFACE
 } // namespace

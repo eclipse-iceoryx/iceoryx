@@ -28,7 +28,7 @@ TYPED_TEST(FunctionalInterface_test, AndThenHasCorrectSignature)
     EXPECT_THAT(DOES_AND_THEN_HAVE_A_VALUE, Eq(Factory::EXPECT_AND_THEN_WITH_VALUE));
 }
 
-#define IOX_TEST(TestName, variationPoint)                                                                             \
+#define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
     TestName<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>(                           \
@@ -73,22 +73,22 @@ struct AndThenIsCalledCorrectlyWhenValid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_LValueCase)
 {
-    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, sut);
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstLValueCase)
 {
-    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_RValueCase)
 {
-    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, std::move(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstRValueCase)
 {
-    IOX_TEST(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
 template <bool HasValue>
@@ -124,23 +124,23 @@ struct AndThenIsNotCalledWhenInvalid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_LValueCase)
 {
-    IOX_TEST(AndThenIsNotCalledWhenInvalid, sut);
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstLValueCase)
 {
-    IOX_TEST(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_RValueCase)
 {
-    IOX_TEST(AndThenIsNotCalledWhenInvalid, std::move(sut));
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstRValueCase)
 {
-    IOX_TEST(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
 
-#undef IOX_TEST
+#undef IOX_TEST_FUNCTIONAL_INTERFACE
 } // namespace
