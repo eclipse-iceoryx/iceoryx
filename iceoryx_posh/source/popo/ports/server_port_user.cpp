@@ -52,6 +52,11 @@ cxx::expected<const RequestHeader*, ChunkReceiveResult> ServerPortUser::getReque
 
 void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
 {
+    cxx::Ensures(requestHeader != nullptr && "requestHeader must not be a nullptr");
+    if (requestHeader == nullptr)
+    {
+        return;
+    }
     m_chunkReceiver.release(requestHeader->getChunkHeader());
 }
 
@@ -70,6 +75,14 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
                                  const uint32_t userPayloadSize,
                                  const uint32_t userPayloadAlignment) noexcept
 {
+    cxx::Ensures(requestHeader != nullptr && "requestHeader must not be a nullptr");
+    if (requestHeader == nullptr)
+    {
+        // this branch will only be executed in tests where the error handler is suppressed
+        // and does not terminate with a fatal error
+        return cxx::error<AllocationError>(AllocationError::UNDEFINED_ERROR);
+    }
+
     auto allocateResult = m_chunkSender.tryAllocate(
         getUniqueID(), userPayloadSize, userPayloadAlignment, sizeof(ResponseHeader), alignof(ResponseHeader));
 
@@ -88,11 +101,22 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
 
 void ServerPortUser::freeResponse(ResponseHeader* const responseHeader) noexcept
 {
+    cxx::Ensures(responseHeader != nullptr && "responseHeader must not be a nullptr");
+    if (responseHeader == nullptr)
+    {
+        return;
+    }
     m_chunkSender.release(responseHeader->getChunkHeader());
 }
 
 void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
+    cxx::Ensures(responseHeader != nullptr && "requestHeader must not be a nullptr");
+    if (responseHeader == nullptr)
+    {
+        return;
+    }
+
     const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
 
     if (offerRequested)
@@ -100,19 +124,18 @@ void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
         m_chunkSender.getQueueIndex(responseHeader->m_uniqueClientQueueId, responseHeader->m_lastKnownClientQueueIndex)
             .and_then([&](auto queueIndex) {
                 responseHeader->m_lastKnownClientQueueIndex = queueIndex;
-                if (!m_chunkSender.sendToQueue(
-                        responseHeader->getChunkHeader(), responseHeader->m_uniqueClientQueueId, queueIndex))
-                {
-                    /// @note do not access the member of responseHeader since the ownership is passed to sendToQueue
-                    /// and it might not be valid anymore
-                    LogWarn() << "Could not deliver to queue!";
-                }
+                m_chunkSender.sendToQueue(
+                    responseHeader->getChunkHeader(), responseHeader->m_uniqueClientQueueId, queueIndex);
             })
-            .or_else([] { LogWarn() << "Could not deliver to queue! Queue not available anymore!"; });
+            .or_else([&] {
+                freeResponse(responseHeader);
+                LogWarn() << "Could not deliver to queue! Queue not available anymore!";
+            });
     }
     else
     {
-        LogWarn() << "Try to send request without being connected!";
+        freeResponse(responseHeader);
+        LogWarn() << "Try to send response without having offered!";
     }
 }
 

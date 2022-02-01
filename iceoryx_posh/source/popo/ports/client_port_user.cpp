@@ -84,6 +84,7 @@ void ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
     }
     else
     {
+        // TODO release request and call error handler
         LogWarn() << "Try to send request without being connected!";
     }
 }
