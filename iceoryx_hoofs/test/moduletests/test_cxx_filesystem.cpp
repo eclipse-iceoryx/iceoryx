@@ -27,6 +27,7 @@ using permsBaseType_t = std::underlying_type<perms>::type;
 
 TEST(filesystem_test, permsSatisfiesBinaryOrOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0b72fcec-c2b3-4a45-801f-542ff3195a2f");
     constexpr perms TEST_VALUE_LHS = perms::others_write;
     constexpr perms TEST_VALUE_RHS = perms::group_all;
 
@@ -38,6 +39,7 @@ TEST(filesystem_test, permsSatisfiesBinaryOrOperationCorrectly)
 
 TEST(filesystem_test, permsSatisfiesBinaryAndOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "15a02845-21b0-41fb-80bf-ee2ff9a81427");
     constexpr perms TEST_VALUE_LHS = perms::others_read;
     constexpr perms TEST_VALUE_RHS = perms::mask;
 
@@ -49,6 +51,7 @@ TEST(filesystem_test, permsSatisfiesBinaryAndOperationCorrectly)
 
 TEST(filesystem_test, permsSatisfiesBinaryExclusiveOrOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8094a263-2861-45ad-aecd-9312d477bc2d");
     constexpr perms TEST_VALUE_LHS = perms::set_gid;
     constexpr perms TEST_VALUE_RHS = perms::set_uid;
 
@@ -60,6 +63,7 @@ TEST(filesystem_test, permsSatisfiesBinaryExclusiveOrOperationCorrectly)
 
 TEST(filesystem_test, permsSatisfiesBinaryComplementOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c313cf42-4cf0-4836-95ff-129111a707b0");
     constexpr perms TEST_VALUE = perms::owner_read;
 
     constexpr auto BASE_VALUE = static_cast<permsBaseType_t>(TEST_VALUE);
@@ -69,6 +73,7 @@ TEST(filesystem_test, permsSatisfiesBinaryComplementOperationCorrectly)
 
 TEST(filesystem_test, permsSatisfiesBinaryOrAssignmentOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d3611de8-f932-4485-9e64-6cd8af4526dc");
     constexpr perms TEST_VALUE = perms::sticky_bit;
     constexpr perms TEST_VALUE_RHS = perms::group_read;
 
@@ -82,6 +87,7 @@ TEST(filesystem_test, permsSatisfiesBinaryOrAssignmentOperationCorrectly)
 
 TEST(filesystem_test, permsSatisfiesBinaryAndAssignmentOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "03c139be-e3ec-477e-8598-5da93699ab75");
     constexpr perms TEST_VALUE = perms::others_exec;
     constexpr perms TEST_VALUE_RHS = perms::others_all;
 
@@ -95,6 +101,7 @@ TEST(filesystem_test, permsSatisfiesBinaryAndAssignmentOperationCorrectly)
 
 TEST(filesystem_test, permsSatisfiesBinaryExclusiveOrAssignmentOperationCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "dae75205-a635-4535-8e8d-05541bb05b60");
     constexpr perms TEST_VALUE = perms::none;
     constexpr perms TEST_VALUE_RHS = perms::owner_all;
 
@@ -108,6 +115,7 @@ TEST(filesystem_test, permsSatisfiesBinaryExclusiveOrAssignmentOperationCorrectl
 
 TEST(filesystem_test, permsWhenEverythingIsSetTheOutputPrintsEverything)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2bb4931f-6ef9-4089-88a1-bf263a931559");
     Logger_Mock loggerMock;
     {
         auto logStream = iox::log::LogStream(loggerMock);
@@ -122,6 +130,7 @@ TEST(filesystem_test, permsWhenEverythingIsSetTheOutputPrintsEverything)
 
 TEST(filesystem_test, permsWhenNothingIsSetEveryEntryIsNone)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2b50cb56-6dae-4514-bd77-791f81f6adca");
     Logger_Mock loggerMock;
     {
         auto logStream = iox::log::LogStream(loggerMock);
@@ -135,6 +144,7 @@ TEST(filesystem_test, permsWhenNothingIsSetEveryEntryIsNone)
 
 TEST(filesystem_test, permsWhenSomeOrSetTheOutputIsCorrect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "94e647b7-242b-4fe3-bccd-2fde9e091e8e");
     Logger_Mock loggerMock;
     {
         auto logStream = iox::log::LogStream(loggerMock);
