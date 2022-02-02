@@ -143,6 +143,7 @@ add_library(iceoryx_hoofs
     source/concurrent/loffli.cpp
     source/cxx/deadline_timer.cpp
     source/cxx/helplets.cpp
+    source/cxx/requires.cpp
     source/cxx/generic_raii.cpp
     source/cxx/unique_id.cpp
     source/error_handling/error_handling.cpp

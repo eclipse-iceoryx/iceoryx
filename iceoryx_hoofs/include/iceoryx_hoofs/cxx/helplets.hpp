@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CXX_HELPLETS_HPP
 #define IOX_HOOFS_CXX_HELPLETS_HPP
 
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <cassert>
@@ -39,17 +40,6 @@ struct TruncateToCapacity_t;
 
 namespace internal
 {
-inline void Require(
-    const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
-{
-    if (!condition)
-    {
-        std::cerr << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
-                  << ")" << std::endl;
-        std::terminate();
-    }
-}
-
 /// @brief struct to find the best fitting unsigned integer type
 template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
 struct BestFittingTypeImpl
@@ -86,16 +76,6 @@ constexpr char ASCII_DOT = '.';
 constexpr char ASCII_COLON = ':';
 constexpr char ASCII_UNDERSCORE = '_';
 } // namespace internal
-
-// implementing C++ Core Guideline, I.6. Prefer Expects
-// see:
-// https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-expects
-#define Expects(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
-
-// implementing C++ Core Guideline, I.8. Prefer Ensures
-// see:
-// https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-ensures
-#define Ensures(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
 
 template <typename T, typename = typename std::enable_if<std::is_pointer<T>::value, void>::type>
 struct not_null

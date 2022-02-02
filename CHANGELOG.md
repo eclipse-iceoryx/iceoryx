@@ -23,6 +23,7 @@
 - UniqueId class for unique IDs within a process [#1010](https://github.com/eclipse-iceoryx/iceoryx/issues/1010)
 - Add requirePublisherHistorySupport option at subscriber side (if set to true requires historyRequest <= historyCapacity to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029)
 - Add `/tools/scripts/ice_env.sh` shell script to provide simple access to docker containers for CI debugging [#1049](https://github.com/eclipse-iceoryx/iceoryx/issues/1049)
+- Introduce `cxx::FunctionalInterface` to enrich nullable classes with `and_then`, `or_else`, `value_or`, `expect` [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 
 **Bugfixes:**
 
@@ -70,6 +71,23 @@ The CMake files in iceoryx expect to have CMake version 3.16 or greater installe
 (Hint: Ubuntu 18 users can install `cmake-mozilla` from the universe repository provided by Canonical)
 
 Dependency for building the iceoryx_dds gateway changed from `openjdk` (Java) to `bison`
+
+Change include from `iceoryx_hoofs/cxx/helplets.hpp` to `iceoryx_hoofs/cxx/requires.hpp`
+when using `cxx::Expects` or `cxx::Ensures`
+```cpp
+// before
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+
+iox::cxx::Expects(someCondition);
+iox::cxx::Ensures(anotherCondition);
+
+// after
+#include "iceoryx_hoofs/cxx/requires.hpp"
+
+iox::cxx::Expects(someCondition);
+iox::cxx::Ensures(anotherCondition);
+```
+
 
 Replace Creation pattern from `MemoryMap` with `MemoryMapBuilder`.
 
