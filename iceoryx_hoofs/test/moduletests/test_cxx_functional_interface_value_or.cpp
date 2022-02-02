@@ -56,11 +56,13 @@ struct ValueOrReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid_LValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "88a8f419-6df9-4d8c-9e60-039100d67efa");
     IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsValueWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsValueWhenValid_RValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2783061c-e746-4413-88e9-6b10065dd06a");
     IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsValueWhenValid, std::move(sut));
 }
 
@@ -89,11 +91,13 @@ struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid_LValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1398860-a440-4857-9a25-7e5bb9dc2fc9");
     IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsArgumentWhenInalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, ValueOrReturnsArgumentWhenInalid_RValue)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f85dcc3d-684d-4b32-9f1d-e7ac5ee45c0f");
     IOX_TEST_FUNCTIONAL_INTERFACE(ValueOrReturnsArgumentWhenInalid, std::move(sut));
 }
 

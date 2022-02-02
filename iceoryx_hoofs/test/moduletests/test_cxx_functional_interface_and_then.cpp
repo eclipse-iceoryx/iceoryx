@@ -22,6 +22,7 @@ using namespace ::testing;
 
 TYPED_TEST(FunctionalInterface_test, AndThenHasCorrectSignature)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7636fda5-090f-4dd6-b3a0-3d71bdbca787");
     using Factory = typename TestFixture::TestFactoryType;
     constexpr bool DOES_AND_THEN_HAVE_A_VALUE = iox::cxx::internal::HasValueMethod<typename Factory::Type>::value;
 
@@ -73,21 +74,25 @@ struct AndThenIsCalledCorrectlyWhenValid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_LValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7f1b42e0-c834-47f4-96cc-c6466647615c");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstLValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "80724fcd-78a4-4f52-82fe-1613069823f0");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_RValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ddf400a0-3231-49d3-b29f-338873038549");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstRValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "225f1e86-6b37-47db-9e1f-f44040040e8a");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
@@ -124,21 +129,25 @@ struct AndThenIsNotCalledWhenInvalid<TYPE_HAS_VALUE_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_LValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "53eef31f-ab30-41c8-887e-edac3c51966c");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstLValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1fcd75d8-ce17-49c3-8a0a-d676d649b985");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_RValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ba6ed865-0bc1-451c-ace2-b09ce273e6ca");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstRValueCase)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d4162bb7-c2b3-4c82-bb78-bc63acf4b3b9");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
 
