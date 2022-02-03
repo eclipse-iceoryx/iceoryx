@@ -66,6 +66,18 @@
 - Updating Codecov API and enforce CMake version 3.16 for building iceoryx [\#774](https://github.com/eclipse-iceoryx/iceoryx/issues/774) and [\#1031](https://github.com/eclipse-iceoryx/iceoryx/issues/1031)
 - Remove `InvalidIdString` and `isValid()` from `ServiceDescription`, replace Wildcard string with `iox::cxx::nullopt` [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 
+**New API features:**
+
+- Introduce `iceoryx_hoofs/cxx/filesystem.hpp` which implements `std::perms` as `cxx::perms`.
+    ```cpp
+    #include "iceoryx_hoofs/cxx/filesystem.hpp"
+
+    // ...
+    cxx::perms filePermissions;
+    filePermissions = cxx::perms::owner_read | cxx::perms::group_write;
+    std::cout << filePermissions << std::endl;
+    ```
+
 **API Breaking Changes:**
 
 The CMake files in iceoryx expect to have CMake version 3.16 or greater installed, otherwise the build fails.
