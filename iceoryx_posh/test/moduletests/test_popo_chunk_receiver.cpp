@@ -236,4 +236,35 @@ TEST_F(ChunkReceiver_test, Cleanup)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
+TEST_F(ChunkReceiver_test, asStringLiteralConvertsChunkReceiveResultValuesToStrings)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5cbbda34-8a22-4eab-a8b6-20da345c1707");
+    using ChunkReceiveResult = iox::popo::ChunkReceiveResult;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut :
+         {ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, ChunkReceiveResult::NO_CHUNK_AVAILABLE})
+    {
+        auto enumString = iox::popo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
+            EXPECT_THAT(enumString, StrEq("ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL"));
+            break;
+        case ChunkReceiveResult::NO_CHUNK_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("ChunkReceiveResult::NO_CHUNK_AVAILABLE"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
 } // namespace

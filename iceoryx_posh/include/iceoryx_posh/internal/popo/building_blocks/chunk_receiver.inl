@@ -24,6 +24,31 @@ namespace iox
 {
 namespace popo
 {
+inline constexpr const char* asStringLiteral(const ChunkReceiveResult value) noexcept
+{
+    switch (value)
+    {
+    case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
+        return "ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL";
+    case ChunkReceiveResult::NO_CHUNK_AVAILABLE:
+        return "ChunkReceiveResult::NO_CHUNK_AVAILABLE";
+    }
+
+    return "[Undefined ChunkReceiveResult]";
+}
+
+inline std::ostream& operator<<(std::ostream& stream, ChunkReceiveResult value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
+inline log::LogStream& operator<<(log::LogStream& stream, ChunkReceiveResult value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
 template <typename ChunkReceiverDataType>
 inline ChunkReceiver<ChunkReceiverDataType>::ChunkReceiver(
     cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
