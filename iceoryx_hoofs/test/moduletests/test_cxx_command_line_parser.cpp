@@ -114,6 +114,12 @@ struct TypeToName<char>
 };
 constexpr const char TypeToName<char>::VALUE[];
 
+namespace internal
+{
+using cmdEntries_t = vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+using cmdAssignments_t = vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+} // namespace internal
+
 template <typename T>
 T addEntry(T& value,
            const char shortName,
@@ -121,8 +127,8 @@ T addEntry(T& value,
            const CommandLineParser::description_t& description,
            const ArgumentType argumentType,
            const T defaultValue,
-           vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& entries,
-           vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& assignments)
+           internal::cmdEntries_t& entries,
+           internal::cmdAssignments_t& assignments)
 {
     entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
@@ -146,14 +152,33 @@ bool addEntry(bool& value,
               const CommandLineParser::description_t& description,
               const ArgumentType argumentType,
               const bool defaultValue,
-              vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& entries,
-              vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& assignments)
+              internal::cmdEntries_t& entries,
+              internal::cmdAssignments_t& assignments)
 {
     entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         value = options.has(entries[index].longOption);
     });
     return defaultValue;
+}
+
+void populateEntries(const internal::cmdEntries_t& entries,
+                     const internal::cmdAssignments_t& assignments,
+                     int argc,
+                     char* argv[])
+{
+    CommandLineParser parser;
+    for (auto& entry : entries)
+    {
+        parser.addOption(entry);
+    }
+
+    auto options = parser.parse(argc, argv);
+
+    for (auto& assignment : assignments)
+    {
+        assignment(options);
+    }
 }
 
 #define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, description)                                         \
@@ -189,34 +214,26 @@ bool addEntry(bool& value,
 // TODO: offset
 // TODO: terminate on unknown parameter
 
+#define COMMAND_LINE_STRUCT(Name)                                                                                      \
+  private:                                                                                                             \
+    internal::cmdEntries_t m_entries;                                                                                  \
+    internal::cmdAssignments_t m_assignments;                                                                          \
+                                                                                                                       \
+  public:                                                                                                              \
+    Name(int argc, char* argv[])                                                                                       \
+    {                                                                                                                  \
+        populateEntries(m_entries, m_assignments, argc, argv);                                                         \
+    }
+
 class CommandLine
 {
-  private:
-    iox::cxx::vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_entries;
-    iox::cxx::vector<iox::cxx::function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>
-        m_assignments;
+    COMMAND_LINE_STRUCT(CommandLine)
 
   public:
     OPTIONAL_VALUE(string<100>, service, {""}, 's', "some description");
     REQUIRED_VALUE(string<100>, instance, 's', "some description");
     SWITCH(doStuff, 'd', "do some stuff - some description");
     OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd");
-
-    CommandLine(int argc, char* argv[])
-    {
-        CommandLineParser parser;
-        for (auto& entry : m_entries)
-        {
-            parser.addOption(entry);
-        }
-
-        auto options = parser.parse(argc, argv);
-
-        for (auto& assignment : m_assignments)
-        {
-            assignment(options);
-        }
-    }
 };
 
 TEST_F(CommandLineParser_test, asd)
