@@ -40,6 +40,37 @@ from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryMana
 
 namespace popo
 {
+inline constexpr const char* asStringLiteral(const AllocationError value) noexcept
+{
+    switch (value)
+    {
+    case AllocationError::UNDEFINED_ERROR:
+        return "AllocationError::UNDEFINED_ERROR";
+    case AllocationError::NO_MEMPOOLS_AVAILABLE:
+        return "AllocationError::NO_MEMPOOLS_AVAILABLE";
+    case AllocationError::RUNNING_OUT_OF_CHUNKS:
+        return "AllocationError::RUNNING_OUT_OF_CHUNKS";
+    case AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:
+        return "AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL";
+    case AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
+        return "AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER";
+    }
+
+    return "[Undefined AllocationError]";
+}
+
+inline std::ostream& operator<<(std::ostream& stream, AllocationError value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
+inline log::LogStream& operator<<(log::LogStream& stream, AllocationError value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
 template <typename ChunkSenderDataType>
 inline ChunkSender<ChunkSenderDataType>::ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
     : Base_t(static_cast<typename ChunkSenderDataType::ChunkDistributorData_t* const>(chunkSenderDataPtr))
