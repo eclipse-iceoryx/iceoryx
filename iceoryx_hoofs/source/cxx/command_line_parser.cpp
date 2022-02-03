@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/command_line_parser.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 
 namespace iox
 {
@@ -25,89 +26,114 @@ CommandLineParser::CommandLineParser() noexcept
     std::move(*this).addOption({'h', "help", "Display help.", ArgumentType::SWITCH});
 }
 
-CommandLineOptions CommandLineParser::parse(int argc, char* argv[]) noexcept
+CommandLineOptions CommandLineParser::parse(int argc,
+                                            char* argv[],
+                                            const uint64_t argcOffset,
+                                            const UnknownOption actionWhenOptionUnknown) noexcept
 {
-    CommandLineOptions options;
-    for (uint64_t i = 0U; i < static_cast<uint64_t>(argc); ++i)
+    if (argc <= 0)
     {
-        if (i == 0)
+        printHelpAndExit("empty");
+    }
+
+    CommandLineOptions options;
+
+
+    if (strnlen(argv[0], CommandLineOptions::MAX_BINARY_NAME_LENGTH + 1) > CommandLineOptions::MAX_BINARY_NAME_LENGTH)
+    {
+        std::cerr << "The \"" << argv[0] << "\" binary path is too long" << std::endl;
+        printHelpAndExit(argv[0]);
+    }
+    options.m_binaryName.unsafe_assign(argv[0]);
+
+
+    for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < static_cast<uint64_t>(argc); ++i)
+    {
+        if (argv[i][0] != '-')
         {
-            if (strnlen(argv[i], CommandLineOptions::MAX_BINARY_NAME_LENGTH + 1)
-                > CommandLineOptions::MAX_BINARY_NAME_LENGTH)
-            {
-                std::cerr << "The \"" << argv[i] << "\" binary path is too long" << std::endl;
-                printHelpAndExit(argv[0]);
-            }
-            options.m_binaryName.unsafe_assign(argv[i]);
+            std::cerr << "Every option has to start with \"-\" but \"" << argv[i] << "\" does not." << std::endl;
+            printHelpAndExit(options.m_binaryName.c_str());
         }
-        else
+
+        uint64_t argIdentifierLength = strnlen(argv[i], CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
+
+        if (argIdentifierLength == 1 || (argIdentifierLength == 2 && argv[i][1] == '-'))
         {
-            if (argv[i][0] != '-')
-            {
-                std::cerr << "Every option has to start with \"-\" but \"" << argv[i] << "\" does not." << std::endl;
-                printHelpAndExit(argv[0]);
-            }
+            std::cerr << "Empty option names are forbidden" << std::endl;
+            printHelpAndExit(options.binaryName().c_str());
+        }
+        else if (argIdentifierLength > 2 && argv[i][1] != '-')
+        {
+            std::cerr << "Only one letter allowed when using a short option name. This \"" << argv[i]
+                      << "\" is not valid." << std::endl;
+            printHelpAndExit(options.binaryName().c_str());
+        }
+        else if (argIdentifierLength > 2 && argv[i][2] == '-')
+        {
+            std::cerr << "A long option name should start after \"--\". This \"" << argv[i] << "\" is not valid."
+                      << std::endl;
+            printHelpAndExit(options.binaryName().c_str());
+        }
+        else if (argIdentifierLength > CommandLineOptions::MAX_OPTION_NAME_LENGTH)
+        {
+            std::cerr << "\"" << argv[i] << "\" is longer then the maximum supported size of "
+                      << CommandLineOptions::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
+            printHelpAndExit(options.binaryName().c_str());
+        }
 
-            uint64_t argIdentifierLength = strnlen(argv[i], CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
+        uint64_t optionNameStart = (argv[i][1] == '-') ? 2 : 1;
+        auto optionEntry = getOption(CommandLineOptions::name_t(cxx::TruncateToCapacity, argv[i] + optionNameStart));
 
-            if (argIdentifierLength == 1 || (argIdentifierLength == 2 && argv[i][1] == '-'))
+        if (!optionEntry)
+        {
+            switch (actionWhenOptionUnknown)
             {
-                std::cerr << "Empty option names are forbidden" << std::endl;
-                printHelpAndExit(argv[0]);
-            }
-            else if (argIdentifierLength > 2 && argv[i][1] != '-')
-            {
-                std::cerr << "Only one letter allowed when using a short option name. This \"" << argv[i]
-                          << "\" is not valid." << std::endl;
-                printHelpAndExit(argv[0]);
-            }
-            else if (argIdentifierLength > 2 && argv[i][2] == '-')
-            {
-                std::cerr << "A long option name should start after \"--\". This \"" << argv[i] << "\" is not valid."
-                          << std::endl;
-                printHelpAndExit(argv[0]);
-            }
-            else if (argIdentifierLength > CommandLineOptions::MAX_OPTION_NAME_LENGTH)
-            {
-                std::cerr << "\"" << argv[i] << "\" is longer then the maximum supported size of "
-                          << CommandLineOptions::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
-                printHelpAndExit(argv[0]);
-            }
-
-            uint64_t optionNameStart = (argv[i][1] == '-') ? 2 : 1;
-            auto optionEntry =
-                getOption(CommandLineOptions::name_t(cxx::TruncateToCapacity, argv[i] + optionNameStart));
-
-            if (!optionEntry)
+            case UnknownOption::TERMINATE:
             {
                 std::cerr << "Unknown option \"" << argv[i] << "\"" << std::endl;
-                printHelpAndExit(argv[0]);
+                printHelpAndExit(options.binaryName().c_str());
+                break;
             }
-
-            options.m_arguments.emplace_back();
-            options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
-            options.m_arguments.back().shortId = optionEntry->shortOption;
-
-            // parse value of the option name
-            if (i + 1 < static_cast<uint64_t>(argc) && argv[i + 1][0] != '-')
+            case UnknownOption::IGNORE:
             {
-                if (optionEntry->type == ArgumentType::SWITCH)
-                {
-                    std::cerr << "The parameter \"" << argv[i] << "\" is a switch. You cannot set a value here."
-                              << std::endl;
-                    printHelpAndExit(argv[0]);
-                }
+                const bool nextArgumentIsAValue =
+                    (argc > static_cast<int>(i) + 1
+                     && (strnlen(argv[i + 1], CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0
+                         && argv[i + 1][0] != '-'));
 
-                if (strnlen(argv[i + 1], CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1)
-                    > CommandLineOptions::MAX_OPTION_VALUE_LENGTH)
+                if (nextArgumentIsAValue)
                 {
-                    std::cerr << "\"" << argv[i + 1] << "\" is longer then the maximum supported size of "
-                              << CommandLineOptions::MAX_OPTION_VALUE_LENGTH << " for option values." << std::endl;
-                    printHelpAndExit(argv[0]);
+                    ++i;
                 }
-                options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
-                ++i;
+                continue;
+                break;
             }
+            }
+        }
+
+        options.m_arguments.emplace_back();
+        options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
+        options.m_arguments.back().shortId = optionEntry->shortOption;
+
+        // parse value of the option name
+        if (i + 1 < static_cast<uint64_t>(argc) && argv[i + 1][0] != '-')
+        {
+            if (optionEntry->type == ArgumentType::SWITCH)
+            {
+                std::cerr << "The parameter \"" << argv[i] << "\" is a switch. You cannot set a value here."
+                          << std::endl;
+                printHelpAndExit(options.binaryName().c_str());
+            }
+
+            if (strnlen(argv[i + 1], CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1)
+                > CommandLineOptions::MAX_OPTION_VALUE_LENGTH)
+            {
+                std::cerr << "\"" << argv[i + 1] << "\" is longer then the maximum supported size of "
+                          << CommandLineOptions::MAX_OPTION_VALUE_LENGTH << " for option values." << std::endl;
+                printHelpAndExit(options.binaryName().c_str());
+            }
+            options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
+            ++i;
         }
     }
 
@@ -115,12 +141,12 @@ CommandLineOptions CommandLineParser::parse(int argc, char* argv[]) noexcept
     {
         if (options.has("help"))
         {
-            printHelpAndExit(argv[0]);
+            printHelpAndExit(options.binaryName().c_str());
         }
         return options;
     }
 
-    printHelpAndExit(argv[0]);
+    printHelpAndExit(options.binaryName().c_str());
     return options;
 }
 

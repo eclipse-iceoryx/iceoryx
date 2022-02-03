@@ -32,6 +32,12 @@ enum class ArgumentType
     OPTIONAL_VALUE
 };
 
+enum class UnknownOption
+{
+    IGNORE,
+    TERMINATE
+};
+
 class CommandLineOptions
 {
   public:
@@ -89,7 +95,11 @@ class CommandLineParser
     CommandLineParser() noexcept;
 
     CommandLineParser& addOption(const entry_t& option) noexcept;
-    CommandLineOptions parse(int argc, char* argv[]) noexcept;
+
+    CommandLineOptions parse(int argc,
+                             char* argv[],
+                             const uint64_t argcOffset = 1U,
+                             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
   private:
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;

@@ -211,9 +211,6 @@ void populateEntries(const internal::cmdEntries_t& entries,
                                      m_entries,                                                                        \
                                      m_assignments);
 
-// TODO: offset
-// TODO: terminate on unknown parameter
-
 #define COMMAND_LINE_STRUCT(Name)                                                                                      \
   private:                                                                                                             \
     internal::cmdEntries_t m_entries;                                                                                  \
