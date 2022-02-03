@@ -183,16 +183,15 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
 }
 
-/// @todo #415 enable once the prefix tree is integrated into the service registry
-TEST_F(ServiceRegistry_test, DISABLED_SingleServiceDescriptionCanBeFoundWithEventName)
+TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithEventName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6df8fd7d-e4d1-4c51-8ad7-2fbe82e4ed09");
-    iox::capro::ServiceDescription service1("a", "b", "c");
-    ASSERT_FALSE(sut.add(service1).has_error());
+    iox::capro::ServiceDescription service("a", "b", "c");
+    ASSERT_FALSE(sut.add(service).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::IdString_t("c"));
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
@@ -209,12 +208,12 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0890013c-e14b-4ae2-89cb-757624c12b4e");
-    iox::capro::ServiceDescription service1("a", "b", "c");
-    ASSERT_FALSE(sut.add(service1).has_error());
+    iox::capro::ServiceDescription service("a", "b", "c");
+    ASSERT_FALSE(sut.add(service).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service));
 }
 
 TEST_F(ServiceRegistry_test, EmptyAndNotEmptyServiceDescriptionsCanAllBeFoundWithWildcardSearch)

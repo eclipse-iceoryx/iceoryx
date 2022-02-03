@@ -75,6 +75,7 @@ class ServiceRegistry
     /// @todo #859 replace std::multimap with prefix tree
     ::std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
     ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
+    ::std::multimap<capro::IdString_t, uint64_t> m_eventMap;
     ServiceDescriptionVector_t m_serviceDescriptionVector;
 };
 } // namespace roudi

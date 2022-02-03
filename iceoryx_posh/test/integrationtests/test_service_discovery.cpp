@@ -186,8 +186,7 @@ TEST_F(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION3));
 }
 
-/// @todo #415 enable once the prefix tree is integrated into the service registry
-TEST_F(ServiceDiscovery_test, DISABLED_FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
+TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1984e907-e990-48b2-8cbd-eab3f67cd162");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", "instance1", "event1");
@@ -237,8 +236,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithInstanceAndEventWildcardReturnsAllM
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
 }
 
-/// @todo #415 enable once the prefix tree is integrated into the service registry
-TEST_F(ServiceDiscovery_test, DISABLED_FindServiceWithServiceWildcardReturnsCorrectServices)
+TEST_F(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsCorrectServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f4731a52-39d8-4d49-b247-008a2e9181f9");
     const IdString_t INSTANCE = "instance";
@@ -286,8 +284,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
 }
 
-/// @todo #415 enable once the prefix tree is integrated into the service registry
-TEST_F(ServiceDiscovery_test, DISABLED_FindServiceWithInstanceWildcardReturnsCorrectServices)
+TEST_F(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsCorrectServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ec4b422-3ded-4af3-9e72-3b870c55031c");
     const IdString_t SERVICE = "service";
@@ -342,8 +339,7 @@ TEST_F(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION3));
 }
 
-/// @todo #415 enable once the prefix tree is integrated into the service registry
-TEST_F(ServiceDiscovery_test, DISABLED_FindServiceReturnsCorrectServiceInstanceCombinations)
+TEST_F(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinations)
 {
     ::testing::Test::RecordProperty("TEST_ID", "360839a7-9309-4e7e-8e89-892097a87f7a");
 
@@ -423,8 +419,7 @@ TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
     EXPECT_THAT(serviceContainer.value().size(), Eq(0U));
 }
 
-/// @todo #415 enable once the prefix tree is integrated into the service registry
-TEST_F(ServiceDiscovery_test, DISABLED_NonExistingServicesAreNotFound)
+TEST_F(ServiceDiscovery_test, NonExistingServicesAreNotFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "86b87264-4df4-4d20-9357-06391ca1d57f");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
