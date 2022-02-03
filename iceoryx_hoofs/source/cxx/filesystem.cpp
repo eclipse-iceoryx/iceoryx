@@ -65,6 +65,12 @@ perms operator^=(perms& lhs, const perms& rhs) noexcept
 template <typename StreamType>
 StreamType& operator<<(StreamType& stream, perms value) noexcept
 {
+    if (value == perms::unknown)
+    {
+        stream << "unknown permissions";
+        return stream;
+    }
+
     bool doAddComma = false;
     auto outputToStream = [&](const char* text) {
         if (doAddComma)

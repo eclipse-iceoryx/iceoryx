@@ -64,14 +64,20 @@ enum class perms : uint64_t
     all = 0777,
 
     /// @brief set uid bit
+    /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
     set_uid = 04000,
     /// @brief set gid bit
+    /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
     set_gid = 02000,
     /// @brief set sticky bit
+    /// @note sticky bit introduction: https://en.wikipedia.org/wiki/Sticky_bit
     sticky_bit = 01000,
 
     /// @brief all permissions for everyone as well as uid, gid and sticky bit
-    mask = 07777
+    mask = 07777,
+
+    /// @brief unknown permissions
+    unknown = 0xFFFF
 };
 
 /// @brief Implements the binary or operation
