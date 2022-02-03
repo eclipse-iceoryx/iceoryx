@@ -1,0 +1,51 @@
+@startuml
+
+title StatusPort overview
+
+skinparam classAttributeIconSize 0
+
+enum ActiveChunk {
+  FIRST
+  SECOND
+}
+
+class Transaction {
+  +activeChunk: ActiveChunk
+  +abaCounter: uint32_t
+}
+
+class StatusPortData {
+  +latestTransaction: std::atomic<Transaction>
+  +serviceDescription: capro::ServiceDescription
+  +chunks: SharedChunk[2]
+}
+
+class StatusPortReader<T> {
+  +StatusPortReader(statusPortDataPtr: cxx::not_null<StatusPortData* const)
+  +take(callable: cxx::function_ref<void(const T&)>): void
+  ' Open question if copyTake() is wanted
+  'copyTake(callable: cxx::function_ref<void(const T&)>): void)
+  -getMembers() const: const StatusPortData*
+  -getMembers(): StatusPortData*
+  -enableEvent(triggerHandle: iox::popo::TriggerHandle&&, event: const MyTriggerClassEvents): void
+  -disableEvent(event: const MyTriggerClassEvents): void
+  ' Some more methods need to be implemented in the StatusPortReader to be attachable to a Listener
+  ' See https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/ice_waitset_trigger.cpp
+  ' Open question if copyTake() is wanted
+  '-m_copyOfUserData: T
+  -m_statusPortDataPtr: StatusPortData*
+}
+
+
+class StatusPortWriter<T> {
+  +StatusPortWriter(statusPortDataPtr: cxx::not_null<StatusPortData* const)
+  +store(callable: cxx::function_ref<void(T&)>): void
+  -getMembers() const: const StatusPortData*
+  -getMembers(): StatusPortData*
+  -m_statusPortDataPtr: StatusPortData*
+}
+
+StatusPortWriter ..> StatusPortData
+StatusPortReader ..> StatusPortData
+
+@enduml

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="329px" preserveAspectRatio="none" style="width:1400px;height:329px;background:#FFFFFF;" version="1.1" viewBox="0 0 1400 329" width="1400px" zoomAndPan="magnify"><defs><filter height="300%" id="f32jc310fnk9t" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="189" x="599.25" y="16.708">StatusPort overview</text><!--MD5=[e870bcedbd185a6d32a4679f8f1f1baa]
+class ActiveChunk--><rect codeLine="5" fill="#FEFECE" filter="url(#f32jc310fnk9t)" height="73.6094" id="ActiveChunk" style="stroke:#A80036;stroke-width:1.5;" width="105" x="7" y="62.9531"/><ellipse cx="22" cy="78.9531" fill="#EB937F" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M20.7969,79.8281 L22.25,79.8281 L22.25,79.9375 C22.25,80.3438 22.2813,80.5 22.3594,80.6563 C22.5156,80.9063 22.7969,81.0625 23.0938,81.0625 C23.3438,81.0625 23.6094,80.9219 23.7656,80.7031 C23.8906,80.5469 23.9219,80.3906 23.9219,79.9375 L23.9219,78.0156 C23.9219,77.8594 23.9219,77.8125 23.9063,77.6563 C23.8438,77.1875 23.5313,76.875 23.0781,76.875 C22.8281,76.875 22.5625,77.0156 22.3906,77.2344 C22.2813,77.4063 22.25,77.5625 22.25,78.0156 L22.25,78.1406 L20.7969,78.1406 L20.7969,75.7344 L24.7813,75.7344 L24.7813,76.5938 C24.7813,77 24.8125,77.1719 24.8906,77.3281 C25.0625,77.5781 25.3438,77.7344 25.625,77.7344 C25.8906,77.7344 26.1563,77.5938 26.3281,77.375 C26.4375,77.2031 26.4688,77.0625 26.4688,76.5938 L26.4688,74.0469 L18.8438,74.0469 C18.4063,74.0469 18.2813,74.0625 18.125,74.1563 C17.875,74.3125 17.7188,74.6094 17.7188,74.8906 C17.7188,75.1719 17.8594,75.4219 18.0781,75.5938 C18.2344,75.7031 18.4219,75.7344 18.8438,75.7344 L19.0938,75.7344 L19.0938,82.25 L18.8438,82.25 C18.4375,82.25 18.2813,82.2656 18.125,82.375 C17.875,82.5469 17.7188,82.8125 17.7188,83.1094 C17.7188,83.375 17.8594,83.625 18.0781,83.7813 C18.2188,83.9063 18.4531,83.9531 18.8438,83.9531 L26.8438,83.9531 L26.8438,81.375 C26.8438,80.9375 26.8125,80.7969 26.7344,80.6406 C26.5625,80.3906 26.2813,80.2344 26,80.2344 C25.7344,80.2344 25.4688,80.3438 25.2969,80.5938 C25.1875,80.75 25.1563,80.8906 25.1563,81.375 L25.1563,82.25 L20.7969,82.25 L20.7969,79.8281 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="73" x="36" y="83.1074">ActiveChunk</text><line style="stroke:#A80036;stroke-width:1.5;" x1="8" x2="111" y1="94.9531" y2="94.9531"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="31" x="13" y="109.1636">FIRST</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="49" x="13" y="121.9683">SECOND</text><line style="stroke:#A80036;stroke-width:1.5;" x1="8" x2="111" y1="128.5625" y2="128.5625"/><!--MD5=[4555bb1b0911a5adf28ce6dbe60fed2e]
+class Transaction--><rect codeLine="10" fill="#FEFECE" filter="url(#f32jc310fnk9t)" height="73.6094" id="Transaction" style="stroke:#A80036;stroke-width:1.5;" width="169" x="147" y="62.9531"/><ellipse cx="192.75" cy="78.9531" fill="#ADD1B2" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M195.0938,74.625 C194.1563,74.1875 193.5625,74.0469 192.6875,74.0469 C190.0625,74.0469 188.0625,76.125 188.0625,78.8438 L188.0625,79.9688 C188.0625,82.5469 190.1719,84.4375 193.0625,84.4375 C194.2813,84.4375 195.4375,84.1406 196.1875,83.5938 C196.7656,83.1875 197.0938,82.7344 197.0938,82.3438 C197.0938,81.8906 196.7031,81.5 196.2344,81.5 C196.0156,81.5 195.8125,81.5781 195.625,81.7656 C195.1719,82.25 195.1719,82.25 194.9844,82.3438 C194.5625,82.6094 193.875,82.7344 193.1094,82.7344 C191.0625,82.7344 189.7656,81.6406 189.7656,79.9375 L189.7656,78.8438 C189.7656,77.0625 191.0156,75.75 192.75,75.75 C193.3281,75.75 193.9375,75.9063 194.4063,76.1563 C194.8906,76.4375 195.0625,76.6563 195.1563,77.0625 C195.2188,77.4688 195.25,77.5938 195.3906,77.7188 C195.5313,77.8594 195.7656,77.9688 195.9844,77.9688 C196.25,77.9688 196.5156,77.8281 196.6875,77.6094 C196.7969,77.4531 196.8281,77.2656 196.8281,76.8438 L196.8281,75.4219 C196.8281,74.9844 196.8125,74.8594 196.7188,74.7031 C196.5625,74.4375 196.2813,74.2969 195.9844,74.2969 C195.6875,74.2969 195.4844,74.3906 195.2656,74.7031 L195.0938,74.625 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="69" x="213.25" y="83.1074">Transaction</text><line style="stroke:#A80036;stroke-width:1.5;" x1="148" x2="315" y1="94.9531" y2="94.9531"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="157" x="153" y="109.1636">+activeChunk: ActiveChunk</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="127" x="153" y="121.9683">+abaCounter: uint32_t</text><line style="stroke:#A80036;stroke-width:1.5;" x1="148" x2="315" y1="128.5625" y2="128.5625"/><!--MD5=[2117d519d2cc6f54209f240144727464]
+class StatusPortData--><rect codeLine="15" fill="#FEFECE" filter="url(#f32jc310fnk9t)" height="86.4141" id="StatusPortData" style="stroke:#A80036;stroke-width:1.5;" width="279" x="766" y="228.9531"/><ellipse cx="857.75" cy="244.9531" fill="#ADD1B2" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M860.0938,240.625 C859.1563,240.1875 858.5625,240.0469 857.6875,240.0469 C855.0625,240.0469 853.0625,242.125 853.0625,244.8438 L853.0625,245.9688 C853.0625,248.5469 855.1719,250.4375 858.0625,250.4375 C859.2813,250.4375 860.4375,250.1406 861.1875,249.5938 C861.7656,249.1875 862.0938,248.7344 862.0938,248.3438 C862.0938,247.8906 861.7031,247.5 861.2344,247.5 C861.0156,247.5 860.8125,247.5781 860.625,247.7656 C860.1719,248.25 860.1719,248.25 859.9844,248.3438 C859.5625,248.6094 858.875,248.7344 858.1094,248.7344 C856.0625,248.7344 854.7656,247.6406 854.7656,245.9375 L854.7656,244.8438 C854.7656,243.0625 856.0156,241.75 857.75,241.75 C858.3281,241.75 858.9375,241.9063 859.4063,242.1563 C859.8906,242.4375 860.0625,242.6563 860.1563,243.0625 C860.2188,243.4688 860.25,243.5938 860.3906,243.7188 C860.5313,243.8594 860.7656,243.9688 860.9844,243.9688 C861.25,243.9688 861.5156,243.8281 861.6875,243.6094 C861.7969,243.4531 861.8281,243.2656 861.8281,242.8438 L861.8281,241.4219 C861.8281,240.9844 861.8125,240.8594 861.7188,240.7031 C861.5625,240.4375 861.2813,240.2969 860.9844,240.2969 C860.6875,240.2969 860.4844,240.3906 860.2656,240.7031 L860.0938,240.625 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="87" x="878.25" y="249.1074">StatusPortData</text><line style="stroke:#A80036;stroke-width:1.5;" x1="767" x2="1044" y1="260.9531" y2="260.9531"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="257" x="772" y="275.1636">+latestTransaction: std::atomic&lt;Transaction&gt;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="267" x="772" y="287.9683">+serviceDescription: capro::ServiceDescription</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="146" x="772" y="300.7729">+chunks: SharedChunk[2]</text><line style="stroke:#A80036;stroke-width:1.5;" x1="767" x2="1044" y1="307.3672" y2="307.3672"/><!--MD5=[e4852eab39d89213c276dbf6dd38a67d]
+class StatusPortReader--><rect codeLine="21" fill="#FEFECE" filter="url(#f32jc310fnk9t)" height="137.6328" id="StatusPortReader" style="stroke:#A80036;stroke-width:1.5;" width="574" x="351.5" y="30.9531"/><ellipse cx="577.25" cy="46.9531" fill="#ADD1B2" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M579.5938,42.625 C578.6563,42.1875 578.0625,42.0469 577.1875,42.0469 C574.5625,42.0469 572.5625,44.125 572.5625,46.8438 L572.5625,47.9688 C572.5625,50.5469 574.6719,52.4375 577.5625,52.4375 C578.7813,52.4375 579.9375,52.1406 580.6875,51.5938 C581.2656,51.1875 581.5938,50.7344 581.5938,50.3438 C581.5938,49.8906 581.2031,49.5 580.7344,49.5 C580.5156,49.5 580.3125,49.5781 580.125,49.7656 C579.6719,50.25 579.6719,50.25 579.4844,50.3438 C579.0625,50.6094 578.375,50.7344 577.6094,50.7344 C575.5625,50.7344 574.2656,49.6406 574.2656,47.9375 L574.2656,46.8438 C574.2656,45.0625 575.5156,43.75 577.25,43.75 C577.8281,43.75 578.4375,43.9063 578.9063,44.1563 C579.3906,44.4375 579.5625,44.6563 579.6563,45.0625 C579.7188,45.4688 579.75,45.5938 579.8906,45.7188 C580.0313,45.8594 580.2656,45.9688 580.4844,45.9688 C580.75,45.9688 581.0156,45.8281 581.1875,45.6094 C581.2969,45.4531 581.3281,45.2656 581.3281,44.8438 L581.3281,43.4219 C581.3281,42.9844 581.3125,42.8594 581.2188,42.7031 C581.0625,42.4375 580.7813,42.2969 580.4844,42.2969 C580.1875,42.2969 579.9844,42.3906 579.7656,42.7031 L579.5938,42.625 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="103" x="597.75" y="51.1074">StatusPortReader</text><rect fill="#FFFFFF" height="15.9688" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" width="9" x="919.5" y="27.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="7" x="920.5" y="40.0918">T</text><line style="stroke:#A80036;stroke-width:1.5;" x1="352.5" x2="924.5" y1="62.9531" y2="62.9531"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="214" x="357.5" y="77.1636">-m_statusPortDataPtr: StatusPortData*</text><line style="stroke:#A80036;stroke-width:1.5;" x1="352.5" x2="924.5" y1="83.7578" y2="83.7578"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="421" x="357.5" y="97.9683">+StatusPortReader(statusPortDataPtr: cxx::not_null&lt;StatusPortData* const)</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="317" x="357.5" y="110.7729">+take(callable: cxx::function_ref&lt;void(const T&amp;)&gt;): void</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="249" x="357.5" y="123.5776">-getMembers() const: const StatusPortData*</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="181" x="357.5" y="136.3823">-getMembers(): StatusPortData*</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="562" x="357.5" y="149.187">-enableEvent(triggerHandle: iox::popo::TriggerHandle&amp;&amp;, event: const MyTriggerClassEvents): void</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="317" x="357.5" y="161.9917">-disableEvent(event: const MyTriggerClassEvents): void</text><!--MD5=[915f390fbb167d78df2e7a4f7ea074f0]
+class StatusPortWriter--><rect codeLine="38" fill="#FEFECE" filter="url(#f32jc310fnk9t)" height="112.0234" id="StatusPortWriter" style="stroke:#A80036;stroke-width:1.5;" width="426" x="960.5" y="43.9531"/><ellipse cx="1115.25" cy="59.9531" fill="#ADD1B2" rx="11" ry="11" style="stroke:#A80036;stroke-width:1.0;"/><path d="M1117.5938,55.625 C1116.6563,55.1875 1116.0625,55.0469 1115.1875,55.0469 C1112.5625,55.0469 1110.5625,57.125 1110.5625,59.8438 L1110.5625,60.9688 C1110.5625,63.5469 1112.6719,65.4375 1115.5625,65.4375 C1116.7813,65.4375 1117.9375,65.1406 1118.6875,64.5938 C1119.2656,64.1875 1119.5938,63.7344 1119.5938,63.3438 C1119.5938,62.8906 1119.2031,62.5 1118.7344,62.5 C1118.5156,62.5 1118.3125,62.5781 1118.125,62.7656 C1117.6719,63.25 1117.6719,63.25 1117.4844,63.3438 C1117.0625,63.6094 1116.375,63.7344 1115.6094,63.7344 C1113.5625,63.7344 1112.2656,62.6406 1112.2656,60.9375 L1112.2656,59.8438 C1112.2656,58.0625 1113.5156,56.75 1115.25,56.75 C1115.8281,56.75 1116.4375,56.9063 1116.9063,57.1563 C1117.3906,57.4375 1117.5625,57.6563 1117.6563,58.0625 C1117.7188,58.4688 1117.75,58.5938 1117.8906,58.7188 C1118.0313,58.8594 1118.2656,58.9688 1118.4844,58.9688 C1118.75,58.9688 1119.0156,58.8281 1119.1875,58.6094 C1119.2969,58.4531 1119.3281,58.2656 1119.3281,57.8438 L1119.3281,56.4219 C1119.3281,55.9844 1119.3125,55.8594 1119.2188,55.7031 C1119.0625,55.4375 1118.7813,55.2969 1118.4844,55.2969 C1118.1875,55.2969 1117.9844,55.3906 1117.7656,55.7031 L1117.5938,55.625 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="97" x="1135.75" y="64.1074">StatusPortWriter</text><rect fill="#FFFFFF" height="15.9688" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" width="9" x="1380.5" y="40.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="7" x="1381.5" y="53.0918">T</text><line style="stroke:#A80036;stroke-width:1.5;" x1="961.5" x2="1385.5" y1="75.9531" y2="75.9531"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="214" x="966.5" y="90.1636">-m_statusPortDataPtr: StatusPortData*</text><line style="stroke:#A80036;stroke-width:1.5;" x1="961.5" x2="1385.5" y1="96.7578" y2="96.7578"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="414" x="966.5" y="110.9683">+StatusPortWriter(statusPortDataPtr: cxx::not_null&lt;StatusPortData* const)</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="287" x="966.5" y="123.7729">+store(callable: cxx::function_ref&lt;void(T&amp;)&gt;): void</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="249" x="966.5" y="136.5776">-getMembers() const: const StatusPortData*</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="181" x="966.5" y="149.3823">-getMembers(): StatusPortData*</text><!--MD5=[1c349052685a2ecfad447ed2875943c9]
+link StatusPortWriter to StatusPortData--><path codeLine="46" d="M1086.49,156.1471 C1050.94,178.6941 1010.35,204.4441 976.625,225.8365 " fill="none" id="StatusPortWriter-to-StatusPortData" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="972.125,228.6909,981.8675,227.2472,976.347,226.0124,977.5819,220.492,972.125,228.6909" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[aab4846237946138debd8883b654271c]
+link StatusPortReader to StatusPortData--><path codeLine="47" d="M745.561,169.1191 C775.72,188.3221 807.755,208.7181 835.17,226.1737 " fill="none" id="StatusPortReader-to-StatusPortData" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="839.529,228.9494,834.0859,220.7413,835.3115,226.2638,829.789,227.4894,839.529,228.9494" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[8bd731835f196777e63cb2bd33fd09a6]
+@startuml
+title StatusPort overview
+
+skinparam classAttributeIconSize 0
+
+enum ActiveChunk {
+  FIRST
+  SECOND
+}
+
+class Transaction {
+  +activeChunk: ActiveChunk
+  +abaCounter: uint32_t
+}
+
+class StatusPortData {
+  +latestTransaction: std::atomic<Transaction>
+  +serviceDescription: capro::ServiceDescription
+  +chunks: SharedChunk[2]
+}
+
+class StatusPortReader<T> {
+  +StatusPortReader(statusPortDataPtr: cxx::not_null<StatusPortData* const)
+  +take(callable: cxx::function_ref<void(const T&)>): void
+  ' Open question if copyTake() is wanted
+  'copyTake(callable: cxx::function_ref<void(const T&)>): void)
+  -getMembers() const: const StatusPortData*
+  -getMembers(): StatusPortData*
+  -enableEvent(triggerHandle: iox::popo::TriggerHandle&&, event: const MyTriggerClassEvents): void
+  -disableEvent(event: const MyTriggerClassEvents): void
+  ' Some more methods need to be implemented in the StatusPortReader to be attachable to a Listener
+  ' See https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/ice_waitset_trigger.cpp
+  ' Open question if copyTake() is wanted
+  '-m_copyOfUserData: T
+  -m_statusPortDataPtr: StatusPortData*
+}
+
+
+class StatusPortWriter<T> {
+  +StatusPortWriter(statusPortDataPtr: cxx::not_null<StatusPortData* const)
+  +store(callable: cxx::function_ref<void(T&)>): void
+  -getMembers() const: const StatusPortData*
+  -getMembers(): StatusPortData*
+  -m_statusPortDataPtr: StatusPortData*
+}
+
+StatusPortWriter ..> StatusPortData
+StatusPortReader ..> StatusPortData
+@enduml
+
+@startuml
+title StatusPort overview
+
+skinparam classAttributeIconSize 0
+
+enum ActiveChunk {
+  FIRST
+  SECOND
+}
+
+class Transaction {
+  +activeChunk: ActiveChunk
+  +abaCounter: uint32_t
+}
+
+class StatusPortData {
+  +latestTransaction: std::atomic<Transaction>
+  +serviceDescription: capro::ServiceDescription
+  +chunks: SharedChunk[2]
+}
+
+class StatusPortReader<T> {
+  +StatusPortReader(statusPortDataPtr: cxx::not_null<StatusPortData* const)
+  +take(callable: cxx::function_ref<void(const T&)>): void
+  -getMembers() const: const StatusPortData*
+  -getMembers(): StatusPortData*
+  -enableEvent(triggerHandle: iox::popo::TriggerHandle&&, event: const MyTriggerClassEvents): void
+  -disableEvent(event: const MyTriggerClassEvents): void
+  -m_statusPortDataPtr: StatusPortData*
+}
+
+
+class StatusPortWriter<T> {
+  +StatusPortWriter(statusPortDataPtr: cxx::not_null<StatusPortData* const)
+  +store(callable: cxx::function_ref<void(T&)>): void
+  -getMembers() const: const StatusPortData*
+  -getMembers(): StatusPortData*
+  -m_statusPortDataPtr: StatusPortData*
+}
+
+StatusPortWriter ..> StatusPortData
+StatusPortReader ..> StatusPortData
+@enduml
+
+PlantUML version 1.2022.2beta1(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
