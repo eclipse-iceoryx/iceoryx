@@ -165,7 +165,9 @@ bool addEntry(bool& value,
 void populateEntries(const internal::cmdEntries_t& entries,
                      const internal::cmdAssignments_t& assignments,
                      int argc,
-                     char* argv[])
+                     char* argv[],
+                     const uint64_t argcOffset,
+                     const UnknownOption actionWhenOptionUnknown)
 {
     CommandLineParser parser;
     for (auto& entry : entries)
@@ -173,7 +175,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
         parser.addOption(entry);
     }
 
-    auto options = parser.parse(argc, argv);
+    auto options = parser.parse(argc, argv, argcOffset, actionWhenOptionUnknown);
 
     for (auto& assignment : assignments)
     {
@@ -182,34 +184,55 @@ void populateEntries(const internal::cmdEntries_t& entries,
 }
 
 #define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, description)                                         \
-    type memberName = addEntry<type>(this->memberName,                                                                 \
-                                     shortName,                                                                        \
-                                     "memberName",                                                                     \
-                                     description,                                                                      \
-                                     ArgumentType::OPTIONAL_VALUE,                                                     \
-                                     defaultValue,                                                                     \
-                                     m_entries,                                                                        \
-                                     m_assignments);
+  private:                                                                                                             \
+    type m_##memberName = addEntry<type>(this->m_##memberName,                                                         \
+                                         shortName,                                                                    \
+                                         "memberName",                                                                 \
+                                         description,                                                                  \
+                                         ArgumentType::OPTIONAL_VALUE,                                                 \
+                                         defaultValue,                                                                 \
+                                         m_entries,                                                                    \
+                                         m_assignments);                                                               \
+                                                                                                                       \
+  public:                                                                                                              \
+    type memberName() const noexcept                                                                                   \
+    {                                                                                                                  \
+        return m_##memberName;                                                                                         \
+    }
 
 #define REQUIRED_VALUE(type, memberName, shortName, description)                                                       \
-    type memberName = addEntry<type>(this->memberName,                                                                 \
-                                     shortName,                                                                        \
-                                     "memberName",                                                                     \
-                                     description,                                                                      \
-                                     ArgumentType::REQUIRED_VALUE,                                                     \
-                                     type(),                                                                           \
-                                     m_entries,                                                                        \
-                                     m_assignments);
+  private:                                                                                                             \
+    type m_##memberName = addEntry<type>(this->m_##memberName,                                                         \
+                                         shortName,                                                                    \
+                                         "memberName",                                                                 \
+                                         description,                                                                  \
+                                         ArgumentType::REQUIRED_VALUE,                                                 \
+                                         type(),                                                                       \
+                                         m_entries,                                                                    \
+                                         m_assignments);                                                               \
+                                                                                                                       \
+  public:                                                                                                              \
+    type memberName() const noexcept                                                                                   \
+    {                                                                                                                  \
+        return m_##memberName;                                                                                         \
+    }
 
 #define SWITCH(memberName, shortName, description)                                                                     \
-    bool memberName = addEntry<bool>(this->memberName,                                                                 \
-                                     shortName,                                                                        \
-                                     "memberName",                                                                     \
-                                     description,                                                                      \
-                                     ArgumentType::OPTIONAL_VALUE,                                                     \
-                                     false,                                                                            \
-                                     m_entries,                                                                        \
-                                     m_assignments);
+  private:                                                                                                             \
+    bool m_##memberName = addEntry<bool>(this->m_##memberName,                                                         \
+                                         shortName,                                                                    \
+                                         "memberName",                                                                 \
+                                         description,                                                                  \
+                                         ArgumentType::OPTIONAL_VALUE,                                                 \
+                                         false,                                                                        \
+                                         m_entries,                                                                    \
+                                         m_assignments);                                                               \
+                                                                                                                       \
+  public:                                                                                                              \
+    bool memberName() const noexcept                                                                                   \
+    {                                                                                                                  \
+        return m_##memberName;                                                                                         \
+    }
 
 #define COMMAND_LINE_STRUCT(Name)                                                                                      \
   private:                                                                                                             \
@@ -217,27 +240,56 @@ void populateEntries(const internal::cmdEntries_t& entries,
     internal::cmdAssignments_t m_assignments;                                                                          \
                                                                                                                        \
   public:                                                                                                              \
-    Name(int argc, char* argv[])                                                                                       \
+    Name(int argc,                                                                                                     \
+         char* argv[],                                                                                                 \
+         const uint64_t argcOffset = 1U,                                                                               \
+         const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE)                                       \
     {                                                                                                                  \
-        populateEntries(m_entries, m_assignments, argc, argv);                                                         \
+        populateEntries(m_entries, m_assignments, argc, argv, argcOffset, actionWhenOptionUnknown);                    \
     }
 
-class CommandLine
-{
-    COMMAND_LINE_STRUCT(CommandLine)
+#define COMMAND_LINE_STRUCT_ALT(Name, ...)                                                                             \
+    struct Name                                                                                                        \
+    {                                                                                                                  \
+      private:                                                                                                         \
+        internal::cmdEntries_t m_entries;                                                                              \
+        internal::cmdAssignments_t m_assignments;                                                                      \
+        __VA_ARGS__                                                                                                    \
+      public:                                                                                                          \
+        Name(int argc,                                                                                                 \
+             char* argv[],                                                                                             \
+             const uint64_t argcOffset = 1U,                                                                           \
+             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE)                                   \
+        {                                                                                                              \
+            populateEntries(m_entries, m_assignments, argc, argv, argcOffset, actionWhenOptionUnknown);                \
+        }                                                                                                              \
+    };
 
-  public:
+struct CommandLine
+{
+    COMMAND_LINE_STRUCT(CommandLine);
+
     OPTIONAL_VALUE(string<100>, service, {""}, 's', "some description");
     REQUIRED_VALUE(string<100>, instance, 's', "some description");
     SWITCH(doStuff, 'd', "do some stuff - some description");
     OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd");
 };
 
+COMMAND_LINE_STRUCT_ALT(CommandLineAlt, OPTIONAL_VALUE(string<100>, service, {""}, 's', "some description");
+                        REQUIRED_VALUE(string<100>, instance, 's', "some description");
+                        SWITCH(doStuff, 'd', "do some stuff - some description");
+                        OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd"););
+
 TEST_F(CommandLineParser_test, asd)
 {
-    int argc;
-    char** argv;
+    int argc = 0;
+    char** argv = nullptr;
 
     CommandLine cmd(argc, argv);
+    CommandLineAlt cmdF(argc, argv);
+
+    cmd.doStuff();
+
+    cmdF.service();
 }
 } // namespace
