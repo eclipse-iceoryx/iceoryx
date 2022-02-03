@@ -112,7 +112,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     ///          Not specifying move or using a default implementation is fine.
     ///          This is also the case for std::function (for the gcc implementation at least).
     ///
-    ReturnType operator()(Args... args);
+    ReturnType operator()(Args... args) const;
 
 
     /// @brief indicates whether a function is currently stored
