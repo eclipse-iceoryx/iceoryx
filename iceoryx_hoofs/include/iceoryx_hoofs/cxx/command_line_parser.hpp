@@ -88,8 +88,8 @@ class CommandLineParser
 
     CommandLineParser() noexcept;
 
-    CommandLineParser&& addOption(const entry_t& option) && noexcept;
-    CommandLineOptions parse(int argc, char* argv[]) && noexcept;
+    CommandLineParser& addOption(const entry_t& option) noexcept;
+    CommandLineOptions parse(int argc, char* argv[]) noexcept;
 
   private:
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;

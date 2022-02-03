@@ -1,0 +1,229 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#include "iceoryx_hoofs/cxx/command_line_parser.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "test.hpp"
+
+namespace
+{
+using namespace ::testing;
+using namespace iox::cxx;
+
+class CommandLineParser_test : public Test
+{
+  public:
+    void SetUp()
+    {
+    }
+    virtual void TearDown()
+    {
+    }
+};
+
+template <typename T>
+struct TypeToName
+{
+    static constexpr const char VALUE[] = "unknown";
+};
+template <typename T>
+constexpr const char TypeToName<T>::VALUE[];
+
+template <uint64_t N>
+struct TypeToName<string<N>>
+{
+    static constexpr const char VALUE[] = "iox::cxx::string";
+};
+template <uint64_t N>
+constexpr const char TypeToName<string<N>>::VALUE[];
+
+template <>
+struct TypeToName<int8_t>
+{
+    static constexpr const char VALUE[] = "int8_t";
+};
+constexpr const char TypeToName<int8_t>::VALUE[];
+
+template <>
+struct TypeToName<int16_t>
+{
+    static constexpr const char VALUE[] = "int16_t";
+};
+constexpr const char TypeToName<int16_t>::VALUE[];
+
+template <>
+struct TypeToName<int32_t>
+{
+    static constexpr const char VALUE[] = "int32_t";
+};
+constexpr const char TypeToName<int32_t>::VALUE[];
+
+template <>
+struct TypeToName<int64_t>
+{
+    static constexpr const char VALUE[] = "int64_t";
+};
+constexpr const char TypeToName<int64_t>::VALUE[];
+
+template <>
+struct TypeToName<uint8_t>
+{
+    static constexpr const char VALUE[] = "uint8_t";
+};
+constexpr const char TypeToName<uint8_t>::VALUE[];
+
+template <>
+struct TypeToName<uint16_t>
+{
+    static constexpr const char VALUE[] = "uint16_t";
+};
+constexpr const char TypeToName<uint16_t>::VALUE[];
+
+template <>
+struct TypeToName<uint32_t>
+{
+    static constexpr const char VALUE[] = "uint32_t";
+};
+constexpr const char TypeToName<uint32_t>::VALUE[];
+
+template <>
+struct TypeToName<uint64_t>
+{
+    static constexpr const char VALUE[] = "uint64_t";
+};
+constexpr const char TypeToName<uint64_t>::VALUE[];
+
+template <>
+struct TypeToName<char>
+{
+    static constexpr const char VALUE[] = "char";
+};
+constexpr const char TypeToName<char>::VALUE[];
+
+template <typename T>
+T addEntry(T& value,
+           const char shortName,
+           const CommandLineOptions::name_t& name,
+           const CommandLineParser::description_t& description,
+           const ArgumentType argumentType,
+           const T defaultValue,
+           vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& entries,
+           vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& assignments)
+{
+    entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
+    assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
+        auto result = options.get<T>(entries[index].longOption);
+        if (result.has_error())
+        {
+            std::cerr << "It seems that the switch value of \"" << entries[index].longOption << "\" is not of type \""
+                      << TypeToName<T>::VALUE << "\"" << std::endl;
+            std::terminate();
+        }
+
+        value = result.value();
+    });
+    return defaultValue;
+}
+
+template <>
+bool addEntry(bool& value,
+              const char shortName,
+              const CommandLineOptions::name_t& name,
+              const CommandLineParser::description_t& description,
+              const ArgumentType argumentType,
+              const bool defaultValue,
+              vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& entries,
+              vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>& assignments)
+{
+    entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
+    assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
+        value = options.has(entries[index].longOption);
+    });
+    return defaultValue;
+}
+
+#define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, description)                                         \
+    type memberName = addEntry<type>(this->memberName,                                                                 \
+                                     shortName,                                                                        \
+                                     "memberName",                                                                     \
+                                     description,                                                                      \
+                                     ArgumentType::OPTIONAL_VALUE,                                                     \
+                                     defaultValue,                                                                     \
+                                     m_entries,                                                                        \
+                                     m_assignments);
+
+#define REQUIRED_VALUE(type, memberName, shortName, description)                                                       \
+    type memberName = addEntry<type>(this->memberName,                                                                 \
+                                     shortName,                                                                        \
+                                     "memberName",                                                                     \
+                                     description,                                                                      \
+                                     ArgumentType::REQUIRED_VALUE,                                                     \
+                                     type(),                                                                           \
+                                     m_entries,                                                                        \
+                                     m_assignments);
+
+#define SWITCH(memberName, shortName, description)                                                                     \
+    bool memberName = addEntry<bool>(this->memberName,                                                                 \
+                                     shortName,                                                                        \
+                                     "memberName",                                                                     \
+                                     description,                                                                      \
+                                     ArgumentType::OPTIONAL_VALUE,                                                     \
+                                     false,                                                                            \
+                                     m_entries,                                                                        \
+                                     m_assignments);
+
+// TODO: offset
+// TODO: terminate on unknown parameter
+
+class CommandLine
+{
+  private:
+    iox::cxx::vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_entries;
+    iox::cxx::vector<iox::cxx::function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>
+        m_assignments;
+
+  public:
+    OPTIONAL_VALUE(string<100>, service, {""}, 's', "some description");
+    REQUIRED_VALUE(string<100>, instance, 's', "some description");
+    SWITCH(doStuff, 'd', "do some stuff - some description");
+    OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd");
+
+    CommandLine(int argc, char* argv[])
+    {
+        CommandLineParser parser;
+        for (auto& entry : m_entries)
+        {
+            parser.addOption(entry);
+        }
+
+        auto options = parser.parse(argc, argv);
+
+        for (auto& assignment : m_assignments)
+        {
+            assignment(options);
+        }
+    }
+};
+
+TEST_F(CommandLineParser_test, asd)
+{
+    int argc;
+    char** argv;
+
+    CommandLine cmd(argc, argv);
+}
+} // namespace

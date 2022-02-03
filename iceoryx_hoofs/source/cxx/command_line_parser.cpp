@@ -25,7 +25,7 @@ CommandLineParser::CommandLineParser() noexcept
     std::move(*this).addOption({'h', "help", "Display help.", ArgumentType::SWITCH});
 }
 
-CommandLineOptions CommandLineParser::parse(int argc, char* argv[]) && noexcept
+CommandLineOptions CommandLineParser::parse(int argc, char* argv[]) noexcept
 {
     CommandLineOptions options;
     for (uint64_t i = 0U; i < static_cast<uint64_t>(argc); ++i)
@@ -245,10 +245,10 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
     std::exit(EXIT_FAILURE);
 }
 
-CommandLineParser&& CommandLineParser::addOption(const entry_t& option) && noexcept
+CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
     m_availableOptions.emplace_back(option);
-    return std::move(*this);
+    return *this;
 }
 } // namespace cxx
 } // namespace iox
