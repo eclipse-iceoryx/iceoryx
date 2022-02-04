@@ -275,21 +275,13 @@ struct CommandLine
     OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd");
 };
 
-COMMAND_LINE_STRUCT_ALT(CommandLineAlt, OPTIONAL_VALUE(string<100>, service, {""}, 's', "some description");
-                        REQUIRED_VALUE(string<100>, instance, 's', "some description");
-                        SWITCH(doStuff, 'd', "do some stuff - some description");
-                        OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd"););
-
 TEST_F(CommandLineParser_test, asd)
 {
     int argc = 0;
     char** argv = nullptr;
 
     CommandLine cmd(argc, argv);
-    CommandLineAlt cmdF(argc, argv);
 
     cmd.doStuff();
-
-    cmdF.service();
 }
 } // namespace
