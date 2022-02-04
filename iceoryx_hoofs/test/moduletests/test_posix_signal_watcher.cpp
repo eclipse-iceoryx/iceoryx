@@ -58,12 +58,14 @@ class SignalWatcher_test : public Test
 
 TEST_F(SignalWatcher_test, SignalWasNotTriggeredWhenNotTriggeredBefore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fe493293-b64c-4f4f-a630-ea17cb5365da");
     EXPECT_FALSE(sut->wasSignalTriggered());
     EXPECT_FALSE(hasTerminationRequested());
 }
 
 TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGINTWasTriggeredBefore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "48e18aae-af21-43c4-a444-70fc371d328f");
     raise(SIGINT);
     EXPECT_TRUE(sut->wasSignalTriggered());
     EXPECT_TRUE(hasTerminationRequested());
@@ -71,6 +73,7 @@ TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGINTWasTriggeredBefore)
 
 TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGTERMWasTriggeredBefore)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "639708fa-3327-4573-92e2-cdbbff2cbdec");
     raise(SIGTERM);
     EXPECT_TRUE(sut->wasSignalTriggered());
     EXPECT_TRUE(hasTerminationRequested());
@@ -118,27 +121,32 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
 
 TEST_F(SignalWatcher_test, UnblocksWhenSIGINTWasRaisedForOneWaiter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "52812e86-b6e8-4d04-9279-f5c5ecc04d35");
     unblocksWhenSignalWasRaisedForWaiters(*this, SIGINT, 1, [&] { sut->waitForSignal(); });
 }
 
 TEST_F(SignalWatcher_test, UnblocksWhenSIGTERMWasRaisedForOneWaiter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f5ffc62f-3ce8-4835-8ae4-1805dda2aa59");
     unblocksWhenSignalWasRaisedForWaiters(*this, SIGTERM, 1, [&] { sut->waitForSignal(); });
 }
 
 
 TEST_F(SignalWatcher_test, UnblocksWhenSIGINTWasRaisedForMultipleWaiter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b63d4450-3a69-499f-b1f5-5c64360a259b");
     unblocksWhenSignalWasRaisedForWaiters(*this, SIGINT, 3, [&] { sut->waitForSignal(); });
 }
 
 TEST_F(SignalWatcher_test, UnblocksWhenSIGTERMWasRaisedForMultipleWaiter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6a46cbc6-5a72-4dd3-a60f-d90e7f10b849");
     unblocksWhenSignalWasRaisedForWaiters(*this, SIGTERM, 4, [&] { sut->waitForSignal(); });
 }
 
 TEST_F(SignalWatcher_test, UnblocksWhenSIGINTWasRaisedForOneWaiterWithConvenienceFunction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b051206b-15a0-46eb-9566-325bb59830ca");
     unblocksWhenSignalWasRaisedForWaiters(*this, SIGINT, 1, [&] { waitForTerminationRequest(); });
 }
 
