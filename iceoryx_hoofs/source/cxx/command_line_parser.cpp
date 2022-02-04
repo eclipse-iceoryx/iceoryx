@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 
 namespace iox

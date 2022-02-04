@@ -14,9 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/command_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 #include "test.hpp"
 
 namespace
@@ -34,85 +35,6 @@ class CommandLineParser_test : public Test
     {
     }
 };
-
-template <typename T>
-struct TypeToName
-{
-    static constexpr const char VALUE[] = "unknown";
-};
-template <typename T>
-constexpr const char TypeToName<T>::VALUE[];
-
-template <uint64_t N>
-struct TypeToName<string<N>>
-{
-    static constexpr const char VALUE[] = "iox::cxx::string";
-};
-template <uint64_t N>
-constexpr const char TypeToName<string<N>>::VALUE[];
-
-template <>
-struct TypeToName<int8_t>
-{
-    static constexpr const char VALUE[] = "int8_t";
-};
-constexpr const char TypeToName<int8_t>::VALUE[];
-
-template <>
-struct TypeToName<int16_t>
-{
-    static constexpr const char VALUE[] = "int16_t";
-};
-constexpr const char TypeToName<int16_t>::VALUE[];
-
-template <>
-struct TypeToName<int32_t>
-{
-    static constexpr const char VALUE[] = "int32_t";
-};
-constexpr const char TypeToName<int32_t>::VALUE[];
-
-template <>
-struct TypeToName<int64_t>
-{
-    static constexpr const char VALUE[] = "int64_t";
-};
-constexpr const char TypeToName<int64_t>::VALUE[];
-
-template <>
-struct TypeToName<uint8_t>
-{
-    static constexpr const char VALUE[] = "uint8_t";
-};
-constexpr const char TypeToName<uint8_t>::VALUE[];
-
-template <>
-struct TypeToName<uint16_t>
-{
-    static constexpr const char VALUE[] = "uint16_t";
-};
-constexpr const char TypeToName<uint16_t>::VALUE[];
-
-template <>
-struct TypeToName<uint32_t>
-{
-    static constexpr const char VALUE[] = "uint32_t";
-};
-constexpr const char TypeToName<uint32_t>::VALUE[];
-
-template <>
-struct TypeToName<uint64_t>
-{
-    static constexpr const char VALUE[] = "uint64_t";
-};
-constexpr const char TypeToName<uint64_t>::VALUE[];
-
-template <>
-struct TypeToName<char>
-{
-    static constexpr const char VALUE[] = "char";
-};
-constexpr const char TypeToName<char>::VALUE[];
 
 namespace internal
 {
@@ -136,7 +58,7 @@ T addEntry(T& value,
         if (result.has_error())
         {
             std::cerr << "It seems that the switch value of \"" << entries[index].longOption << "\" is not of type \""
-                      << TypeToName<T>::VALUE << "\"" << std::endl;
+                      << TypeInfo<T>::NAME << "\"" << std::endl;
             std::terminate();
         }
 
@@ -248,23 +170,6 @@ void populateEntries(const internal::cmdEntries_t& entries,
         populateEntries(m_entries, m_assignments, argc, argv, argcOffset, actionWhenOptionUnknown);                    \
     }
 
-#define COMMAND_LINE_STRUCT_ALT(Name, ...)                                                                             \
-    struct Name                                                                                                        \
-    {                                                                                                                  \
-      private:                                                                                                         \
-        internal::cmdEntries_t m_entries;                                                                              \
-        internal::cmdAssignments_t m_assignments;                                                                      \
-        __VA_ARGS__                                                                                                    \
-      public:                                                                                                          \
-        Name(int argc,                                                                                                 \
-             char* argv[],                                                                                             \
-             const uint64_t argcOffset = 1U,                                                                           \
-             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE)                                   \
-        {                                                                                                              \
-            populateEntries(m_entries, m_assignments, argc, argv, argcOffset, actionWhenOptionUnknown);                \
-        }                                                                                                              \
-    };
-
 struct CommandLine
 {
     COMMAND_LINE_STRUCT(CommandLine);
@@ -277,6 +182,8 @@ struct CommandLine
 
 TEST_F(CommandLineParser_test, asd)
 {
+    std::cout << TypeInfo<int>::NAME << std::endl;
+    exit(0);
     int argc = 0;
     char** argv = nullptr;
 

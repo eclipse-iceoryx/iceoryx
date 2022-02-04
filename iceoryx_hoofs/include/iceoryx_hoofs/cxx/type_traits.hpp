@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_CXX_TYPE_TRAITS_HPP
 #define IOX_HOOFS_CXX_TYPE_TRAITS_HPP
 
+#include <cstdint>
 #include <type_traits>
 
 namespace iox
@@ -129,6 +130,108 @@ struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
 using void_t = void;
+
+
+//////////////////
+/// BEGIN TypeInfo
+//////////////////
+
+/// @brief Provides a translation from a type into its human readable name
+template <typename T>
+struct TypeInfo
+{
+    static constexpr const char NAME[] = "unknown type";
+};
+
+template <uint64_t>
+class string;
+
+template <uint64_t N>
+struct TypeInfo<iox::cxx::string<N>>
+{
+    static constexpr const char NAME[] = "string";
+};
+
+template <>
+struct TypeInfo<int8_t>
+{
+    static constexpr const char NAME[] = "int8_t";
+};
+
+template <>
+struct TypeInfo<int16_t>
+{
+    static constexpr const char NAME[] = "int16_t";
+};
+
+template <>
+struct TypeInfo<int32_t>
+{
+    static constexpr const char NAME[] = "int32_t";
+};
+
+template <>
+struct TypeInfo<int64_t>
+{
+    static constexpr const char NAME[] = "int64_t";
+};
+
+template <>
+struct TypeInfo<uint8_t>
+{
+    static constexpr const char NAME[] = "uint8_t";
+};
+
+template <>
+struct TypeInfo<uint16_t>
+{
+    static constexpr const char NAME[] = "uint16_t";
+};
+
+template <>
+struct TypeInfo<uint32_t>
+{
+    static constexpr const char NAME[] = "uint32_t";
+};
+
+template <>
+struct TypeInfo<uint64_t>
+{
+    static constexpr const char NAME[] = "uint64_t";
+};
+
+template <>
+struct TypeInfo<bool>
+{
+    static constexpr const char NAME[] = "bool";
+};
+
+template <>
+struct TypeInfo<char>
+{
+    static constexpr const char NAME[] = "char";
+};
+
+template <>
+struct TypeInfo<float>
+{
+    static constexpr const char NAME[] = "float";
+};
+
+template <>
+struct TypeInfo<double>
+{
+    static constexpr const char NAME[] = "double";
+};
+
+template <>
+struct TypeInfo<long double>
+{
+    static constexpr const char NAME[] = "long double";
+};
+//////////////////
+/// END TypeInfo
+//////////////////
 } // namespace cxx
 } // namespace iox
 
