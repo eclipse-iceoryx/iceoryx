@@ -37,7 +37,7 @@ bugprone-*,
 
 
 WarningsAsErrors:     '' # Treat all Checks from above as errors
-HeaderFilterRegex:    '' # Enable once the headers files in iceoryx are cleaned up
+HeaderFilterRegex:    '.*'
 FormatStyle:          file
 InheritParentConfig:  false
 

@@ -17,41 +17,62 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This script checks code files with clang-tidy
-# Example usage: ./tools/scripts/check_clang_tidy.sh hook|ci_pull_request_ci_full
+# Example usage: ./tools/scripts/clang_tidy_check.sh full|hook|ci_pull_request
 
 set -e
 
-MODE=$1
+MODE=${1:-full} # Can be either `full` for all files or `hook` for formatting with git hooks
 
 FILE_FILTER="\.(h|hpp|inl|c|cpp)$"
-FILE_BLACKLIST='(test|testing|tools|iceoryx_posh|iceoryx_dds|iceoryx_binding_c|iceoryx_dds|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples)'
+FILE_BLACKLIST='(test|testing|tools|iceoryx_dds|iceoryx_dds|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples)'
 
-hash run-clang-tidy-12.py || fail "run-clang-tidy-12 not found, please install clang-tidy-12"
+hash run-clang-tidy || fail "run-clang-tidy not found, please install it"
 
 fail() {
     printf "\033[1;31merror: %s: %s\033[0m\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
     exit 1
 }
 
+CLANG_TIDY_VERSION=12
+CLANG_TIDY_CMD="clang-tidy-$CLANG_TIDY_VERSION"
+if ! command -v $CLANG_TIDY_CMD &> /dev/null
+then
+    CLANG_TIDY_MAJOR_VERSION=$(clang-tidy --version | sed -rn 's/.*([0-9][0-9])\.[0-9].*/\1/p')
+    if [[ $CLANG_TIDY_MAJOR_VERSION -lt "$CLANG_TIDY_VERSION" ]]; then
+        echo "Warning: clang-tidy version $CLANG_TIDY_VERSION or higher is not installed."
+        echo "Code will not be linted."
+        exit 0
+    else
+        CLANG_TIDY_CMD="clang-tidy"
+    fi
+fi
+
+
 WORKSPACE=$(git rev-parse --show-toplevel)
 cd "${WORKSPACE}"
 
-if ! [[ -f build/compile_commands.json ]]; then # or we just exit here with an error
-    sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev bison clang-tidy-12
-    export CXX=clang++-12
-    export CC=clang-12
-    cmake -Bbuild -Hiceoryx_meta
+if ! [[ -f build/compile_commands.json ]]; then
+    export CXX=clang++
+    export CC=clang
+    cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DBUILD_EXAMPLES=ON
 fi
 
 if [[ "$MODE" == "hook"* ]]; then
-    FILES=$(git diff --cached --name-only --diff-filter=ACMRT | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
+    FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
+    # List only added files
+    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
     echo "Checking files with Clang-Tidy"
     echo " "
-        if [ -z "$FILES" ]
-        then
-              echo "No files to check, skipping clang-tidy"
+        if [ -z "$FILES" ]; then
+              echo "No modified files to check, skipping clang-tidy"
         else
-              clang-tidy-12 -p build $FILES # Add `--warnings-as-errors=*` later
+            clang-tidy -p build $FILES
+        fi
+
+        if [ -z "$ADDED_FILES" ]; then
+            echo "No added files to check, skipping clang-tidy"
+        else
+            clang-tidy --warnings-as-errors=* -p build $ADDED_FILES
         fi
     exit
 elif [[ "$MODE" == "full"* ]]; then
@@ -59,13 +80,6 @@ elif [[ "$MODE" == "full"* ]]; then
     echo "Checking all files with Clang-Tidy"
     echo " "
     echo $FILES
-elif [[ "$MODE" == "ci_pull_request"* ]]; then
-    # TODO: only process files change in PR
-    # https://dev.to/scienta/get-changed-files-in-github-actions-1p36
-    FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }}  | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST")
-    echo "Checking changed files with Clang-Tidy in Pull-Request"
-    echo " "
-    echo $FILES
+    run-clang-tidy -p build $FILES
+    exit $?
 fi
-
-run-clang-tidy-12.py -p build $FILES
