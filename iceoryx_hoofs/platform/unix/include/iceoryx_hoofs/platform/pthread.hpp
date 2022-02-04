@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_PTHREAD_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_PTHREAD_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_PTHREAD_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_PTHREAD_HPP
 
 #include <pthread.h>
 
@@ -27,4 +27,4 @@ inline int iox_pthread_setname_np(pthread_t thread, const char* name)
     return pthread_setname_np(thread, name);
 }
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_PTHREAD_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_PTHREAD_HPP

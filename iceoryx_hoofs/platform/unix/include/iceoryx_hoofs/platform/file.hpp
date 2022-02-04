@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_FILE_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_FILE_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_FILE_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_FILE_HPP
 
 #include <sys/file.h>
 
 int iox_flock(int fd, int op);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_FILE_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_FILE_HPP

@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_UNISTD_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_UNISTD_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_UNISTD_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_UNISTD_HPP
 
 #include <unistd.h>
 
 int iox_close(int fd);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_UNISTD_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_UNISTD_HPP

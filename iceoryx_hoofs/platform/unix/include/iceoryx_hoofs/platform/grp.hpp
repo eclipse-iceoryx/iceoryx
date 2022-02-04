@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_GRP_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_GRP_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_GRP_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_GRP_HPP
 
 #include <grp.h>
 
 int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_GRP_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_GRP_HPP

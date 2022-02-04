@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_SOCKET_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_SOCKET_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_SOCKET_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_SOCKET_HPP
 
 #include <cstdint>
 #include <sys/socket.h>
@@ -29,4 +29,4 @@ ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockad
 int iox_connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_closesocket(int sockfd);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_SOCKET_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_SOCKET_HPP

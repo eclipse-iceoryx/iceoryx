@@ -14,12 +14,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_MMAN_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_MMAN_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_MMAN_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_MMAN_HPP
 
 #include <sys/mman.h>
 
 int iox_shm_open(const char* name, int oflag, mode_t mode);
 int iox_shm_unlink(const char* name);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_MMAN_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_MMAN_HPP

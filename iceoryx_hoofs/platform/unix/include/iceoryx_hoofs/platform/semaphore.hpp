@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_SEMAPHORE_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_SEMAPHORE_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_SEMAPHORE_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_SEMAPHORE_HPP
 
 #include <semaphore.h>
 
@@ -72,4 +72,4 @@ inline int iox_sem_unlink(const char* name)
     return sem_unlink(name);
 }
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_SEMAPHORE_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_SEMAPHORE_HPP

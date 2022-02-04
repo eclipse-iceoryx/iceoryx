@@ -14,9 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_WAIT_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_WAIT_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_WAIT_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_WAIT_HPP
 
 #include <sys/wait.h>
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_WAIT_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_WAIT_HPP

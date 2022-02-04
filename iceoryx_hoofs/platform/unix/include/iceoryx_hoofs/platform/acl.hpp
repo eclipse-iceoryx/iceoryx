@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_ACL_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_ACL_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_ACL_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_ACL_HPP
 
 #include "iceoryx_hoofs/platform/types.hpp"
 
@@ -99,4 +99,4 @@ inline acl_t acl_get_fd(int)
     return acl_t();
 }
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_ACL_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_ACL_HPP

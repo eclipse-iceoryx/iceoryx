@@ -14,12 +14,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_MQUEUE_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_MQUEUE_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_MQUEUE_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_MQUEUE_HPP
 
 #include <mqueue.h>
 
 mqd_t iox_mq_open2(const char* name, int oflag);
 mqd_t iox_mq_open4(const char* name, int oflag, mode_t mode, struct mq_attr* attr);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_MQUEUE_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_MQUEUE_HPP

@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_FCNTL_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_FCNTL_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_FCNTL_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_FCNTL_HPP
 
 #include <fcntl.h>
 
 int iox_open(const char* pathname, int flags, mode_t mode);
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_FCNTL_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_FCNTL_HPP

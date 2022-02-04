@@ -14,9 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_SIGNAL_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_SIGNAL_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_SIGNAL_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_SIGNAL_HPP
 
 #include <signal.h>
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_SIGNAL_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_SIGNAL_HPP

@@ -14,9 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_DLFCN_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_DLFCN_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_DLFCN_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_DLFCN_HPP
 
 #include <dlfcn.h>
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_DLFCN_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_DLFCN_HPP

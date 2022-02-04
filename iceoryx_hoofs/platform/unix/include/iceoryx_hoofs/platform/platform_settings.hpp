@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
+#ifndef IOX_HOOFS_UNIX_PLATFORM_PLATFORM_SETTINGS_HPP
+#define IOX_HOOFS_UNIX_PLATFORM_PLATFORM_SETTINGS_HPP
 
 #include <cstdint>
 #include <limits.h>
@@ -40,4 +40,4 @@ using IoxIpcChannelType = iox::posix::UnixDomainSocket;
 } // namespace platform
 } // namespace iox
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_PLATFORM_SETTINGS_HPP
+#endif // IOX_HOOFS_UNIX_PLATFORM_PLATFORM_SETTINGS_HPP
