@@ -43,8 +43,23 @@ inline T addEntry(T& value,
         auto result = options.get<T>(entries[index].longOption);
         if (result.has_error())
         {
-            std::cerr << "It seems that the switch value of \"" << entries[index].longOption << "\" is not of type \""
-                      << TypeInfo<T>::NAME << "\"" << std::endl;
+            std::cout << "It seems that the switch value of \"";
+            const bool hasShortOption = (entries[index].shortOption != '\0');
+            const bool hasLongOption = (!entries[index].longOption.empty());
+            if (hasShortOption)
+            {
+                std::cout << "-" << entries[index].shortOption;
+            }
+            if (hasShortOption && hasLongOption)
+            {
+                std::cout << ", ";
+            }
+            if (hasLongOption)
+            {
+                std::cout << "--" << entries[index].longOption;
+            }
+
+            std::cout << "\" is not of type \"" << TypeInfo<T>::NAME << "\"" << std::endl;
             std::terminate();
         }
 
