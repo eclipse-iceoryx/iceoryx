@@ -92,7 +92,7 @@ class CommandLineParser
         ArgumentType type = ArgumentType::SWITCH;
     };
 
-    CommandLineParser() noexcept;
+    explicit CommandLineParser(const description_t& programDescription) noexcept;
 
     CommandLineParser& addOption(const entry_t& option) noexcept;
 
@@ -107,6 +107,7 @@ class CommandLineParser
     void printHelpAndExit(const char* binaryName) const noexcept;
 
   private:
+    description_t m_programDescription;
     cxx::vector<entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
 };
 } // namespace cxx

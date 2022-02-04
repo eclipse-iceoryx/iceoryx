@@ -48,7 +48,7 @@ T addEntry(T& value,
            const CommandLineOptions::name_t& name,
            const CommandLineParser::description_t& description,
            const ArgumentType argumentType,
-           const T defaultValue,
+           T defaultValue, // not const to enable RTVO
            internal::cmdEntries_t& entries,
            internal::cmdAssignments_t& assignments)
 {
@@ -92,29 +92,23 @@ void populateEntries(const internal::cmdEntries_t& entries,
                      const UnknownOption actionWhenOptionUnknown)
 {
     CommandLineParser parser;
-    for (auto& entry : entries)
+    for (const auto& entry : entries)
     {
         parser.addOption(entry);
     }
 
     auto options = parser.parse(argc, argv, argcOffset, actionWhenOptionUnknown);
 
-    for (auto& assignment : assignments)
+    for (const auto& assignment : assignments)
     {
         assignment(options);
     }
 }
 
-#define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, description)                                         \
+#define CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)                 \
   private:                                                                                                             \
-    type m_##memberName = addEntry<type>(this->m_##memberName,                                                         \
-                                         shortName,                                                                    \
-                                         "memberName",                                                                 \
-                                         description,                                                                  \
-                                         ArgumentType::OPTIONAL_VALUE,                                                 \
-                                         defaultValue,                                                                 \
-                                         m_entries,                                                                    \
-                                         m_assignments);                                                               \
+    type m_##memberName = addEntry<type>(                                                                              \
+        this->m_##memberName, shortName, longName, description, argumentType, defaultValue, m_entries, m_assignments); \
                                                                                                                        \
   public:                                                                                                              \
     type memberName() const noexcept                                                                                   \
@@ -122,41 +116,16 @@ void populateEntries(const internal::cmdEntries_t& entries,
         return m_##memberName;                                                                                         \
     }
 
-#define REQUIRED_VALUE(type, memberName, shortName, description)                                                       \
-  private:                                                                                                             \
-    type m_##memberName = addEntry<type>(this->m_##memberName,                                                         \
-                                         shortName,                                                                    \
-                                         "memberName",                                                                 \
-                                         description,                                                                  \
-                                         ArgumentType::REQUIRED_VALUE,                                                 \
-                                         type(),                                                                       \
-                                         m_entries,                                                                    \
-                                         m_assignments);                                                               \
-                                                                                                                       \
-  public:                                                                                                              \
-    type memberName() const noexcept                                                                                   \
-    {                                                                                                                  \
-        return m_##memberName;                                                                                         \
-    }
+#define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                               \
+    CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, ArgumentType::OPTIONAL_VALUE)
 
-#define SWITCH(memberName, shortName, description)                                                                     \
-  private:                                                                                                             \
-    bool m_##memberName = addEntry<bool>(this->m_##memberName,                                                         \
-                                         shortName,                                                                    \
-                                         "memberName",                                                                 \
-                                         description,                                                                  \
-                                         ArgumentType::OPTIONAL_VALUE,                                                 \
-                                         false,                                                                        \
-                                         m_entries,                                                                    \
-                                         m_assignments);                                                               \
-                                                                                                                       \
-  public:                                                                                                              \
-    bool memberName() const noexcept                                                                                   \
-    {                                                                                                                  \
-        return m_##memberName;                                                                                         \
-    }
+#define REQUIRED_VALUE(type, memberName, shortName, longName, description)                                             \
+    CMD_LINE_VALUE(type, memberName, type(), shortName, longName, description, ArgumentType::REQUIRED_VALUE)
 
-#define COMMAND_LINE_STRUCT(Name)                                                                                      \
+#define SWITCH(memberName, shortName, longName, description)                                                           \
+    CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, ArgumentType::OPTIONAL_VALUE)
+
+#define COMMAND_LINE(Name)                                                                                             \
   private:                                                                                                             \
     internal::cmdEntries_t m_entries;                                                                                  \
     internal::cmdAssignments_t m_assignments;                                                                          \
@@ -172,23 +141,22 @@ void populateEntries(const internal::cmdEntries_t& entries,
 
 struct CommandLine
 {
-    COMMAND_LINE_STRUCT(CommandLine);
+    COMMAND_LINE(CommandLine);
 
-    OPTIONAL_VALUE(string<100>, service, {""}, 's', "some description");
-    REQUIRED_VALUE(string<100>, instance, 's', "some description");
-    SWITCH(doStuff, 'd', "do some stuff - some description");
-    OPTIONAL_VALUE(uint64_t, version, 0, 'o', "sadasd");
+    OPTIONAL_VALUE(string<100>, service, {""}, 's', "service", "some description");
+    REQUIRED_VALUE(string<100>, instance, 's', "instance", "some description");
+    SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
+    OPTIONAL_VALUE(uint64_t, version, 0, 'o', "bla", "sadasd");
 };
 
 TEST_F(CommandLineParser_test, asd)
 {
-    std::cout << TypeInfo<int>::NAME << std::endl;
-    exit(0);
     int argc = 0;
     char** argv = nullptr;
 
     CommandLine cmd(argc, argv);
 
     cmd.doStuff();
+    cmd.service();
 }
 } // namespace

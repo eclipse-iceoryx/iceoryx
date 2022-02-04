@@ -21,7 +21,8 @@ namespace iox
 {
 namespace cxx
 {
-CommandLineParser::CommandLineParser() noexcept
+CommandLineParser::CommandLineParser(const description_t& programDescription) noexcept
+    : m_programDescription{programDescription}
 {
     std::move(*this).addOption({'h', "help", "Display help.", ArgumentType::SWITCH});
 }
@@ -224,7 +225,8 @@ bool CommandLineOptions::has(const name_t& switchName) const noexcept
 
 void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
 {
-    std::cout << "\nUsage: " << binaryName << " [OPTIONS]\n" << std::endl;
+    std::cout << "\n" << m_programDescription << "\n" << std::endl;
+    std::cout << "Usage: " << binaryName << " [OPTIONS]\n" << std::endl;
     std::cout << "  Options:" << std::endl;
     for (const auto& a : m_availableOptions)
     {
