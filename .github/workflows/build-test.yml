@@ -27,7 +27,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v2
-      - uses: egor-tensin/setup-gcc@v1.2
+      - uses: egor-tensin/setup-gcc@v1
         with:
           version: 8
           platform: x64
@@ -78,6 +78,10 @@ jobs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
+      - uses: egor-tensin/setup-clang@v1
+        with:
+          version: 10
+          platform: x64
       - uses: actions/checkout@v2
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
@@ -94,6 +98,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
+      - uses: egor-tensin/setup-clang@v1
+        with:
+          version: 13
+          platform: x64
       - uses: actions/checkout@v2
       - run: ./tools/ci/build-ubuntu-with-latest-clang-gcc.sh clang
 

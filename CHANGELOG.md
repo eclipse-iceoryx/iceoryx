@@ -24,6 +24,7 @@
 - Add requirePublisherHistorySupport option at subscriber side (if set to true requires historyRequest <= historyCapacity to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029)
 - Add `/tools/scripts/ice_env.sh` shell script to provide simple access to docker containers for CI debugging [#1049](https://github.com/eclipse-iceoryx/iceoryx/issues/1049)
 - Introduce `cxx::FunctionalInterface` to enrich nullable classes with `and_then`, `or_else`, `value_or`, `expect` [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
+- Add C++17 `std::perms` as `cxx::perms` to `iceoryx_hoofs/cxx/filesystem.hpp`. [#1059](https://github.com/eclipse-iceoryx/iceoryx/issues/1059)
 
 **Bugfixes:**
 
@@ -64,6 +65,18 @@
 - Fix error handling of `TypedUniqueId` and refactor it to `UniquePortId` [\#861](https://github.com/eclipse-iceoryx/iceoryx/issues/861)
 - Updating Codecov API and enforce CMake version 3.16 for building iceoryx [\#774](https://github.com/eclipse-iceoryx/iceoryx/issues/774) and [\#1031](https://github.com/eclipse-iceoryx/iceoryx/issues/1031)
 - Remove `InvalidIdString` and `isValid()` from `ServiceDescription`, replace Wildcard string with `iox::cxx::nullopt` [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
+
+**New API features:**
+
+- Introduce `iceoryx_hoofs/cxx/filesystem.hpp` which implements `std::perms` as `cxx::perms`.
+```cpp
+#include "iceoryx_hoofs/cxx/filesystem.hpp"
+
+// ...
+cxx::perms filePermissions;
+filePermissions = cxx::perms::owner_read | cxx::perms::group_write;
+std::cout << filePermissions << std::endl;
+```
 
 **API Breaking Changes:**
 

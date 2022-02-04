@@ -31,15 +31,6 @@ cd ${WORKSPACE}
 msg "installing build dependencies"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
-if [ "$COMPILER" == "clang" ]; then
-    msg "installing latest stable clang"
-    wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
-    chmod +x /tmp/llvm.sh
-    # set LLVM_VERSION
-    eval $(cat /tmp/llvm.sh | grep LLVM_VERSION= -m 1)
-    sudo /tmp/llvm.sh ${LLVM_VERSION}
-fi
-
 msg "creating local test users and groups for testing access control"
 sudo ./tools/scripts/add_test_users.sh
 
@@ -50,8 +41,6 @@ if [ "$COMPILER" == "gcc" ]; then
 fi
 
 if [ "$COMPILER" == "clang" ]; then
-    export CC=clang-${LLVM_VERSION}
-    export CXX=clang++-${LLVM_VERSION}
     ./tools/iceoryx_build_test.sh clean build-strict build-strict build-all clang debug sanitize test-add-user
 fi
 
