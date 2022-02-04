@@ -12,7 +12,7 @@ The target of the `StatusPort` are use-case with the following properties:
     * The lifetime of the transferred data is bound to the lifetime of `StatusPortData`
 * Readers don't access the data directly but via a lambda
     * Preventing torn reads, since the `StatusPortReader` detects if the data
-    changed during `take()` operation (Frankenstein check) and re-executes the lambda
+    changed during `read()` operation (Frankenstein check) and re-executes the lambda
 * Has to be attachable to `Listener`
 * `StatusPort` could potentially be used to communicate between different ASIL domains
 
@@ -74,7 +74,7 @@ needed to associate the right `StatusPortData` in shared memory with the correct
 writer or reader object on the stack. The `StatusPort` shall follow the
 service-based design.
 
-#### `atomic<T>::exchange` in `StatusPortReader::take()`
+#### `atomic<T>::exchange` in `StatusPortReader::read()`
 
 A [CAS](https://en.wikipedia.org/wiki/Compare-and-swap) operation is not possible
 because CAS needs write access and a `StatusPortReader` shall not be allowed to
@@ -115,8 +115,8 @@ socket. The only difference is that one `StatusPortData` object is shared betwee
 `StatusPortReader` and `StatusPortWriter`. `store()` takes a `function_ref` to
 be able to manipulate the type in-place in shared memory.
 `StatusPortReader` is a template as well and has the same constructor. The first
-and single argument of`take()` is a `function_ref`, which is executed as long as
-the `take()` was unsuccessful. Furthermore, the `StatusPortReader` has the methods
+and single argument of`read()` is a `function_ref`, which is executed as long as
+the `read()` was unsuccessful. Furthermore, the `StatusPortReader` has the methods
 necessary to be attachable to a `popo::Listener` (e.g. `{enable,disable}Event`).
 
 `StatusPortData` stores the latest atomic `Transaction` as well as two pointers
@@ -266,7 +266,7 @@ struct Transaction
 {
     ActiveChunk activeChunk{ActiveChunk::FIRST};
     // We need a world-view counter to detect if StatusPortWriter::store operation overtook a
-    // StatusPortReader::take operation
+    // StatusPortReader::read operation
     uint32_t abaCounter{0U};
 
     bool operator==(const Transaction& rhs) const
@@ -330,7 +330,7 @@ class StatusPortReader
     StatusPortReader(const StatusPortReader&) = delete;
     StatusPortReader& operator=(const StatusPortReader&) = delete;
 
-    void take(cxx::function_ref<void(const T&)> callable) const noexcept
+    void read(cxx::function_ref<void(const T&)> callable) const noexcept
     {
         // The user needs to provide a callable which can deal with Frankenstein objects (half-written data)
         Transaction currentTransaction;
@@ -417,12 +417,12 @@ class StatusPortWriter
 
 * Naming
     * `StatusPort{Writer,Reader}` or just `StatusReader` and `StatusWriter`?
-* Does `copyTake()` make sense as an additional contract with the user?
+* Does `copy()` make sense as an additional contract with the user?
     * It would be possible that the user provides an arbitrary lambda, that does
     not need to be written with care
 
 ```cpp
-void copyTake(cxx::function_ref<void(const T&)> callable) const noexcept
+void copy(cxx::function_ref<void(const T&)> callable) const noexcept
 {
     Transaction currentTransaction;
     T copyOfUserData;
