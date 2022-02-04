@@ -246,11 +246,15 @@ and `stopOfferService` methods have been removed and `findService` has now an ad
 
 ```cpp
 // before
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 poshRuntime.offerService(myServiceDescription);
 poshRuntime.stopOfferService(myServiceDescription);
 poshRuntime.findService({"ServiceA", iox::capro::AnyInstanceString});
 
 // after
+#include "iceoryx_posh/runtime/service_discovery.hpp"
+
 serviceDiscovery.findService("ServiceA", Wildcard, Wildcard);
 ```
 

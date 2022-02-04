@@ -107,7 +107,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
 
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
     EXPECT_THAT(searchResults[0].referenceCounter, Eq(2));
 }
@@ -125,7 +125,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
 
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
     EXPECT_THAT(searchResults[0].referenceCounter, Eq(1));
 }
@@ -158,7 +158,7 @@ TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithWildcar
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
 }
 
@@ -168,7 +168,7 @@ TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithEmptySt
     ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
     sut.find(searchResults, iox::capro::IdString_t(""), iox::capro::IdString_t(""), iox::capro::IdString_t(""));
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription()));
 }
 
@@ -179,7 +179,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearc
     ASSERT_FALSE(result.has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
 }
 
@@ -190,8 +190,21 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithEventName)
     ASSERT_FALSE(sut.add(service).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::IdString_t("c"));
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service));
+}
+
+TEST_F(ServiceRegistry_test, ServiceDescriptionNotFoundWhenEventDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ba7785d1-08ec-4f7c-b341-dff033dae2c7");
+    iox::capro::ServiceDescription service("Besser", "Wisser", "Girl");
+    ASSERT_FALSE(sut.add(service).has_error());
+    sut.find(searchResults,
+             iox::capro::IdString_t("Besser"),
+             iox::capro::IdString_t("Wisser"),
+             iox::capro::IdString_t("Boy"));
+
+    EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
@@ -201,7 +214,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
     ASSERT_FALSE(result.has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::IdString_t("Bar"), iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Baz", "Bar", "Foo")));
 }
 
@@ -212,7 +225,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
     ASSERT_FALSE(sut.add(service).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service));
 }
 
@@ -226,7 +239,7 @@ TEST_F(ServiceRegistry_test, EmptyAndNotEmptyServiceDescriptionsCanAllBeFoundWit
     ASSERT_FALSE(sut.add(service2).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(2));
+    ASSERT_THAT(searchResults.size(), Eq(2));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
     EXPECT_THAT(searchResults[1].serviceDescription, Eq(service2));
 }
@@ -243,7 +256,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAll
     ASSERT_FALSE(sut.add(service3).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(3));
+    ASSERT_THAT(searchResults.size(), Eq(3));
 
     bool hasFoundB = false;
     bool hasFoundC = false;
@@ -272,12 +285,12 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceNameC
     ASSERT_FALSE(sut.add(service2).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
     searchResults.clear();
 
     sut.find(searchResults, iox::capro::IdString_t("c"), iox::capro::Wildcard, iox::capro::Wildcard);
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
 }
 
@@ -293,7 +306,7 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsS
     ASSERT_FALSE(sut.add(service3).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
 
-    EXPECT_THAT(searchResults.size(), Eq(1));
+    ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(service2));
 }
 
