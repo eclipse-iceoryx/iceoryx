@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
@@ -717,6 +718,65 @@ TEST_F(ChunkSender_test, Cleanup)
     m_chunkSenderWithHistory.releaseAll();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(ChunkSender_test, asStringLiteralConvertsAllocationErrorValuesToStrings)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fdb713e1-0e2c-411e-a3ee-02c216d510d0");
+    using AllocationError = iox::popo::AllocationError;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut : {AllocationError::UNDEFINED_ERROR,
+                            AllocationError::NO_MEMPOOLS_AVAILABLE,
+                            AllocationError::RUNNING_OUT_OF_CHUNKS,
+                            AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+                            AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER})
+    {
+        auto enumString = iox::popo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case AllocationError::UNDEFINED_ERROR:
+            EXPECT_THAT(enumString, StrEq("AllocationError::UNDEFINED_ERROR"));
+            break;
+        case AllocationError::NO_MEMPOOLS_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("AllocationError::NO_MEMPOOLS_AVAILABLE"));
+            break;
+        case AllocationError::RUNNING_OUT_OF_CHUNKS:
+            EXPECT_THAT(enumString, StrEq("AllocationError::RUNNING_OUT_OF_CHUNKS"));
+            break;
+        case AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:
+            EXPECT_THAT(enumString, StrEq("AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL"));
+            break;
+        case AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
+            EXPECT_THAT(enumString, StrEq("AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST_F(ChunkSender_test, LogStreamConvertsAllocationErrorValueToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "eb01b980-4ccd-449e-b497-8755c7ef08a0");
+    Logger_Mock loggerMock;
+
+    auto sut = iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
 }
 
 } // namespace

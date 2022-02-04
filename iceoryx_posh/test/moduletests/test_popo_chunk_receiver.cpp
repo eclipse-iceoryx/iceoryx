@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
@@ -234,6 +235,53 @@ TEST_F(ChunkReceiver_test, Cleanup)
     m_chunkReceiver.releaseAll();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(ChunkReceiver_test, asStringLiteralConvertsChunkReceiveResultValuesToStrings)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5cbbda34-8a22-4eab-a8b6-20da345c1707");
+    using ChunkReceiveResult = iox::popo::ChunkReceiveResult;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut :
+         {ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, ChunkReceiveResult::NO_CHUNK_AVAILABLE})
+    {
+        auto enumString = iox::popo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
+            EXPECT_THAT(enumString, StrEq("ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL"));
+            break;
+        case ChunkReceiveResult::NO_CHUNK_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("ChunkReceiveResult::NO_CHUNK_AVAILABLE"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST_F(ChunkReceiver_test, LogStreamConvertsChunkReceiveResultValueToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a7238bd8-548d-453f-84aa-0f2e82f7a3bc");
+    Logger_Mock loggerMock;
+
+    auto sut = iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
 }
 
 } // namespace

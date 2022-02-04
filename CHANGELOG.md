@@ -27,6 +27,7 @@
 - Add C++17 `std::perms` as `cxx::perms` to `iceoryx_hoofs/cxx/filesystem.hpp`. [#1059](https://github.com/eclipse-iceoryx/iceoryx/issues/1059)
 - Support FreeBSD as a representative for the UNIX platforms [#1054](https://github.com/eclipse-iceoryx/iceoryx/issues/1054)
 - Add event parameter to `findService` method [#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
+- Implement stream operator for `ChunkReceiveResult` and `AllocationError` to be able to use it with ostream and LogStream [\#1062](https://github.com/eclipse-iceoryx/iceoryx/issues/1062)
 
 **Bugfixes:**
 
