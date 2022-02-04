@@ -71,19 +71,19 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
         return stream;
     }
 
-    bool doAddComma = false;
+    bool hasPreceedingEntry = false;
     auto outputToStream = [&](const char* text) {
-        if (doAddComma)
+        if (hasPreceedingEntry)
         {
             stream << ", ";
         }
-        doAddComma = true;
+        hasPreceedingEntry = true;
 
         stream << text;
     };
 
     auto finishEntry = [&](bool isLastEntry = false) {
-        if (doAddComma)
+        if (hasPreceedingEntry)
         {
             stream << "}";
         }
@@ -96,7 +96,7 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
         {
             stream << ",  ";
         }
-        doAddComma = false;
+        hasPreceedingEntry = false;
     };
 
     // owner

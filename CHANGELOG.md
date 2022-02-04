@@ -69,14 +69,14 @@
 **New API features:**
 
 - Introduce `iceoryx_hoofs/cxx/filesystem.hpp` which implements `std::perms` as `cxx::perms`.
-    ```cpp
-    #include "iceoryx_hoofs/cxx/filesystem.hpp"
+```cpp
+#include "iceoryx_hoofs/cxx/filesystem.hpp"
 
-    // ...
-    cxx::perms filePermissions;
-    filePermissions = cxx::perms::owner_read | cxx::perms::group_write;
-    std::cout << filePermissions << std::endl;
-    ```
+// ...
+cxx::perms filePermissions;
+filePermissions = cxx::perms::owner_read | cxx::perms::group_write;
+std::cout << filePermissions << std::endl;
+```
 
 **API Breaking Changes:**
 

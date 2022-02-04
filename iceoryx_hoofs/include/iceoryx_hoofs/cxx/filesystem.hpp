@@ -99,9 +99,8 @@ perms operator&(const perms& lhs, const perms& rhs) noexcept;
 perms operator^(const perms& lhs, const perms& rhs) noexcept;
 
 /// @brief Implements the binary complement operation
-/// @param[in] lhs left hand side of the operation
-/// @param[in] rhs right hand side of the operation
-/// @return lhs ~ rhs
+/// @param[in] value the value used for the operation
+/// @return ~value
 perms operator~(const perms& value) noexcept;
 
 /// @brief Implements the binary or assignment operation
