@@ -222,7 +222,6 @@ class ServerPort_test : public Test
     SutServerPort serverOptionsWithWaitForConsumerClientTooSlowPolicy{
         m_serviceDescription, m_runtimeName, m_serverOptionsWithWaitForConsumerClientTooSlowPolicy, m_memoryManager};
 };
-constexpr iox::units::Duration ServerPort_test::DEADLOCK_TIMEOUT;
 
 } // namespace iox_test_popo_server_port
 
