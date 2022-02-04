@@ -97,7 +97,8 @@ class PortManager
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::IpcMessage findService(const cxx::optional<capro::IdString_t>& service,
-                                    const cxx::optional<capro::IdString_t>& instance) noexcept;
+                                    const cxx::optional<capro::IdString_t>& instance,
+                                    const cxx::optional<capro::IdString_t>& event) noexcept;
 
   protected:
     void makeAllPublisherPortsToStopOffer() noexcept;

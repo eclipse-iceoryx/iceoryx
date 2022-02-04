@@ -346,7 +346,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::FIND_SERVICE:
     {
-        if (message.getNumberOfElements() != 6)
+        if (message.getNumberOfElements() != 8)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << runtimeName
                        << "\"received!";
@@ -355,8 +355,10 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         {
             cxx::optional<capro::IdString_t> service;
             cxx::optional<capro::IdString_t> instance;
+            cxx::optional<capro::IdString_t> event;
             bool isServiceWildcard = false;
             bool isInstanceWildcard = false;
+            bool isEventWildcard = false;
             cxx::convert::fromString(message.getElementAtIndex(2).c_str(), isServiceWildcard);
             if (!isServiceWildcard)
             {
@@ -367,8 +369,13 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             {
                 instance.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(5));
             }
+            cxx::convert::fromString(message.getElementAtIndex(6).c_str(), isEventWildcard);
+            if (!isEventWildcard)
+            {
+                event.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(7));
+            }
 
-            m_prcMgr->findServiceForProcess(runtimeName, service, instance);
+            m_prcMgr->findServiceForProcess(runtimeName, service, instance, event);
         }
         break;
     }

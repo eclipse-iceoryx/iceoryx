@@ -559,12 +559,13 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
 }
 
 runtime::IpcMessage PortManager::findService(const cxx::optional<capro::IdString_t>& service,
-                                             const cxx::optional<capro::IdString_t>& instance) noexcept
+                                             const cxx::optional<capro::IdString_t>& instance,
+                                             const cxx::optional<capro::IdString_t>& event) noexcept
 {
     runtime::IpcMessage response;
 
     ServiceRegistry::ServiceDescriptionVector_t searchResult;
-    m_serviceRegistry.find(searchResult, service, instance);
+    m_serviceRegistry.find(searchResult, service, instance, event);
 
     for (auto& service : searchResult)
     {

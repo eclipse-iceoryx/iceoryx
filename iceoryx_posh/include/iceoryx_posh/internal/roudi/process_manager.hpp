@@ -109,7 +109,8 @@ class ProcessManager : public ProcessManagerInterface
 
     void findServiceForProcess(const RuntimeName_t& name,
                                const cxx::optional<capro::IdString_t>& service,
-                               const cxx::optional<capro::IdString_t>& instance) noexcept;
+                               const cxx::optional<capro::IdString_t>& instance,
+                               const cxx::optional<capro::IdString_t>& event) noexcept;
 
     void
     addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;

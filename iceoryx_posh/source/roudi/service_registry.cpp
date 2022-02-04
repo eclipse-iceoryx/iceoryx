@@ -45,6 +45,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     auto serviceIndex = m_serviceDescriptionVector.size() - 1;
     m_serviceMap.insert({serviceDescription.getServiceIDString(), serviceIndex});
     m_instanceMap.insert({serviceDescription.getInstanceIDString(), serviceIndex});
+    m_eventMap.insert({serviceDescription.getEventIDString(), serviceIndex});
     return cxx::success<>();
 }
 
@@ -96,19 +97,21 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     {
         removeIndexFromMap(m_serviceMap, index);
         removeIndexFromMap(m_instanceMap, index);
+        removeIndexFromMap(m_eventMap, index);
     }
 }
 
 void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const cxx::optional<capro::IdString_t>& service,
-                           const cxx::optional<capro::IdString_t>& instance) const noexcept
+                           const cxx::optional<capro::IdString_t>& instance,
+                           const cxx::optional<capro::IdString_t>& event) const noexcept
 {
-    cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
-
+    ServiceDescriptionVector_t serviceInstanceResult;
     // Find (K1, K2)
     // O(log n + log n + max(#PossibleServices + #possiblesInstances) + #intersection)
     if (instance && service)
     {
+        cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
         cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> possibleServices;
         cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> possibleInstances;
 
@@ -132,7 +135,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
 
         for (auto& value : intersection)
         {
-            searchResult.push_back(m_serviceDescriptionVector[value]);
+            serviceInstanceResult.push_back(m_serviceDescriptionVector[value]);
         }
     }
     // Find (*, K2)
@@ -142,7 +145,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
         auto range = m_instanceMap.equal_range(instance.value());
         for (auto entry = range.first; entry != range.second; ++entry)
         {
-            searchResult.push_back(m_serviceDescriptionVector[entry->second]);
+            serviceInstanceResult.push_back(m_serviceDescriptionVector[entry->second]);
         }
     }
     // Find (K1, *)
@@ -152,14 +155,29 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
         auto range = m_serviceMap.equal_range(service.value());
         for (auto entry = range.first; entry != range.second; ++entry)
         {
-            searchResult.push_back(m_serviceDescriptionVector[entry->second]);
+            serviceInstanceResult.push_back(m_serviceDescriptionVector[entry->second]);
         }
     }
     else
     {
         // Find (*, *)
         // O(n)
-        searchResult = m_serviceDescriptionVector;
+        serviceInstanceResult = m_serviceDescriptionVector;
+    }
+
+    if (event)
+    {
+        for (auto iterator = serviceInstanceResult.begin(); iterator != serviceInstanceResult.end(); iterator++)
+        {
+            if (iterator->serviceDescription.getEventIDString() == event.value())
+            {
+                searchResult.push_back(*iterator);
+            }
+        }
+    }
+    else
+    {
+        searchResult = serviceInstanceResult;
     }
 }
 

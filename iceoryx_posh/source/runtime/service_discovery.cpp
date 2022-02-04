@@ -23,13 +23,16 @@ namespace runtime
 {
 cxx::expected<ServiceContainer, FindServiceError>
 ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
-                              const cxx::optional<capro::IdString_t>& instance) noexcept
+                              const cxx::optional<capro::IdString_t>& instance,
+                              const cxx::optional<capro::IdString_t>& event) noexcept
 {
     /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;
     capro::IdString_t instanceString;
+    capro::IdString_t eventString;
     bool isServiceWildcard = !service;
     bool isInstanceWildcard = !instance;
+    bool isEventWildcard = !event;
 
     if (!isServiceWildcard)
     {
@@ -39,11 +42,16 @@ ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
     {
         instanceString = instance.value();
     }
+    if (!isEventWildcard)
+    {
+        eventString = event.value();
+    }
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << PoshRuntime::getInstance().getInstanceName()
                << cxx::convert::toString(isServiceWildcard) << serviceString
-               << cxx::convert::toString(isInstanceWildcard) << instanceString;
+               << cxx::convert::toString(isInstanceWildcard) << instanceString
+               << cxx::convert::toString(isEventWildcard) << eventString;
 
     IpcMessage requestResponse;
 
