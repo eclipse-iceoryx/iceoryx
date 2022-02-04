@@ -40,7 +40,7 @@ which is read from
 * Write position: The chunk which is used in a store operation, not currently being used by
 the `StatusPortReader`s
 
-### Contract & constraints
+### Contract, requirements & constraints
 
 * Algorithm shall be lock-free
     * Data exchanged needs to be trivially-copyable
@@ -56,11 +56,6 @@ the `StatusPortReader`s
 * Reader only needs write access to the data structure and no read access
 * Writing and Reading will be tried indefinitely till possible, hence starvation
 is possible
-* `StatusPortData` is created in the shared memory segment if either a `StatusPortWriter`
-or `StatusPortReader` is created
-    * Two chunks in the shared memory payload segment are bound to the lifetime
-    of the `StatusPortData` (either via `StatusPortData` c'tor or
-    `StatusPort{Writer,Reader}` c'tor)
 
 ### Discarded ideas & design alternatives
 
@@ -73,8 +68,9 @@ std::atomic<T*> activeChunk{nullptr}
 ```
 
 However, it would need the full 64-bit and which is not needed when managing
-just two chunks. Hence an `abaCounter` would need to be stored in a separate
-`std::atomic` variable.
+just two chunks. Hence, an `abaCounter` would need to be stored in a separate
+`std::atomic` variable. This would not work in for 64 bit systems, since we need
+to load both values in single atomic operation. Therefore this is not a viable alternative.
 
 #### Omit `ServiceDescription` and discovery
 
@@ -123,18 +119,21 @@ object in the shared memory management segment. The pointer is acquired in the
 same manner as previous publishers and subscribers via RouDi's unix domain
 socket. The only difference is that one `StatusPortData` object is shared between
 `StatusPortReader` and `StatusPortWriter`. `store()` takes a `function_ref` to
-be able to manipulate the type in-place in shared memory.
+be able to modify the type in-place in shared memory.
 `StatusPortReader` is a template as well and has the same constructor. The first
 and single argument of`read()` is a `function_ref`, which is executed as long as
 the `read()` was unsuccessful. Furthermore, the `StatusPortReader` has the methods
 necessary to be attachable to a `popo::Listener` (e.g. `{enable,disable}Event`).
 
 `StatusPortData` stores the latest atomic `Transaction` as well as two pointers
-to `SharedChunk`s in the shared memory payload segment. The lifetime of the two
-chunks is bound to the lifetime of the `StatusPortData` object. To be able to to
-associate the correct readers and writers a `ServiceDescription` is used.
+to `SharedChunk`s in the shared memory payload segment. A `StatusPortData` object
+is created in the shared memory segment if either a `StatusPortWriter` or
+`StatusPortReader` is created. The lifetime of the two chunks is bound to the
+lifetime of the `StatusPortData` object. Either via `StatusPortData` c'tor or
+`StatusPort{Writer,Reader}` c'tor. To be able to to associate the correct readers
+and writers a `ServiceDescription` is used.
 
-#### Frankenstein object corner cases
+#### Reading inconsistent objects (Frankenstein objects)
 
 How can we ensure in `StatusPortWriter::store()` that there is no `StatusPortReader`
 reading the chunk to which we want to write to? This could be for example a slow
@@ -200,15 +199,26 @@ Latest transaction in shared memory managment segment
 ```
 
 > ***
-> Special care has to be taken, when writing the `callable`!
+> Special care has to be taken, when writing the code of the `callable`!
 > ***
 >
 > It must be ensured that the `callable` does not crash or ends up in an endless
-> loop, when working on the data
+> loop, when working on corrupted data.
+>
 
-The memory order ``std::memory_order_release` and `std::memory_order_acquire`
-ensure that the operations below the `load()` "happened-before" and the memory of
-`chunks[]` is synchronized.
+The memory order `std::memory_order_release` and `std::memory_order_acquire`
+ensure that the memory of `chunks[]` is synchronized with `latestTransaction`.
+
+The relationships are the following:
+
+1. **write** happens-before **store** (no reordering possible that contradicts this)
+2. **load** happens-before **read** (no reordering possible that contradicts this)
+3. **load** synchronizes with **store**
+
+Two outcomes are possible:
+
+1. If **load** has observed the **store** then the **write** is observed as well.
+2. If **load** has not observed the **store** then **read** may or may not see the **write**.
 
 ```text
 // Write data via callable
