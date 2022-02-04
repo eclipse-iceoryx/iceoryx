@@ -40,14 +40,14 @@ class time_MOCK
     static bool doUseMock; // = true;
 };
 
-#if defined(QNX) || defined(QNX__) || defined(__QNX__)
-int clock_getres(clockid_t clk_id, struct timespec* res);
-int clock_gettime(clockid_t clk_id, struct timespec* res);
-int clock_settime(clockid_t clk_id, const struct timespec* res);
-#else
+#if defined(__linux__)
 int clock_getres(clockid_t clk_id, struct timespec* res) noexcept;
 int clock_gettime(clockid_t clk_id, struct timespec* res) noexcept;
 int clock_settime(clockid_t clk_id, const struct timespec* res) noexcept;
+#else
+int clock_getres(clockid_t clk_id, struct timespec* res);
+int clock_gettime(clockid_t clk_id, struct timespec* res);
+int clock_settime(clockid_t clk_id, const struct timespec* res);
 #endif
 #endif
 

@@ -204,8 +204,8 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const noexce
     return cxx::success<std::string>(std::string(&(message[0])));
 }
 
-cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
-                                                           const IpcChannelSide channelSide) noexcept
+cxx::expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
+                                                         const IpcChannelSide channelSide) noexcept
 {
     IpcChannelName_t l_name;
     if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
@@ -223,7 +223,7 @@ cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0);
     auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
-                      .failureReturnValue(ERROR_CODE)
+                      .failureReturnValue(INVALID_DESCRIPTOR)
                       .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
 
@@ -234,7 +234,7 @@ cxx::expected<int32_t, IpcChannelError> MessageQueue::open(const IpcChannelName_
         return createErrorFromErrnum(mqCall.get_error().errnum);
     }
 
-    return cxx::success<int32_t>(mqCall->value);
+    return cxx::success<mqd_t>(mqCall->value);
 }
 
 cxx::expected<IpcChannelError> MessageQueue::close() noexcept
@@ -323,13 +323,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg,
 
 cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated() noexcept
 {
-    struct stat sb = {};
-    auto fstatCall = posixCall(fstat)(m_mqDescriptor, &sb).failureReturnValue(-1).evaluate();
-    if (fstatCall.has_error())
-    {
-        return createErrorFromErrnum(fstatCall.get_error().errnum);
-    }
-    return cxx::success<bool>(sb.st_nlink == 0);
+    return cxx::success<bool>(false);
 }
 
 cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t errnum) const noexcept

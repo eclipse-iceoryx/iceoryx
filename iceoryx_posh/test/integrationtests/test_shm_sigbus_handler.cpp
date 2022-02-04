@@ -28,6 +28,7 @@ namespace
 {
 using namespace ::testing;
 
+#if !(defined(unix) | defined(__unix) | defined(__unix__))
 TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d6c8949d-42c9-4b2c-a150-4306cb2a57f6");
@@ -57,6 +58,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     ASSERT_FALSE(goodShmProvider.addMemoryBlock(&goodmempools).has_error());
     ASSERT_FALSE(goodShmProvider.create().has_error());
 }
+#endif
 } // namespace
 
 #endif

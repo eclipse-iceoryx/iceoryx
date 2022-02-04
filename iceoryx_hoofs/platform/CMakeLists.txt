@@ -25,8 +25,11 @@ elseif(APPLE)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/mac/)
 elseif(WIN32)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/win/)
+elseif(UNIX)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/unix/)
 else()
-    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/unix/)
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today. Maybe its Unix." )
 endif()
 
 set(ICEORYX_PLATFORM ${ICEORYX_PLATFORM} CACHE PATH "" FORCE)
@@ -61,5 +64,13 @@ elseif(QNX)
     target_link_libraries(iceoryx_platform
         PRIVATE
         socket
+    )
+elseif(APPLE)
+elseif(WIN32)
+elseif(UNIX)
+    target_link_libraries(iceoryx_platform
+        PUBLIC
+        rt
+        pthread
     )
 endif()

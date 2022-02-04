@@ -25,8 +25,6 @@
 #include "iceoryx_hoofs/platform/mqueue.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 
-#include <iostream>
-
 namespace iox
 {
 namespace posix
@@ -49,7 +47,7 @@ namespace posix
 class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelError>
 {
   public:
-    static constexpr mqd_t INVALID_DESCRIPTOR = -1;
+    static constexpr mqd_t INVALID_DESCRIPTOR = std::numeric_limits<mqd_t>::max();
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr size_t SHORTEST_VALID_QUEUE_NAME = 2;
     static constexpr size_t NULL_TERMINATOR_SIZE = 1;
@@ -100,8 +98,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10U) noexcept;
 
-    cxx::expected<int32_t, IpcChannelError> open(const IpcChannelName_t& name,
-                                                 const IpcChannelSide channelSide) noexcept;
+    cxx::expected<mqd_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide) noexcept;
 
     cxx::expected<IpcChannelError> close() noexcept;
     cxx::expected<IpcChannelError> unlink() noexcept;

@@ -175,7 +175,7 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
         mode_t umaskSaved = umask(0);
 
         auto mqCall = iox::posix::posixCall(iox_mq_open4)(name.c_str(), openFlags, m_filemode, &m_attributes)
-                          .failureReturnValue(ERROR_CODE)
+                          .failureReturnValue(INVALID_DESCRIPTOR)
                           .ignoreErrnos(ENOENT)
                           .evaluate()
                           .or_else([&](auto& r) {

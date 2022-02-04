@@ -319,7 +319,8 @@ fi
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf "$WORKSPACE"/build_out_of_tree
     cd "$WORKSPACE"
-    EXAMPLES=$(find iceoryx_examples/ -maxdepth 1 -type d -printf '%d\t%P\n' | sort -r -nk1 | cut -f2-)
+
+    EXAMPLES=$(cd iceoryx_examples; find * -maxdepth 1 -type d)
     # Exclude directories without CMake file from the out-of-tree build
     EXAMPLES=${EXAMPLES/iceensemble/""}
     EXAMPLES=${EXAMPLES/icecrystal/""}

@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(unix) && !defined(__unix) && !defined(__unix__)
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/platform/pwd.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"

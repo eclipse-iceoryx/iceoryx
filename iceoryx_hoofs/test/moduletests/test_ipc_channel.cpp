@@ -33,6 +33,8 @@ using namespace iox::posix;
 using IpcChannelTypes = Types<UnixDomainSocket>;
 #elif defined(_WIN32)
 using IpcChannelTypes = Types<NamedPipe>;
+#elif defined(unix) || defined(__unix) || defined(__unix__)
+using IpcChannelTypes = Types<UnixDomainSocket, NamedPipe>;
 #else
 using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket, NamedPipe>;
 #endif
@@ -207,9 +209,10 @@ TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 {
     ::testing::Test::RecordProperty("TEST_ID", "441c4480-57e7-4607-a7e1-df7a9f2f19d0");
     if (std::is_same<typename TestFixture::IpcChannelType, UnixDomainSocket>::value
-        || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
+        || std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value
+        || std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value)
     {
-        // isOutdated cannot be realized for unix domain sockets or named pipes
+        // isOutdated cannot be realized for unix domain sockets, named pipes or message queues
         return;
     }
 
@@ -364,7 +367,7 @@ TYPED_TEST(IpcChannel_test, wildCreate)
     ASSERT_THAT(result.has_error(), Eq(true));
 }
 
-#if !defined(__APPLE__)
+#if !(defined(__APPLE__) || defined(unix) || defined(__unix) || defined(__unix__))
 TYPED_TEST(IpcChannel_test, TimedSendWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "12fe0ee5-37f8-4c34-ba44-ed50872a5fd9");
