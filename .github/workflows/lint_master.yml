@@ -1,4 +1,4 @@
-name: Axivion
+name: Code Linting on master branch
 
 on:
   push:
