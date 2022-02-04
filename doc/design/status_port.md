@@ -4,45 +4,55 @@
 
 The `StatusPort` is an alternative to the publish subscriber communication in `iceoryx_posh`.
 
-The target of the `StatusPort` are use-case with the following properties:
+The `StatusPort` targets the use-cases with the following properties:
 
 * Data is transferred once or is rarely updated
 * There are many readers which are interested in the data
+    * 1:n communication aka broadcast
 * Data can be persistent
     * The lifetime of the transferred data is bound to the lifetime of `StatusPortData`
-* Readers don't access the data directly but via a lambda
-    * Preventing torn reads, since the `StatusPortReader` detects if the data
-    changed during `read()` operation (Frankenstein check) and re-executes the lambda
-* Has to be attachable to `Listener`
-* `StatusPort` could potentially be used to communicate between different ASIL domains
+* `StatusPort` could potentially be used to communicate between different ASIL
+domains as it shall only need read access to all shared memory segments on the
+reader side
 
 Potential applications are:
 
 * Introspection topics
 * Service discovery
+* Broadcasting configurations or parameters
+
+### Remarks
+
+`StatusPort{Writer,Reader}` won't be part of the user API in the first version and will be
+only used internally. However, they might become user API for freedom-from-interference separation
+at a later point in time.
 
 ## Design
 
 ### Terminology
 
-* Transaction: Atomic state of the world, which is changed by a write operation
+* World view/ latest transaction: Atomic state of the world, which is changed by a write operation
+* Transaction: A change of the world view
 * Current transaction: Transaction in local scope, read in the beginning of each operation
-* Latest transaction: Transaction in the shared memory managment segment
 * Chunk: Untyped piece of memory located in the shared memory payload segment
-* Read position: The chunk, which was used the last time to write data
-* Write position: The opposite chunk, not currently being used by the `StatusPortReader`s
+* Read position: The chunk, which was used the last time to write data and is the one
+which is read from
+* Write position: The chunk which is used in a store operation, not currently being used by
+the `StatusPortReader`s
 
-### Contract & properties
+### Contract & constraints
 
-* 1:n communication aka broadcast
-* Two memory chunks from shared memory payload segment are used
-* Data exchanged needs to be trivially-copyable
+* Algorithm shall be lock-free
+    * Data exchanged needs to be trivially-copyable
+* Event notification of newly received data shall be possible
+    * `StatusPortReader` to be attachable to `Listener` and `WaitSet`
+* Readers don't access the data directly but via a lambda
+    * Preventing torn reads, since the `StatusPortReader` detects if the data
+    changed during `read()` operation and re-executes the lambda
 * Storing a chunk cannot fail
 * Reading a chunk cannot fail
     * If no data was sent yet, `callable` is not called
     * If data was updated in-between read, re-call `callable`
-* Not part of the user API in the first version, only used internally
-    * Might become user API for freedom-from-interference separation
 * Reader only needs write access to the data structure and no read access
 * Writing and Reading will be tried indefinitely till possible, hence starvation
 is possible
