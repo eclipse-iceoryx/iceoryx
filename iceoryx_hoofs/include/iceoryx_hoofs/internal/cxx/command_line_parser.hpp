@@ -80,9 +80,11 @@ class CommandLineParser
   public:
     static constexpr uint64_t MAX_DESCRIPTION_LENGTH = 1024;
     static constexpr uint64_t OPTION_OUTPUT_WIDTH = 45;
+    static constexpr uint64_t MAX_TYPE_LENGTH = 16;
     static constexpr char NO_SHORT_OPTION = '\0';
 
     using description_t = cxx::string<MAX_DESCRIPTION_LENGTH>;
+    using typeName_t = cxx::string<MAX_TYPE_LENGTH>;
 
     struct entry_t
     {
@@ -90,6 +92,8 @@ class CommandLineParser
         CommandLineOptions::name_t longOption;
         description_t description;
         ArgumentType type = ArgumentType::SWITCH;
+        typeName_t typeName;
+        description_t defaultValue;
     };
 
     explicit CommandLineParser(const description_t& programDescription) noexcept;

@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/command_line.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 #include "test.hpp"
 
 namespace
@@ -36,24 +36,7 @@ class CommandLineParser_test : public Test
     }
 };
 
-struct CommandLine
-{
-    COMMAND_LINE(CommandLine, "asdasdasd");
-
-    OPTIONAL_VALUE(string<100>, service, {""}, 's', "service", "some description");
-    REQUIRED_VALUE(string<100>, instance, 's', "instance", "some description");
-    SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
-    OPTIONAL_VALUE(uint64_t, version, 0, 'o', "bla", "sadasd");
-};
-
 TEST_F(CommandLineParser_test, asd)
 {
-    int argc = 0;
-    char** argv = nullptr;
-
-    CommandLine cmd(argc, argv);
-
-    cmd.doStuff();
-    cmd.service();
 }
 } // namespace

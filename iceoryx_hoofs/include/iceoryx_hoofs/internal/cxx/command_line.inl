@@ -32,7 +32,13 @@ inline T addEntry(T& value,
                   internal::cmdEntries_t& entries,
                   internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
+    entries.emplace_back(CommandLineParser::entry_t{
+        shortName,
+        name,
+        description,
+        argumentType,
+        TypeInfo<T>::NAME,
+        CommandLineParser::description_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         auto result = options.get<T>(entries[index].longOption);
         if (result.has_error())
@@ -57,7 +63,13 @@ inline bool addEntry(bool& value,
                      internal::cmdEntries_t& entries,
                      internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
+    entries.emplace_back(CommandLineParser::entry_t{
+        shortName,
+        name,
+        description,
+        argumentType,
+        TypeInfo<bool>::NAME,
+        CommandLineParser::description_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         value = options.has(entries[index].longOption);
     });

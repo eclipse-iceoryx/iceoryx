@@ -16,7 +16,9 @@
 #ifndef IOX_HOOFS_CXX_COMMAND_LINE_HPP
 #define IOX_HOOFS_CXX_COMMAND_LINE_HPP
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 

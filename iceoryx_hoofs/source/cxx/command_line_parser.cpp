@@ -65,7 +65,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
         }
         else if (argIdentifierLength > 2 && argv[i][1] != '-')
         {
-            std::cerr << "Only one letter allowed when using a short option name. This \"" << argv[i]
+            std::cerr << "Only one letter allowed when using a short option name. The switch \"" << argv[i]
                       << "\" is not valid." << std::endl;
             printHelpAndExit(options.binaryName().c_str());
         }
@@ -138,12 +138,13 @@ CommandLineOptions CommandLineParser::parse(int argc,
         }
     }
 
+    if (options.has("help"))
+    {
+        printHelpAndExit(options.binaryName().c_str());
+    }
+
     if (areAllRequiredValuesPresent(options))
     {
-        if (options.has("help"))
-        {
-            printHelpAndExit(options.binaryName().c_str());
-        }
         return options;
     }
 
@@ -252,13 +253,13 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
 
         if (a.type == ArgumentType::REQUIRED_VALUE)
         {
-            std::cout << " [REQUIRED_VALUE]";
-            outLength += 17;
+            std::cout << " [" << a.typeName << "]";
+            outLength += 3 + a.typeName.size();
         }
         else if (a.type == ArgumentType::OPTIONAL_VALUE)
         {
-            std::cout << " [OPTIONAL_VALUE]";
-            outLength += 17;
+            std::cout << " [" << a.typeName << "]";
+            outLength += 3 + a.typeName.size();
         }
 
         uint64_t spacing = (outLength + 1 < OPTION_OUTPUT_WIDTH) ? OPTION_OUTPUT_WIDTH - outLength : 2;
@@ -268,6 +269,15 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
             std::cout << " ";
         }
         std::cout << a.description << std::endl;
+
+        if (a.type == ArgumentType::OPTIONAL_VALUE)
+        {
+            for (uint64_t i = 0; i < OPTION_OUTPUT_WIDTH; ++i)
+            {
+                std::cout << " ";
+            }
+            std::cout << "default value = \'" << a.defaultValue << "\'" << std::endl;
+        }
     }
     std::cout << std::endl;
     std::exit(EXIT_FAILURE);
