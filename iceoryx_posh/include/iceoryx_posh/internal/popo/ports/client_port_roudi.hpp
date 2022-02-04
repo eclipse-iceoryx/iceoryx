@@ -70,7 +70,7 @@ class ClientPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    void handleCaProProtocollViolation(iox::capro::CaproMessageType messageType) noexcept;
+    void handleCaProProtocolViolation(iox::capro::CaproMessageType messageType) noexcept;
 
     cxx::optional<capro::CaproMessage>
     handleCaProMessageForStateNotConnected(const capro::CaproMessage& caProMessage) noexcept;

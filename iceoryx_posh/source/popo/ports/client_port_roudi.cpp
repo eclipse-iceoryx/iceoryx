@@ -78,7 +78,7 @@ cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcep
     }
 
     // nothing to change
-    return cxx::nullopt_t();
+    return cxx::nullopt;
 }
 
 cxx::optional<capro::CaproMessage>
@@ -100,11 +100,11 @@ ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
         return handleCaProMessageForStateDisconnectRequested(caProMessage);
     }
 
-    handleCaProProtocollViolation(caProMessage.m_type);
+    handleCaProProtocolViolation(caProMessage.m_type);
     return cxx::nullopt;
 }
 
-void ClientPortRouDi::handleCaProProtocollViolation(iox::capro::CaproMessageType messageType) noexcept
+void ClientPortRouDi::handleCaProProtocolViolation(iox::capro::CaproMessageType messageType) noexcept
 {
     // this shouldn't be reached
     LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "' in `"
@@ -129,12 +129,12 @@ ClientPortRouDi::handleCaProMessageForStateNotConnected(const capro::CaproMessag
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
     case capro::CaproMessageType::OFFER:
-        return cxx::nullopt_t();
+        return cxx::nullopt;
     default:
         break;
     }
 
-    handleCaProProtocollViolation(caProMessage.m_type);
+    handleCaProProtocolViolation(caProMessage.m_type);
     return cxx::nullopt;
 }
 
@@ -151,15 +151,15 @@ ClientPortRouDi::handleCaProMessageForStateConnectRequested(const capro::CaproMe
                           .has_error());
 
         getMembers()->m_connectionState.store(ConnectionState::CONNECTED, std::memory_order_relaxed);
-        return cxx::nullopt_t();
+        return cxx::nullopt;
     case capro::CaproMessageType::NACK:
         getMembers()->m_connectionState.store(ConnectionState::WAIT_FOR_OFFER, std::memory_order_relaxed);
-        return cxx::nullopt_t();
+        return cxx::nullopt;
     default:
         break;
     }
 
-    handleCaProProtocollViolation(caProMessage.m_type);
+    handleCaProProtocolViolation(caProMessage.m_type);
     return cxx::nullopt;
 }
 
@@ -181,12 +181,12 @@ ClientPortRouDi::handleCaProMessageForStateWaitForOffer(const capro::CaproMessag
     }
     case capro::CaproMessageType::DISCONNECT:
         getMembers()->m_connectionState.store(ConnectionState::NOT_CONNECTED, std::memory_order_relaxed);
-        return cxx::nullopt_t();
+        return cxx::nullopt;
     default:
         break;
     }
 
-    handleCaProProtocollViolation(caProMessage.m_type);
+    handleCaProProtocolViolation(caProMessage.m_type);
     return cxx::nullopt;
 }
 
@@ -198,7 +198,7 @@ ClientPortRouDi::handleCaProMessageForStateConnected(const capro::CaproMessage& 
     case capro::CaproMessageType::STOP_OFFER:
         getMembers()->m_connectionState.store(ConnectionState::WAIT_FOR_OFFER, std::memory_order_relaxed);
         m_chunkSender.removeAllQueues();
-        return cxx::nullopt_t();
+        return cxx::nullopt;
     case capro::CaproMessageType::DISCONNECT:
     {
         getMembers()->m_connectionState.store(ConnectionState::DISCONNECT_REQUESTED, std::memory_order_relaxed);
@@ -214,7 +214,7 @@ ClientPortRouDi::handleCaProMessageForStateConnected(const capro::CaproMessage& 
         break;
     }
 
-    handleCaProProtocollViolation(caProMessage.m_type);
+    handleCaProProtocolViolation(caProMessage.m_type);
     return cxx::nullopt;
 }
 
@@ -227,12 +227,12 @@ ClientPortRouDi::handleCaProMessageForStateDisconnectRequested(const capro::Capr
         IOX_FALLTHROUGH;
     case capro::CaproMessageType::NACK:
         getMembers()->m_connectionState.store(ConnectionState::NOT_CONNECTED, std::memory_order_relaxed);
-        return cxx::nullopt_t();
+        return cxx::nullopt;
     default:
         break;
     }
 
-    handleCaProProtocollViolation(caProMessage.m_type);
+    handleCaProProtocolViolation(caProMessage.m_type);
     return cxx::nullopt;
 }
 
