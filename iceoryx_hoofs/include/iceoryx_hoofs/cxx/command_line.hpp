@@ -45,7 +45,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
                      int argc,
                      char* argv[],
                      const uint64_t argcOffset,
-                     const UnknownOption actionWhenOptionUnknown);
+                     const iox::cxx::UnknownOption actionWhenOptionUnknown);
 
 #define INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)        \
   private:                                                                                                             \
@@ -68,7 +68,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
 /// @param[in] description a description of the switch
 #define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                               \
     INTERNAL_CMD_LINE_VALUE(                                                                                           \
-        type, memberName, defaultValue, shortName, longName, description, ArgumentType::OPTIONAL_VALUE)
+        type, memberName, defaultValue, shortName, longName, description, iox::cxx::ArgumentType::OPTIONAL_VALUE)
 
 /// @brief Adds a required value to the command line, if it is not provided the program will print the help and
 ///        terminate
@@ -78,7 +78,8 @@ void populateEntries(const internal::cmdEntries_t& entries,
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the switch
 #define REQUIRED_VALUE(type, memberName, shortName, longName, description)                                             \
-    INTERNAL_CMD_LINE_VALUE(type, memberName, type(), shortName, longName, description, ArgumentType::REQUIRED_VALUE)
+    INTERNAL_CMD_LINE_VALUE(                                                                                           \
+        type, memberName, type(), shortName, longName, description, iox::cxx::ArgumentType::REQUIRED_VALUE)
 
 /// @brief Adds a switch to the command line
 /// @param[in] memberName the name under which the switch is accessible
@@ -86,7 +87,8 @@ void populateEntries(const internal::cmdEntries_t& entries,
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the switch
 #define SWITCH(memberName, shortName, longName, description)                                                           \
-    INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, ArgumentType::OPTIONAL_VALUE)
+    INTERNAL_CMD_LINE_VALUE(                                                                                           \
+        bool, memberName, false, shortName, longName, description, iox::cxx::ArgumentType::OPTIONAL_VALUE)
 
 /// @brief Helper macro to create a struct with full command line parsing from argc, argv.
 /// @param[in] Name the name of the class/struct
@@ -129,7 +131,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
     Name(int argc,                                                                                                     \
          char* argv[],                                                                                                 \
          const uint64_t argcOffset = 1U,                                                                               \
-         const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE)                                       \
+         const iox::cxx::UnknownOption actionWhenOptionUnknown = iox::cxx::UnknownOption::TERMINATE)                   \
     {                                                                                                                  \
         ::iox::cxx::internal::populateEntries(                                                                         \
             m_entries, m_assignments, ProgramDescription, argc, argv, argcOffset, actionWhenOptionUnknown);            \
