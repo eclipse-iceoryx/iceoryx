@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/command_line.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 #include "test.hpp"
 
 namespace
@@ -36,112 +36,9 @@ class CommandLineParser_test : public Test
     }
 };
 
-namespace internal
-{
-using cmdEntries_t = vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
-using cmdAssignments_t = vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
-} // namespace internal
-
-template <typename T>
-T addEntry(T& value,
-           const char shortName,
-           const CommandLineOptions::name_t& name,
-           const CommandLineParser::description_t& description,
-           const ArgumentType argumentType,
-           T defaultValue, // not const to enable RTVO
-           internal::cmdEntries_t& entries,
-           internal::cmdAssignments_t& assignments)
-{
-    entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
-    assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
-        auto result = options.get<T>(entries[index].longOption);
-        if (result.has_error())
-        {
-            std::cerr << "It seems that the switch value of \"" << entries[index].longOption << "\" is not of type \""
-                      << TypeInfo<T>::NAME << "\"" << std::endl;
-            std::terminate();
-        }
-
-        value = result.value();
-    });
-    return defaultValue;
-}
-
-template <>
-bool addEntry(bool& value,
-              const char shortName,
-              const CommandLineOptions::name_t& name,
-              const CommandLineParser::description_t& description,
-              const ArgumentType argumentType,
-              const bool defaultValue,
-              internal::cmdEntries_t& entries,
-              internal::cmdAssignments_t& assignments)
-{
-    entries.emplace_back(CommandLineParser::entry_t{shortName, name, description, argumentType});
-    assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
-        value = options.has(entries[index].longOption);
-    });
-    return defaultValue;
-}
-
-void populateEntries(const internal::cmdEntries_t& entries,
-                     const internal::cmdAssignments_t& assignments,
-                     int argc,
-                     char* argv[],
-                     const uint64_t argcOffset,
-                     const UnknownOption actionWhenOptionUnknown)
-{
-    CommandLineParser parser;
-    for (const auto& entry : entries)
-    {
-        parser.addOption(entry);
-    }
-
-    auto options = parser.parse(argc, argv, argcOffset, actionWhenOptionUnknown);
-
-    for (const auto& assignment : assignments)
-    {
-        assignment(options);
-    }
-}
-
-#define CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)                 \
-  private:                                                                                                             \
-    type m_##memberName = addEntry<type>(                                                                              \
-        this->m_##memberName, shortName, longName, description, argumentType, defaultValue, m_entries, m_assignments); \
-                                                                                                                       \
-  public:                                                                                                              \
-    type memberName() const noexcept                                                                                   \
-    {                                                                                                                  \
-        return m_##memberName;                                                                                         \
-    }
-
-#define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                               \
-    CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, ArgumentType::OPTIONAL_VALUE)
-
-#define REQUIRED_VALUE(type, memberName, shortName, longName, description)                                             \
-    CMD_LINE_VALUE(type, memberName, type(), shortName, longName, description, ArgumentType::REQUIRED_VALUE)
-
-#define SWITCH(memberName, shortName, longName, description)                                                           \
-    CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, ArgumentType::OPTIONAL_VALUE)
-
-#define COMMAND_LINE(Name)                                                                                             \
-  private:                                                                                                             \
-    internal::cmdEntries_t m_entries;                                                                                  \
-    internal::cmdAssignments_t m_assignments;                                                                          \
-                                                                                                                       \
-  public:                                                                                                              \
-    Name(int argc,                                                                                                     \
-         char* argv[],                                                                                                 \
-         const uint64_t argcOffset = 1U,                                                                               \
-         const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE)                                       \
-    {                                                                                                                  \
-        populateEntries(m_entries, m_assignments, argc, argv, argcOffset, actionWhenOptionUnknown);                    \
-    }
-
 struct CommandLine
 {
-    COMMAND_LINE(CommandLine);
+    COMMAND_LINE(CommandLine, "asdasdasd");
 
     OPTIONAL_VALUE(string<100>, service, {""}, 's', "service", "some description");
     REQUIRED_VALUE(string<100>, instance, 's', "instance", "some description");
