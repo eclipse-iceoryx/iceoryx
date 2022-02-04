@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
@@ -265,6 +266,22 @@ TEST_F(ChunkReceiver_test, asStringLiteralConvertsChunkReceiveResultValuesToStri
 
     uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
     EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST_F(ChunkReceiver_test, LogStreamConvertsChunkReceiveResultValueToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a7238bd8-548d-453f-84aa-0f2e82f7a3bc");
+    Logger_Mock loggerMock;
+
+    auto sut = iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
 }
 
 } // namespace
