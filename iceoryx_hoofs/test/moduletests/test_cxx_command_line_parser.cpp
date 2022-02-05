@@ -14,11 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 #include "test.hpp"
+
+#include <cstdlib>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace
 {
@@ -30,13 +33,60 @@ class CommandLineParser_test : public Test
   public:
     void SetUp()
     {
+        ::testing::internal::CaptureStdout();
     }
     virtual void TearDown()
     {
+        std::string output = ::testing::internal::GetCapturedStdout();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
     }
+
+    using str_t = char[CommandLineParser::MAX_DESCRIPTION_LENGTH];
+    static constexpr uint64_t MAX_ARGUMENTS = CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS + 1;
+
+    struct CmdArgs
+    {
+        int argc = 0;
+        char** argv = nullptr;
+
+        CmdArgs(const std::vector<std::string>& arguments)
+        {
+            contents = std::make_unique<std::vector<std::string>>(arguments);
+            argc = arguments.size();
+            argv = static_cast<char**>(malloc(sizeof(char*) * arguments.size()));
+            for (uint64_t i = 0; i < argc; ++i)
+            {
+                argv[i] = (*contents)[i].data();
+            }
+        }
+
+        ~CmdArgs()
+        {
+            free(argv);
+        }
+
+        std::unique_ptr<std::vector<std::string>> contents;
+    };
 };
 
-TEST_F(CommandLineParser_test, asd)
+TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 {
+    const CommandLineOptions::binaryName_t binaryName("AllHailHypnotoad");
+    CmdArgs args({binaryName.c_str()});
+    auto options = CommandLineParser("").parse(args.argc, args.argv);
+
+    EXPECT_THAT(options.binaryName(), Eq(binaryName));
+}
+
+TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
+{
+    bool wasErrorHandlerCalled = false;
+    auto handle = iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+    auto options = CommandLineParser("").parse(0, nullptr);
+
+    EXPECT_TRUE(wasErrorHandlerCalled);
 }
 } // namespace
