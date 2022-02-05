@@ -26,78 +26,64 @@ namespace roudi
 {
 cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    // Forbid duplicate service descriptions entries
-    for (auto& element : m_serviceDescriptionVector)
+    auto index = find(serviceDescription);
+    if (index != NO_INDEX)
     {
-        if (element.serviceDescription == serviceDescription)
+        // entry exists, increment counter
+        auto& entry = m_serviceDescriptions[index];
+        entry->referenceCounter++;
+        return cxx::success<>();
+    }
+
+    // entry does not exist, find a free slot if it exists
+
+    // fast path to a free slot (previously removed)
+    if (m_freeIndex != NO_INDEX)
+    {
+        auto& entry = m_serviceDescriptions[m_freeIndex];
+        entry.emplace(serviceDescription, 1);
+        m_freeIndex = NO_INDEX;
+        return cxx::success<>();
+    }
+
+    // search from start
+    for (auto& entry : m_serviceDescriptions)
+    {
+        if (!entry)
         {
-            // Due to n:m communication we don't store twice but increase the reference counter
-            element.referenceCounter++;
+            entry.emplace(serviceDescription, 1);
             return cxx::success<>();
         }
     }
-    uint64_t referenceCounter = 1U;
-    if (!m_serviceDescriptionVector.push_back({serviceDescription, referenceCounter}))
+
+    // append new entry at the end
+    if (m_serviceDescriptions.emplace_back())
     {
-        return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
+        auto& entry = m_serviceDescriptions.back();
+        entry.emplace(serviceDescription, 1);
+        return cxx::success<>();
     }
 
-    auto serviceIndex = m_serviceDescriptionVector.size() - 1;
-    m_serviceMap.insert({serviceDescription.getServiceIDString(), serviceIndex});
-    m_instanceMap.insert({serviceDescription.getInstanceIDString(), serviceIndex});
-    m_eventMap.insert({serviceDescription.getEventIDString(), serviceIndex});
-    return cxx::success<>();
+    return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
 }
 
 void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    bool removedElement{false};
-    uint64_t index = 0U;
-    for (auto iterator = m_serviceDescriptionVector.begin(); iterator != m_serviceDescriptionVector.end();)
+    auto index = find(serviceDescription);
+    if (index != NO_INDEX)
     {
-        auto& element = m_serviceDescriptionVector[index].serviceDescription;
-        if (element == serviceDescription)
-        {
-            auto& refCounter = m_serviceDescriptionVector[index].referenceCounter;
-            --refCounter;
-            if (refCounter == 0)
-            {
-                m_serviceDescriptionVector.erase(iterator);
-                removedElement = true;
-            }
-            else
-            {
-                return;
-            }
-            // There can't be more than one element
-            break;
-        }
-        ++index;
-        ++iterator;
-    }
+        // entry exists, increment counter
+        auto& entry = m_serviceDescriptions[index];
 
-    auto removeIndexFromMap = [](std::multimap<capro::IdString_t, uint64_t>& map, uint64_t index) {
-        for (auto it = map.begin(); it != map.end();)
+        if (entry->referenceCounter > 1)
         {
-            if (it->second == index)
-            {
-                it = map.erase(it);
-                continue;
-            }
-            else if (it->second > index)
-            {
-                // update index due to removed element
-                it->second--;
-            }
-            it++;
+            entry->referenceCounter--;
         }
-    };
-
-    if (removedElement)
-    {
-        removeIndexFromMap(m_serviceMap, index);
-        removeIndexFromMap(m_instanceMap, index);
-        removeIndexFromMap(m_eventMap, index);
+        else
+        {
+            entry.reset();
+            m_freeIndex = index;
+        }
     }
 }
 
@@ -106,84 +92,49 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const cxx::optional<capro::IdString_t>& instance,
                            const cxx::optional<capro::IdString_t>& event) const noexcept
 {
-    ServiceDescriptionVector_t serviceInstanceResult;
-    // Find (K1, K2)
-    // O(log n + log n + max(#PossibleServices + #possiblesInstances) + #intersection)
-    if (instance && service)
-    {
-        cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> intersection;
-        cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> possibleServices;
-        cxx::vector<uint64_t, MAX_SERVICE_DESCRIPTIONS> possibleInstances;
+    // all search cases have complexity O(n)
 
-        auto rangeServiceMap = m_serviceMap.equal_range(service.value());
-        for (auto entry = rangeServiceMap.first; entry != rangeServiceMap.second; ++entry)
-        {
-            possibleServices.push_back(entry->second);
-        }
+    constexpr Wildcard WILDCARD;
 
-        auto rangeInstanceMap = m_instanceMap.equal_range(instance.value());
-        for (auto entry = rangeInstanceMap.first; entry != rangeInstanceMap.second; ++entry)
-        {
-            possibleInstances.push_back(entry->second);
-        }
-
-        ::std::set_intersection(possibleServices.begin(),
-                                possibleServices.end(),
-                                possibleInstances.begin(),
-                                possibleInstances.end(),
-                                ::std::back_inserter(intersection));
-
-        for (auto& value : intersection)
-        {
-            serviceInstanceResult.push_back(m_serviceDescriptionVector[value]);
-        }
-    }
-    // Find (*, K2)
-    // O(log n + #result)
-    else if (!service && instance)
+    // as little case-checking as possible, as much compile time dispatch via tag types as possible
+    if (service)
     {
-        auto range = m_instanceMap.equal_range(instance.value());
-        for (auto entry = range.first; entry != range.second; ++entry)
+        if (instance)
         {
-            serviceInstanceResult.push_back(m_serviceDescriptionVector[entry->second]);
+            if (event)
+            {
+                return find_(*service, *instance, *event, searchResult);
+            }
+            return find_(*service, *instance, WILDCARD, searchResult);
         }
-    }
-    // Find (K1, *)
-    // O(log n + #result)
-    else if (!instance && service)
-    {
-        auto range = m_serviceMap.equal_range(service.value());
-        for (auto entry = range.first; entry != range.second; ++entry)
+        if (event)
         {
-            serviceInstanceResult.push_back(m_serviceDescriptionVector[entry->second]);
+            return find_(*service, WILDCARD, *event, searchResult);
         }
-    }
-    else
-    {
-        // Find (*, *)
-        // O(n)
-        serviceInstanceResult = m_serviceDescriptionVector;
+        return find_(*service, WILDCARD, WILDCARD, searchResult);
     }
 
+    if (instance)
+    {
+        if (event)
+        {
+            return find_(WILDCARD, *instance, *event, searchResult);
+        }
+        return find_(WILDCARD, *instance, WILDCARD, searchResult);
+    }
     if (event)
     {
-        for (auto iterator = serviceInstanceResult.begin(); iterator != serviceInstanceResult.end(); iterator++)
-        {
-            if (iterator->serviceDescription.getEventIDString() == event.value())
-            {
-                searchResult.push_back(*iterator);
-            }
-        }
+        return find_(WILDCARD, WILDCARD, *event, searchResult);
     }
-    else
-    {
-        searchResult = serviceInstanceResult;
-    }
+
+    return find_all(searchResult);
 }
 
 const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getServices() const noexcept
 {
-    return m_serviceDescriptionVector;
+    ServiceDescriptionVector_t allServices;
+    find_all(allServices);
+    return allServices;
 }
 } // namespace roudi
 } // namespace iox

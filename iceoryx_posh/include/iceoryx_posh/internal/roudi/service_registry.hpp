@@ -18,8 +18,11 @@
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+
+#include "iceoryx_hoofs/internal/objectpool/objectpool.hpp"
 
 #include <cstdint>
 #include <map>
@@ -40,13 +43,26 @@ class ServiceRegistry
     using ReferenceCounter_t = uint64_t;
     struct ServiceDescriptionEntry
     {
+        ServiceDescriptionEntry(const capro::ServiceDescription& desc, ReferenceCounter_t count)
+            : serviceDescription(desc)
+            , referenceCounter(count)
+        {
+        }
         capro::ServiceDescription serviceDescription{};
         ReferenceCounter_t referenceCounter = 0U;
     };
 
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
     static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
+    static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
+
+
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
+
+    using Entry_t = cxx::optional<ServiceDescriptionEntry>;
+    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, MAX_SERVICE_DESCRIPTIONS>;
+    // using ServiceDescriptionPool_t = cxx::ObjectPool<cxx::optional<ServiceDescriptionEntry>,
+    // MAX_SERVICE_DESCRIPTIONS>;
 
     /// @brief Adds given service description to registry
     /// @param[in] serviceDescription, service to be added
@@ -77,6 +93,133 @@ class ServiceRegistry
     ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
     ::std::multimap<capro::IdString_t, uint64_t> m_eventMap;
     ServiceDescriptionVector_t m_serviceDescriptionVector;
+
+    ServiceDescriptionContainer_t m_serviceDescriptions;
+    // ServiceDescriptionPool_t m_serviceDescriptions;
+
+    uint32_t m_freeIndex{NO_INDEX};
+
+    uint32_t find(const capro::ServiceDescription& serviceDescription)
+    {
+        for (uint32_t i = 0; i < m_serviceDescriptions.size(); ++i)
+        {
+            auto& entry = m_serviceDescriptions[i];
+            if (entry && entry->serviceDescription == serviceDescription)
+            {
+                return i;
+            }
+        }
+        return NO_INDEX;
+    }
+
+    struct Wildcard
+    {
+    };
+
+    void find_(const capro::IdString_t& service, Wildcard, Wildcard, ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getServiceIDString() == service)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_(Wildcard, const capro::IdString_t& instance, Wildcard, ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getInstanceIDString() == instance)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_(Wildcard, Wildcard, const capro::IdString_t& event, ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getEventIDString() == event)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_(const capro::IdString_t& service,
+               const capro::IdString_t& instance,
+               Wildcard,
+               ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getServiceIDString() == service
+                && entry->serviceDescription.getInstanceIDString() == instance)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_(const capro::IdString_t& service,
+               Wildcard,
+               const capro::IdString_t& event,
+               ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getServiceIDString() == service
+                && entry->serviceDescription.getEventIDString() == event)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_(Wildcard,
+               const capro::IdString_t& instance,
+               const capro::IdString_t& event,
+               ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getInstanceIDString() == instance
+                && entry->serviceDescription.getEventIDString() == event)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_(const capro::IdString_t& service,
+               const capro::IdString_t& instance,
+               const capro::IdString_t& event,
+               ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry && entry->serviceDescription.getServiceIDString() == service
+                && entry->serviceDescription.getInstanceIDString() == instance
+                && entry->serviceDescription.getEventIDString() == event)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
+
+    void find_all(ServiceDescriptionVector_t& searchResult) const
+    {
+        for (auto& entry : m_serviceDescriptions)
+        {
+            if (entry)
+            {
+                searchResult.emplace_back(*entry);
+            }
+        }
+    }
 };
 } // namespace roudi
 } // namespace iox
