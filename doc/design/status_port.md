@@ -2,7 +2,7 @@
 
 ## Summary and requirements
 
-The `StatusPort` is an alternative to the publish subscriber communication in `iceoryx_posh`.
+The `StatusPort` is a building block in `iceoryx_posh` to exchange data via shared memory.
 
 The `StatusPort` targets the use-cases with the following properties:
 
@@ -11,15 +11,14 @@ The `StatusPort` targets the use-cases with the following properties:
     * 1:n communication aka broadcast
 * Data can be persistent
     * The lifetime of the transferred data is bound to the lifetime of `StatusPortData`
-* `StatusPort` could potentially be used to communicate between different ASIL
-domains as it shall only need read access to all shared memory segments on the
-reader side
 
-Potential applications are:
+Applications are:
 
 * Introspection topics
 * Service discovery
 * Broadcasting configurations or parameters
+* `StatusPort` could potentially be used to communicate between different ASIL
+domains as it shall only need read access on the reader side
 
 ### Remarks
 
@@ -34,7 +33,7 @@ at a later point in time.
 * World view/ latest transaction: Atomic state of the world, which is changed by a write operation
 * Transaction: A change of the world view
 * Current transaction: Transaction in local scope, read in the beginning of each operation
-* Chunk: Untyped piece of memory located in the shared memory payload segment
+* Chunk: Pointer to untyped memory
 * Read position: The chunk, which was used the last time to write data and is the one
 which is read from
 * Write position: The chunk which is used in a store operation, not currently being used by
@@ -45,17 +44,19 @@ the `StatusPortReader`s
 * Algorithm shall be lock-free
     * Data exchanged needs to be trivially-copyable
 * Event notification of newly received data shall be possible
-    * `StatusPortReader` to be attachable to `Listener` and `WaitSet`
-* Readers don't access the data directly but via a lambda
-    * Preventing torn reads, since the `StatusPortReader` detects if the data
-    changed during `read()` operation and re-executes the lambda
-* Storing a chunk cannot fail
-* Reading a chunk cannot fail
+    * `StatusPortReader` has to be attachable to `popo::Listener` and `popo::WaitSet`
+* Torn reads shall be prevented
+    * Readers don't access the data directly but via a `callable`. The `StatusPortReader`
+    has to detect if the data changed during `read()` operation and re-execute the `callable`
+    * Writing and reading will be tried indefinitely till successful, hence starvation
+    is possible
+    * The transmitted data type must be self-contained (e.g. no pointers to outside structures)
+* Storing a chunk shall not fail
+    * A free chunk shall always be available for writing
+* Reading a chunk shall not fail
     * If no data was sent yet, `callable` is not called
-    * If data was updated in-between read, re-call `callable`
-* Reader only needs write access to the data structure and no read access
-* Writing and Reading will be tried indefinitely till possible, hence starvation
-is possible
+    * If data was updated in-between read, `callable` re-executed
+* `StatusPortReader` shall only need read access to the data structure and no write access
 
 ### Discarded ideas & design alternatives
 
@@ -70,7 +71,7 @@ std::atomic<T*> activeChunk{nullptr}
 However, it would need the full 64-bit and which is not needed when managing
 just two chunks. Hence, an `abaCounter` would need to be stored in a separate
 `std::atomic` variable. This would not work in for 64 bit systems, since we need
-to load both values in single atomic operation. Therefore this is not a viable alternative.
+to load both values in a single atomic operation. Therefore this is not a viable alternative.
 
 #### Omit `ServiceDescription` and discovery
 
@@ -86,7 +87,7 @@ A [CAS](https://en.wikipedia.org/wiki/Compare-and-swap) operation is not possibl
 because CAS needs write access and a `StatusPortReader` shall not be allowed to
 write data into shared memory.
 
-#### Differentiate between Writer/Reader between RouDi/User?
+#### Differentiate between Writer/Reader or between RouDi/User?
 
 To be consistent with the previously available publisher and subscribers one
 could argue to follow the same naming. However, the `StatusPort` might be used to
@@ -116,21 +117,22 @@ Depicted below is the class diagram.
 The `StatusPortWriter` is a template where `T` is the transferred data type.
 It has a constructor which takes a pointer to the `StatusPortData`
 object in the shared memory management segment. The pointer is acquired in the
-same manner as previous publishers and subscribers via RouDi's unix domain
-socket. The only difference is that one `StatusPortData` object is shared between
+same manner as previous publishers and subscribers via RouDi's IPC channel.
+The only difference is that one `StatusPortData` object is shared between
 `StatusPortReader` and `StatusPortWriter`. `store()` takes a `function_ref` to
 be able to modify the type in-place in shared memory.
 `StatusPortReader` is a template as well and has the same constructor. The first
-and single argument of`read()` is a `function_ref`, which is executed as long as
+and single argument of `read()` is a `function_ref`, which is executed as long as
 the `read()` was unsuccessful. Furthermore, the `StatusPortReader` has the methods
-necessary to be attachable to a `popo::Listener` (e.g. `{enable,disable}Event`).
+necessary to be attachable to a `popo::Listener` and `popo::WaitSet` (e.g.
+`{enable,disable}Event`).
 
 `StatusPortData` stores the latest atomic `Transaction` as well as two pointers
 to `SharedChunk`s in the shared memory payload segment. A `StatusPortData` object
 is created in the shared memory segment if either a `StatusPortWriter` or
 `StatusPortReader` is created. The lifetime of the two chunks is bound to the
 lifetime of the `StatusPortData` object. Either via `StatusPortData` c'tor or
-`StatusPort{Writer,Reader}` c'tor. To be able to to associate the correct readers
+`StatusPort{Writer,Reader}` c'tor. To be able to associate the correct readers
 and writers a `ServiceDescription` is used.
 
 #### Reading inconsistent objects (Frankenstein objects)
@@ -155,7 +157,7 @@ The following samples are transmitted by the `StatusPortWriter`
 2. "Twin Ion Engines Fighter"
 3. "USS Enterprise"
 
-After the second transaction the `StatusPortReader` see's the latest transaction
+After the first transaction the `StatusPortReader` see's the latest transaction
 below and starts reading the `chunk[1]` aka `SECOND`.
 
 ```text
@@ -166,8 +168,8 @@ Latest transaction in shared memory managment segment
 +----------------------------------+
 ```
 
-Now the the `StatusPortWriter` starts writing concurrently the third sample and
-overtakes the slower `StatusPortReader`.
+Now, the `StatusPortWriter` starts writing concurrently the second and immediately
+afterwards the third sample and overtakes the slower `StatusPortReader`.
 Due the latest transaction depicted below, `writePosition` is calculated to
 `chunks[1]` aka `SECOND`. Below you can find the location `^` at which the writer
 is currently writing and the reader is reading. As a result the strings are mixed
@@ -175,7 +177,7 @@ up at this very moment in time, a so called Frankenstein object. While in this
 case, the reader might still read uncorrupted data if he finished before the
 writer, one can easily imagine that this can lead to very subtile, nasty bugs.
 To avoid this problem the `StatusPortReader` compares the initial transaction
-with the latest transaction and  re-calls the callable as long as they are not
+with the latest transaction and re-executes the callable as long as they are not
 the same.
 
 ```text
