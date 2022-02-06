@@ -38,7 +38,7 @@ bool CommandLineParser::hasArguments(const int argc) const noexcept
     return hasArguments;
 }
 
-bool CommandLineParser::assignBinaryName(const char* name, CommandLineOptions& options) noexcept
+bool CommandLineParser::assignBinaryName(const char* name) noexcept
 {
     const bool binaryNameFitsIntoString =
         (strnlen(name, platform::IOX_MAX_PATH_LENGTH + 1) <= platform::IOX_MAX_PATH_LENGTH);
@@ -48,41 +48,38 @@ bool CommandLineParser::assignBinaryName(const char* name, CommandLineOptions& o
         printHelpAndExit(name);
         return binaryNameFitsIntoString;
     }
-    options.m_binaryName.unsafe_assign(name);
+    m_options.m_binaryName.unsafe_assign(name);
     return binaryNameFitsIntoString;
 }
 
-bool CommandLineParser::doesOptionStartWithMinus(const char* option,
-                                                 const CommandLineOptions::binaryName_t& binaryName) const noexcept
+bool CommandLineParser::doesOptionStartWithMinus(const char* option) const noexcept
 {
     const bool doesOptionStartWithMinus =
-        (strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0 && option[0] != '-');
+        (strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0 && option[0] == '-');
 
     if (!doesOptionStartWithMinus)
     {
         std::cout << "Every option has to start with \"-\" but \"" << option << "\" does not." << std::endl;
-        printHelpAndExit(binaryName.c_str());
+        printHelpAndExit(m_options.binaryName().c_str());
     }
     return doesOptionStartWithMinus;
 }
 
-bool CommandLineParser::hasOptionName(const char* option,
-                                      const CommandLineOptions::binaryName_t& binaryName) const noexcept
+bool CommandLineParser::hasOptionName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH);
     const bool hasOptionName = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
 
-    if (hasOptionName)
+    if (!hasOptionName)
     {
         std::cout << "Empty option names are forbidden" << std::endl;
-        printHelpAndExit(binaryName.c_str());
+        printHelpAndExit(m_options.binaryName().c_str());
     }
 
     return hasOptionName;
 }
 
-bool CommandLineParser::hasValidSwitchName(const char* option,
-                                           const CommandLineOptions::binaryName_t& binaryName) const noexcept
+bool CommandLineParser::hasValidSwitchName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH);
     const bool hasValidSwitchName = !(argIdentifierLength > 2 && option[1] != '-');
@@ -91,46 +88,59 @@ bool CommandLineParser::hasValidSwitchName(const char* option,
     {
         std::cout << "Only one letter allowed when using a short option name. The switch \"" << option
                   << "\" is not valid." << std::endl;
-        printHelpAndExit(binaryName.c_str());
+        printHelpAndExit(m_options.binaryName().c_str());
     }
     return hasValidSwitchName;
 }
 
-bool CommandLineParser::hasValidOptionName(const char* option,
-                                           const CommandLineOptions::binaryName_t& binaryName) const noexcept
+bool CommandLineParser::hasValidOptionName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
     const bool hasValidOptionName = !(argIdentifierLength > 2 && option[2] == '-');
 
-    if (hasValidOptionName)
+    if (!hasValidOptionName)
     {
         std::cout << "A long option name should start after \"--\". This \"" << option << "\" is not valid."
                   << std::endl;
-        printHelpAndExit(binaryName.c_str());
+        printHelpAndExit(m_options.binaryName().c_str());
     }
     return hasValidOptionName;
 }
 
-bool CommandLineParser::doesOptionNameFitIntoString(const char* option,
-                                                    const CommandLineOptions::binaryName_t& binaryName) const noexcept
+bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
     const bool doesOptionNameFitIntoString = (argIdentifierLength <= CommandLineOptions::MAX_OPTION_NAME_LENGTH);
 
-    if (doesOptionNameFitIntoString)
+    if (!doesOptionNameFitIntoString)
     {
         std::cout << "\"" << option << "\" is longer then the maximum supported size of "
                   << CommandLineOptions::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
-        printHelpAndExit(binaryName.c_str());
+        printHelpAndExit(m_options.binaryName().c_str());
     }
     return doesOptionNameFitIntoString;
 }
 
-bool CommandLineParser::isNextArgumentAValue(const int position, const int argc, char* argv[]) noexcept
+bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noexcept
 {
-    return (argc > position + 1
-            && (strnlen(argv[position + 1], CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0
-                && argv[position + 1][0] != '-'));
+    return (m_argc > 0 && static_cast<uint64_t>(m_argc) > position + 1
+            && (strnlen(m_argv[position + 1], CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0
+                && m_argv[position + 1][0] != '-'));
+}
+
+bool CommandLineParser::isValueOptionFollowedByValue(const entry_t& entry,
+                                                     const bool isNextArgumentAValue) const noexcept
+{
+    const bool isValueOptionFollowedByValue =
+        !((entry.type == ArgumentType::OPTIONAL_VALUE || entry.type == ArgumentType::REQUIRED_VALUE)
+          && !isNextArgumentAValue);
+
+    if (!isValueOptionFollowedByValue)
+    {
+        std::cout << "The option \"" << entry << "\" requires a value but none were provided." << std::endl;
+        printHelpAndExit(m_options.binaryName().c_str());
+    }
+    return isValueOptionFollowedByValue;
 }
 
 CommandLineOptions CommandLineParser::parse(int argc,
@@ -138,27 +148,27 @@ CommandLineOptions CommandLineParser::parse(int argc,
                                             const uint64_t argcOffset,
                                             const UnknownOption actionWhenOptionUnknown) noexcept
 {
-    CommandLineOptions options;
+    m_argc = argc;
+    m_argv = argv;
 
-    if (!hasArguments(argc) || !assignBinaryName(argv[0], options))
+    if (!hasArguments(argc) || !assignBinaryName(argv[0]))
     {
-        return options;
+        return m_options;
     }
 
     for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < static_cast<uint64_t>(argc); ++i)
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 
-        if (!doesOptionStartWithMinus(argv[i], options.binaryName()))
+        if (!doesOptionStartWithMinus(argv[i]))
         {
-            return options;
+            return m_options;
         }
 
-        if (!hasOptionName(argv[i], options.binaryName()) || !hasValidSwitchName(argv[i], options.binaryName())
-            || !hasValidOptionName(argv[i], options.binaryName())
-            || !doesOptionNameFitIntoString(argv[i], options.binaryName()))
+        if (!hasOptionName(argv[i]) || !hasValidSwitchName(argv[i]) || !hasValidOptionName(argv[i])
+            || !doesOptionNameFitIntoString(argv[i]))
         {
-            return options;
+            return m_options;
         }
 
         uint64_t optionNameStart = (argv[i][1] == '-') ? 2 : 1;
@@ -171,12 +181,12 @@ CommandLineOptions CommandLineParser::parse(int argc,
             case UnknownOption::TERMINATE:
             {
                 std::cout << "Unknown option \"" << argv[i] << "\"" << std::endl;
-                printHelpAndExit(options.binaryName().c_str());
-                return options;
+                printHelpAndExit(m_options.binaryName().c_str());
+                return m_options;
             }
             case UnknownOption::IGNORE:
             {
-                if (isNextArgumentAValue(static_cast<int>(i), argc, argv))
+                if (isNextArgumentAValue(i))
                 {
                     skipCommandLineArgument();
                 }
@@ -186,9 +196,14 @@ CommandLineOptions CommandLineParser::parse(int argc,
             }
         }
 
-        options.m_arguments.emplace_back();
-        options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
-        options.m_arguments.back().shortId = optionEntry->shortOption;
+        if (isValueOptionFollowedByValue(*optionEntry, isNextArgumentAValue(i)))
+        {
+            return m_options;
+        }
+
+        m_options.m_arguments.emplace_back();
+        m_options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
+        m_options.m_arguments.back().shortId = optionEntry->shortOption;
 
         // parse value of the option name
         if (i + 1 < static_cast<uint64_t>(argc) && argv[i + 1][0] != '-')
@@ -197,8 +212,8 @@ CommandLineOptions CommandLineParser::parse(int argc,
             {
                 std::cout << "The parameter \"" << argv[i] << "\" is a switch. You cannot set a value here."
                           << std::endl;
-                printHelpAndExit(options.binaryName().c_str());
-                return options;
+                printHelpAndExit(m_options.binaryName().c_str());
+                return m_options;
             }
 
             if (strnlen(argv[i + 1], CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1)
@@ -206,27 +221,27 @@ CommandLineOptions CommandLineParser::parse(int argc,
             {
                 std::cout << "\"" << argv[i + 1] << "\" is longer then the maximum supported size of "
                           << CommandLineOptions::MAX_OPTION_VALUE_LENGTH << " for option values." << std::endl;
-                printHelpAndExit(options.binaryName().c_str());
-                return options;
+                printHelpAndExit(m_options.binaryName().c_str());
+                return m_options;
             }
-            options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
+            m_options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
             skipCommandLineArgument();
         }
     }
 
-    if (options.has("help"))
+    if (m_options.has("help"))
     {
-        printHelpAndExit(options.binaryName().c_str());
-        return options;
+        printHelpAndExit(m_options.binaryName().c_str());
+        return m_options;
     }
 
-    if (areAllRequiredValuesPresent(options))
+    if (!areAllRequiredValuesPresent())
     {
-        return options;
+        printHelpAndExit(m_options.binaryName().c_str());
+        return m_options;
     }
 
-    printHelpAndExit(options.binaryName().c_str());
-    return options;
+    return m_options;
 }
 
 cxx::optional<CommandLineParser::entry_t>
@@ -243,7 +258,7 @@ CommandLineParser::getOption(const CommandLineOptions::name_t& name) const noexc
     return cxx::nullopt;
 }
 
-bool CommandLineParser::areAllRequiredValuesPresent(const CommandLineOptions& options) const noexcept
+bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
 {
     bool allPresent = true;
     for (const auto& r : m_availableOptions)
@@ -251,7 +266,7 @@ bool CommandLineParser::areAllRequiredValuesPresent(const CommandLineOptions& op
         if (r.type == ArgumentType::REQUIRED_VALUE)
         {
             bool isValuePresent = false;
-            for (const auto& o : options.m_arguments)
+            for (const auto& o : m_options.m_arguments)
             {
                 if (o.id == r.longOption || (o.id.size() == 1 && o.id.c_str()[0] == r.shortOption))
                 {
@@ -261,22 +276,7 @@ bool CommandLineParser::areAllRequiredValuesPresent(const CommandLineOptions& op
             }
             if (!isValuePresent)
             {
-                std::cout << "Required option \"";
-
-                if (r.shortOption != NO_SHORT_OPTION)
-                {
-                    std::cout << "-" << r.shortOption;
-                }
-                if (r.shortOption != NO_SHORT_OPTION && !r.longOption.empty())
-                {
-                    std::cout << ", ";
-                }
-                if (!r.longOption.empty())
-                {
-                    std::cout << "--" << r.longOption;
-                }
-
-                std::cout << "\" is unset!" << std::endl;
+                std::cout << "Required option \"" << r << "\" is unset!" << std::endl;
                 allPresent = false;
             }
         }
@@ -364,6 +364,24 @@ CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
     m_availableOptions.emplace_back(option);
     return *this;
+}
+
+std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t& entry) noexcept
+{
+    if (entry.shortOption != CommandLineParser::NO_SHORT_OPTION)
+    {
+        stream << "-" << entry.shortOption;
+    }
+    if (entry.shortOption != CommandLineParser::NO_SHORT_OPTION && !entry.longOption.empty())
+    {
+        stream << ", ";
+    }
+    if (!entry.longOption.empty())
+    {
+        stream << "--" << entry.longOption;
+    }
+
+    return stream;
 }
 } // namespace cxx
 } // namespace iox

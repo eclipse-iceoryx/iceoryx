@@ -107,24 +107,30 @@ class CommandLineParser
 
   private:
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
-    bool areAllRequiredValuesPresent(const CommandLineOptions& options) const noexcept;
+    bool areAllRequiredValuesPresent() const noexcept;
     void printHelpAndExit(const char* binaryName) const noexcept;
 
     bool hasArguments(const int argc) const noexcept;
-    bool assignBinaryName(const char* name, CommandLineOptions& options) noexcept;
-    bool doesOptionStartWithMinus(const char* option,
-                                  const CommandLineOptions::binaryName_t& binaryName) const noexcept;
-    bool hasOptionName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
-    bool hasValidSwitchName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
-    bool hasValidOptionName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
-    bool doesOptionNameFitIntoString(const char* option,
-                                     const CommandLineOptions::binaryName_t& binaryName) const noexcept;
-    static bool isNextArgumentAValue(const int position, const int argc, char* argv[]) noexcept;
+    bool assignBinaryName(const char* name) noexcept;
+    bool doesOptionStartWithMinus(const char* option) const noexcept;
+    bool hasOptionName(const char* option) const noexcept;
+    bool hasValidSwitchName(const char* option) const noexcept;
+    bool hasValidOptionName(const char* option) const noexcept;
+    bool doesOptionNameFitIntoString(const char* option) const noexcept;
+    bool isNextArgumentAValue(const uint64_t position) const noexcept;
+    static void printOption(const entry_t& entry) noexcept;
+    bool isValueOptionFollowedByValue(const entry_t& entry, const bool isNextArgumentAValue) const noexcept;
 
   private:
+    int m_argc = 0;
+    char** m_argv = nullptr;
     description_t m_programDescription;
     cxx::vector<entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    CommandLineOptions m_options;
 };
+
+std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t& entry) noexcept;
+
 } // namespace cxx
 } // namespace iox
 

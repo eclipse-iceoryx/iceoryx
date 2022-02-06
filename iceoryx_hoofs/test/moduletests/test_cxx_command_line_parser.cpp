@@ -128,7 +128,7 @@ void OptionFailureTest(const std::vector<std::string>& options,
                               "int",
                               "0"});
         }
-        auto options = CommandLineParser("").parse(args.argc, args.argv);
+        auto options = parser.parse(args.argc, args.argv);
     }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
@@ -165,9 +165,15 @@ TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize)
     OptionFailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')});
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionIsNotFollowedByAValue)
+TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption)
 {
-    OptionFailureTest({"--set-stoepsels-bachelor-date-to", "--oh-no-i-am-an-option"});
+    std::vector<std::string> optionsToRegister{"set"};
+    OptionFailureTest({"--set", "--oh-no-i-am-an-option"}, optionsToRegister);
 }
 
+TEST_F(CommandLineParser_test, FailWhenValueOptionIsAtTheEnd)
+{
+    std::vector<std::string> optionsToRegister{"set"};
+    OptionFailureTest({"--set"}, optionsToRegister);
+}
 } // namespace
