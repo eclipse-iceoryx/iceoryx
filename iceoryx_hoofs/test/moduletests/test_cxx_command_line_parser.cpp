@@ -33,15 +33,15 @@ class CommandLineParser_test : public Test
   public:
     void SetUp() override
     {
-        ::testing::internal::CaptureStdout();
+        // ::testing::internal::CaptureStdout();
     }
     void TearDown() override
     {
-        std::string output = ::testing::internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
+        // std::string output = ::testing::internal::GetCapturedStdout();
+        // if (Test::HasFailure())
+        // {
+        //     std::cout << output << std::endl;
+        // }
     }
 
     using str_t = char[CommandLineParser::MAX_DESCRIPTION_LENGTH];
@@ -58,9 +58,9 @@ struct CmdArgs
         , argv{new char*[argc]}
     {
         contents = std::make_unique<std::vector<std::string>>(arguments);
-        for (uint64_t i = 0; i < argc; ++i)
+        for (int i = 0; i < argc; ++i)
         {
-            argv[i] = (*contents)[i].data();
+            argv[i] = const_cast<char*>((*contents)[i].data());
         }
     }
 
@@ -106,38 +106,68 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
     EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
-void SingleOptionFailureTest(const CommandLineOptions::name_t& brokenOption) noexcept
+void OptionFailureTest(const std::vector<std::string>& options,
+                       const std::vector<std::string>& optionsToRegister = {}) noexcept
 {
     const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
-    CmdArgs args({binaryName.c_str(), brokenOption});
+    std::vector<std::string> optionVector{binaryName.c_str()};
+    optionVector.insert(optionVector.end(), options.begin(), options.end());
+    CmdArgs args(optionVector);
 
     bool wasErrorHandlerCalled = false;
     {
         auto handle =
             iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+        CommandLineParser parser("");
+        for (const auto& o : optionsToRegister)
+        {
+            parser.addOption({CommandLineParser::NO_SHORT_OPTION,
+                              CommandLineOptions::name_t(TruncateToCapacity, o),
+                              "",
+                              ArgumentType::OPTIONAL_VALUE,
+                              "int",
+                              "0"});
+        }
         auto options = CommandLineParser("").parse(args.argc, args.argv);
     }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
-TEST_F(CommandLineParser_test, FailsWhenOptionDoesNotStartWithMinus)
+/// TODO: this test has to many error outputs check line 159 in cpp
+TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus)
 {
-    SingleOptionFailureTest("i-have-no-leading-minus");
+    OptionFailureTest({"i-have-no-minus"});
 }
 
-TEST_F(CommandLineParser_test, FailsWhenShortOptionNameIsEmpty)
+TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty)
 {
-    SingleOptionFailureTest("-");
+    OptionFailureTest({"-"});
 }
 
-TEST_F(CommandLineParser_test, FailsWhenOptionNameIsEmpty)
+TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty)
 {
-    SingleOptionFailureTest("--");
+    OptionFailureTest({"--"});
 }
 
-TEST_F(CommandLineParser_test, FailsWhenShortOptionNameHasMoreThenOneLetter)
+TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter)
 {
-    SingleOptionFailureTest("-invalid-option");
+    OptionFailureTest({"-invalid-option"});
 }
+
+TEST_F(CommandLineParser_test, FailWhenLongOptionStartsWithTripleMinus)
+{
+    OptionFailureTest({"---invalid-long-option"});
+}
+
+TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize)
+{
+    OptionFailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')});
+}
+
+TEST_F(CommandLineParser_test, FailWhenOptionIsNotFollowedByAValue)
+{
+    OptionFailureTest({"--set-stoepsels-bachelor-date-to", "--oh-no-i-am-an-option"});
+}
+
 } // namespace

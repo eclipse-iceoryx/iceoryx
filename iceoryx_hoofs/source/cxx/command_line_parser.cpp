@@ -96,6 +96,43 @@ bool CommandLineParser::hasValidSwitchName(const char* option,
     return hasValidSwitchName;
 }
 
+bool CommandLineParser::hasValidOptionName(const char* option,
+                                           const CommandLineOptions::binaryName_t& binaryName) const noexcept
+{
+    const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
+    const bool hasValidOptionName = !(argIdentifierLength > 2 && option[2] == '-');
+
+    if (hasValidOptionName)
+    {
+        std::cout << "A long option name should start after \"--\". This \"" << option << "\" is not valid."
+                  << std::endl;
+        printHelpAndExit(binaryName.c_str());
+    }
+    return hasValidOptionName;
+}
+
+bool CommandLineParser::doesOptionNameFitIntoString(const char* option,
+                                                    const CommandLineOptions::binaryName_t& binaryName) const noexcept
+{
+    const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
+    const bool doesOptionNameFitIntoString = (argIdentifierLength <= CommandLineOptions::MAX_OPTION_NAME_LENGTH);
+
+    if (doesOptionNameFitIntoString)
+    {
+        std::cout << "\"" << option << "\" is longer then the maximum supported size of "
+                  << CommandLineOptions::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
+        printHelpAndExit(binaryName.c_str());
+    }
+    return doesOptionNameFitIntoString;
+}
+
+bool CommandLineParser::isNextArgumentAValue(const int position, const int argc, char* argv[]) noexcept
+{
+    return (argc > position + 1
+            && (strnlen(argv[position + 1], CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0
+                && argv[position + 1][0] != '-'));
+}
+
 CommandLineOptions CommandLineParser::parse(int argc,
                                             char* argv[],
                                             const uint64_t argcOffset,
@@ -110,30 +147,17 @@ CommandLineOptions CommandLineParser::parse(int argc,
 
     for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < static_cast<uint64_t>(argc); ++i)
     {
+        const auto skipCommandLineArgument = [&] { ++i; };
+
         if (!doesOptionStartWithMinus(argv[i], options.binaryName()))
         {
             return options;
         }
 
-        if (!hasOptionName(argv[i], options.binaryName()) || !hasValidSwitchName(argv[i], options.binaryName()))
+        if (!hasOptionName(argv[i], options.binaryName()) || !hasValidSwitchName(argv[i], options.binaryName())
+            || !hasValidOptionName(argv[i], options.binaryName())
+            || !doesOptionNameFitIntoString(argv[i], options.binaryName()))
         {
-            return options;
-        }
-
-        uint64_t argIdentifierLength = strnlen(argv[i], CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
-
-        if (argIdentifierLength > 2 && argv[i][2] == '-')
-        {
-            std::cout << "A long option name should start after \"--\". This \"" << argv[i] << "\" is not valid."
-                      << std::endl;
-            printHelpAndExit(options.binaryName().c_str());
-            return options;
-        }
-        else if (argIdentifierLength > CommandLineOptions::MAX_OPTION_NAME_LENGTH)
-        {
-            std::cout << "\"" << argv[i] << "\" is longer then the maximum supported size of "
-                      << CommandLineOptions::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
-            printHelpAndExit(options.binaryName().c_str());
             return options;
         }
 
@@ -152,14 +176,9 @@ CommandLineOptions CommandLineParser::parse(int argc,
             }
             case UnknownOption::IGNORE:
             {
-                const bool nextArgumentIsAValue =
-                    (argc > static_cast<int>(i) + 1
-                     && (strnlen(argv[i + 1], CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0
-                         && argv[i + 1][0] != '-'));
-
-                if (nextArgumentIsAValue)
+                if (isNextArgumentAValue(static_cast<int>(i), argc, argv))
                 {
-                    ++i;
+                    skipCommandLineArgument();
                 }
                 continue;
                 break;
@@ -191,7 +210,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
                 return options;
             }
             options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
-            ++i;
+            skipCommandLineArgument();
         }
     }
 

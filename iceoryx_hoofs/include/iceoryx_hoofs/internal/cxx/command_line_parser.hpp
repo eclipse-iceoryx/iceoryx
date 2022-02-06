@@ -116,6 +116,10 @@ class CommandLineParser
                                   const CommandLineOptions::binaryName_t& binaryName) const noexcept;
     bool hasOptionName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
     bool hasValidSwitchName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
+    bool hasValidOptionName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
+    bool doesOptionNameFitIntoString(const char* option,
+                                     const CommandLineOptions::binaryName_t& binaryName) const noexcept;
+    static bool isNextArgumentAValue(const int position, const int argc, char* argv[]) noexcept;
 
   private:
     description_t m_programDescription;
