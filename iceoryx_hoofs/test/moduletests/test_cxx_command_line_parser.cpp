@@ -31,11 +31,11 @@ using namespace iox::cxx;
 class CommandLineParser_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         ::testing::internal::CaptureStdout();
     }
-    virtual void TearDown()
+    void TearDown() override
     {
         std::string output = ::testing::internal::GetCapturedStdout();
         if (Test::HasFailure())
@@ -46,30 +46,30 @@ class CommandLineParser_test : public Test
 
     using str_t = char[CommandLineParser::MAX_DESCRIPTION_LENGTH];
     static constexpr uint64_t MAX_ARGUMENTS = CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS + 1;
+};
 
-    struct CmdArgs
+struct CmdArgs
+{
+    int argc = 0;
+    char** argv = nullptr;
+
+    explicit CmdArgs(const std::vector<std::string>& arguments)
+        : argc{static_cast<int>(arguments.size())}
+        , argv{new char*[argc]}
     {
-        int argc = 0;
-        char** argv = nullptr;
-
-        CmdArgs(const std::vector<std::string>& arguments)
+        contents = std::make_unique<std::vector<std::string>>(arguments);
+        for (uint64_t i = 0; i < argc; ++i)
         {
-            contents = std::make_unique<std::vector<std::string>>(arguments);
-            argc = arguments.size();
-            argv = static_cast<char**>(malloc(sizeof(char*) * arguments.size()));
-            for (uint64_t i = 0; i < argc; ++i)
-            {
-                argv[i] = (*contents)[i].data();
-            }
+            argv[i] = (*contents)[i].data();
         }
+    }
 
-        ~CmdArgs()
-        {
-            free(argv);
-        }
+    ~CmdArgs()
+    {
+        delete[] argv;
+    }
 
-        std::unique_ptr<std::vector<std::string>> contents;
-    };
+    std::unique_ptr<std::vector<std::string>> contents;
 };
 
 TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
@@ -84,9 +84,60 @@ TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
 {
     bool wasErrorHandlerCalled = false;
-    auto handle = iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-    auto options = CommandLineParser("").parse(0, nullptr);
+    {
+        auto handle =
+            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+        auto options = CommandLineParser("").parse(0, nullptr);
+    }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
+}
+
+TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
+{
+    CmdArgs args({std::string(CommandLineOptions::binaryName_t::capacity() + 1, 'a')});
+    bool wasErrorHandlerCalled = false;
+    {
+        auto handle =
+            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+        auto options = CommandLineParser("").parse(args.argc, args.argv);
+    }
+
+    EXPECT_TRUE(wasErrorHandlerCalled);
+}
+
+void SingleOptionFailureTest(const CommandLineOptions::name_t& brokenOption) noexcept
+{
+    const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
+    CmdArgs args({binaryName.c_str(), brokenOption});
+
+    bool wasErrorHandlerCalled = false;
+    {
+        auto handle =
+            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+        auto options = CommandLineParser("").parse(args.argc, args.argv);
+    }
+
+    EXPECT_TRUE(wasErrorHandlerCalled);
+}
+
+TEST_F(CommandLineParser_test, FailsWhenOptionDoesNotStartWithMinus)
+{
+    SingleOptionFailureTest("i-have-no-leading-minus");
+}
+
+TEST_F(CommandLineParser_test, FailsWhenShortOptionNameIsEmpty)
+{
+    SingleOptionFailureTest("-");
+}
+
+TEST_F(CommandLineParser_test, FailsWhenOptionNameIsEmpty)
+{
+    SingleOptionFailureTest("--");
+}
+
+TEST_F(CommandLineParser_test, FailsWhenShortOptionNameHasMoreThenOneLetter)
+{
+    SingleOptionFailureTest("-invalid-option");
 }
 } // namespace

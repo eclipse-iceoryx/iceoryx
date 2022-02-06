@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 
 #include <cstdint>
 
@@ -44,11 +45,10 @@ class CommandLineOptions
     static constexpr uint64_t MAX_NUMBER_OF_ARGUMENTS = 16;
     static constexpr uint64_t MAX_OPTION_NAME_LENGTH = 32;
     static constexpr uint64_t MAX_OPTION_VALUE_LENGTH = 128;
-    static constexpr uint64_t MAX_BINARY_NAME_LENGTH = 1024;
 
     using name_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
     using value_t = cxx::string<MAX_OPTION_VALUE_LENGTH>;
-    using binaryName_t = cxx::string<MAX_BINARY_NAME_LENGTH>;
+    using binaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
 
     enum class Result
     {
@@ -109,6 +109,13 @@ class CommandLineParser
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
     bool areAllRequiredValuesPresent(const CommandLineOptions& options) const noexcept;
     void printHelpAndExit(const char* binaryName) const noexcept;
+
+    bool hasArguments(const int argc) const noexcept;
+    bool assignBinaryName(const char* name, CommandLineOptions& options) noexcept;
+    bool doesOptionStartWithMinus(const char* option,
+                                  const CommandLineOptions::binaryName_t& binaryName) const noexcept;
+    bool hasOptionName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
+    bool hasValidSwitchName(const char* option, const CommandLineOptions::binaryName_t& binaryName) const noexcept;
 
   private:
     description_t m_programDescription;
