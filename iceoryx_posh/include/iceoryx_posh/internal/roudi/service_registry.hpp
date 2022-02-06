@@ -22,8 +22,6 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 
-#include "iceoryx_hoofs/internal/objectpool/objectpool.hpp"
-
 #include <cstdint>
 #include <map>
 #include <utility>
@@ -53,7 +51,7 @@ class ServiceRegistry
     };
 
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 2000U;
     static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
 
 
@@ -61,17 +59,21 @@ class ServiceRegistry
 
     using Entry_t = cxx::optional<ServiceDescriptionEntry>;
     using ServiceDescriptionContainer_t = cxx::vector<Entry_t, MAX_SERVICE_DESCRIPTIONS>;
-    // using ServiceDescriptionPool_t = cxx::ObjectPool<cxx::optional<ServiceDescriptionEntry>,
-    // MAX_SERVICE_DESCRIPTIONS>;
 
     /// @brief Adds given service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in cxx::expected
     cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry if service is found
+    /// @brief Removes given service description from registry if service is found,
+    ///        in case of multiple occurences only one is removed
     /// @param[in] serviceDescription, service to be removed
     void remove(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    /// @brief Removes given service description from registry if service is found,
+    ///        all occurences are removed
+    /// @param[in] serviceDescription, service to be removed
+    void removeAll(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Searches for given service description in registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
@@ -88,12 +90,6 @@ class ServiceRegistry
     const ServiceDescriptionVector_t getServices() const noexcept;
 
   private:
-    /// @todo #859 replace std::multimap with prefix tree
-    ::std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
-    ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
-    ::std::multimap<capro::IdString_t, uint64_t> m_eventMap;
-    ServiceDescriptionVector_t m_serviceDescriptionVector;
-
     ServiceDescriptionContainer_t m_serviceDescriptions;
     // ServiceDescriptionPool_t m_serviceDescriptions;
 

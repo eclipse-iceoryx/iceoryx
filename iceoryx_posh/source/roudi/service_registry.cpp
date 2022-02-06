@@ -38,6 +38,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     // entry does not exist, find a free slot if it exists
 
     // fast path to a free slot (previously removed)
+    // note: we prefer entries close to the front
     if (m_freeIndex != NO_INDEX)
     {
         auto& entry = m_serviceDescriptions[m_freeIndex];
@@ -72,7 +73,6 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     auto index = find(serviceDescription);
     if (index != NO_INDEX)
     {
-        // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
 
         if (entry->referenceCounter > 1)
@@ -84,6 +84,17 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
             entry.reset();
             m_freeIndex = index;
         }
+    }
+}
+
+void ServiceRegistry::removeAll(const capro::ServiceDescription& serviceDescription) noexcept
+{
+    auto index = find(serviceDescription);
+    if (index != NO_INDEX)
+    {
+        auto& entry = m_serviceDescriptions[index];
+        entry.reset();
+        m_freeIndex = index;
     }
 }
 
@@ -132,9 +143,9 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
 
 const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getServices() const noexcept
 {
-    ServiceDescriptionVector_t allServices;
-    find_all(allServices);
-    return allServices;
+    ServiceDescriptionVector_t allEntries;
+    find_all(allEntries);
+    return allEntries;
 }
 } // namespace roudi
 } // namespace iox

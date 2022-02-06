@@ -16,10 +16,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
 #include "test.hpp"
+
+#include <chrono>
+#include <random>
 
 namespace
 {
@@ -443,6 +447,109 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNo
     }
     EXPECT_THAT(serviceDescriptionVector.size(), Eq(4));
     EXPECT_THAT(service1Found && service2Found && service4Found, Eq(true));
+}
+
+template <typename T>
+T uniform(T max)
+{
+    static auto seed = std::random_device()();
+    static std::mt19937 mt(seed);
+    std::uniform_int_distribution<T> dist(0, max);
+    return dist(mt);
+}
+
+using string_t = iox::capro::IdString_t;
+using search_result_t = ServiceRegistry::ServiceDescriptionVector_t;
+
+string_t randomString(uint64_t size = string_t::capacity())
+{
+    // deliberately contains no `0`
+    static const char chars[] = "123456789"
+                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                "abcdefghijklmnopqrstuvwxyz";
+
+    constexpr auto N = string_t::capacity();
+    size = std::min(N, size);
+
+    char a[N + 1];
+    for (uint64_t i = 0; i < size; ++i)
+    {
+        a[i] = chars[uniform(sizeof(chars) - 1)];
+    }
+    a[size] = '\0';
+
+    string_t s(a);
+    return s;
+}
+
+TEST_F(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
+{
+    uint32_t numEntriesAdded = 0;
+    do
+    {
+        // may (rarely) generate duplicates to be counted internally
+        auto id = randomString();
+        ServiceDescription sd(id, id, id);
+        auto result = sut.add(sd);
+        if (result.has_error())
+        {
+            break;
+        }
+        numEntriesAdded++;
+    } while (true);
+
+    // duplicates do not count to the max and may be generated randomly,
+    // but for the contract we only need to guarantee that we can at least add
+    // the configured max
+    constexpr auto MAX = ServiceRegistry::MAX_SERVICE_DESCRIPTIONS;
+    EXPECT_GE(numEntriesAdded, MAX);
+}
+
+TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
+{
+    constexpr auto CAP = string_t::capacity();
+
+    string_t fixedId(iox::cxx::TruncateToCapacity, std::string(CAP, '0'));
+
+    ServiceDescription lastAdded;
+    do
+    {
+        auto id = randomString();
+        ServiceDescription sd(fixedId, fixedId, id);
+
+        auto result = sut.add(sd);
+        if (result.has_error())
+        {
+            break;
+        }
+        lastAdded = sd;
+    } while (true);
+
+    // remove the last and replace it with a unique service description
+    sut.removeAll(lastAdded);
+
+    // is unique (random does not generate 0s) and last if a vector is used internally
+    // for almost worst case search (search on last string will terminate early whp)
+    auto id = randomString(CAP - 1);
+    id.unsafe_append("0");
+
+    ServiceDescription uniqueSd(fixedId, fixedId, id);
+    auto result = sut.add(uniqueSd);
+    EXPECT_FALSE(result.has_error());
+
+    search_result_t searchResult;
+    auto& service = uniqueSd.getServiceIDString();
+    auto& instance = uniqueSd.getInstanceIDString();
+    auto& event = uniqueSd.getEventIDString();
+
+    // This is close to a worst case search but not quite due to randomness in the last string.
+    // Different strings are required as we need different strings to create a full registry,
+    // and randomness is the easiest way to achieve this.
+    // It could also be achieved with determinstic string enumeration instead of randomness,
+    // but it is more cumbersome and not required here.
+
+    sut.find(searchResult, service, instance, event);
+    ASSERT_EQ(searchResult.size(), 1);
 }
 
 } // namespace
