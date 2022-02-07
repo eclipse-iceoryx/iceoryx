@@ -20,6 +20,6 @@ namespace iox
 {
 void outputToGTestFail(const char* error)
 {
-    FAIL() << error;
+    GTEST_FAIL() << error;
 }
 } // namespace iox
