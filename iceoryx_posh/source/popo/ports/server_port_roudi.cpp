@@ -77,14 +77,8 @@ ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
 {
     const auto isOffered = getMembers()->m_offered.load(std::memory_order_relaxed);
 
-    if (isOffered)
-    {
-        return handleCapProMessageForStateOffered(caProMessage);
-    }
-    else
-    {
-        return handleCapProMessageForStateNotOffered(caProMessage);
-    }
+    return isOffered ? handleCapProMessageForStateOffered(caProMessage)
+                     : handleCapProMessageForStateNotOffered(caProMessage);
 }
 
 void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept
