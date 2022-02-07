@@ -242,10 +242,8 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     m_chunkSender.release(myCrazyChunk.chunkHeader());
@@ -420,10 +418,8 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -440,10 +436,8 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     auto numberOfDeliveries = m_chunkSender.send(myCrazyChunk.chunkHeader());
@@ -502,8 +496,8 @@ TEST_F(ChunkSender_test, sendToQueueWithInvalidChunkTriggersTheErrorHandler)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&errorHandlerCalled](const iox::Error error, const iox::ErrorLevel errorLevel) {
             errorHandlerCalled = true;
             EXPECT_THAT(error, Eq(iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
@@ -542,10 +536,8 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     m_chunkSender.pushToHistory(myCrazyChunk.chunkHeader());
