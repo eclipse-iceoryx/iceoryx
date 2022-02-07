@@ -53,6 +53,7 @@ class CycloneDataReaderTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "46fc99d7-9f7b-4b77-94c7-06778e3461f7");
     // ===== Setup
     ChunkMock<DummyPayload> chunkMock;
     iox::dds::IoxChunkDatagramHeader datagramHeader;
@@ -72,6 +73,7 @@ TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
 
 TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ddd6e55a-b4ca-4e10-838e-5a532ccadb50");
     // ===== Setup
     ChunkMock<DummyPayload, DummyUserHeader> chunkMock;
     iox::dds::IoxChunkDatagramHeader datagramHeader;
