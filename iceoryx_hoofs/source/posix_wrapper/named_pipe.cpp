@@ -184,7 +184,7 @@ cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
 
 cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
-    auto result = SharedMemory::unlinkIfExist(name);
+    auto result = SharedMemory::unlinkIfExist(convertName(NAMED_PIPE_PREFIX, name));
     if (result.has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
