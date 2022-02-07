@@ -17,6 +17,8 @@
 #ifndef IOX_BINDING_C_TEST_HPP
 #define IOX_BINDING_C_TEST_HPP
 
+#include "iceoryx_hoofs/testing/error_handler_mock.hpp"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

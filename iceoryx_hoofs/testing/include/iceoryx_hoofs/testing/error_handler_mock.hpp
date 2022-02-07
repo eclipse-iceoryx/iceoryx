@@ -18,7 +18,7 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
-#include <gtest/gtest.h>
+#include "iceoryx_hoofs/testing/test.hpp"
 
 namespace iox
 {
@@ -31,6 +31,7 @@ class ErrorHandlerMock : protected ErrorHandler
     template <typename Error>
     static cxx::GenericRAII setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
 
+  protected:
     /// Needed, if you want to exchange the handler. Remember the old one and call it if it is not your error. The error
     /// mock needs to be the last one exchanging the handler in tests.
     static std::mutex handler_mutex;
