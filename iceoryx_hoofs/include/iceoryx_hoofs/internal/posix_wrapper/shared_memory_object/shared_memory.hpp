@@ -130,13 +130,13 @@ class SharedMemoryBuilder
 
     /// @brief Defines if the memory should be mapped read only or with write access.
     ///        A read only memory section will cause a segmentation fault when written to.
-    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_ONLY)
 
     /// @brief Defines how the shared memory is acquired
-    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_OR_CREATE)
+    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(cxx::perms, filePermissions, cxx::perms::owner_all | cxx::perms::group_read)
+    IOX_BUILDER_PARAMETER(cxx::perms, filePermissions, cxx::perms::none)
 
     /// @brief Defines the size of the shared memory
     IOX_BUILDER_PARAMETER(uint64_t, size, 0U)

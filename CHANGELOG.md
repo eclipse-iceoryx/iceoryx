@@ -69,7 +69,7 @@
 - Updating Codecov API and enforce CMake version 3.16 for building iceoryx [\#774](https://github.com/eclipse-iceoryx/iceoryx/issues/774) and [\#1031](https://github.com/eclipse-iceoryx/iceoryx/issues/1031)
 - Remove `InvalidIdString` and `isValid()` from `ServiceDescription`, replace Wildcard string with `iox::cxx::nullopt` [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 - Remove creation pattern from `SharedMemory` and replace it with `SharedMemoryBuilder` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
-- Removed the leading slash requirement from the name of a shared memory in `SharedMemory` and `SharedMemoryObject` [\#439](https://github.com/eclipse-iceoryx/iceoryx/issues/439)
+- Remove the leading slash requirement from the name of a shared memory in `SharedMemory` and `SharedMemoryObject` [\#439](https://github.com/eclipse-iceoryx/iceoryx/issues/439)
 
 **New API features:**
 

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -107,7 +107,6 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
             // ownership and we just try to open it
             if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
             {
-                hasOwnership = false;
                 result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
                                                  getOflagsFor(m_accessMode, OpenMode::OPEN_EXISTING),
                                                  static_cast<mode_t>(m_filePermissions))
@@ -115,8 +114,9 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
                              .evaluate();
                 if (!result.has_error())
                 {
+                    constexpr bool HAS_NO_OWNERSHIP = false;
                     sharedMemoryFileHandle = result->value;
-                    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
+                    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, HAS_NO_OWNERSHIP));
                 }
             }
 
@@ -134,6 +134,26 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
         if (result.has_error())
         {
             printError();
+
+            posixCall(iox_close)(sharedMemoryFileHandle)
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .evaluate()
+                .or_else([&](auto& r) {
+                    std::cerr << "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
+                              << " for SharedMemory \"" << m_name << "\"" << std::endl;
+                });
+
+            if (hasOwnership)
+            {
+                posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                    .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                    .evaluate()
+                    .or_else([&](auto&) {
+                        std::cerr << "Unable to remove previously created SharedMemory \"" << m_name
+                                  << "\". This may be a SharedMemory leak." << std::endl;
+                    });
+            }
+
             return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
         }
     }
@@ -141,7 +161,6 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
     return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
     : m_name{name}
     , m_handle{handle}
