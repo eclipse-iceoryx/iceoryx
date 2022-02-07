@@ -65,7 +65,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenNotOfferingHasCaProMessageT
 
     sut.portRouDi.tryGetCaProMessage()
         .and_then([&](const auto& caproMessage) { EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::OFFER)); })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenOfferingHasNullopt)
@@ -76,9 +76,10 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenOfferingHasNullopt)
     sut.portUser.offer();
 
     sut.portRouDi.tryGetCaProMessage()
-        .and_then(
-            [&](const auto& caproMessage) { FAIL() << "Expected no CaPro message but got: " << caproMessage.m_type; })
-        .or_else([&]() { SUCCEED(); });
+        .and_then([&](const auto& caproMessage) {
+            GTEST_FAIL() << "Expected no CaPro message but got: " << caproMessage.m_type;
+        })
+        .or_else([&]() { GTEST_SUCCEED(); });
 }
 
 TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenOfferingHasCaProMessageTypeStopOffer)
@@ -90,7 +91,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenOfferingHasCaProMessage
 
     sut.portRouDi.tryGetCaProMessage()
         .and_then([&](const auto& caproMessage) { EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::STOP_OFFER)); })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenNotOfferingHasNullopt)
@@ -101,9 +102,10 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenNotOfferingHasNullopt)
     sut.portUser.stopOffer();
 
     sut.portRouDi.tryGetCaProMessage()
-        .and_then(
-            [&](const auto& caproMessage) { FAIL() << "Expected no CaPro message but got: " << caproMessage.m_type; })
-        .or_else([&]() { SUCCEED(); });
+        .and_then([&](const auto& caproMessage) {
+            GTEST_FAIL() << "Expected no CaPro message but got: " << caproMessage.m_type;
+        })
+        .or_else([&]() { GTEST_SUCCEED(); });
 }
 
 // END tryGetCaProMessage tests
@@ -122,7 +124,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeConnectReactsWithNack
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeDisconnectReactsWithNack)
@@ -137,7 +139,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeDisconnectReactsWithN
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeStopOfferReactsWithNack)
@@ -152,7 +154,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeStopOfferReactsWithNa
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeOfferReactsWithOffer)
@@ -170,7 +172,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeOfferReactsWithOffer)
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectReactsWithAckAndValidRequestQueue)
@@ -187,7 +189,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectReactsWithAckAndV
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::ACK));
             EXPECT_THAT(responseCaproMessage.m_chunkQueueData, Eq(&sut.portData.m_chunkReceiverData));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 
     EXPECT_TRUE(sut.portUser.hasClients());
 }
@@ -215,7 +217,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::ACK));
             EXPECT_THAT(responseCaproMessage.m_chunkQueueData, Eq(&sut.portData.m_chunkReceiverData));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 
     EXPECT_TRUE(detectedError.has_value());
 }
@@ -233,7 +235,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithNack
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
 TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithAckWhenResponseQueueWasPresent)
@@ -252,7 +254,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithAckW
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::ACK));
         })
-        .or_else([&]() { FAIL() << "Expected CaPro message but got none"; });
+        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 
     EXPECT_FALSE(sut.portUser.hasClients());
 }

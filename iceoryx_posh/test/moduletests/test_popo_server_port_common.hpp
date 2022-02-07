@@ -167,7 +167,7 @@ class ServerPort_test : public Test
 
         sut.portUser.allocateResponse(requestHeader, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
             .and_then([&](auto& responseHeader) { testFunction(requestHeader, responseHeader); })
-            .or_else([&](const auto& error) { FAIL() << "Expected ResponseHeader but got error: " << error; });
+            .or_else([&](const auto& error) { GTEST_FAIL() << "Expected ResponseHeader but got error: " << error; });
     }
 
     static constexpr uint64_t QUEUE_CAPACITY{iox::MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY * 2U};

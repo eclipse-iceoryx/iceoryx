@@ -223,7 +223,8 @@ TEST_F(ServerPort_test, GetRequestWithoutOfferResultsIn_NO_CHUNK_AVAILABLE)
     auto& sut = serverPortWithoutOfferOnCreate;
 
     sut.portUser.getRequest()
-        .and_then([&](const auto&) { FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
+        .and_then(
+            [&](const auto&) { GTEST_FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
         .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
 }
 
@@ -233,7 +234,8 @@ TEST_F(ServerPort_test, GetRequestWithNoRequestsResultsIn_NO_CHUNK_AVAILABLE)
     auto& sut = serverPortWithOfferOnCreate;
 
     sut.portUser.getRequest()
-        .and_then([&](const auto&) { FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
+        .and_then(
+            [&](const auto&) { GTEST_FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
         .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
 }
 
@@ -248,7 +250,7 @@ TEST_F(ServerPort_test, GetRequestWithOneRequestsResultsInRequestHeader)
 
     sut.portUser.getRequest()
         .and_then([&](const auto& req) { EXPECT_THAT(this->getRequestData(req), Eq(REQUEST_DATA)); })
-        .or_else([&](const auto& error) { FAIL() << "Expected RequestHeader but got error: " << error; });
+        .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
 }
 
 TEST_F(ServerPort_test, GetRequestWithNoRequestsButIntermediatelyHavingOneResultsIn_NO_CHUNK_AVAILABLE)
@@ -261,7 +263,8 @@ TEST_F(ServerPort_test, GetRequestWithNoRequestsButIntermediatelyHavingOneResult
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
 
     sut.portUser.getRequest()
-        .and_then([&](const auto&) { FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
+        .and_then(
+            [&](const auto&) { GTEST_FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
         .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
 }
 
@@ -280,7 +283,7 @@ TEST_F(ServerPort_test, GetRequestWithOneRequestsButIntermediatelyHavingNoneResu
 
     sut.portUser.getRequest()
         .and_then([&](const auto& req) { EXPECT_THAT(this->getRequestData(req), Eq(REQUEST_DATA_2)); })
-        .or_else([&](const auto& error) { FAIL() << "Expected RequestHeader but got error: " << error; });
+        .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
 }
 
 TEST_F(ServerPort_test, GetRequestWithMultipleRequestsResultsInAsManyRequestHeaderAsRequests)
@@ -295,11 +298,11 @@ TEST_F(ServerPort_test, GetRequestWithMultipleRequestsResultsInAsManyRequestHead
 
     sut.portUser.getRequest()
         .and_then([&](const auto& req) { EXPECT_THAT(this->getRequestData(req), Eq(REQUEST_DATA_BASE)); })
-        .or_else([&](const auto& error) { FAIL() << "Expected RequestHeader but got error: " << error; });
+        .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
 
     sut.portUser.getRequest()
         .and_then([&](const auto& req) { EXPECT_THAT(this->getRequestData(req), Eq(REQUEST_DATA_BASE + 1)); })
-        .or_else([&](const auto& error) { FAIL() << "Expected RequestHeader but got error: " << error; });
+        .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
 }
 
 TEST_F(ServerPort_test, GetRequestWithMaximalHeldChunksInParallelResultsInRequestHeader)
@@ -320,7 +323,7 @@ TEST_F(ServerPort_test, GetRequestWithMaximalHeldChunksInParallelResultsInReques
     {
         sut.portUser.getRequest()
             .and_then([&](const auto& req) { EXPECT_THAT(this->getRequestData(req), Eq(REQUEST_DATA_BASE + i)); })
-            .or_else([&](const auto& error) { FAIL() << "Expected RequestHeader but got error: " << error; });
+            .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
     }
 }
 
@@ -345,7 +348,7 @@ TEST_F(ServerPort_test, GetRequestWhenProcessingTooManyRequestsInParallelResults
 
     sut.portUser.getRequest()
         .and_then([&](const auto&) {
-            FAIL() << "Expected ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL but got request";
+            GTEST_FAIL() << "Expected ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL but got request";
         })
         .or_else(
             [&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)); });
@@ -370,7 +373,7 @@ TEST_F(ServerPort_test, ReleaseRequestWithValidRequestHeaderWorksAndReleasesTheC
             sut.portUser.releaseRequest(req);
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
-        .or_else([&](const auto& error) { FAIL() << "Expected RequestHeader but got error: " << error; });
+        .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
 }
 
 TEST_F(ServerPort_test, ReleaseRequestWithInvalidChunkCallsTheErrorHandler)
@@ -531,7 +534,7 @@ TEST_F(ServerPort_test,
 
     sut.portUser.allocateResponse(requestHeader, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](const auto&) {
-            FAIL() << "Expected AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER but got chunk";
+            GTEST_FAIL() << "Expected AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER but got chunk";
         })
         .or_else([&](const auto& error) {
             EXPECT_THAT(error, Eq(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER));
@@ -543,7 +546,7 @@ TEST_F(ServerPort_test, AllocateResponseWithValidParameterReturnsResponseHeader)
     ::testing::Test::RecordProperty("TEST_ID", "128b7d92-a30f-4c9d-b1c6-39a03ca29499");
     auto& sut = serverPortWithOfferOnCreate;
 
-    allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto) { SUCCEED(); });
+    allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto) { GTEST_SUCCEED(); });
 }
 
 // END allocateResponse tests
@@ -674,7 +677,7 @@ TEST_F(ServerPort_test, SendResponseWithValidClientQueueIdReleasesDeliversToTheC
                                                auto data = *static_cast<uint64_t*>(chunk.getUserPayload());
                                                EXPECT_THAT(data, Eq(RESPONSE_DATA));
                                            })
-                                           .or_else([&]() { FAIL() << "Expected response but got none"; });
+                                           .or_else([&]() { GTEST_FAIL() << "Expected response but got none"; });
 
     constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
     constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
