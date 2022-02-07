@@ -168,7 +168,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)

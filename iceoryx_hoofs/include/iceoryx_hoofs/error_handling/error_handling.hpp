@@ -34,9 +34,6 @@
 
 namespace iox
 {
-// Forward declaration
-void outputToGTestFail(const char* error);
-
 // clang-format off
 #define ICEORYX_ERRORS(error) \
     error(NO_ERROR)\
@@ -252,9 +249,6 @@ void errorHandler(const Error error,
                   const std::function<void()>& errorCallBack = std::function<void()>(),
                   const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 
-template <typename Error>
-using TypedHandlerFunction = std::function<void(const Error, const ErrorLevel)>;
-
 using HandlerFunction = std::function<void(const uint32_t, const char*, const ErrorLevel)>;
 
 /// @brief This handler is needed for unit testing, special debugging cases and
@@ -266,28 +260,16 @@ class ErrorHandler
     friend void
     errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept;
 
-  public:
-    template <typename Error>
-    static cxx::GenericRAII setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
-
   protected:
     static void reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept;
 
-  private:
     static void
     defaultHandler(const uint32_t error, const char* errorName, const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 
     static iox::HandlerFunction handler;
-    /// Needed, if you want to exchange the handler. Remember the old one and call it if it is not your error. The error
-    /// mock needs to be the last one exchanging the handler in tests.
-    static std::mutex handler_mutex;
 };
 
 const char* toString(const Error error) noexcept;
-
-template <typename Error>
-cxx::optional<iox::TypedHandlerFunction<Error>> typedHandler;
-
 
 /// @todo #590 move the implementations below to .inl
 template <typename Error>
@@ -298,42 +280,6 @@ inline void errorHandler(const Error error,
     ErrorHandler::handler(static_cast<typename std::underlying_type<Error>::type>(error), toString(error), level);
 }
 
-template <typename ErrorEnumType>
-inline void
-errorHandlerForTest(const uint32_t error, const char* errorName IOX_MAYBE_UNUSED, const ErrorLevel level) noexcept
-{
-    uint32_t errorEnumType = error >> 16;
-    uint32_t expectedErrorEnumType =
-        static_cast<typename std::underlying_type<ErrorEnumType>::type>(ErrorEnumType::kNO_ERROR) >> 16;
-
-    if (errorEnumType == expectedErrorEnumType)
-    {
-        // We undo the type erasure
-        auto typedError = static_cast<ErrorEnumType>(error);
-        typedHandler<iox::Error>.and_then(
-            [&](TypedHandlerFunction<Error> storedHandler) { storedHandler(typedError, level); });
-    }
-    else
-    {
-        outputToGTestFail(errorName);
-    }
-}
-
-template <typename Error>
-inline cxx::GenericRAII ErrorHandler::setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept
-{
-    return cxx::GenericRAII(
-        [&newHandler] {
-            std::lock_guard<std::mutex> lock(handler_mutex);
-            typedHandler<iox::Error>.emplace(newHandler);
-            handler = errorHandlerForTest<Error>;
-        },
-        [] {
-            std::lock_guard<std::mutex> lock(handler_mutex);
-            typedHandler<iox::Error>.reset();
-            handler = defaultHandler;
-        });
-}
 } // namespace iox
 
 #endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP

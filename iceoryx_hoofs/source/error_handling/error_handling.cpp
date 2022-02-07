@@ -17,12 +17,9 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
-
 namespace iox
 {
 const char* ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
-
-std::mutex ErrorHandler::handler_mutex;
 
 // NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
 iox::HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};

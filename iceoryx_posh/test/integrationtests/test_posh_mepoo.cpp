@@ -416,7 +416,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     constexpr uint32_t SAMPLE_SIZE = 2048U;
     constexpr uint32_t REPETITION = 1U;
     iox::cxx::optional<iox::Error> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&receivedError](const iox::Error error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE}));
@@ -434,7 +434,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     constexpr uint32_t SAMPLE_SIZE_1 = 200U;
     constexpr uint32_t REPETITION = 1U;
     iox::cxx::optional<iox::Error> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&receivedError](const iox::Error error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
     // make the mempool empty

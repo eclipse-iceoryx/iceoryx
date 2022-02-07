@@ -14,12 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/test.hpp"
+#include "iceoryx_hoofs/testing/error_handler_mock.hpp"
 
 namespace iox
 {
-void outputToGTestFail(const char* error)
-{
-    GTEST_FAIL() << error;
-}
+std::mutex ErrorHandlerMock::handler_mutex;
 } // namespace iox

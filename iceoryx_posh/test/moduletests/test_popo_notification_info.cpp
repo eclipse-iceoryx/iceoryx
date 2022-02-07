@@ -95,7 +95,7 @@ TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
     auto errorHandlerGuard =
-        iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -112,7 +112,7 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
     auto errorHandlerGuard =
-        iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
