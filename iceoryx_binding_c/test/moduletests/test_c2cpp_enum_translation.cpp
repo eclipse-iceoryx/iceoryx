@@ -58,8 +58,8 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&](const iox::Error e, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::queueFullPolicy(static_cast<iox_QueueFullPolicy>(-1)),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY));
@@ -95,8 +95,8 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&](const iox::Error e, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::subscriberTooSlowPolicy(static_cast<iox_SubscriberTooSlowPolicy>(-1)),
               iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY));

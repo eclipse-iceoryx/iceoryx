@@ -22,14 +22,44 @@ namespace iox
 {
 const char* ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
+std::mutex ErrorHandler::handler_mutex;
+
+// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
+iox::HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};
+
 const char* toString(const Error error) noexcept
 {
-    return ERROR_NAMES[static_cast<uint32_t>(error)];
+    return ERROR_NAMES[static_cast<typename std::underlying_type<Error>::type>(error)];
 }
 
-std::ostream& operator<<(std::ostream& stream, Error value) noexcept
+void ErrorHandler::defaultHandler(const uint32_t error IOX_MAYBE_UNUSED,
+                                  const char* errorName,
+                                  const ErrorLevel level) noexcept
 {
-    stream << toString(value);
-    return stream;
+    std::stringstream ss;
+    ss << "ICEORYX error! " << errorName;
+
+    reactOnErrorLevel(level, ss.str().c_str());
 }
+
+void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
+{
+    static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
+    switch (level)
+    {
+    case ErrorLevel::FATAL:
+        logger.LogError() << errorText;
+        assert(false);
+        std::terminate();
+        break;
+    case ErrorLevel::SEVERE:
+        logger.LogWarn() << errorText;
+        assert(false);
+        break;
+    case ErrorLevel::MODERATE:
+        logger.LogWarn() << errorText;
+        break;
+    }
+}
+
 } // namespace iox

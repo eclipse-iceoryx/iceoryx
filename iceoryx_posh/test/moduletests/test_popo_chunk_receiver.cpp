@@ -200,10 +200,8 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler<iox::Error>::setTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     m_chunkReceiver.release(myCrazyChunk.chunkHeader());
