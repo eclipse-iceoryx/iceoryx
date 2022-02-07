@@ -143,16 +143,13 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
                               << " for SharedMemory \"" << m_name << "\"" << std::endl;
                 });
 
-            if (hasOwnership)
-            {
-                posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
-                    .failureReturnValue(SharedMemory::INVALID_HANDLE)
-                    .evaluate()
-                    .or_else([&](auto&) {
-                        std::cerr << "Unable to remove previously created SharedMemory \"" << m_name
-                                  << "\". This may be a SharedMemory leak." << std::endl;
-                    });
-            }
+            posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .evaluate()
+                .or_else([&](auto&) {
+                    std::cerr << "Unable to remove previously created SharedMemory \"" << m_name
+                              << "\". This may be a SharedMemory leak." << std::endl;
+                });
 
             return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
         }
