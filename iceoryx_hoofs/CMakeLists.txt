@@ -99,12 +99,14 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_h
         $<INSTALL_INTERFACE:include/${PREFIX}>
     )
 
-    target_link_libraries(iceoryx_hoofs_testing PRIVATE
-        ${CODE_COVERAGE_LIBS}
-        iceoryx_hoofs
-        GTest::gtest
-        GTest::gmock
-        ${CMAKE_DL_LIBS}
+    target_link_libraries(iceoryx_hoofs_testing
+        PUBLIC
+            GTest::gtest
+            GTest::gmock
+        PRIVATE
+            ${CODE_COVERAGE_LIBS}
+            iceoryx_hoofs
+            ${CMAKE_DL_LIBS}
     )
 
     if(LINUX)
