@@ -104,7 +104,7 @@ ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
     return cxx::nullopt;
 }
 
-void ClientPortRouDi::handleCaProProtocolViolation(iox::capro::CaproMessageType messageType) noexcept
+void ClientPortRouDi::handleCaProProtocolViolation(const iox::capro::CaproMessageType messageType) noexcept
 {
     // this shouldn't be reached
     LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "' in `"

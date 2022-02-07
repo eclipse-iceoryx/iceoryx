@@ -27,8 +27,10 @@ ServerPortData::ServerPortData(const capro::ServiceDescription& serviceDescripti
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, serverOptions.nodeName)
-    , m_chunkSenderData(
-          memoryManager, static_cast<SubscriberTooSlowPolicy>(serverOptions.clientTooSlowPolicy), 0, memoryInfo)
+    , m_chunkSenderData(memoryManager,
+                        static_cast<SubscriberTooSlowPolicy>(serverOptions.clientTooSlowPolicy),
+                        HISTORY_REQUEST_OF_ZERO,
+                        memoryInfo)
     , m_chunkReceiverData(cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
                           QueueFullPolicy::DISCARD_OLDEST_DATA)
     , m_offeringRequested(serverOptions.offerOnCreate)

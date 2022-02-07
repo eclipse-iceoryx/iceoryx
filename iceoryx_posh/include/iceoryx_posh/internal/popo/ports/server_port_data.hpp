@@ -43,6 +43,8 @@ struct ServerPortData : public BasePortData
     ServerChunkReceiverData_t m_chunkReceiverData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
+
+    static constexpr uint64_t HISTORY_REQUEST_OF_ZERO{0U};
 };
 
 } // namespace popo

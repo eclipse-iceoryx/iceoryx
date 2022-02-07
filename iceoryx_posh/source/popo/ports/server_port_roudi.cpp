@@ -90,7 +90,8 @@ ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
 void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept
 {
     // this shouldn't be reached
-    LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "'!";
+    LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "' with offer state '"
+               << (getMembers()->m_offered ? "OFFERED" : "NOT OFFERED") << "'!";
     errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
 }
 
