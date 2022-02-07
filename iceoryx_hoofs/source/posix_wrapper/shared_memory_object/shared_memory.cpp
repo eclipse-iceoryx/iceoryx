@@ -76,8 +76,6 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
 
-    bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
-                         || m_openMode == OpenMode::OPEN_OR_CREATE);
     // the mask will be applied to the permissions, therefore we need to set it to 0
     int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
     mode_t umaskSaved = umask(0U);
@@ -126,6 +124,8 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
         sharedMemoryFileHandle = result->value;
     }
 
+    const bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
+                               || m_openMode == OpenMode::OPEN_OR_CREATE);
     if (hasOwnership)
     {
         auto result = posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
