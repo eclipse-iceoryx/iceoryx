@@ -435,6 +435,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
         iceoryx_posh::iceoryx_posh
         iceoryx_hoofs::iceoryx_hoofs
         iceoryx_posh::iceoryx_posh_roudi
+        iceoryx_hoofs_testing::iceoryx_hoofs_testing
     )
 
     target_compile_options(iceoryx_posh_testing PRIVATE ${ICEORYX_WARNINGS})
