@@ -28,5 +28,5 @@ jobs:
           build_dir: 'build'
           config_file: '.clang-tidy'
           include: '*.[ch],*.[ch]xx,*.[ch]pp,*.[ch]++,*.cc,*.hh,*.inl'
-      - if: steps.review.outputs.total_comments > 0
+      - if: steps.review.outputs.total_comments > 15
         run: exit 1
