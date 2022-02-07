@@ -193,7 +193,7 @@ TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler
     this->m_pusher.push(chunk);
 
     iox::Error receivedError{iox::Error::kNO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
             receivedError = error;
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);

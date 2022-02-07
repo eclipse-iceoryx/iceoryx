@@ -137,7 +137,7 @@ TEST_F(PortPool_test, AddNodeDataWhenNodeListIsFullReturnsError)
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
-        ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
+        ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -259,7 +259,7 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
-        ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
+        ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -393,7 +393,7 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
-        ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
+        ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -705,7 +705,7 @@ TEST_F(PortPool_test, AddInterfacePortWhenInterfaceListOverflowsReturnsError)
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
-        ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
+        ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -793,7 +793,7 @@ TEST_F(PortPool_test, AddConditionVariableDataWhenContainerIsFullReturnsError)
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
-        ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
+        ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const Error error, const ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
