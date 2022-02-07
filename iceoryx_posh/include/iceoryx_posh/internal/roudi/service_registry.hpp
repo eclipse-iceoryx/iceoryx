@@ -53,12 +53,10 @@ class ServiceRegistry
     };
 
     /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 5000U;
+    ///            increase limit to at least >= 1000
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
 
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
-
-    using Entry_t = cxx::optional<ServiceDescriptionEntry>;
-    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, MAX_SERVICE_DESCRIPTIONS>;
 
     /// @brief Adds given service description to registry
     /// @param[in] serviceDescription, service to be added
@@ -90,6 +88,9 @@ class ServiceRegistry
     const ServiceDescriptionVector_t getServices() const noexcept;
 
   private:
+    using Entry_t = cxx::optional<ServiceDescriptionEntry>;
+    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, MAX_SERVICE_DESCRIPTIONS>;
+
     static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
 
     // tag type for internal overloads

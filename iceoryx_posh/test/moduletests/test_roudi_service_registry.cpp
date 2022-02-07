@@ -113,7 +113,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
 
     ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
-    EXPECT_THAT(searchResults[0].referenceCounter, Eq(2));
+    EXPECT_THAT(searchResults[0].count, Eq(2));
 }
 
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
@@ -131,7 +131,23 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
 
     ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
-    EXPECT_THAT(searchResults[0].referenceCounter, Eq(1));
+    EXPECT_THAT(searchResults[0].count, Eq(1));
+}
+
+TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveAllReturnsNoResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3185b67f-b891-4a82-8f91-047e059ed68f");
+    auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
+    ASSERT_FALSE(result1.has_error());
+
+    auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
+    ASSERT_FALSE(result2.has_error());
+
+    sut.removeAll(ServiceDescription("Li", "La", "Launebaerli"));
+
+    sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+
+    EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, AddEmptyServiceDescriptionsWorks)
@@ -459,11 +475,10 @@ T uniform(T max)
 }
 
 using string_t = iox::capro::IdString_t;
-using search_result_t = ServiceRegistry::ServiceDescriptionVector_t;
 
 string_t randomString(uint64_t size = string_t::capacity())
 {
-    // deliberately contains no `0`
+    // deliberately contains no `0` (need to exclude some char)
     static const char chars[] = "123456789"
                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                 "abcdefghijklmnopqrstuvwxyz";
@@ -484,6 +499,7 @@ string_t randomString(uint64_t size = string_t::capacity())
 
 TEST_F(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76aef6cb-7886-4d64-9188-09bd1be2d335");
     uint32_t numEntriesAdded = 0;
     do
     {
@@ -507,6 +523,8 @@ TEST_F(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
 
 TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5c4519d4-1873-4837-a3eb-0367106fb9b5");
+
     constexpr auto CAP = string_t::capacity();
 
     string_t fixedId(iox::cxx::TruncateToCapacity, std::string(CAP, '0'));
@@ -537,7 +555,7 @@ TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
     auto result = sut.add(uniqueSd);
     EXPECT_FALSE(result.has_error());
 
-    search_result_t searchResult;
+    ServiceRegistry::ServiceDescriptionVector_t searchResult;
     auto& service = uniqueSd.getServiceIDString();
     auto& instance = uniqueSd.getInstanceIDString();
     auto& event = uniqueSd.getEventIDString();
