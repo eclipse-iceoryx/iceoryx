@@ -21,6 +21,13 @@ namespace iox
 {
 namespace popo
 {
+/// @todo iox-#27 remove when the port queue policies are consolidated
+cxx::VariantQueueTypes getRequestQueueType(const QueueFullPolicy2 policy) noexcept
+{
+    return policy == QueueFullPolicy2::DISCARD_OLDEST_DATA ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
+                                                           : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
+}
+
 ServerPortData::ServerPortData(const capro::ServiceDescription& serviceDescription,
                                const RuntimeName_t& runtimeName,
                                const ServerOptions& serverOptions,
@@ -31,8 +38,8 @@ ServerPortData::ServerPortData(const capro::ServiceDescription& serviceDescripti
                         static_cast<SubscriberTooSlowPolicy>(serverOptions.clientTooSlowPolicy),
                         HISTORY_REQUEST_OF_ZERO,
                         memoryInfo)
-    , m_chunkReceiverData(cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
-                          QueueFullPolicy::DISCARD_OLDEST_DATA)
+    , m_chunkReceiverData(getRequestQueueType(serverOptions.requestQueueFullPolicy),
+                          static_cast<QueueFullPolicy>(serverOptions.requestQueueFullPolicy))
     , m_offeringRequested(serverOptions.offerOnCreate)
 {
     m_chunkReceiverData.m_queue.setCapacity(serverOptions.requestQueueCapacity);

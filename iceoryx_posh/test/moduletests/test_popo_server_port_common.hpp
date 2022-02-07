@@ -70,6 +70,8 @@ class ServerPort_test : public Test
         // this is basically what RouDi does when a server is requested
         IOX_DISCARD_RESULT(serverPortWithOfferOnCreate.portRouDi.tryGetCaProMessage());
         IOX_DISCARD_RESULT(serverPortWithoutOfferOnCreate.portRouDi.tryGetCaProMessage());
+        IOX_DISCARD_RESULT(serverOptionsWithBlockProducerRequestQueueFullPolicy.portRouDi.tryGetCaProMessage());
+        IOX_DISCARD_RESULT(serverOptionsWithWaitForConsumerClientTooSlowPolicy.portRouDi.tryGetCaProMessage());
     }
 
     void TearDown() override
@@ -198,8 +200,16 @@ class ServerPort_test : public Test
         return options;
     }();
 
+    ServerOptions m_serverOptionsWithBlockProducerRequestQueueFullPolicy = [&] {
+        ServerOptions options;
+        options.offerOnCreate = true;
+        options.requestQueueCapacity = QUEUE_CAPACITY;
+        options.requestQueueFullPolicy = QueueFullPolicy2::BLOCK_PRODUCER;
+        return options;
+    }();
     ServerOptions m_serverOptionsWithWaitForConsumerClientTooSlowPolicy = [&] {
         ServerOptions options;
+        options.offerOnCreate = true;
         options.requestQueueCapacity = QUEUE_CAPACITY;
         options.clientTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
         return options;
@@ -219,6 +229,8 @@ class ServerPort_test : public Test
         m_serviceDescription, m_runtimeName, m_serverOptionsWithOfferOnCreate, m_memoryManager};
     SutServerPort serverPortWithoutOfferOnCreate{
         m_serviceDescription, m_runtimeName, m_serverOptionsWithoutOfferOnCreate, m_memoryManager};
+    SutServerPort serverOptionsWithBlockProducerRequestQueueFullPolicy{
+        m_serviceDescription, m_runtimeName, m_serverOptionsWithBlockProducerRequestQueueFullPolicy, m_memoryManager};
     SutServerPort serverOptionsWithWaitForConsumerClientTooSlowPolicy{
         m_serviceDescription, m_runtimeName, m_serverOptionsWithWaitForConsumerClientTooSlowPolicy, m_memoryManager};
 };
