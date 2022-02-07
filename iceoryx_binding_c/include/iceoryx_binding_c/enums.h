@@ -74,6 +74,7 @@ enum iox_AllocationResult
     AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
     AllocationResult_UNDEFINED_ERROR,
     AllocationResult_INVALID_PARAMETER_FOR_CHUNK,
+    AllocationResult_INVALID_PARAMETER_FOR_REQUEST_HEADER,
     AllocationResult_SUCCESS,
 };
 

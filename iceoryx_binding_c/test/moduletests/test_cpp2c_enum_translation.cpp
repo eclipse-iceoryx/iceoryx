@@ -113,7 +113,9 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
         {iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
          AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL},
         {iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
-         AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER}};
+         AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER},
+        {iox::popo::AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER,
+         AllocationResult_INVALID_PARAMETER_FOR_REQUEST_HEADER}};
 
     for (const auto allocationError : ALLOCATION_ERRORS)
     {
@@ -132,6 +134,9 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
         case iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
+            EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
+            break;
+        case iox::popo::AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot

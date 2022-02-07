@@ -52,12 +52,15 @@ cxx::expected<const RequestHeader*, ChunkReceiveResult> ServerPortUser::getReque
 
 void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
 {
-    cxx::Ensures(requestHeader != nullptr && "requestHeader must not be a nullptr");
-    if (requestHeader == nullptr)
+    if (requestHeader)
     {
-        return;
+        m_chunkReceiver.release(requestHeader->getChunkHeader());
     }
-    m_chunkReceiver.release(requestHeader->getChunkHeader());
+    else
+    {
+        LogFatal() << "Provided RequestHeader is a nullptr";
+        errorHandler(Error::kPOPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
 bool ServerPortUser::hasNewRequests() const noexcept
@@ -75,12 +78,9 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
                                  const uint32_t userPayloadSize,
                                  const uint32_t userPayloadAlignment) noexcept
 {
-    cxx::Ensures(requestHeader != nullptr && "requestHeader must not be a nullptr");
     if (requestHeader == nullptr)
     {
-        // this branch will only be executed in tests where the error handler is suppressed
-        // and does not terminate with a fatal error
-        return cxx::error<AllocationError>(AllocationError::UNDEFINED_ERROR);
+        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER);
     }
 
     auto allocateResult = m_chunkSender.tryAllocate(
@@ -101,19 +101,23 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
 
 void ServerPortUser::freeResponse(ResponseHeader* const responseHeader) noexcept
 {
-    cxx::Ensures(responseHeader != nullptr && "responseHeader must not be a nullptr");
-    if (responseHeader == nullptr)
+    if (responseHeader)
     {
-        return;
+        m_chunkSender.release(responseHeader->getChunkHeader());
     }
-    m_chunkSender.release(responseHeader->getChunkHeader());
+    else
+    {
+        LogFatal() << "Provided ResponseHeader is a nullptr";
+        errorHandler(Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
 void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
-    cxx::Ensures(responseHeader != nullptr && "requestHeader must not be a nullptr");
     if (responseHeader == nullptr)
     {
+        LogFatal() << "Provided ResponseHeader is a nullptr";
+        errorHandler(Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
         return;
     }
 

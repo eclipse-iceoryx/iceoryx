@@ -183,16 +183,15 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::Error::kEXPECTS_ENSURES_FAILED));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             detectedError.emplace(error);
         });
 
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
         .and_then([&](const auto& responseCaproMessage) {
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
-            EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::ACK));
-            EXPECT_THAT(responseCaproMessage.m_chunkQueueData, Eq(&sut.portData.m_chunkReceiverData));
+            EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
         })
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 

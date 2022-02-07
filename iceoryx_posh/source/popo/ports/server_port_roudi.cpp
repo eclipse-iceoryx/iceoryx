@@ -103,15 +103,22 @@ ServerPortRouDi::handleCapProMessageForStateOffered(const capro::CaproMessage& c
     case capro::CaproMessageType::OFFER:
         return responseMessage;
     case capro::CaproMessageType::CONNECT:
-        cxx::Expects(caProMessage.m_chunkQueueData != nullptr && "Invalid response queue passed to server");
-        m_chunkSender
-            .tryAddQueue(static_cast<ClientChunkQueueData_t*>(caProMessage.m_chunkQueueData),
-                         caProMessage.m_historyCapacity)
-            .and_then([this, &responseMessage]() {
-                responseMessage.m_type = capro::CaproMessageType::ACK;
-                responseMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
-                responseMessage.m_historyCapacity = 0;
-            });
+        if (caProMessage.m_chunkQueueData == nullptr)
+        {
+            LogWarn() << "No client response queue passed to server";
+            errorHandler(Error::kPOPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, nullptr, ErrorLevel::MODERATE);
+        }
+        else
+        {
+            m_chunkSender
+                .tryAddQueue(static_cast<ClientChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                             caProMessage.m_historyCapacity)
+                .and_then([this, &responseMessage]() {
+                    responseMessage.m_type = capro::CaproMessageType::ACK;
+                    responseMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
+                    responseMessage.m_historyCapacity = 0;
+                });
+        }
         return responseMessage;
     case capro::CaproMessageType::DISCONNECT:
         m_chunkSender.tryRemoveQueue(static_cast<ClientChunkQueueData_t*>(caProMessage.m_chunkQueueData))

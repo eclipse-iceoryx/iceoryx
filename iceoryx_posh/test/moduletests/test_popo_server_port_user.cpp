@@ -404,8 +404,8 @@ TEST_F(ServerPort_test, ReleaseRequestWithNullptrRequestHeaderCallsTheErrorHandl
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::Error::kEXPECTS_ENSURES_FAILED));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
 
@@ -501,20 +501,16 @@ TEST_F(ServerPort_test, AllocateResponseWithNullptrAsRequestHeaderCallsErrorHand
     ::testing::Test::RecordProperty("TEST_ID", "05891e1b-3aa4-4aa9-aafd-0649f88d2982");
     auto& sut = serverPortWithOfferOnCreate;
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::Error::kEXPECTS_ENSURES_FAILED));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
-            detectedError.emplace(error);
-        });
-
     constexpr uint64_t USER_PAYLOAD_SIZE{8U};
     constexpr uint64_t USER_PAYLOAD_ALIGNMENT{8U};
+    constexpr RequestHeader* REQUEST_HEADER_NULLPTR{nullptr};
 
-    IOX_DISCARD_RESULT(sut.portUser.allocateResponse(nullptr, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT));
-
-    EXPECT_TRUE(detectedError.has_value());
+    sut.portUser.allocateResponse(REQUEST_HEADER_NULLPTR, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+        .and_then([&](const auto&) {
+            GTEST_FAIL() << "Expected AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER but got chunk";
+        })
+        .or_else(
+            [&](const auto& error) { EXPECT_THAT(error, Eq(AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER)); });
 }
 
 TEST_F(ServerPort_test,
@@ -598,8 +594,8 @@ TEST_F(ServerPort_test, FreeResponseWithWithNullptrResponseHeaderCallsTheErrorHa
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::Error::kEXPECTS_ENSURES_FAILED));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
 
@@ -620,8 +616,8 @@ TEST_F(ServerPort_test, SendResponseWithWithNullptrResponseHeaderCallsTheErrorHa
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::Error::kEXPECTS_ENSURES_FAILED));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
 

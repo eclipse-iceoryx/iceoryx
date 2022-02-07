@@ -732,7 +732,8 @@ TEST_F(ChunkSender_test, asStringLiteralConvertsAllocationErrorValuesToStrings)
                             AllocationError::NO_MEMPOOLS_AVAILABLE,
                             AllocationError::RUNNING_OUT_OF_CHUNKS,
                             AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-                            AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER})
+                            AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+                            AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER})
     {
         auto enumString = iox::popo::asStringLiteral(sut);
 
@@ -752,6 +753,9 @@ TEST_F(ChunkSender_test, asStringLiteralConvertsAllocationErrorValuesToStrings)
             break;
         case AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
             EXPECT_THAT(enumString, StrEq("AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER"));
+            break;
+        case AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER:
+            EXPECT_THAT(enumString, StrEq("AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER"));
             break;
         }
 
