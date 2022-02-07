@@ -179,7 +179,6 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
     auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
     caproMessage.m_chunkQueueData = nullptr;
 
-
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
@@ -233,6 +232,50 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithAckW
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 
     EXPECT_FALSE(sut.portUser.hasClients());
+}
+
+TEST_F(ServerPort_test, StateNotOfferedWithInvalidCaProMessageTypeCallsErrorHandler)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bd8667d3-9c09-4caa-865e-bb3c7c3c1283");
+    auto& sut = serverPortWithoutOfferOnCreate;
+
+    auto caproMessage = CaproMessage{CaproMessageType::PUB, sut.portData.m_serviceDescription};
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+            detectedError.emplace(error);
+        });
+
+    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
+        .and_then([&](const auto& responseCaproMessage) {
+            GTEST_FAIL() << "Expected no CaPro message but got: " << responseCaproMessage.m_type;
+        })
+        .or_else([&]() { GTEST_SUCCEED(); });
+}
+
+TEST_F(ServerPort_test, StateOfferedWithInvalidCaProMessageTypeCallsErrorHandler)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bd8667d3-9c09-4caa-865e-bb3c7c3c1283");
+    auto& sut = serverPortWithOfferOnCreate;
+
+    auto caproMessage = CaproMessage{CaproMessageType::SUB, sut.portData.m_serviceDescription};
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            EXPECT_THAT(error, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+            detectedError.emplace(error);
+        });
+
+    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
+        .and_then([&](const auto& responseCaproMessage) {
+            GTEST_FAIL() << "Expected no CaPro message but got: " << responseCaproMessage.m_type;
+        })
+        .or_else([&]() { GTEST_SUCCEED(); });
 }
 
 // END test CaPro transitions

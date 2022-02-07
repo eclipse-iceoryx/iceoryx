@@ -140,8 +140,15 @@ ServerPortRouDi::handleCapProMessageForStateNotOffered(const capro::CaproMessage
     case capro::CaproMessageType::OFFER:
         getMembers()->m_offered.store(true, std::memory_order_relaxed);
         return caProMessage;
-    default:
+    case capro::CaproMessageType::STOP_OFFER:
+        IOX_FALLTHROUGH;
+    case capro::CaproMessageType::CONNECT:
+        IOX_FALLTHROUGH;
+    case capro::CaproMessageType::DISCONNECT:
         return capro::CaproMessage(capro::CaproMessageType::NACK, this->getCaProServiceDescription());
+    default:
+        handleCaProProtocolViolation(caProMessage.m_type);
+        return cxx::nullopt;
     }
 }
 

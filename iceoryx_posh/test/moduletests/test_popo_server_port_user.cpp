@@ -188,6 +188,17 @@ TEST_F(ServerPort_test, HasNewRequestsWithMultipleRequestsIsTrue)
     EXPECT_TRUE(sut.portUser.hasNewRequests());
 }
 
+TEST_F(ServerPort_test, HasNewRequestsWithFullRequestQueueIsTrue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "30e36e69-4f23-41ee-aac7-d34240f075ae");
+    auto& sut = serverPortWithOfferOnCreate;
+
+    constexpr uint64_t NUMBER_OF_REQUESTS{iox::popo::ServerChunkQueueConfig::MAX_QUEUE_CAPACITY};
+    pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
+
+    EXPECT_TRUE(sut.portUser.hasNewRequests());
+}
+
 TEST_F(ServerPort_test, HasNewRequestsWithMultipleRequestsAndAllButOneRemovedIsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "96c42094-9931-46a3-8fd6-e7d28b490527");
