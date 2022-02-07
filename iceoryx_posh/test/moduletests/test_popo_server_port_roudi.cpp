@@ -56,7 +56,7 @@ TEST_F(ServerPort_test, ReleaseAllChunksWorks)
 
 // BEGIN tryGetCaProMessage tests
 
-TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenNotOfferingHasCaProMessageTypeOffer)
+TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenPortIsNotOffering)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8944621b-4753-413b-bee0-a714fa4324c8");
     auto& sut = serverPortWithoutOfferOnCreate;
@@ -68,7 +68,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenNotOfferingHasCaProMessageT
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
-TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenOfferingHasNullopt)
+TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenPortAlreadyOffers)
 {
     ::testing::Test::RecordProperty("TEST_ID", "15a399ee-b162-4b42-8aab-da13571fb478");
     auto& sut = serverPortWithOfferOnCreate;
@@ -82,7 +82,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenOfferingHasNullopt)
         .or_else([&]() { GTEST_SUCCEED(); });
 }
 
-TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenOfferingHasCaProMessageTypeStopOffer)
+TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenPortIsOffering)
 {
     ::testing::Test::RecordProperty("TEST_ID", "83467e90-734b-4e51-836c-2dbeaf44ce95");
     auto& sut = serverPortWithOfferOnCreate;
@@ -94,7 +94,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenOfferingHasCaProMessage
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
 
-TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenNotOfferingHasNullopt)
+TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenPortIsNotOffering)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a9a162d3-307a-4add-af23-63511da4b07e");
     auto& sut = serverPortWithoutOfferOnCreate;
@@ -112,49 +112,26 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenNotOfferingHasNullopt)
 
 // BEGIN test CaPro transitions
 
-TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeConnectReactsWithNack)
+TEST_F(ServerPort_test, StateNotOfferedWithAllRelevantCaProMessageTypesButOfferReactsWithNack)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ceaef856-2a8d-46c0-9167-fe1ca6fad736");
-    auto& sut = serverPortWithoutOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
+    for (const auto caproMessageType :
+         {CaproMessageType::CONNECT, CaproMessageType::DISCONNECT, CaproMessageType::STOP_OFFER})
+    {
+        SCOPED_TRACE(caproMessageType);
 
-    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
-        .and_then([&](const auto& responseCaproMessage) {
-            EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
-            EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
-        })
-        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
-}
+        auto& sut = serverPortWithoutOfferOnCreate;
 
-TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeDisconnectReactsWithNack)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "0bde368a-b2a6-4c73-b668-43afda427f56");
-    auto& sut = serverPortWithoutOfferOnCreate;
+        auto caproMessage = CaproMessage{caproMessageType, sut.portData.m_serviceDescription};
 
-    auto caproMessage = CaproMessage{CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription};
-
-    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
-        .and_then([&](const auto& responseCaproMessage) {
-            EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
-            EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
-        })
-        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
-}
-
-TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeStopOfferReactsWithNack)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6d5bea42-cb85-4549-86cf-56a2cdb00ab6");
-    auto& sut = serverPortWithoutOfferOnCreate;
-
-    auto caproMessage = CaproMessage{CaproMessageType::STOP_OFFER, sut.portData.m_serviceDescription};
-
-    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
-        .and_then([&](const auto& responseCaproMessage) {
-            EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
-            EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
-        })
-        .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
+        sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
+            .and_then([&](const auto& responseCaproMessage) {
+                EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
+                EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
+            })
+            .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
+    }
 }
 
 TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeOfferReactsWithOffer)
