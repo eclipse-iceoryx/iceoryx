@@ -41,6 +41,10 @@ struct ServerOptions
     /// @brief The option whether the server should already be offered when creating it
     bool offerOnCreate{true};
 
+    /// @brief The option whether the client should block when the request queue is full
+    /// @note Corresponds with ClientOptions::serverTooSlowPolicy
+    QueueFullPolicy2 requestQueueFullPolicy{QueueFullPolicy2::DISCARD_OLDEST_DATA};
+
     /// @brief The option whether the server should block when the response queue is full
     /// @note Corresponds with ClientOptions::responseQueueFullPolicy
     ConsumerTooSlowPolicy clientTooSlowPolicy{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
