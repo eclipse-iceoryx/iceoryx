@@ -41,6 +41,7 @@ class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher, MockD
 // ======================================== Tests ======================================== //
 TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8c439c96-4777-47a2-aebf-a01898b39c1d");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     iox::config::GatewayConfig config{};
@@ -57,6 +58,7 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 
 TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e51ff9c2-d5cf-45eb-bc04-78973d99d9e5");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -78,6 +80,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
 
 TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "edbfd533-90aa-417c-9a39-3e7ab7ed15fb");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -101,6 +104,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 #if 0
 TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1024b7c2-c2ed-4371-a1df-5990dc913a97");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 

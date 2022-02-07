@@ -52,6 +52,7 @@ class Iceoryx2DDSGatewayTest : public DDSGatewayTestFixture<MockSubscriber, Mock
 // ======================================== Tests ======================================== //
 TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9e5b3965-2d27-4ec9-a708-5a0c17b47040");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     iox::config::GatewayConfig config{};
@@ -67,6 +68,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d32dac2b-ef86-418d-91d3-6df9d6c79b50");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     iox::config::GatewayConfig config{};
@@ -86,6 +88,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfiguredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d9590f9d-f601-4a00-b96d-843a2271483b");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     iox::config::GatewayConfig config{};
@@ -105,6 +108,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfigure
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "46a4fd43-721c-4c69-a2e2-014ad794cc78");
     // === Setup
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Introspection", "Foo", "Bar"});
@@ -118,6 +122,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6894e3f2-6f41-4b8e-95e0-e375ab294d19");
     // === Setup
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Foo", "Bar", "Baz"});
@@ -131,6 +136,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 
 TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0f356ca7-8f0f-442e-8888-592578145e59");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     TestGateway gw{};
@@ -146,6 +152,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "53e36923-1e39-43c5-a094-651f1ca4c08c");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
@@ -166,6 +173,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscoveredServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "334d8d97-672a-40ab-958c-e90ec9a726f5");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     auto mockWriter = createMockDDSTerminal(testService);
@@ -188,6 +196,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
 #if 0
 TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "51527674-ccc7-4817-bae9-64eebe766fff");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -216,6 +225,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e73d405e-a8a5-43d7-bc5e-6130b1fa2747");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -243,6 +253,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 
 TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39f081c9-2ce7-4e00-b6c4-5cc1596fa699");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -275,6 +286,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 
 TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a0150430-c947-4735-8474-aea14d2cadbd");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
