@@ -518,10 +518,10 @@ TEST_F(ServerPort_test,
     constexpr uint64_t REQUEST_DATA_BASE{666};
 
     EXPECT_TRUE(
-        pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY, REQUEST_DATA_BASE, QueueFullPolicy2::BLOCK_PRODUCER));
+        pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY, REQUEST_DATA_BASE, QueueFullPolicy::BLOCK_PRODUCER));
     // queue is full and push does not succeed
     EXPECT_FALSE(
-        pushRequests(sut.requestQueuePusher, 1, REQUEST_DATA_BASE + QUEUE_CAPACITY, QueueFullPolicy2::BLOCK_PRODUCER));
+        pushRequests(sut.requestQueuePusher, 1, REQUEST_DATA_BASE + QUEUE_CAPACITY, QueueFullPolicy::BLOCK_PRODUCER));
 
     // ensure FIFO semantic
     for (uint64_t i = 0; i < QUEUE_CAPACITY; ++i)

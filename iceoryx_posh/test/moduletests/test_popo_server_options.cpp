@@ -31,7 +31,7 @@ TEST(ServerOptions_test, SerializationRoundTripIsSuccessful)
     testOptions.requestQueueCapacity = 42;
     testOptions.nodeName = "hypnotoad";
     testOptions.offerOnCreate = false;
-    testOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy2::BLOCK_PRODUCER;
+    testOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     testOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
     iox::popo::ServerOptions::deserialize(testOptions.serialize())
@@ -63,7 +63,7 @@ TEST(ServerOptions_test, DeserializingBogusDataFails)
         .or_else([&](auto&) { GTEST_SUCCEED(); });
 }
 
-using QueueFullPolicyUT = std::underlying_type_t<iox::popo::QueueFullPolicy2>;
+using QueueFullPolicyUT = std::underlying_type_t<iox::popo::QueueFullPolicy>;
 using ConsumerTooSlowPolicyUT = std::underlying_type_t<iox::popo::ConsumerTooSlowPolicy>;
 iox::cxx::Serialization enumSerialization(QueueFullPolicyUT requsetQueueFullPolicy,
                                           ConsumerTooSlowPolicyUT clientTooSlowPolicy)

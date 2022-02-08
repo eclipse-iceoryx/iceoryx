@@ -30,11 +30,15 @@ enum class SubscriberTooSlowPolicy : uint8_t
     WAIT_FOR_SUBSCRIBER,
     DISCARD_OLDEST_DATA
 };
-/// @brief Used by subscriber
-/// @todo iox-#27 replace with QueueFullPolicy2
+/// @brief Used by consumers to request a specific behavior from the producer
 enum class QueueFullPolicy : uint8_t
 {
-    BLOCK_PUBLISHER,
+    /// Requests the producer to block when the consumer queue is full
+    BLOCK_PRODUCER,
+    /// @deprecated Compatibility value for the legacy use with subscriber only. Will be remove in a future release.
+    /// Please use `BLOCK_PRODUCER` instead.
+    BLOCK_PUBLISHER = BLOCK_PRODUCER,
+    /// Request to discard the oldest data and push the newest one into the queue
     DISCARD_OLDEST_DATA
 };
 
@@ -44,16 +48,6 @@ enum class ConsumerTooSlowPolicy : uint8_t
     /// Waits for the consumer it it's queue is full
     WAIT_FOR_CONSUMER,
     /// Discards the oldest data and pushes the newest one into the queue
-    DISCARD_OLDEST_DATA
-};
-
-/// @brief Used by consumers to request a specific behavior from the producer
-/// @todo iox-#27 Rename this to QueueFullPolicy
-enum class QueueFullPolicy2 : uint8_t
-{
-    /// Requests the producer to block when the consumer queue is full
-    BLOCK_PRODUCER,
-    /// Request to discard the oldest data and push the newest one into the queue
     DISCARD_OLDEST_DATA
 };
 

@@ -21,10 +21,10 @@ namespace iox
 {
 namespace popo
 {
-cxx::VariantQueueTypes getQueueType(const QueueFullPolicy2 policy) noexcept
+cxx::VariantQueueTypes getResponseQueueType(const QueueFullPolicy policy) noexcept
 {
-    return policy == QueueFullPolicy2::DISCARD_OLDEST_DATA ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
-                                                           : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
+    return policy == QueueFullPolicy::DISCARD_OLDEST_DATA ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
+                                                          : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
 }
 
 ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescription,
@@ -37,8 +37,8 @@ ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescripti
                         static_cast<SubscriberTooSlowPolicy>(clientOptions.serverTooSlowPolicy),
                         HISTORY_CAPACITY_ZERO,
                         memoryInfo)
-    , m_chunkReceiverData(getQueueType(clientOptions.responseQueueFullPolicy),
-                          static_cast<QueueFullPolicy>(clientOptions.responseQueueFullPolicy))
+    , m_chunkReceiverData(getResponseQueueType(clientOptions.responseQueueFullPolicy),
+                          clientOptions.responseQueueFullPolicy)
     , m_connectRequested(clientOptions.connectOnCreate)
 {
     m_chunkReceiverData.m_queue.setCapacity(clientOptions.responseQueueCapacity);

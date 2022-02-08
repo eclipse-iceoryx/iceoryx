@@ -40,9 +40,9 @@ ClientPortRouDi::MemberType_t* ClientPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-QueueFullPolicy2 ClientPortRouDi::getResponseQueueFullPolicy() const noexcept
+QueueFullPolicy ClientPortRouDi::getResponseQueueFullPolicy() const noexcept
 {
-    return static_cast<QueueFullPolicy2>(getMembers()->m_chunkReceiverData.m_queueFullPolicy);
+    return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
 }
 
 cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcept

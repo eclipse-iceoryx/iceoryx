@@ -191,7 +191,7 @@ class ClientPort_test : public Test
     ClientOptions m_clientOptionsWithBlockProducerResponseQueueFullPolicy = [&] {
         ClientOptions options;
         options.responseQueueCapacity = QUEUE_CAPACITY;
-        options.responseQueueFullPolicy = QueueFullPolicy2::BLOCK_PRODUCER;
+        options.responseQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
         return options;
     }();
 
@@ -611,7 +611,7 @@ TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithDefaultOptionIsDisca
     ::testing::Test::RecordProperty("TEST_ID", "cf169034-c413-4362-a6cd-72ec0d6cf958");
     auto& sut = clientPortWithConnectOnCreate;
 
-    EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy2::DISCARD_OLDEST_DATA));
+    EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy::DISCARD_OLDEST_DATA));
 }
 
 TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithBlockProducerOptionIsBlockProducer)
@@ -619,7 +619,7 @@ TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithBlockProducerOptionI
     ::testing::Test::RecordProperty("TEST_ID", "40c3b25e-8a95-415b-9acb-6a67fd7d868a");
     auto& sut = clientPortWithBlockProducerResponseQueuePolicy;
 
-    EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy2::BLOCK_PRODUCER));
+    EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy::BLOCK_PRODUCER));
 }
 
 TEST_F(ClientPort_test, TryGetCaProMessageOnConnectHasCaProMessageTypeConnect)
