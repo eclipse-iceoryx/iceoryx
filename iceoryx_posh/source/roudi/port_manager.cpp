@@ -319,7 +319,7 @@ bool isCompatible(const PublisherPortRouDiType& publisher, const SubscriberPortT
 
     const bool blockingPoliciesAreCompatible =
         !(pubOpts.subscriberTooSlowPolicy == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
-          && subOpts.queueFullPolicy == popo::QueueFullPolicy::BLOCK_PUBLISHER);
+          && subOpts.queueFullPolicy == popo::QueueFullPolicy::BLOCK_PRODUCER);
 
     const bool historyRequestIsCompatible =
         !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;

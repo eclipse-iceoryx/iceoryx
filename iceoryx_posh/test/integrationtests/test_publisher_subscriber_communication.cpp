@@ -543,7 +543,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     this->InterOpWait();
 
-    auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
+    auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
     this->InterOpWait();
 
     EXPECT_FALSE(publisher->publishCopyOf("start your day with a smile").has_error());
@@ -622,7 +622,7 @@ TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsB
     auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
-    auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
+    auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
     this->InterOpWait();
 
     EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
@@ -656,7 +656,7 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     auto publisherNonBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
-    auto subscriberBlocking = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PUBLISHER, 2U);
+    auto subscriberBlocking = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
     auto subscriberNonBlocking = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
     this->InterOpWait();
 

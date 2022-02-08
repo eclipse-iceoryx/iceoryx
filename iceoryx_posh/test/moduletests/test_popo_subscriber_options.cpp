@@ -32,7 +32,7 @@ TEST(SubscriberOptions_test, SerializationRoundTripIsSuccessful)
     testOptions.historyRequest = 42;
     testOptions.nodeName = "hypnotoad";
     testOptions.subscribeOnCreate = false;
-    testOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    testOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     testOptions.requiresPublisherHistorySupport = true;
 
     iox::popo::SubscriberOptions::deserialize(testOptions.serialize())

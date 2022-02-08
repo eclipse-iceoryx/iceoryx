@@ -535,7 +535,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab60b748-6425-4ebf-8041-285a29a92756");
     iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
 
     const auto subscriberPortData =
         m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription("18", "31", "400"),
@@ -543,7 +543,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
                                            iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
-                Eq(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER));
+                Eq(iox::popo::QueueFullPolicy::BLOCK_PRODUCER));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
@@ -622,7 +622,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     iox::popo::PublisherOptions publisherOptions{
         0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     iox::popo::SubscriberOptions subscriberOptions{
-        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER};
 
     iox::popo::Publisher<uint8_t> publisher{serviceDescription, publisherOptions};
     iox::popo::Subscriber<uint8_t> subscriber{serviceDescription, subscriberOptions};

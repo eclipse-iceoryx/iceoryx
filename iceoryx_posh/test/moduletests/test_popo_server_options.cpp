@@ -80,7 +80,7 @@ TEST(ServerOptions_test, DeserializingValidRequestQueueFullPolicyAndClientTooSlo
 {
     ::testing::Test::RecordProperty("TEST_ID", "95cd1efc-63c8-4eee-9f4e-ed105e653d71");
     constexpr QueueFullPolicyUT REQUEST_QUEUE_FULL_POLICY{
-        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER)};
+        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PRODUCER)};
     constexpr ConsumerTooSlowPolicyUT CLIENT_TOO_SLOW_POLICY{
         static_cast<ConsumerTooSlowPolicyUT>(iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER)};
 

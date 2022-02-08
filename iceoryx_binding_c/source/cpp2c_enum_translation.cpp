@@ -116,8 +116,8 @@ iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy) noe
 {
     switch (policy)
     {
-    case QueueFullPolicy::BLOCK_PUBLISHER:
-        return QueueFullPolicy_BLOCK_PUBLISHER;
+    case QueueFullPolicy::BLOCK_PRODUCER:
+        return QueueFullPolicy_BLOCK_PRODUCER;
     case QueueFullPolicy::DISCARD_OLDEST_DATA:
         return QueueFullPolicy_DISCARD_OLDEST_DATA;
     }

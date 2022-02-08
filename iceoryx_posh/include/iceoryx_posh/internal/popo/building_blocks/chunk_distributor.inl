@@ -143,7 +143,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
         for (auto& queue : getMembers()->m_queues)
         {
             bool isBlockingQueue =
-                (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
+                (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PRODUCER);
 
             if (!pushToQueue(queue.get(), chunk))
             {
@@ -230,7 +230,7 @@ ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId u
         bool willWaitForSubscriber =
             getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
 
-        bool isBlockingQueue = (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
+        bool isBlockingQueue = (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PRODUCER);
 
         retry = false;
         if (!pushToQueue(queue.get(), chunk))

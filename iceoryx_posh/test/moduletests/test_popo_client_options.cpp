@@ -89,7 +89,7 @@ TEST(ClientOptions_test, DeserializingValidResponseQueueFullAndServerTooSlowPoli
 {
     ::testing::Test::RecordProperty("TEST_ID", "877ad373-eb51-4613-9b68-b93baa4c6eae");
     constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{
-        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER)};
+        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PRODUCER)};
     constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{
         static_cast<ConsumerTooSlowPolicyUT>(iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER)};
 
@@ -128,7 +128,7 @@ TEST(ClientOptions_test, DeserializingInvalidServerTooSlowPolicyFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6485377c-9a75-4aba-8045-8b129aa1c529");
     constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{
-        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER)};
+        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PRODUCER)};
     constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{111};
 
     const auto serialized = enumSerialization(RESPONSE_QUEUE_FULL_POLICY, SERVER_TOO_SLOW_POLICY);

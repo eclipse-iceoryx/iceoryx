@@ -496,7 +496,7 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberRequestsBlockin
     ::testing::Test::RecordProperty("TEST_ID", "34380b13-5541-4fdf-b266-beccb90f5215");
     PublisherOptions publisherOptions{
         1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PUBLISHER};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PRODUCER};
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
@@ -538,7 +538,7 @@ TEST_F(PortManager_test, DoDiscoveryPublisherDoesNotAllowBlockingAndSubscriberRe
     ::testing::Test::RecordProperty("TEST_ID", "31d879bf-ca07-4f29-90cd-a46f09a98f7c");
     PublisherOptions publisherOptions{
         1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PUBLISHER};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PRODUCER};
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
@@ -907,7 +907,7 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     PublisherOptions publisherOptions{
         0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     SubscriberOptions subscriberOptions{
-        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER};
     PublisherPortUser publisher(m_portManager
                                     ->acquirePublisherPortData({"1", "1", "1"},
                                                                publisherOptions,

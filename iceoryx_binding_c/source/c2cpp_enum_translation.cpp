@@ -39,8 +39,8 @@ iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy
 {
     switch (policy)
     {
-    case QueueFullPolicy_BLOCK_PUBLISHER:
-        return iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    case QueueFullPolicy_BLOCK_PRODUCER:
+        return iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     case QueueFullPolicy_DISCARD_OLDEST_DATA:
         return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
     }

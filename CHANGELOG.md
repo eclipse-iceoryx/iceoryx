@@ -75,6 +75,7 @@
 **New API features:**
 
 - Introduce `iceoryx_hoofs/cxx/filesystem.hpp` which implements `std::perms` as `cxx::perms`.
+
 ```cpp
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 
@@ -269,6 +270,19 @@ of `ErrorTypeAdapter` for custom types must therefore also be removed in the use
 The `InvalidIdString` was removed from `ServiceDescription` and the Wildcard string was replaced
 with a `iox::cxx::nullopt`. With this, every string is allowed within the `ServiceDescription`.
 The default `ServiceDescription` consists of empty strings.
+
+- The queue port policy enums are adjusted to use them with `Client` and `Server`.
+
+The `QueueFullPolicy::BLOCK_PUBLISHER` is deprecated and will be removed in a future release.
+Please use the more generic `QueueFullPolicy::BLOCK_PRODUCER` instead.
+
+```cpp
+// old
+subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+
+// new
+subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+```
 
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 

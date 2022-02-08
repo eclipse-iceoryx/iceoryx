@@ -63,7 +63,7 @@ int main()
 
     // we request the publisher to wait for space in the queue if it is full. The publisher will be blocked then
     //! [queue full policy]
-    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     //! [queue full policy]
 
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);

@@ -45,7 +45,7 @@ publisherOptions.nodeName = "Pub_Node_With_Options";
 
 To ensure that samples are never lost, you have the possibility to busy-wait for the subscriber when publishing.
 Both publisher and subscriber have to request compatible policies (`SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER` and
-`QueueFullPolicy::BLOCK_PUBLISHER`).
+`QueueFullPolicy::BLOCK_PRODUCER`).
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_publisher_with_options.cpp][too slow policy]-->
 ```cpp
@@ -114,7 +114,7 @@ Again, to ensure that samples are never lost, we request the publisher to busy-w
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][queue full policy]-->
 ```cpp
-subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
 ```
 
 <center>

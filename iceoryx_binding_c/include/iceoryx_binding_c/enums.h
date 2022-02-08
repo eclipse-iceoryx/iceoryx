@@ -53,7 +53,10 @@ enum iox_ChunkReceiveResult
 /// @brief used by subscriber; describes whether a publisher blocks when subscriber queue is full
 enum iox_QueueFullPolicy
 {
-    QueueFullPolicy_BLOCK_PUBLISHER,
+    QueueFullPolicy_BLOCK_PRODUCER,
+    /// @deprecated Compatibility value for the legacy use with subscriber only. Will be remove in a future release.
+    /// Please use `QueueFullPolicy_BLOCK_PRODUCER` instead.
+    QueueFullPolicy_BLOCK_PUBLISHER = QueueFullPolicy_BLOCK_PRODUCER,
     QueueFullPolicy_DISCARD_OLDEST_DATA,
 };
 

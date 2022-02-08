@@ -628,7 +628,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData =
-        this->getChunkQueueData(QueueFullPolicy::BLOCK_PUBLISHER, VariantQueueTypes::FiFo_MultiProducerSingleConsumer);
+        this->getChunkQueueData(QueueFullPolicy::BLOCK_PRODUCER, VariantQueueTypes::FiFo_MultiProducerSingleConsumer);
     ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     for (uint64_t i = 0; i < ChunkQueueData_t::MAX_CAPACITY; ++i)
@@ -747,7 +747,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData =
-        this->getChunkQueueData(QueueFullPolicy::BLOCK_PUBLISHER, VariantQueueTypes::FiFo_MultiProducerSingleConsumer);
+        this->getChunkQueueData(QueueFullPolicy::BLOCK_PRODUCER, VariantQueueTypes::FiFo_MultiProducerSingleConsumer);
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     queue.setCapacity(1U);
 
@@ -791,7 +791,7 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
 
     for (uint64_t i = 0U; i < NUMBER_OF_QUEUES; ++i)
     {
-        queueDatas.emplace_back(this->getChunkQueueData(QueueFullPolicy::BLOCK_PUBLISHER,
+        queueDatas.emplace_back(this->getChunkQueueData(QueueFullPolicy::BLOCK_PRODUCER,
                                                         VariantQueueTypes::FiFo_MultiProducerSingleConsumer));
         queues.emplace_back(queueDatas.back().get());
         queues.back().setCapacity(1U);
