@@ -1,0 +1,114 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#ifndef IOX_POSH_POPO_SMART_CHUNK_INL
+#define IOX_POSH_POPO_SMART_CHUNK_INL
+
+namespace iox
+{
+namespace popo
+{
+namespace internal
+{
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline SmartChunkPrivateData<TransmissionInterface, T, H>::SmartChunkPrivateData(
+    cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& consumer) noexcept
+    : smartChunkUniquePtr(std::move(smartChunkUniquePtr))
+    , consumerRef(consumer)
+{
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPrivateData(
+    cxx::unique_ptr<const T>&& smartChunkUniquePtr) noexcept
+    : smartChunkUniquePtr(std::move(smartChunkUniquePtr))
+{
+}
+} // namespace internal
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+template <typename S, typename>
+inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr,
+                                                           TransmissionInterface<T, H>& consumer) noexcept
+    : m_members({std::move(smartChunkUniquePtr), consumer})
+{
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+template <typename S, typename>
+inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr) noexcept
+    : m_members(std::move(smartChunkUniquePtr))
+{
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline T* SmartChunk<TransmissionInterface, T, H>::operator->() noexcept
+{
+    return get();
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline const T* SmartChunk<TransmissionInterface, T, H>::operator->() const noexcept
+{
+    return get();
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline T& SmartChunk<TransmissionInterface, T, H>::operator*() noexcept
+{
+    return *get();
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline const T& SmartChunk<TransmissionInterface, T, H>::operator*() const noexcept
+{
+    return *get();
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline SmartChunk<TransmissionInterface, T, H>::operator bool() const noexcept
+{
+    return get() != nullptr;
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline T* SmartChunk<TransmissionInterface, T, H>::get() noexcept
+{
+    return m_members.smartChunkUniquePtr.get();
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline const T* SmartChunk<TransmissionInterface, T, H>::get() const noexcept
+{
+    return m_members.smartChunkUniquePtr.get();
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline typename SmartChunk<TransmissionInterface, T, H>::ConditionalConstChunkHeader_t*
+SmartChunk<TransmissionInterface, T, H>::getChunkHeader() noexcept
+{
+    return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get());
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+inline const mepoo::ChunkHeader* SmartChunk<TransmissionInterface, T, H>::getChunkHeader() const noexcept
+{
+    return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get());
+}
+} // namespace popo
+} // namespace iox
+
+#endif // IOX_POSH_POPO_SAMPLE_INL
