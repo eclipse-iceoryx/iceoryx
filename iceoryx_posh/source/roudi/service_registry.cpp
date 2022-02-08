@@ -109,41 +109,20 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const cxx::optional<capro::IdString_t>& instance,
                            const cxx::optional<capro::IdString_t>& event) const noexcept
 {
-    constexpr Wildcard_t WILDCARD;
-
-    // all search cases have complexity O(n)
-    // there are 8 cases and we dispatch with as little case-checking as possible
-    if (service)
+    for (auto& entry : m_serviceDescriptions)
     {
-        if (instance)
+        if (entry)
         {
-            if (event)
+            bool match = (service) ? (entry->serviceDescription.getServiceIDString() == *service) : true;
+            match &= (instance) ? (entry->serviceDescription.getInstanceIDString() == *instance) : true;
+            match &= (event) ? (entry->serviceDescription.getEventIDString() == *event) : true;
+
+            if (match)
             {
-                return find(*service, *instance, *event, searchResult);
+                searchResult.emplace_back(*entry);
             }
-            return find(*service, *instance, WILDCARD, searchResult);
         }
-        if (event)
-        {
-            return find(*service, WILDCARD, *event, searchResult);
-        }
-        return find(*service, WILDCARD, WILDCARD, searchResult);
     }
-
-    if (instance)
-    {
-        if (event)
-        {
-            return find(WILDCARD, *instance, *event, searchResult);
-        }
-        return find(WILDCARD, *instance, WILDCARD, searchResult);
-    }
-    if (event)
-    {
-        return find(WILDCARD, WILDCARD, *event, searchResult);
-    }
-
-    return getAll(searchResult);
 }
 
 const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getServices() const noexcept
@@ -164,110 +143,6 @@ uint32_t ServiceRegistry::findIndex(const capro::ServiceDescription& serviceDesc
         }
     }
     return NO_INDEX;
-}
-
-
-void ServiceRegistry::find(const capro::IdString_t& service,
-                           Wildcard_t,
-                           Wildcard_t,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getServiceIDString() == service)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
-}
-
-void ServiceRegistry::find(Wildcard_t,
-                           const capro::IdString_t& instance,
-                           Wildcard_t,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getInstanceIDString() == instance)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
-}
-
-void ServiceRegistry::find(Wildcard_t,
-                           Wildcard_t,
-                           const capro::IdString_t& event,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getEventIDString() == event)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
-}
-
-void ServiceRegistry::find(const capro::IdString_t& service,
-                           const capro::IdString_t& instance,
-                           Wildcard_t,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getServiceIDString() == service
-            && entry->serviceDescription.getInstanceIDString() == instance)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
-}
-
-void ServiceRegistry::find(const capro::IdString_t& service,
-                           Wildcard_t,
-                           const capro::IdString_t& event,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getServiceIDString() == service
-            && entry->serviceDescription.getEventIDString() == event)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
-}
-
-void ServiceRegistry::find(Wildcard_t,
-                           const capro::IdString_t& instance,
-                           const capro::IdString_t& event,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getInstanceIDString() == instance
-            && entry->serviceDescription.getEventIDString() == event)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
-}
-
-void ServiceRegistry::find(const capro::IdString_t& service,
-                           const capro::IdString_t& instance,
-                           const capro::IdString_t& event,
-                           ServiceDescriptionVector_t& searchResult) const noexcept
-{
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (entry && entry->serviceDescription.getServiceIDString() == service
-            && entry->serviceDescription.getInstanceIDString() == instance
-            && entry->serviceDescription.getEventIDString() == event)
-        {
-            searchResult.emplace_back(*entry);
-        }
-    }
 }
 
 void ServiceRegistry::getAll(ServiceDescriptionVector_t& searchResult) const noexcept

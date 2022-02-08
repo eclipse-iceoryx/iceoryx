@@ -25,7 +25,6 @@
 
 
 #include <cstdint>
-#include <map>
 #include <utility>
 
 namespace iox
@@ -91,9 +90,6 @@ class ServiceRegistry
 
     static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
 
-    // tag type for internal overloads
-    using Wildcard_t = iox::capro::Wildcard_t;
-
     ServiceDescriptionContainer_t m_serviceDescriptions;
 
     // store the last known free Index (if any is known)
@@ -102,45 +98,7 @@ class ServiceRegistry
     uint32_t m_freeIndex{NO_INDEX};
 
   private:
-    // functions for the different search cases
-    // tag types are not needed in all cases to distinguish overloads but kept for consistency
-
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
-
-    void find(const capro::IdString_t& service,
-              Wildcard_t,
-              Wildcard_t,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(Wildcard_t,
-              const capro::IdString_t& instance,
-              Wildcard_t,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(Wildcard_t,
-              Wildcard_t,
-              const capro::IdString_t& event,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(const capro::IdString_t& service,
-              const capro::IdString_t& instance,
-              Wildcard_t,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(const capro::IdString_t& service,
-              Wildcard_t,
-              const capro::IdString_t& event,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(Wildcard_t,
-              const capro::IdString_t& instance,
-              const capro::IdString_t& event,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(const capro::IdString_t& service,
-              const capro::IdString_t& instance,
-              const capro::IdString_t& event,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
 
     void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
 };
