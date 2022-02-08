@@ -503,6 +503,35 @@ TEST_F(ServerPort_test, HasLostRequestsSinceLastCallWhenNoRequestAreLostAfterRem
     EXPECT_FALSE(sut.portUser.hasLostRequestsSinceLastCall());
 }
 
+TEST_F(ServerPort_test,
+       HasLostRequestsSinceLastCallWithBlockProducerRequestQueueFullPolicyAndIntermediatelyBlockingReturnsFalse)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "301beffe-acae-4863-9eb9-96d7629f81f8");
+    auto& sut = serverOptionsWithBlockProducerRequestQueueFullPolicy;
+
+    constexpr uint64_t REQUEST_DATA_BASE{666};
+
+    EXPECT_TRUE(
+        pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY, REQUEST_DATA_BASE, QueueFullPolicy2::BLOCK_PRODUCER));
+    // queue is full and push does not succeed
+    EXPECT_FALSE(
+        pushRequests(sut.requestQueuePusher, 1, REQUEST_DATA_BASE + QUEUE_CAPACITY, QueueFullPolicy2::BLOCK_PRODUCER));
+
+    // ensure FIFO semantic
+    for (uint64_t i = 0; i < QUEUE_CAPACITY; ++i)
+    {
+        sut.portUser.getRequest()
+            .and_then([&](const auto& req) {
+                EXPECT_THAT(this->getRequestData(req), Eq(REQUEST_DATA_BASE + i));
+                sut.portUser.releaseRequest(req);
+            })
+            .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
+    }
+
+    // since push was not successful the ChunkDistributor would have tried again and no chunk is lost
+    EXPECT_FALSE(sut.portUser.hasLostRequestsSinceLastCall());
+}
+
 // END hasLostRequestsSinceLastCall tests
 
 // BEGIN allocateResponse tests

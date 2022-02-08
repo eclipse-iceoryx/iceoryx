@@ -139,7 +139,8 @@ class ServerPort_test : public Test
     /// @return true if all pushes succeed, false if a push failed and a chunk was lost
     bool pushRequests(ChunkQueuePusher<ServerChunkQueueData_t>& chunkQueuePusher,
                       uint64_t numberOfPushes,
-                      uint64_t requestDataBase = DUMMY_DATA)
+                      uint64_t requestDataBase = DUMMY_DATA,
+                      QueueFullPolicy2 queueFullPolicy = QueueFullPolicy2::DISCARD_OLDEST_DATA)
     {
         for (uint64_t i = 0U; i < numberOfPushes; ++i)
         {
@@ -147,7 +148,10 @@ class ServerPort_test : public Test
             if (!chunkQueuePusher.push(sharedChunk))
             {
                 // this would actually be done by the ChunkDistributor from the ClientPort
-                chunkQueuePusher.lostAChunk();
+                if (queueFullPolicy == QueueFullPolicy2::DISCARD_OLDEST_DATA)
+                {
+                    chunkQueuePusher.lostAChunk();
+                }
                 return false;
             }
         }
