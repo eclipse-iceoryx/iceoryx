@@ -17,7 +17,7 @@
 #ifndef IOX_DDS_GATEWAY_TEST_TEST_HPP
 #define IOX_DDS_GATEWAY_TEST_TEST_HPP
 
-#include "iceoryx_hoofs/testing/error_handler_mock.hpp"
+#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

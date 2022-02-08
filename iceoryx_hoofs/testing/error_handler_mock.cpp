@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/error_handler_mock.hpp"
+#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 
 namespace iox
 {
