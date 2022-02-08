@@ -67,6 +67,7 @@ template <template <typename, typename> class TransmissionInterface,
           typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class SmartChunk
 {
+  protected:
     static_assert(std::is_const<T>::value == std::is_const<H>::value,
                   "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the smartChunk data!");

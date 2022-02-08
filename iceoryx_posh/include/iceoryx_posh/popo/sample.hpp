@@ -36,16 +36,11 @@ class PublisherInterface;
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class Sample : public SmartChunk<PublisherInterface, T, H>
 {
+    using BaseType = SmartChunk<PublisherInterface, T, H>;
+
     /// @brief Helper type to enable the constructor for the publisher, i.e. when T has no const qualifier
     template <typename S, typename TT>
-    using ForPublisherOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
-
-    /// @brief Helper type to enable some methods only if a user-header is used
-    template <typename R, typename HH>
-    using HasUserHeader =
-        std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
-
-    using BaseType = SmartChunk<PublisherInterface, T, H>;
+    using ForPublisherOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
   public:
     using BaseType::BaseType;
