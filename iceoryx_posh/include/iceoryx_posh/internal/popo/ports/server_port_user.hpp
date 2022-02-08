@@ -32,6 +32,41 @@ namespace iox
 {
 namespace popo
 {
+enum class ServerRequestResult
+{
+    TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
+    NO_PENDING_REQUESTS,
+    UNDEFINED_CHUNK_RECEIVE_ERROR,
+    NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER,
+};
+
+/// @brief Converts the ServerRequestResult to a string literal
+/// @param[in] value to convert to a string literal
+/// @return pointer to a string literal
+inline constexpr const char* asStringLiteral(const ServerRequestResult value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline std::ostream& operator<<(std::ostream& stream, ServerRequestResult value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline log::LogStream& operator<<(log::LogStream& stream, ServerRequestResult value) noexcept;
+} // namespace popo
+
+namespace cxx
+{
+template <>
+constexpr popo::ServerRequestResult
+from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult result) noexcept;
+} // namespace cxx
+
+namespace popo
+{
 /// @brief The ServerPortUser provides the API for accessing a server port from the user side. The server port
 /// is divided in the three parts ServerPortData, ServerPortRouDi and ServerPortUser. The ServerPortUser
 /// uses the functionality of a ChunkSender and ChunReceiver for receiving requests and sending responses.
@@ -50,19 +85,11 @@ class ServerPortUser : public BasePort
     ServerPortUser& operator=(ServerPortUser&& rhs) noexcept = default;
     ~ServerPortUser() = default;
 
-    enum class RequestResult
-    {
-        TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
-        NO_REQUESTS_PENDING,
-        UNDEFINED_CHUNK_RECEIVE_ERROR,
-        NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER,
-    };
-
     /// @brief Tries to get the next request from the queue. If there is a new one, the ChunkHeader of the oldest
     /// request in the queue is returned (FiFo queue)
     /// @return cxx::expected that has a new RequestHeader if there are new requests in the underlying queue,
-    /// RequestResult on error
-    cxx::expected<const RequestHeader*, RequestResult> getRequest() noexcept;
+    /// ServerRequestResult on error
+    cxx::expected<const RequestHeader*, ServerRequestResult> getRequest() noexcept;
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
@@ -130,31 +157,7 @@ class ServerPortUser : public BasePort
     ChunkReceiver<ServerChunkReceiverData_t> m_chunkReceiver;
 };
 
-/// @brief Converts the ServerPortUser::RequestResult to a string literal
-/// @param[in] value to convert to a string literal
-/// @return pointer to a string literal
-inline constexpr const char* asStringLiteral(const ServerPortUser::RequestResult value) noexcept;
-
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
-/// @param[in] stream sink to write the message to
-/// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
-inline std::ostream& operator<<(std::ostream& stream, ServerPortUser::RequestResult value) noexcept;
-
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
-/// @param[in] stream sink to write the message to
-/// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
-inline log::LogStream& operator<<(log::LogStream& stream, ServerPortUser::RequestResult value) noexcept;
 } // namespace popo
-
-namespace cxx
-{
-template <>
-constexpr popo::ServerPortUser::RequestResult
-from<popo::ChunkReceiveResult, popo::ServerPortUser::RequestResult>(const popo::ChunkReceiveResult result) noexcept;
-} // namespace cxx
-
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/ports/server_port_user.inl"

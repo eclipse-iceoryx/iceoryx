@@ -12,6 +12,7 @@ class ServerOptions {
   requestQueueCapacity: uint64_t
   nodeName: NodeName_t
   offerOnCreate: bool
+  requestQueueFullPolicy: QueueFullPolicy
   clientTooSlowPolicy: ConsumerTooSlowPolicy
 }
 
