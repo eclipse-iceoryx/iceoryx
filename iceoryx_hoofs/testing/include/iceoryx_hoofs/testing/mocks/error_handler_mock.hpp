@@ -41,8 +41,7 @@ template <typename Error>
 cxx::optional<iox::TypedHandlerFunction<Error>> typedHandler;
 
 template <typename ErrorEnumType>
-inline void
-errorHandlerForTest(const uint32_t error, const char* errorName IOX_MAYBE_UNUSED, const ErrorLevel level) noexcept
+inline void errorHandlerForTest(const uint32_t error, const char* errorName, const ErrorLevel level) noexcept
 {
     uint32_t errorEnumType = error >> 16;
     uint32_t expectedErrorEnumType =
