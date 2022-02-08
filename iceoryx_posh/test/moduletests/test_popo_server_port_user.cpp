@@ -559,8 +559,8 @@ TEST_F(ServerPort_test,
     ::testing::Test::RecordProperty("TEST_ID", "6015d3d6-73ae-46fe-994d-445f3f8f366d");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{23U};
-    constexpr uint64_t USER_PAYLOAD_ALIGNMENT{15U};
+    constexpr uint64_t INVALID_USER_PAYLOAD_SIZE{23U};
+    constexpr uint64_t INVALID_USER_PAYLOAD_ALIGNMENT{15U};
 
     constexpr uint64_t NUMBER_OF_REQUESTS{1U};
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
@@ -568,7 +568,7 @@ TEST_F(ServerPort_test,
     ASSERT_FALSE(requestResult.has_error());
     auto requestHeader = requestResult.value();
 
-    sut.portUser.allocateResponse(requestHeader, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
+    sut.portUser.allocateResponse(requestHeader, INVALID_USER_PAYLOAD_SIZE, INVALID_USER_PAYLOAD_ALIGNMENT)
         .and_then([&](const auto&) {
             GTEST_FAIL() << "Expected AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER but got chunk";
         })
