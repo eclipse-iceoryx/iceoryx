@@ -38,13 +38,18 @@ ServerPortUser::MemberType_t* ServerPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::expected<const RequestHeader*, ChunkReceiveResult> ServerPortUser::getRequest() noexcept
+cxx::expected<const RequestHeader*, ServerPortUser::RequestResult> ServerPortUser::getRequest() noexcept
 {
     auto getChunkResult = m_chunkReceiver.tryGet();
 
     if (getChunkResult.has_error())
     {
-        return cxx::error<ChunkReceiveResult>(getChunkResult.get_error());
+        if (!isOffered())
+        {
+            return cxx::error<RequestResult>(RequestResult::NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER);
+        }
+        /// @todo iox-#1012 use cxx::error<E2>::from(E1); once available
+        return cxx::error<RequestResult>(cxx::into<RequestResult>(getChunkResult.get_error()));
     }
 
     return cxx::success<const RequestHeader*>(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));

@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "test_popo_server_port_common.hpp"
 
 namespace iox_test_popo_server_port
@@ -234,9 +235,13 @@ TEST_F(ServerPort_test, GetRequestWithoutOfferResultsIn_NO_CHUNK_AVAILABLE)
     auto& sut = serverPortWithoutOfferOnCreate;
 
     sut.portUser.getRequest()
-        .and_then(
-            [&](const auto&) { GTEST_FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
-        .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
+        .and_then([&](const auto&) {
+            GTEST_FAIL() << "Expected ServerPortUser::RequestResult::NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER but "
+                            "got request";
+        })
+        .or_else([&](const auto& error) {
+            EXPECT_THAT(error, Eq(ServerPortUser::RequestResult::NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER));
+        });
 }
 
 TEST_F(ServerPort_test, GetRequestWithNoRequestsResultsIn_NO_CHUNK_AVAILABLE)
@@ -245,9 +250,11 @@ TEST_F(ServerPort_test, GetRequestWithNoRequestsResultsIn_NO_CHUNK_AVAILABLE)
     auto& sut = serverPortWithOfferOnCreate;
 
     sut.portUser.getRequest()
-        .and_then(
-            [&](const auto&) { GTEST_FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
-        .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
+        .and_then([&](const auto&) {
+            GTEST_FAIL() << "Expected ServerPortUser::RequestResult::NO_REQUESTS_PENDING but got request";
+        })
+        .or_else(
+            [&](const auto& error) { EXPECT_THAT(error, Eq(ServerPortUser::RequestResult::NO_REQUESTS_PENDING)); });
 }
 
 TEST_F(ServerPort_test, GetRequestWithOneRequestsResultsInRequestHeader)
@@ -274,9 +281,11 @@ TEST_F(ServerPort_test, GetRequestWithNoRequestsButIntermediatelyHavingOneResult
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
 
     sut.portUser.getRequest()
-        .and_then(
-            [&](const auto&) { GTEST_FAIL() << "Expected ChunkReceiveResult::NO_CHUNK_AVAILABLE but got request"; })
-        .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
+        .and_then([&](const auto&) {
+            GTEST_FAIL() << "Expected ServerPortUser::RequestResult::NO_REQUESTS_PENDING but got request";
+        })
+        .or_else(
+            [&](const auto& error) { EXPECT_THAT(error, Eq(ServerPortUser::RequestResult::NO_REQUESTS_PENDING)); });
 }
 
 TEST_F(ServerPort_test, GetRequestWithOneRequestsButIntermediatelyHavingNoneResultsInRequestHeader)
@@ -359,10 +368,12 @@ TEST_F(ServerPort_test, GetRequestWhenProcessingTooManyRequestsInParallelResults
 
     sut.portUser.getRequest()
         .and_then([&](const auto&) {
-            GTEST_FAIL() << "Expected ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL but got request";
+            GTEST_FAIL()
+                << "Expected ServerPortUser::RequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL but got request";
         })
-        .or_else(
-            [&](const auto& error) { EXPECT_THAT(error, Eq(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)); });
+        .or_else([&](const auto& error) {
+            EXPECT_THAT(error, Eq(ServerPortUser::RequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL));
+        });
 }
 
 // END getRequest tests
@@ -767,5 +778,65 @@ TEST_F(ServerPort_test, UnsettingConditionVariableWithoutConditionVariablePresen
 }
 
 // END condition variable tests
+
+// BEGIN RequestResult string tests
+
+TEST_F(ServerPort_test, asStringLiteralConvertsRequestResultValuesToStrings)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b48bbfaa-982e-4f8c-97e7-998a1c6a3a7b");
+    using RequestResult = iox::popo::ServerPortUser::RequestResult;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut : {RequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
+                            RequestResult::NO_REQUESTS_PENDING,
+                            RequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR,
+                            RequestResult::NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER})
+    {
+        auto enumString = iox::popo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case RequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL:
+            EXPECT_THAT(enumString, StrEq("ServerPortUser::RequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL"));
+            break;
+        case RequestResult::NO_REQUESTS_PENDING:
+            EXPECT_THAT(enumString, StrEq("ServerPortUser::RequestResult::NO_REQUESTS_PENDING"));
+            break;
+        case RequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR:
+            EXPECT_THAT(enumString, StrEq("ServerPortUser::RequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR"));
+            break;
+        case RequestResult::NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER:
+            EXPECT_THAT(enumString,
+                        StrEq("ServerPortUser::RequestResult::NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST_F(ServerPort_test, LogStreamConvertsAllocationErrorValueToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "06d66398-318f-4531-a253-9a8e8b42fc00");
+    Logger_Mock loggerMock;
+
+    auto sut = iox::popo::ServerPortUser::RequestResult::NO_REQUESTS_PENDING;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
+}
+
+// END RequestResult string tests
 
 } // namespace iox_test_popo_server_port

@@ -50,11 +50,19 @@ class ServerPortUser : public BasePort
     ServerPortUser& operator=(ServerPortUser&& rhs) noexcept = default;
     ~ServerPortUser() = default;
 
+    enum class RequestResult
+    {
+        TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
+        NO_REQUESTS_PENDING,
+        UNDEFINED_CHUNK_RECEIVE_ERROR,
+        NO_REQUESTS_PENDING_AND_SERVER_DOES_NOT_OFFER,
+    };
+
     /// @brief Tries to get the next request from the queue. If there is a new one, the ChunkHeader of the oldest
     /// request in the queue is returned (FiFo queue)
     /// @return cxx::expected that has a new RequestHeader if there are new requests in the underlying queue,
-    /// ChunkReceiveResult on error
-    cxx::expected<const RequestHeader*, ChunkReceiveResult> getRequest() noexcept;
+    /// RequestResult on error
+    cxx::expected<const RequestHeader*, RequestResult> getRequest() noexcept;
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
@@ -120,7 +128,33 @@ class ServerPortUser : public BasePort
     ChunkReceiver<ServerChunkReceiverData_t> m_chunkReceiver;
 };
 
+/// @brief Converts the ServerPortUser::RequestResult to a string literal
+/// @param[in] value to convert to a string literal
+/// @return pointer to a string literal
+inline constexpr const char* asStringLiteral(const ServerPortUser::RequestResult value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline std::ostream& operator<<(std::ostream& stream, ServerPortUser::RequestResult value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline log::LogStream& operator<<(log::LogStream& stream, ServerPortUser::RequestResult value) noexcept;
 } // namespace popo
+
+namespace cxx
+{
+template <>
+constexpr popo::ServerPortUser::RequestResult
+from<popo::ChunkReceiveResult, popo::ServerPortUser::RequestResult>(const popo::ChunkReceiveResult result) noexcept;
+} // namespace cxx
+
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/ports/server_port_user.inl"
 
 #endif // IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
