@@ -31,7 +31,7 @@ namespace internal
 template <template <typename, typename> class TransmissionInterface, typename T, typename H>
 struct SmartChunkPrivateData
 {
-    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& consumer) noexcept;
+    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& producer) noexcept;
 
     SmartChunkPrivateData(SmartChunkPrivateData&& rhs) noexcept = default;
     SmartChunkPrivateData& operator=(SmartChunkPrivateData&& rhs) noexcept = default;
@@ -79,13 +79,18 @@ class SmartChunk
     template <typename S, typename TT>
     using ForConsumerOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
+    /// @brief Helper type to enable some methods only if a user-header is used
+    template <typename R, typename HH>
+    using HasUserHeader =
+        std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoUserHeader>::value, R>;
+
   public:
     /// @brief Constructor for a SmartChunk used by the Producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    /// @param consumer is a reference to the consumer to be able to use consumer specific methods
+    /// @param producer is a reference to the producer to be able to use producer specific methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& consumer) noexcept;
+    SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& producer) noexcept;
 
     /// @brief Constructor for a SmartChunk used by the Consumer
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
@@ -157,6 +162,21 @@ class SmartChunk
     /// @return The const ChunkHeader of the underlying memory chunk.
     ///
     const mepoo::ChunkHeader* getChunkHeader() const noexcept;
+
+  protected:
+    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the sample.
+    /// @return The user-header of the underlying memory chunk.
+    ///
+    template <typename R = H, typename = HasUserHeader<R, H>>
+    R& getUserHeader() noexcept;
+
+    ///
+    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the sample.
+    /// @return The user-header of the underlying memory chunk.
+    ///
+    template <typename R = H, typename = HasUserHeader<R, H>>
+    const R& getUserHeader() const noexcept;
+
 
   protected:
     internal::SmartChunkPrivateData<TransmissionInterface, T, H> m_members;

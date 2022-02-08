@@ -22,112 +22,13 @@ namespace iox
 {
 namespace popo
 {
-namespace internal
-{
-template <typename T, typename H>
-inline SamplePrivateData<T, H>::SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr,
-                                                  PublisherInterface<T, H>& publisher) noexcept
-    : sampleUniquePtr(std::move(sampleUniquePtr))
-    , publisherRef(publisher)
-{
-}
-
-template <typename T, typename H>
-inline SamplePrivateData<const T, H>::SamplePrivateData(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept
-    : sampleUniquePtr(std::move(sampleUniquePtr))
-{
-}
-} // namespace internal
-
-template <typename T, typename H>
-template <typename S, typename>
-inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept
-    : m_members({std::move(sampleUniquePtr), publisher})
-{
-}
-
-template <typename T, typename H>
-template <typename S, typename>
-inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept
-    : m_members(std::move(sampleUniquePtr))
-{
-}
-
-template <typename T, typename H>
-inline T* Sample<T, H>::operator->() noexcept
-{
-    return get();
-}
-
-template <typename T, typename H>
-inline const T* Sample<T, H>::operator->() const noexcept
-{
-    return get();
-}
-
-template <typename T, typename H>
-inline T& Sample<T, H>::operator*() noexcept
-{
-    return *get();
-}
-
-template <typename T, typename H>
-inline const T& Sample<T, H>::operator*() const noexcept
-{
-    return *get();
-}
-
-template <typename T, typename H>
-inline Sample<T, H>::operator bool() const noexcept
-{
-    return get() != nullptr;
-}
-
-template <typename T, typename H>
-inline T* Sample<T, H>::get() noexcept
-{
-    return m_members.sampleUniquePtr.get();
-}
-
-template <typename T, typename H>
-inline const T* Sample<T, H>::get() const noexcept
-{
-    return m_members.sampleUniquePtr.get();
-}
-
-template <typename T, typename H>
-inline typename Sample<T, H>::ConditionalConstChunkHeader_t* Sample<T, H>::getChunkHeader() noexcept
-{
-    return mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get());
-}
-
-template <typename T, typename H>
-inline const mepoo::ChunkHeader* Sample<T, H>::getChunkHeader() const noexcept
-{
-    return mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get());
-}
-
-template <typename T, typename H>
-template <typename R, typename>
-inline R& Sample<T, H>::getUserHeader() noexcept
-{
-    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get())->userHeader());
-}
-
-template <typename T, typename H>
-template <typename R, typename>
-inline const R& Sample<T, H>::getUserHeader() const noexcept
-{
-    return const_cast<Sample<T, H>*>(this)->getUserHeader();
-}
-
 template <typename T, typename H>
 template <typename S, typename>
 inline void Sample<T, H>::publish() noexcept
 {
-    if (m_members.sampleUniquePtr)
+    if (m_members.smartChunkUniquePtr)
     {
-        m_members.publisherRef.get().publish(std::move(*this));
+        m_members.producerRef.get().publish(std::move(*this));
     }
     else
     {
@@ -139,9 +40,8 @@ inline void Sample<T, H>::publish() noexcept
 template <typename T, typename H>
 inline T* Sample<T, H>::release() noexcept
 {
-    return m_members.sampleUniquePtr.release();
+    return m_members.smartChunkUniquePtr.release();
 }
-
 } // namespace popo
 } // namespace iox
 

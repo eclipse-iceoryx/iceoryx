@@ -25,9 +25,9 @@ namespace internal
 {
 template <template <typename, typename> class TransmissionInterface, typename T, typename H>
 inline SmartChunkPrivateData<TransmissionInterface, T, H>::SmartChunkPrivateData(
-    cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& consumer) noexcept
+    cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& producer) noexcept
     : smartChunkUniquePtr(std::move(smartChunkUniquePtr))
-    , consumerRef(consumer)
+    , producerRef(producer)
 {
 }
 
@@ -108,6 +108,22 @@ inline const mepoo::ChunkHeader* SmartChunk<TransmissionInterface, T, H>::getChu
 {
     return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get());
 }
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+template <typename R, typename>
+inline R& SmartChunk<TransmissionInterface, T, H>::getUserHeader() noexcept
+{
+    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get())->userHeader());
+}
+
+template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+template <typename R, typename>
+inline const R& SmartChunk<TransmissionInterface, T, H>::getUserHeader() const noexcept
+{
+    return const_cast<SmartChunk<TransmissionInterface, T, H>*>(this)->getUserHeader();
+}
+
+
 } // namespace popo
 } // namespace iox
 
