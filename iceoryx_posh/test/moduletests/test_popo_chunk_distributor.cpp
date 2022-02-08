@@ -111,7 +111,7 @@ class ChunkDistributor_test : public Test
     }
 
     std::shared_ptr<ChunkDistributorData_t>
-    getChunkDistributorData(const SubscriberTooSlowPolicy policy = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA)
+    getChunkDistributorData(const ConsumerTooSlowPolicy policy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA)
     {
         return std::make_shared<ChunkDistributorData_t>(policy, HISTORY_SIZE);
     }
@@ -624,7 +624,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery
     constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
     using ChunkQueueData_t = typename TestFixture::ChunkQueueData_t;
 
-    auto sutData = this->getChunkDistributorData(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    auto sutData = this->getChunkDistributorData(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData =
@@ -743,7 +743,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToBlocking)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0500dec-bbd8-4958-9545-a14ef68108a1");
-    auto sutData = this->getChunkDistributorData(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    auto sutData = this->getChunkDistributorData(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData =
@@ -781,7 +781,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
 TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBecomesSpaceAvailable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8168749d-8472-4999-83b0-5b36a77b04ed");
-    auto sutData = this->getChunkDistributorData(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    auto sutData = this->getChunkDistributorData(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueDatas;

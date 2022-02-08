@@ -44,7 +44,7 @@ struct ChunkDistributorData : public LockingPolicy
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
     using ChunkDistributorDataProperties_t = ChunkDistributorDataProperties;
 
-    ChunkDistributorData(const SubscriberTooSlowPolicy policy, const uint64_t historyCapacity = 0u) noexcept;
+    ChunkDistributorData(const ConsumerTooSlowPolicy policy, const uint64_t historyCapacity = 0u) noexcept;
 
     const uint64_t m_historyCapacity;
 
@@ -59,7 +59,7 @@ struct ChunkDistributorData : public LockingPolicy
     using HistoryContainer_t =
         cxx::vector<mepoo::ShmSafeUnmanagedChunk, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY>;
     HistoryContainer_t m_history;
-    const SubscriberTooSlowPolicy m_subscriberTooSlowPolicy;
+    const ConsumerTooSlowPolicy m_consumerTooSlowPolicy;
 };
 
 } // namespace popo

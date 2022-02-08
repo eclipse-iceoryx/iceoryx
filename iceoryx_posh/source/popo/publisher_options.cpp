@@ -27,16 +27,16 @@ cxx::Serialization PublisherOptions::serialize() const noexcept
         historyCapacity,
         nodeName,
         offerOnCreate,
-        static_cast<std::underlying_type_t<SubscriberTooSlowPolicy>>(subscriberTooSlowPolicy));
+        static_cast<std::underlying_type_t<ConsumerTooSlowPolicy>>(subscriberTooSlowPolicy));
 }
 
 cxx::expected<PublisherOptions, cxx::Serialization::Error>
 PublisherOptions::deserialize(const cxx::Serialization& serialized) noexcept
 {
-    using SubscriberTooSlowPolicyUT = std::underlying_type_t<SubscriberTooSlowPolicy>;
+    using ConsumerTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
     PublisherOptions publisherOptions;
-    SubscriberTooSlowPolicyUT subscriberTooSlowPolicy;
+    ConsumerTooSlowPolicyUT subscriberTooSlowPolicy;
 
     auto deserializationSuccessful = serialized.extract(publisherOptions.historyCapacity,
                                                         publisherOptions.nodeName,
@@ -44,13 +44,12 @@ PublisherOptions::deserialize(const cxx::Serialization& serialized) noexcept
                                                         subscriberTooSlowPolicy);
 
     if (!deserializationSuccessful
-        || subscriberTooSlowPolicy
-               > static_cast<SubscriberTooSlowPolicyUT>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA))
+        || subscriberTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
         return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
-    publisherOptions.subscriberTooSlowPolicy = static_cast<SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
+    publisherOptions.subscriberTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(subscriberTooSlowPolicy);
     return cxx::success<PublisherOptions>(publisherOptions);
 }
 } // namespace popo

@@ -139,7 +139,7 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
 
     // get publisher and subscriber
     PublisherOptions publisherOptions{
-        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
     PublisherPortUser publisher(m_portManager
                                     ->acquirePublisherPortData({"1", "1", "1"},
                                                                publisherOptions,

@@ -97,9 +97,9 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::subscriberTooSlowPolicy(static_cast<iox_SubscriberTooSlowPolicy>(-1)),
-              iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
-    EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY));
+    EXPECT_EQ(c2cpp::consumerTooSlowPolicy(static_cast<iox_ConsumerTooSlowPolicy>(-1)),
+              iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
+    EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY));
 #endif
 #pragma GCC diagnostic pop
 }

@@ -77,7 +77,7 @@ class PoshRuntime
     RuntimeName_t getInstanceName() const noexcept;
 
     /// @brief initiates the shutdown of the runtime to unblock all potentially blocking publisher
-    /// with the SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
+    /// with the ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER option set
     void shutdown() noexcept;
 
     /// @brief request the RouDi daemon to create a publisher port

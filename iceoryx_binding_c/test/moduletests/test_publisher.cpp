@@ -352,7 +352,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     sut.historyCapacity = 37;
     sut.nodeName = "Dr.Gonzo";
     sut.offerOnCreate = false;
-    sut.subscriberTooSlowPolicy = SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
+    sut.subscriberTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
 
     PublisherOptions options;
     // set offerOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -362,7 +362,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.offerOnCreate, options.offerOnCreate);
-    EXPECT_EQ(sut.subscriberTooSlowPolicy, cpp2c::subscriberTooSlowPolicy(options.subscriberTooSlowPolicy));
+    EXPECT_EQ(sut.subscriberTooSlowPolicy, cpp2c::consumerTooSlowPolicy(options.subscriberTooSlowPolicy));
     EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
 }
 

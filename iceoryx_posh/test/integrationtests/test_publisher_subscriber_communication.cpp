@@ -57,7 +57,7 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
 
     template <typename T>
     std::unique_ptr<iox::popo::Publisher<T>>
-    createPublisher(const SubscriberTooSlowPolicy policy = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA,
+    createPublisher(const ConsumerTooSlowPolicy policy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA,
                     const capro::Interfaces interface = capro::Interfaces::INTERNAL)
     {
         iox::popo::PublisherOptions options;
@@ -275,7 +275,7 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
 
         m_watchdog.watchAndActOnFailure();
 
-        auto publisher = createPublisher<int>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA,
+        auto publisher = createPublisher<int>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA,
                                               static_cast<capro::Interfaces>(publisherInterface));
         this->InterOpWait();
 
@@ -540,7 +540,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
 TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivatedOnBothSidesAndSubscriberQueueIsFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e97f1665-3488-4288-8fde-f485067bfeb4");
-    auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
     this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
@@ -584,7 +584,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
 TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSamplesWhenNonBlockingActivated)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1d92226d-fb3a-487c-bf52-6eb3c7946dc6");
-    auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
+    auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
@@ -619,7 +619,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
 TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsBlockingAndPublisherDoesNotOfferBlocking)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0144704-6dd7-4354-a41d-d4e512633484");
-    auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
+    auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
@@ -635,7 +635,7 @@ TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsB
 TEST_F(PublisherSubscriberCommunication_test, SubscriptionWhenSubscriberDoesNotRequireBlockingButPublisherSupportsIt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "228ea848-8926-4779-9e38-4d92eeb87feb");
-    auto publisher = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
+    auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
     this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
@@ -652,8 +652,8 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriptionWhenSubscriberDoesNotR
 TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c60ade45-1765-40ca-bc4b-7452c82ba127");
-    auto publisherBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
-    auto publisherNonBlocking = createPublisher<string<128>>(SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
+    auto publisherBlocking = createPublisher<string<128>>(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
+    auto publisherNonBlocking = createPublisher<string<128>>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
     this->InterOpWait();
 
     auto subscriberBlocking = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);

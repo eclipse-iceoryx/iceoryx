@@ -24,10 +24,10 @@ namespace popo
 template <uint32_t MaxChunksAllocatedSimultaneously, typename ChunkDistributorDataType>
 inline ChunkSenderData<MaxChunksAllocatedSimultaneously, ChunkDistributorDataType>::ChunkSenderData(
     cxx::not_null<mepoo::MemoryManager* const> memoryManager,
-    const SubscriberTooSlowPolicy subscriberTooSlowPolicy,
+    const ConsumerTooSlowPolicy consumerTooSlowPolicy,
     const uint64_t historyCapacity,
     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : ChunkDistributorDataType(subscriberTooSlowPolicy, historyCapacity)
+    : ChunkDistributorDataType(consumerTooSlowPolicy, historyCapacity)
     , m_memoryMgr(memoryManager)
     , m_memoryInfo(memoryInfo)
 {
