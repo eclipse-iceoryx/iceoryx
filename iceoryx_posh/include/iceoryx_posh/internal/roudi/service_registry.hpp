@@ -21,6 +21,8 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+
 
 #include <cstdint>
 #include <map>
@@ -42,19 +44,14 @@ class ServiceRegistry
 
     struct ServiceDescriptionEntry
     {
-        ServiceDescriptionEntry(const capro::ServiceDescription& sd, ReferenceCounter_t count)
-            : serviceDescription(sd)
-            , count(count)
-        {
-        }
+        ServiceDescriptionEntry(const capro::ServiceDescription& serviceDescription);
 
         capro::ServiceDescription serviceDescription{};
-        ReferenceCounter_t count{0U};
+        ReferenceCounter_t count{1U};
     };
 
-    /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
-    ///            increase limit to at least >= 1000
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
+    /// @todo #415 increase limit to at least >= 1000
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::MAX_NUMBER_OF_SERVICES;
 
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 
@@ -71,7 +68,7 @@ class ServiceRegistry
     /// @brief Removes given service description from registry if service is found,
     ///        all occurences are removed
     /// @param[in] serviceDescription, service to be removed
-    void removeAll(const capro::ServiceDescription& serviceDescription) noexcept;
+    void purge(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Searches for given service description in registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
@@ -94,14 +91,12 @@ class ServiceRegistry
     static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
 
     // tag type for internal overloads
-    struct Wildcard
-    {
-    };
+    using Wildcard_t = iox::capro::Wildcard_t;
 
     ServiceDescriptionContainer_t m_serviceDescriptions;
 
     // store the last known free Index (if any is known)
-    // we should not use a queue (or stack) here since they are not optimal
+    // we could use a queue (or stack) here since they are not optimal
     // for the filling pattern of a vector (prefer entries close to the front)
     uint32_t m_freeIndex{NO_INDEX};
 
@@ -109,40 +104,44 @@ class ServiceRegistry
     // functions for the different search cases
     // tag types are not needed in all cases to distinguish overloads but kept for consistency
 
-    uint32_t find(const capro::ServiceDescription& serviceDescription) const noexcept;
-
-    void
-    find(const capro::IdString_t& service, Wildcard, Wildcard, ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void find(Wildcard,
-              const capro::IdString_t& instance,
-              Wildcard,
-              ServiceDescriptionVector_t& searchResult) const noexcept;
-
-    void
-    find(Wildcard, Wildcard, const capro::IdString_t& event, ServiceDescriptionVector_t& searchResult) const noexcept;
+    uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
     void find(const capro::IdString_t& service,
-              const capro::IdString_t& instance,
-              Wildcard,
+              Wildcard_t,
+              Wildcard_t,
               ServiceDescriptionVector_t& searchResult) const noexcept;
 
-    void find(const capro::IdString_t& service,
-              Wildcard,
-              const capro::IdString_t& event,
+    void find(Wildcard_t,
+              const capro::IdString_t& instance,
+              Wildcard_t,
               ServiceDescriptionVector_t& searchResult) const noexcept;
 
-    void find(Wildcard,
-              const capro::IdString_t& instance,
+    void find(Wildcard_t,
+              Wildcard_t,
               const capro::IdString_t& event,
               ServiceDescriptionVector_t& searchResult) const noexcept;
 
     void find(const capro::IdString_t& service,
               const capro::IdString_t& instance,
+              Wildcard_t,
+              ServiceDescriptionVector_t& searchResult) const noexcept;
+
+    void find(const capro::IdString_t& service,
+              Wildcard_t,
               const capro::IdString_t& event,
               ServiceDescriptionVector_t& searchResult) const noexcept;
 
-    void findAll(ServiceDescriptionVector_t& searchResult) const noexcept;
+    void find(Wildcard_t,
+              const capro::IdString_t& instance,
+              const capro::IdString_t& event,
+              ServiceDescriptionVector_t& searchResult) const noexcept;
+
+    void find(const capro::IdString_t& service,
+              const capro::IdString_t& instance,
+              const capro::IdString_t& event,
+              ServiceDescriptionVector_t& searchResult) const noexcept;
+
+    void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
 };
 } // namespace roudi
 } // namespace iox

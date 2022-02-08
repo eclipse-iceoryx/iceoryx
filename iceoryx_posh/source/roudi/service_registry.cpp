@@ -21,11 +21,18 @@ namespace iox
 {
 namespace roudi
 {
+ServiceRegistry::ServiceDescriptionEntry::ServiceDescriptionEntry(const capro::ServiceDescription& serviceDescription)
+    : serviceDescription(serviceDescription)
+{
+}
+
 cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    auto index = find(serviceDescription);
+    auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
     {
+        // multiple publishers with the same service descripion are possible
+        // and we just increase the count in this case (multi-set semantics)
         // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
         entry->count++;
@@ -39,7 +46,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     if (m_freeIndex != NO_INDEX)
     {
         auto& entry = m_serviceDescriptions[m_freeIndex];
-        entry.emplace(serviceDescription, 1U);
+        entry.emplace(serviceDescription);
         m_freeIndex = NO_INDEX;
         return cxx::success<>();
     }
@@ -49,7 +56,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     {
         if (!entry)
         {
-            entry.emplace(serviceDescription, 1U);
+            entry.emplace(serviceDescription);
             return cxx::success<>();
         }
     }
@@ -58,7 +65,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     if (m_serviceDescriptions.emplace_back())
     {
         auto& entry = m_serviceDescriptions.back();
-        entry.emplace(serviceDescription, 1U);
+        entry.emplace(serviceDescription);
         return cxx::success<>();
     }
 
@@ -67,7 +74,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
 
 void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    auto index = find(serviceDescription);
+    auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
     {
         auto& entry = m_serviceDescriptions[index];
@@ -85,9 +92,9 @@ void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription
     }
 }
 
-void ServiceRegistry::removeAll(const capro::ServiceDescription& serviceDescription) noexcept
+void ServiceRegistry::purge(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    auto index = find(serviceDescription);
+    auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
     {
         auto& entry = m_serviceDescriptions[index];
@@ -102,7 +109,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const cxx::optional<capro::IdString_t>& instance,
                            const cxx::optional<capro::IdString_t>& event) const noexcept
 {
-    constexpr Wildcard WILDCARD;
+    constexpr Wildcard_t WILDCARD;
 
     // all search cases have complexity O(n)
     // there are 8 cases and we dispatch with as little case-checking as possible
@@ -136,17 +143,17 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
         return find(WILDCARD, WILDCARD, *event, searchResult);
     }
 
-    return findAll(searchResult);
+    return getAll(searchResult);
 }
 
 const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getServices() const noexcept
 {
     ServiceDescriptionVector_t allEntries;
-    findAll(allEntries);
+    getAll(allEntries);
     return allEntries;
 }
 
-uint32_t ServiceRegistry::find(const capro::ServiceDescription& serviceDescription) const noexcept
+uint32_t ServiceRegistry::findIndex(const capro::ServiceDescription& serviceDescription) const noexcept
 {
     for (uint32_t i = 0; i < m_serviceDescriptions.size(); ++i)
     {
@@ -161,8 +168,8 @@ uint32_t ServiceRegistry::find(const capro::ServiceDescription& serviceDescripti
 
 
 void ServiceRegistry::find(const capro::IdString_t& service,
-                           Wildcard,
-                           Wildcard,
+                           Wildcard_t,
+                           Wildcard_t,
                            ServiceDescriptionVector_t& searchResult) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
@@ -174,9 +181,9 @@ void ServiceRegistry::find(const capro::IdString_t& service,
     }
 }
 
-void ServiceRegistry::find(Wildcard,
+void ServiceRegistry::find(Wildcard_t,
                            const capro::IdString_t& instance,
-                           Wildcard,
+                           Wildcard_t,
                            ServiceDescriptionVector_t& searchResult) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
@@ -188,8 +195,8 @@ void ServiceRegistry::find(Wildcard,
     }
 }
 
-void ServiceRegistry::find(Wildcard,
-                           Wildcard,
+void ServiceRegistry::find(Wildcard_t,
+                           Wildcard_t,
                            const capro::IdString_t& event,
                            ServiceDescriptionVector_t& searchResult) const noexcept
 {
@@ -204,7 +211,7 @@ void ServiceRegistry::find(Wildcard,
 
 void ServiceRegistry::find(const capro::IdString_t& service,
                            const capro::IdString_t& instance,
-                           Wildcard,
+                           Wildcard_t,
                            ServiceDescriptionVector_t& searchResult) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
@@ -218,7 +225,7 @@ void ServiceRegistry::find(const capro::IdString_t& service,
 }
 
 void ServiceRegistry::find(const capro::IdString_t& service,
-                           Wildcard,
+                           Wildcard_t,
                            const capro::IdString_t& event,
                            ServiceDescriptionVector_t& searchResult) const noexcept
 {
@@ -232,7 +239,7 @@ void ServiceRegistry::find(const capro::IdString_t& service,
     }
 }
 
-void ServiceRegistry::find(Wildcard,
+void ServiceRegistry::find(Wildcard_t,
                            const capro::IdString_t& instance,
                            const capro::IdString_t& event,
                            ServiceDescriptionVector_t& searchResult) const noexcept
@@ -263,7 +270,7 @@ void ServiceRegistry::find(const capro::IdString_t& service,
     }
 }
 
-void ServiceRegistry::findAll(ServiceDescriptionVector_t& searchResult) const noexcept
+void ServiceRegistry::getAll(ServiceDescriptionVector_t& searchResult) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
     {
@@ -273,7 +280,6 @@ void ServiceRegistry::findAll(ServiceDescriptionVector_t& searchResult) const no
         }
     }
 }
-
 
 } // namespace roudi
 } // namespace iox

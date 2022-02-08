@@ -29,7 +29,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::roudi;
-/// @todo #415 Replace Wildcards once service registry has its new data structure
+
 class ServiceRegistry_test : public Test
 {
   public:
@@ -134,7 +134,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
     EXPECT_THAT(searchResults[0].count, Eq(1));
 }
 
-TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveAllReturnsNoResult)
+TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndPurgeReturnsNoResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3185b67f-b891-4a82-8f91-047e059ed68f");
     auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
@@ -143,7 +143,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveAllReturnsNoRes
     auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result2.has_error());
 
-    sut.removeAll(ServiceDescription("Li", "La", "Launebaerli"));
+    sut.purge(ServiceDescription("Li", "La", "Launebaerli"));
 
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
@@ -487,7 +487,7 @@ string_t randomString(uint64_t size = string_t::capacity())
     size = std::min(N, size);
 
     char a[N + 1];
-    for (uint64_t i = 0; i < size; ++i)
+    for (uint64_t i = 0U; i < size; ++i)
     {
         a[i] = chars[uniform(sizeof(chars) - 1)];
     }
@@ -500,7 +500,7 @@ string_t randomString(uint64_t size = string_t::capacity())
 TEST_F(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76aef6cb-7886-4d64-9188-09bd1be2d335");
-    uint32_t numEntriesAdded = 0;
+    uint32_t numEntriesAdded = 0U;
     do
     {
         // may (rarely) generate duplicates to be counted internally
@@ -544,7 +544,7 @@ TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
     } while (true);
 
     // remove the last and replace it with a unique service description
-    sut.removeAll(lastAdded);
+    sut.purge(lastAdded);
 
     // is unique (random does not generate 0s) and last if a vector is used internally
     // for almost worst case search (search on last string will terminate early whp)
