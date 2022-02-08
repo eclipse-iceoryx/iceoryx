@@ -18,11 +18,13 @@
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+
 
 #include <cstdint>
-#include <map>
 #include <utility>
 
 namespace iox
@@ -38,14 +40,19 @@ class ServiceRegistry
     };
 
     using ReferenceCounter_t = uint64_t;
+
     struct ServiceDescriptionEntry
     {
+        ServiceDescriptionEntry(const capro::ServiceDescription& serviceDescription);
+
         capro::ServiceDescription serviceDescription{};
-        ReferenceCounter_t referenceCounter = 0U;
+        ReferenceCounter_t count{1U};
     };
 
-    /// @todo #415 should be connected with iox::MAX_NUMBER_OF_SERVICES
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = 100U;
+    /// @todo #415 #1074 set limits properly and define location for the limits,
+    ///       e.g posh_types.hpp
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::MAX_PUBLISHERS;
+
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 
     /// @brief Adds given service description to registry
@@ -53,9 +60,15 @@ class ServiceRegistry
     /// @return ServiceRegistryError, error wrapped in cxx::expected
     cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry if service is found
+    /// @brief Removes given service description from registry if service is found,
+    ///        in case of multiple occurrences only one occurrence is removed
     /// @param[in] serviceDescription, service to be removed
     void remove(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    /// @brief Removes given service description from registry if service is found,
+    ///        all occurences are removed
+    /// @param[in] serviceDescription, service to be removed
+    void purge(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Searches for given service description in registry
     /// @param[in] searchResult, reference to the vector which will be filled with the results
@@ -72,11 +85,22 @@ class ServiceRegistry
     const ServiceDescriptionVector_t getServices() const noexcept;
 
   private:
-    /// @todo #859 replace std::multimap with prefix tree
-    ::std::multimap<capro::IdString_t, uint64_t> m_serviceMap;
-    ::std::multimap<capro::IdString_t, uint64_t> m_instanceMap;
-    ::std::multimap<capro::IdString_t, uint64_t> m_eventMap;
-    ServiceDescriptionVector_t m_serviceDescriptionVector;
+    using Entry_t = cxx::optional<ServiceDescriptionEntry>;
+    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, MAX_SERVICE_DESCRIPTIONS>;
+
+    static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
+
+    ServiceDescriptionContainer_t m_serviceDescriptions;
+
+    // store the last known free Index (if any is known)
+    // we could use a queue (or stack) here since they are not optimal
+    // for the filling pattern of a vector (prefer entries close to the front)
+    uint32_t m_freeIndex{NO_INDEX};
+
+  private:
+    uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
+
+    void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
 };
 } // namespace roudi
 } // namespace iox

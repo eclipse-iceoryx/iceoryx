@@ -30,7 +30,8 @@ namespace iox
 namespace capro
 {
 /// @brief Used to search for any string
-constexpr iox::cxx::nullopt_t Wildcard;
+using Wildcard_t = iox::cxx::nullopt_t;
+constexpr Wildcard_t Wildcard;
 
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};

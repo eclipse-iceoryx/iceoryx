@@ -478,6 +478,9 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxServices)
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
 }
 
+/// @todo #415 #1074 this test is affected by the limits we set for service discovery,
+/// if the container capacity is larger than what we can send with sockets
+/// we will never cause an overflow
 TEST_F(ServiceDiscovery_test, FindServiceReturnsContainerOverflowErrorWhenMoreThanMaxServicesAreFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2f8d8c0-8712-4e7a-9e33-2b2a918f8a71");
