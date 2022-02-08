@@ -58,54 +58,6 @@ the `StatusPortReader`s
     * If data was updated in-between read, `callable` re-executed
 * `StatusPortReader` shall only need read access to the data structure and no write access
 
-### Discarded ideas & design alternatives
-
-#### Atomic pointer
-
-The pointer to the currently active chunk could also be stored in an `std::atomic`.
-
-```cpp
-std::atomic<T*> activeChunk{nullptr}
-```
-
-However, it would need the full 64-bit and which is not needed when managing
-just two chunks. Hence, an `abaCounter` would need to be stored in a separate
-`std::atomic` variable. This would not work in for 64 bit systems, since we need
-to load both values in a single atomic operation. Therefore this is not a viable alternative.
-
-#### Omit `ServiceDescription` and discovery
-
-Methods like `offer()` or `stopOffer()` are not needed to keep things simple.
-However, omitting the `ServiceDescription` completely is not possible as it is
-needed to associate the right `StatusPortData` in shared memory with the correct
-writer or reader object on the stack. The `StatusPort` shall follow the
-service-based design.
-
-#### `atomic<T>::exchange` in `StatusPortReader::read()`
-
-A [CAS](https://en.wikipedia.org/wiki/Compare-and-swap) operation is not possible
-because CAS needs write access and a `StatusPortReader` shall not be allowed to
-write data into shared memory.
-
-#### Differentiate between Writer/Reader or between RouDi/User?
-
-To be consistent with the previously available publisher and subscribers one
-could argue to follow the same naming. However, the `StatusPort` might be used to
-communicate between ASIL domains in future and hence become user API. As a result
-the naming shall stay Writer/Reader.
-
-#### Can part of the previous port infrastructure be re-used?
-
-Potential candidates:
-
-1. `BasePort`
-   1. The previously available publisher and subscribers follow a much more complex
-   communication pattern. Hence, most of the data in `BasePort` is irrelevant and
-   `StatusPortData` shall stay separate.
-1. `popo::Sample`
-   1. Due to the fact that data is accessed solely via `callable`'s there is no
-   benefit in using the non-owning `popo::Sample` view.
-
 ### Solution
 
 #### Class structure
@@ -434,6 +386,54 @@ class StatusPortWriter
 } // namespace popo
 } // namespace iox
 ```
+
+### Discarded ideas & design alternatives
+
+#### Atomic pointer
+
+The pointer to the currently active chunk could also be stored in an `std::atomic`.
+
+```cpp
+std::atomic<T*> activeChunk{nullptr}
+```
+
+However, it would need the full 64-bit and which is not needed when managing
+just two chunks. Hence, an `abaCounter` would need to be stored in a separate
+`std::atomic` variable. This would not work in for 64 bit systems, since we need
+to load both values in a single atomic operation. Therefore this is not a viable alternative.
+
+#### Omit `ServiceDescription` and discovery
+
+Methods like `offer()` or `stopOffer()` are not needed to keep things simple.
+However, omitting the `ServiceDescription` completely is not possible as it is
+needed to associate the right `StatusPortData` in shared memory with the correct
+writer or reader object on the stack. The `StatusPort` shall follow the
+service-based design.
+
+#### `atomic<T>::exchange` in `StatusPortReader::read()`
+
+A [CAS](https://en.wikipedia.org/wiki/Compare-and-swap) operation is not possible
+because CAS needs write access and a `StatusPortReader` shall not be allowed to
+write data into shared memory.
+
+#### Differentiate between Writer/Reader or between RouDi/User?
+
+To be consistent with the previously available publisher and subscribers one
+could argue to follow the same naming. However, the `StatusPort` might be used to
+communicate between ASIL domains in future and hence become user API. As a result
+the naming shall stay Writer/Reader.
+
+#### Can part of the previous port infrastructure be re-used?
+
+Potential candidates:
+
+1. `BasePort`
+   1. The previously available publisher and subscribers follow a much more complex
+   communication pattern. Hence, most of the data in `BasePort` is irrelevant and
+   `StatusPortData` shall stay separate.
+1. `popo::Sample`
+   1. Due to the fact that data is accessed solely via `callable`'s there is no
+   benefit in using the non-owning `popo::Sample` view.
 
 ## Open issues
 
