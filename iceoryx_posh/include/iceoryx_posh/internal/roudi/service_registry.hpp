@@ -50,8 +50,9 @@ class ServiceRegistry
         ReferenceCounter_t count{1U};
     };
 
-    /// @todo #415 increase limit to at least >= 1000
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::MAX_NUMBER_OF_SERVICES;
+    /// @todo #415 #1074 set limits properly and define location for the limits,
+    ///       e.g posh_types.hpp
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::MAX_PUBLISHERS;
 
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 

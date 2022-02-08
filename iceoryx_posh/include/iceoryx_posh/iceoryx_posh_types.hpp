@@ -131,7 +131,8 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
 /// @todo #415 increase number back to 50 once service registry is available via shared memory
-constexpr uint32_t MAX_NUMBER_OF_SERVICES = 100U;
+/// @todo #1074 define and set the limits concerning the service discovery
+constexpr uint32_t MAX_NUMBER_OF_SERVICES = 10U;
 
 // Nodes
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
