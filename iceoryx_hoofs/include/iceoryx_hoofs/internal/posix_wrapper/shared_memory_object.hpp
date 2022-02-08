@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
+#include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -67,7 +68,8 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
                        const AccessMode accessMode,
                        const OpenMode openMode,
                        const cxx::optional<const void*>& baseAddressHint = cxx::nullopt,
-                       const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) noexcept;
+                       const cxx::perms permissions = cxx::perms::owner_read | cxx::perms::owner_write
+                                                      | cxx::perms::group_read | cxx::perms::group_write) noexcept;
 
     bool isInitialized() const noexcept;
 

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "test.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_hoofs/platform/mman.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -48,22 +49,24 @@ class SharedMemory_Test : public Test
         }
     }
 
-    static constexpr const char SUT_SHM_NAME[] = "/ignatz";
+    static constexpr const char SUT_SHM_NAME[] = "ignatz";
 
     iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
     createSut(const iox::posix::SharedMemory::Name_t& name, const iox::posix::OpenMode openMode)
     {
-        return iox::posix::SharedMemory::create(name,
-                                                iox::posix::AccessMode::READ_WRITE,
-                                                openMode,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
+        return iox::posix::SharedMemoryBuilder()
+            .name(name)
+            .accessMode(iox::posix::AccessMode::READ_WRITE)
+            .openMode(openMode)
+            .filePermissions(cxx::perms::owner_all)
+            .size(128)
+            .create();
     }
 
     bool createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
     {
         return !iox::posix::posixCall(iox_shm_open)(
-                    name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+                    (std::string("/") + name.c_str()).c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
                     .failureReturnValue(SharedMemory::INVALID_HANDLE)
                     .evaluate()
                     .has_error();
@@ -94,7 +97,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76ed82b1-eef7-4a5a-8794-b333c679e726");
     EXPECT_THAT(createSut("", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
-    EXPECT_THAT(createSut("ignatz", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSut("/ignatz", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
@@ -115,7 +118,6 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
     {
         iox::posix::SharedMemory sut2(std::move(*sut));
         EXPECT_THAT(handle, Eq(sut2.getHandle()));
-        EXPECT_THAT(sut->isInitialized(), Eq(false));
     }
 }
 
@@ -138,7 +140,7 @@ TEST_F(SharedMemory_Test, UnlinkNonExistingShmFails)
 TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11f0b2f2-b891-41e4-bb82-648a9541582f");
-    constexpr const char SHM_NAME[] = "/its_a_mee_monukulius";
+    constexpr const char SHM_NAME[] = "its_a_mee_monukulius";
     ASSERT_TRUE(createRawSharedMemory(SHM_NAME));
     auto result = iox::posix::SharedMemory::unlinkIfExist(SHM_NAME);
     ASSERT_FALSE(result.has_error());

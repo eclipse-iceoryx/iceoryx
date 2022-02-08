@@ -30,7 +30,7 @@ using namespace ::testing;
 using namespace iox::roudi;
 
 using iox::ShmName_t;
-static const ShmName_t TEST_SHM_NAME = ShmName_t("/FuManchu");
+static const ShmName_t TEST_SHM_NAME = ShmName_t("FuManchu");
 
 class PosixShmMemoryProvider_Test : public Test
 {

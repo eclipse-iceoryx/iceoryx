@@ -52,12 +52,18 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const AccessMode accessMode,
                                        const OpenMode openMode,
                                        const cxx::optional<const void*>& baseAddressHint,
-                                       const mode_t permissions) noexcept
+                                       const cxx::perms permissions) noexcept
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
 {
     m_isInitialized = true;
 
-    SharedMemory::create(name, accessMode, openMode, permissions, m_memorySizeInBytes)
+    SharedMemoryBuilder()
+        .name(name)
+        .accessMode(accessMode)
+        .openMode(openMode)
+        .filePermissions(permissions)
+        .size(m_memorySizeInBytes)
+        .create()
         .and_then([this](auto& sharedMemory) { m_sharedMemory.emplace(std::move(sharedMemory)); })
         .or_else([this](auto&) {
             std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
@@ -99,7 +105,8 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         {
             std::cerr << "no hint set";
         }
-        std::cerr << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
+        std::cerr << ", permissions = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(permissions)) << " ]"
+                  << std::endl;
         std::cerr.setf(flags);
         return;
     }
@@ -128,7 +135,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
                 OPEN_MODE_STRING[static_cast<uint64_t>(openMode)],
                 (baseAddressHint) ? *baseAddressHint : nullptr,
-                std::bitset<sizeof(mode_t)>(permissions).to_ulong());
+                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(permissions)).to_ulong());
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }

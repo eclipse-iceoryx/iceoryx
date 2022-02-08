@@ -184,17 +184,13 @@ cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
 
 cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
-    constexpr int ERROR_CODE = -1;
-    auto unlinkCall = posixCall(iox_shm_unlink)(convertName(NAMED_PIPE_PREFIX, name).c_str())
-                          .failureReturnValue(ERROR_CODE)
-                          .ignoreErrnos(ENOENT)
-                          .evaluate();
-    if (!unlinkCall.has_error())
+    auto result = SharedMemory::unlinkIfExist(convertName(NAMED_PIPE_PREFIX, name));
+    if (result.has_error())
     {
-        return cxx::success<bool>(unlinkCall->errnum != ENOENT);
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    return cxx::success<bool>(*result);
 }
 
 cxx::expected<IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,53 +33,7 @@ namespace iox
 {
 namespace posix
 {
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
-SharedMemory::SharedMemory(const Name_t& name,
-                           const AccessMode accessMode,
-                           const OpenMode openMode,
-                           const mode_t permissions,
-                           const uint64_t size) noexcept
-{
-    m_isInitialized = true;
-    // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (name.empty())
-    {
-        std::cerr << "No shared memory name specified!" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = SharedMemoryError::EMPTY_NAME;
-    }
-    // empty case handled above, so it's fine to get first element
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    else if (name.c_str()[0] != '/')
-    {
-        std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = SharedMemoryError::NAME_WITHOUT_LEADING_SLASH;
-    }
-
-    if (m_isInitialized)
-    {
-        m_name = name;
-        m_isInitialized = open(accessMode, openMode, permissions, size);
-    }
-
-    if (!m_isInitialized)
-    {
-        std::cerr << "Unable to create shared memory with the following properties [ name = " << name
-                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)]
-                  << ", mode = " << std::bitset<sizeof(mode_t)>(permissions) << ", sizeInBytes = " << size << " ]"
-                  << std::endl;
-        return;
-    }
-}
-
-SharedMemory::~SharedMemory() noexcept
-{
-    destroy();
-}
-
-int SharedMemory::getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept
+static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept
 {
     int oflags = 0;
     oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
@@ -88,18 +42,142 @@ int SharedMemory::getOflagsFor(const AccessMode accessMode, const OpenMode openM
     return oflags;
 }
 
+cxx::string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory::Name_t& name) noexcept
+{
+    cxx::string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
+    nameWithLeadingSlash.append(cxx::TruncateToCapacity, name);
+    return nameWithLeadingSlash;
+}
+
+cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
+{
+    auto printError = [this] {
+        std::cerr << "Unable to create shared memory with the following properties [ name = " << m_name
+                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
+                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)]
+                  << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions))
+                  << ", sizeInBytes = " << m_size << " ]" << std::endl;
+    };
+
+
+    // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
+    if (m_name.empty())
+    {
+        std::cerr << "No shared memory name specified!" << std::endl;
+        return cxx::error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
+    }
+
+    if (!cxx::isValidFileName(m_name))
+    {
+        std::cerr << "Shared memory requires a valid file name (not path) as name and \"" << m_name
+                  << "\" is not a valid file name" << std::endl;
+        return cxx::error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
+    }
+
+    auto nameWithLeadingSlash = addLeadingSlash(m_name);
+
+    // the mask will be applied to the permissions, therefore we need to set it to 0
+    int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
+    mode_t umaskSaved = umask(0U);
+    {
+        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
+
+        if (m_openMode == OpenMode::PURGE_AND_CREATE)
+        {
+            IOX_DISCARD_RESULT(posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                                   .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                                   .ignoreErrnos(ENOENT)
+                                   .evaluate());
+        }
+
+        auto result =
+            posixCall(iox_shm_open)(
+                nameWithLeadingSlash.c_str(),
+                getOflagsFor(m_accessMode,
+                             (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
+                static_cast<mode_t>(m_filePermissions))
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
+                .evaluate();
+        if (result.has_error())
+        {
+            // if it was not possible to create the shm exclusively someone else has the
+            // ownership and we just try to open it
+            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
+            {
+                result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
+                                                 getOflagsFor(m_accessMode, OpenMode::OPEN_EXISTING),
+                                                 static_cast<mode_t>(m_filePermissions))
+                             .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                             .evaluate();
+                if (!result.has_error())
+                {
+                    constexpr bool HAS_NO_OWNERSHIP = false;
+                    sharedMemoryFileHandle = result->value;
+                    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, HAS_NO_OWNERSHIP));
+                }
+            }
+
+            printError();
+            return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+        }
+        sharedMemoryFileHandle = result->value;
+    }
+
+    const bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
+                               || m_openMode == OpenMode::OPEN_OR_CREATE);
+    if (hasOwnership)
+    {
+        auto result = posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
+                          .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                          .evaluate();
+        if (result.has_error())
+        {
+            printError();
+
+            posixCall(iox_close)(sharedMemoryFileHandle)
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .evaluate()
+                .or_else([&](auto& r) {
+                    std::cerr << "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
+                              << " for SharedMemory \"" << m_name << "\"" << std::endl;
+                });
+
+            posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .evaluate()
+                .or_else([&](auto&) {
+                    std::cerr << "Unable to remove previously created SharedMemory \"" << m_name
+                              << "\". This may be a SharedMemory leak." << std::endl;
+                });
+
+            return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
+        }
+    }
+
+    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
+}
+
+SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
+    : m_name{name}
+    , m_handle{handle}
+    , m_hasOwnership{hasOwnership}
+{
+}
+
+SharedMemory::~SharedMemory() noexcept
+{
+    destroy();
+}
+
 void SharedMemory::destroy() noexcept
 {
-    if (m_isInitialized)
-    {
-        close();
-        unlink();
-    }
+    close();
+    unlink();
 }
 
 void SharedMemory::reset() noexcept
 {
-    m_isInitialized = false;
     m_hasOwnership = false;
     m_name = Name_t();
     m_handle = INVALID_HANDLE;
@@ -115,8 +193,6 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     if (this != &rhs)
     {
         destroy();
-
-        CreationPattern_t::operator=(std::move(rhs));
 
         m_name = rhs.m_name;
         m_hasOwnership = std::move(rhs.m_hasOwnership);
@@ -137,80 +213,14 @@ bool SharedMemory::hasOwnership() const noexcept
     return m_hasOwnership;
 }
 
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
-bool SharedMemory::open(const AccessMode accessMode,
-                        const OpenMode openMode,
-                        const mode_t permissions,
-                        const uint64_t size) noexcept
-{
-    cxx::Expects(size <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max()));
-
-    m_hasOwnership = (openMode == OpenMode::EXCLUSIVE_CREATE || openMode == OpenMode::PURGE_AND_CREATE
-                      || openMode == OpenMode::OPEN_OR_CREATE);
-    // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0U);
-    {
-        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
-
-        if (openMode == OpenMode::PURGE_AND_CREATE)
-        {
-            IOX_DISCARD_RESULT(posixCall(iox_shm_unlink)(m_name.c_str())
-                                   .failureReturnValue(INVALID_HANDLE)
-                                   .ignoreErrnos(ENOENT)
-                                   .evaluate());
-        }
-
-        auto result = posixCall(iox_shm_open)(
-                          m_name.c_str(),
-                          getOflagsFor(accessMode,
-                                       (openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : openMode),
-                          permissions)
-                          .failureReturnValue(INVALID_HANDLE)
-                          .suppressErrorMessagesForErrnos((openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
-                          .evaluate();
-        if (result.has_error())
-        {
-            // if it was not possible to create the shm exclusively someone else has the
-            // ownership and we just try to open it
-            if (openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
-            {
-                m_hasOwnership = false;
-                result = posixCall(iox_shm_open)(
-                             m_name.c_str(), getOflagsFor(accessMode, OpenMode::OPEN_EXISTING), permissions)
-                             .failureReturnValue(INVALID_HANDLE)
-                             .evaluate();
-                if (!result.has_error())
-                {
-                    m_handle = result->value;
-                    return true;
-                }
-            }
-
-            m_errorValue = errnoToEnum(result.get_error().errnum);
-            return false;
-        }
-        m_handle = result->value;
-    }
-
-    if (m_hasOwnership)
-    {
-        if (posixCall(ftruncate)(m_handle, static_cast<int64_t>(size))
-                .failureReturnValue(INVALID_HANDLE)
-                .evaluate()
-                .or_else([this](auto& r) { m_errorValue = errnoToEnum(r.errnum); })
-                .has_error())
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
-    auto result =
-        posixCall(iox_shm_unlink)(name.c_str()).failureReturnValue(INVALID_HANDLE).ignoreErrnos(ENOENT).evaluate();
+    auto nameWithLeadingSlash = addLeadingSlash(name);
+
+    auto result = posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+                      .failureReturnValue(INVALID_HANDLE)
+                      .ignoreErrnos(ENOENT)
+                      .evaluate();
 
     if (!result.has_error())
     {
@@ -222,7 +232,7 @@ cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t&
 
 bool SharedMemory::unlink() noexcept
 {
-    if (m_isInitialized && m_hasOwnership)
+    if (m_hasOwnership)
     {
         auto unlinkResult = unlinkIfExist(m_name);
         if (unlinkResult.has_error() || !unlinkResult.value())
@@ -230,6 +240,7 @@ bool SharedMemory::unlink() noexcept
             std::cerr << "Unable to unlink SharedMemory (shm_unlink failed)." << std::endl;
             return false;
         }
+        m_hasOwnership = false;
     }
 
     reset();
@@ -238,7 +249,7 @@ bool SharedMemory::unlink() noexcept
 
 bool SharedMemory::close() noexcept
 {
-    if (m_isInitialized)
+    if (m_handle != INVALID_HANDLE)
     {
         auto call = posixCall(iox_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum()

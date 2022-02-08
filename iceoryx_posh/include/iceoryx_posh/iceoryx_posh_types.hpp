@@ -209,7 +209,7 @@ constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
 constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
-constexpr const char SHM_NAME[] = "/iceoryx_mgmt";
+constexpr const char SHM_NAME[] = "iceoryx_mgmt";
 
 // this is used by the UniquePortId
 constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
