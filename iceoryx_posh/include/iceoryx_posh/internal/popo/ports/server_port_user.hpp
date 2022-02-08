@@ -93,6 +93,8 @@ class ServerPortUser : public BasePort
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
+    /// @todo iox-#27 change signature to return the responseHeader if an error or overflow occurs
+    ///       in order to be able to return the overflow value, some changes in lower layers are necessary
     void sendResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief offer this server port in the system
