@@ -77,8 +77,8 @@ ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
 {
     const auto isOffered = getMembers()->m_offered.load(std::memory_order_relaxed);
 
-    return isOffered ? handleCapProMessageForStateOffered(caProMessage)
-                     : handleCapProMessageForStateNotOffered(caProMessage);
+    return isOffered ? handleCaProMessageForStateOffered(caProMessage)
+                     : handleCaProMessageForStateNotOffered(caProMessage);
 }
 
 void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept
@@ -90,7 +90,7 @@ void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType
 }
 
 cxx::optional<capro::CaproMessage>
-ServerPortRouDi::handleCapProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept
+ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept
 {
     capro::CaproMessage responseMessage{capro::CaproMessageType::NACK, this->getCaProServiceDescription()};
 
@@ -133,7 +133,7 @@ ServerPortRouDi::handleCapProMessageForStateOffered(const capro::CaproMessage& c
 }
 
 cxx::optional<capro::CaproMessage>
-ServerPortRouDi::handleCapProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept
+ServerPortRouDi::handleCaProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept
 {
     switch (caProMessage.m_type)
     {

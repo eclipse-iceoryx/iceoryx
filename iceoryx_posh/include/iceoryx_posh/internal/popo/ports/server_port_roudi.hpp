@@ -68,9 +68,9 @@ class ServerPortRouDi : public BasePort
     void handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept;
 
     cxx::optional<capro::CaproMessage>
-    handleCapProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept;
+    handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept;
     cxx::optional<capro::CaproMessage>
-    handleCapProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept;
+    handleCaProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept;
 
     ChunkSender<ServerChunkSenderData_t> m_chunkSender;
     ChunkReceiver<ServerChunkReceiverData_t> m_chunkReceiver;
