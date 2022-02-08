@@ -125,6 +125,7 @@ ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& ca
             .and_then([&responseMessage]() { responseMessage.m_type = capro::CaproMessageType::ACK; });
         return responseMessage;
     default:
+        // leave switch statement and handle protocol violation
         break;
     }
 
@@ -147,9 +148,12 @@ ServerPortRouDi::handleCaProMessageForStateNotOffered(const capro::CaproMessage&
     case capro::CaproMessageType::DISCONNECT:
         return capro::CaproMessage(capro::CaproMessageType::NACK, this->getCaProServiceDescription());
     default:
-        handleCaProProtocolViolation(caProMessage.m_type);
-        return cxx::nullopt;
+        // leave switch statement and handle protocol violation
+        break;
     }
+
+    handleCaProProtocolViolation(caProMessage.m_type);
+    return cxx::nullopt;
 }
 
 void ServerPortRouDi::releaseAllChunks() noexcept
