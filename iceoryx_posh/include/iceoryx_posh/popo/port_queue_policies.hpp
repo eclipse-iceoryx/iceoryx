@@ -23,13 +23,22 @@ namespace iox
 {
 namespace popo
 {
-/// @brief Used by publisher
-/// @todo iox-#27 replace with ConsumerTooSlowPolicy
-enum class SubscriberTooSlowPolicy : uint8_t
+/// @brief Used by producers how to adjust to slow consumer
+enum class ConsumerTooSlowPolicy : uint8_t
 {
-    WAIT_FOR_SUBSCRIBER,
+    /// Waits for the consumer it it's queue is full
+    WAIT_FOR_CONSUMER,
+    /// @deprecated Compatibility value for the legacy use with publisher only. Will be remove in a future release.
+    /// Please use `WAIT_FOR_CONSUMER` instead.
+    WAIT_FOR_SUBSCRIBER = WAIT_FOR_CONSUMER,
+    /// Discards the oldest data and pushes the newest one into the queue
     DISCARD_OLDEST_DATA
 };
+/// @deprecated Compatibility alias for the legacy use with publisher only. Will be remove in a future release.
+/// Please use `ConsumerTooSlowPolicy` instead.
+/// @todo iox-#27 decide whether this should be hard deprecated with [[deprecated]] attribute for the next release
+using SubscriberTooSlowPolicy = ConsumerTooSlowPolicy;
+
 /// @brief Used by consumers to request a specific behavior from the producer
 enum class QueueFullPolicy : uint8_t
 {
@@ -39,15 +48,6 @@ enum class QueueFullPolicy : uint8_t
     /// Please use `BLOCK_PRODUCER` instead.
     BLOCK_PUBLISHER = BLOCK_PRODUCER,
     /// Request to discard the oldest data and push the newest one into the queue
-    DISCARD_OLDEST_DATA
-};
-
-/// @brief Used by producers how to adjust to slow consumer
-enum class ConsumerTooSlowPolicy : uint8_t
-{
-    /// Waits for the consumer it it's queue is full
-    WAIT_FOR_CONSUMER,
-    /// Discards the oldest data and pushes the newest one into the queue
     DISCARD_OLDEST_DATA
 };
 
