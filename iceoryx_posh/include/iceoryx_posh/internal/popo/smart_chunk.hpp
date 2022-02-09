@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 namespace iox
@@ -177,6 +178,19 @@ class SmartChunk
     ///
     template <typename R = H, typename = HasUserHeader<R, H>>
     const R& getUserHeader() const noexcept;
+
+    ///
+    /// @brief Publish the sample via the publisher from which it was loaned and automatically
+    /// release ownership to it.
+    /// @details Only available for non-const type T.
+    ///
+    template <typename S = T, typename = ForProducerOnly<S, T>>
+    void publish() noexcept;
+
+
+    /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
+    /// therefore preventing the invocation of the custom deleter
+    T* release() noexcept;
 
 
   protected:

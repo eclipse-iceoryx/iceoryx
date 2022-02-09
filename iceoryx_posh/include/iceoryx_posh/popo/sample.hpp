@@ -38,22 +38,11 @@ class Sample : public SmartChunk<PublisherInterface, T, H>
 {
     using BaseType = SmartChunk<PublisherInterface, T, H>;
 
-    /// @brief Helper type to enable the constructor for the publisher, i.e. when T has no const qualifier
-    template <typename S, typename TT>
-    using ForPublisherOnly = typename BaseType::template ForProducerOnly<S, TT>;
-
   public:
     using BaseType::BaseType;
 
-    ///
-    /// @brief Publish the sample via the publisher from which it was loaned and automatically
-    /// release ownership to it.
-    /// @details Only available for non-const type T.
-    ///
-    template <typename S = T, typename = ForPublisherOnly<S, T>>
-    void publish() noexcept;
-
     using BaseType::getUserHeader;
+    using BaseType::publish;
 
   private:
     template <typename, typename, typename>
@@ -61,7 +50,7 @@ class Sample : public SmartChunk<PublisherInterface, T, H>
 
     /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
-    T* release() noexcept;
+    using BaseType::release;
 
     using BaseType::m_members;
 };

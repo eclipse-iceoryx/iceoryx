@@ -14,33 +14,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/publisher.hpp"
+#ifndef IOX_POSH_POPO_REQUEST_INL
+#define IOX_POSH_POPO_REQUEST_INL
 
-#include "iceoryx_posh/internal/popo/smart_chunk.hpp"
-#include "iceoryx_posh/popo/request.hpp"
-#include "iceoryx_posh/popo/response.hpp"
-#include "test.hpp"
-
-namespace
+namespace iox
 {
-using namespace ::testing;
-using ::testing::_;
-
-class SmartChunkTest : public Test
+namespace popo
 {
-  public:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-
-  protected:
-};
-
-TEST_F(SmartChunkTest, Bllaaa)
+template <typename T, typename H>
+template <typename S, typename>
+inline void Response<T, H>::send() noexcept
 {
+    BaseType::publish();
 }
-} // namespace
+
+template <typename T, typename H>
+inline ResponseHeader* Response<T, H>::getResponseHeader() noexcept
+{
+    return reinterpret_cast<ResponseHeader*>(BaseType::getUserHeader());
+}
+
+template <typename T, typename H>
+inline const ResponseHeader* Response<T, H>::getResponseHeader() const noexcept
+{
+    return reinterpret_cast<const ResponseHeader*>(BaseType::getUserHeader());
+}
+} // namespace popo
+} // namespace iox
+
+#endif

@@ -22,26 +22,26 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
-template <typename S, typename>
-inline void Sample<T, H>::publish() noexcept
-{
-    if (m_members.smartChunkUniquePtr)
-    {
-        m_members.producerRef.get().publish(std::move(*this));
-    }
-    else
-    {
-        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
-        errorHandler(Error::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
-    }
-}
-
-template <typename T, typename H>
-inline T* Sample<T, H>::release() noexcept
-{
-    return m_members.smartChunkUniquePtr.release();
-}
+// template <typename T, typename H>
+// template <typename S, typename>
+// inline void Sample<T, H>::publish() noexcept
+//{
+//     if (m_members.smartChunkUniquePtr)
+//     {
+//         m_members.producerRef.get().publish(std::move(*this));
+//     }
+//     else
+//     {
+//         LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
+//         errorHandler(Error::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
+//     }
+// }
+//
+// template <typename T, typename H>
+// inline T* Sample<T, H>::release() noexcept
+//{
+//     return m_members.smartChunkUniquePtr.release();
+// }
 } // namespace popo
 } // namespace iox
 

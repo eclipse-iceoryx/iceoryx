@@ -29,12 +29,12 @@ namespace iox
 namespace popo
 {
 template <typename T, typename H>
-class RequestInterface;
+class ResponseInterface;
 
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
-class Request : public SmartChunk<RequestInterface, T, H>
+class Response : public SmartChunk<ResponseInterface, T, H>
 {
-    using BaseType = SmartChunk<RequestInterface, T, H>;
+    using BaseType = SmartChunk<ResponseInterface, T, H>;
 
     template <typename S, typename TT>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
@@ -45,8 +45,8 @@ class Request : public SmartChunk<RequestInterface, T, H>
     template <typename S = T, typename = ForClientOnly<S, T>>
     void send() noexcept;
 
-    RequestHeader* getRequestHeader() noexcept;
-    const RequestHeader* getRequestHeader() const noexcept;
+    ResponseHeader* getResponseHeader() noexcept;
+    const ResponseHeader* getResponseHeader() const noexcept;
 
   private:
     template <typename, typename, typename>
@@ -59,6 +59,5 @@ class Request : public SmartChunk<RequestInterface, T, H>
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/request.inl"
-
+#include "iceoryx_posh/internal/popo/response.inl"
 #endif
