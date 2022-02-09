@@ -54,6 +54,20 @@ using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 template <typename>
 constexpr bool always_false_v = false;
 
+#if __cplusplus < 201703L
+template <typename C, typename... Cargs>
+struct invoke_result
+{
+    using type = typename std::result_of<C(Cargs...)>::type;
+};
+#elif __cplusplus >= 201703L
+template <typename C, typename... Cargs>
+struct invoke_result
+{
+    using type = typename std::invoke_result<C, Cargs...>::type;
+};
+#endif
+
 ///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
 ///
@@ -63,12 +77,7 @@ struct is_invocable
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
-#if __cplusplus < 201703L
-    static constexpr std::true_type test(typename std::result_of<C(As...)>::type*) noexcept
-    // use std::invoke_result so that iceoryx can be used in c++20 projects
-#elif __cplusplus >= 201703L
-    static constexpr std::true_type test(typename std::invoke_result<C, As...>::type*) noexcept
-#endif
+    static constexpr std::true_type test(typename cxx::invoke_result<C, As...>::type*) noexcept
     {
         return {};
     }
@@ -94,14 +103,8 @@ template <typename ReturnType, typename Callable, typename... ArgTypes>
 struct is_invocable_r
 {
     template <typename C, typename... As>
-    static constexpr std::true_type
-#if __cplusplus < 201703L
-    test(std::enable_if_t<std::is_convertible<typename std::result_of<C(As...)>::type, ReturnType>::value>*) noexcept
-    // use std::invoke_result so that iceoryx can be used in c++20 projects
-#elif __cplusplus >= 201703L
-    test(
-        std::enable_if_t<std::is_convertible<typename std::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
-#endif
+    static constexpr std::true_type test(
+        std::enable_if_t<std::is_convertible<typename cxx::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
     {
         return {};
     }
