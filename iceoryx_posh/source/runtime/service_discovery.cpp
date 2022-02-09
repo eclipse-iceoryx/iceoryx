@@ -53,23 +53,25 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
     auto searchResult = findService(service, instance, event);
     callable(searchResult);
 }
-void ServiceDiscovery::enableEvent(iox::popo::TriggerHandle&& triggerHandle IOX_MAYBE_UNUSED,
-                                   const ServiceDiscoveryEvents event IOX_MAYBE_UNUSED) noexcept
+void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const popo::SubscriberEvent event) noexcept
 {
+    m_serviceRegistrySubscriber.enableEvent(std::move(triggerHandle), event);
 }
 
-void ServiceDiscovery::disableEvent(const ServiceDiscoveryEvents state IOX_MAYBE_UNUSED) noexcept
+void ServiceDiscovery::disableEvent(const popo::SubscriberEvent event) noexcept
 {
+    m_serviceRegistrySubscriber.disableEvent(event);
 }
 
-void ServiceDiscovery::invalidateTrigger(const uint64_t uniqueTriggerId IOX_MAYBE_UNUSED)
+void ServiceDiscovery::invalidateTrigger(const uint64_t uniqueTriggerId)
 {
+    m_serviceRegistrySubscriber.invalidateTrigger(uniqueTriggerId);
 }
 
-iox::popo::WaitSetIsConditionSatisfiedCallback
-ServiceDiscovery::getCallbackForIsStateConditionSatisfied(const ServiceDiscoveryEvents event IOX_MAYBE_UNUSED)
+popo::WaitSetIsConditionSatisfiedCallback
+ServiceDiscovery::getCallbackForIsStateConditionSatisfied(const popo::SubscriberState event)
 {
-    return iox::popo::WaitSetIsConditionSatisfiedCallback();
+    return m_serviceRegistrySubscriber.getCallbackForIsStateConditionSatisfied(event);
 }
 
 } // namespace runtime

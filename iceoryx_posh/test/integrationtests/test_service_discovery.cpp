@@ -593,22 +593,24 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToWaitSet)
 {
     iox::popo::WaitSet<10U> waitSet;
 
-    //bool callbackWasCalled{false};
+    waitSet
+        .attachEvent(
+            sut, iox::popo::SubscriberEvent::DATA_RECEIVED, 0U, iox::popo::createNotificationCallback(testCallback))
+        .and_then([]() { GTEST_SUCCEED(); })
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+}
+
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedAboutNewService)
+{
+    // bool callbackWasCalled{false};
 
     // auto myCallback = [](ServiceDiscovery* const ServiceDiscoveryPointer) -> void {
     //     IOX_DISCARD_RESULT(ServiceDiscoveryPointer);
     //     // callbackWasCalled = true;
     // };
 
-    waitSet
-        .attachEvent(sut,
-                     ServiceDiscoveryEvents::SERVICE_DISCOVERY_UPDATED,
-                     1U,
-                     iox::popo::createNotificationCallback(testCallback))
-        .and_then([](){ GTEST_SUCCEED(); })
-        .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
-
-    //EXPECT_TRUE(callbackWasCalled);
+    // EXPECT_TRUE(callbackWasCalled);
 }
+
 
 } // namespace

@@ -30,6 +30,10 @@
 
 namespace iox
 {
+namespace runtime
+{
+class ServiceDiscovery;
+}
 namespace popo
 {
 using uid_t = UniquePortId;
@@ -98,6 +102,7 @@ class BaseSubscriber
     void releaseQueuedData() noexcept;
 
     friend class NotificationAttorney;
+    friend class iox::runtime::ServiceDiscovery;
 
   protected:
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
