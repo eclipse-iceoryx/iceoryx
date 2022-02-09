@@ -278,10 +278,53 @@ Please use the more generic `QueueFullPolicy::BLOCK_PRODUCER` instead.
 
 ```cpp
 // old
-subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+iox::popo::SubscriberOptions options;
+options.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
 
 // new
-subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+iox::popo::SubscriberOptions options;
+options.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+```
+
+Similar, for `binding_c` it is `QueueFullPolicy_BLOCK_PRODUCER` instead of `QueueFullPolicy_BLOCK_PUBLISHER`
+
+```c
+// old
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.queueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
+
+// new
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.queueFullPolicy = QueueFullPolicy_BLOCK_PRODUCER;
+```
+
+The `SubscriberTooSlowPolicy` is deprecated in favour of `ConsumerTooSlowPolicy` and
+`SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER` became `ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER`.
+
+```cpp
+// old
+iox::popo::PublisherOptions options;
+options.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+
+// new
+iox::popo::PublisherOptions options;
+options.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+```
+
+And with the `binding_c`
+
+```c
+// old
+iox_pub_options_t options;
+iox_pub_options_init(&options);
+options.subscriberTooSlowPolicy = SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
+
+// new
+iox_pub_options_t options;
+iox_pub_options_init(&options);
+options.subscriberTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
 ```
 
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
