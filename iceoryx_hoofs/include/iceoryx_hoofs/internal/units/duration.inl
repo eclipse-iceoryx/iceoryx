@@ -21,46 +21,6 @@ namespace iox
 {
 namespace units
 {
-namespace duration_literals
-{
-inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromNanoseconds(value);
-}
-
-inline constexpr Duration operator"" _us(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromMicroseconds(value);
-}
-
-inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromMilliseconds(value);
-}
-
-inline constexpr Duration operator"" _s(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromSeconds(value);
-}
-
-inline constexpr Duration operator"" _m(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromMinutes(value);
-}
-
-inline constexpr Duration operator"" _h(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromHours(value);
-}
-
-inline constexpr Duration operator"" _d(unsigned long long int value) noexcept // PRQA S 48
-{
-    return Duration::fromDays(value);
-}
-
-} // namespace duration_literals
-
-
 inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
     : m_seconds(seconds)
     , m_nanoseconds(nanoseconds)
@@ -546,7 +506,43 @@ inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
     return rhs * lhs;
 }
 
+namespace duration_literals
+{
+inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromNanoseconds(value);
+}
+
+inline constexpr Duration operator"" _us(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromMicroseconds(value);
+}
+
+inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromMilliseconds(value);
+}
+
+inline constexpr Duration operator"" _s(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromSeconds(value);
+}
+
+inline constexpr Duration operator"" _m(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromMinutes(value);
+}
+
+inline constexpr Duration operator"" _h(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromHours(value);
+}
+
+inline constexpr Duration operator"" _d(unsigned long long int value) noexcept // PRQA S 48
+{
+    return Duration::fromDays(value);
+}
+} // namespace duration_literals
 } // namespace units
 } // namespace iox
-
 #endif // IOX_HOOFS_UNITS_DURATION_INL
