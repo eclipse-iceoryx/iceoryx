@@ -26,17 +26,16 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
                                                const cxx::optional<capro::IdString_t>& event) noexcept
 {
     ServiceContainer searchResult;
+    roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
 
+    // Copy the new service registry if has changed
+    m_serviceRegistrySubscriber.take().and_then([&](auto& serviceRegistry) { m_serviceRegistry = *serviceRegistry; });
 
-    m_serviceRegistrySubscriber.take().and_then([&](auto& serviceRegistry) {
-        roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
-        serviceRegistry->find(tempSearchResult, service, instance, event);
-        for (auto& service : tempSearchResult)
-        {
-            searchResult.push_back(service.serviceDescription);
-        }
-    });
-
+    m_serviceRegistry.find(tempSearchResult, service, instance, event);
+    for (auto& service : tempSearchResult)
+    {
+        searchResult.push_back(service.serviceDescription);
+    }
 
     return searchResult;
 }

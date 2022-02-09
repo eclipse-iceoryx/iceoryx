@@ -58,8 +58,9 @@ class ServiceDiscovery
                      const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept;
 
   private:
+    roudi::ServiceRegistry m_serviceRegistry;
     popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
-        {"ServiceRegistry", "RouDi ID", "ServiceRegistry"}};
+        {"ServiceRegistry", "RouDi_ID", "ServiceRegistry"}, {1U, 1U, "Service Registry", true}};
 };
 
 

@@ -62,8 +62,22 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
+    /// @todo #415 Move the hard-coded service description to iceoryx_posh_types.hpp?
+    popo::PublisherOptions registryPortOptions{1U, "Service Registry", true};
+    m_serviceRegistryPublisherPortData =
+        acquirePublisherPortData({"ServiceRegistry", "RouDi_ID", "ServiceRegistry"},
+                                 registryPortOptions,
+                                 IPC_CHANNEL_ROUDI_NAME,
+                                 introspectionMemoryManager,
+                                 PortConfigInfo())
+            .or_else([](auto&) {
+                LogError() << "Could not create PublisherPort for service registry!";
+                errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY);
+            })
+            .value();
+
     popo::PublisherOptions options;
-    options.historyCapacity = 1;
+    options.historyCapacity = 1U;
     options.nodeName = INTROSPECTION_NODE_NAME;
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
@@ -109,20 +123,6 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                               PublisherPortUserType(std::move(portThroughput)),
                                               PublisherPortUserType(std::move(subscriberPortsData)));
     m_portIntrospection.run();
-
-    /// @todo #415 Move the hard-coded service description to iceoryx_posh_types.hpp?
-    popo::PublisherOptions publisherOptions{1U, "Service Registry"};
-    m_serviceRegistryPublisherPortData =
-        acquirePublisherPortData({"ServiceRegistry", "RouDi ID", "ServiceRegistry"},
-                                 publisherOptions,
-                                 IPC_CHANNEL_ROUDI_NAME,
-                                 introspectionMemoryManager,
-                                 PortConfigInfo())
-            .or_else([](auto&) {
-                LogError() << "Could not create PublisherPort for service registry!";
-                errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY);
-            })
-            .value();
 }
 
 void PortManager::stopPortIntrospection() noexcept
@@ -654,19 +654,23 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 void PortManager::publishCurrentServiceRegistry() const noexcept
 {
     // Send the new serviceRegistry here and ring the bell to inform all ServiceDiscovery instances about the change
-
-    PublisherPortUserType publisher(m_serviceRegistryPublisherPortData);
-    auto maybeChunkHeader = publisher.tryAllocateChunk(
-        sizeof(ServiceRegistry), alignof(ServiceRegistry), CHUNK_NO_USER_HEADER_SIZE, CHUNK_NO_USER_HEADER_ALIGNMENT);
-
-    if (!maybeChunkHeader.has_error())
+    if (m_serviceRegistryPublisherPortData)
     {
-        auto sample = static_cast<ServiceRegistry*>(maybeChunkHeader.value()->userPayload());
+        PublisherPortUserType publisher(m_serviceRegistryPublisherPortData);
+        auto maybeChunkHeader = publisher.tryAllocateChunk(sizeof(ServiceRegistry),
+                                                           alignof(ServiceRegistry),
+                                                           CHUNK_NO_USER_HEADER_SIZE,
+                                                           CHUNK_NO_USER_HEADER_ALIGNMENT);
 
-        // Copy the complete registry
-        *sample = m_serviceRegistry;
+        if (!maybeChunkHeader.has_error())
+        {
+            auto sample = static_cast<ServiceRegistry*>(maybeChunkHeader.value()->userPayload());
 
-        publisher.sendChunk(maybeChunkHeader.value());
+            // Copy the complete registry
+            *sample = m_serviceRegistry;
+
+            publisher.sendChunk(maybeChunkHeader.value());
+        }
     }
 }
 
