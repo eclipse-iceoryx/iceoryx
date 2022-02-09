@@ -236,7 +236,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithAckW
 
 TEST_F(ServerPort_test, StateNotOfferedWithInvalidCaProMessageTypeCallsErrorHandler)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "bd8667d3-9c09-4caa-865e-bb3c7c3c1283");
+    ::testing::Test::RecordProperty("TEST_ID", "3c645c89-e846-44b3-8e52-31642af593b5");
     auto& sut = serverPortWithoutOfferOnCreate;
 
     auto caproMessage = CaproMessage{CaproMessageType::PUB, sut.portData.m_serviceDescription};
@@ -258,7 +258,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithInvalidCaProMessageTypeCallsErrorHand
 
 TEST_F(ServerPort_test, StateOfferedWithInvalidCaProMessageTypeCallsErrorHandler)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "bd8667d3-9c09-4caa-865e-bb3c7c3c1283");
+    ::testing::Test::RecordProperty("TEST_ID", "30613e47-be74-4c74-a743-1bffd8468040");
     auto& sut = serverPortWithOfferOnCreate;
 
     auto caproMessage = CaproMessage{CaproMessageType::SUB, sut.portData.m_serviceDescription};

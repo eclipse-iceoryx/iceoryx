@@ -191,7 +191,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithMultipleRequestsIsTrue)
 
 TEST_F(ServerPort_test, HasNewRequestsWithFullRequestQueueIsTrue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "30e36e69-4f23-41ee-aac7-d34240f075ae");
+    ::testing::Test::RecordProperty("TEST_ID", "e0aea054-4f58-443b-abbb-e0e3c6c5c5c6");
     auto& sut = serverPortWithOfferOnCreate;
 
     constexpr uint64_t NUMBER_OF_REQUESTS{QUEUE_CAPACITY};
