@@ -26,6 +26,10 @@ namespace iox
 {
 namespace runtime
 {
+enum class ServiceDiscoveryEvents : iox::popo::EventEnumIdentifier
+{
+    SERVICE_DISCOVERY_UPDATED,
+};
 class ServiceDiscovery
 {
   public:
@@ -57,7 +61,14 @@ class ServiceDiscovery
                      const cxx::optional<capro::IdString_t>& event,
                      const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept;
 
+    friend iox::popo::NotificationAttorney;
+
   private:
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvents event) noexcept;
+    void disableEvent(const ServiceDiscoveryEvents state) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId);
+    iox::popo::WaitSetIsConditionSatisfiedCallback
+    getCallbackForIsStateConditionSatisfied(const ServiceDiscoveryEvents event);
     roudi::ServiceRegistry m_serviceRegistry;
     popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
         {"ServiceRegistry", "RouDi_ID", "ServiceRegistry"}, {1U, 1U, "Service Registry", true}};

@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
@@ -581,6 +582,33 @@ TEST_F(ServiceDiscovery_test, FindServiceWithEmptyCallableDoesNotDie)
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
     iox::cxx::function_ref<void(const ServiceContainer&)> searchFunction;
     sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
+}
+
+static void testCallback(ServiceDiscovery* const ServiceDiscoveryPointer)
+{
+    IOX_DISCARD_RESULT(ServiceDiscoveryPointer);
+}
+
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToWaitSet)
+{
+    iox::popo::WaitSet<10U> waitSet;
+
+    //bool callbackWasCalled{false};
+
+    // auto myCallback = [](ServiceDiscovery* const ServiceDiscoveryPointer) -> void {
+    //     IOX_DISCARD_RESULT(ServiceDiscoveryPointer);
+    //     // callbackWasCalled = true;
+    // };
+
+    waitSet
+        .attachEvent(sut,
+                     ServiceDiscoveryEvents::SERVICE_DISCOVERY_UPDATED,
+                     1U,
+                     iox::popo::createNotificationCallback(testCallback))
+        .and_then([](){ GTEST_SUCCEED(); })
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+
+    //EXPECT_TRUE(callbackWasCalled);
 }
 
 } // namespace
