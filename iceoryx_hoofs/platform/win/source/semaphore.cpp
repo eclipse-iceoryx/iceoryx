@@ -159,7 +159,7 @@ static HANDLE sem_create_win32_semaphore(LONG value, LPCSTR name)
     SECURITY_DESCRIPTOR securityDescriptor;
     Win32Call(InitializeSecurityDescriptor, &securityDescriptor, SECURITY_DESCRIPTOR_REVISION).value;
 
-    TCHAR* permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
+    auto permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
         TEXT("(A;OICI;GA;;;AN)")                             // access to anonymous logon
         TEXT("(A;OICI;GRGWGX;;;AU)")                         // access to authenticated users
         TEXT("(A;OICI;GA;;;BA)");                            // access to administrators

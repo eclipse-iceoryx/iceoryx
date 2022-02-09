@@ -363,7 +363,7 @@ cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWa
 
     if (gettimeResult.has_error())
     {
-        return gettimeResult;
+        return cxx::error<TimerError>(gettimeResult.get_error());
     }
 
     // Set new timeToWait value

@@ -124,7 +124,7 @@ class Timer
         /// @brief the descriptor is unique for a timer_t in OsTimer, if this handle is recycled, the descriptor needs
         /// to be incremented first
         std::atomic<uint32_t> m_descriptor{0u};
-        std::atomic_flag m_callbackIsAboutToBeExecuted{false};
+        std::atomic_flag m_callbackIsAboutToBeExecuted;
 
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};

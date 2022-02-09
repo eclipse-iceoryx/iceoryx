@@ -125,7 +125,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
   private:
     using BufferIndex = typename Base::BufferIndex;
     std::atomic<uint64_t> m_capacity{MaxCapacity};
-    std::atomic_flag m_resizeInProgress{false};
+    std::atomic_flag m_resizeInProgress;
     iox::cxx::vector<BufferIndex, MaxCapacity> m_unusedIndices;
 
     /// @brief      Increase the capacity by some value.

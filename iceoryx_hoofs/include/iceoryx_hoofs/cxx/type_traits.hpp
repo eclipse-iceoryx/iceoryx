@@ -54,10 +54,11 @@ using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 template <typename>
 constexpr bool always_false_v = false;
 
-#if __cplusplus < 201703L
+// windows defines __cplusplus as 199711L
+#if __cplusplus < 201703L && !defined(_WIN32)
 template <typename C, typename... Cargs>
 using invoke_result = std::result_of<C(Cargs...)>;
-#elif __cplusplus >= 201703L
+#elif __cplusplus >= 201703L || defined(_WIN32)
 template <typename C, typename... Cargs>
 using invoke_result = std::invoke_result<C, Cargs...>;
 #endif

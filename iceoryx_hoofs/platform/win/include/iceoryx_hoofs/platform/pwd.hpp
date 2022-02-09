@@ -21,19 +21,19 @@
 
 struct passwd
 {
-    char* pw_name;
-    char* pw_passwd;
+    const char* pw_name;
+    const char* pw_passwd;
     uid_t pw_uid;
     gid_t pw_gid;
-    char* pw_gecos;
-    char* pw_dir;
-    char* pw_shell;
+    const char* pw_gecos;
+    const char* pw_dir;
+    const char* pw_shell;
 };
 
 
 inline struct passwd* getpwnam(const char* name)
 {
-    static char* value = "iceoryx_windows_dummy";
+    static const char* value = "iceoryx_windows_dummy";
     static struct passwd dummy;
     dummy.pw_name = value;
     dummy.pw_passwd = value;
@@ -47,7 +47,7 @@ inline struct passwd* getpwnam(const char* name)
 
 inline struct passwd* getpwuid(uid_t uid)
 {
-    static char* value = "iceoryx_windows_dummy";
+    static const char* value = "iceoryx_windows_dummy";
     static struct passwd dummy;
     dummy.pw_name = value;
     dummy.pw_passwd = value;
