@@ -172,9 +172,9 @@ Create a new publisher in RouDi which sends a `ServiceRegistryTopic`. This publi
 change in the service registry and to transmit the service discovery registry. The complete old service registry
 (saved locally) would be compared to the new service registry in a new class, extending the public user API.
 
-![overview diagram](diagrams/service-discovery/overview-alternative-b.svg)
+![overview diagram](diagrams/service-discovery/overview-alternative-d.svg)
 
-![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-b.svg)
+![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-d.svg)
 
 Pro:
 
