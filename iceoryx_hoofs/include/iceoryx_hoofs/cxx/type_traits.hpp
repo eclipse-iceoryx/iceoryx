@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,12 @@ struct is_invocable
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
+#if __cplusplus < 201703L
     static constexpr std::true_type test(typename std::result_of<C(As...)>::type*) noexcept
+    // use std::invoke_result so that iceoryx can be used in c++20 projects
+#elif __cplusplus >= 201703L
+    static constexpr std::true_type test(typename std::invoke_result<C, As...>::type*) noexcept
+#endif
     {
         return {};
     }
@@ -90,7 +95,13 @@ struct is_invocable_r
 {
     template <typename C, typename... As>
     static constexpr std::true_type
+#if __cplusplus < 201703L
     test(std::enable_if_t<std::is_convertible<typename std::result_of<C(As...)>::type, ReturnType>::value>*) noexcept
+    // use std::invoke_result so that iceoryx can be used in c++20 projects
+#elif __cplusplus >= 201703L
+    test(
+        std::enable_if_t<std::is_convertible<typename std::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
+#endif
     {
         return {};
     }
