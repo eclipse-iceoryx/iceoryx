@@ -503,6 +503,101 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested a PublisherPort."; });
 }
 
+
+void ProcessManager::addClientForProcess(const RuntimeName_t& name,
+                                         const capro::ServiceDescription& service,
+                                         const popo::ClientOptions& clientOptions,
+                                         const PortConfigInfo& portConfigInfo) noexcept
+{
+    searchForProcessAndThen(
+        name,
+        [&](Process& process) { // create a ClientPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+
+            if (!segmentInfo.m_memoryManager.has_value())
+            {
+                // Tell the app no writable shared memory segment was found
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_CLIENT_NO_WRITABLE_SHM_SEGMENT);
+                process.sendViaIpcChannel(sendBuffer);
+                return;
+            }
+
+            m_portManager
+                .acquireClientPortData(
+                    service, clientOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
+                .and_then([&](auto& clientPort) {
+                    // send ClientPort to app as a serialized relative pointer
+                    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, clientPort);
+
+                    runtime::IpcMessage sendBuffer;
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CLIENT_ACK)
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                    process.sendViaIpcChannel(sendBuffer);
+
+                    LogDebug() << "Created new ClientPort for application " << name;
+                })
+                .or_else([&](auto&) {
+                    runtime::IpcMessage sendBuffer;
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::CLIENT_LIST_FULL);
+                    process.sendViaIpcChannel(sendBuffer);
+
+                    LogError() << "Could not create Client for application " << name;
+                });
+        },
+        [&]() { LogWarn() << "Unknown application " << name << " requested a ClientPort."; });
+}
+
+void ProcessManager::addServerForProcess(const RuntimeName_t& name,
+                                         const capro::ServiceDescription& service,
+                                         const popo::ServerOptions& serverOptions,
+                                         const PortConfigInfo& portConfigInfo) noexcept
+{
+    searchForProcessAndThen(
+        name,
+        [&](Process& process) { // create a ServerPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+
+            if (!segmentInfo.m_memoryManager.has_value())
+            {
+                // Tell the app no writable shared memory segment was found
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_SERVER_NO_WRITABLE_SHM_SEGMENT);
+                process.sendViaIpcChannel(sendBuffer);
+                return;
+            }
+
+            m_portManager
+                .acquireServerPortData(
+                    service, serverOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
+                .and_then([&](auto& serverPort) {
+                    // send ServerPort to app as a serialized relative pointer
+                    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, serverPort);
+
+                    runtime::IpcMessage sendBuffer;
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SERVER_ACK)
+                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                    process.sendViaIpcChannel(sendBuffer);
+
+                    LogDebug() << "Created new ServerPort for application " << name;
+                })
+                .or_else([&](auto&) {
+                    runtime::IpcMessage sendBuffer;
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SERVER_LIST_FULL);
+                    process.sendViaIpcChannel(sendBuffer);
+
+                    LogError() << "Could not create server for application " << name;
+                });
+        },
+        [&]() { LogWarn() << "Unknown application " << name << " requested a ServerPort."; });
+}
+
 void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtimeName) noexcept
 {
     searchForProcessAndThen(
