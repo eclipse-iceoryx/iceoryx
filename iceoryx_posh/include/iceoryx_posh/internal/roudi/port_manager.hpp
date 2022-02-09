@@ -25,9 +25,13 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
@@ -76,6 +80,20 @@ class PortManager
                               const RuntimeName_t& runtimeName,
                               const PortConfigInfo& portConfigInfo) noexcept;
 
+    cxx::expected<popo::ClientPortData*, PortPoolError>
+    acquireClientPortData(const capro::ServiceDescription& service,
+                          const popo::ClientOptions& clientOptions,
+                          const RuntimeName_t& runtimeName,
+                          mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                          const PortConfigInfo& portConfigInfo) noexcept;
+
+    cxx::expected<popo::ServerPortData*, PortPoolError>
+    acquireServerPortData(const capro::ServiceDescription& service,
+                          const popo::ServerOptions& serverOptions,
+                          const RuntimeName_t& runtimeName,
+                          mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                          const PortConfigInfo& portConfigInfo) noexcept;
+
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const RuntimeName_t& runtimeName,
                                                       const NodeName_t& nodeName = {""}) noexcept;
@@ -110,6 +128,20 @@ class PortManager
 
     void doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept;
 
+    void destroyClientPort(popo::ClientPortData* const clientPortData) noexcept;
+
+    void handleClientPorts() noexcept;
+
+    void doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) noexcept;
+
+    void makeAllServerPortsToStopOffer() noexcept;
+
+    void destroyServerPort(popo::ServerPortData* const clientPortData) noexcept;
+
+    void handleServerPorts() noexcept;
+
+    void doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) noexcept;
+
     void handleInterfaces() noexcept;
 
     void handleNodes() noexcept;
@@ -121,6 +153,11 @@ class PortManager
 
     void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
                                           PublisherPortRouDiType& publisherSource) noexcept;
+
+
+    void sendToAllMatchingClientPorts(const capro::CaproMessage& message, popo::ServerPortRouDi& serverSource) noexcept;
+
+    bool sendToAllMatchingServerPorts(const capro::CaproMessage& message, popo::ClientPortRouDi& clientSource) noexcept;
 
     void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message) noexcept;
 
