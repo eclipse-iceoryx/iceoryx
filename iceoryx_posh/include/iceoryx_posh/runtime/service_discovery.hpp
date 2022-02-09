@@ -18,6 +18,8 @@
 #define IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/roudi/service_registry.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
@@ -38,13 +40,12 @@ class ServiceDiscovery
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
     /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
     /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
-    /// @return cxx::expected<ServiceContainer, FindServiceError>
+    /// @return ServiceContainer
     /// ServiceContainer: on success, container that is filled with all matching instances
     /// FindServiceError: if any, encountered during the operation
-    cxx::expected<ServiceContainer, FindServiceError>
-    findService(const cxx::optional<capro::IdString_t>& service,
-                const cxx::optional<capro::IdString_t>& instance,
-                const cxx::optional<capro::IdString_t>& event) noexcept;
+    ServiceContainer findService(const cxx::optional<capro::IdString_t>& service,
+                                 const cxx::optional<capro::IdString_t>& instance,
+                                 const cxx::optional<capro::IdString_t>& event) noexcept;
 
     /// @brief Searches all services that match the provided service description and applies a function to each of them
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
@@ -55,6 +56,10 @@ class ServiceDiscovery
                      const cxx::optional<capro::IdString_t>& instance,
                      const cxx::optional<capro::IdString_t>& event,
                      const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept;
+
+  private:
+    popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
+        {"ServiceRegistry", "RouDi ID", "ServiceRegistry"}};
 };
 
 

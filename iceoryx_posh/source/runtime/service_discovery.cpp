@@ -21,36 +21,24 @@ namespace iox
 {
 namespace runtime
 {
-cxx::expected<ServiceContainer, FindServiceError>
-ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
-                              const cxx::optional<capro::IdString_t>& instance,
-                              const cxx::optional<capro::IdString_t>& event) noexcept
+ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
+                                               const cxx::optional<capro::IdString_t>& instance,
+                                               const cxx::optional<capro::IdString_t>& event) noexcept
 {
-    capro::IdString_t serviceString;
-    capro::IdString_t instanceString;
-    capro::IdString_t eventString;
-    bool isServiceWildcard = !service;
-    bool isInstanceWildcard = !instance;
-    bool isEventWildcard = !event;
+    ServiceContainer searchResult;
 
-    if (!isServiceWildcard)
-    {
-        serviceString = service.value();
-    }
-    if (!isInstanceWildcard)
-    {
-        instanceString = instance.value();
-    }
-    if (!isEventWildcard)
-    {
-        eventString = event.value();
-    }
 
-    ServiceContainer serviceContainer;
+    m_serviceRegistrySubscriber.take().and_then([&](auto& serviceRegistry) {
+        roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
+        serviceRegistry->find(tempSearchResult, service, instance, event);
+        for (auto& service : tempSearchResult)
+        {
+            searchResult.push_back(service.serviceDescription);
+        }
+    });
 
-    // @todo #415 Get data and fill serviceContainter
 
-    return {cxx::success<ServiceContainer>(serviceContainer)};
+    return searchResult;
 }
 
 void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
@@ -63,12 +51,8 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
         return;
     }
 
-    /// @todo #415 change implementation once PR #1088 is merged
     auto searchResult = findService(service, instance, event);
-    if (!searchResult.has_error())
-    {
-        callable(searchResult.value());
-    }
+    callable(searchResult);
 }
 } // namespace runtime
 } // namespace iox
