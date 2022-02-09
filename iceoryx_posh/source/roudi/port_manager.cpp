@@ -109,6 +109,20 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                               PublisherPortUserType(std::move(portThroughput)),
                                               PublisherPortUserType(std::move(subscriberPortsData)));
     m_portIntrospection.run();
+
+    /// @todo #415 Move the hard-coded service description to iceoryx_posh_types.hpp?
+    popo::PublisherOptions publisherOptions{1U, "Service Registry"};
+    m_serviceRegistryPublisherPortData =
+        acquirePublisherPortData({"ServiceRegistry", "RouDi ID", "ServiceRegistry"},
+                                 publisherOptions,
+                                 IPC_CHANNEL_ROUDI_NAME,
+                                 introspectionMemoryManager,
+                                 PortConfigInfo())
+            .or_else([](auto&) {
+                LogError() << "Could not create PublisherPort for service registry!";
+                errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY);
+            })
+            .value();
 }
 
 void PortManager::stopPortIntrospection() noexcept
@@ -558,23 +572,6 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::IpcMessage PortManager::findService(const cxx::optional<capro::IdString_t>& service,
-                                             const cxx::optional<capro::IdString_t>& instance,
-                                             const cxx::optional<capro::IdString_t>& event) noexcept
-{
-    runtime::IpcMessage response;
-
-    ServiceRegistry::ServiceDescriptionVector_t searchResult;
-    m_serviceRegistry.find(searchResult, service, instance, event);
-
-    for (auto& service : searchResult)
-    {
-        response << static_cast<cxx::Serialization>(service.serviceDescription).toString();
-    }
-
-    return response;
-}
-
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
@@ -654,19 +651,39 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
     }
 }
 
+void PortManager::publishCurrentServiceRegistry() const noexcept
+{
+    // Send the new serviceRegistry here and ring the bell to inform all ServiceDiscovery instances about the change
+
+    PublisherPortUserType publisher(m_serviceRegistryPublisherPortData);
+    auto maybeChunkHeader = publisher.tryAllocateChunk(
+        sizeof(ServiceRegistry), alignof(ServiceRegistry), CHUNK_NO_USER_HEADER_SIZE, CHUNK_NO_USER_HEADER_ALIGNMENT);
+
+    if (!maybeChunkHeader.has_error())
+    {
+        auto sample = static_cast<ServiceRegistry*>(maybeChunkHeader.value()->userPayload());
+
+        // Copy the complete registry
+        *sample = m_serviceRegistry;
+
+        publisher.sendChunk(maybeChunkHeader.value());
+    }
+}
+
+
 void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.add(service).or_else([&](auto&) {
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
-    /// @todo #415 Send new serviceRegistry here ring the bell to inform all ServiceDiscovery instances
+    publishCurrentServiceRegistry();
 }
 
 void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.remove(service);
-    /// @todo #415 Send new serviceRegistry here ring the bell to inform all ServiceDiscovery instances
+    publishCurrentServiceRegistry();
 }
 
 cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,

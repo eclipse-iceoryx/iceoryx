@@ -95,10 +95,6 @@ class PortManager
 
     void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 
-    runtime::IpcMessage findService(const cxx::optional<capro::IdString_t>& service,
-                                    const cxx::optional<capro::IdString_t>& instance,
-                                    const cxx::optional<capro::IdString_t>& event) noexcept;
-
   protected:
     void makeAllPublisherPortsToStopOffer() noexcept;
 
@@ -139,11 +135,17 @@ class PortManager
     cxx::optional<RuntimeName_t>
     doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) const noexcept;
 
+    void publishCurrentServiceRegistry() const noexcept;
+
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     PortPool* m_portPool{nullptr};
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
+
+
+    /// @todo #415 can we avoid the nullptr here?
+    PublisherPortRouDiType::MemberType_t* m_serviceRegistryPublisherPortData{nullptr};
 };
 } // namespace roudi
 } // namespace iox
