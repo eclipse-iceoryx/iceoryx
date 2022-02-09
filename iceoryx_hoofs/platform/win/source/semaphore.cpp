@@ -160,9 +160,9 @@ static HANDLE sem_create_win32_semaphore(LONG value, LPCSTR name)
     Win32Call(InitializeSecurityDescriptor, &securityDescriptor, SECURITY_DESCRIPTOR_REVISION).value;
 
     auto permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
-        TEXT("(A;OICI;GA;;;AN)")                             // access to anonymous logon
-        TEXT("(A;OICI;GRGWGX;;;AU)")                         // access to authenticated users
-        TEXT("(A;OICI;GA;;;BA)");                            // access to administrators
+        TEXT("(A;OICI;GA;;;AN)")                           // access to anonymous logon
+        TEXT("(A;OICI;GRGWGX;;;AU)")                       // access to authenticated users
+        TEXT("(A;OICI;GA;;;BA)");                          // access to administrators
 
     Win32Call(ConvertStringSecurityDescriptorToSecurityDescriptor,
               reinterpret_cast<LPCSTR>(permissions),
