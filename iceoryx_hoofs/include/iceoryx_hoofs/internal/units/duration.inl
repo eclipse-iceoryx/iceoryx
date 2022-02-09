@@ -76,37 +76,37 @@ inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(con
 template <typename T>
 constexpr Duration Duration::fromNanoseconds(const T value) noexcept
 {
-    return operator"" _ns(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _ns(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::fromMicroseconds(const T value) noexcept
 {
-    return operator"" _us(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _us(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::fromMilliseconds(const T value) noexcept
 {
-    return operator"" _ms(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _ms(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::fromSeconds(const T value) noexcept
 {
-    return operator"" _s(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _s(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::fromMinutes(const T value) noexcept
 {
-    return operator"" _m(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _m(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::fromHours(const T value) noexcept
 {
-    return operator"" _h(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _h(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::fromDays(const T value) noexcept
 {
-    return operator"" _d(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
+    return duration_literals::operator"" _d(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 
 inline constexpr Duration::Duration(const struct timeval& value) noexcept
@@ -455,7 +455,7 @@ inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
     return multiplyWith<T>(rhs);
 }
 
-inline namespace duration_literals
+namespace duration_literals
 {
 inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48
 {

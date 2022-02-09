@@ -35,6 +35,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::units;
 using namespace iox::posix;
+using namespace iox::units::duration_literals;
 
 using iox::runtime::IpcInterfaceBase;
 using iox::runtime::IpcMessage;
