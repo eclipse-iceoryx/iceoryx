@@ -56,16 +56,10 @@ constexpr bool always_false_v = false;
 
 #if __cplusplus < 201703L
 template <typename C, typename... Cargs>
-struct invoke_result
-{
-    using type = typename std::result_of<C(Cargs...)>::type;
-};
+using invoke_result = std::result_of<C(Cargs...)>;
 #elif __cplusplus >= 201703L
 template <typename C, typename... Cargs>
-struct invoke_result
-{
-    using type = typename std::invoke_result<C, Cargs...>::type;
-};
+using invoke_result = std::invoke_result<C, Cargs...>;
 #endif
 
 ///
