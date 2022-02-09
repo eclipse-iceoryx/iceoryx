@@ -86,7 +86,6 @@ class Mepoo_IntegrationTest : public Test
         {
             iox::mepoo::MePooConfig mempoolConfig;
 
-            uint64_t mempoolSize{0};
             // create actual config
             for (size_t i = 0; i < testMempoolConfig.size() && i < memPoolTestContainer.capacity(); ++i)
             {
@@ -99,7 +98,6 @@ class Mepoo_IntegrationTest : public Test
 
                 mempoolConfig.m_mempoolConfig.push_back(
                     {testMempoolConfig[i].chunkSize, testMempoolConfig[i].chunkCount});
-                mempoolSize += static_cast<uint64_t>(testMempoolConfig[i].chunkSize) * testMempoolConfig[i].chunkCount;
             }
 
             auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
