@@ -382,22 +382,6 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested an interface."; });
 }
 
-void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& runtimeName) noexcept
-{
-    searchForProcessAndThen(
-        runtimeName,
-        [&](Process& process) {
-            // send counter to app as a serialized relative pointer
-            auto offset =
-                rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
-
-            runtime::IpcMessage sendBuffer;
-            sendBuffer << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-            process.sendViaIpcChannel(sendBuffer);
-        },
-        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
-}
-
 void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
 {
     searchForProcessAndThen(

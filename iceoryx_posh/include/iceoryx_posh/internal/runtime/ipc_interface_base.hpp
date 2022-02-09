@@ -62,7 +62,6 @@ enum class IpcMessageType : int32_t
     CREATE_CONDITION_VARIABLE_ACK,
     CREATE_NODE,
     CREATE_NODE_ACK,
-    FIND_SERVICE,
     KEEPALIVE,
     TERMINATION,
     TERMINATION_ACK,
@@ -72,7 +71,6 @@ enum class IpcMessageType : int32_t
     APP_WAIT,
     WAKEUP_TRIGGER,
     REPLAY,
-    SERVICE_REGISTRY_CHANGE_COUNTER,
     MESSAGE_NOT_SUPPORTED,
     // etc..
     END,

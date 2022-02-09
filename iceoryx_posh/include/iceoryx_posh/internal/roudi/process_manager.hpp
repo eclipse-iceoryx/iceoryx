@@ -39,7 +39,6 @@ namespace roudi
 class ProcessManagerInterface
 {
   public:
-    virtual void sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& process_name) noexcept = 0;
     virtual void discoveryUpdate() noexcept = 0;
 
     virtual ~ProcessManagerInterface() noexcept = default;
@@ -139,7 +138,6 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Notify the application that it sent an unsupported message
     void sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept;
 
-    void sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& process_name) noexcept override;
 
   private:
     bool searchForProcessAndThen(const RuntimeName_t& name,

@@ -199,11 +199,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 {
     switch (cmd)
     {
-    case runtime::IpcMessageType::SERVICE_REGISTRY_CHANGE_COUNTER:
-    {
-        m_prcMgr->sendServiceRegistryChangeCounterToProcess(runtimeName);
-        break;
-    }
     case runtime::IpcMessageType::REG:
     {
         if (message.getNumberOfElements() != 6)
@@ -341,41 +336,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         {
             runtime::NodeProperty nodeProperty(cxx::Serialization(message.getElementAtIndex(2)));
             m_prcMgr->addNodeForProcess(runtimeName, nodeProperty.m_name);
-        }
-        break;
-    }
-    case runtime::IpcMessageType::FIND_SERVICE:
-    {
-        if (message.getNumberOfElements() != 8)
-        {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << runtimeName
-                       << "\"received!";
-        }
-        else
-        {
-            cxx::optional<capro::IdString_t> service;
-            cxx::optional<capro::IdString_t> instance;
-            cxx::optional<capro::IdString_t> event;
-            bool isServiceWildcard = false;
-            bool isInstanceWildcard = false;
-            bool isEventWildcard = false;
-            cxx::convert::fromString(message.getElementAtIndex(2).c_str(), isServiceWildcard);
-            if (!isServiceWildcard)
-            {
-                service.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(3));
-            }
-            cxx::convert::fromString(message.getElementAtIndex(4).c_str(), isInstanceWildcard);
-            if (!isInstanceWildcard)
-            {
-                instance.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(5));
-            }
-            cxx::convert::fromString(message.getElementAtIndex(6).c_str(), isEventWildcard);
-            if (!isEventWildcard)
-            {
-                event.emplace(cxx::TruncateToCapacity, message.getElementAtIndex(7));
-            }
-
-            m_prcMgr->findServiceForProcess(runtimeName, service, instance, event);
         }
         break;
     }

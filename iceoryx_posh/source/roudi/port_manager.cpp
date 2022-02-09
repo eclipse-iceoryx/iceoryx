@@ -575,11 +575,6 @@ runtime::IpcMessage PortManager::findService(const cxx::optional<capro::IdString
     return response;
 }
 
-const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcept
-{
-    return m_portPool->serviceRegistryChangeCounter();
-}
-
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
@@ -665,13 +660,13 @@ void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& ser
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
-    m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
+    /// @todo #415 Send new serviceRegistry here ring the bell to inform all ServiceDiscovery instances
 }
 
 void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.remove(service);
-    m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
+    /// @todo #415 Send new serviceRegistry here ring the bell to inform all ServiceDiscovery instances
 }
 
 cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,

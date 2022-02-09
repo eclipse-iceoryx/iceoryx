@@ -26,7 +26,6 @@ ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                               const cxx::optional<capro::IdString_t>& instance,
                               const cxx::optional<capro::IdString_t>& event) noexcept
 {
-    /// @todo #415 remove the string mapping, once the find call is done via shared memory
     capro::IdString_t serviceString;
     capro::IdString_t instanceString;
     capro::IdString_t eventString;
@@ -47,45 +46,10 @@ ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
         eventString = event.value();
     }
 
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::FIND_SERVICE) << PoshRuntime::getInstance().getInstanceName()
-               << cxx::convert::toString(isServiceWildcard) << serviceString
-               << cxx::convert::toString(isInstanceWildcard) << instanceString
-               << cxx::convert::toString(isEventWildcard) << eventString;
-
-    IpcMessage requestResponse;
-
-    if (!PoshRuntime::getInstance().sendRequestToRouDi(sendBuffer, requestResponse))
-    {
-        LogError() << "Could not send FIND_SERVICE request to RouDi\n";
-        errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<FindServiceError>(FindServiceError::UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
-    }
-
     ServiceContainer serviceContainer;
-    uint32_t numberOfElements = requestResponse.getNumberOfElements();
-    uint32_t capacity = static_cast<uint32_t>(serviceContainer.capacity());
 
-    // Limit the services (max value is the capacity of serviceContainer)
-    uint32_t numberOfServices = algorithm::min(capacity, numberOfElements);
-    for (uint32_t i = 0U; i < numberOfServices; ++i)
-    {
-        auto deserializationResult =
-            capro::ServiceDescription::deserialize(cxx::Serialization(requestResponse.getElementAtIndex(i)));
-        if (deserializationResult.has_error())
-        {
-            return cxx::error<FindServiceError>(FindServiceError::DESERIALIZATION_FAILED);
-        }
-        serviceContainer.push_back(deserializationResult.value());
-    }
+    // @todo #415 Get data and fill serviceContainter
 
-    if (numberOfElements > capacity)
-    {
-        LogWarn() << numberOfElements << " instances found for service \"" << serviceString
-                  << "\" which is more than supported number of services(" << MAX_NUMBER_OF_SERVICES << "\n";
-        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
-    }
     return {cxx::success<ServiceContainer>(serviceContainer)};
 }
 
@@ -104,31 +68,6 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
     if (!searchResult.has_error())
     {
         callable(searchResult.value());
-    }
-}
-
-const std::atomic<uint64_t>* ServiceDiscovery::getServiceRegistryChangeCounter() noexcept
-{
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::SERVICE_REGISTRY_CHANGE_COUNTER)
-               << PoshRuntime::getInstance().getInstanceName();
-    IpcMessage receiveBuffer;
-    if (PoshRuntime::getInstance().sendRequestToRouDi(sendBuffer, receiveBuffer)
-        && (2U == receiveBuffer.getNumberOfElements()))
-    {
-        rp::BaseRelativePointer::offset_t offset{0U};
-        cxx::convert::fromString(receiveBuffer.getElementAtIndex(0U).c_str(), offset);
-        rp::BaseRelativePointer::id_t segmentId{0U};
-        cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), segmentId);
-        auto ptr = rp::BaseRelativePointer::getPtr(segmentId, offset);
-
-        return reinterpret_cast<std::atomic<uint64_t>*>(ptr);
-    }
-    else
-    {
-        LogError() << "unable to request service registry change counter caused by wrong response from RouDi: \""
-                   << receiveBuffer.getMessage() << "\" with request: \"" << sendBuffer.getMessage() << "\"";
-        return nullptr;
     }
 }
 } // namespace runtime

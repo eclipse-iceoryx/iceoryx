@@ -106,8 +106,6 @@ class PortPool
     void removeNodeData(runtime::NodeData* const nodeData) noexcept;
     void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
 
-    std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
-
   private:
     PortPoolData* m_portPoolData;
 };

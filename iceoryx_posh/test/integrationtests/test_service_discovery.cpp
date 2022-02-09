@@ -71,20 +71,6 @@ void compareServiceContainers(const ServiceContainer& lhs, const ServiceContaine
     }
 }
 
-TIMING_TEST_F(ServiceDiscovery_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
-    auto serviceCounter = sut.getServiceRegistryChangeCounter();
-    auto initialCout = serviceCounter->load();
-
-    iox::popo::UntypedPublisher pub({"service", "instance", "event"});
-
-    TIMING_TEST_EXPECT_TRUE(initialCout + 1 == serviceCounter->load());
-
-    pub.stopOffer();
-    this->InterOpWait();
-
-    TIMING_TEST_EXPECT_TRUE(initialCout + 2 == serviceCounter->load());
-});
-
 TEST_F(ServiceDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
