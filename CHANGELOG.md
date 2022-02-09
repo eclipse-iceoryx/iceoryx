@@ -43,6 +43,7 @@
 - Catch deserialization errors for enums in publisher and subscriber options [\#989](https://github.com/eclipse-iceoryx/iceoryx/issues/989)
 - Fix linker error on QNX [\#1013](https://github.com/eclipse-iceoryx/iceoryx/issues/1013)
 - When posix mutex fails a correct error message is reported on the console [\#999](https://github.com/eclipse-iceoryx/iceoryx/issues/999)
+- Only use `std::result_of` for C++14 to be able to use iceoryx in C++20 projects [\#1076](https://github.com/eclipse-iceoryx/iceoryx/issues/1076)
 
 **Refactoring:**
 
