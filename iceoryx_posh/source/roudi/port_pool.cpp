@@ -160,6 +160,52 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
     }
 }
 
+cxx::vector<popo::ClientPortData*, MAX_CLIENTS> PortPool::getClientPortDataList() noexcept
+{
+    return m_portPoolData->m_clientPortMembers.content();
+}
+
+cxx::vector<popo::ServerPortData*, MAX_SERVERS> PortPool::getServerPortDataList() noexcept
+{
+    return m_portPoolData->m_serverPortMembers.content();
+}
+
+cxx::expected<popo::ClientPortData*, PortPoolError>
+PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
+                        mepoo::MemoryManager* const memoryManager,
+                        const RuntimeName_t& runtimeName,
+                        const popo::ClientOptions& clientOptions,
+                        const mepoo::MemoryInfo& memoryInfo) noexcept
+{
+    if (!m_portPoolData->m_clientPortMembers.hasFreeSpace())
+    {
+        errorHandler(Error::kPORT_POOL__CLIENTLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::CLIENT_PORT_LIST_FULL);
+    }
+
+    auto clientPortData = m_portPoolData->m_clientPortMembers.insert(
+        serviceDescription, runtimeName, clientOptions, memoryManager, memoryInfo);
+    return cxx::success<popo::ClientPortData*>(clientPortData);
+}
+
+cxx::expected<popo::ServerPortData*, PortPoolError>
+PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
+                        mepoo::MemoryManager* const memoryManager,
+                        const RuntimeName_t& runtimeName,
+                        const popo::ServerOptions& serverOptions,
+                        const mepoo::MemoryInfo& memoryInfo) noexcept
+{
+    if (!m_portPoolData->m_serverPortMembers.hasFreeSpace())
+    {
+        errorHandler(Error::kPORT_POOL__SERVERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::SERVER_PORT_LIST_FULL);
+    }
+
+    auto serverPortData = m_portPoolData->m_serverPortMembers.insert(
+        serviceDescription, runtimeName, serverOptions, memoryManager, memoryInfo);
+    return cxx::success<popo::ServerPortData*>(serverPortData);
+}
+
 void PortPool::removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_publisherPortMembers.erase(portData);
@@ -168,6 +214,15 @@ void PortPool::removePublisherPort(PublisherPortRouDiType::MemberType_t* const p
 void PortPool::removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_subscriberPortMembers.erase(portData);
+}
+
+void PortPool::removeClientPort(popo::ClientPortData* const portData) noexcept
+{
+    m_portPoolData->m_clientPortMembers.erase(portData);
+}
+void PortPool::removeServerPort(popo::ServerPortData* const portData) noexcept
+{
+    m_portPoolData->m_serverPortMembers.erase(portData);
 }
 
 } // namespace roudi

@@ -20,15 +20,21 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
+#include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
+#include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 
 namespace iox
@@ -43,6 +49,8 @@ enum class PortPoolError : uint8_t
     PUBLISHER_PORT_LIST_FULL,
     SUBSCRIBER_PORT_LIST_FULL,
     INTERFACE_PORT_LIST_FULL,
+    CLIENT_PORT_LIST_FULL,
+    SERVER_PORT_LIST_FULL,
     NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
     EVENT_VARIABLE_LIST_FULL,
@@ -60,6 +68,8 @@ class PortPool
     /// update this member if the publisher ports actually changed
     cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
     cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
+    cxx::vector<popo::ClientPortData*, MAX_CLIENTS> getClientPortDataList() noexcept;
+    cxx::vector<popo::ServerPortData*, MAX_SERVERS> getServerPortDataList() noexcept;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
     cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
     cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
@@ -90,6 +100,20 @@ class PortPool
                                                        const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
+    cxx::expected<popo::ClientPortData*, PortPoolError>
+    addClientPort(const capro::ServiceDescription& serviceDescription,
+                  mepoo::MemoryManager* const memoryManager,
+                  const RuntimeName_t& runtimeName,
+                  const popo::ClientOptions& clientOptions,
+                  const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
+
+    cxx::expected<popo::ServerPortData*, PortPoolError>
+    addServerPort(const capro::ServiceDescription& serviceDescription,
+                  mepoo::MemoryManager* const memoryManager,
+                  const RuntimeName_t& runtimeName,
+                  const popo::ServerOptions& serverOptions,
+                  const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
+
     cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
                                                                             const capro::Interfaces interface) noexcept;
 
@@ -102,6 +126,8 @@ class PortPool
 
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
+    void removeClientPort(popo::ClientPortData* const portData) noexcept;
+    void removeServerPort(popo::ServerPortData* const portData) noexcept;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
     void removeNodeData(runtime::NodeData* const nodeData) noexcept;
     void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
