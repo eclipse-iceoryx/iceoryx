@@ -21,6 +21,7 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
+        # Using the latest master commit to make use of 'cmake_command' and 'config_file' options
       - uses: ZedThree/clang-tidy-review@7c3cca0396a179f2fb014dc55d8c6b97d640673c
         id: review
         with:

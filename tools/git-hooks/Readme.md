@@ -10,8 +10,7 @@ In the current state the git hooks do the following job:
 - run `clang-tidy` on all files to commit, modified files will drop warnings,
 newly added files treat warnings as errors when the linter detects a warning.
 
-For running `clang-format` it checks if the version 10 is used, otherwise it will print a warning,
-you can install it by using the following command:
+You can install them with the following command:
 
 ```bash
 sudo apt install clang-format clang-tidy
