@@ -21,11 +21,15 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
+#include "iceoryx_posh/popo/client_options.hpp"
+#include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 
@@ -101,6 +105,16 @@ class PoshRuntime
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const popo::SubscriberOptions& subscriberOptions = {},
                             const PortConfigInfo& portConfigInfo = {}) noexcept = 0;
+
+    virtual popo::ClientPortUser::MemberType_t*
+    getMiddlewareClient(const capro::ServiceDescription& service,
+                        const popo::ClientOptions& clientOptions = {},
+                        const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
+
+    virtual popo::ServerPortUser::MemberType_t*
+    getMiddlewareServer(const capro::ServiceDescription& service,
+                        const popo::ServerOptions& serverOptions = {},
+                        const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
