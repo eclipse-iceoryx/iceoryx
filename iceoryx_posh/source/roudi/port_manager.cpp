@@ -659,9 +659,9 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 void PortManager::publishCurrentServiceRegistry() const noexcept
 {
     // Send the new serviceRegistry here and ring the bell to inform all ServiceDiscovery instances about the change
-    if (m_serviceRegistryPublisherPortData)
+    if (m_serviceRegistryPublisherPortData.has_value())
     {
-        PublisherPortUserType publisher(m_serviceRegistryPublisherPortData);
+        PublisherPortUserType publisher(m_serviceRegistryPublisherPortData.value());
         auto maybeChunkHeader = publisher.tryAllocateChunk(sizeof(ServiceRegistry),
                                                            alignof(ServiceRegistry),
                                                            CHUNK_NO_USER_HEADER_SIZE,

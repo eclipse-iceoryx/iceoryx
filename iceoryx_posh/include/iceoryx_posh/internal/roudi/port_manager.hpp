@@ -143,8 +143,7 @@ class PortManager
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
 
-    /// @todo #415 can we avoid the nullptr here?
-    PublisherPortRouDiType::MemberType_t* m_serviceRegistryPublisherPortData{nullptr};
+    cxx::optional<PublisherPortRouDiType::MemberType_t*> m_serviceRegistryPublisherPortData;
 };
 } // namespace roudi
 } // namespace iox
