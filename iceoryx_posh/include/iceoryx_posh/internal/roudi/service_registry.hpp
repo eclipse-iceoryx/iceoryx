@@ -18,6 +18,7 @@
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
@@ -80,6 +81,20 @@ class ServiceRegistry
               const cxx::optional<capro::IdString_t>& instance,
               const cxx::optional<capro::IdString_t>& event) const noexcept;
 
+    /// @brief Searches for given service description in registry and applies a function to each
+    ///        matching entry, the function may have side effects but cannot change the entry
+    /// @param[in] searchResult, reference to the vector which will be filled with the results
+    /// @param[in] service, string or wildcard (= iox::cxx::nullopt) to search for
+    /// @param[in] instance, string or wildcard (= iox::cxx::nullopt) to search for
+    /// @param[in] event, string or wildcard (= iox::cxx::nullopt) to search for
+    /// @param[in] function, the function to apply to the matching entries
+    void find(const cxx::optional<capro::IdString_t>& service,
+              const cxx::optional<capro::IdString_t>& instance,
+              const cxx::optional<capro::IdString_t>& event,
+              cxx::function_ref<void(const ServiceDescriptionEntry&)> function) const noexcept;
+
+    /// @todo #415 this may not be needed later or we can move applyToAll to the public interface,
+    ///       (we want to avoid large containers on the stack)
     /// @brief Returns all service descriptions as copy
     /// @return ServiceDescriptionVector_t, copy of complete service registry
     const ServiceDescriptionVector_t getServices() const noexcept;
@@ -101,6 +116,8 @@ class ServiceRegistry
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
     void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
+
+    void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> function) const noexcept;
 };
 } // namespace roudi
 } // namespace iox
