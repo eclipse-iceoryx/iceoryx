@@ -48,9 +48,9 @@ struct Win32CallReturn<void>
 
 template <typename Function, typename... Targs>
 auto __Win32Call(const char* functionName, const char* file, const int line, const Function& f, Targs&&... args)
-    -> Win32CallReturn<std::result_of_t<decltype(f)&(Targs...)>>
+    -> Win32CallReturn<std::invoke_result_t<decltype(f)&, Targs...>>
 {
-    Win32CallReturn<std::result_of_t<decltype(f)&(Targs...)>> retVal;
+    Win32CallReturn<std::invoke_result_t<decltype(f)&, Targs...>> retVal;
     SetLastError(0);
     retVal.assignValue(f, std::forward<Targs>(args)...);
     retVal.error = __PrintLastErrorToConsole(functionName, file, line);

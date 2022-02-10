@@ -22,6 +22,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::units;
+using namespace iox::units::duration_literals;
 
 constexpr uint64_t SECONDS_PER_MINUTE = Duration::SECS_PER_MINUTE;
 constexpr uint64_t SECONDS_PER_HOUR = Duration::SECS_PER_HOUR;

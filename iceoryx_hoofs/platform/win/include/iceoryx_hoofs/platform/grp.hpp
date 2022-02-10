@@ -21,10 +21,10 @@
 
 struct group
 {
-    char* gr_name;
-    char* gr_passwd;
+    const char* gr_name;
+    const char* gr_passwd;
     gid_t gr_gid;
-    char** gr_mem;
+    const char** gr_mem;
 };
 
 inline gid_t getegid(void)
@@ -34,8 +34,8 @@ inline gid_t getegid(void)
 
 inline struct group* getgrnam(const char* name)
 {
-    static char* groupName = "iceoryx_windows_group";
-    static char* groupPasswd = "iceoryx_windows_passwd";
+    static const char* groupName = "iceoryx_windows_group";
+    static const char* groupPasswd = "iceoryx_windows_passwd";
     static struct group dummy;
     dummy.gr_name = groupName;
     dummy.gr_passwd = groupPasswd;
@@ -46,8 +46,8 @@ inline struct group* getgrnam(const char* name)
 
 inline struct group* getgrgid(gid_t gid)
 {
-    static char* groupName = "iceoryx_windows_group";
-    static char* groupPasswd = "iceoryx_windows_passwd";
+    static const char* groupName = "iceoryx_windows_group";
+    static const char* groupPasswd = "iceoryx_windows_passwd";
     static struct group dummy;
     dummy.gr_name = groupName;
     dummy.gr_passwd = groupPasswd;

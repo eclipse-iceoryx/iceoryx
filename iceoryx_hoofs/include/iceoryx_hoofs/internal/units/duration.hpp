@@ -38,7 +38,7 @@ enum class TimeSpecReference
 
 class Duration;
 
-inline namespace duration_literals
+namespace duration_literals
 {
 /// @brief Constructs a new Duration object from nanoseconds
 constexpr Duration operator"" _ns(unsigned long long int) noexcept; // PRQA S 48

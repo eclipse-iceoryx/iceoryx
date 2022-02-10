@@ -81,7 +81,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     if (memoryResult.has_error())
     {
-        return memoryResult;
+        return cxx::error<MemoryProviderError>(memoryResult.get_error());
     }
 
     m_memory = memoryResult.value();
