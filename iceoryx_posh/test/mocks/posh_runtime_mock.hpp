@@ -57,6 +57,18 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
                  const iox::popo::SubscriberOptions&,
                  const iox::runtime::PortConfigInfo&),
                 (noexcept, override));
+    MOCK_METHOD(iox::popo::ClientPortUser::MemberType_t*,
+                getMiddlewareClient,
+                (const iox::capro::ServiceDescription&,
+                 const iox::popo::ClientOptions&,
+                 const iox::runtime::PortConfigInfo&),
+                (noexcept, override));
+    MOCK_METHOD(iox::popo::ServerPortUser::MemberType_t*,
+                getMiddlewareServer,
+                (const iox::capro::ServiceDescription&,
+                 const iox::popo::ServerOptions&,
+                 const iox::runtime::PortConfigInfo&),
+                (noexcept, override));
     MOCK_METHOD(iox::popo::InterfacePortData*,
                 getMiddlewareInterface,
                 (const iox::capro::Interfaces, const iox::NodeName_t&),
