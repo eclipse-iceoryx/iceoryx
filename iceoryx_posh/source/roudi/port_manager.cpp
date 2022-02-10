@@ -474,6 +474,11 @@ void PortManager::makeAllPublisherPortsToStopOffer() noexcept
 
 void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept
 {
+    // If we delete all ports from RouDi we need to reset the service registry publisher
+    if (runtimeName == RuntimeName_t(iox::roudi::IPC_CHANNEL_ROUDI_NAME))
+    {
+        m_serviceRegistryPublisherPortData = nullptr;
+    }
     for (auto port : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType sender(port);
