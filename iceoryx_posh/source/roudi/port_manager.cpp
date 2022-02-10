@@ -62,10 +62,9 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
-    /// @todo #415 Move the hard-coded service description to iceoryx_posh_types.hpp?
     popo::PublisherOptions registryPortOptions{1U, "Service Registry", true};
     m_serviceRegistryPublisherPortData =
-        acquirePublisherPortData({"ServiceRegistry", "RouDi_ID", "ServiceRegistry"},
+        acquirePublisherPortData(serviceRegistryService,
                                  registryPortOptions,
                                  IPC_CHANNEL_ROUDI_NAME,
                                  introspectionMemoryManager,

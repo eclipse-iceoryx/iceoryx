@@ -66,8 +66,8 @@ class ServiceDiscovery
     iox::popo::WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const popo::SubscriberState event);
     roudi::ServiceRegistry m_serviceRegistry;
-    popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
-        {"ServiceRegistry", "RouDi_ID", "ServiceRegistry"}, {1U, 1U, "Service Registry", true}};
+    popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{roudi::serviceRegistryService,
+                                                                         {1U, 1U, "Service Registry", true}};
 };
 
 
