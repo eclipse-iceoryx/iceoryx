@@ -29,15 +29,15 @@ inline void Request<T, H>::send() noexcept
 }
 
 template <typename T, typename H>
-inline RequestHeader* Request<T, H>::getRequestHeader() noexcept
+inline RequestHeader& Request<T, H>::getRequestHeader() noexcept
 {
-    return reinterpret_cast<RequestHeader*>(BaseType::getUserHeader());
+    return BaseType::template getUserHeader<RequestHeader>();
 }
 
 template <typename T, typename H>
-inline const RequestHeader* Request<T, H>::getRequestHeader() const noexcept
+inline const RequestHeader& Request<T, H>::getRequestHeader() const noexcept
 {
-    return reinterpret_cast<const RequestHeader*>(BaseType::getUserHeader());
+    return reinterpret_cast<const RequestHeader&>(BaseType::getUserHeader());
 }
 } // namespace popo
 } // namespace iox

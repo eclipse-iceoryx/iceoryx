@@ -40,13 +40,18 @@ class Response : public SmartChunk<ResponseInterface, T, H>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
   public:
+    /// @copydoc SmartChunk::SmartChunk()
     using BaseType::BaseType;
 
+    /// @copydoc SmartChunk::publish()
     template <typename S = T, typename = ForClientOnly<S, T>>
     void send() noexcept;
 
-    ResponseHeader* getResponseHeader() noexcept;
-    const ResponseHeader* getResponseHeader() const noexcept;
+    /// @copydoc SmartChunk::getUserHeader()
+    ResponseHeader& getResponseHeader() noexcept;
+
+    /// @copydoc SmartChunk::getUserHeader()
+    const ResponseHeader& getResponseHeader() const noexcept;
 
   private:
     template <typename, typename, typename>

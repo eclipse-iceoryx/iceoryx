@@ -23,7 +23,6 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
 
-
 namespace iox
 {
 namespace popo
@@ -40,13 +39,18 @@ class Request : public SmartChunk<RequestInterface, T, H>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
   public:
+    /// @copydoc SmartChunk::SmartChunk()
     using BaseType::BaseType;
 
+    /// @copydoc SmartChunk::publish()
     template <typename S = T, typename = ForClientOnly<S, T>>
     void send() noexcept;
 
-    RequestHeader* getRequestHeader() noexcept;
-    const RequestHeader* getRequestHeader() const noexcept;
+    /// @copydoc SmartChunk::getUserHeader()
+    RequestHeader& getRequestHeader() noexcept;
+
+    /// @copydoc SmartChunk::getUserHeader()
+    const RequestHeader& getRequestHeader() const noexcept;
 
   private:
     template <typename, typename, typename>

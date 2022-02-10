@@ -39,9 +39,13 @@ class Sample : public SmartChunk<PublisherInterface, T, H>
     using BaseType = SmartChunk<PublisherInterface, T, H>;
 
   public:
+    /// @copydoc SmartChunk::SmartChunk()
     using BaseType::BaseType;
 
+    /// @copydoc SmartChunk::getUserHeader()
     using BaseType::getUserHeader;
+
+    /// @copydoc SmartChunk::publish()
     using BaseType::publish;
 
   private:
