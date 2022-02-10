@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
 
 #include <cstdint>
 
@@ -66,6 +67,26 @@ using ServerChunkReceiverData_t = ChunkReceiverData<MAX_REQUESTS_PROCESSED_SIMUL
 using ClientChunkSenderData_t = ChunkSenderData<MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY, ClientChunkDistributorData_t>;
 
 using ServerChunkSenderData_t = ChunkSenderData<MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY, ServerChunkDistributorData_t>;
+
+enum class ClientEvent : EventEnumIdentifier
+{
+    RESPONSE_RECEIVED
+};
+
+enum class ClientState : StateEnumIdentifier
+{
+    HAS_RESPONSE
+};
+
+enum class ServerEvent : EventEnumIdentifier
+{
+    REQUEST_RECEIVED
+};
+
+enum class ServerState : EventEnumIdentifier
+{
+    HAS_REQUEST
+};
 
 } // namespace popo
 } // namespace iox
