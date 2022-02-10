@@ -64,13 +64,13 @@ if [[ "$MODE" == "hook"* ]]; then
         if [ -z "$FILES" ]; then
               echo "No modified files to check, skipping clang-tidy"
         else
-            clang-tidy -p build $FILES
+            $CLANG_TIDY_CMD -p build $FILES
         fi
 
         if [ -z "$ADDED_FILES" ]; then
             echo "No added files to check, skipping clang-tidy"
         else
-            clang-tidy --warnings-as-errors=* -p build $ADDED_FILES
+            $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
         fi
     exit
 elif [[ "$MODE" == "full"* ]]; then
@@ -78,11 +78,11 @@ elif [[ "$MODE" == "full"* ]]; then
     echo "Checking all files with Clang-Tidy"
     echo " "
     echo $FILES
-    run-clang-tidy -p build $FILES
+    run-$CLANG_TIDY_CMD -p build $FILES
     exit $?
 elif [[ "$MODE" == "ci_pull_request"* ]]; then
     FILES=$2
     echo " "
     echo $FILES
-    clang-tidy -p build $FILES
+    $CLANG_TIDY_CMD -p build $FILES
 fi

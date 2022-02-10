@@ -37,7 +37,7 @@ bugprone-*,
 
 
 WarningsAsErrors:     '' # Treat all Checks from above as errors
-HeaderFilterRegex:    '.*'
+HeaderFilterRegex:    ''
 FormatStyle:          file
 InheritParentConfig:  false
 
