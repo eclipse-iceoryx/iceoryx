@@ -68,6 +68,11 @@ void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
 }
 
+void ServerPortUser::releaseQueuedRequests() noexcept
+{
+    m_chunkReceiver.clear();
+}
+
 bool ServerPortUser::hasNewRequests() const noexcept
 {
     return !m_chunkReceiver.empty();

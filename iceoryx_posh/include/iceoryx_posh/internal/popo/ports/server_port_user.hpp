@@ -95,6 +95,9 @@ class ServerPortUser : public BasePort
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
     void releaseRequest(const RequestHeader* const requestHeader) noexcept;
 
+    /// @brief Release all the requests that are currently queued up.
+    void releaseQueuedRequests() noexcept;
+
     /// @brief check if there are requests in the queue
     /// @return if there are requests in the queue return true, otherwise false
     bool hasNewRequests() const noexcept;
