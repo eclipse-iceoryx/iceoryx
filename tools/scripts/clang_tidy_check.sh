@@ -26,8 +26,6 @@ MODE=${1:-full} # Can be either `full` for all files or `hook` for formatting wi
 FILE_FILTER="\.(h|hpp|inl|c|cpp)$"
 FILE_BLACKLIST='(test|testing|tools|iceoryx_dds|iceoryx_dds|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples)'
 
-hash run-clang-tidy || fail "run-clang-tidy not found, please install it"
-
 fail() {
     printf "\033[1;31merror: %s: %s\033[0m\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
     exit 1
@@ -82,4 +80,9 @@ elif [[ "$MODE" == "full"* ]]; then
     echo $FILES
     run-clang-tidy -p build $FILES
     exit $?
+elif [[ "$MODE" == "ci_pull_request"* ]]; then
+    FILES=$2
+    echo " "
+    echo $FILES
+    clang-tidy -p build $FILES
 fi
