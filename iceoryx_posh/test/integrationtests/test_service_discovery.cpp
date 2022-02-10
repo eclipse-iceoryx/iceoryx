@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -598,6 +599,17 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToWaitSet)
             sut, iox::popo::SubscriberEvent::DATA_RECEIVED, 0U, iox::popo::createNotificationCallback(testCallback))
         .and_then([]() { GTEST_SUCCEED(); })
         .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+}
+
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToListener)
+{
+    iox::popo::Listener listener;
+
+    listener
+        .attachEvent(
+            sut, iox::popo::SubscriberEvent::DATA_RECEIVED, iox::popo::createNotificationCallback(testCallback))
+        .and_then([]() { GTEST_SUCCEED(); })
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to listener"; });
 }
 
 TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedAboutNewService)
