@@ -92,13 +92,13 @@ ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
 void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                    const cxx::optional<capro::IdString_t>& instance,
                                    const cxx::optional<capro::IdString_t>& event,
-                                   const cxx::function_ref<void(const ServiceContainer&)>& callback) noexcept
+                                   const cxx::function_ref<void(const ServiceContainer&)>& function) noexcept
 {
-    // change implementation so that no copy is made
+    /// @todo #415 change implementation once PR #1088 is merged
     auto searchResult = findService(service, instance, event);
     if (!searchResult.has_error())
     {
-        callback(searchResult.value());
+        function(searchResult.value());
     }
 }
 
