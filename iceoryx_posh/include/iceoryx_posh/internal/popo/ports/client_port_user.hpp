@@ -97,6 +97,9 @@ class ClientPortUser : public BasePort
     /// @param[in] requestHeader, pointer to the ResponseHeader to release
     void releaseResponse(const ResponseHeader* const responseHeader) noexcept;
 
+    /// @brief Release all the responses that are currently queued up.
+    void releaseQueuedResponses() noexcept;
+
     /// @brief check if there are responses in the queue
     /// @return if there are responses in the queue return true, otherwise false
     bool hasNewResponses() const noexcept;

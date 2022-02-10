@@ -135,6 +135,11 @@ void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
 }
 
+void ClientPortUser::releaseQueuedResponses() noexcept
+{
+    m_chunkReceiver.clear();
+}
+
 bool ClientPortUser::hasNewResponses() const noexcept
 {
     return !m_chunkReceiver.empty();
