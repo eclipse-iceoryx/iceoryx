@@ -39,6 +39,13 @@ set_target_properties(single_process PROPERTIES
 )
 target_compile_options(single_process PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+# Since we have one process where multiple threads are created we need to increase the stack size for some OS types
+if(QNX)
+    target_link_options(single_process BEFORE PRIVATE -Wl,-z,stack-size=3500000)
+elseif(WIN32)
+    target_link_options(single_process BEFORE PRIVATE /STACK:3500000)
+endif()
+
 install(
     TARGETS single_process
     RUNTIME DESTINATION bin

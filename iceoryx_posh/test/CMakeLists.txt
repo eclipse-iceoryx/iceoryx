@@ -64,6 +64,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
+    set(TEST_LINKER_FLAGS -Wl,-z,stack-size=5000000)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 endif()
@@ -73,8 +74,9 @@ add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${MOCKS_SRC})
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
+target_link_options(${PROJECT_PREFIX}_moduletests BEFORE PRIVATE ${TEST_LINKER_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -83,9 +85,10 @@ set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
 # integration tests
 add_executable( ${PROJECT_PREFIX}_integrationtests ${INTEGRATIONTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
 target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
+target_link_options(${PROJECT_PREFIX}_integrationtests BEFORE PRIVATE ${TEST_LINKER_FLAGS})
 target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
