@@ -89,6 +89,19 @@ ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
     return {cxx::success<ServiceContainer>(serviceContainer)};
 }
 
+void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
+                                   const cxx::optional<capro::IdString_t>& instance,
+                                   const cxx::optional<capro::IdString_t>& event,
+                                   const cxx::function_ref<void(const ServiceContainer&)>& callback) noexcept
+{
+    // change implementation so that no copy is made
+    auto searchResult = findService(service, instance, event);
+    if (!searchResult.has_error())
+    {
+        callback(searchResult.value());
+    }
+}
+
 const std::atomic<uint64_t>* ServiceDiscovery::getServiceRegistryChangeCounter() noexcept
 {
     IpcMessage sendBuffer;

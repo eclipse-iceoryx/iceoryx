@@ -46,6 +46,16 @@ class ServiceDiscovery
                 const cxx::optional<capro::IdString_t>& instance,
                 const cxx::optional<capro::IdString_t>& event) noexcept;
 
+    /// @brief find all services that match the provided service description and call callback
+    /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
+    /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
+    /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
+    /// @param[in] callback to call with the ServiceContainer filled with all matching services
+    void findService(const cxx::optional<capro::IdString_t>& service,
+                     const cxx::optional<capro::IdString_t>& instance,
+                     const cxx::optional<capro::IdString_t>& event,
+                     const cxx::function_ref<void(const ServiceContainer&)>& callback) noexcept;
+
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter
     /// @todo #415 If this method is still used after refactoring, consider to return a reference so that a nullptr
