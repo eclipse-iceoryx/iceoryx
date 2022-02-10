@@ -54,6 +54,8 @@ inline constexpr const char* asStringLiteral(const AllocationError value) noexce
         return "AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL";
     case AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
         return "AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER";
+    case AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER:
+        return "AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER";
     }
 
     return "[Undefined AllocationError]";

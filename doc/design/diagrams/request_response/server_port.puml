@@ -7,12 +7,20 @@ class ServerPortData {
   offered: atomic<bool>
 }
 
+
+enum ServerRequestResult {
+    TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
+    NO_PENDING_REQUESTS,
+    UNDEFINED_CHUNK_RECEIVE_ERROR,
+    NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER,
+}
+
 class ServerPortUser {
   offer(): void
   stopOffer(): void
   isOffered(): bool
   hasClients(): bool
-  getRequest(): expected<const RequestHeader*, ChunkReceiveResult>
+  getRequest(): expected<const RequestHeader*, ServerRequestResult>
   releaseRequest(requestHeader: const RequestHeader*): void
   hasNewRequests(): void
   hasLostRequestsSinceLastCall(): bool

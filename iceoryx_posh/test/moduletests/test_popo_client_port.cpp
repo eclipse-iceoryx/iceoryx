@@ -329,12 +329,17 @@ TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQ
         });
 }
 
-TEST_F(ClientPort_test, SendRequestOnNotConnectedClientPortDoesNotEnqueuesRequestToServerQueue)
+TEST_F(ClientPort_test,
+       SendRequestOnNotConnectedClientPortDoesNotEnqueuesRequestToServerQueueAndReleasesTheChunkToTheMempool)
 {
     ::testing::Test::RecordProperty("TEST_ID", "46c418a8-4f4f-4393-a190-8f5d41deb05e");
     auto& sut = clientPortWithoutConnectOnCreate;
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
+        .and_then([&](auto& requestHeader) {
+            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
+            sut.portUser.sendRequest(requestHeader);
+            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
+        })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);

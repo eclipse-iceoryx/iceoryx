@@ -46,6 +46,7 @@ struct ClientOptions
     QueueFullPolicy2 responseQueueFullPolicy{QueueFullPolicy2::DISCARD_OLDEST_DATA};
 
     /// @brief The option whether the client should block when the request queue is full
+    /// @note Corresponds with ServerOptions::requestQueueFullPolicy
     ConsumerTooSlowPolicy serverTooSlowPolicy{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
 
     /// @brief serialization of the ClientOptions

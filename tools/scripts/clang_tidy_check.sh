@@ -26,8 +26,6 @@ MODE=${1:-full} # Can be either `full` for all files or `hook` for formatting wi
 FILE_FILTER="\.(h|hpp|inl|c|cpp)$"
 FILE_BLACKLIST='(test|testing|tools|iceoryx_dds|iceoryx_dds|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples)'
 
-hash run-clang-tidy || fail "run-clang-tidy not found, please install it"
-
 fail() {
     printf "\033[1;31merror: %s: %s\033[0m\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
     exit 1
@@ -66,13 +64,13 @@ if [[ "$MODE" == "hook"* ]]; then
         if [ -z "$FILES" ]; then
               echo "No modified files to check, skipping clang-tidy"
         else
-            clang-tidy -p build $FILES
+            $CLANG_TIDY_CMD -p build $FILES
         fi
 
         if [ -z "$ADDED_FILES" ]; then
             echo "No added files to check, skipping clang-tidy"
         else
-            clang-tidy --warnings-as-errors=* -p build $ADDED_FILES
+            $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
         fi
     exit
 elif [[ "$MODE" == "full"* ]]; then
@@ -80,6 +78,11 @@ elif [[ "$MODE" == "full"* ]]; then
     echo "Checking all files with Clang-Tidy"
     echo " "
     echo $FILES
-    run-clang-tidy -p build $FILES
+    run-$CLANG_TIDY_CMD -p build $FILES
     exit $?
+elif [[ "$MODE" == "ci_pull_request"* ]]; then
+    FILES=$2
+    echo " "
+    echo $FILES
+    $CLANG_TIDY_CMD -p build $FILES
 fi

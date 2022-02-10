@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,13 +37,15 @@ class ServerPortRouDi : public BasePort
   public:
     using MemberType_t = ServerPortData;
 
-    explicit ServerPortRouDi(cxx::not_null<MemberType_t* const> serverPortDataPtr) noexcept;
+    explicit ServerPortRouDi(MemberType_t& serverPortData) noexcept;
 
     ServerPortRouDi(const ServerPortRouDi& other) = delete;
     ServerPortRouDi& operator=(const ServerPortRouDi&) = delete;
     ServerPortRouDi(ServerPortRouDi&& rhs) noexcept = default;
     ServerPortRouDi& operator=(ServerPortRouDi&& rhs) noexcept = default;
     ~ServerPortRouDi() = default;
+
+    ConsumerTooSlowPolicy getClientTooSlowPolicy() const noexcept;
 
     /// @brief get an optional CaPro message that changes the offer state of the server
     /// @return CaPro message with the new offer state, empty optional if no state change
@@ -61,6 +64,13 @@ class ServerPortRouDi : public BasePort
   private:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
+
+    void handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept;
+
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept;
+    cxx::optional<capro::CaproMessage>
+    handleCaProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept;
 
     ChunkSender<ServerChunkSenderData_t> m_chunkSender;
     ChunkReceiver<ServerChunkReceiverData_t> m_chunkReceiver;

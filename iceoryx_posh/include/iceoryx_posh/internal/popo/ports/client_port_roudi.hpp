@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ class ClientPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    void handleCaProProtocollViolation(iox::capro::CaproMessageType messageType) noexcept;
+    void handleCaProProtocolViolation(const iox::capro::CaproMessageType messageType) noexcept;
 
     cxx::optional<capro::CaproMessage>
     handleCaProMessageForStateNotConnected(const capro::CaproMessage& caProMessage) noexcept;

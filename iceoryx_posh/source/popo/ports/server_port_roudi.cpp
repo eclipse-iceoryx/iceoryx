@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +21,8 @@ namespace iox
 {
 namespace popo
 {
-ServerPortRouDi::ServerPortRouDi(cxx::not_null<MemberType_t* const> serverPortDataPtr) noexcept
-    : BasePort(serverPortDataPtr)
+ServerPortRouDi::ServerPortRouDi(MemberType_t& serverPortData) noexcept
+    : BasePort(&serverPortData)
     , m_chunkSender(&getMembers()->m_chunkSenderData)
     , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 
@@ -38,19 +39,121 @@ ServerPortRouDi::MemberType_t* ServerPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
+ConsumerTooSlowPolicy ServerPortRouDi::getClientTooSlowPolicy() const noexcept
+{
+    return static_cast<ConsumerTooSlowPolicy>(getMembers()->m_chunkSenderData.m_subscriberTooSlowPolicy);
+}
+
 cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcept
 {
+    // get offer state request from user side
+    const auto offeringRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
+
+    const auto isOffered = getMembers()->m_offered.load(std::memory_order_relaxed);
+
+    if (isOffered)
+    {
+        if (!offeringRequested)
+        {
+            capro::CaproMessage caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
+            return dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+        }
+    }
+    else
+    {
+        if (offeringRequested)
+        {
+            capro::CaproMessage caproMessage(capro::CaproMessageType::OFFER, this->getCaProServiceDescription());
+            return dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+        }
+    }
+
     // nothing to change
-    return cxx::nullopt_t();
+    return cxx::nullopt;
 }
 
 cxx::optional<capro::CaproMessage>
-ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& /*caProMessage*/) noexcept
+ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept
 {
-    capro::CaproMessage responseMessage(
-        capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
+    const auto isOffered = getMembers()->m_offered.load(std::memory_order_relaxed);
 
-    return cxx::make_optional<capro::CaproMessage>(responseMessage);
+    return isOffered ? handleCaProMessageForStateOffered(caProMessage)
+                     : handleCaProMessageForStateNotOffered(caProMessage);
+}
+
+void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept
+{
+    // this shouldn't be reached
+    LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "' with offer state '"
+               << (getMembers()->m_offered ? "OFFERED" : "NOT OFFERED") << "'!";
+    errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+}
+
+cxx::optional<capro::CaproMessage>
+ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept
+{
+    capro::CaproMessage responseMessage{capro::CaproMessageType::NACK, this->getCaProServiceDescription()};
+
+    switch (caProMessage.m_type)
+    {
+    case capro::CaproMessageType::STOP_OFFER:
+        getMembers()->m_offered.store(false, std::memory_order_relaxed);
+        m_chunkSender.removeAllQueues();
+        return caProMessage;
+    case capro::CaproMessageType::OFFER:
+        return responseMessage;
+    case capro::CaproMessageType::CONNECT:
+        if (caProMessage.m_chunkQueueData == nullptr)
+        {
+            LogWarn() << "No client response queue passed to server";
+            errorHandler(Error::kPOPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, nullptr, ErrorLevel::MODERATE);
+        }
+        else
+        {
+            m_chunkSender
+                .tryAddQueue(static_cast<ClientChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                             caProMessage.m_historyCapacity)
+                .and_then([this, &responseMessage]() {
+                    responseMessage.m_type = capro::CaproMessageType::ACK;
+                    responseMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
+                    responseMessage.m_historyCapacity = 0;
+                });
+        }
+        return responseMessage;
+    case capro::CaproMessageType::DISCONNECT:
+        m_chunkSender.tryRemoveQueue(static_cast<ClientChunkQueueData_t*>(caProMessage.m_chunkQueueData))
+            .and_then([&responseMessage]() { responseMessage.m_type = capro::CaproMessageType::ACK; });
+        return responseMessage;
+    default:
+        // leave switch statement and handle protocol violation
+        break;
+    }
+
+    handleCaProProtocolViolation(caProMessage.m_type);
+    return cxx::nullopt;
+}
+
+cxx::optional<capro::CaproMessage>
+ServerPortRouDi::handleCaProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept
+{
+    switch (caProMessage.m_type)
+    {
+    case capro::CaproMessageType::OFFER:
+        getMembers()->m_offered.store(true, std::memory_order_relaxed);
+        return caProMessage;
+    case capro::CaproMessageType::STOP_OFFER:
+        IOX_FALLTHROUGH;
+    case capro::CaproMessageType::CONNECT:
+        IOX_FALLTHROUGH;
+    case capro::CaproMessageType::DISCONNECT:
+        return capro::CaproMessage(capro::CaproMessageType::NACK, this->getCaProServiceDescription());
+    default:
+        // leave switch statement and handle protocol violation
+        break;
+    }
+
+    handleCaProProtocolViolation(caProMessage.m_type);
+    return cxx::nullopt;
 }
 
 void ServerPortRouDi::releaseAllChunks() noexcept
