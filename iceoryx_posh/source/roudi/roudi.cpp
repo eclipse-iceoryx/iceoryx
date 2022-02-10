@@ -300,6 +300,78 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         break;
     }
+    case runtime::IpcMessageType::CREATE_CLIENT:
+    {
+        if (message.getNumberOfElements() != 5)
+        {
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_CLIENT\" from \"" << runtimeName
+                       << "\"received!";
+        }
+        else
+        {
+            auto deserializationResult =
+                capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
+            if (deserializationResult.has_error())
+            {
+                LogError() << "Deserialization failed when '" << message.getElementAtIndex(2).c_str()
+                           << "' was provided\n";
+                break;
+            }
+
+            const auto& service = deserializationResult.value();
+
+            auto clientOptionsDeserializationResult =
+                popo::ClientOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+            if (clientOptionsDeserializationResult.has_error())
+            {
+                LogError() << "Deserialization of 'ClientOptions' failed when '" << message.getElementAtIndex(3).c_str()
+                           << "' was provided\n";
+                break;
+            }
+            const auto& clientOptions = clientOptionsDeserializationResult.value();
+
+            runtime::PortConfigInfo portConfigInfo{cxx::Serialization(message.getElementAtIndex(4))};
+
+            m_prcMgr->addClientForProcess(runtimeName, service, clientOptions, portConfigInfo);
+        }
+        break;
+    }
+    case runtime::IpcMessageType::CREATE_SERVER:
+    {
+        if (message.getNumberOfElements() != 5)
+        {
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SERVER\" from \"" << runtimeName
+                       << "\"received!";
+        }
+        else
+        {
+            auto deserializationResult =
+                capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
+            if (deserializationResult.has_error())
+            {
+                LogError() << "Deserialization failed when '" << message.getElementAtIndex(2).c_str()
+                           << "' was provided\n";
+                break;
+            }
+
+            const auto& service = deserializationResult.value();
+
+            auto serverOptionsDeserializationResult =
+                popo::ServerOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+            if (serverOptionsDeserializationResult.has_error())
+            {
+                LogError() << "Deserialization of 'ServerOptions' failed when '" << message.getElementAtIndex(3).c_str()
+                           << "' was provided\n";
+                break;
+            }
+            const auto& serverOptions = serverOptionsDeserializationResult.value();
+
+            runtime::PortConfigInfo portConfigInfo{cxx::Serialization(message.getElementAtIndex(4))};
+
+            m_prcMgr->addServerForProcess(runtimeName, service, serverOptions, portConfigInfo);
+        }
+        break;
+    }
     case runtime::IpcMessageType::CREATE_CONDITION_VARIABLE:
     {
         if (message.getNumberOfElements() != 2)
