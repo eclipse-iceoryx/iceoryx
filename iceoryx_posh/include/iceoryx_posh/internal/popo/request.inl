@@ -21,21 +21,21 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
+template <typename T>
 template <typename S, typename>
-inline void Request<T, H>::send() noexcept
+inline void Request<T>::send() noexcept
 {
     BaseType::publish();
 }
 
-template <typename T, typename H>
-inline RequestHeader& Request<T, H>::getRequestHeader() noexcept
+template <typename T>
+inline RequestHeader& Request<T>::getRequestHeader() noexcept
 {
     return BaseType::template getUserHeader<RequestHeader>();
 }
 
-template <typename T, typename H>
-inline const RequestHeader& Request<T, H>::getRequestHeader() const noexcept
+template <typename T>
+inline const RequestHeader& Request<T>::getRequestHeader() const noexcept
 {
     return reinterpret_cast<const RequestHeader&>(BaseType::getUserHeader());
 }

@@ -136,7 +136,7 @@ inline void SmartChunk<TransmissionInterface, T, H>::publish() noexcept
     if (m_members.smartChunkUniquePtr)
     {
         m_members.producerRef.get().publish(
-            std::move(*static_cast<typename TransmissionInterface<T, H>::SampleType*>(this)));
+            std::move(*reinterpret_cast<typename TransmissionInterface<T, H>::SampleType*>(this)));
     }
     else
     {

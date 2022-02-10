@@ -30,10 +30,10 @@ namespace popo
 template <typename T, typename H>
 class RequestInterface;
 
-template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
-class Request : public SmartChunk<RequestInterface, T, H>
+template <typename T>
+class Request : public SmartChunk<RequestInterface, T, RequestHeader>
 {
-    using BaseType = SmartChunk<RequestInterface, T, H>;
+    using BaseType = SmartChunk<RequestInterface, T, RequestHeader>;
 
     template <typename S, typename TT>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;

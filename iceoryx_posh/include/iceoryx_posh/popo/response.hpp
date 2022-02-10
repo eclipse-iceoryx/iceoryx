@@ -31,10 +31,10 @@ namespace popo
 template <typename T, typename H>
 class ResponseInterface;
 
-template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
-class Response : public SmartChunk<ResponseInterface, T, H>
+template <typename T>
+class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
 {
-    using BaseType = SmartChunk<ResponseInterface, T, H>;
+    using BaseType = SmartChunk<ResponseInterface, T, ResponseHeader>;
 
     template <typename S, typename TT>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
