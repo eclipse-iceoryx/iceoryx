@@ -62,7 +62,11 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
-    popo::PublisherOptions registryPortOptions{1U, "Service Registry", true};
+    popo::PublisherOptions registryPortOptions;
+    registryPortOptions.historyCapacity = 1U;
+    registryPortOptions.nodeName = iox::NodeName_t("Service Registry");
+    registryPortOptions.offerOnCreate = true;
+
     m_serviceRegistryPublisherPortData =
         acquirePublisherPortData(serviceRegistryService,
                                  registryPortOptions,
