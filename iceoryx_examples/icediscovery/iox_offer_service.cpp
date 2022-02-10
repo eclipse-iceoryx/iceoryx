@@ -27,14 +27,34 @@ int main()
     // offer services by creating publishers
     iox::popo::Publisher<uint32_t> radarLeft({"Radar", "FrontLeft", "SequenceCounter"});
     iox::popo::Publisher<uint32_t> radarRight({"Radar", "FrontRight", "SequenceCounter"});
-    iox::popo::Publisher<uint32_t> lidarLeft({"Camera", "FrontLeft", "Counter"});
+    iox::popo::Publisher<uint32_t> lidarLeft({"Lidar", "FrontLeft", "Counter"});
 
-    std::cout << "Once Ctrl-C is pressed, the publishers will go out of scope and stop offering their related services."
-              << std::endl;
+    iox::cxx::vector<iox::popo::Publisher<uint32_t>, 5> cameraPublishers;
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontLeft", "Counter"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontLeft", "SequenceCounter"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontRight", "Counter"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontRight", "SequenceCounter"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "BackLeft", "SequenceCounter"});
 
+    bool offer = false;
     while (!iox::posix::hasTerminationRequested())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (offer)
+        {
+            for (auto& publisher : cameraPublishers)
+            {
+                publisher.offer();
+            }
+        }
+        else
+        {
+            for (auto& publisher : cameraPublishers)
+            {
+                publisher.stopOffer();
+            }
+        }
+        offer = !offer;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return (EXIT_SUCCESS);

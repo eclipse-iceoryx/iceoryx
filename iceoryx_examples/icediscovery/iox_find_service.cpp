@@ -68,6 +68,11 @@ int main()
             iox::capro::Wildcard, iox::capro::IdString_t{"FrontRight"}, iox::capro::IdString_t{"SequenceCounter"});
         printSearchResult(searchResult);
 
+        std::cout << "Searched for {Camera *, *} and found the following events: " << std::endl;
+        searchResult =
+            serviceDiscovery.findService(iox::capro::IdString_t{"Camera"}, iox::capro::Wildcard, iox::capro::Wildcard);
+        printSearchResult(searchResult);
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
