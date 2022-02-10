@@ -29,7 +29,9 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
     roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
 
     // Copy the new service registry if has changed
-    m_serviceRegistrySubscriber.take().and_then([&](auto& serviceRegistry) { m_serviceRegistry = *serviceRegistry; });
+    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
+        m_serviceRegistry = *serviceRegistrySample;
+    });
 
     m_serviceRegistry.find(tempSearchResult, service, instance, event);
     for (auto& service : tempSearchResult)
