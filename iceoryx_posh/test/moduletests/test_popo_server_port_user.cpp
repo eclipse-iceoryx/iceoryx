@@ -212,7 +212,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithMultipleRequestsAndAllButOneRemovedIsT
     EXPECT_TRUE(sut.portUser.hasNewRequests());
 }
 
-TEST_F(ServerPort_test, HasNewRequestsWithNoRequestsButIntermediatellyHavingMultipleRequestsIsFalse)
+TEST_F(ServerPort_test, HasNewRequestsWithNoRequestsButIntermediatelyHavingMultipleRequestsIsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "44845e16-ec0a-4b4e-a000-ff62f377c0b9");
     auto& sut = serverPortWithOfferOnCreate;
@@ -229,7 +229,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithNoRequestsButIntermediatellyHavingMult
 
 // BEGIN getRequest tests
 
-TEST_F(ServerPort_test, GetRequestWithoutOfferResultsIn_NO_CHUNK_AVAILABLE)
+TEST_F(ServerPort_test, GetRequestWithoutOfferResultsInNoPendingRequests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6c555224-8b03-46c5-a988-059ac2656149");
     auto& sut = serverPortWithoutOfferOnCreate;
@@ -244,7 +244,7 @@ TEST_F(ServerPort_test, GetRequestWithoutOfferResultsIn_NO_CHUNK_AVAILABLE)
         });
 }
 
-TEST_F(ServerPort_test, GetRequestWithNoRequestsResultsIn_NO_CHUNK_AVAILABLE)
+TEST_F(ServerPort_test, GetRequestWithNoRequestsResultsInNoPendingRequests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2b78536b-6902-4e55-aef2-654da5afdb80");
     auto& sut = serverPortWithOfferOnCreate;
@@ -269,7 +269,7 @@ TEST_F(ServerPort_test, GetRequestWithOneRequestsResultsInRequestHeader)
         .or_else([&](const auto& error) { GTEST_FAIL() << "Expected RequestHeader but got error: " << error; });
 }
 
-TEST_F(ServerPort_test, GetRequestWithNoRequestsButIntermediatelyHavingOneResultsIn_NO_CHUNK_AVAILABLE)
+TEST_F(ServerPort_test, GetRequestWithNoRequestsButIntermediatelyHavingOneResultsInNoPendingRequests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a1df6ee7-a936-446d-8960-5b9d6a93ad62");
     auto& sut = serverPortWithOfferOnCreate;
@@ -343,7 +343,7 @@ TEST_F(ServerPort_test, GetRequestWithMaximalHeldChunksInParallelResultsInReques
     }
 }
 
-TEST_F(ServerPort_test, GetRequestWhenProcessingTooManyRequestsInParallelResultsIn_TOO_MANY_CHUNKS_HELD_IN_PARALLEL)
+TEST_F(ServerPort_test, GetRequestWhenProcessingTooManyRequestsInParallelResultsIn_TOO_MANY_REQUESTS_HELD_IN_PARALLEL)
 {
     ::testing::Test::RecordProperty("TEST_ID", "87aa5ddf-80aa-4d32-b901-a82a99fb4a2f");
     auto& sut = serverPortWithOfferOnCreate;
@@ -495,7 +495,7 @@ TEST_F(ServerPort_test, HasLostRequestsSinceLastCallWhenFurtherRequestAreLostRet
     EXPECT_TRUE(sut.portUser.hasLostRequestsSinceLastCall());
 }
 
-TEST_F(ServerPort_test, HasLostRequestsSinceLastCallWhenNoRequestAreLostAfterRemovingRequestFromQueueReturnsTrue)
+TEST_F(ServerPort_test, HasLostRequestsSinceLastCallWhenNoRequestAreLostAfterRemovingRequestFromQueueReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "248ddc67-5717-4b33-8b04-80d8246fedb3");
     auto& sut = serverPortWithOfferOnCreate;
