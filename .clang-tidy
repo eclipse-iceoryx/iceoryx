@@ -35,6 +35,12 @@ bugprone-*,
 -hicpp-move-const-arg,
 -hicpp-invalid-access-moved'
 
+
+WarningsAsErrors:     '' # Treat all Checks from above as errors
+HeaderFilterRegex:    '.*'
+FormatStyle:          file
+InheritParentConfig:  false
+
 # ToDo iox-#889: re-enable the following tests:
 # -hicpp-move-const-arg
 # -hicpp-invalid-access-moved

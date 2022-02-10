@@ -1,0 +1,22 @@
+name: Nightly iceoryx run
+
+on:
+  schedule:
+  - cron: "0 6 * * 1-5"
+
+jobs:
+  # uses macos to run freebsd in a virtualbox
+  build-test-unix-with-freebsd:
+    runs-on: macos-10.15
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: 'master'
+    - name: Unix (FreeBSD) test
+      id: Test
+      uses: vmactions/freebsd-vm@v0.1.6
+      with:
+        usesh: true
+        mem: 2048
+        prepare: pkg install -y cmake git ncurses bash wget bison
+        run: ./tools/ci/build-test-freebsd.sh

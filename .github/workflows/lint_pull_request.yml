@@ -1,0 +1,33 @@
+name: Code Linting on Pull-Requests
+
+on:
+  pull_request:
+    branches: [ master, release* ]
+
+jobs:
+  clang-tidy-review:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: compiler versions
+        run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
+      - name: Install iceoryx dependencies and clang-tidy
+        # Softwares installed in ubuntu-20.04 instance
+        # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu2004-README.md
+        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        # Using the latest master commit to make use of 'cmake_command' and 'config_file' options
+      - uses: ZedThree/clang-tidy-review@7c3cca0396a179f2fb014dc55d8c6b97d640673c
+        id: review
+        with:
+          cmake_command: 'cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON'
+          build_dir: 'build'
+          config_file: '.clang-tidy'
+          include: '*.[ch],*.[ch]xx,*.[ch]pp,*.[ch]++,*.cc,*.hh,*.inl'
+      - if: steps.review.outputs.total_comments > 15
+        run: exit 1

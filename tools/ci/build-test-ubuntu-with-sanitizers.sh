@@ -26,7 +26,7 @@ msg() {
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-cd ${WORKSPACE}
+cd "${WORKSPACE}"
 
 msg "installing build dependencies"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
@@ -37,11 +37,11 @@ sudo ./tools/scripts/add_test_users.sh
 
 msg "building sources"
 if [ "$COMPILER" == "gcc" ]; then
-    ./tools/iceoryx_build_test.sh clean build-strict build-strict build-all debug sanitize test-add-user
+    ./tools/iceoryx_build_test.sh clean build-strict build-shared build-all debug sanitize test-add-user out-of-tree
 fi
 
 if [ "$COMPILER" == "clang" ]; then
-    ./tools/iceoryx_build_test.sh clean build-strict build-strict build-all clang debug sanitize test-add-user
+    ./tools/iceoryx_build_test.sh clean build-strict build-shared build-all clang debug sanitize test-add-user out-of-tree
 fi
 
 msg "running all tests"
