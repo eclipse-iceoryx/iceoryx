@@ -64,7 +64,16 @@ endif()
 
 file(MAKE_DIRECTORY ${BUILD_DIR})
 
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCPPTOML_BUILD_EXAMPLES=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${SOURCE_DIR}"
+execute_process(
+    COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+    INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-Add-include-limits-to-port-to-GCC-11.patch"
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    RESULT_VARIABLE result)
+if(result)
+    message(WARNING "CMake step [patch] for cpptoml failed: ${result}! Build of cpptoml might fail")
+endif()
+
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DCPPTOML_BUILD_EXAMPLES=off" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${SOURCE_DIR}"
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )
 if(result)
