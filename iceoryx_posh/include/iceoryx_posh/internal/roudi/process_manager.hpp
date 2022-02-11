@@ -152,9 +152,7 @@ class ProcessManager : public ProcessManagerInterface
     void sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& process_name) noexcept override;
 
   private:
-    bool searchForProcessAndThen(const RuntimeName_t& name,
-                                 cxx::function_ref<void(Process&)> AndThenCallable,
-                                 cxx::function_ref<void()> OrElseCallable) noexcept;
+    cxx::optional<Process*> findProcess(const RuntimeName_t& name) noexcept;
 
     void monitorProcesses() noexcept;
     void discoveryUpdate() noexcept override;

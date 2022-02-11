@@ -81,16 +81,15 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
 
 void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
+    findProcess(name)
+        .and_then([&](auto& process) {
             m_portManager.unblockProcessShutdown(name);
             // Reply with PREPARE_APP_TERMINATION_ACK and let process shutdown
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
-            process.sendViaIpcChannel(sendBuffer);
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
+            process->sendViaIpcChannel(sendBuffer);
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
 }
 
 void ProcessManager::requestShutdownOfAllProcesses() noexcept
@@ -200,15 +199,14 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 {
     bool returnValue{false};
 
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
+    findProcess(name)
+        .and_then([&](auto& process) {
             // process is already in list (i.e. registered)
             // depending on the mode we clean up the process resources and register it again
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
 
-            if (process.isMonitored())
+            if (process->isMonitored())
             {
                 LogWarn() << "Received register request, but termination of " << name << " not detected yet";
             }
@@ -228,8 +226,8 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
                 // try registration again, should succeed since removal was successful
                 returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
             }
-        },
-        [&]() {
+        })
+        .or_else([&]() {
             // process does not exist in list and can be added
             returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
         });
@@ -336,13 +334,12 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
 
 void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
+    findProcess(name)
+        .and_then([&](auto& process) {
             // reset timestamp
-            process.setTimestamp(mepoo::BaseClock_t::now());
-        },
-        [&]() { LogWarn() << "Received Keepalive from unknown process " << name; });
+            process->setTimestamp(mepoo::BaseClock_t::now());
+        })
+        .or_else([&]() { LogWarn() << "Received Keepalive from unknown process " << name; });
 }
 
 void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
@@ -350,22 +347,20 @@ void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
                                            const cxx::optional<capro::IdString_t>& instance,
                                            const cxx::optional<capro::IdString_t>& event) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
-            process.sendViaIpcChannel({m_portManager.findService(service, instance, event)});
+    findProcess(name)
+        .and_then([&](auto& process) {
+            process->sendViaIpcChannel({m_portManager.findService(service, instance, event)});
             LogDebug() << "Sent all found services to application " << name;
-        },
-        [&]() { LogWarn() << "Unknown process " << name << " requested to find services."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown process " << name << " requested to find services."; });
 }
 
 void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
                                             capro::Interfaces interface,
                                             const NodeName_t& node) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
+    findProcess(name)
+        .and_then([&](auto& process) {
             // create a ReceiverPort
             popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name, node);
 
@@ -375,34 +370,34 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
                        << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-            process.sendViaIpcChannel(sendBuffer);
+            process->sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new interface for application " << name;
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested an interface."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested an interface."; });
 }
 
 void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& runtimeName) noexcept
 {
-    searchForProcessAndThen(
-        runtimeName,
-        [&](Process& process) {
+    findProcess(runtimeName)
+        .and_then([&](auto& process) {
             // send counter to app as a serialized relative pointer
             auto offset =
                 rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-            process.sendViaIpcChannel(sendBuffer);
-        },
-        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
+            process->sendViaIpcChannel(sendBuffer);
+        })
+        .or_else([&]() {
+            LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter.";
+        });
 }
 
 void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
 {
-    searchForProcessAndThen(
-        runtimeName,
-        [&](Process& process) {
+    findProcess(runtimeName)
+        .and_then([&](auto& process) {
             m_portManager.acquireNodeData(runtimeName, nodeName)
                 .and_then([&](auto nodeData) {
                     auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, nodeData);
@@ -411,7 +406,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
 
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
                     m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
                                                     NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
                     LogDebug() << "Created new node " << nodeName << " for process " << runtimeName;
@@ -424,26 +419,23 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
                         sendBuffer << runtime::IpcMessageErrorTypeToString(
                             runtime::IpcMessageErrorType::NODE_DATA_LIST_FULL);
                     }
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Could not create new node for process " << runtimeName;
                 });
-        },
-        [&]() { LogWarn() << "Unknown process " << runtimeName << " requested a node."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown process " << runtimeName << " requested a node."; });
 }
 
 void ProcessManager::sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
-            runtime::IpcMessage sendBuffer;
-            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::MESSAGE_NOT_SUPPORTED);
-            process.sendViaIpcChannel(sendBuffer);
+    findProcess(name).and_then([&](auto& process) {
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::MESSAGE_NOT_SUPPORTED);
+        process->sendViaIpcChannel(sendBuffer);
 
-            LogError() << "Application " << name << " sent a message, which is not supported by this RouDi";
-        },
-        []() {});
+        LogError() << "Application " << name << " sent a message, which is not supported by this RouDi";
+    });
 }
 
 void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
@@ -451,9 +443,8 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                                              const popo::SubscriberOptions& subscriberOptions,
                                              const PortConfigInfo& portConfigInfo) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
+    findProcess(name)
+        .and_then([&](auto& process) {
             // create a SubscriberPort
             auto maybeSubscriber =
                 m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, portConfigInfo);
@@ -466,7 +457,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
                            << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new SubscriberPort for application " << name;
             }
@@ -475,11 +466,11 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SUBSCRIBER_LIST_FULL);
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
                 LogError() << "Could not create SubscriberPort for application " << name;
             }
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested a SubscriberPort."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a SubscriberPort."; });
 }
 
 void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
@@ -487,10 +478,9 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                                             const popo::PublisherOptions& publisherOptions,
                                             const PortConfigInfo& portConfigInfo) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) { // create a PublisherPort
-            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+    findProcess(name)
+        .and_then([&](auto& process) { // create a PublisherPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process->getUser());
 
             if (!segmentInfo.m_memoryManager.has_value())
             {
@@ -499,7 +489,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
                 return;
             }
 
@@ -514,7 +504,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
                            << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new PublisherPort for application " << name;
             }
@@ -526,23 +516,21 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                     (maybePublisher.get_error() == PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS
                          ? runtime::IpcMessageErrorType::NO_UNIQUE_CREATED
                          : runtime::IpcMessageErrorType::PUBLISHER_LIST_FULL));
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
                 LogError() << "Could not create PublisherPort for application " << name;
             }
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested a PublisherPort."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a PublisherPort."; });
 }
-
 
 void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                                          const capro::ServiceDescription& service,
                                          const popo::ClientOptions& clientOptions,
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) { // create a ClientPort
-            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+    findProcess(name)
+        .and_then([&](auto& process) { // create a ClientPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process->getUser());
 
             if (!segmentInfo.m_memoryManager.has_value())
             {
@@ -551,7 +539,7 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_CLIENT_NO_WRITABLE_SHM_SEGMENT);
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
                 return;
             }
 
@@ -565,7 +553,7 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CLIENT_ACK)
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ClientPort for application " << name;
                 })
@@ -573,12 +561,12 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::CLIENT_LIST_FULL);
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogError() << "Could not create Client for application " << name;
                 });
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested a ClientPort."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a ClientPort."; });
 }
 
 void ProcessManager::addServerForProcess(const RuntimeName_t& name,
@@ -586,10 +574,9 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                                          const popo::ServerOptions& serverOptions,
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) { // create a ServerPort
-            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+    findProcess(name)
+        .and_then([&](auto& process) { // create a ServerPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process->getUser());
 
             if (!segmentInfo.m_memoryManager.has_value())
             {
@@ -598,7 +585,7 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_SERVER_NO_WRITABLE_SHM_SEGMENT);
-                process.sendViaIpcChannel(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
                 return;
             }
 
@@ -612,7 +599,7 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SERVER_ACK)
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ServerPort for application " << name;
                 })
@@ -620,19 +607,18 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SERVER_LIST_FULL);
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogError() << "Could not create server for application " << name;
                 });
-        },
-        [&]() { LogWarn() << "Unknown application " << name << " requested a ServerPort."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a ServerPort."; });
 }
 
 void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtimeName) noexcept
 {
-    searchForProcessAndThen(
-        runtimeName,
-        [&](Process& process) { // Try to create a condition variable
+    findProcess(runtimeName)
+        .and_then([&](auto& process) { // Try to create a condition variable
             m_portManager.acquireConditionVariableData(runtimeName)
                 .and_then([&](auto condVar) {
                     auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, condVar);
@@ -641,7 +627,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                     sendBuffer << runtime::IpcMessageTypeToString(
                         runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ConditionVariable for application " << runtimeName;
                 })
@@ -653,12 +639,12 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                         sendBuffer << runtime::IpcMessageErrorTypeToString(
                             runtime::IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL);
                     }
-                    process.sendViaIpcChannel(sendBuffer);
+                    process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Could not create new ConditionVariable for application " << runtimeName;
                 });
-        },
-        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested a ConditionVariable."; });
+        })
+        .or_else([&]() { LogWarn() << "Unknown application " << runtimeName << " requested a ConditionVariable."; });
 }
 
 void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept
@@ -690,29 +676,17 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
     return maybePublisher.value();
 }
 
-bool ProcessManager::searchForProcessAndThen(const RuntimeName_t& name,
-                                             cxx::function_ref<void(Process&)> AndThenCallable,
-                                             cxx::function_ref<void()> OrElseCallable) noexcept
+cxx::optional<Process*> ProcessManager::findProcess(const RuntimeName_t& name) noexcept
 {
-    typename ProcessList_t::iterator it = m_processList.begin();
-    const typename ProcessList_t::iterator itEnd = m_processList.end();
-
-    for (; itEnd != it; ++it)
+    for (auto& process : m_processList)
     {
-        if (name == it->getName())
+        if (process.getName() == name)
         {
-            if (AndThenCallable)
-            {
-                AndThenCallable(*it);
-                return true;
-            }
+            return cxx::make_optional<Process*>(&process);
         }
     }
-    if (OrElseCallable)
-    {
-        OrElseCallable();
-    }
-    return false;
+
+    return cxx::nullopt;
 }
 
 void ProcessManager::monitorProcesses() noexcept
