@@ -1,4 +1,5 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,8 +43,8 @@ inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPriva
 template <template <typename, typename> class TransmissionInterface, typename T, typename H>
 template <typename S, typename>
 inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr,
-                                                           TransmissionInterface<T, H>& consumer) noexcept
-    : m_members({std::move(smartChunkUniquePtr), consumer})
+                                                           TransmissionInterface<T, H>& producer) noexcept
+    : m_members({std::move(smartChunkUniquePtr), producer})
 {
 }
 

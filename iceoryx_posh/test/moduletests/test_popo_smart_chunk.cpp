@@ -67,31 +67,31 @@ class SmartChunkTest : public Test
     using InterfaceType = typename T::InterfaceType;
 
     template <typename SutType>
-    void send(SutType& sut)
+    void send(SutType& sut) const
     {
         T::send(sut);
     }
 
     template <typename SutType>
-    auto& getHeader(SutType& sut)
+    auto& getHeader(SutType& sut) const
     {
         return T::getHeader(sut);
     }
 
     template <typename SutType>
-    auto& getConstHeader(const SutType& sut)
+    auto& getConstHeader(const SutType& sut) const
     {
         return T::getHeader(sut);
     }
 
     template <typename T1>
-    const T1& makeConst(T1& t)
+    const T1& makeConst(T1& t) const
     {
         return const_cast<const T1&>(t);
     }
 
     template <typename T1>
-    void verifyNotEmpty(T1& helper)
+    void verifyNotEmpty(T1& helper) const
     {
         ASSERT_TRUE(helper.sut);
         ASSERT_THAT(helper.sut.get(), Ne(nullptr));
@@ -103,7 +103,7 @@ class SmartChunkTest : public Test
     }
 
     template <typename T1>
-    void verifyContent(T1& helper, const uint32_t dataValue, const uint64_t headerValue)
+    void verifyContent(T1& helper, const uint32_t dataValue, const uint64_t headerValue) const
     {
         verifyNotEmpty(helper);
 
@@ -119,7 +119,7 @@ class SmartChunkTest : public Test
     }
 
     template <typename T1>
-    void verifyEmpty(T1& helper)
+    void verifyEmpty(T1& helper) const
     {
         EXPECT_FALSE(helper.sut);
         EXPECT_THAT(helper.sut.get(), Eq(nullptr));
@@ -131,7 +131,7 @@ class SmartChunkTest : public Test
     }
 
     template <typename T1>
-    void setUnderlyingData(const T1& sut, const uint32_t dataValue, const uint64_t headerValue)
+    void setUnderlyingData(const T1& sut, const uint32_t dataValue, const uint64_t headerValue) const
     {
         const_cast<uint32_t&>(sut.chunk.sample()->val) = dataValue;
         const_cast<uint64_t&>(sut.chunk.userHeader()->counter) = headerValue;
@@ -292,7 +292,7 @@ TYPED_TEST(SmartChunkTest, SendingSmartChunkMultipleTimesFails)
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>&, const iox::ErrorLevel errorLevel) {
+        [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
@@ -310,7 +310,7 @@ TYPED_TEST(SmartChunkTest, SendingMovedSmartChunkFails)
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>&, const iox::ErrorLevel errorLevel) {
+        [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });

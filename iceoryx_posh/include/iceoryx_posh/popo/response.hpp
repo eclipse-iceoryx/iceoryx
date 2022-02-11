@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_REQUEST_HPP
-#define IOX_POSH_POPO_REQUEST_HPP
+#ifndef IOX_POSH_POPO_RESPONSE_HPP
+#define IOX_POSH_POPO_RESPONSE_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
@@ -63,7 +63,7 @@ class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
 
   private:
     template <typename, typename, typename>
-    friend class ClientImpl;
+    friend class ServerImpl;
 
     using BaseType::release;
 

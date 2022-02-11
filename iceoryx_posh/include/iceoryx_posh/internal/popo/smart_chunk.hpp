@@ -1,3 +1,4 @@
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -166,21 +167,21 @@ class SmartChunk
     const mepoo::ChunkHeader* getChunkHeader() const noexcept;
 
   protected:
-    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the sample.
+    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the SmartChunk.
     /// @return The user-header of the underlying memory chunk.
     ///
     template <typename R = H, typename = HasUserHeader<R, H>>
     R& getUserHeader() noexcept;
 
     ///
-    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the sample.
+    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the SmartChunk.
     /// @return The user-header of the underlying memory chunk.
     ///
     template <typename R = H, typename = HasUserHeader<R, H>>
     const R& getUserHeader() const noexcept;
 
     ///
-    /// @brief Publish the sample via the publisher from which it was loaned and automatically
+    /// @brief Publish the sample via the producer from which it was loaned and automatically
     /// release ownership to it.
     /// @details Only available for non-const type T.
     ///
@@ -188,7 +189,7 @@ class SmartChunk
     void publish() noexcept;
 
 
-    /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
+    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
     T* release() noexcept;
 

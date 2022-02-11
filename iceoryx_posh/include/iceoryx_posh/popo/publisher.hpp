@@ -37,7 +37,7 @@ class PublisherInterface
   public:
     using SampleType = Sample<T, H>;
 
-    virtual void publish(Sample<T, H>&& sample) noexcept = 0;
+    virtual void publish(SampleType&& sample) noexcept = 0;
 
     virtual ~PublisherInterface(){};
 

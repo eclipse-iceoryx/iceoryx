@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_REQUEST_INL
-#define IOX_POSH_POPO_REQUEST_INL
+#ifndef IOX_POSH_POPO_RESPONSE_INL
+#define IOX_POSH_POPO_RESPONSE_INL
 
 namespace iox
 {
