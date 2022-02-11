@@ -185,7 +185,9 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         }
         else
         {
-            // protocol error
+            LogWarn() << "CaPro protocol error for publisher from runtime '" << publisherPort.getRuntimeName()
+                      << "' and with service description '" << publisherPort.getCaProServiceDescription()
+                      << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(
                 Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
         }
@@ -222,7 +224,9 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
             m_portIntrospection.reportMessage(caproMessage, subscriberPort.getUniqueID());
             if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
             {
-                LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
+                LogDebug() << "capro::SUB/UNSUB, no matching publisher for subscriber from runtime '"
+                           << subscriberPort.getRuntimeName() << "' and with service description '"
+                           << caproMessage.m_serviceDescription << "'!";
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
                                                 subscriberPort.getCaProServiceDescription());
                 auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
@@ -232,7 +236,9 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
         }
         else
         {
-            // protocol error
+            LogWarn() << "CaPro protocol error for subscriber from runtime '" << subscriberPort.getRuntimeName()
+                      << "' and with service description '" << subscriberPort.getCaProServiceDescription()
+                      << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
                          nullptr,
                          iox::ErrorLevel::MODERATE);
@@ -261,10 +267,11 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
 
     /// @todo iox-#27 report to port introspection
 
+    LogDebug() << "Destroy client port from runtime '" << clientPortData->m_runtimeName
+               << "' and with service description '" << clientPortData->m_serviceDescription << "'";
+
     // delete client port from list after DISCONNECT was processed
     m_portPool->removeClientPort(clientPortData);
-
-    LogDebug() << "Destroyed client port";
 }
 
 void PortManager::handleClientPorts() noexcept
@@ -293,7 +300,9 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
             /// @todo iox-#27 report to port introspection
             if (!this->sendToAllMatchingServerPorts(caproMessage, clientPort))
             {
-                LogDebug() << "capro::CONNECT/DISCONNECT, no matching server!!";
+                LogDebug() << "capro::CONNECT/DISCONNECT, no matching server for client from runtime '"
+                           << clientPort.getRuntimeName() << "' and with service description '"
+                           << caproMessage.m_serviceDescription << "'!";
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK, clientPort.getCaProServiceDescription());
                 auto returnMessage = clientPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
                 // No response on NACK messages
@@ -302,7 +311,9 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
         }
         else
         {
-            // protocol error
+            LogWarn() << "CaPro protocol error for client from runtime '" << clientPort.getRuntimeName()
+                      << "' and with service description '" << clientPort.getCaProServiceDescription()
+                      << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(
                 Error::kPORT_MANAGER__HANDLE_CLIENT_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
         }
@@ -345,10 +356,11 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
 
     /// @todo iox-#27 report to port introspection
 
+    LogDebug() << "Destroy server port from runtime '" << serverPortData->m_runtimeName
+               << "' and with service description '" << serverPortData->m_serviceDescription << "'";
+
     // delete server port from list after STOP_OFFER was processed
     m_portPool->removeServerPort(serverPortData);
-
-    LogDebug() << "Destroyed server port";
 }
 
 void PortManager::handleServerPorts() noexcept
@@ -383,7 +395,9 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
         }
         else
         {
-            // protocol error
+            LogWarn() << "CaPro protocol error for server from runtime '" << serverPort.getRuntimeName()
+                      << "' and with service description '" << serverPort.getCaProServiceDescription()
+                      << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(
                 Error::kPORT_MANAGER__HANDLE_SERVER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
         }
@@ -410,8 +424,9 @@ void PortManager::handleInterfaces() noexcept
         // check if we have to destroy this interface port
         if (interfacePortData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
+            LogDebug() << "Destroy interface port from runtime '" << interfacePortData->m_runtimeName
+                       << "' and with service description '" << interfacePortData->m_serviceDescription << "'";
             m_portPool->removeInterfacePort(interfacePortData);
-            LogDebug() << "Destroyed InterfacePortData";
         }
     }
 
@@ -471,8 +486,9 @@ void PortManager::handleNodes() noexcept
     {
         if (nodeData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
+            LogDebug() << "Destroy NodeData from runtime '" << nodeData->m_runtimeName << "' and node name '"
+                       << nodeData->m_nodeName << "'";
             m_portPool->removeNodeData(nodeData);
-            LogDebug() << "Destroyed NodeData";
         }
     }
 }
@@ -483,8 +499,8 @@ void PortManager::handleConditionVariables() noexcept
     {
         if (conditionVariableData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
+            LogDebug() << "Destroy ConditionVariableData from runtime '" << conditionVariableData->m_runtimeName << "'";
             m_portPool->removeConditionVariableData(conditionVariableData);
-            LogDebug() << "Destroyed ConditionVariableData";
         }
     }
 }
@@ -811,10 +827,10 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
 
     m_portIntrospection.removePublisher(publisherPortUser);
 
+    LogDebug() << "Destroy publisher port from runtime '" << publisherPortData->m_runtimeName
+               << "' and with service description '" << publisherPortData->m_serviceDescription << "'";
     // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);
-
-    LogDebug() << "Destroyed publisher port";
 }
 
 void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept
@@ -835,10 +851,11 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     });
 
     m_portIntrospection.removeSubscriber(subscriberPortUser);
+
+    LogDebug() << "Destroy subscriber port from runtime '" << subscriberPortData->m_runtimeName
+               << "' and with service description '" << subscriberPortData->m_serviceDescription << "'";
     // delete subscriber port from list after UNSUB was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
-
-    LogDebug() << "Destroyed subscriber port";
 }
 
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
