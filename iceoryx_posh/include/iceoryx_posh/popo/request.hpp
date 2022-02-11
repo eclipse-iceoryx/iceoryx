@@ -30,6 +30,8 @@ namespace popo
 template <typename T, typename H>
 class RequestInterface;
 
+/// @brief The Request class is a mutable abstraction over types which are written to loaned shared memory.
+/// These requests are send to the server via the iceoryx system.
 template <typename T>
 class Request : public SmartChunk<RequestInterface, T, RequestHeader>
 {
@@ -39,17 +41,23 @@ class Request : public SmartChunk<RequestInterface, T, RequestHeader>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
   public:
-    /// @copydoc SmartChunk::SmartChunk()
+    /// @brief Constructor for a Request used by the server/client
+    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param producer (for client only) is a reference to the client to be able to use client specific methods
     using BaseType::BaseType;
 
-    /// @copydoc SmartChunk::publish()
+    /// @brief Sends the request via the client from which it was loaned and automatically
+    /// release ownership to it.
+    /// @details Only available for client (non-const type T)
     template <typename S = T, typename = ForClientOnly<S, T>>
     void send() noexcept;
 
-    /// @copydoc SmartChunk::getUserHeader()
+    /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
+    /// @return The request-header of the underlying memory chunk.
     RequestHeader& getRequestHeader() noexcept;
 
-    /// @copydoc SmartChunk::getUserHeader()
+    /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
+    /// @return The request-header of the underlying memory chunk.
     const RequestHeader& getRequestHeader() const noexcept;
 
   private:

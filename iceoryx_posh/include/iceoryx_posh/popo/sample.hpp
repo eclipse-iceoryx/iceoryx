@@ -32,20 +32,26 @@ class PublisherInterface;
 
 /// @brief The Sample class is a mutable abstraction over types which are written to loaned shared memory.
 /// These samples are publishable to the iceoryx system.
-///
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class Sample : public SmartChunk<PublisherInterface, T, H>
 {
     using BaseType = SmartChunk<PublisherInterface, T, H>;
 
   public:
-    /// @copydoc SmartChunk::SmartChunk()
+    /// @brief Constructor for a Sample used by the publisher/subscriber
+    /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
+    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param producer (for publisher only) is a reference to the publisher to be able to use publisher specific
+    /// methods
     using BaseType::BaseType;
 
-    /// @copydoc SmartChunk::getUserHeader()
+    /// @brief Retrieve the user-header of the underlying memory chunk loaned to the sample.
+    /// @return The user-header of the underlying memory chunk.
     using BaseType::getUserHeader;
 
-    /// @copydoc SmartChunk::publish()
+    /// @brief Publish the sample via the publisher from which it was loaned and automatically
+    /// release ownership to it.
+    /// @details Only available for non-const type T.
     using BaseType::publish;
 
   private:

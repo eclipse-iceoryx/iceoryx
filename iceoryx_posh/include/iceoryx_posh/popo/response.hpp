@@ -31,26 +31,34 @@ namespace popo
 template <typename T, typename H>
 class ResponseInterface;
 
+/// @brief The Response class is a mutable abstraction over types which are written to loaned shared memory.
+/// These response are send to the client via the iceoryx system.
 template <typename T>
 class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
 {
     using BaseType = SmartChunk<ResponseInterface, T, ResponseHeader>;
 
     template <typename S, typename TT>
-    using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
+    using ForServerOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
   public:
-    /// @copydoc SmartChunk::SmartChunk()
+    /// @brief Constructor for a Response used by the server/client
+    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param producer (for server only) is a reference to the server to be able to use server specific methods
     using BaseType::BaseType;
 
-    /// @copydoc SmartChunk::publish()
-    template <typename S = T, typename = ForClientOnly<S, T>>
+    /// @brief Sends the response via the server from which it was loaned and automatically
+    /// release ownership to it.
+    /// @details Only available for server (non-const type T)
+    template <typename S = T, typename = ForServerOnly<S, T>>
     void send() noexcept;
 
-    /// @copydoc SmartChunk::getUserHeader()
+    /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
+    /// @return The response-header of the underlying memory chunk.
     ResponseHeader& getResponseHeader() noexcept;
 
-    /// @copydoc SmartChunk::getUserHeader()
+    /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
+    /// @return The response-header of the underlying memory chunk.
     const ResponseHeader& getResponseHeader() const noexcept;
 
   private:
