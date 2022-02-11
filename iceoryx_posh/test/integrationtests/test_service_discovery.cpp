@@ -61,6 +61,16 @@ class ServiceDiscovery_test : public RouDi_GTest
 
 ServiceContainer ServiceDiscovery_test::searchResultOfFindServiceWithLambda;
 
+void compareServiceContainers(const ServiceContainer& lhs, const ServiceContainer& rhs)
+{
+    const auto size = lhs.size();
+    ASSERT_THAT(size, Eq(rhs.size()));
+    for (auto i = 0U; i < size; i++)
+    {
+        EXPECT_THAT(lhs[i], Eq(rhs[i]));
+    }
+}
+
 TIMING_TEST_F(ServiceDiscovery_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
     auto serviceCounter = sut.getServiceRegistryChangeCounter();
     auto initialCout = serviceCounter->load();
@@ -89,7 +99,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithWildcardsReturnsOnlyIntrospectionSe
     }
 
     sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, lambda);
-    EXPECT_THAT(searchResult, Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(searchResult, searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, FindServiceReturnsOfferedService)
@@ -110,7 +120,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsOfferedService)
                     SERVICE_DESCRIPTION.getInstanceIDString(),
                     SERVICE_DESCRIPTION.getEventIDString(),
                     lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFound)
@@ -129,7 +139,7 @@ TEST_F(ServiceDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFo
                     SERVICE_DESCRIPTION.getInstanceIDString(),
                     SERVICE_DESCRIPTION.getEventIDString(),
                     lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     publisher.stopOffer();
     this->InterOpWait();
@@ -157,7 +167,7 @@ TEST_F(ServiceDiscovery_test, ReofferedServiceWithValidServiceDescriptionCanBeFo
                     SERVICE_DESCRIPTION.getInstanceIDString(),
                     SERVICE_DESCRIPTION.getEventIDString(),
                     lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
@@ -180,7 +190,7 @@ TEST_F(ServiceDiscovery_test, OfferExsistingServiceMultipleTimesIsRedundant)
                     SERVICE_DESCRIPTION.getInstanceIDString(),
                     SERVICE_DESCRIPTION.getEventIDString(),
                     lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
@@ -199,7 +209,7 @@ TEST_F(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
                     SERVICE_DESCRIPTION.getInstanceIDString(),
                     SERVICE_DESCRIPTION.getEventIDString(),
                     lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
                                        SERVICE_DESCRIPTION.getInstanceIDString(),
@@ -211,7 +221,7 @@ TEST_F(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
                     SERVICE_DESCRIPTION.getInstanceIDString(),
                     SERVICE_DESCRIPTION.getEventIDString(),
                     lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
@@ -232,21 +242,21 @@ TEST_F(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION1));
     sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT, lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
     sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT, lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION3));
     sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT, lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
@@ -417,7 +427,7 @@ TEST_F(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION1));
     sut.findService(
         SERVICE, SERVICE_DESCRIPTION1.getInstanceIDString(), SERVICE_DESCRIPTION1.getEventIDString(), lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer =
         sut.findService(SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString(), SERVICE_DESCRIPTION2.getEventIDString());
@@ -426,7 +436,7 @@ TEST_F(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
     sut.findService(
         SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString(), SERVICE_DESCRIPTION2.getEventIDString(), lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer =
         sut.findService(SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString(), SERVICE_DESCRIPTION3.getEventIDString());
@@ -435,7 +445,7 @@ TEST_F(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION3));
     sut.findService(
         SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString(), SERVICE_DESCRIPTION3.getEventIDString(), lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinations)
@@ -466,35 +476,35 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinatio
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_1_1));
     sut.findService(SERVICE1, INSTANCE1, EVENT1, lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE1, INSTANCE1, EVENT2);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_1_2));
     sut.findService(SERVICE1, INSTANCE1, EVENT2, lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE1, INSTANCE2, EVENT1);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2_1));
     sut.findService(SERVICE1, INSTANCE2, EVENT1, lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE1, INSTANCE2, EVENT2);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2_2));
     sut.findService(SERVICE1, INSTANCE2, EVENT2, lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE1, INSTANCE2, EVENT3);
     ASSERT_FALSE(serviceContainer.has_error());
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION_1_2_3));
     sut.findService(SERVICE1, INSTANCE2, EVENT3, lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
@@ -525,7 +535,7 @@ TEST_F(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
     ASSERT_THAT(serviceContainer.value().size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.value().begin(), Eq(SERVICE_DESCRIPTION2));
     sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT, lambda);
-    EXPECT_THAT(serviceContainer.value(), searchResultOfFindServiceWithLambda);
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 
     serviceContainer = sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_FALSE(serviceContainer.has_error());
@@ -613,7 +623,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxServices)
     EXPECT_TRUE(serviceContainer.value() == serviceContainerExp);
 
     sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard, lambda);
-    EXPECT_THAT(serviceContainer.value(), Eq(searchResultOfFindServiceWithLambda));
+    compareServiceContainers(serviceContainer.value(), searchResultOfFindServiceWithLambda);
 }
 
 /// @todo #415 #1074 this test is affected by the limits we set for service discovery,
