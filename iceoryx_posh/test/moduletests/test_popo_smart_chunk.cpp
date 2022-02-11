@@ -56,9 +56,6 @@ class MockInterface : public BaseType<T, H>
     MOCK_METHOD(void, publishMock, ((iox::popo::Sample<T, H> &&)), (noexcept));
 };
 
-template <typename T, typename H = iox::mepoo::NoUserHeader>
-using MockPublisherInterface = MockInterface<iox::popo::PublisherInterface, T, H>;
-
 template <typename T>
 class SmartChunkTest : public Test
 {
@@ -76,13 +73,13 @@ class SmartChunkTest : public Test
     }
 
     template <typename SutType>
-    HeaderType& getHeader(SutType& sut)
+    auto& getHeader(SutType& sut)
     {
         return T::getHeader(sut);
     }
 
     template <typename SutType>
-    const HeaderType& getConstHeader(const SutType& sut)
+    auto& getConstHeader(const SutType& sut)
     {
         return T::getHeader(sut);
     }
@@ -94,21 +91,21 @@ class SmartChunkTest : public Test
     }
 
     template <typename T1>
-    void verifyNotEmpty(T1& sut)
+    void verifyNotEmpty(T1& helper)
     {
-        ASSERT_TRUE(sut);
-        ASSERT_THAT(sut.get(), Ne(nullptr));
-        ASSERT_THAT(sut.operator->(), Ne(nullptr));
-        ASSERT_THAT(makeConst(sut).get(), Ne(nullptr));
-        ASSERT_THAT(makeConst(sut).operator->(), Ne(nullptr));
-        ASSERT_THAT(sut.getChunkHeader(), Ne(nullptr));
-        ASSERT_THAT(makeConst(sut).getChunkHeader(), Ne(nullptr));
+        ASSERT_TRUE(helper.sut);
+        ASSERT_THAT(helper.sut.get(), Ne(nullptr));
+        ASSERT_THAT(helper.sut.operator->(), Ne(nullptr));
+        ASSERT_THAT(makeConst(helper.sut).get(), Ne(nullptr));
+        ASSERT_THAT(makeConst(helper.sut).operator->(), Ne(nullptr));
+        ASSERT_THAT(helper.sut.getChunkHeader(), Ne(nullptr));
+        ASSERT_THAT(makeConst(helper.sut).getChunkHeader(), Ne(nullptr));
     }
 
     template <typename T1>
     void verifyContent(T1& helper, const uint32_t dataValue, const uint64_t headerValue)
     {
-        verifyNotEmpty(helper.sut);
+        verifyNotEmpty(helper);
 
         EXPECT_THAT(helper.sut.get()->val, Eq(dataValue));
         EXPECT_THAT(makeConst(helper.sut).get()->val, Eq(dataValue));
@@ -156,6 +153,11 @@ class SmartChunkTest : public Test
         {
         }
 
+        SutHelper(SutType<Data, Header>&& origin)
+            : sut{std::move(origin)}
+        {
+        }
+
         ChunkMock<Data, Header> chunk;
         SutType<Data, Header> sut;
     };
@@ -171,7 +173,7 @@ struct SampleTestCase
 {
     using DataType = DummyData;
     using HeaderType = DummyHeader;
-    using InterfaceType = MockInterface<iox::popo::PublisherInterface, DummyData, HeaderType>;
+    using InterfaceType = MockInterface<iox::popo::PublisherInterface, DataType, HeaderType>;
 
     template <typename Data, typename Header>
     using SutType = iox::popo::Sample<Data, Header>;
@@ -183,13 +185,13 @@ struct SampleTestCase
     }
 
     template <typename SutType>
-    static HeaderType& getHeader(SutType& sut)
+    static auto& getHeader(SutType& sut)
     {
         return sut.getUserHeader();
     }
 
     template <typename SutType>
-    static const HeaderType& getHeader(const SutType& sut)
+    static auto& getHeader(const SutType& sut)
     {
         return sut.getUserHeader();
     }
@@ -202,85 +204,91 @@ TYPED_TEST_SUITE(SmartChunkTest, Implementations);
 
 TYPED_TEST(SmartChunkTest, ProducerConstructedSmartChunkIsValid)
 {
-    this->setUnderlyingData(this->producer, 123, 456);
+    constexpr uint32_t DATA_VALUE = 123;
+    constexpr uint64_t HEADER_VALUE = 456;
 
-    this->verifyContent(this->producer, 123, 456);
+    this->setUnderlyingData(this->producer, DATA_VALUE, HEADER_VALUE);
+    this->verifyContent(this->producer, DATA_VALUE, HEADER_VALUE);
 }
 
 TYPED_TEST(SmartChunkTest, ConsumerConstructedSmartChunkIsValid)
 {
-    this->setUnderlyingData(this->consumer, 789, 1337);
+    constexpr uint32_t DATA_VALUE = 789;
+    constexpr uint64_t HEADER_VALUE = 1337;
 
-    this->verifyNotEmpty(this->consumer.sut);
+    this->setUnderlyingData(this->consumer, DATA_VALUE, HEADER_VALUE);
+    this->verifyContent(this->consumer, DATA_VALUE, HEADER_VALUE);
 }
 
-#if 0
 TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveConstruction)
 {
-    this->producer.sut->val = 1337;
-    this->getHeader(this->producer.sut).counter = 73;
+    constexpr uint32_t DATA_VALUE = 12301;
+    constexpr uint64_t HEADER_VALUE = 9817238;
 
-    auto moved{std::move(this->producer.sut)};
+    this->setUnderlyingData(this->producer, DATA_VALUE, HEADER_VALUE);
 
-    verifyContent(moved, 1337, 73);
+    typename TestFixture::ProducerHelper destination(std::move(this->producer.sut));
 
-    verifyEmpty(this->producer.sut);
+    this->verifyEmpty(this->producer);
+    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
 }
 
 TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveConstruction)
 {
-    auto moved{std::move(this->consumer.sut)};
+    constexpr uint32_t DATA_VALUE = 88121;
+    constexpr uint64_t HEADER_VALUE = 55123;
 
-    verifyNotEmpty(moved);
+    this->setUnderlyingData(this->consumer, DATA_VALUE, HEADER_VALUE);
 
-    verifyEmpty(this->consumer.sut);
+    typename TestFixture::ConsumerHelper destination(std::move(this->consumer.sut));
+
+    this->verifyEmpty(this->consumer);
+    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
 }
 
 TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveAssignment)
 {
+    constexpr uint32_t DATA_VALUE = 8812165;
+    constexpr uint64_t HEADER_VALUE = 55123123;
+
+    this->setUnderlyingData(this->producer, DATA_VALUE, HEADER_VALUE);
+
     typename TestFixture::ProducerHelper destination(this->mockInterface);
-    this->producer.sut->val = 81921;
-    this->getHeader(this->producer.sut).counter = 55551;
 
     destination.sut = std::move(this->producer.sut);
 
-    EXPECT_TRUE(destination.sut);
-    ASSERT_THAT(destination.sut.get(), Ne(nullptr));
-    EXPECT_THAT(destination.sut.get()->val, Eq(81921));
-    EXPECT_THAT(this->getHeader(destination.sut).counter, Eq(55551));
-
-    verifyEmpty(this->producer.sut);
+    this->verifyEmpty(this->producer);
+    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
 }
 
 TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveAssignment)
 {
+    constexpr uint32_t DATA_VALUE = 8165;
+    constexpr uint64_t HEADER_VALUE = 1123;
+
+    this->setUnderlyingData(this->consumer, DATA_VALUE, HEADER_VALUE);
+
     typename TestFixture::ConsumerHelper destination;
+
     destination.sut = std::move(this->consumer.sut);
 
-    EXPECT_TRUE(destination.sut);
-
-    verifyEmpty(this->consumer.sut);
+    this->verifyEmpty(this->consumer);
+    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
 }
 
-TYPED_TEST(SmartChunkTest, PublishesSmartChunkViaPublisherInterfaceWorks)
+TYPED_TEST(SmartChunkTest, SendingSmartChunkSucceeds)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "0b13578c-d654-4802-80a4-f45e5fd73268");
-
-    this->sut.emplace(std::move(this->smartChunkPtr), this->mockInterface);
-
     EXPECT_CALL(this->mockInterface, publishMock).Times(1);
 
-    this->send();
+    this->send(this->producer.sut);
+    this->verifyEmpty(this->producer);
 }
 
-
-TYPED_TEST(SmartChunkTest, PublishingEmptySmartChunkCallsErrorHandler)
+TYPED_TEST(SmartChunkTest, SendingSmartChunkMultipleTimesFails)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "b49bdcb3-6f8a-42c1-bb6c-a745f1a49b0e");
-    this->sut.emplace(std::move(this->smartChunkPtr), this->mockInterface);
-
     EXPECT_CALL(this->mockInterface, publishMock).Times(1);
-    this->send();
+
+    this->send(this->producer.sut);
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
@@ -288,31 +296,37 @@ TYPED_TEST(SmartChunkTest, PublishingEmptySmartChunkCallsErrorHandler)
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
-    this->send();
+    this->send(this->producer.sut);
 
     ASSERT_TRUE(detectedError.has_value());
     ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__PUBLISHING_EMPTY_SAMPLE));
 }
 
-TYPED_TEST(SmartChunkTest, CallingGetUserHeaderFromNonConstTypeReturnsCorrectAddress)
+TYPED_TEST(SmartChunkTest, SendingMovedSmartChunkFails)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "d26dd24c-0c84-4c3d-96ab-bf51e52c9e9f");
-    this->sut.emplace(std::move(this->smartChunkPtr), this->mockInterface);
+    typename TestFixture::ProducerHelper destination(this->mockInterface);
 
-    auto& header = this->getHeader();
+    destination.sut = std::move(this->producer.sut);
 
-    ASSERT_EQ(&header, this->chunk.userHeader());
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>&, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+        });
+    this->send(this->producer.sut);
+
+    ASSERT_TRUE(detectedError.has_value());
+    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__PUBLISHING_EMPTY_SAMPLE));
 }
 
-TYPED_TEST(SmartChunkTest, CallingGetUserHeaderFromConstTypeReturnsCorrectAddress)
+TYPED_TEST(SmartChunkTest, SendingDestinationOfValidMoveOriginSucceeds)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "fb6b6706-7a15-4ae2-a77a-d4b21431ca57");
+    typename TestFixture::ProducerHelper destination(this->mockInterface);
 
-    this->sut.emplace(std::move(this->smartChunkPtr), this->mockInterface);
+    destination.sut = std::move(this->producer.sut);
 
-    const auto& header = this->getConstHeader();
-
-    ASSERT_EQ(&header, this->chunk.userHeader());
+    EXPECT_CALL(this->mockInterface, publishMock).Times(1);
+    this->send(destination.sut);
 }
-#endif
 } // namespace
