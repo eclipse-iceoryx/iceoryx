@@ -63,6 +63,17 @@ if(BUILD_TEST)
 
     file(MAKE_DIRECTORY ${BUILD_DIR})
 
+    if(NOT WIN32)
+        execute_process(
+            COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+            INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-remove-werror-from-build-flags.patch"
+            WORKING_DIRECTORY "${SOURCE_DIR}"
+            RESULT_VARIABLE result)
+        if(result)
+            message(WARNING "CMake step [patch] for googletest failed: ${result}! Build of gtest might fail")
+        endif()
+    endif()
+
     execute_process(COMMAND ${CMAKE_COMMAND} ${ENABLE_STATIC_DEBUG} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${SOURCE_DIR}"
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${BUILD_DIR} )
