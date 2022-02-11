@@ -26,6 +26,10 @@ namespace iox
 {
 namespace runtime
 {
+enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
+{
+    SERVICE_REGISTRY_HAS_CHANGED
+};
 class ServiceDiscovery
 {
   public:
@@ -41,8 +45,7 @@ class ServiceDiscovery
     /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
     /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
     /// @return ServiceContainer
-    /// ServiceContainer: on success, container that is filled with all matching instances
-    /// FindServiceError: if any, encountered during the operation
+    /// ServiceContainer: container that is filled with all matching instances
     ServiceContainer findService(const cxx::optional<capro::IdString_t>& service,
                                  const cxx::optional<capro::IdString_t>& instance,
                                  const cxx::optional<capro::IdString_t>& event) noexcept;
@@ -60,8 +63,8 @@ class ServiceDiscovery
     friend iox::popo::NotificationAttorney;
 
   private:
-    void enableEvent(popo::TriggerHandle&& triggerHandle, const popo::SubscriberEvent event) noexcept;
-    void disableEvent(const popo::SubscriberEvent event) noexcept;
+    void enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept;
+    void disableEvent(const ServiceDiscoveryEvent event) noexcept;
     void invalidateTrigger(const uint64_t uniqueTriggerId);
     iox::popo::WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);

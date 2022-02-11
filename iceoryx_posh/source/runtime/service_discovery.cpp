@@ -25,15 +25,15 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
                                                const cxx::optional<capro::IdString_t>& instance,
                                                const cxx::optional<capro::IdString_t>& event) noexcept
 {
-    ServiceContainer searchResult;
-    roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
-
     // Copy the new service registry if has changed
     m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
         m_serviceRegistry = *serviceRegistrySample;
     });
 
+    roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
     m_serviceRegistry.find(tempSearchResult, service, instance, event);
+
+    ServiceContainer searchResult;
     for (auto& service : tempSearchResult)
     {
         searchResult.push_back(service.serviceDescription);
@@ -55,14 +55,21 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
     auto searchResult = findService(service, instance, event);
     callable(searchResult);
 }
-void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const popo::SubscriberEvent event) noexcept
+
+void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept
 {
-    m_serviceRegistrySubscriber.enableEvent(std::move(triggerHandle), event);
+    if (event == ServiceDiscoveryEvent::SERVICE_REGISTRY_HAS_CHANGED)
+    {
+        m_serviceRegistrySubscriber.enableEvent(std::move(triggerHandle), popo::SubscriberEvent::DATA_RECEIVED);
+    }
 }
 
-void ServiceDiscovery::disableEvent(const popo::SubscriberEvent event) noexcept
+void ServiceDiscovery::disableEvent(const ServiceDiscoveryEvent event) noexcept
 {
-    m_serviceRegistrySubscriber.disableEvent(event);
+    if (event == ServiceDiscoveryEvent::SERVICE_REGISTRY_HAS_CHANGED)
+    {
+        m_serviceRegistrySubscriber.disableEvent(popo::SubscriberEvent::DATA_RECEIVED);
+    }
 }
 
 void ServiceDiscovery::invalidateTrigger(const uint64_t uniqueTriggerId)
