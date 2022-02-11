@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -26,7 +27,6 @@
 #include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
 
-
 #include <type_traits>
 
 namespace
@@ -34,17 +34,24 @@ namespace
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::cxx;
+using namespace iox::popo;
+using namespace iox::capro;
 using iox::capro::IdString_t;
 using iox::capro::ServiceDescription;
 using iox::roudi::RouDiEnvironment;
 using iox::runtime::ServiceContainer;
 
+
 class ServiceDiscovery_test : public RouDi_GTest
 {
   public:
+    static bool callbackWasCalled;
+    static ServiceContainer serviceContainer;
     void SetUp() override
     {
         searchResultOfFindServiceWithFindHandler.clear();
+        callbackWasCalled = false;
+        serviceContainer.clear();
     }
 
     void TearDown() override
@@ -59,8 +66,22 @@ class ServiceDiscovery_test : public RouDi_GTest
     {
         searchResultOfFindServiceWithFindHandler = s;
     };
+
+    static void testCallback(ServiceDiscovery* const serviceDiscoveryPointer)
+    {
+        IOX_DISCARD_RESULT(serviceDiscoveryPointer);
+        callbackWasCalled = true;
+    }
+
+    static void searchForService(ServiceDiscovery* const serviceDiscoveryPointer, ServiceDescription* service)
+    {
+        serviceContainer = serviceDiscoveryPointer->findService(
+            service->getServiceIDString(), service->getInstanceIDString(), service->getEventIDString());
+    }
 };
 
+bool ServiceDiscovery_test::callbackWasCalled{false};
+ServiceContainer ServiceDiscovery_test::serviceContainer;
 ServiceContainer ServiceDiscovery_test::searchResultOfFindServiceWithFindHandler;
 
 void compareServiceContainers(const ServiceContainer& lhs, const ServiceContainer& rhs)
@@ -585,11 +606,7 @@ TEST_F(ServiceDiscovery_test, FindServiceWithEmptyCallableDoesNotDie)
     sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
 }
 
-static void testCallback(ServiceDiscovery* const ServiceDiscoveryPointer)
-{
-    IOX_DISCARD_RESULT(ServiceDiscoveryPointer);
-}
-
+/// @todo #415 add enum mapping SERVICE_REGISTRY_HAS_CHANGED
 TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToWaitSet)
 {
     iox::popo::WaitSet<10U> waitSet;
@@ -599,6 +616,53 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToWaitSet)
             sut, iox::popo::SubscriberEvent::DATA_RECEIVED, 0U, iox::popo::createNotificationCallback(testCallback))
         .and_then([]() { GTEST_SUCCEED(); })
         .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+}
+
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedbyWaitSetAboutSingleService)
+{
+    iox::popo::WaitSet<1U> waitSet;
+
+    waitSet
+        .attachEvent(
+            sut, iox::popo::SubscriberEvent::DATA_RECEIVED, 0U, iox::popo::createNotificationCallback(testCallback))
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Moep", "Fluepp", "Shoezzel");
+    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
+
+    auto notificationVector = waitSet.wait();
+
+    for (auto& notification : notificationVector)
+    {
+        (*notification)();
+    }
+
+    EXPECT_TRUE(callbackWasCalled);
+}
+
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryNotifiedbyWaitSetFindsSingleService)
+{
+    iox::popo::WaitSet<1U> waitSet;
+    iox::capro::ServiceDescription serviceDescriptionToSearchFor("Soep", "Moemi", "Luela");
+
+    waitSet
+        .attachEvent(sut,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     0U,
+                     iox::popo::createNotificationCallback(searchForService, serviceDescriptionToSearchFor))
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+
+    iox::popo::UntypedPublisher publisher(serviceDescriptionToSearchFor);
+
+    auto notificationVector = waitSet.wait();
+
+    for (auto& notification : notificationVector)
+    {
+        (*notification)();
+    }
+
+    ASSERT_FALSE(serviceContainer.empty());
+    EXPECT_THAT(serviceContainer.front(), Eq(serviceDescriptionToSearchFor));
 }
 
 TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToListener)
@@ -612,17 +676,40 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsAttachableToListener)
         .or_else([](auto) { GTEST_FAIL() << "Could not attach to listener"; });
 }
 
-TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedAboutNewService)
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedByListenerAboutSingleService)
 {
-    // bool callbackWasCalled{false};
+    iox::popo::Listener listener;
 
-    // auto myCallback = [](ServiceDiscovery* const ServiceDiscoveryPointer) -> void {
-    //     IOX_DISCARD_RESULT(ServiceDiscoveryPointer);
-    //     // callbackWasCalled = true;
-    // };
+    listener
+        .attachEvent(
+            sut, iox::popo::SubscriberEvent::DATA_RECEIVED, iox::popo::createNotificationCallback(testCallback))
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to listener"; });
 
-    // EXPECT_TRUE(callbackWasCalled);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Moep", "Fluepp", "Shoezzel");
+    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
+
+    this->InterOpWait();
+
+    EXPECT_TRUE(callbackWasCalled);
 }
 
+TEST_F(ServiceDiscovery_test, ServiceDiscoveryNotifiedbyListenerFindsSingleService)
+{
+    iox::popo::Listener listener;
+    iox::capro::ServiceDescription serviceDescriptionToSearchFor("Gimbel", "Seggel", "Doedel");
+
+    listener
+        .attachEvent(sut,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(searchForService, serviceDescriptionToSearchFor))
+        .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
+
+    iox::popo::UntypedPublisher publisher(serviceDescriptionToSearchFor);
+
+    this->InterOpWait();
+
+    ASSERT_FALSE(serviceContainer.empty());
+    EXPECT_THAT(serviceContainer.front(), Eq(serviceDescriptionToSearchFor));
+}
 
 } // namespace

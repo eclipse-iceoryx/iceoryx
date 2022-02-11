@@ -71,9 +71,9 @@ void ServiceDiscovery::invalidateTrigger(const uint64_t uniqueTriggerId)
 }
 
 popo::WaitSetIsConditionSatisfiedCallback
-ServiceDiscovery::getCallbackForIsStateConditionSatisfied(const popo::SubscriberState event)
+ServiceDiscovery::getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state)
 {
-    return m_serviceRegistrySubscriber.getCallbackForIsStateConditionSatisfied(event);
+    return m_serviceRegistrySubscriber.getCallbackForIsStateConditionSatisfied(state);
 }
 
 } // namespace runtime
