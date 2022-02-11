@@ -20,6 +20,7 @@
 
 #include "iceoryx_utils/cxx/vector.hpp"
 #include <iostream>
+#include <limits>
 
 #include <assert.h>
 #include <limits>

@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "1.0.1")
+set(IOX_VERSION_STRING "1.0.2")
 
 
 #include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxVersion.cmake")
