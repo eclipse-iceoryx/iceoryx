@@ -81,17 +81,11 @@ class ServiceRegistry
               const cxx::optional<capro::IdString_t>& instance,
               const cxx::optional<capro::IdString_t>& event) const noexcept;
 
-    /// @brief Searches for given service description in registry and applies a function to each
-    ///        matching entry, the function may have side effects but cannot change the entry
-    /// @param[in] searchResult, reference to the vector which will be filled with the results
-    /// @param[in] service, string or wildcard (= iox::cxx::nullopt) to search for
-    /// @param[in] instance, string or wildcard (= iox::cxx::nullopt) to search for
-    /// @param[in] event, string or wildcard (= iox::cxx::nullopt) to search for
-    /// @param[in] function, the function to apply to the matching entries
+    /// @copydoc ServiceDiscovery::findService
     void find(const cxx::optional<capro::IdString_t>& service,
               const cxx::optional<capro::IdString_t>& instance,
               const cxx::optional<capro::IdString_t>& event,
-              cxx::function_ref<void(const ServiceDescriptionEntry&)> function) const noexcept;
+              cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
     /// @todo #415 this may not be needed later or we can move applyToAll to the public interface,
     ///       (we want to avoid large containers on the stack)

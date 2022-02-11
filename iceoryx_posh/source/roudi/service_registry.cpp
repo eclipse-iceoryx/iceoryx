@@ -116,7 +116,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
 void ServiceRegistry::find(const cxx::optional<capro::IdString_t>& service,
                            const cxx::optional<capro::IdString_t>& instance,
                            const cxx::optional<capro::IdString_t>& event,
-                           cxx::function_ref<void(const ServiceDescriptionEntry&)> function) const noexcept
+                           cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
     {
@@ -128,7 +128,7 @@ void ServiceRegistry::find(const cxx::optional<capro::IdString_t>& service,
 
             if (match)
             {
-                function(*entry);
+                callable(*entry);
             }
         }
     }

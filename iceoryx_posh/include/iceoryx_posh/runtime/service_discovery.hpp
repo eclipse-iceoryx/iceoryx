@@ -50,11 +50,11 @@ class ServiceDiscovery
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
     /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
     /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
-    /// @param[in] function to apply to all matching services
+    /// @param[in] callable to apply to all matching services
     void findService(const cxx::optional<capro::IdString_t>& service,
                      const cxx::optional<capro::IdString_t>& instance,
                      const cxx::optional<capro::IdString_t>& event,
-                     const cxx::function_ref<void(const ServiceContainer&)>& function) noexcept;
+                     const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept;
 
     /// @brief Requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter
