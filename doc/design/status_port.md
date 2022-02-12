@@ -291,12 +291,12 @@ template <typename T>
 class StatusPortReader
 {
   public:
-    StatusPortReader(cxx::not_null<StatusPortData<T>* const> statusPortDataPtr) noexcept
-        : m_statusPortDataPtr(statusPortDataPtr)
+    StatusPortReader(const StatusPortData<T>& statusPortDataRef) noexcept
+        : m_statusPortDataRef(statusPortDataRef)
     /// @todo #982 Replace once the RouDi infrastructure is ready
-    // m_statusPortDataPtr(iox::runtime::PoshRuntime::getInstance().getMiddlewareStatusPort(sizeof(T)))
+    // m_statusPortDataRef(iox::runtime::PoshRuntime::getInstance().getMiddlewareStatusPort(sizeof(T)))
     {
-        cxx::Expects(m_statusPortDataPtr->latestTransaction.is_lock_free());
+        cxx::Expects(m_statusPortDataRef.latestTransaction.is_lock_free());
     }
 
     StatusPortReader(StatusPortReader&& rhs) = delete;
@@ -312,11 +312,11 @@ class StatusPortReader
         do
         {
             // Get current world view
-            currentTransaction = m_statusPortDataPtr->latestTransaction.load(std::memory_order_acquire);
+            currentTransaction = m_statusPortDataRef.latestTransaction.load(std::memory_order_acquire);
             auto currentReadPosition =
                 static_cast<std::underlying_type<ActiveChunk>::type>(currentTransaction.activeChunk);
 
-            if (!m_statusPortDataPtr->chunks[currentReadPosition].data.has_value())
+            if (!m_statusPortDataRef.chunks[currentReadPosition].data.has_value())
             {
                 return;
             }
@@ -325,14 +325,14 @@ class StatusPortReader
             // Nope, we just need to detect if the StatusPortWriter has stored something in the meantime aka the world a
             // turned one step further. In such a case, we'll just copy the data again and re-call the callable
 
-            callable(*(m_statusPortDataPtr->chunks[currentReadPosition].data));
+            callable(*(m_statusPortDataRef.chunks[currentReadPosition].data));
 
             // Re-call the callable if the world changed in the meantime
-        } while (currentTransaction != m_statusPortDataPtr->latestTransaction.load(std::memory_order_acquire));
+        } while (currentTransaction != m_statusPortDataRef.latestTransaction.load(std::memory_order_acquire));
     }
 
   private:
-    StatusPortData<T>* m_statusPortDataPtr;
+    const StatusPortData<T>& m_statusPortDataRef;
     /// @todo #982 add getMembers() when integrating into RouDi infrastructure
 };
 
@@ -340,10 +340,10 @@ template <typename T>
 class StatusPortWriter
 {
   public:
-    StatusPortWriter(cxx::not_null<StatusPortData<T>*> statusPortDataPtr) noexcept
-        : m_statusPortDataPtr(statusPortDataPtr)
+    StatusPortWriter(StatusPortData<T>& statusPortDataRef) noexcept
+        : m_statusPortDataRef(statusPortDataRef)
     /// @todo #982 Replace once the RouDi infrastructure is ready
-    // m_statusPortDataPtr(iox::runtime::PoshRuntime::getInstance().getMiddlewareStatusPort(sizeof(T)))
+    // m_statusPortDataRef(iox::runtime::PoshRuntime::getInstance().getMiddlewareStatusPort(sizeof(T)))
     {
     }
 
@@ -358,26 +358,26 @@ class StatusPortWriter
         // Against nothing we are the boss and the single entitiy changing latestTransaction, hence no CAS is needed
 
         // Get current world view
-        auto currentTransaction = m_statusPortDataPtr->latestTransaction.load(std::memory_order_relaxed);
+        auto currentTransaction = m_statusPortDataRef.latestTransaction.load(std::memory_order_relaxed);
         // Get the readPosition and toggle it to get write position
         auto currentWritePosition =
             1 xor static_cast<std::underlying_type<ActiveChunk>::type>(currentTransaction.activeChunk);
 
         /// @todo #982 Later we'll directly pass the dereferenced raw shared memory pointer
-        // callable(*(m_statusPortDataPtr->chunks[currentWritePosition].data));
+        // callable(*(m_statusPortDataRef.chunks[currentWritePosition].data));
 
         // Update our new world view, it can't fail because we're the only writer
         T valueToStore;
         callable(valueToStore);
-        m_statusPortDataPtr->chunks[currentWritePosition].data.emplace(valueToStore);
+        m_statusPortDataRef.chunks[currentWritePosition].data.emplace(valueToStore);
 
         Transaction newTransaction{static_cast<ActiveChunk>(currentWritePosition), ++currentTransaction.abaCounter};
-        m_statusPortDataPtr->latestTransaction.store(newTransaction, std::memory_order_release);
+        m_statusPortDataRef.latestTransaction.store(newTransaction, std::memory_order_release);
         // Store operation aka world view is now observable for all readers
     }
 
   private:
-    StatusPortData<T>* m_statusPortDataPtr;
+    StatusPortData<T>& m_statusPortDataRef;
     /// @todo #982 add getMembers() when integrating into RouDi infrastructure
 };
 
@@ -385,6 +385,7 @@ class StatusPortWriter
 
 } // namespace popo
 } // namespace iox
+
 ```
 
 ### Discarded ideas & design alternatives
@@ -452,11 +453,11 @@ void copy(cxx::function_ref<void(const T&)> callable) const noexcept
     do
     {
         // Get current world view
-        currentTransaction = m_statusPortDataPtr->latestTransaction.load(std::memory_order_acquire);
+        currentTransaction = m_statusPortDataRef.latestTransaction.load(std::memory_order_acquire);
         auto currentReadPosition =
             static_cast<std::underlying_type<ActiveChunk>::type>(currentTransaction.activeChunk);
 
-        if (!m_statusPortDataPtr->chunks[currentReadPosition].data.has_value())
+        if (!m_statusPortDataRef.chunks[currentReadPosition].data.has_value())
         {
             return;
         }
@@ -464,11 +465,11 @@ void copy(cxx::function_ref<void(const T&)> callable) const noexcept
         // To prevent crashes due to Frankenstein objects (half-written data), we copy the data to our class
         // beforehand. memcpy can never crash when copying Frankenstein objects
         std::memcpy(reinterpret_cast<void*>(&copyOfUserData),
-                    &m_statusPortDataPtr->chunks[currentReadPosition].data.value(),
+                    &m_statusPortDataRef.chunks[currentReadPosition].data.value(),
                     sizeof(T));
 
         // Re-call the callable if the world changed in the meantime
-    } while (currentTransaction != m_statusPortDataPtr->latestTransaction.load(std::memory_order_acquire));
+    } while (currentTransaction != m_statusPortDataRef.latestTransaction.load(std::memory_order_acquire));
     // Now we are sure that data isn't corrupted
     callable(copyOfUserData);
 }
