@@ -130,6 +130,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Remove `InvalidIdString` and `isValid()` from `ServiceDescription`, replace Wildcard string with `iox::cxx::nullopt` [\#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 - Remove creation pattern from `SharedMemory` and replace it with `SharedMemoryBuilder` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 - Remove the leading slash requirement from the name of a shared memory in `SharedMemory` and `SharedMemoryObject` [\#439](https://github.com/eclipse-iceoryx/iceoryx/issues/439)
+- Separate test specific code from `ErrorHandler` and templatize `setTemporaryErrorHandler()` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)
 
 **New API features:**
 

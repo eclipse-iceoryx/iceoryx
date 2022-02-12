@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
 #define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
 
-/// @todo #590 rename this file to error_handler.hpp
+/// @todo #1099 rename this file to error_handler.hpp
 
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
@@ -236,7 +236,7 @@ enum class ErrorLevel : uint32_t
 };
 
 /// @brief Howto use the error handler correctly
-///     1.) Use the macro ICEORYX_ERRORS(error)\ to create the enum for your component and
+///     1.) Use the macro ICEORYX_ERRORS(error) to create the enum for your component and
 ///             add new errors like:
 ///             error(MODULE_NAME__MY_FUNKY_ERROR)
 ///         Attention: Create an error after the following convention:

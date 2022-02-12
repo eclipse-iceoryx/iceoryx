@@ -245,9 +245,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 
         bool errorHandlerCalled = false;
         auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-            [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
-
-                                  const iox::ErrorLevel) { errorHandlerCalled = true; });
+            [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
             getUniqueSD(), publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
@@ -376,9 +374,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 
         bool errorHandlerCalled = false;
         auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-            [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
-
-                                  const iox::ErrorLevel) { errorHandlerCalled = true; });
+            [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
         auto subscriberPortDataResult =
             m_portManager->acquireSubscriberPortData(getUniqueSD(), subscriberOptions, runtimeName1, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);

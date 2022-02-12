@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@ const char* toString(const Error error) noexcept
     return ERROR_NAMES[static_cast<typename std::underlying_type<Error>::type>(error)];
 }
 
-void ErrorHandler::defaultHandler(const uint32_t error IOX_MAYBE_UNUSED,
-                                  const char* errorName,
-                                  const ErrorLevel level) noexcept
+void ErrorHandler::defaultHandler(const uint32_t, const char* errorName, const ErrorLevel level) noexcept
 {
     std::stringstream ss;
     ss << "ICEORYX error! " << errorName;
