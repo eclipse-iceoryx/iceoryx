@@ -159,7 +159,6 @@ CommandLineOptions CommandLineParser::parse(int argc,
     for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < static_cast<uint64_t>(argc); ++i)
     {
         const auto skipCommandLineArgument = [&] { ++i; };
-
         if (!doesOptionStartWithMinus(argv[i]))
         {
             return m_options;
@@ -196,7 +195,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
             }
         }
 
-        if (isValueOptionFollowedByValue(*optionEntry, isNextArgumentAValue(i)))
+        if (!isValueOptionFollowedByValue(*optionEntry, isNextArgumentAValue(i)))
         {
             return m_options;
         }
