@@ -275,8 +275,7 @@ enum class ErrorLevel : uint32_t
 /// errorHandler(Error::kTEST__ASSERT_CALLED);
 /// ASSERT_TRUE(called);
 /// @endcode
-/// @tparam[in] Error type of the enum which is used to report the error
-/// @todo #590 use enable_if with is_enum
+/// @tparam[in] Error type which is used to report the error (typically an enum)
 template <typename Error>
 void errorHandler(const Error error,
                   const std::function<void()>& errorCallBack = std::function<void()>(),
