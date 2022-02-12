@@ -305,7 +305,7 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard =
-        iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>([&](const auto error, const auto errorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const auto error, const auto errorLevel) {
             EXPECT_THAT(error, Eq(iox::Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             detectedError.emplace(error);
@@ -344,7 +344,7 @@ TEST_F(PortManager_test,
     publisherPortDataResult.value()->m_toBeDestroyed = true;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&](const auto error, const auto) { detectedError.emplace(error); });
 
     // second call must now also succeed

@@ -199,7 +199,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
     caproMessage.m_chunkQueueData = nullptr;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
             EXPECT_THAT(error, Eq(iox::Error::kPOPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
@@ -261,7 +261,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithInvalidCaProMessageTypeCallsErrorHand
     auto caproMessage = CaproMessage{CaproMessageType::PUB, sut.portData.m_serviceDescription};
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
             EXPECT_THAT(error, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
@@ -283,7 +283,7 @@ TEST_F(ServerPort_test, StateOfferedWithInvalidCaProMessageTypeCallsErrorHandler
     auto caproMessage = CaproMessage{CaproMessageType::SUB, sut.portData.m_serviceDescription};
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler<iox::Error>(
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
         [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
             EXPECT_THAT(error, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
