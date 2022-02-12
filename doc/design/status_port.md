@@ -438,11 +438,14 @@ Potential candidates:
 
 ## Open issues
 
-* Naming
+* [ ] Naming
     * `StatusPort{Writer,Reader}` or just `StatusReader` and `StatusWriter`?
-* Does `copy()` make sense as an additional contract with the user?
+* [x] Does `copy()` make sense as an additional contract with the user?
     * It would be possible that the user provides an arbitrary lambda, that does
     not need to be written with care
+    * If such a `copy` method would be implemented each `StatusPortReader` would consume the memory
+    of `sizeof(T)` and hence memory-wise there wouldn't be a huge difference to the traditional
+    pub/sub communication. Hence, this shall probably not be implemented in the final solution.
 
 ```cpp
 void copy(cxx::function_ref<void(const T&)> callable) const noexcept
