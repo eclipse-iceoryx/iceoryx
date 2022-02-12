@@ -106,6 +106,10 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
     EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
+///////////////////////////
+/// BEGIN optionFailureTest
+///////////////////////////
+
 void OptionFailureTest(const std::vector<std::string>& options,
                        const std::vector<std::string>& optionsToRegister = {}) noexcept
 {
@@ -134,46 +138,212 @@ void OptionFailureTest(const std::vector<std::string>& options,
     EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
-/// TODO: this test has to many error outputs check line 159 in cpp
-TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus)
+TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_SingleArgument)
 {
+    std::vector<std::string> optionsToRegister{"i-have-no-minus"};
     OptionFailureTest({"i-have-no-minus"});
+    OptionFailureTest({"i-have-no-minus", "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty)
+TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
+    // begin
+    OptionFailureTest({"i-have-no-minus", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
+    OptionFailureTest({"i-have-no-minus", "someValue", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
+    // middle
+    OptionFailureTest({"--set", "setValue", "i-have-no-minus", "--bla", "blaValue"}, optionsToRegister);
+    OptionFailureTest({"--set", "setValue", "i-have-no-minus", "someValue", "--bla", "blaValue"}, optionsToRegister);
+    // end
+    OptionFailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-minus"}, optionsToRegister);
+    OptionFailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-minus", "someValue"}, optionsToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty_SingleArgument)
 {
     OptionFailureTest({"-"});
+    OptionFailureTest({"-", "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty)
+TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"set", "bla"};
+    // begin
+    OptionFailureTest({"-", "--set", "setValue123", "--bla", "blaValue455"}, optionsToRegister);
+    OptionFailureTest({"-", "someValue", "--set", "setValue123", "--bla", "blaValue455"}, optionsToRegister);
+    // middle
+    OptionFailureTest({"--set", "setValue123", "-", "--bla", "blaValue455"}, optionsToRegister);
+    OptionFailureTest({"--set", "setValue123", "-", "someValue", "--bla", "blaValue455"}, optionsToRegister);
+    // end
+    OptionFailureTest({"--set", "setValue123", "--bla", "blaValue455", "-"}, optionsToRegister);
+    OptionFailureTest({"--set", "setValue123", "--bla", "blaValue455", "-", "someValue"}, optionsToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty_SingleArgument)
 {
     OptionFailureTest({"--"});
+    OptionFailureTest({"--", "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter)
+TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty_MultiArgument)
 {
-    OptionFailureTest({"-invalid-option"});
+    std::vector<std::string> optionsToRegister{"set", "bla"};
+    // begin
+    OptionFailureTest({"--", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
+    OptionFailureTest({"--", "someValue", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
+    // middle
+    OptionFailureTest({"--bla", "blaValue123123", "--", "--set", "setValueXXX"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue123123", "--", "someValue", "--set", "setValueXXX"}, optionsToRegister);
+    // end
+    OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "--"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "--", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenLongOptionStartsWithTripleMinus)
+TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter_SingleArgument)
 {
-    OptionFailureTest({"---invalid-long-option"});
+    std::vector<std::string> optionsToRegister{"invalid-option"};
+    OptionFailureTest({"-invalid-option"}, optionsToRegister);
+    OptionFailureTest({"-invalid-option", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize)
+TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"set", "bla", "invalid-option"};
+    // begin
+    OptionFailureTest({"-invalid-option", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
+    OptionFailureTest({"-invalid-option", "someValue", "--bla", "blaValue123123", "--set", "setValueXXX"},
+                      optionsToRegister);
+    // middle
+    OptionFailureTest({"--bla", "blaValue123123", "-invalid-option", "--set", "setValueXXX"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue123123", "-invalid-option", "someValue", "--set", "setValueXXX"},
+                      optionsToRegister);
+    // end
+    OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "-invalid-option"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "-invalid-option", "someValue"},
+                      optionsToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenLongOptionStartsWithTripleMinus_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{"invalid-long-option"};
+    OptionFailureTest({"---invalid-long-option"}, optionsToRegister);
+    OptionFailureTest({"---invalid-long-option", "someValue"}, optionsToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenLongOptionNameHasMoreThenOneLetter_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"set", "bla", "invalid-long-option"};
+    // begin
+    OptionFailureTest({"--invalid-long-option", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
+    OptionFailureTest({"--invalid-long-option", "someValue", "--bla", "blaValue123123", "--set", "setValueXXX"},
+                      optionsToRegister);
+    // middle
+    OptionFailureTest({"--bla", "blaValue123123", "--invalid-long-option", "--set", "setValueXXX"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue123123", "--invalid-long-option", "someValue", "--set", "setValueXXX"},
+                      optionsToRegister);
+    // end
+    OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "--invalid-long-option"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "--invalid-long-option", "someValue"},
+                      optionsToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize_SingleArgument)
 {
     OptionFailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')});
+    OptionFailureTest(
+        {std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'), "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption)
+TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize_MultiArgument)
 {
-    std::vector<std::string> optionsToRegister{"set"};
+    std::vector<std::string> optionsToRegister{"set", "bla"};
+    // begin
+    OptionFailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                       "--set",
+                       "setValue",
+                       "--bla",
+                       "blaValue"},
+                      optionsToRegister);
+    OptionFailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                       "someValue",
+                       "--set",
+                       "setValue",
+                       "--bla",
+                       "blaValue"},
+                      optionsToRegister);
+    // middle
+    OptionFailureTest({"--set",
+                       "setValue",
+                       std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                       "--bla",
+                       "blaValue"},
+                      optionsToRegister);
+    OptionFailureTest({"someValue",
+                       "--set",
+                       std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                       "setValue",
+                       "--bla",
+                       "blaValue"},
+                      optionsToRegister);
+    // end
+    OptionFailureTest({"--set",
+                       "setValue",
+                       "--bla",
+                       "blaValue",
+                       std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')},
+                      optionsToRegister);
+    OptionFailureTest({"--set",
+                       "setValue",
+                       "--bla",
+                       "blaValue",
+                       std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                       "someValue"},
+                      optionsToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{"set", "oh-no-i-am-an-option"};
     OptionFailureTest({"--set", "--oh-no-i-am-an-option"}, optionsToRegister);
+    OptionFailureTest({"--set", "--oh-no-i-am-an-option", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenValueOptionIsAtTheEnd)
+TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"set", "bla", "fuu", "oh-no-i-am-an-option"};
+    // begin
+    OptionFailureTest({"--set", "--oh-no-i-am-an-option", "--bla", "blaValue", "--fuu", "fuuValue"}, optionsToRegister);
+    OptionFailureTest({"--set", "--oh-no-i-am-an-option", "someValue", "--bla", "blaValue", "--fuu", "fuuValue"},
+                      optionsToRegister);
+    // middle
+    OptionFailureTest({"--bla", "--set", "--oh-no-i-am-an-option", "--fuu", "fuuValue"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue", "--set", "--oh-no-i-am-an-option", "someValue", "--fuu", "fuuValue"},
+                      optionsToRegister);
+
+    // end
+    OptionFailureTest({"-fuu", "--bla", "--set", "--oh-no-i-am-an-option"}, optionsToRegister);
+    OptionFailureTest({"-fuu", "fuuValue", "--bla", "blaValue", "--set", "--oh-no-i-am-an-option", "someValue"},
+                      optionsToRegister);
+}
+
+
+TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_SingleArgument)
 {
     std::vector<std::string> optionsToRegister{"set"};
-    OptionFailureTest({"--set"}, optionsToRegister);
+    OptionFailureTest({"--set", "bla", "--set", "fuu"}, optionsToRegister);
 }
+
+TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
+    OptionFailureTest({"--set", "fuuu", "--bla", "blaValue", "--fuu", "fuuValue", "--set", "bla"}, optionsToRegister);
+    OptionFailureTest({"--bla", "blaValue", "--set", "fuuu", "--fuu", "fuuValue", "--set", "bla"}, optionsToRegister);
+    OptionFailureTest({"--set", "fuuu", "--bla", "blaValue", "--set", "bla", "--fuu", "fuuValue"}, optionsToRegister);
+}
+
+///////////////////////////
+/// END optionFailureTest
+///////////////////////////
+
+
 } // namespace
