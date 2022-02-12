@@ -303,15 +303,8 @@ class ErrorHandler
 
 const char* toString(const Error error) noexcept;
 
-/// @todo #590 move the implementations below to .inl
-template <typename Error>
-inline void errorHandler(const Error error,
-                         const std::function<void()>& errorCallBack IOX_MAYBE_UNUSED,
-                         const ErrorLevel level) noexcept
-{
-    ErrorHandler::handler(static_cast<typename std::underlying_type<Error>::type>(error), toString(error), level);
-}
-
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/error_handling/error_handling.inl"
 
 #endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_HPP
