@@ -56,7 +56,8 @@ inline void errorHandlerForTest(const uint32_t error, const char* errorName, con
     }
     else
     {
-        GTEST_FAIL() << errorName;
+        GTEST_FAIL() << "errorName: " << errorName << ", expected error enum type: " << expectedErrorEnumType
+                     << ", actual error enum type: " << errorEnumType;
     }
 }
 
