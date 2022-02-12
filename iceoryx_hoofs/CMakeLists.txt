@@ -70,9 +70,9 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_h
     add_library(iceoryx_hoofs_testing
         STATIC
         testing/mocks/time_mock.cpp
+        testing/mocks/error_handler_mock.cpp
         testing/timing_test.cpp
         testing/compile_test.cpp
-        testing/error_handler_mock.cpp
     )
 
     add_library(iceoryx_hoofs_testing::iceoryx_hoofs_testing ALIAS iceoryx_hoofs_testing)
