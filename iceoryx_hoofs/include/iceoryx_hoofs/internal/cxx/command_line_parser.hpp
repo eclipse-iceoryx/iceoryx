@@ -120,6 +120,9 @@ class CommandLineParser
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
     static void printOption(const entry_t& entry) noexcept;
     bool isValueOptionFollowedByValue(const entry_t& entry, const bool isNextArgumentAValue) const noexcept;
+    bool isOptionSet(const entry_t& entry) const noexcept;
+    bool doesOptionValueFitIntoString(const char* value) const noexcept;
+    bool failWhenEntryIsSwitch(const entry_t& entry, const char* nextArgument) const noexcept;
 
   private:
     int m_argc = 0;

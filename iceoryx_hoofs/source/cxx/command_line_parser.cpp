@@ -143,6 +143,53 @@ bool CommandLineParser::isValueOptionFollowedByValue(const entry_t& entry,
     return isValueOptionFollowedByValue;
 }
 
+bool CommandLineParser::isOptionSet(const entry_t& entry) const noexcept
+{
+    bool isOptionSet = false;
+    for (const auto& option : m_options.m_arguments)
+    {
+        if ((option.shortId != NO_SHORT_OPTION && option.shortId == entry.shortOption) || option.id == entry.longOption)
+        {
+            isOptionSet = true;
+            break;
+        }
+    }
+
+    if (isOptionSet)
+    {
+        std::cout << "The option \"" << entry << "\" is already set!" << std::endl;
+        printHelpAndExit(m_options.binaryName().c_str());
+    }
+
+    return isOptionSet;
+}
+
+bool CommandLineParser::doesOptionValueFitIntoString(const char* value) const noexcept
+{
+    const bool doesOptionValueFitIntoString =
+        strnlen(value, CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1) <= CommandLineOptions::MAX_OPTION_VALUE_LENGTH;
+
+    if (!doesOptionValueFitIntoString)
+    {
+        std::cout << "\"" << value << "\" is longer then the maximum supported size of "
+                  << CommandLineOptions::MAX_OPTION_VALUE_LENGTH << " for option values." << std::endl;
+        printHelpAndExit(m_options.binaryName().c_str());
+    }
+
+    return doesOptionValueFitIntoString;
+}
+
+bool CommandLineParser::failWhenEntryIsSwitch(const entry_t& entry, const char* nextArgument) const noexcept
+{
+    if (entry.type == ArgumentType::SWITCH)
+    {
+        std::cout << "The parameter \"" << entry << "\" is a switch. You cannot set the value \"" << nextArgument
+                  << "\" here." << std::endl;
+        printHelpAndExit(m_options.binaryName().c_str());
+    }
+    return entry.type == ArgumentType::SWITCH;
+}
+
 CommandLineOptions CommandLineParser::parse(int argc,
                                             char* argv[],
                                             const uint64_t argcOffset,
@@ -159,13 +206,9 @@ CommandLineOptions CommandLineParser::parse(int argc,
     for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < static_cast<uint64_t>(argc); ++i)
     {
         const auto skipCommandLineArgument = [&] { ++i; };
-        if (!doesOptionStartWithMinus(argv[i]))
-        {
-            return m_options;
-        }
 
-        if (!hasOptionName(argv[i]) || !hasValidSwitchName(argv[i]) || !hasValidOptionName(argv[i])
-            || !doesOptionNameFitIntoString(argv[i]))
+        if (!doesOptionStartWithMinus(argv[i]) || !hasOptionName(argv[i]) || !hasValidSwitchName(argv[i])
+            || !hasValidOptionName(argv[i]) || !doesOptionNameFitIntoString(argv[i]))
         {
             return m_options;
         }
@@ -195,7 +238,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
             }
         }
 
-        if (!isValueOptionFollowedByValue(*optionEntry, isNextArgumentAValue(i)))
+        if (!isValueOptionFollowedByValue(*optionEntry, isNextArgumentAValue(i)) || isOptionSet(*optionEntry))
         {
             return m_options;
         }
@@ -207,34 +250,17 @@ CommandLineOptions CommandLineParser::parse(int argc,
         // parse value of the option name
         if (i + 1 < static_cast<uint64_t>(argc) && argv[i + 1][0] != '-')
         {
-            if (optionEntry->type == ArgumentType::SWITCH)
+            if (failWhenEntryIsSwitch(*optionEntry, argv[i + 1]) || !doesOptionValueFitIntoString(argv[i + 1]))
             {
-                std::cout << "The parameter \"" << argv[i] << "\" is a switch. You cannot set a value here."
-                          << std::endl;
-                printHelpAndExit(m_options.binaryName().c_str());
                 return m_options;
             }
 
-            if (strnlen(argv[i + 1], CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1)
-                > CommandLineOptions::MAX_OPTION_VALUE_LENGTH)
-            {
-                std::cout << "\"" << argv[i + 1] << "\" is longer then the maximum supported size of "
-                          << CommandLineOptions::MAX_OPTION_VALUE_LENGTH << " for option values." << std::endl;
-                printHelpAndExit(m_options.binaryName().c_str());
-                return m_options;
-            }
             m_options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
             skipCommandLineArgument();
         }
     }
 
-    if (m_options.has("help"))
-    {
-        printHelpAndExit(m_options.binaryName().c_str());
-        return m_options;
-    }
-
-    if (!areAllRequiredValuesPresent())
+    if (m_options.has("help") || !areAllRequiredValuesPresent())
     {
         printHelpAndExit(m_options.binaryName().c_str());
         return m_options;
@@ -259,7 +285,7 @@ CommandLineParser::getOption(const CommandLineOptions::name_t& name) const noexc
 
 bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
 {
-    bool allPresent = true;
+    bool areAllRequiredValuesPresent = true;
     for (const auto& r : m_availableOptions)
     {
         if (r.type == ArgumentType::REQUIRED_VALUE)
@@ -276,11 +302,12 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
             if (!isValuePresent)
             {
                 std::cout << "Required option \"" << r << "\" is unset!" << std::endl;
-                allPresent = false;
+                areAllRequiredValuesPresent = false;
             }
         }
     }
-    return allPresent;
+
+    return areAllRequiredValuesPresent;
 }
 
 const CommandLineOptions::binaryName_t& CommandLineOptions::binaryName() const noexcept
