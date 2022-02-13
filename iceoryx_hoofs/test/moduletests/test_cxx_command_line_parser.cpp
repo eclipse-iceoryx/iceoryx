@@ -50,12 +50,13 @@ class CommandLineParser_test : public Test
 
 // TEST TODO:
 // failureMixWithSwitchAndOption
-// failureRequiredOptions
 // maxArgumentsAreSupported
 // failureWhenLargerMaxArguments
 // argcOffset
 // UnknownOption
 // correct results, switch, option/value, mix
+// conversion failure
+// addOption, duplicates and other restrictions
 
 struct CmdArgs
 {
@@ -115,12 +116,10 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
     EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
-///////////////////////////
-/// BEGIN optionFailureTest
-///////////////////////////
-
 void OptionFailureTest(const std::vector<std::string>& options,
-                       const std::vector<std::string>& optionsToRegister = {}) noexcept
+                       const std::vector<std::string>& optionsToRegister = {},
+                       const std::vector<std::string>& switchesToRegister = {},
+                       const std::vector<std::string>& requiredValuesToRegister = {}) noexcept
 {
     const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
     std::vector<std::string> optionVector{binaryName.c_str()};
@@ -129,8 +128,6 @@ void OptionFailureTest(const std::vector<std::string>& options,
 
     bool wasErrorHandlerCalled = false;
     {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
         CommandLineParser parser("");
         for (const auto& o : optionsToRegister)
         {
@@ -141,20 +138,41 @@ void OptionFailureTest(const std::vector<std::string>& options,
                               "int",
                               "0"});
         }
-        auto options = parser.parse(args.argc, args.argv);
+        for (const auto& s : switchesToRegister)
+        {
+            parser.addOption(
+                {s[0], CommandLineOptions::name_t{TruncateToCapacity, s}, "", ArgumentType::SWITCH, "", ""});
+        }
+        for (const auto& r : requiredValuesToRegister)
+        {
+            parser.addOption({r[0],
+                              CommandLineOptions::name_t(TruncateToCapacity, r),
+                              "",
+                              ArgumentType::REQUIRED_VALUE,
+                              "int",
+                              "0"});
+        }
+
+        {
+            auto handle =
+                iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+            auto options = parser.parse(args.argc, args.argv);
+        }
     }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_SingleArgument)
+/// BEGIN syntax failure test
+
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_SingleArgument)
 {
     std::vector<std::string> optionsToRegister{"i-have-no-minus"};
     OptionFailureTest({"i-have-no-minus"});
     OptionFailureTest({"i-have-no-minus", "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_MultiArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
     // begin
@@ -168,7 +186,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_MultiArgument
     OptionFailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-minus", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_MultiArgument_ShortOption)
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument_ShortOption)
 {
     std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
     // begin
@@ -182,13 +200,13 @@ TEST_F(CommandLineParser_test, FailWhenOptionDoesNotStartWithMinus_MultiArgument
     OptionFailureTest({"-s", "setValue", "-b", "blaValue", "i", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty_SingleArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameIsEmpty_SingleArgument)
 {
     OptionFailureTest({"-"});
     OptionFailureTest({"-", "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty_MultiArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameIsEmpty_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
@@ -202,13 +220,13 @@ TEST_F(CommandLineParser_test, FailWhenShortOptionNameIsEmpty_MultiArgument)
     OptionFailureTest({"--set", "setValue123", "--bla", "blaValue455", "-", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty_SingleArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameIsEmpty_SingleArgument)
 {
     OptionFailureTest({"--"});
     OptionFailureTest({"--", "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty_MultiArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameIsEmpty_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
@@ -222,14 +240,14 @@ TEST_F(CommandLineParser_test, FailWhenOptionNameIsEmpty_MultiArgument)
     OptionFailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "--", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter_SingleArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameHasMoreThenOneLetter_SingleArgument)
 {
     std::vector<std::string> optionsToRegister{"invalid-option"};
     OptionFailureTest({"-invalid-option"}, optionsToRegister);
     OptionFailureTest({"-invalid-option", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter_MultiArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameHasMoreThenOneLetter_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"set", "bla", "invalid-option"};
     // begin
@@ -246,14 +264,14 @@ TEST_F(CommandLineParser_test, FailWhenShortOptionNameHasMoreThenOneLetter_Multi
                       optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenLongOptionStartsWithTripleMinus_SingleArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_SingleArgument)
 {
     std::vector<std::string> optionsToRegister{"invalid-long-option"};
     OptionFailureTest({"---invalid-long-option"}, optionsToRegister);
     OptionFailureTest({"---invalid-long-option", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenLongOptionStartsWithTripleMinus_MultiArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"set", "bla", "invalid-long-option"};
     // begin
@@ -270,14 +288,14 @@ TEST_F(CommandLineParser_test, FailWhenLongOptionStartsWithTripleMinus_MultiArgu
                       optionsToRegister);
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize_SingleArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_SingleArgument)
 {
     OptionFailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')});
     OptionFailureTest(
         {std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'), "someValue"});
 }
 
-TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize_MultiArgument)
+TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
@@ -323,6 +341,10 @@ TEST_F(CommandLineParser_test, FailWhenOptionNameExceedMaximumSize_MultiArgument
                        "someValue"},
                       optionsToRegister);
 }
+
+/// END syntax failure test
+
+/// BEGIN option failure test
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_SingleArgument)
 {
@@ -439,91 +461,217 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
         {"-s", "blaValue", "-b", "fuuValue", "-f", std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a')},
         optionsToRegister);
 }
+/// END option failure test
 
-///////////////////////////
-/// END optionFailureTest
-///////////////////////////
-
-///////////////////////////
-/// BEGIN switchFailureTest
-///////////////////////////
-
-void SwitchFailureTest(const std::vector<std::string>& options,
-                       const std::vector<std::string>& switchesToRegister = {}) noexcept
-{
-    const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
-    std::vector<std::string> optionVector{binaryName.c_str()};
-    optionVector.insert(optionVector.end(), options.begin(), options.end());
-    CmdArgs args(optionVector);
-
-    bool wasErrorHandlerCalled = false;
-    {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        CommandLineParser parser("");
-        for (const auto& o : switchesToRegister)
-        {
-            parser.addOption(
-                {o[0], CommandLineOptions::name_t(TruncateToCapacity, o), "", ArgumentType::SWITCH, "int", "0"});
-        }
-        auto options = parser.parse(args.argc, args.argv);
-    }
-
-    EXPECT_TRUE(wasErrorHandlerCalled);
-}
+/// BEGIN switch failure test
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_SingleArgument)
 {
-    std::vector<std::string> optionsToRegister{"set"};
-    SwitchFailureTest({"--set", "noValueAfterSwitch"}, optionsToRegister);
+    std::vector<std::string> optionsToRegister;
+    std::vector<std::string> switchesToRegister{"set"};
+
+    OptionFailureTest({"--set", "noValueAfterSwitch"}, optionsToRegister, switchesToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MultiArgument)
 {
-    std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
+    std::vector<std::string> optionsToRegister;
+    std::vector<std::string> switchesToRegister{"set", "bla", "fuu"};
 
     // begin
-    SwitchFailureTest({"--set", "noValueAfterSwitch", "--bla", "--fuu"}, optionsToRegister);
+    OptionFailureTest({"--set", "noValueAfterSwitch", "--bla", "--fuu"}, optionsToRegister, switchesToRegister);
     // middle
-    SwitchFailureTest({"--set", "--bla", "noValueAfterSwitch", "--fuu"}, optionsToRegister);
+    OptionFailureTest({"--set", "--bla", "noValueAfterSwitch", "--fuu"}, optionsToRegister, switchesToRegister);
     // end
-    SwitchFailureTest({"--set", "--bla", "--fuu", "noValueAfterSwitch"}, optionsToRegister);
+    OptionFailureTest({"--set", "--bla", "--fuu", "noValueAfterSwitch"}, optionsToRegister, switchesToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MultiArgument_ShortOption)
 {
-    std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
+    std::vector<std::string> optionsToRegister;
+    std::vector<std::string> switchesToRegister{"set", "bla", "fuu"};
 
     // begin
-    SwitchFailureTest({"-s", "noValueAfterSwitch", "-b", "-f"}, optionsToRegister);
+    OptionFailureTest({"-s", "noValueAfterSwitch", "-b", "-f"}, optionsToRegister, switchesToRegister);
     // middle
-    SwitchFailureTest({"-s", "-b", "noValueAfterSwitch", "-f"}, optionsToRegister);
+    OptionFailureTest({"-s", "-b", "noValueAfterSwitch", "-f"}, optionsToRegister, switchesToRegister);
     // end
-    SwitchFailureTest({"-s", "-b", "-f", "noValueAfterSwitch"}, optionsToRegister);
+    OptionFailureTest({"-s", "-b", "-f", "noValueAfterSwitch"}, optionsToRegister, switchesToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenSwitchIsSetMultipleTimes_SingleArgument)
 {
-    std::vector<std::string> optionsToRegister{"set"};
-    SwitchFailureTest({"--set", "--set"}, optionsToRegister);
+    std::vector<std::string> optionsToRegister;
+    std::vector<std::string> switchesToRegister{"set"};
+    OptionFailureTest({"--set", "--set"}, optionsToRegister, switchesToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenSwitchIsSetMultipleTimes_MultiArgument)
 {
-    std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
+    std::vector<std::string> optionsToRegister;
+    std::vector<std::string> switchesToRegister{"set", "bla", "fuu"};
 
     // begin
-    SwitchFailureTest({"--set", "--set", "--bla", "--fuu"}, optionsToRegister);
+    OptionFailureTest({"--set", "--set", "--bla", "--fuu"}, optionsToRegister, switchesToRegister);
     // middle
-    SwitchFailureTest({"--set", "--bla", "--set", "--fuu"}, optionsToRegister);
+    OptionFailureTest({"--set", "--bla", "--set", "--fuu"}, optionsToRegister, switchesToRegister);
     // end
-    SwitchFailureTest({"--set", "--bla", "--fuu", "--set"}, optionsToRegister);
+    OptionFailureTest({"--set", "--bla", "--fuu", "--set"}, optionsToRegister, switchesToRegister);
     // center
-    SwitchFailureTest({"--set", "--fuu", "--fuu", "--bla"}, optionsToRegister);
+    OptionFailureTest({"--set", "--fuu", "--fuu", "--bla"}, optionsToRegister, switchesToRegister);
 }
 
-///////////////////////////
-/// END switchFailureTest
-///////////////////////////
+/// END switch failure test
+
+/// BEGIN required option failure test
+
+TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"set", "fuu"};
+
+    OptionFailureTest({"--set", "ohIForgotFuu"}, optionsToRegister, switchesToRegister, requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "muu"};
+
+    // begin
+    OptionFailureTest({"--bla", "ohIForgotSet", "--fuu", "someFuu", "--muu", "blaarb"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // middle
+    OptionFailureTest({"--set", "ohIForgetBla", "--fuu", "someFuu", "--muu", "blaarb"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // end
+    OptionFailureTest({"--set", "ohIForgotMuu", "--fuu", "someFuu", "--bla", "someBlaa"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_MultiArgument_ShortOption)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "muu"};
+
+    // begin
+    OptionFailureTest({"-b", "ohIForgotSet", "-f", "someFuu", "-m", "blaarb"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // middle
+    OptionFailureTest({"-s", "ohIForgetBla", "-f", "someFuu", "-m", "blaarb"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // end
+    OptionFailureTest({"-s", "ohIForgotMuu", "-f", "someFuu", "-b", "someBlaa"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"set"};
+
+    OptionFailureTest({"--set"}, optionsToRegister, switchesToRegister, requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "toad"};
+
+    // begin
+    OptionFailureTest({"--set", "--fuu", "someValue", "--bla", "blaValue", "--toad", "hypno"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // middle
+    OptionFailureTest({"--set", "someSet", "--fuu", "someValue", "--bla", "--toad", "hypno"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // end
+    OptionFailureTest({"--set", "someSet", "--fuu", "someValue", "--bla", "--toad"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_MultiArgument_ShortOption)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "toad"};
+
+    // begin
+    OptionFailureTest({"-s", "-f", "someValue", "-b", "blaValue", "-t", "hypno"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // middle
+    OptionFailureTest({"-s", "someSet", "-f", "someValue", "-b", "-t", "hypno"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+    // end
+    OptionFailureTest({"-s", "someSet", "-f", "someValue", "-b", "-t"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+/// END required option failure test
+
+/// BEGIN required, optional option and switch failure mix
+TEST_F(CommandLineParser_test, FailWhenOneRequiredOptionIsNotSetWithMixedArguments)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
+    std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
+
+    OptionFailureTest({"--d-switch", "--f-switch", "--a-opt", "someA", "--k-req", "fSet", "--i-req", "asd"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenMultipleRequiredOptionsAreNotSetWithMixedArguments)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
+    std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
+
+    OptionFailureTest({"--d-switch", "--f-switch", "--a-opt", "someA", "--i-req", "asd", "--b-opt", "asd"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+
+TEST_F(CommandLineParser_test, FailWhenNoRequiredOptionIsSetWithMixedArguments)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
+    std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
+
+    OptionFailureTest({"--d-switch", "--f-switch", "--a-opt", "someA", "--e-switch", "--b-opt", "asd"},
+                      optionsToRegister,
+                      switchesToRegister,
+                      requiredValuesToRegister);
+}
+
 
 } // namespace

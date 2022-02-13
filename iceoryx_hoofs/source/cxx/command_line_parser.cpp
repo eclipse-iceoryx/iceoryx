@@ -383,11 +383,35 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
         }
     }
     std::cout << std::endl;
-    errorHandler(Error::kCOMMAND_LINE_PARSING_FAILURE, std::function<void()>(), ErrorLevel::FATAL);
+    errorHandler(Error::kCXX__COMMAND_LINE_PARSING_FAILURE, std::function<void()>(), ErrorLevel::FATAL);
 }
 
 CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
+    for (const auto& registeredOption : m_availableOptions)
+    {
+        bool isLongOrShortOptionRegistered = false;
+        if (registeredOption.longOption == option.longOption)
+        {
+            std::cout << "The longOption \"--" << registeredOption.longOption << "\" is already registered for option "
+                      << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
+            isLongOrShortOptionRegistered = true;
+        }
+
+        if (registeredOption.shortOption == option.shortOption)
+        {
+            std::cout << "The shortOption \"-" << registeredOption.shortOption << "\" is already registered for option "
+                      << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
+            isLongOrShortOptionRegistered = true;
+        }
+
+        if (isLongOrShortOptionRegistered)
+        {
+            errorHandler(
+                Error::kCXX__COMMAND_LINE_OPTION_ALREADY_REGISTERED, std::function<void()>(), ErrorLevel::FATAL);
+            return *this;
+        }
+    }
     m_availableOptions.emplace_back(option);
     return *this;
 }
