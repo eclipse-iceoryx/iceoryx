@@ -25,7 +25,6 @@
 namespace c2cpp
 {
 iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const ENUM iox_ConsumerTooSlowPolicy policy) noexcept;
-iox::popo::ConsumerTooSlowPolicy subscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy) noexcept;
 iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy) noexcept;
 iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noexcept;
 iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noexcept;

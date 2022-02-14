@@ -236,7 +236,6 @@ TEST(cpp2c_enum_translation_test, QueueFullPolicy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "067a164b-b143-47c7-8bab-962dbe519726");
     EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::BLOCK_PRODUCER), QueueFullPolicy_BLOCK_PRODUCER);
-    EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::BLOCK_PRODUCER), QueueFullPolicy_BLOCK_PUBLISHER);
     EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA),
               QueueFullPolicy_DISCARD_OLDEST_DATA);
     // ignore the warning since we would like to test the behavior of an invalid enum value

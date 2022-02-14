@@ -55,9 +55,6 @@ enum iox_ChunkReceiveResult
 enum iox_QueueFullPolicy
 {
     QueueFullPolicy_BLOCK_PRODUCER,
-    /// @deprecated Compatibility value for the legacy use with subscriber only. Will be remove in a future release.
-    /// Please use `QueueFullPolicy_BLOCK_PRODUCER` instead.
-    QueueFullPolicy_BLOCK_PUBLISHER = QueueFullPolicy_BLOCK_PRODUCER,
     QueueFullPolicy_DISCARD_OLDEST_DATA,
 };
 
@@ -68,11 +65,6 @@ enum iox_ConsumerTooSlowPolicy
     ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER,
     ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA,
 };
-/// @deprecated Compatibility alias for the legacy use with publisher only. Will be remove in a future release.
-/// Please use `iox_ConsumerTooSlowPolicy` instead.
-typedef enum iox_ConsumerTooSlowPolicy iox_SubscriberTooSlowPolicy;
-#define SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER
-#define SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA
 
 /// @brief state of allocateChunk
 enum iox_AllocationResult

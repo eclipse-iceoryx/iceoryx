@@ -34,10 +34,6 @@ iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const ENUM iox_ConsumerTo
         iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY, nullptr, iox::ErrorLevel::MODERATE);
     return iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 }
-iox::popo::ConsumerTooSlowPolicy subscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy) noexcept
-{
-    return consumerTooSlowPolicy(policy);
-}
 
 iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy) noexcept
 {

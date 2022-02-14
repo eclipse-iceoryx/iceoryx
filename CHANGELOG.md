@@ -273,8 +273,7 @@ The default `ServiceDescription` consists of empty strings.
 
 - The queue port policy enums are adjusted to use them with `Client` and `Server`.
 
-The `QueueFullPolicy::BLOCK_PUBLISHER` is deprecated and will be removed in a future release.
-Please use the more generic `QueueFullPolicy::BLOCK_PRODUCER` instead.
+The `QueueFullPolicy::BLOCK_PUBLISHER` is replaced with the more generic `QueueFullPolicy::BLOCK_PRODUCER`.
 
 ```cpp
 // old
@@ -300,7 +299,7 @@ iox_sub_options_init(&options);
 options.queueFullPolicy = QueueFullPolicy_BLOCK_PRODUCER;
 ```
 
-The `SubscriberTooSlowPolicy` is deprecated in favour of `ConsumerTooSlowPolicy` and
+The `SubscriberTooSlowPolicy` is replaced with the more generic `ConsumerTooSlowPolicy` and
 `SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER` became `ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER`.
 
 ```cpp
