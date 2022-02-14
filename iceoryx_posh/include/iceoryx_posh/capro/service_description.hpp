@@ -119,7 +119,7 @@ class ServiceDescription
     ServiceDescription& operator=(ServiceDescription&&) noexcept = default;
 
     /// @brief serialization of the capro description.
-    operator cxx::Serialization() const noexcept;
+    explicit operator cxx::Serialization() const noexcept;
 
     /// @brief de-serialization of a ServiceDescription.
     /// @param[in] serialized, Serialization object from which the ServiceDescription shall be created
