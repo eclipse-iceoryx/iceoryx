@@ -93,12 +93,25 @@ class CommandLineParser
         description_t description;
         ArgumentType type = ArgumentType::SWITCH;
         typeName_t typeName;
-        description_t defaultValue;
+        CommandLineOptions::value_t defaultValue;
     };
 
     explicit CommandLineParser(const description_t& programDescription) noexcept;
 
-    CommandLineParser& addOption(const entry_t& option) noexcept;
+    CommandLineParser& addSwitch(const char shortOption,
+                                 const CommandLineOptions::name_t& longOption,
+                                 const description_t& description) noexcept;
+
+    CommandLineParser& addOptionalValue(const char shortOption,
+                                        const CommandLineOptions::name_t& longOption,
+                                        const description_t& description,
+                                        const typeName_t& typeName,
+                                        const CommandLineOptions::value_t& defaultValue) noexcept;
+
+    CommandLineParser& addRequiredValue(const char shortOption,
+                                        const CommandLineOptions::name_t& longOption,
+                                        const description_t& description,
+                                        const typeName_t& typeName) noexcept;
 
     CommandLineOptions parse(int argc,
                              char* argv[],
@@ -106,10 +119,12 @@ class CommandLineParser
                              const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
   private:
+    CommandLineParser& addOption(const entry_t& option) noexcept;
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
     bool areAllRequiredValuesPresent() const noexcept;
     void printHelpAndExit(const char* binaryName) const noexcept;
-
+    void sortAvailableOptions() noexcept;
+    void setDefaultValuesToUnsetOptions() noexcept;
     bool hasArguments(const int argc) const noexcept;
     bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithMinus(const char* option) const noexcept;

@@ -18,6 +18,8 @@
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
+#include <algorithm>
+
 namespace iox
 {
 namespace cxx
@@ -190,11 +192,34 @@ bool CommandLineParser::failWhenEntryIsSwitch(const entry_t& entry, const char* 
     return entry.type == ArgumentType::SWITCH;
 }
 
+void CommandLineParser::sortAvailableOptions() noexcept
+{
+    std::sort(m_availableOptions.begin(), m_availableOptions.end(), [](const entry_t& lhs, const entry_t& rhs) {
+        if (lhs.shortOption != NO_SHORT_OPTION && rhs.shortOption != NO_SHORT_OPTION)
+        {
+            return lhs.shortOption < rhs.shortOption;
+        }
+        else if (!lhs.longOption.empty() && rhs.shortOption != NO_SHORT_OPTION)
+        {
+            return lhs.longOption.c_str()[0] < rhs.shortOption;
+        }
+        else if (lhs.shortOption != NO_SHORT_OPTION && !rhs.longOption.empty())
+        {
+            return lhs.shortOption < rhs.longOption.c_str()[0];
+        }
+
+        return lhs.longOption < rhs.longOption;
+    });
+}
+
 CommandLineOptions CommandLineParser::parse(int argc,
                                             char* argv[],
                                             const uint64_t argcOffset,
                                             const UnknownOption actionWhenOptionUnknown) noexcept
 {
+    /// sort options so that they are alphabetically sorted in help output
+    sortAvailableOptions();
+
     m_argc = argc;
     m_argv = argv;
     // reset options otherwise multiple parse calls work on already parsed options
@@ -262,6 +287,8 @@ CommandLineOptions CommandLineParser::parse(int argc,
         }
     }
 
+    setDefaultValuesToUnsetOptions();
+
     if (m_options.has("help") || !areAllRequiredValuesPresent())
     {
         printHelpAndExit(m_options.binaryName().c_str());
@@ -269,6 +296,35 @@ CommandLineOptions CommandLineParser::parse(int argc,
     }
 
     return m_options;
+}
+
+void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
+{
+    for (const auto& r : m_availableOptions)
+    {
+        if (r.type != ArgumentType::OPTIONAL_VALUE)
+        {
+            continue;
+        }
+
+        bool isOptionAlreadySet = false;
+        for (auto& option : m_options.m_arguments)
+        {
+            if (option.shortId == r.shortOption)
+            {
+                isOptionAlreadySet = true;
+                break;
+            }
+        }
+
+        if (!isOptionAlreadySet)
+        {
+            m_options.m_arguments.emplace_back();
+            m_options.m_arguments.back().id.unsafe_assign(r.longOption);
+            m_options.m_arguments.back().shortId = r.shortOption;
+            m_options.m_arguments.back().value = r.defaultValue;
+        }
+    }
 }
 
 cxx::optional<CommandLineParser::entry_t>
@@ -334,6 +390,7 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
     std::cout << "\n" << m_programDescription << "\n" << std::endl;
     std::cout << "Usage: " << binaryName << " [OPTIONS]\n" << std::endl;
     std::cout << "  Options:" << std::endl;
+
     for (const auto& a : m_availableOptions)
     {
         uint64_t outLength = 4U;
@@ -390,6 +447,12 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
 
 CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
+    if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
+    {
+        errorHandler(Error::kCXX__COMMAND_LINE_INVALID_ARGUMENT, std::function<void()>(), ErrorLevel::FATAL);
+        return *this;
+    }
+
     for (const auto& registeredOption : m_availableOptions)
     {
         bool isLongOrShortOptionRegistered = false;
@@ -416,6 +479,29 @@ CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
     }
     m_availableOptions.emplace_back(option);
     return *this;
+}
+
+CommandLineParser& CommandLineParser::addSwitch(const char shortOption,
+                                                const CommandLineOptions::name_t& longOption,
+                                                const description_t& description) noexcept
+{
+    return addOption({shortOption, longOption, description, ArgumentType::SWITCH, "", ""});
+}
+
+CommandLineParser& CommandLineParser::addOptionalValue(const char shortOption,
+                                                       const CommandLineOptions::name_t& longOption,
+                                                       const description_t& description,
+                                                       const typeName_t& typeName,
+                                                       const CommandLineOptions::value_t& defaultValue) noexcept
+{
+    return addOption({shortOption, longOption, description, ArgumentType::OPTIONAL_VALUE, typeName, defaultValue});
+}
+CommandLineParser& CommandLineParser::addRequiredValue(const char shortOption,
+                                                       const CommandLineOptions::name_t& longOption,
+                                                       const description_t& description,
+                                                       const typeName_t& typeName) noexcept
+{
+    return addOption({shortOption, longOption, description, ArgumentType::REQUIRED_VALUE, typeName, ""});
 }
 
 std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t& entry) noexcept
