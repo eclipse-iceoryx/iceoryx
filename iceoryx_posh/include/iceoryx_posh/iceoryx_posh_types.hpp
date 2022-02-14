@@ -69,8 +69,10 @@ constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBE
 // 1x publisherPort mempool introspection
 // 1x publisherPort process introspection
 // 3x publisherPort port introspection
-// 1x publisherPort service registry
-constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION_AND_SERVICE_REGISTRY = 6;
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION = 5;
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_SERVICE_REGISTRY = 1;
+constexpr uint32_t NUMBER_OF_INTERNAL_PUBLISHERS =
+    PUBLISHERS_RESERVED_FOR_INTROSPECTION + PUBLISHERS_RESERVED_FOR_SERVICE_REGISTRY;
 /// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
 /// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
 /// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we
