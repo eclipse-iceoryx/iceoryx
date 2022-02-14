@@ -33,25 +33,23 @@ class CommandLineParser_test : public Test
   public:
     void SetUp() override
     {
-        // ::testing::internal::CaptureStdout();
+        // if we do not capture stdout then the console is filled with garbage
+        // since the command line parser prints the help on failure
+        ::testing::internal::CaptureStdout();
     }
     void TearDown() override
     {
-        // std::string output = ::testing::internal::GetCapturedStdout();
-        // if (Test::HasFailure())
-        // {
-        //     std::cout << output << std::endl;
-        // }
+        std::string output = ::testing::internal::GetCapturedStdout();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
     }
 
     using str_t = char[CommandLineParser::MAX_DESCRIPTION_LENGTH];
     static CommandLineOptions::value_t defaultValue;
 };
 CommandLineOptions::value_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
-
-// TEST TODO:
-// conversion failure
-// struct macro builder
 
 struct CmdArgs
 {
@@ -962,18 +960,32 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
 }
 
 template <typename T>
-void verifyEntry(const CommandLineOptions& options, const CommandLineOptions::name_t& entry, const T& value)
+void verifyEntry(const CommandLineOptions& options,
+                 const CommandLineOptions::name_t& entry,
+                 const iox::cxx::optional<T>& value)
 {
     auto result = options.get<T>(entry);
 
-    // ASSERT_ does not work in function calls
-    if (result.has_error())
-    {
-        EXPECT_TRUE(false);
-        return;
-    }
+    value
+        .and_then([&](auto& v) {
+            // ASSERT_ does not work in function calls
+            if (result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
 
-    EXPECT_THAT(*result, Eq(value));
+            EXPECT_THAT(*result, Eq(v));
+        })
+        .or_else([&] {
+            if (!result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+
+            EXPECT_THAT(result.get_error(), Eq(CommandLineOptions::Result::UNABLE_TO_CONVERT_VALUE));
+        });
 }
 
 /// BEGIN acquire values correctly
@@ -1237,6 +1249,24 @@ TEST_F(CommandLineParser_test, SuccessfulConversionToNumbers)
     verifyEntry<int16_t>(option, "i-req", {-456});
     verifyEntry<float>(option, "j-req", {123.123f});
     verifyEntry<double>(option, "g-req", {-891.19012});
+}
+
+TEST_F(CommandLineParser_test, MultipleConversionFailures)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
+
+    auto option =
+        SuccessTest({"--a-opt", "-123", "--i-req", "123123123", "--j-req", "iAmNotAFloat", "--g-req", "-891.19012"},
+                    optionsToRegister,
+                    switchesToRegister,
+                    requiredValuesToRegister);
+
+    verifyEntry<uint8_t>(option, "a-opt", iox::cxx::nullopt);
+    verifyEntry<int16_t>(option, "i-req", iox::cxx::nullopt);
+    verifyEntry<float>(option, "j-req", iox::cxx::nullopt);
+    verifyEntry<int64_t>(option, "g-req", iox::cxx::nullopt);
 }
 /// END conversions
 
