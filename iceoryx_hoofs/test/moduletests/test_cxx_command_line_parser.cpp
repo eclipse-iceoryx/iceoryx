@@ -51,6 +51,7 @@ class CommandLineParser_test : public Test
 // argcOffset
 // correct results, switch, option/value, mix
 // conversion failure
+// default value (does not make sense for required values)
 
 struct CmdArgs
 {
@@ -1192,4 +1193,56 @@ TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_Offset)
 }
 /// END acquire values correctly
 
+/// BEGIN acquire mixed values correctly
+
+TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
+    std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
+    auto option = SuccessTest({"--a-opt",
+                               "oh-my-blah",
+                               "--d-switch",
+                               "--i-req",
+                               "someI",
+                               "--j-req",
+                               "someJ",
+                               "--f-switch",
+                               "--g-req",
+                               "someG"},
+                              optionsToRegister,
+                              switchesToRegister,
+                              requiredValuesToRegister);
+
+    verifyEntry<std::string>(option, "a-opt", {"oh-my-blah"});
+    verifyEntry<std::string>(option, "i-req", {"someI"});
+    verifyEntry<std::string>(option, "j-req", {"someJ"});
+    verifyEntry<std::string>(option, "g-req", {"someG"});
+
+    EXPECT_TRUE(option.has("d-switch"));
+    EXPECT_FALSE(option.has("e-switch"));
+    EXPECT_TRUE(option.has("f-switch"));
+}
+
+TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully_ShortOption)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
+    std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
+    auto option = SuccessTest({"-a", "anotherA", "-b", "someB", "-e", "-i", "blaI", "-j", "blaJ", "-g", "blaG"},
+                              optionsToRegister,
+                              switchesToRegister,
+                              requiredValuesToRegister);
+
+    verifyEntry<std::string>(option, "a-opt", {"anotherA"});
+    verifyEntry<std::string>(option, "b-opt", {"someB"});
+    verifyEntry<std::string>(option, "i-req", {"blaI"});
+    verifyEntry<std::string>(option, "j-req", {"blaJ"});
+    verifyEntry<std::string>(option, "g-req", {"blaG"});
+
+    EXPECT_FALSE(option.has("d-switch"));
+    EXPECT_TRUE(option.has("e-switch"));
+    EXPECT_FALSE(option.has("f-switch"));
+}
+/// END acquire mixed values correctly
 } // namespace
