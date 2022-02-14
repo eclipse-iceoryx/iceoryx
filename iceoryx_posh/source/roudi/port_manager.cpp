@@ -68,11 +68,12 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     registryPortOptions.offerOnCreate = true;
 
     m_serviceRegistryPublisherPortData =
-        acquirePublisherPortData(serviceRegistryService,
-                                 registryPortOptions,
-                                 IPC_CHANNEL_ROUDI_NAME,
-                                 introspectionMemoryManager,
-                                 PortConfigInfo())
+        acquirePublisherPortData(
+            {SERVICE_REGISTRY_SERVICE_NAME, SERVICE_REGISTRY_INSTANCE_NAME, SERVICE_REGISTRY_EVENT_NAME},
+            registryPortOptions,
+            IPC_CHANNEL_ROUDI_NAME,
+            introspectionMemoryManager,
+            PortConfigInfo())
             .or_else([](auto&) {
                 LogError() << "Could not create PublisherPort for service registry!";
                 errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY);
@@ -659,7 +660,7 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
     }
 }
 
-void PortManager::publishCurrentServiceRegistry() const noexcept
+void PortManager::publishServiceRegistry() const noexcept
 {
     // Send the new serviceRegistry here and ring the bell to inform all ServiceDiscovery instances about the change
     if (m_serviceRegistryPublisherPortData.has_value())
@@ -689,13 +690,13 @@ void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& ser
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
-    publishCurrentServiceRegistry();
+    publishServiceRegistry();
 }
 
 void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.remove(service);
-    publishCurrentServiceRegistry();
+    publishServiceRegistry();
 }
 
 cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,

@@ -135,7 +135,7 @@ class PortManager
     cxx::optional<RuntimeName_t>
     doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) const noexcept;
 
-    void publishCurrentServiceRegistry() const noexcept;
+    void publishServiceRegistry() const noexcept;
 
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};

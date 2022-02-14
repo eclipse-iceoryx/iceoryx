@@ -70,7 +70,8 @@ class ServiceDiscovery
     getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
     roudi::ServiceRegistry m_serviceRegistry;
     popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
-        roudi::serviceRegistryService, {1U, 1U, iox::NodeName_t("Service Registry"), true}};
+        {SERVICE_REGISTRY_SERVICE_NAME, SERVICE_REGISTRY_INSTANCE_NAME, SERVICE_REGISTRY_EVENT_NAME},
+        {1U, 1U, iox::NodeName_t("Service Registry"), true}};
 };
 
 

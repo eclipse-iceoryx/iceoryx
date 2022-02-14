@@ -136,6 +136,10 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// @todo #415 increase number back to 50 once service registry is available via shared memory
 /// @todo #1074 define and set the limits concerning the service discovery
 constexpr uint32_t MAX_NUMBER_OF_SERVICES = 10U;
+constexpr const char SERVICE_REGISTRY_SERVICE_NAME[] = "ServiceRegistry";
+constexpr const char SERVICE_REGISTRY_INSTANCE_NAME[] = "RouDi_ID";
+constexpr const char SERVICE_REGISTRY_EVENT_NAME[] = "ServiceRegistry";
+
 
 // Nodes
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
