@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ class Sample : public SmartChunk<PublisherInterface, T, H>
     using BaseType = SmartChunk<PublisherInterface, T, H>;
 
   public:
+    template <typename T1, typename T2>
+    using ForPublisherOnly = typename BaseType::template ForProducerOnly<T1, T2>;
+
     /// @brief Constructor for a Sample used by the publisher/subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
@@ -52,7 +55,8 @@ class Sample : public SmartChunk<PublisherInterface, T, H>
     /// @brief Publish the sample via the publisher from which it was loaned and automatically
     /// release ownership to it.
     /// @details Only available for non-const type T.
-    using BaseType::publish;
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
+    void publish() noexcept;
 
   private:
     template <typename, typename, typename>
@@ -67,5 +71,7 @@ class Sample : public SmartChunk<PublisherInterface, T, H>
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/sample.inl"
 
 #endif // IOX_POSH_POPO_SAMPLE_HPP

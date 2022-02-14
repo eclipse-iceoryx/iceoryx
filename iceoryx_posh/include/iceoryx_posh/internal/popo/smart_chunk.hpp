@@ -186,7 +186,7 @@ class SmartChunk
     /// @details Only available for non-const type T.
     ///
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    void publish() noexcept;
+    void deliver() noexcept;
 
 
     /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and

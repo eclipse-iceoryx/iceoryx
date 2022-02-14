@@ -32,7 +32,7 @@ template <typename T, typename H>
 class ResponseInterface;
 
 /// @brief The Response class is a mutable abstraction over types which are written to loaned shared memory.
-/// These response are send to the client via the iceoryx system.
+/// These responses are sent to the client via the iceoryx system.
 template <typename T>
 class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
 {

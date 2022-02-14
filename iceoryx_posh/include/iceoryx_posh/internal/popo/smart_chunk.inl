@@ -132,7 +132,7 @@ inline T* SmartChunk<TransmissionInterface, T, H>::release() noexcept
 
 template <template <typename, typename> class TransmissionInterface, typename T, typename H>
 template <typename S, typename>
-inline void SmartChunk<TransmissionInterface, T, H>::publish() noexcept
+inline void SmartChunk<TransmissionInterface, T, H>::deliver() noexcept
 {
     if (m_members.smartChunkUniquePtr)
     {
@@ -141,7 +141,7 @@ inline void SmartChunk<TransmissionInterface, T, H>::publish() noexcept
     }
     else
     {
-        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
+        LogError() << "Tried to deliver empty Sample! Might be an already delivered or moved Sample!";
         errorHandler(Error::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
     }
 }

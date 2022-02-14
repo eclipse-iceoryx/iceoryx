@@ -204,6 +204,7 @@ TYPED_TEST_SUITE(SmartChunkTest, Implementations);
 
 TYPED_TEST(SmartChunkTest, ProducerConstructedSmartChunkIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9bfa7e75-b1bb-4811-8a79-df15d5375975");
     constexpr uint32_t DATA_VALUE = 123;
     constexpr uint64_t HEADER_VALUE = 456;
 
@@ -213,6 +214,7 @@ TYPED_TEST(SmartChunkTest, ProducerConstructedSmartChunkIsValid)
 
 TYPED_TEST(SmartChunkTest, ConsumerConstructedSmartChunkIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eb4f0177-a18a-4d7c-895c-cb7c7a25be86");
     constexpr uint32_t DATA_VALUE = 789;
     constexpr uint64_t HEADER_VALUE = 1337;
 
@@ -222,6 +224,7 @@ TYPED_TEST(SmartChunkTest, ConsumerConstructedSmartChunkIsValid)
 
 TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveConstruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "90c8db15-6cf2-4dfc-a9ca-cb1333081fe3");
     constexpr uint32_t DATA_VALUE = 12301;
     constexpr uint64_t HEADER_VALUE = 9817238;
 
@@ -235,6 +238,7 @@ TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveConstruction)
 
 TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveConstruction)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d0e940ee-a3c6-4cf9-b072-4fed07a1030e");
     constexpr uint32_t DATA_VALUE = 88121;
     constexpr uint64_t HEADER_VALUE = 55123;
 
@@ -248,6 +252,7 @@ TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveConstruction)
 
 TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f14523c6-c7ad-44b9-9a42-b1be652b28d0");
     constexpr uint32_t DATA_VALUE = 8812165;
     constexpr uint64_t HEADER_VALUE = 55123123;
 
@@ -263,6 +268,7 @@ TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveAssignment)
 
 TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveAssignment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e43ad471-1d36-4372-827e-a2be06f2865d");
     constexpr uint32_t DATA_VALUE = 8165;
     constexpr uint64_t HEADER_VALUE = 1123;
 
@@ -278,6 +284,7 @@ TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveAssignment)
 
 TYPED_TEST(SmartChunkTest, SendingSmartChunkSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "567fb9c7-3dd0-44db-a6a9-a897ad6041af");
     EXPECT_CALL(this->mockInterface, publishMock).Times(1);
 
     this->send(this->producer.sut);
@@ -286,6 +293,7 @@ TYPED_TEST(SmartChunkTest, SendingSmartChunkSucceeds)
 
 TYPED_TEST(SmartChunkTest, SendingSmartChunkMultipleTimesFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a6d15e83-eab8-4592-bc02-15d612f0d892");
     EXPECT_CALL(this->mockInterface, publishMock).Times(1);
 
     this->send(this->producer.sut);
@@ -304,6 +312,7 @@ TYPED_TEST(SmartChunkTest, SendingSmartChunkMultipleTimesFails)
 
 TYPED_TEST(SmartChunkTest, SendingMovedSmartChunkFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "95e406c1-641d-4456-8b7c-99d384369d9f");
     typename TestFixture::ProducerHelper destination(this->mockInterface);
 
     destination.sut = std::move(this->producer.sut);
@@ -322,6 +331,7 @@ TYPED_TEST(SmartChunkTest, SendingMovedSmartChunkFails)
 
 TYPED_TEST(SmartChunkTest, SendingDestinationOfValidMoveOriginSucceeds)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8016794f-c25e-4e84-8cef-3901a767d236");
     typename TestFixture::ProducerHelper destination(this->mockInterface);
 
     destination.sut = std::move(this->producer.sut);

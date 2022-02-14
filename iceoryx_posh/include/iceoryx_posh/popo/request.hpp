@@ -31,7 +31,7 @@ template <typename T, typename H>
 class RequestInterface;
 
 /// @brief The Request class is a mutable abstraction over types which are written to loaned shared memory.
-/// These requests are send to the server via the iceoryx system.
+/// These requests are sent to the server via the iceoryx system.
 template <typename T>
 class Request : public SmartChunk<RequestInterface, T, RequestHeader>
 {
