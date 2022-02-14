@@ -111,7 +111,7 @@ class ServiceRegistry
 
     void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
 
-    void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> function) const noexcept;
+    void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 };
 } // namespace roudi
 } // namespace iox

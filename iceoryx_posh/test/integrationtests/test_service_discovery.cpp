@@ -650,4 +650,13 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsContainerOverflowErrorWhenMoreTh
     EXPECT_TRUE(searchResultOfFindServiceWithFindHandler.empty());
 }
 
+TEST_F(ServiceDiscovery_test, FindServiceWithEmptyCallableDoesNotDie)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7e1bf253-ce81-47cc-9b4a-605de7e49b64");
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("ninjababy", "pow", "pow");
+    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
+    iox::cxx::function_ref<void(const ServiceContainer&)> searchFunction;
+    sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
+}
+
 } // namespace

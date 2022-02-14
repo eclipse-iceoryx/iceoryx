@@ -608,4 +608,13 @@ TEST_F(ServiceRegistry_test, NoFunctionIsAppliedToEmptySearchResult)
     EXPECT_THAT(searchResults.size(), Eq(0));
 }
 
+TEST_F(ServiceRegistry_test, FindWithEmptyCallableDoesNotDie)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4ac27528-8650-4d8a-8440-4c9bbcbee4fb");
+    iox::capro::ServiceDescription service("ninjababy", "pow", "pow");
+    ASSERT_FALSE(sut.add(service).has_error());
+    iox::cxx::function_ref<void(const Entry&)> searchFunction;
+    sut.find(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
+}
+
 } // namespace

@@ -94,6 +94,11 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
                                    const cxx::optional<capro::IdString_t>& event,
                                    const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept
 {
+    if (!callable)
+    {
+        return;
+    }
+
     /// @todo #415 change implementation once PR #1088 is merged
     auto searchResult = findService(service, instance, event);
     if (!searchResult.has_error())

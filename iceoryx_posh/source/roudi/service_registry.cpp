@@ -118,6 +118,11 @@ void ServiceRegistry::find(const cxx::optional<capro::IdString_t>& service,
                            const cxx::optional<capro::IdString_t>& event,
                            cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
+    if (!callable)
+    {
+        return;
+    }
+
     for (auto& entry : m_serviceDescriptions)
     {
         if (entry)
@@ -155,13 +160,18 @@ uint32_t ServiceRegistry::findIndex(const capro::ServiceDescription& serviceDesc
     return NO_INDEX;
 }
 
-void ServiceRegistry::applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> function) const noexcept
+void ServiceRegistry::applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
+    if (!callable)
+    {
+        return;
+    }
+
     for (auto& entry : m_serviceDescriptions)
     {
         if (entry)
         {
-            function(*entry);
+            callable(*entry);
         }
     }
 }
