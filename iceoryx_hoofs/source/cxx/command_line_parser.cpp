@@ -130,21 +130,6 @@ bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noex
                 && m_argv[position + 1][0] != '-'));
 }
 
-bool CommandLineParser::isValueOptionFollowedByValue(const entry_t& entry,
-                                                     const bool isNextArgumentAValue) const noexcept
-{
-    const bool isValueOptionFollowedByValue =
-        !((entry.type == ArgumentType::OPTIONAL_VALUE || entry.type == ArgumentType::REQUIRED_VALUE)
-          && !isNextArgumentAValue);
-
-    if (!isValueOptionFollowedByValue)
-    {
-        std::cout << "The option \"" << entry << "\" requires a value but none were provided." << std::endl;
-        printHelpAndExit(m_options.binaryName().c_str());
-    }
-    return isValueOptionFollowedByValue;
-}
-
 bool CommandLineParser::isOptionSet(const entry_t& entry) const noexcept
 {
     bool isOptionSet = false;
@@ -179,17 +164,6 @@ bool CommandLineParser::doesOptionValueFitIntoString(const char* value) const no
     }
 
     return doesOptionValueFitIntoString;
-}
-
-bool CommandLineParser::failWhenEntryIsSwitch(const entry_t& entry, const char* nextArgument) const noexcept
-{
-    if (entry.type == ArgumentType::SWITCH)
-    {
-        std::cout << "The parameter \"" << entry << "\" is a switch. You cannot set the value \"" << nextArgument
-                  << "\" here." << std::endl;
-        printHelpAndExit(m_options.binaryName().c_str());
-    }
-    return entry.type == ArgumentType::SWITCH;
 }
 
 void CommandLineParser::sortAvailableOptions() noexcept
@@ -265,23 +239,32 @@ CommandLineOptions CommandLineParser::parse(int argc,
             }
         }
 
-        if (!isValueOptionFollowedByValue(*optionEntry, isNextArgumentAValue(i)) || isOptionSet(*optionEntry))
+        if (isOptionSet(*optionEntry))
         {
             return m_options;
         }
 
-        m_options.m_arguments.emplace_back();
-        m_options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
-        m_options.m_arguments.back().shortId = optionEntry->shortOption;
-
-        // parse value of the option name
-        if (i + 1 < static_cast<uint64_t>(argc) && argv[i + 1][0] != '-')
+        if (optionEntry->type == ArgumentType::SWITCH)
         {
-            if (failWhenEntryIsSwitch(*optionEntry, argv[i + 1]) || !doesOptionValueFitIntoString(argv[i + 1]))
+            m_options.m_arguments.emplace_back();
+            m_options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
+            m_options.m_arguments.back().shortId = optionEntry->shortOption;
+        }
+        else
+        {
+            if (!doesOptionHasSucceedingValue(*optionEntry, i))
             {
                 return m_options;
             }
 
+            if (!doesOptionValueFitIntoString(argv[i + 1]))
+            {
+                return m_options;
+            }
+
+            m_options.m_arguments.emplace_back();
+            m_options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
+            m_options.m_arguments.back().shortId = optionEntry->shortOption;
             m_options.m_arguments.back().value.unsafe_assign(argv[i + 1]);
             skipCommandLineArgument();
         }
@@ -297,6 +280,18 @@ CommandLineOptions CommandLineParser::parse(int argc,
 
     return m_options;
 }
+
+bool CommandLineParser::doesOptionHasSucceedingValue(const entry_t& entry, const uint64_t position) const noexcept
+{
+    bool doesOptionHasSucceedingValue = (position + 1 < static_cast<uint64_t>(m_argc));
+    if (!doesOptionHasSucceedingValue)
+    {
+        std::cout << "The option \"" << entry << "\" must be followed by a value!" << std::endl;
+        printHelpAndExit(m_options.binaryName().c_str());
+    }
+    return doesOptionHasSucceedingValue;
+}
+
 
 void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
 {

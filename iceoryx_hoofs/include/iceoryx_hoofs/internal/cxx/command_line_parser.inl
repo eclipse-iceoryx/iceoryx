@@ -25,11 +25,6 @@ inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(cons
     {
         if (a.id == optionName || (optionName.size() == 1 && a.shortId == optionName.c_str()[0]))
         {
-            if (a.value.empty())
-            {
-                return cxx::error<Result>(Result::NO_SUCH_VALUE);
-            }
-
             T value;
             if (!cxx::convert::fromString(a.value.c_str(), value))
             {
@@ -40,7 +35,7 @@ inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(cons
         }
     }
 
-    return cxx::error<Result>(Result::NO_SUCH_VALUE);
+    return cxx::success<T>();
 }
 } // namespace cxx
 } // namespace iox

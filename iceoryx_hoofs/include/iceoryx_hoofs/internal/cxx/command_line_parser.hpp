@@ -52,7 +52,6 @@ class IOX_NO_DISCARD CommandLineOptions
 
     enum class Result
     {
-        NO_SUCH_VALUE,
         UNABLE_TO_CONVERT_VALUE
     };
 
@@ -134,10 +133,9 @@ class CommandLineParser
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
     static void printOption(const entry_t& entry) noexcept;
-    bool isValueOptionFollowedByValue(const entry_t& entry, const bool isNextArgumentAValue) const noexcept;
     bool isOptionSet(const entry_t& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
-    bool failWhenEntryIsSwitch(const entry_t& entry, const char* nextArgument) const noexcept;
+    bool doesOptionHasSucceedingValue(const entry_t& entry, const uint64_t position) const noexcept;
 
   private:
     int m_argc = 0;

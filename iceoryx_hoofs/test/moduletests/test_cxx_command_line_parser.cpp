@@ -416,42 +416,21 @@ TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_MultiArgument_Shor
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_SingleArgument)
 {
-    std::vector<std::string> optionsToRegister{"set", "oh-no-i-am-an-option"};
-    FailureTest({"--set", "--oh-no-i-am-an-option"}, optionsToRegister);
-    FailureTest({"--set", "--oh-no-i-am-an-option", "someValue"}, optionsToRegister);
+    std::vector<std::string> optionsToRegister{"set"};
+    FailureTest({"--set"}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_MultiArgument)
 {
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu", "oh-no-i-am-an-option"};
-    // begin
-    FailureTest({"--set", "--oh-no-i-am-an-option", "--bla", "blaValue", "--fuu", "fuuValue"}, optionsToRegister);
-    FailureTest({"--set", "--oh-no-i-am-an-option", "someValue", "--bla", "blaValue", "--fuu", "fuuValue"},
-                optionsToRegister);
-    // middle
-    FailureTest({"--bla", "--set", "--oh-no-i-am-an-option", "--fuu", "fuuValue"}, optionsToRegister);
-    FailureTest({"--bla", "blaValue", "--set", "--oh-no-i-am-an-option", "someValue", "--fuu", "fuuValue"},
-                optionsToRegister);
-
-    // end
-    FailureTest({"--fuu", "--bla", "--set", "--oh-no-i-am-an-option"}, optionsToRegister);
-    FailureTest({"--fuu", "fuuValue", "--bla", "blaValue", "--set", "--oh-no-i-am-an-option", "someValue"},
+    FailureTest({"--fuu", "fuuValue", "--bla", "blaValue", "--set", "someValue", "--oh-no-i-am-an-option"},
                 optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_MultiArgument_ShortOption)
 {
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu", "oh-no-i-am-an-option"};
-    // begin
-    FailureTest({"-s", "-o", "-b", "blaValue", "-f", "fuuValue"}, optionsToRegister);
-    FailureTest({"-s", "-o", "someValue", "-b", "blaValue", "-f", "fuuValue"}, optionsToRegister);
-    // middle
-    FailureTest({"-b", "-s", "-o", "-f", "fuuValue"}, optionsToRegister);
-    FailureTest({"-b", "blaValue", "-s", "-o", "someValue", "-f", "fuuValue"}, optionsToRegister);
-
-    // end
-    FailureTest({"-f", "-b", "-s", "-o"}, optionsToRegister);
-    FailureTest({"-f", "fuuValue", "-b", "blaValue", "-s", "-o", "someValue"}, optionsToRegister);
+    FailureTest({"-f", "fuuValue", "-b", "blaValue", "-s", "blubb", "-o"}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_SingleArgument)
@@ -983,31 +962,18 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
 }
 
 template <typename T>
-void verifyEntry(const CommandLineOptions& options,
-                 const CommandLineOptions::name_t& entry,
-                 const iox::cxx::optional<T>& value)
+void verifyEntry(const CommandLineOptions& options, const CommandLineOptions::name_t& entry, const T& value)
 {
     auto result = options.get<T>(entry);
 
-    value
-        .and_then([&](auto& v) {
-            // ASSERT_ does not work in function calls
-            if (result.has_error())
-            {
-                EXPECT_TRUE(false);
-                return;
-            }
+    // ASSERT_ does not work in function calls
+    if (result.has_error())
+    {
+        EXPECT_TRUE(false);
+        return;
+    }
 
-            EXPECT_THAT(*result, Eq(v));
-        })
-        .or_else([&] {
-            if (!result.has_error())
-            {
-                EXPECT_TRUE(false);
-                return;
-            }
-            EXPECT_THAT(result.get_error(), Eq(CommandLineOptions::Result::NO_SUCH_VALUE));
-        });
+    EXPECT_THAT(*result, Eq(value));
 }
 
 /// BEGIN acquire values correctly
@@ -1254,4 +1220,24 @@ TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully_Offset)
     EXPECT_FALSE(option.has("f-switch"));
 }
 /// END acquire mixed values correctly
+
+/// BEGIN conversions
+TEST_F(CommandLineParser_test, SuccessfulConversionToNumbers)
+{
+    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
+
+    auto option = SuccessTest({"--a-opt", "123", "--i-req", "-456", "--j-req", "123.123", "--g-req", "-891.19012"},
+                              optionsToRegister,
+                              switchesToRegister,
+                              requiredValuesToRegister);
+
+    verifyEntry<uint8_t>(option, "a-opt", {123});
+    verifyEntry<int16_t>(option, "i-req", {-456});
+    verifyEntry<float>(option, "j-req", {123.123f});
+    verifyEntry<double>(option, "g-req", {-891.19012});
+}
+/// END conversions
+
 } // namespace
