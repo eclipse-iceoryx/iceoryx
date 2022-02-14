@@ -7,7 +7,7 @@ class UntypedClient {
   getConnectionState(): ConnectionState
   loan(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
   send(requestPayload: void*): void
-  freeRequest(requestPayload: void*): void
+  releaseRequest(requestPayload: const void*): void
   hasResponses(): bool
   take(): expected<void*, Error>
   releaseResponse(responsePayload: void*): void
@@ -28,7 +28,7 @@ class UntypedServer {
   hasMissedRequests(): bool
   loan(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
   send(responsePayload: void*): void
-  freeResponse(responsePayload: void*): void
+  releaseResponse(responsePayload: const void*): void
 }
 
 @enduml

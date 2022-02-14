@@ -109,7 +109,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
     return cxx::success<ResponseHeader*>(responseHeader);
 }
 
-void ServerPortUser::freeResponse(ResponseHeader* const responseHeader) noexcept
+void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader) noexcept
 {
     if (responseHeader)
     {
@@ -142,13 +142,13 @@ void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
                     responseHeader->getChunkHeader(), responseHeader->m_uniqueClientQueueId, queueIndex);
             })
             .or_else([&] {
-                freeResponse(responseHeader);
+                releaseResponse(responseHeader);
                 LogWarn() << "Could not deliver to queue! Queue not available anymore!";
             });
     }
     else
     {
-        freeResponse(responseHeader);
+        releaseResponse(responseHeader);
         LogWarn() << "Try to send response without having offered!";
     }
 }

@@ -44,9 +44,10 @@ cxx::expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const
 }
 
 template <typename BaseClientT>
-void UntypedClientImpl<BaseClientT>::freeRequest(void* const requestPayload) noexcept
+void UntypedClientImpl<BaseClientT>::releaseRequest(void* const requestPayload) noexcept
 {
-    port().freeRequest(static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(requestPayload)->userHeader()));
+    port().releaseRequest(
+        static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(requestPayload)->userHeader()));
 }
 
 template <typename BaseClientT>

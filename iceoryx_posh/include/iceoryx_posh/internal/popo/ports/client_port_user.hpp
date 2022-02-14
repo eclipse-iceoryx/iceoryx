@@ -61,9 +61,9 @@ class ClientPortUser : public BasePort
     cxx::expected<RequestHeader*, AllocationError> allocateRequest(const uint32_t userPayloadSize,
                                                                    const uint32_t userPayloadAlignment) noexcept;
 
-    /// @brief Free an allocated request without sending it
+    /// @brief Releases an allocated request without sending it
     /// @param[in] requestHeader, pointer to the RequestHeader to free
-    void freeRequest(RequestHeader* const requestHeader) noexcept;
+    void releaseRequest(const RequestHeader* const requestHeader) noexcept;
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] requestHeader, pointer to the RequestHeader to send

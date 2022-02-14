@@ -35,7 +35,7 @@ class UntypedClientImpl : public BaseClientT
                                const ClientOptions& clientOptions = {}) noexcept;
 
     cxx::expected<void*, AllocationError> loan(const uint32_t payloadSize, const uint32_t payloadAlignment) noexcept;
-    void freeRequest(void* const requestPayload) noexcept;
+    void releaseRequest(void* const requestPayload) noexcept;
     void send(void* const requestPayload) noexcept;
 
     cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
