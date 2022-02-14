@@ -71,9 +71,9 @@ void UntypedServerImpl<BaseServerT>::send(void* const responsePayload) noexcept
 }
 
 template <typename BaseServerT>
-void UntypedServerImpl<BaseServerT>::freeResponse(void* const responsePayload) noexcept
+void UntypedServerImpl<BaseServerT>::releaseResponse(void* const responsePayload) noexcept
 {
-    port().freeResponse(
+    port().releaseResponse(
         static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(responsePayload)->userHeader()));
 }
 

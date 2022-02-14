@@ -246,7 +246,7 @@ TEST_F(ClientPort_test, AllocateRequestDoesNotFailAndUsesTheMempool)
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(1U));
 }
 
-TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
+TEST_F(ClientPort_test, ReleaseRequestWithNullptrCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f21bc4ab-4080-4994-b862-5cb8c8738b46");
     auto& sut = clientPortWithConnectOnCreate;
@@ -258,20 +258,20 @@ TEST_F(ClientPort_test, FreeRequestWithNullptrCallsErrorHandler)
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    sut.portUser.freeRequest(nullptr);
+    sut.portUser.releaseRequest(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
 }
 
-TEST_F(ClientPort_test, FreeRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
+TEST_F(ClientPort_test, ReleaseRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d2eb1ec3-78de-453b-bf97-860f3c57362b");
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) {
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
-            sut.portUser.freeRequest(requestHeader);
+            sut.portUser.releaseRequest(requestHeader);
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {

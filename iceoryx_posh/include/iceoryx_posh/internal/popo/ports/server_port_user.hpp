@@ -117,9 +117,9 @@ class ServerPortUser : public BasePort
                                                                      const uint32_t userPayloadSize,
                                                                      const uint32_t userPayloadAlignment) noexcept;
 
-    /// @brief Free an allocated response without sending it
+    /// @brief Releases an allocated response without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void freeResponse(ResponseHeader* const responseHeader) noexcept;
+    void releaseResponse(const ResponseHeader* const responseHeader) noexcept;
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send

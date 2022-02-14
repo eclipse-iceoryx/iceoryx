@@ -13,7 +13,7 @@ class ClientPortUser {
   getConnectionState(): ConnectionState
   allocateRequest(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<RequestHeader*, AllocationError>
   sendRequest(requestHeader: RequestHeader*): void
-  freeRequest(requestHeader: RequestHeader*): void
+  releaseRequest(requestHeader: const RequestHeader*): void
   getResponse(): expected<const ResponseHeader*, ChunkReceiveResult>
   releaseResponse(responseHeader: const ResponseHeader*): void
   hasNewResponses(): void

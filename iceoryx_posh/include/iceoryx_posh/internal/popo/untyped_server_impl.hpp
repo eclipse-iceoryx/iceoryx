@@ -38,7 +38,7 @@ class UntypedServerImpl : public BaseServerT
     cxx::expected<void*, AllocationError>
     loan(const RequestHeader* requestHeader, const uint32_t payloadSize, const uint32_t payloadAlignment) noexcept;
     void send(void* const responsePayload) noexcept;
-    void freeResponse(void* const responsePayload) noexcept;
+    void releaseResponse(void* const responsePayload) noexcept;
 
   protected:
     using BaseServerT::port;
