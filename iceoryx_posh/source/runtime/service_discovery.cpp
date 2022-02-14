@@ -25,7 +25,6 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
                                                const cxx::optional<capro::IdString_t>& instance,
                                                const cxx::optional<capro::IdString_t>& event) noexcept
 {
-    // Copy the new service registry if has changed
     m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
         m_serviceRegistry = *serviceRegistrySample;
     });
@@ -58,17 +57,35 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
 
 void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept
 {
-    if (event == ServiceDiscoveryEvent::SERVICE_REGISTRY_HAS_CHANGED)
+    switch (event)
+    {
+    case ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED:
     {
         m_serviceRegistrySubscriber.enableEvent(std::move(triggerHandle), popo::SubscriberEvent::DATA_RECEIVED);
+        break;
+    }
+    default:
+    {
+        LogWarn() << "ServiceDiscovery::enableEvent() called with unkown event!";
+        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, nullptr, ErrorLevel::MODERATE);
+    }
     }
 }
 
 void ServiceDiscovery::disableEvent(const ServiceDiscoveryEvent event) noexcept
 {
-    if (event == ServiceDiscoveryEvent::SERVICE_REGISTRY_HAS_CHANGED)
+    switch (event)
+    {
+    case ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED:
     {
         m_serviceRegistrySubscriber.disableEvent(popo::SubscriberEvent::DATA_RECEIVED);
+        break;
+    }
+    default:
+    {
+        LogWarn() << "ServiceDiscovery::disableEvent() called with unkown event!";
+        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, nullptr, ErrorLevel::MODERATE);
+    }
     }
 }
 

@@ -75,8 +75,8 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
             introspectionMemoryManager,
             PortConfigInfo())
             .or_else([](auto&) {
-                LogError() << "Could not create PublisherPort for service registry!";
-                errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY);
+                LogFatal() << "Could not create PublisherPort for service registry!";
+                errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY, nullptr, ErrorLevel::FATAL);
             })
             .value();
 
@@ -662,24 +662,21 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 
 void PortManager::publishServiceRegistry() const noexcept
 {
-    // Send the new serviceRegistry here and ring the bell to inform all ServiceDiscovery instances about the change
     if (m_serviceRegistryPublisherPortData.has_value())
     {
         PublisherPortUserType publisher(m_serviceRegistryPublisherPortData.value());
-        auto maybeChunkHeader = publisher.tryAllocateChunk(sizeof(ServiceRegistry),
-                                                           alignof(ServiceRegistry),
-                                                           CHUNK_NO_USER_HEADER_SIZE,
-                                                           CHUNK_NO_USER_HEADER_ALIGNMENT);
+        publisher
+            .tryAllocateChunk(sizeof(ServiceRegistry),
+                              alignof(ServiceRegistry),
+                              CHUNK_NO_USER_HEADER_SIZE,
+                              CHUNK_NO_USER_HEADER_ALIGNMENT)
+            .and_then([&](auto& chunk) {
+                auto sample = static_cast<ServiceRegistry*>(chunk->userPayload());
 
-        if (!maybeChunkHeader.has_error())
-        {
-            auto sample = static_cast<ServiceRegistry*>(maybeChunkHeader.value()->userPayload());
+                *sample = m_serviceRegistry;
 
-            // Copy the complete registry
-            *sample = m_serviceRegistry;
-
-            publisher.sendChunk(maybeChunkHeader.value());
-        }
+                publisher.sendChunk(chunk);
+            });
     }
 }
 

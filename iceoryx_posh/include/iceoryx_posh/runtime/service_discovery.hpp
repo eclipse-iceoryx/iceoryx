@@ -28,7 +28,7 @@ namespace runtime
 {
 enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
 {
-    SERVICE_REGISTRY_HAS_CHANGED
+    SERVICE_REGISTRY_CHANGED
 };
 class ServiceDiscovery
 {
