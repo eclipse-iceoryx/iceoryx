@@ -72,6 +72,7 @@ struct CommandLineSut
 
 TEST_F(CommandLine_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "451701b8-061f-4e30-9beb-1c09c7e6bc1b");
     CmdArgs args(
         {"myBinaryName", "--required-string", "bluubb", "--required-float", "123.456", "--required-uint", "12"});
     CommandLineSut sut(args.argc, args.argv);
@@ -95,6 +96,7 @@ TEST_F(CommandLine_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
 
 TEST_F(CommandLine_test, AllValuesViaCommandLineAreSetCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0478575e-8eb4-4983-93bd-199d222e706e");
     CmdArgs args({"anotherOneBitesTheDust",
                   "--required-string",
                   "schnappidububa",

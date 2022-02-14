@@ -54,6 +54,7 @@ CommandLineOptions::value_t CommandLineParser_test::defaultValue = "DEFAULT VALU
 
 TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bb5e0199-c061-4fa4-be14-c797f996fff6");
     const CommandLineOptions::binaryName_t binaryName("AllHailHypnotoad");
     CmdArgs args({binaryName.c_str()});
     auto options = CommandLineParser("").parse(args.argc, args.argv);
@@ -63,6 +64,7 @@ TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 
 TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "627e7d26-7ba8-466f-8160-61dbff7f3a4d");
     bool wasErrorHandlerCalled = false;
     {
         auto handle =
@@ -75,6 +77,7 @@ TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
 
 TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9a1000e2-6dbd-404b-ba6f-0287e5ffeb46");
     CmdArgs args({std::string(CommandLineOptions::binaryName_t::capacity() + 1, 'a')});
     bool wasErrorHandlerCalled = false;
     {
@@ -88,6 +91,7 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
 
 TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExist)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
     CmdArgs args({std::string(CommandLineOptions::binaryName_t::capacity() + 1, 'a')});
     bool wasErrorHandlerCalled = false;
     CommandLineParser parser("");
@@ -104,6 +108,7 @@ TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExist)
 
 TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExist)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "076b8877-e3fc-46f7-851b-d3e7953f67d6");
     bool wasErrorHandlerCalled = false;
     CommandLineParser parser("");
     parser.addOptionalValue('c', "duplicate", "", "", "");
@@ -119,6 +124,7 @@ TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExist)
 
 TEST_F(CommandLineParser_test, AddingOptionWithSameShortAndLongNameLeadsToExist)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4e01ed47-473d-4915-aed2-60aacce37de8");
     bool wasErrorHandlerCalled = false;
     CommandLineParser parser("");
     parser.addOptionalValue('d', "duplicate", "", "", "");
@@ -181,6 +187,7 @@ void FailureTest(const std::vector<std::string>& options,
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e463c987-a908-4cd5-b268-05a2cbda5be2");
     std::vector<std::string> optionsToRegister{"i-have-no-minus"};
     FailureTest({"i-have-no-minus"});
     FailureTest({"i-have-no-minus", "someValue"});
@@ -188,6 +195,7 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_SingleA
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "da57a066-83da-4bc0-994f-872d7713d8dd");
     std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
     // begin
     FailureTest({"i-have-no-minus", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
@@ -202,6 +210,7 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiAr
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b0f51f16-94ad-4a25-b6f7-11e7e2328472");
     std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
     // begin
     FailureTest({"i", "-s", "setValue", "-b", "blaValue"}, optionsToRegister);
@@ -216,12 +225,14 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiAr
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameIsEmpty_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d85ef04b-d91e-438a-8804-bc21c1eebb84");
     FailureTest({"-"});
     FailureTest({"-", "someValue"});
 }
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameIsEmpty_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39c9e200-dd22-4aef-a82e-af84f4336708");
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
     FailureTest({"-", "--set", "setValue123", "--bla", "blaValue455"}, optionsToRegister);
@@ -236,12 +247,14 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameIsEmpty_MultiArgumen
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameIsEmpty_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5316ba5e-0490-4356-a81d-3afd89766b51");
     FailureTest({"--"});
     FailureTest({"--", "someValue"});
 }
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameIsEmpty_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ca211062-8f23-49a2-8de7-9cffddae6a39");
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
     FailureTest({"--", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
@@ -256,6 +269,7 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameIsEmpty_MultiArgument)
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameHasMoreThenOneLetter_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "13776543-6126-403c-96ea-9137590e9e74");
     std::vector<std::string> optionsToRegister{"invalid-option"};
     FailureTest({"-invalid-option"}, optionsToRegister);
     FailureTest({"-invalid-option", "someValue"}, optionsToRegister);
@@ -263,6 +277,7 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameHasMoreThenOneLetter
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameHasMoreThenOneLetter_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f4e337d-5e01-418a-8e30-1a947116ff53");
     std::vector<std::string> optionsToRegister{"set", "bla", "invalid-option"};
     // begin
     FailureTest({"-invalid-option", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
@@ -277,6 +292,7 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenShortOptionNameHasMoreThenOneLetter
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "39eff747-a03f-4c4c-bee3-bb970e32f5b5");
     std::vector<std::string> optionsToRegister{"invalid-long-option"};
     FailureTest({"---invalid-long-option"}, optionsToRegister);
     FailureTest({"---invalid-long-option", "someValue"}, optionsToRegister);
@@ -284,6 +300,7 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_Sin
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f8b9f82a-a0f4-48c3-b88c-d9b997359d45");
     std::vector<std::string> optionsToRegister{"set", "bla", "invalid-long-option"};
     // begin
     FailureTest({"---invalid-long-option", "--bla", "blaValue123123", "--set", "setValueXXX"}, optionsToRegister);
@@ -301,12 +318,14 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_Mul
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8066d89f-0fc0-4db2-8bb5-11708f82794f");
     FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')});
     FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'), "someValue"});
 }
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4c530a35-de80-4352-ae13-763a1ccfae5c");
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
     FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
@@ -357,12 +376,14 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiAr
 /// BEGIN option failure test
 TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ce0c8994-7999-41cf-8356-dafc6cfd5107");
     std::vector<std::string> optionsToRegister{"sputnik", "rosetta"};
     FailureTest({"--conway", "gameOfLife"}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68e4cdb8-b50d-42da-a51a-2c98b882613b");
     std::vector<std::string> optionsToRegister{"sputnik", "rosetta"};
     // begin
     FailureTest({"--conway", "gameOfLife", "--sputnik", "iWasFirst", "--rosetta", "uhWhatsThere"}, optionsToRegister);
@@ -374,6 +395,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_MultiArgument)
 
 TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4de02ed-3057-4d54-bcad-5a55ed8ea9ed");
     std::vector<std::string> optionsToRegister{"sputnik", "rosetta"};
     // begin
     FailureTest({"-c",
@@ -391,12 +413,14 @@ TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_MultiArgument_Shor
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "72eb64a6-a323-4755-a7d4-303a04b31383");
     std::vector<std::string> optionsToRegister{"set"};
     FailureTest({"--set"}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0743ad80-d6dc-4095-b1c3-d81562eb4c85");
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu", "oh-no-i-am-an-option"};
     FailureTest({"--fuu", "fuuValue", "--bla", "blaValue", "--set", "someValue", "--oh-no-i-am-an-option"},
                 optionsToRegister);
@@ -404,18 +428,21 @@ TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_Mult
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsFollowedByAnotherOption_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0bc9bbf0-b1fe-4d59-89de-d3462d90f7ff");
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu", "oh-no-i-am-an-option"};
     FailureTest({"-f", "fuuValue", "-b", "blaValue", "-s", "blubb", "-o"}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1c17a7f9-6a34-4bb4-a4f4-0415c92325d4");
     std::vector<std::string> optionsToRegister{"set"};
     FailureTest({"--set", "bla", "--set", "fuu"}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2c1f9325-4839-41eb-a0ea-8a8ca06e5357");
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
     FailureTest({"--set", "fuuu", "--bla", "blaValue", "--fuu", "fuuValue", "--set", "bla"}, optionsToRegister);
     FailureTest({"--bla", "blaValue", "--set", "fuuu", "--fuu", "fuuValue", "--set", "bla"}, optionsToRegister);
@@ -424,6 +451,7 @@ TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_MultiArgume
 
 TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "17fd7b1c-6026-4b15-b0c2-862c4ce0b00b");
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
     FailureTest({"-s", "fuuu", "-b", "blaValue", "-f", "fuuValue", "-s", "bla"}, optionsToRegister);
     FailureTest({"-b", "blaValue", "-s", "fuuu", "-f", "fuuValue", "-s", "bla"}, optionsToRegister);
@@ -432,12 +460,14 @@ TEST_F(CommandLineParser_test, FailWhenValueOptionIsSetMultipleTimes_MultiArgume
 
 TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "500e56b2-b7a6-4ed9-8583-d109f530d09f");
     std::vector<std::string> optionsToRegister{"set"};
     FailureTest({"--set", std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a')}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "04b6ef11-8882-4e6e-8759-44eac330c822");
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
 
     // begin
@@ -468,6 +498,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
 
 TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4a74242a-d7c5-4275-8a7b-2249107036ff");
     std::vector<std::string> optionsToRegister{"set", "bla", "fuu"};
 
     // begin
@@ -488,6 +519,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
 /// BEGIN switch failure test
 TEST_F(CommandLineParser_test, FailWhenSwitchWasNotRegistered_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "92236356-4729-414e-8edc-65eb23cd20d0");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"supergandalf", "grand-alf"};
 
@@ -496,6 +528,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchWasNotRegistered_SingleArgument)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchWasNotRegistered_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f5a9fa53-4170-4f21-a028-f4cfd7beeac3");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"supergandalf", "grand-alf"};
 
@@ -509,6 +542,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchWasNotRegistered_MultiArgument)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchWasNotRegistered_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "311873e0-159f-4f0a-8228-32e659bd52ea");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"supergandalf", "grand-alf"};
 
@@ -522,6 +556,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchWasNotRegistered_MultiArgument_Shor
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "24d76c82-dc7b-48b3-a88b-dada402802cc");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"set"};
 
@@ -530,6 +565,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_SingleArgument)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b8b562ad-d502-4ada-8eac-8d8ffce22689");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"set", "bla", "fuu"};
 
@@ -543,6 +579,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MultiArgument)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e03c4823-00e2-4d4d-acf0-933086e77bef");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"set", "bla", "fuu"};
 
@@ -556,6 +593,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MultiArgument_ShortOpti
 
 TEST_F(CommandLineParser_test, FailWhenSwitchIsSetMultipleTimes_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a900e3c2-c3ef-415e-b8ce-734ce44c479e");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"set"};
     FailureTest({"--set", "--set"}, optionsToRegister, switchesToRegister);
@@ -563,6 +601,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchIsSetMultipleTimes_SingleArgument)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchIsSetMultipleTimes_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5010cb12-cd30-470d-8065-2618d3b257c3");
     std::vector<std::string> optionsToRegister;
     std::vector<std::string> switchesToRegister{"set", "bla", "fuu"};
 
@@ -581,6 +620,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchIsSetMultipleTimes_MultiArgument)
 /// BEGIN required option failure test
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1007661d-4d84-49a1-8554-9f21f2ccc3f3");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"set", "fuu"};
@@ -590,6 +630,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_SingleArgument
 
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4786109a-f7b2-42c9-a40b-d1fb94a45432");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "muu"};
@@ -613,6 +654,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_MultiArgument)
 
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "cd7f22f2-cde4-48e3-8c0a-5610fee3c9fc");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "muu"};
@@ -636,6 +678,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotPresent_MultiArgument_
 
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "154306d7-816c-4200-a1ad-f27a3cdb62e1");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"set"};
@@ -645,6 +688,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_Single
 
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e97c1d07-39e8-48e8-b941-d0b6f3f7e73f");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "toad"};
@@ -668,6 +712,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_MultiA
 
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8afa4f3a-5d94-4cf4-aa10-b3612ecfc817");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"set", "fuu", "bla", "toad"};
@@ -693,6 +738,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionIsNotFollowedByValue_MultiA
 /// BEGIN required, optional option and switch failure mix
 TEST_F(CommandLineParser_test, FailWhenOneRequiredOptionIsNotSet_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c437b65b-585b-4ec9-8a3a-abb7add92f0c");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -705,6 +751,7 @@ TEST_F(CommandLineParser_test, FailWhenOneRequiredOptionIsNotSet_MixedArguments)
 
 TEST_F(CommandLineParser_test, FailWhenMultipleRequiredOptionsAreNotSet_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e36058bb-2bde-4781-9aff-8e9fa524e925");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -717,6 +764,7 @@ TEST_F(CommandLineParser_test, FailWhenMultipleRequiredOptionsAreNotSet_MixedArg
 
 TEST_F(CommandLineParser_test, FailWhenNoRequiredOptionIsSet_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a8e079aa-6d35-4ea6-9df0-f9d14ecab0ec");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -729,6 +777,7 @@ TEST_F(CommandLineParser_test, FailWhenNoRequiredOptionIsSet_MixedArguments)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9b1d7663-2c26-417c-a5d3-d9d4b67e104d");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -751,6 +800,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchHasValueSet_MixedArguments)
 
 TEST_F(CommandLineParser_test, FailWhenOptionHasNoValueSet_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e90be9ac-8839-4252-84b3-e487ceb095d0");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -773,6 +823,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionHasNoValueSet_MixedArguments)
 
 TEST_F(CommandLineParser_test, FailWhenRequiredOptionHasNoValueSet_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7d69a1a9-3235-42b4-a88f-dbfd2886d5ef");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -795,6 +846,7 @@ TEST_F(CommandLineParser_test, FailWhenRequiredOptionHasNoValueSet_MixedArgument
 
 TEST_F(CommandLineParser_test, FailWhenOptionIsNotRegistered_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f7c314e7-f103-45be-b5f8-f96e01a2e3cc");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -820,6 +872,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionIsNotRegistered_MixedArguments)
 
 TEST_F(CommandLineParser_test, FailWhenSwitchIsNotRegistered_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "893857b5-e3f5-4a4d-8da1-ed52ff15ef33");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -844,6 +897,7 @@ TEST_F(CommandLineParser_test, FailWhenSwitchIsNotRegistered_MixedArguments)
 
 TEST_F(CommandLineParser_test, IgnoreWhenOptionIsNotRegistered_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7112ec61-4f06-4297-83c9-e532367aac2a");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -870,6 +924,7 @@ TEST_F(CommandLineParser_test, IgnoreWhenOptionIsNotRegistered_MixedArguments)
 
 TEST_F(CommandLineParser_test, IgnoreWhenSwitchIsNotRegistered_MixedArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "50d2bad5-90cc-4e85-bf42-5e6292813f5e");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
@@ -969,6 +1024,7 @@ void verifyEntry(const CommandLineOptions& options,
 
 TEST_F(CommandLineParser_test, ReadOptionSuccessfully_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b5e7b7b0-9423-4ea7-a1c5-83c891fc39fd");
     std::vector<std::string> optionsToRegister{"conway"};
     auto option = SuccessTest({"--conway", "gameOfLife"}, optionsToRegister);
 
@@ -977,6 +1033,7 @@ TEST_F(CommandLineParser_test, ReadOptionSuccessfully_SingleArgument)
 
 TEST_F(CommandLineParser_test, ReadOptionSuccessfully_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68c91bc7-b56d-4fdd-a835-32173fe7e05c");
     std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
     auto option = SuccessTest({"--moon", "bright", "--conway", "gameOfLife", "--tungsten", "heavy"}, optionsToRegister);
 
@@ -987,6 +1044,7 @@ TEST_F(CommandLineParser_test, ReadOptionSuccessfully_MultiArgument)
 
 TEST_F(CommandLineParser_test, ReadOptionSuccessfully_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6113b30a-1274-4b2b-b6e2-45cfad493b45");
     std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
     auto option = SuccessTest({"-m", "bright", "-c", "gameOfLife", "-t", "heavy"}, optionsToRegister);
 
@@ -997,6 +1055,7 @@ TEST_F(CommandLineParser_test, ReadOptionSuccessfully_MultiArgument_ShortOption)
 
 TEST_F(CommandLineParser_test, ReadOptionSuccessfully_PartialSet)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7432b080-6d18-424b-bbe1-5c9293e8584a");
     std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
     auto option = SuccessTest({"-m", "bright"}, optionsToRegister);
 
@@ -1007,6 +1066,7 @@ TEST_F(CommandLineParser_test, ReadOptionSuccessfully_PartialSet)
 
 TEST_F(CommandLineParser_test, ReadOptionSuccessfully_Offset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "58a5f953-f33f-48a6-ac48-d60006726cb6");
     std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
     constexpr uint64_t ARGC_OFFSET = 5U;
     auto option =
@@ -1019,6 +1079,7 @@ TEST_F(CommandLineParser_test, ReadOptionSuccessfully_Offset)
 
 TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8397de7f-5a1b-49d7-80bd-30a28f143efa");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"fuubar"};
@@ -1029,6 +1090,7 @@ TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_SingleArgument)
 
 TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fa54f70f-be0d-426a-a00b-4d4d3a57a90d");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"fuubar", "c64", "amiga"};
@@ -1044,6 +1106,7 @@ TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_MultiArgument)
 
 TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "aeefeddf-7578-4451-a266-116219fdb150");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"fuubar", "c64", "amiga"};
@@ -1059,6 +1122,7 @@ TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_MultiArgument_Short
 
 TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_Offset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f84a9ad7-c6d9-4b56-bd18-a0d1bdbcde2a");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"fuubar", "c64", "amiga"};
@@ -1076,6 +1140,7 @@ TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_Offset)
 
 TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_SingleArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "08cfe8c0-6b37-418b-9bb0-265ba4419513");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{"light"};
     auto option = SuccessTest({"--light"}, optionsToRegister, switchesToRegister);
@@ -1085,6 +1150,7 @@ TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_SingleArgument
 
 TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1bdba94b-1f42-4627-b847-16a2b49c08b0");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     auto option = SuccessTest({"--light", "--fridge", "--muu"}, optionsToRegister, switchesToRegister);
@@ -1096,6 +1162,7 @@ TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument)
 
 TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "85a0e72c-3eb0-416d-8e4f-7b49982ecaf8");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     auto option = SuccessTest({"-l", "-f", "-m"}, optionsToRegister, switchesToRegister);
@@ -1107,6 +1174,7 @@ TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument_
 
 TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_PartialSet)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9f203ddd-2505-40b4-84b1-2246c4e7cf3a");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     auto option = SuccessTest({"-l"}, optionsToRegister, switchesToRegister);
@@ -1118,6 +1186,7 @@ TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_PartialSet)
 
 TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_Offset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e90f18dc-32c7-4b39-adb7-17e039a165d8");
     std::vector<std::string> optionsToRegister{};
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     constexpr uint64_t ARGC_OFFSET = 2U;
@@ -1134,6 +1203,7 @@ TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_Offset)
 
 TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "eb1c565d-a10b-4a80-b6e4-1aac54b96324");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
@@ -1165,6 +1235,7 @@ TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully)
 
 TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully_ShortOption)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a250997f-7bc8-4ba6-a860-b8d650f59f39");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
@@ -1187,6 +1258,7 @@ TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully_ShortOption)
 
 TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully_Offset)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3bb7943e-d446-4f83-8a6a-5cc9de997359");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
     std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
@@ -1213,6 +1285,7 @@ TEST_F(CommandLineParser_test, ReadMixedValueSuccessfully_Offset)
 /// BEGIN conversions
 TEST_F(CommandLineParser_test, SuccessfulConversionToNumbers)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f3ffc60c-bcf8-4c4c-99c8-16f81625893f");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
@@ -1230,6 +1303,7 @@ TEST_F(CommandLineParser_test, SuccessfulConversionToNumbers)
 
 TEST_F(CommandLineParser_test, MultipleConversionFailures)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0a4bc316-7a0a-4524-b3b4-1bcf30f87380");
     std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
     std::vector<std::string> switchesToRegister{};
     std::vector<std::string> requiredValuesToRegister{"g-req", "i-req", "j-req"};
