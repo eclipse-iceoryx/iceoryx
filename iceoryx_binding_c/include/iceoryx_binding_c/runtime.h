@@ -33,8 +33,8 @@ void iox_runtime_init(const char* const name);
 ///         If name is a nullptr, 0 will be returned.
 uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLength);
 
-/// @brief initiates the shutdown of the runtime to unblock all potentially blocking publisher
-/// with the iox_SubscriberTooSlowPolicy::SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER option set
+/// @brief initiates the shutdown of the runtime to unblock all potentially blocking producer
+/// with the iox_ConsumerTooSlowPolicy::ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER option set
 void iox_runtime_shutdown();
 
 #endif

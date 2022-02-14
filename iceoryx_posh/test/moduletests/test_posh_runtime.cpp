@@ -360,37 +360,37 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutExplicitlySetQueueFullPoli
                                                                      publisherOptions,
                                                                      iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
-    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
-                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_consumerTooSlowPolicy,
+                Eq(iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "67362686-3165-4a49-a15c-ac9fcaf704d8");
     iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 
     const auto publisherPortData =
         m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription("90", "130", "1550"),
                                           publisherOptions,
                                           iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
-    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
-                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_consumerTooSlowPolicy,
+                Eq(iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSubscriberLeadsToWaitForSubscriber)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f6439a76-69c7-422d-bcc9-7c1d82cd2990");
     iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
     const auto publisherPortData = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription("18", "31", "400"),
                                                                      publisherOptions,
                                                                      iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
-    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
-                Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_consumerTooSlowPolicy,
+                Eq(iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
@@ -535,7 +535,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab60b748-6425-4ebf-8041-285a29a92756");
     iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
 
     const auto subscriberPortData =
         m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription("18", "31", "400"),
@@ -543,7 +543,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
                                            iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
-                Eq(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER));
+                Eq(iox::popo::QueueFullPolicy::BLOCK_PRODUCER));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
@@ -620,9 +620,9 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
 
     iox::popo::PublisherOptions publisherOptions{
-        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
     iox::popo::SubscriberOptions subscriberOptions{
-        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER};
 
     iox::popo::Publisher<uint8_t> publisher{serviceDescription, publisherOptions};
     iox::popo::Subscriber<uint8_t> subscriber{serviceDescription, subscriberOptions};

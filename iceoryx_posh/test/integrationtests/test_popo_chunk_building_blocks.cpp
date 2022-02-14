@@ -209,11 +209,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData_t m_chunkSenderData{&m_memoryManager, SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    ChunkSenderData_t m_chunkSenderData{&m_memoryManager, ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
     ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
-    ChunkDistributorData_t m_chunkDistributorData{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    ChunkDistributorData_t m_chunkDistributorData{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
     ChunkQueueData_t m_chunkQueueData{
         QueueFullPolicy::DISCARD_OLDEST_DATA,

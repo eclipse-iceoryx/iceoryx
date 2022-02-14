@@ -101,23 +101,27 @@ iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
     return ListenerResult_UNDEFINED_ERROR;
 }
 
-iox_SubscriberTooSlowPolicy subscriberTooSlowPolicy(const iox::popo::SubscriberTooSlowPolicy policy) noexcept
+iox_ConsumerTooSlowPolicy consumerTooSlowPolicy(const iox::popo::ConsumerTooSlowPolicy policy) noexcept
 {
     switch (policy)
     {
-    case SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER:
-        return SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
-    case SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA:
-        return SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
+    case ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER:
+        return ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
+    case ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA:
+        return ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA;
     }
-    return SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
+    return ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA;
+}
+iox_ConsumerTooSlowPolicy subscriberTooSlowPolicy(const iox::popo::ConsumerTooSlowPolicy policy) noexcept
+{
+    return consumerTooSlowPolicy(policy);
 }
 iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy) noexcept
 {
     switch (policy)
     {
-    case QueueFullPolicy::BLOCK_PUBLISHER:
-        return QueueFullPolicy_BLOCK_PUBLISHER;
+    case QueueFullPolicy::BLOCK_PRODUCER:
+        return QueueFullPolicy_BLOCK_PRODUCER;
     case QueueFullPolicy::DISCARD_OLDEST_DATA:
         return QueueFullPolicy_DISCARD_OLDEST_DATA;
     }

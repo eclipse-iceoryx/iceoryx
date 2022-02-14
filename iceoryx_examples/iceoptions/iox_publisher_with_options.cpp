@@ -48,7 +48,7 @@ int main()
 
     //  we allow the subscribers to block the publisher if they want to ensure that no samples are lost
     //! [too slow policy]
-    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
     //! [too slow policy]
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
@@ -71,7 +71,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }
 
-    // this is optional, but since the iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option is used,
+    // this is optional, but since the iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER option is used,
     // a slow subscriber might block the shutdown and this call unblocks the publisher
     //! [shutdown]
     iox::runtime::PoshRuntime::getInstance().shutdown();

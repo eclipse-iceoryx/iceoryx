@@ -140,7 +140,7 @@ class ServerPort_test : public Test
     bool pushRequests(ChunkQueuePusher<ServerChunkQueueData_t>& chunkQueuePusher,
                       uint64_t numberOfPushes,
                       uint64_t requestDataBase = DUMMY_DATA,
-                      QueueFullPolicy2 queueFullPolicy = QueueFullPolicy2::DISCARD_OLDEST_DATA)
+                      QueueFullPolicy queueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA)
     {
         for (uint64_t i = 0U; i < numberOfPushes; ++i)
         {
@@ -148,7 +148,7 @@ class ServerPort_test : public Test
             if (!chunkQueuePusher.push(sharedChunk))
             {
                 // this would actually be done by the ChunkDistributor from the ClientPort
-                if (queueFullPolicy == QueueFullPolicy2::DISCARD_OLDEST_DATA)
+                if (queueFullPolicy == QueueFullPolicy::DISCARD_OLDEST_DATA)
                 {
                     chunkQueuePusher.lostAChunk();
                 }
@@ -208,7 +208,7 @@ class ServerPort_test : public Test
         ServerOptions options;
         options.offerOnCreate = true;
         options.requestQueueCapacity = QUEUE_CAPACITY;
-        options.requestQueueFullPolicy = QueueFullPolicy2::BLOCK_PRODUCER;
+        options.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
         return options;
     }();
     ServerOptions m_serverOptionsWithWaitForConsumerClientTooSlowPolicy = [&] {

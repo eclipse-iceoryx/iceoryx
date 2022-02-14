@@ -40,7 +40,7 @@ typedef struct
     bool offerOnCreate;
 
     /// @brief describes whether a publisher blocks when subscriber queue is full
-    ENUM iox_SubscriberTooSlowPolicy subscriberTooSlowPolicy;
+    ENUM iox_ConsumerTooSlowPolicy subscriberTooSlowPolicy;
 
     /// @brief this value will be set exclusively by `iox_pub_options_init` and is not supposed to be modified otherwise
     uint64_t initCheck;

@@ -41,7 +41,7 @@ struct PublisherOptions
     bool offerOnCreate{true};
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
-    SubscriberTooSlowPolicy subscriberTooSlowPolicy{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    ConsumerTooSlowPolicy subscriberTooSlowPolicy{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
 
     /// @brief serialization of the PublisherOptions
     cxx::Serialization serialize() const noexcept;

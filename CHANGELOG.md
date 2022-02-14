@@ -75,6 +75,7 @@
 **New API features:**
 
 - Introduce `iceoryx_hoofs/cxx/filesystem.hpp` which implements `std::perms` as `cxx::perms`.
+
 ```cpp
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 
@@ -269,6 +270,61 @@ of `ErrorTypeAdapter` for custom types must therefore also be removed in the use
 The `InvalidIdString` was removed from `ServiceDescription` and the Wildcard string was replaced
 with a `iox::cxx::nullopt`. With this, every string is allowed within the `ServiceDescription`.
 The default `ServiceDescription` consists of empty strings.
+
+- The queue port policy enums are adjusted to use them with `Client` and `Server`.
+
+The `QueueFullPolicy::BLOCK_PUBLISHER` is replaced with the more generic `QueueFullPolicy::BLOCK_PRODUCER`.
+
+```cpp
+// old
+iox::popo::SubscriberOptions options;
+options.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+
+// new
+iox::popo::SubscriberOptions options;
+options.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+```
+
+Similar, for `binding_c` it is `QueueFullPolicy_BLOCK_PRODUCER` instead of `QueueFullPolicy_BLOCK_PUBLISHER`
+
+```c
+// old
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.queueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
+
+// new
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.queueFullPolicy = QueueFullPolicy_BLOCK_PRODUCER;
+```
+
+The `SubscriberTooSlowPolicy` is replaced with the more generic `ConsumerTooSlowPolicy` and
+`SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER` became `ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER`.
+
+```cpp
+// old
+iox::popo::PublisherOptions options;
+options.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+
+// new
+iox::popo::PublisherOptions options;
+options.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+```
+
+And with the `binding_c`
+
+```c
+// old
+iox_pub_options_t options;
+iox_pub_options_init(&options);
+options.subscriberTooSlowPolicy = SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
+
+// new
+iox_pub_options_t options;
+iox_pub_options_init(&options);
+options.subscriberTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
+```
 
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 

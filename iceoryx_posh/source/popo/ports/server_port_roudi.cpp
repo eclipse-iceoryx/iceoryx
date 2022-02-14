@@ -41,7 +41,7 @@ ServerPortRouDi::MemberType_t* ServerPortRouDi::getMembers() noexcept
 
 ConsumerTooSlowPolicy ServerPortRouDi::getClientTooSlowPolicy() const noexcept
 {
-    return static_cast<ConsumerTooSlowPolicy>(getMembers()->m_chunkSenderData.m_subscriberTooSlowPolicy);
+    return getMembers()->m_chunkSenderData.m_consumerTooSlowPolicy;
 }
 
 cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcept

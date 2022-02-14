@@ -20,27 +20,27 @@
 
 namespace c2cpp
 {
-iox::popo::SubscriberTooSlowPolicy subscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy) noexcept
+iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const ENUM iox_ConsumerTooSlowPolicy policy) noexcept
 {
     switch (policy)
     {
-    case SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER:
-        return iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
-    case SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA:
-        return iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+    case ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER:
+        return iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    case ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA:
+        return iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
     }
 
     errorHandler(
-        iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY, nullptr, iox::ErrorLevel::MODERATE);
-    return iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+        iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY, nullptr, iox::ErrorLevel::MODERATE);
+    return iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 }
 
 iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy) noexcept
 {
     switch (policy)
     {
-    case QueueFullPolicy_BLOCK_PUBLISHER:
-        return iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    case QueueFullPolicy_BLOCK_PRODUCER:
+        return iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     case QueueFullPolicy_DISCARD_OLDEST_DATA:
         return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
     }

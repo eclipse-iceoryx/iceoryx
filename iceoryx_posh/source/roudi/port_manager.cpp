@@ -318,8 +318,8 @@ bool isCompatible(const PublisherPortRouDiType& publisher, const SubscriberPortT
     auto& subOpts = subscriber.getOptions();
 
     const bool blockingPoliciesAreCompatible =
-        !(pubOpts.subscriberTooSlowPolicy == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
-          && subOpts.queueFullPolicy == popo::QueueFullPolicy::BLOCK_PUBLISHER);
+        !(pubOpts.subscriberTooSlowPolicy == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+          && subOpts.queueFullPolicy == popo::QueueFullPolicy::BLOCK_PRODUCER);
 
     const bool historyRequestIsCompatible =
         !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;

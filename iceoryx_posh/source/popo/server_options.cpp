@@ -26,14 +26,14 @@ cxx::Serialization ServerOptions::serialize() const noexcept
     return cxx::Serialization::create(requestQueueCapacity,
                                       nodeName,
                                       offerOnCreate,
-                                      static_cast<std::underlying_type_t<QueueFullPolicy2>>(requestQueueFullPolicy),
+                                      static_cast<std::underlying_type_t<QueueFullPolicy>>(requestQueueFullPolicy),
                                       static_cast<std::underlying_type_t<ConsumerTooSlowPolicy>>(clientTooSlowPolicy));
 }
 
 cxx::expected<ServerOptions, cxx::Serialization::Error>
 ServerOptions::deserialize(const cxx::Serialization& serialized) noexcept
 {
-    using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy2>;
+    using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy>;
     using ClientTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
     ServerOptions serverOptions;
@@ -47,13 +47,13 @@ ServerOptions::deserialize(const cxx::Serialization& serialized) noexcept
                                                         clientTooSlowPolicy);
 
     if (!deserializationSuccessful
-        || requestQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy2::DISCARD_OLDEST_DATA)
+        || requestQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA)
         || clientTooSlowPolicy > static_cast<ClientTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
         return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
-    serverOptions.requestQueueFullPolicy = static_cast<QueueFullPolicy2>(requestQueueFullPolicy);
+    serverOptions.requestQueueFullPolicy = static_cast<QueueFullPolicy>(requestQueueFullPolicy);
     serverOptions.clientTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(clientTooSlowPolicy);
 
     return cxx::success<ServerOptions>(serverOptions);

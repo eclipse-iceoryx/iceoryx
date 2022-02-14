@@ -217,25 +217,25 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
 #pragma GCC diagnostic pop
 }
 
-TEST(cpp2c_enum_translation_test, SubscriberTooSlowPolicy)
+TEST(cpp2c_enum_translation_test, ConsumerTooSlowPolicy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aad706c2-5216-4835-b29f-8a89829d7238");
-    EXPECT_EQ(cpp2c::subscriberTooSlowPolicy(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER),
-              SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER);
-    EXPECT_EQ(cpp2c::subscriberTooSlowPolicy(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA),
-              SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA);
+    EXPECT_EQ(cpp2c::consumerTooSlowPolicy(iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER),
+              ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER);
+    EXPECT_EQ(cpp2c::consumerTooSlowPolicy(iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA),
+              ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA);
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::subscriberTooSlowPolicy(static_cast<iox::popo::SubscriberTooSlowPolicy>(-1)),
-              SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA);
+    EXPECT_EQ(cpp2c::consumerTooSlowPolicy(static_cast<iox::popo::ConsumerTooSlowPolicy>(-1)),
+              ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA);
 #pragma GCC diagnostic pop
 }
 
 TEST(cpp2c_enum_translation_test, QueueFullPolicy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "067a164b-b143-47c7-8bab-962dbe519726");
-    EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER), QueueFullPolicy_BLOCK_PUBLISHER);
+    EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::BLOCK_PRODUCER), QueueFullPolicy_BLOCK_PRODUCER);
     EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA),
               QueueFullPolicy_DISCARD_OLDEST_DATA);
     // ignore the warning since we would like to test the behavior of an invalid enum value

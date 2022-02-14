@@ -50,18 +50,20 @@ enum iox_ChunkReceiveResult
     ChunkReceiveResult_SUCCESS,
 };
 
-/// @brief used by subscriber; describes whether a publisher blocks when subscriber queue is full
+/// @brief Used by consumers to request a specific behavior from the producer; describes whether a producer blocks when
+/// consumer queue is full
 enum iox_QueueFullPolicy
 {
-    QueueFullPolicy_BLOCK_PUBLISHER,
+    QueueFullPolicy_BLOCK_PRODUCER,
     QueueFullPolicy_DISCARD_OLDEST_DATA,
 };
 
-/// @brief used by publisher; describes whether a publisher blocks when subscriber queue is full
-enum iox_SubscriberTooSlowPolicy
+/// @brief Used by producers how to adjust to slow consumer; describes whether a producer blocks when consumer queue is
+/// full
+enum iox_ConsumerTooSlowPolicy
 {
-    SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER,
-    SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA,
+    ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER,
+    ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA,
 };
 
 /// @brief state of allocateChunk

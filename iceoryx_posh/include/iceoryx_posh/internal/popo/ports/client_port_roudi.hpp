@@ -50,7 +50,7 @@ class ClientPortRouDi : public BasePort
 
     /// @brief Access to the configured responseQueueFullPolicy
     /// @return the configured responseQueueFullPolicy
-    QueueFullPolicy2 getResponseQueueFullPolicy() const noexcept;
+    QueueFullPolicy getResponseQueueFullPolicy() const noexcept;
 
     /// @brief get an optional CaPro message that requests changes to the desired connection state of the client
     /// @return CaPro message with desired connection state, empty optional if no state change

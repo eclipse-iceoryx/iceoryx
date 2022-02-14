@@ -31,7 +31,7 @@ TEST(PublisherOptions_test, SerializationRoundTripIsSuccessful)
     testOptions.historyCapacity = 42;
     testOptions.nodeName = "hypnotoad";
     testOptions.offerOnCreate = false;
-    testOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    testOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
     iox::popo::PublisherOptions::deserialize(testOptions.serialize())
         .and_then([&](auto& roundTripOptions) {
@@ -65,7 +65,7 @@ TEST(PublisherOptions_test, DeserializingInvalidSubscriberTooSlowPolicyFails)
     constexpr uint64_t HISTORY_CAPACITY{42U};
     const iox::NodeName_t NODE_NAME{"harr-harr"};
     constexpr bool OFFER_ON_CREATE{true};
-    constexpr std::underlying_type_t<iox::popo::SubscriberTooSlowPolicy> SUBSCRIBER_TOO_SLOW_POLICY{111};
+    constexpr std::underlying_type_t<iox::popo::ConsumerTooSlowPolicy> SUBSCRIBER_TOO_SLOW_POLICY{111};
 
     const auto serialized =
         iox::cxx::Serialization::create(HISTORY_CAPACITY, NODE_NAME, OFFER_ON_CREATE, SUBSCRIBER_TOO_SLOW_POLICY);
