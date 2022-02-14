@@ -261,11 +261,11 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
     clientPortRoudi.tryGetCaProMessage().and_then([this, &clientPortRoudi](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::DISCONNECT);
 
-        m_portIntrospection.reportMessage(caproMessage);
+        /// @todo iox-#27 report to port introspection
         this->sendToAllMatchingServerPorts(caproMessage, clientPortRoudi);
     });
 
-    /// @todo iox-#27 report to port introspection
+    /// @todo iox-#27 remove from to port introspection
 
     LogDebug() << "Destroy client port from runtime '" << clientPortData->m_runtimeName
                << "' and with service description '" << clientPortData->m_serviceDescription << "'";
@@ -346,7 +346,7 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
     serverPortRoudi.tryGetCaProMessage().and_then([this, &serverPortRoudi](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
 
-        m_portIntrospection.reportMessage(caproMessage);
+        /// @todo iox-#27 report to port introspection
         /// @todo iox-#27 add server to service registry
         // this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
         this->sendToAllMatchingClientPorts(caproMessage, serverPortRoudi);
@@ -354,7 +354,7 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
         // this->sendToAllMatchingInterfacePorts(caproMessage);
     });
 
-    /// @todo iox-#27 report to port introspection
+    /// @todo iox-#27 remove from port introspection
 
     LogDebug() << "Destroy server port from runtime '" << serverPortData->m_runtimeName
                << "' and with service description '" << serverPortData->m_serviceDescription << "'";
@@ -942,12 +942,12 @@ PortManager::acquireClientPortData(const capro::ServiceDescription& service,
     // we can create a new port
     return m_portPool
         ->addClientPort(service, payloadDataSegmentMemoryManager, runtimeName, clientOptions, portConfigInfo.memoryInfo)
-        .and_then([&](auto clientPortData) {
+        .and_then([this](auto clientPortData) {
             /// @todo iox-#27 add to port introspection
 
             // we do discovery here for trying to connect the client if offer on create is desired
             popo::ClientPortRouDi clientPort(*clientPortData);
-            doDiscoveryForClientPort(clientPort);
+            this->doDiscoveryForClientPort(clientPort);
         });
 }
 
@@ -963,12 +963,12 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
     // we can create a new port
     return m_portPool
         ->addServerPort(service, payloadDataSegmentMemoryManager, runtimeName, serverOptions, portConfigInfo.memoryInfo)
-        .and_then([&](auto serverPortData) {
+        .and_then([this](auto serverPortData) {
             /// @todo iox-#27 add to port introspection
 
             // we do discovery here for trying to connect the waiting client if offer on create is desired
             popo::ServerPortRouDi serverPort(*serverPortData);
-            doDiscoveryForServerPort(serverPort);
+            this->doDiscoveryForServerPort(serverPort);
         });
 }
 
