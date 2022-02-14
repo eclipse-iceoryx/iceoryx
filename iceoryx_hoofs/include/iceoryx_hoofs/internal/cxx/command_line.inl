@@ -38,7 +38,7 @@ inline T addEntry(T& value,
                                    name,
                                    description,
                                    argumentType,
-                                   TypeInfo<T>::NAME,
+                                   {TypeInfo<T>::NAME},
                                    CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         auto result = options.get<T>(entries[index].longOption);
@@ -84,7 +84,7 @@ inline bool addEntry(bool& value,
                                    name,
                                    description,
                                    argumentType,
-                                   TypeInfo<bool>::NAME,
+                                   {TypeInfo<bool>::NAME},
                                    CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         value = options.has(entries[index].longOption);

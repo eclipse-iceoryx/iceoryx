@@ -53,14 +53,14 @@ class CommandLine_test : public Test
 
 struct CommandLineSut
 {
-    COMMAND_LINE(CommandLineSut, "My program description");
+    COMMAND_LINE(CommandLineSut, {"My program description"});
 
-    OPTIONAL_VALUE(string<100>, stringValue1, "default value", 's', "string-value-1", "some description");
-    OPTIONAL_VALUE(string<100>, stringValue2, "some other value", 't', "string-value-2", "some description");
-    OPTIONAL_VALUE(int64_t, optionalInt1, 123, 'i', "int-value-1", "some description");
-    OPTIONAL_VALUE(int64_t, optionalInt2, 456, 'j', "int-value-2", "some description");
-    OPTIONAL_VALUE(uint8_t, optionalUint1, 123, 'u', "uint-value-1", "some description");
-    OPTIONAL_VALUE(uint8_t, optionalUint2, 212, 'v', "uint-value-2", "some description");
+    OPTIONAL_VALUE(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});
+    OPTIONAL_VALUE(string<100>, stringValue2, {"some other value"}, 't', {"string-value-2"}, {"some description"});
+    OPTIONAL_VALUE(int64_t, optionalInt1, 123, 'i', {"int-value-1"}, {"some description"});
+    OPTIONAL_VALUE(int64_t, optionalInt2, 456, 'j', {"int-value-2"}, {"some description"});
+    OPTIONAL_VALUE(uint8_t, optionalUint1, 123, 'u', {"uint-value-1"}, {"some description"});
+    OPTIONAL_VALUE(uint8_t, optionalUint2, 212, 'v', {"uint-value-2"}, {"some description"});
 
     SWITCH(lightSwitch1, 'l', "light-switch-1", "do some stuff - some description");
     SWITCH(lightSwitch2, 'm', "light-switch-2", "do some stuff - some description");

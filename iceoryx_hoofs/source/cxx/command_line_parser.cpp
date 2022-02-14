@@ -27,7 +27,7 @@ namespace cxx
 CommandLineParser::CommandLineParser(const description_t& programDescription) noexcept
     : m_programDescription{programDescription}
 {
-    std::move(*this).addOption({'h', "help", "Display help.", ArgumentType::SWITCH, "", ""});
+    std::move(*this).addOption({'h', {"help"}, {"Display help."}, ArgumentType::SWITCH, {""}, {""}});
 }
 
 bool CommandLineParser::hasArguments(const int argc) const noexcept
@@ -480,7 +480,7 @@ CommandLineParser& CommandLineParser::addSwitch(const char shortOption,
                                                 const CommandLineOptions::name_t& longOption,
                                                 const description_t& description) noexcept
 {
-    return addOption({shortOption, longOption, description, ArgumentType::SWITCH, "", ""});
+    return addOption({shortOption, longOption, description, ArgumentType::SWITCH, {""}, {""}});
 }
 
 CommandLineParser& CommandLineParser::addOptionalValue(const char shortOption,
@@ -496,7 +496,7 @@ CommandLineParser& CommandLineParser::addRequiredValue(const char shortOption,
                                                        const description_t& description,
                                                        const typeName_t& typeName) noexcept
 {
-    return addOption({shortOption, longOption, description, ArgumentType::REQUIRED_VALUE, typeName, ""});
+    return addOption({shortOption, longOption, description, ArgumentType::REQUIRED_VALUE, typeName, {""}});
 }
 
 std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t& entry) noexcept
