@@ -35,7 +35,7 @@ inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(cons
         }
     }
 
-    return cxx::success<T>();
+    return cxx::error<Result>(Result::NO_SUCH_VALUE);
 }
 } // namespace cxx
 } // namespace iox

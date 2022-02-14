@@ -39,6 +39,13 @@ enum class UnknownOption
     TERMINATE
 };
 
+/// @brief This class provides access to the command line argument values.
+///        When constructed with the default constructor it is empty. Calling
+///        CommandLineParser::parse creates and returns a populated CommandLineOptions
+///        object.
+///        This class should never be used directly. Use the CommandLine builder
+///        from `iceoryx_hoofs/cxx/command_line.hpp` to create a struct which contains
+///        the values.
 class IOX_NO_DISCARD CommandLineOptions
 {
   public:
@@ -52,12 +59,23 @@ class IOX_NO_DISCARD CommandLineOptions
 
     enum class Result
     {
-        UNABLE_TO_CONVERT_VALUE
+        UNABLE_TO_CONVERT_VALUE,
+        NO_SUCH_VALUE
     };
 
+    /// @brief returns the value of a specified option
+    /// @tparam T the type of the value
+    /// @param[in] optionName either one letter for the shortOption or the whole longOption
+    /// @return the contained value if the value is present and convertable, otherwise an Result which describes the
+    /// error
     template <typename T>
     cxx::expected<T, Result> get(const name_t& optionName) const noexcept;
+
+    /// @brief returns true if the specified switch was set, otherwise false
+    /// @param[in] switchName either one letter for the shortOption or the whole longOption
     bool has(const name_t& switchName) const noexcept;
+
+    /// @brief returns the full path name of the binary
     const binaryName_t& binaryName() const noexcept;
 
     friend class CommandLineParser;
@@ -74,6 +92,10 @@ class IOX_NO_DISCARD CommandLineOptions
     cxx::vector<argument_t, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };
 
+/// @brief Factory class for the CommandLineOptions. First one has to register
+///        all switches and options before calling parse. This is required for
+///        the help page which is generated and printed on failure as well as
+///        for consistency and syntax checks.
 class CommandLineParser
 {
   public:
@@ -85,6 +107,56 @@ class CommandLineParser
     using description_t = cxx::string<MAX_DESCRIPTION_LENGTH>;
     using typeName_t = cxx::string<MAX_TYPE_LENGTH>;
 
+    /// @brief The constructor.
+    /// @param[in] programDescription The description to the program. Will be printed in the help.
+    explicit CommandLineParser(const description_t& programDescription) noexcept;
+
+    /// @brief Adds a command line switch argument
+    ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
+    /// @param[in] shortOption a single letter as short option
+    /// @param[in] longOption a multi letter word which does not start with minus as long option name
+    /// @param[in] description the description to the argument
+    CommandLineParser& addSwitch(const char shortOption,
+                                 const CommandLineOptions::name_t& longOption,
+                                 const description_t& description) noexcept;
+
+    /// @brief Adds a command line optional value argument.
+    ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
+    /// @param[in] shortOption a single letter as short option
+    /// @param[in] longOption a multi letter word which does not start with minus as long option name
+    /// @param[in] description the description to the argument
+    /// @param[in] typeName the name of the value type
+    /// @param[in] defaultValue the value which will be set to the option when it is not set by the user
+    CommandLineParser& addOptionalValue(const char shortOption,
+                                        const CommandLineOptions::name_t& longOption,
+                                        const description_t& description,
+                                        const typeName_t& typeName,
+                                        const CommandLineOptions::value_t& defaultValue) noexcept;
+
+    /// @brief Adds a command line optional value argument
+    ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
+    /// @param[in] shortOption a single letter as short option
+    /// @param[in] longOption a multi letter word which does not start with minus as long option name
+    /// @param[in] description the description to the argument
+    /// @param[in] typeName the name of the value type
+    CommandLineParser& addRequiredValue(const char shortOption,
+                                        const CommandLineOptions::name_t& longOption,
+                                        const description_t& description,
+                                        const typeName_t& typeName) noexcept;
+
+    /// @brief Parses the arguments from the command line.
+    ///        Calls the error  handler when the command line arguments contain illegal syntax or required values are
+    ///        not provided
+    /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
+    /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
+    /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
+    /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
+    /// option/switch which is unknown
+    CommandLineOptions parse(int argc,
+                             char* argv[],
+                             const uint64_t argcOffset = 1U,
+                             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+
     struct entry_t
     {
         char shortOption = NO_SHORT_OPTION;
@@ -94,28 +166,6 @@ class CommandLineParser
         typeName_t typeName;
         CommandLineOptions::value_t defaultValue;
     };
-
-    explicit CommandLineParser(const description_t& programDescription) noexcept;
-
-    CommandLineParser& addSwitch(const char shortOption,
-                                 const CommandLineOptions::name_t& longOption,
-                                 const description_t& description) noexcept;
-
-    CommandLineParser& addOptionalValue(const char shortOption,
-                                        const CommandLineOptions::name_t& longOption,
-                                        const description_t& description,
-                                        const typeName_t& typeName,
-                                        const CommandLineOptions::value_t& defaultValue) noexcept;
-
-    CommandLineParser& addRequiredValue(const char shortOption,
-                                        const CommandLineOptions::name_t& longOption,
-                                        const description_t& description,
-                                        const typeName_t& typeName) noexcept;
-
-    CommandLineOptions parse(int argc,
-                             char* argv[],
-                             const uint64_t argcOffset = 1U,
-                             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
   private:
     CommandLineParser& addOption(const entry_t& option) noexcept;
