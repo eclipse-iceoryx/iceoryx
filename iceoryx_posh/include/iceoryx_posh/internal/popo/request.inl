@@ -14,18 +14,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_SAMPLE_INL
-#define IOX_POSH_POPO_SAMPLE_INL
+#ifndef IOX_POSH_POPO_REQUEST_INL
+#define IOX_POSH_POPO_REQUEST_INL
 
 namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
+template <typename T>
 template <typename S, typename>
-void Sample<T, H>::publish() noexcept
+inline void Request<T>::send() noexcept
 {
-    BaseType::deliver();
+    BaseType::publish();
+}
+
+template <typename T>
+inline RequestHeader& Request<T>::getRequestHeader() noexcept
+{
+    return BaseType::template getUserHeader<RequestHeader>();
+}
+
+template <typename T>
+inline const RequestHeader& Request<T>::getRequestHeader() const noexcept
+{
+    return reinterpret_cast<const RequestHeader&>(BaseType::getUserHeader());
 }
 } // namespace popo
 } // namespace iox

@@ -35,7 +35,9 @@ template <typename T, typename H>
 class PublisherInterface
 {
   public:
-    virtual void publish(Sample<T, H>&& sample) noexcept = 0;
+    using SampleType = Sample<T, H>;
+
+    virtual void publish(SampleType&& sample) noexcept = 0;
 
     virtual ~PublisherInterface(){};
 
