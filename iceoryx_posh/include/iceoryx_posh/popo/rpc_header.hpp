@@ -119,6 +119,9 @@ class RequestHeader : public RpcBaseHeader
     /// @return true if set and no response is expected, false otherwise
     bool isFireAndForget() const noexcept;
 
+    static RequestHeader* fromPayload(void* const payload) noexcept;
+    static const RequestHeader* fromPayload(const void* const payload) noexcept;
+
   private:
     bool m_isFireAndForget{false};
 };
@@ -147,6 +150,9 @@ class ResponseHeader : public RpcBaseHeader
     /// @brief Obtains the server error flag
     /// @return true if there is an error, false otherwise
     bool hasServerError() const noexcept;
+
+    static ResponseHeader* fromPayload(void* const payload) noexcept;
+    static const ResponseHeader* fromPayload(const void* const payload) noexcept;
 
   private:
     bool m_hasServerError{false};
