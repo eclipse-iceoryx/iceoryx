@@ -142,6 +142,8 @@ struct TypeInfo
 {
     static constexpr const char NAME[] = "unknown type";
 };
+template <typename T>
+constexpr const char TypeInfo<T>::NAME[];
 
 template <uint64_t>
 class string;
@@ -151,6 +153,8 @@ struct TypeInfo<iox::cxx::string<N>>
 {
     static constexpr const char NAME[] = "string";
 };
+template <uint64_t N>
+constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
 
 template <>
 struct TypeInfo<int8_t>

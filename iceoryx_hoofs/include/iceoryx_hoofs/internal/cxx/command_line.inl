@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_CXX_COMMAND_LINE_INL
 #define IOX_HOOFS_CXX_COMMAND_LINE_INL
 
@@ -32,13 +33,13 @@ inline T addEntry(T& value,
                   internal::cmdEntries_t& entries,
                   internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(CommandLineParser::entry_t{
-        shortName,
-        name,
-        description,
-        argumentType,
-        TypeInfo<T>::NAME,
-        CommandLineParser::description_t(TruncateToCapacity, convert::toString(defaultValue))});
+    entries.emplace_back(
+        CommandLineParser::entry_t{shortName,
+                                   name,
+                                   description,
+                                   argumentType,
+                                   TypeInfo<T>::NAME,
+                                   CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         auto result = options.get<T>(entries[index].longOption);
         if (result.has_error())
@@ -78,13 +79,13 @@ inline bool addEntry(bool& value,
                      internal::cmdEntries_t& entries,
                      internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(CommandLineParser::entry_t{
-        shortName,
-        name,
-        description,
-        argumentType,
-        TypeInfo<bool>::NAME,
-        CommandLineParser::description_t(TruncateToCapacity, convert::toString(defaultValue))});
+    entries.emplace_back(
+        CommandLineParser::entry_t{shortName,
+                                   name,
+                                   description,
+                                   argumentType,
+                                   TypeInfo<bool>::NAME,
+                                   CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         value = options.has(entries[index].longOption);
     });
@@ -93,6 +94,7 @@ inline bool addEntry(bool& value,
 
 inline void populateEntries(const internal::cmdEntries_t& entries,
                             const internal::cmdAssignments_t& assignments,
+                            ::iox::cxx::CommandLineOptions::binaryName_t& binaryName,
                             const CommandLineParser::description_t& programDescription,
                             int argc,
                             char* argv[],
@@ -102,7 +104,19 @@ inline void populateEntries(const internal::cmdEntries_t& entries,
     CommandLineParser parser(programDescription);
     for (const auto& entry : entries)
     {
-        parser.addOption(entry);
+        switch (entry.type)
+        {
+        case ArgumentType::SWITCH:
+            parser.addSwitch(entry.shortOption, entry.longOption, entry.description);
+            break;
+        case ArgumentType::REQUIRED_VALUE:
+            parser.addRequiredValue(entry.shortOption, entry.longOption, entry.description, entry.typeName);
+            break;
+        case ArgumentType::OPTIONAL_VALUE:
+            parser.addOptionalValue(
+                entry.shortOption, entry.longOption, entry.description, entry.typeName, entry.defaultValue);
+            break;
+        }
     }
 
     auto options = parser.parse(argc, argv, argcOffset, actionWhenOptionUnknown);
@@ -111,6 +125,8 @@ inline void populateEntries(const internal::cmdEntries_t& entries,
     {
         assignment(options);
     }
+
+    binaryName = options.binaryName();
 }
 } // namespace internal
 } // namespace cxx

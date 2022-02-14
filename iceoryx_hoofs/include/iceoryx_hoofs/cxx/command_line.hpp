@@ -43,6 +43,7 @@ T addEntry(T& value,
 
 void populateEntries(const internal::cmdEntries_t& entries,
                      const internal::cmdAssignments_t& assignments,
+                     ::iox::cxx::CommandLineOptions::binaryName_t& binaryName,
                      const CommandLineParser::description_t& programDescription,
                      int argc,
                      char* argv[],
@@ -55,7 +56,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
         this->m_##memberName, shortName, longName, description, argumentType, defaultValue, m_entries, m_assignments); \
                                                                                                                        \
   public:                                                                                                              \
-    type memberName() const noexcept                                                                                   \
+    const type& memberName() const noexcept                                                                            \
     {                                                                                                                  \
         return m_##memberName;                                                                                         \
     }
@@ -128,6 +129,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
   private:                                                                                                             \
     ::iox::cxx::internal::cmdEntries_t m_entries;                                                                      \
     ::iox::cxx::internal::cmdAssignments_t m_assignments;                                                              \
+    ::iox::cxx::CommandLineOptions::binaryName_t m_binaryName;                                                         \
                                                                                                                        \
   public:                                                                                                              \
     Name(int argc,                                                                                                     \
@@ -135,8 +137,19 @@ void populateEntries(const internal::cmdEntries_t& entries,
          const uint64_t argcOffset = 1U,                                                                               \
          const iox::cxx::UnknownOption actionWhenOptionUnknown = iox::cxx::UnknownOption::TERMINATE)                   \
     {                                                                                                                  \
-        ::iox::cxx::internal::populateEntries(                                                                         \
-            m_entries, m_assignments, ProgramDescription, argc, argv, argcOffset, actionWhenOptionUnknown);            \
+        ::iox::cxx::internal::populateEntries(m_entries,                                                               \
+                                              m_assignments,                                                           \
+                                              m_binaryName,                                                            \
+                                              ProgramDescription,                                                      \
+                                              argc,                                                                    \
+                                              argv,                                                                    \
+                                              argcOffset,                                                              \
+                                              actionWhenOptionUnknown);                                                \
+    }                                                                                                                  \
+                                                                                                                       \
+    const ::iox::cxx::CommandLineOptions::binaryName_t& binaryName() const noexcept                                    \
+    {                                                                                                                  \
+        return m_binaryName;                                                                                           \
     }
 } // namespace cxx
 } // namespace iox

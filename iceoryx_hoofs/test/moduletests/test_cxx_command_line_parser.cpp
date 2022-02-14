@@ -17,6 +17,7 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
 #include "test.hpp"
+#include "test_cxx_command_line_common.hpp"
 
 #include <cstdlib>
 #include <memory>
@@ -50,30 +51,6 @@ class CommandLineParser_test : public Test
     static CommandLineOptions::value_t defaultValue;
 };
 CommandLineOptions::value_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
-
-struct CmdArgs
-{
-    int argc = 0;
-    char** argv = nullptr;
-
-    explicit CmdArgs(const std::vector<std::string>& arguments)
-        : argc{static_cast<int>(arguments.size())}
-        , argv{new char*[argc]}
-    {
-        contents = std::make_unique<std::vector<std::string>>(arguments);
-        for (int i = 0; i < argc; ++i)
-        {
-            argv[i] = const_cast<char*>((*contents)[i].data());
-        }
-    }
-
-    ~CmdArgs()
-    {
-        delete[] argv;
-    }
-
-    std::unique_ptr<std::vector<std::string>> contents;
-};
 
 TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 {
