@@ -45,7 +45,6 @@ class CommandLineParser_test : public Test
     }
 
     using str_t = char[CommandLineParser::MAX_DESCRIPTION_LENGTH];
-    static constexpr uint64_t MAX_ARGUMENTS = CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS + 1;
 };
 
 // TEST TODO:
@@ -92,7 +91,7 @@ TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
     {
         auto handle =
             iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        auto options = CommandLineParser("").parse(0, nullptr);
+        IOX_DISCARD_RESULT(CommandLineParser("").parse(0, nullptr));
     }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
@@ -105,7 +104,7 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
     {
         auto handle =
             iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        auto options = CommandLineParser("").parse(args.argc, args.argv);
+        IOX_DISCARD_RESULT(CommandLineParser("").parse(args.argc, args.argv));
     }
 
     EXPECT_TRUE(wasErrorHandlerCalled);
@@ -198,7 +197,7 @@ void FailureTest(const std::vector<std::string>& options,
         {
             auto handle =
                 iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-            auto options = parser.parse(args.argc, args.argv, 1U, actionWhenOptionUnknown);
+            IOX_DISCARD_RESULT(parser.parse(args.argc, args.argv, 1U, actionWhenOptionUnknown));
         }
     }
 
@@ -951,5 +950,246 @@ TEST_F(CommandLineParser_test, IgnoreWhenSwitchIsNotRegistered_MixedArguments)
 }
 /// END required, optional option and switch failure mix
 
+CommandLineOptions SuccessTest(const std::vector<std::string>& options,
+                               const std::vector<std::string>& optionsToRegister = {},
+                               const std::vector<std::string>& switchesToRegister = {},
+                               const std::vector<std::string>& requiredValuesToRegister = {},
+                               const uint64_t argcOffset = 1U) noexcept
+{
+    const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
+    std::vector<std::string> optionVector{binaryName.c_str()};
+    optionVector.insert(optionVector.end(), options.begin(), options.end());
+    CmdArgs args(optionVector);
+    CommandLineOptions retVal;
+
+    bool wasErrorHandlerCalled = false;
+    {
+        CommandLineParser parser("");
+        for (const auto& o : optionsToRegister)
+        {
+            parser.addOption({o[0],
+                              CommandLineOptions::name_t(TruncateToCapacity, o),
+                              "",
+                              ArgumentType::OPTIONAL_VALUE,
+                              "int",
+                              "0"});
+        }
+        for (const auto& s : switchesToRegister)
+        {
+            parser.addOption(
+                {s[0], CommandLineOptions::name_t{TruncateToCapacity, s}, "", ArgumentType::SWITCH, "", ""});
+        }
+        for (const auto& r : requiredValuesToRegister)
+        {
+            parser.addOption({r[0],
+                              CommandLineOptions::name_t(TruncateToCapacity, r),
+                              "",
+                              ArgumentType::REQUIRED_VALUE,
+                              "int",
+                              "0"});
+        }
+
+        {
+            auto handle =
+                iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+            retVal = parser.parse(args.argc, args.argv, argcOffset, UnknownOption::IGNORE);
+        }
+    }
+    EXPECT_FALSE(wasErrorHandlerCalled);
+    return retVal;
+}
+
+template <typename T>
+void verifyEntry(const CommandLineOptions& options,
+                 const CommandLineOptions::name_t& entry,
+                 const iox::cxx::optional<T>& value)
+{
+    auto result = options.get<T>(entry);
+
+    value
+        .and_then([&](auto& v) {
+            // ASSERT_ does not work in function calls
+            if (result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+
+            EXPECT_THAT(*result, Eq(v));
+        })
+        .or_else([&] {
+            if (!result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+            EXPECT_THAT(result.get_error(), Eq(CommandLineOptions::Result::NO_SUCH_VALUE));
+        });
+}
+
+/// BEGIN acquire values correctly
+
+TEST_F(CommandLineParser_test, ReadOptionSuccessfully_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{"conway"};
+    auto option = SuccessTest({"--conway", "gameOfLife"}, optionsToRegister);
+
+    verifyEntry<std::string>(option, "conway", {"gameOfLife"});
+}
+
+TEST_F(CommandLineParser_test, ReadOptionSuccessfully_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
+    auto option = SuccessTest({"--moon", "bright", "--conway", "gameOfLife", "--tungsten", "heavy"}, optionsToRegister);
+
+    verifyEntry<std::string>(option, "conway", {"gameOfLife"});
+    verifyEntry<std::string>(option, "moon", {"bright"});
+    verifyEntry<std::string>(option, "tungsten", {"heavy"});
+}
+
+TEST_F(CommandLineParser_test, ReadOptionSuccessfully_MultiArgument_ShortOption)
+{
+    std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
+    auto option = SuccessTest({"-m", "bright", "-c", "gameOfLife", "-t", "heavy"}, optionsToRegister);
+
+    verifyEntry<std::string>(option, "c", {"gameOfLife"});
+    verifyEntry<std::string>(option, "m", {"bright"});
+    verifyEntry<std::string>(option, "t", {"heavy"});
+}
+
+TEST_F(CommandLineParser_test, ReadOptionSuccessfully_PartialSet)
+{
+    std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
+    auto option = SuccessTest({"-m", "bright"}, optionsToRegister);
+
+    verifyEntry<std::string>(option, "moon", {"bright"});
+    verifyEntry<std::string>(option, "conway", iox::cxx::nullopt);
+    verifyEntry<std::string>(option, "tungsten", iox::cxx::nullopt);
+}
+
+TEST_F(CommandLineParser_test, ReadOptionSuccessfully_Offset)
+{
+    std::vector<std::string> optionsToRegister{"conway", "tungsten", "moon"};
+    constexpr uint64_t ARGC_OFFSET = 5U;
+    auto option =
+        SuccessTest({"whatever", "bright", "-t", "heavy", "-c", "gameOfLife"}, optionsToRegister, {}, {}, ARGC_OFFSET);
+
+    verifyEntry<std::string>(option, "moon", iox::cxx::nullopt);
+    verifyEntry<std::string>(option, "conway", {"gameOfLife"});
+    verifyEntry<std::string>(option, "tungsten", iox::cxx::nullopt);
+}
+
+TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"fuubar"};
+    auto option = SuccessTest({"--fuubar", "ohFuBa"}, optionsToRegister, switchesToRegister, requiredValuesToRegister);
+
+    verifyEntry<std::string>(option, "fuubar", {"ohFuBa"});
+}
+
+TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"fuubar", "c64", "amiga"};
+    auto option = SuccessTest({"--fuubar", "ohFuBa", "--amiga", "Os2 Warp", "--c64", "cobra"},
+                              optionsToRegister,
+                              switchesToRegister,
+                              requiredValuesToRegister);
+
+    verifyEntry<std::string>(option, "fuubar", {"ohFuBa"});
+    verifyEntry<std::string>(option, "amiga", {"Os2 Warp"});
+    verifyEntry<std::string>(option, "c64", {"cobra"});
+}
+
+TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_MultiArgument_ShortOption)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"fuubar", "c64", "amiga"};
+    auto option = SuccessTest({"-f", "ohFuBa", "-a", "Os2 Warp", "-c", "cobra"},
+                              optionsToRegister,
+                              switchesToRegister,
+                              requiredValuesToRegister);
+
+    verifyEntry<std::string>(option, "f", {"ohFuBa"});
+    verifyEntry<std::string>(option, "a", {"Os2 Warp"});
+    verifyEntry<std::string>(option, "c", {"cobra"});
+}
+
+TEST_F(CommandLineParser_test, ReadRequiredValueSuccessfully_Offset)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{};
+    std::vector<std::string> requiredValuesToRegister{"fuubar", "c64", "amiga"};
+    constexpr uint64_t ARGC_OFFSET = 3U;
+    auto option = SuccessTest({"-f", "iWillNotBeParsed", "-f", "ohFuBa", "-a", "Os2 Warp", "-c", "cobra"},
+                              optionsToRegister,
+                              switchesToRegister,
+                              requiredValuesToRegister,
+                              ARGC_OFFSET);
+
+    verifyEntry<std::string>(option, "f", {"ohFuBa"});
+    verifyEntry<std::string>(option, "a", {"Os2 Warp"});
+    verifyEntry<std::string>(option, "c", {"cobra"});
+}
+
+TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_SingleArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{"light"};
+    auto option = SuccessTest({"--light"}, optionsToRegister, switchesToRegister);
+
+    EXPECT_TRUE(option.has("light"));
+}
+
+TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
+    auto option = SuccessTest({"--light", "--fridge", "--muu"}, optionsToRegister, switchesToRegister);
+
+    EXPECT_TRUE(option.has("light"));
+    EXPECT_TRUE(option.has("fridge"));
+    EXPECT_TRUE(option.has("muu"));
+}
+
+TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument_ShortOption)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
+    auto option = SuccessTest({"-l", "-f", "-m"}, optionsToRegister, switchesToRegister);
+
+    EXPECT_TRUE(option.has("l"));
+    EXPECT_TRUE(option.has("f"));
+    EXPECT_TRUE(option.has("m"));
+}
+
+TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_PartialSet)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
+    auto option = SuccessTest({"-l"}, optionsToRegister, switchesToRegister);
+
+    EXPECT_TRUE(option.has("light"));
+    EXPECT_FALSE(option.has("fridge"));
+    EXPECT_FALSE(option.has("muu"));
+}
+
+TEST_F(CommandLineParser_test, ReadSwitchValueSuccessfullyWhenSet_Offset)
+{
+    std::vector<std::string> optionsToRegister{};
+    std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
+    constexpr uint64_t ARGC_OFFSET = 2U;
+    auto option =
+        SuccessTest({"----unknown-dont-care", "-f", "-m"}, optionsToRegister, switchesToRegister, {}, ARGC_OFFSET);
+
+    EXPECT_FALSE(option.has("light"));
+    EXPECT_TRUE(option.has("fridge"));
+    EXPECT_TRUE(option.has("muu"));
+}
+/// END acquire values correctly
 
 } // namespace

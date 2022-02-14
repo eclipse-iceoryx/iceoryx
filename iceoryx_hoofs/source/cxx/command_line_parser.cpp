@@ -197,6 +197,8 @@ CommandLineOptions CommandLineParser::parse(int argc,
 {
     m_argc = argc;
     m_argv = argv;
+    // reset options otherwise multiple parse calls work on already parsed options
+    m_options = CommandLineOptions();
 
     if (!hasArguments(argc) || !assignBinaryName(argv[0]))
     {

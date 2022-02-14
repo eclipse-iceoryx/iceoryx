@@ -39,7 +39,7 @@ enum class UnknownOption
     TERMINATE
 };
 
-class CommandLineOptions
+class IOX_NO_DISCARD CommandLineOptions
 {
   public:
     static constexpr uint64_t MAX_NUMBER_OF_ARGUMENTS = 16;
