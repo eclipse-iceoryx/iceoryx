@@ -38,13 +38,10 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
     {
         return cxx::error<AllocationError>(result.get_error());
     }
-    else
-    {
-        auto requestHeader = result.value();
-        auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
-        auto request = cxx::unique_ptr<Req>(reinterpret_cast<Req*>(payload), m_requestDeleter);
-        return cxx::success<Request<Req>>(Request<Req>{std::move(request), *this});
-    }
+    auto requestHeader = result.value();
+    auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
+    auto request = cxx::unique_ptr<Req>(reinterpret_cast<Req*>(payload), m_requestDeleter);
+    return cxx::success<Request<Req>>(Request<Req>{std::move(request), *this});
 }
 
 template <typename Req, typename Res, typename BaseClientT>
@@ -58,7 +55,8 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
 template <typename Req, typename Res, typename BaseClientT>
 void ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
-    auto payload = request.release(); // release the Request ownership of the chunk before publishing
+    // take the ownership of the chunk from the Request to transfer it to `sendRequest`
+    auto payload = request.release();
     auto* requestHeader = static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     port().sendRequest(requestHeader);
 }

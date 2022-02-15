@@ -54,13 +54,10 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
     {
         return cxx::error<AllocationError>(result.get_error());
     }
-    else
-    {
-        auto responseHeader = result.value();
-        auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
-        auto response = cxx::unique_ptr<Res>(reinterpret_cast<Res*>(payload), m_responseDeleter);
-        return cxx::success<Response<Res>>(Response<Res>{std::move(response), *this});
-    }
+    auto responseHeader = result.value();
+    auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
+    auto response = cxx::unique_ptr<Res>(reinterpret_cast<Res*>(payload), m_responseDeleter);
+    return cxx::success<Response<Res>>(Response<Res>{std::move(response), *this});
 }
 
 template <typename Req, typename Res, typename BaseServerT>
@@ -75,7 +72,8 @@ cxx::expected<Response<Res>, AllocationError> ServerImpl<Req, Res, BaseServerT>:
 template <typename Req, typename Res, typename BaseServerT>
 void ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
 {
-    auto payload = response.release(); // release the Request ownership of the chunk before publishing
+    // take the ownership of the chunk from the Response to transfer it to `sendResponse`
+    auto payload = response.release();
     auto* responseHeader = static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     port().sendResponse(responseHeader);
 }
