@@ -673,6 +673,7 @@ void PortManager::publishServiceRegistry() const noexcept
             .and_then([&](auto& chunk) {
                 auto sample = static_cast<ServiceRegistry*>(chunk->userPayload());
 
+                // It's ok to copy as the modifications happen in the same thread and not concurrently
                 *sample = m_serviceRegistry;
 
                 publisher.sendChunk(chunk);
