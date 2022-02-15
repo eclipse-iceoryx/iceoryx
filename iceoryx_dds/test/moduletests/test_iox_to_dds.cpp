@@ -112,7 +112,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
     // === Setup
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Introspection", "Foo", "Bar"});
-    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+    msg.m_subType = iox::capro::CaproMessageSubType::PUBLISHER;
 
     EXPECT_CALL(gw, addChannel(_, _)).Times(0);
 
@@ -120,13 +120,13 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
     gw.discover(msg);
 }
 
-TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
+TEST_F(Iceoryx2DDSGatewayTest, IgnoresServerMessages)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6894e3f2-6f41-4b8e-95e0-e375ab294d19");
     // === Setup
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Foo", "Bar", "Baz"});
-    msg.m_subType = iox::capro::CaproMessageSubType::SERVICE;
+    msg.m_subType = iox::capro::CaproMessageSubType::SERVER;
 
     EXPECT_CALL(gw, addChannel(_, _)).Times(0);
 
@@ -141,7 +141,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
-    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+    msg.m_subType = iox::capro::CaproMessageSubType::PUBLISHER;
 
     EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
@@ -161,7 +161,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
 
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
-    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+    msg.m_subType = iox::capro::CaproMessageSubType::PUBLISHER;
 
     // Mock methods of the mock generic dds gateway base class
     ON_CALL(gw, findChannel(_)).WillByDefault(Return(iox::cxx::nullopt_t()));
@@ -182,7 +182,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
 
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
-    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+    msg.m_subType = iox::capro::CaproMessageSubType::PUBLISHER;
 
     // Mock methods of the mock generic dds gateway base class
     ON_CALL(gw, findChannel(_)).WillByDefault(Return(iox::cxx::nullopt_t()));
@@ -304,9 +304,9 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
 
     // Messages
     auto offerMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
-    offerMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+    offerMsg.m_subType = iox::capro::CaproMessageSubType::PUBLISHER;
     auto stopOfferMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::STOP_OFFER, testService);
-    stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+    stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::PUBLISHER;
 
     // Get the test channels here as we need to use them in expectations
     auto testChannelOne = channelFactory(testService, iox::popo::SubscriberOptions());

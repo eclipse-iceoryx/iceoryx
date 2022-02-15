@@ -69,9 +69,8 @@ inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value
 enum class CaproMessageSubType : uint8_t
 {
     NOSUBTYPE = 0,
-    SERVICE,
-    EVENT,
-    FIELD
+    PUBLISHER,
+    SERVER
 };
 
 /// @brief C'tors for CaPro messages

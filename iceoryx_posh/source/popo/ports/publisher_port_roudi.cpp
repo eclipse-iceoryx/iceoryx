@@ -57,10 +57,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
 
         const auto historyCapacity = m_chunkSender.getHistoryCapacity();
         caproMessage.m_historyCapacity = historyCapacity;
-
-        // provide additional AUTOSAR Adaptive like information
-        caproMessage.m_subType =
-            (0u < historyCapacity) ? capro::CaproMessageSubType::FIELD : capro::CaproMessageSubType::EVENT;
+        caproMessage.m_subType = capro::CaproMessageSubType::PUBLISHER;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
@@ -72,6 +69,8 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
         m_chunkSender.removeAllQueues();
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
+        caproMessage.m_subType = capro::CaproMessageSubType::PUBLISHER;
+
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
     else

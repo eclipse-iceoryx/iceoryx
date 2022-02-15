@@ -282,9 +282,12 @@ void PortManager::handleInterfaces() noexcept
         // also forward services from service registry
         /// @todo #415 do we still need this? yes but return a copy here to be stored in shared memory via new
         /// StatusPort's
+        /// @todo iox-#27 I guess this was necessary since a service could be offered via ServiceDiscovery;
+        /// this was removed and I somehow have the feeling this breaks the interface ports with the changes from this
+        /// PR if the CaproMessageSubType is something different than NOSUBTYPE
         auto serviceVector = m_serviceRegistry.getServices();
 
-        caproMessage.m_subType = capro::CaproMessageSubType::SERVICE;
+        caproMessage.m_subType = capro::CaproMessageSubType::NOSUBTYPE;
 
         for (auto const& element : serviceVector)
         {

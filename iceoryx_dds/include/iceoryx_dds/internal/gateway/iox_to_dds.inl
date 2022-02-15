@@ -70,7 +70,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
     {
         return;
     }
-    if (msg.m_subType == capro::CaproMessageSubType::SERVICE)
+    if (msg.m_subType != capro::CaproMessageSubType::PUBLISHER)
     {
         return;
     }
