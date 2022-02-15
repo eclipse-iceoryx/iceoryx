@@ -163,7 +163,6 @@ void ServiceRegistry::removeServer(const capro::ServiceDescription& serviceDescr
         {
             if (entry->serverCount >= 1U)
             {
-                entry->serverCount--;
                 if (--entry->serverCount >= 1U)
                 {
                     return;
