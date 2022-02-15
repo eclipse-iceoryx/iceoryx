@@ -170,7 +170,8 @@ class iox_listener_test : public Test
 };
 constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 
-TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
+/// @todo iox-#1106 will be enabled when worked on this issue
+TEST_F(iox_listener_test, DISABLED_InitListenerWithNullptrForStorageReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee5f8898-c178-4546-9bb4-6e3329f1b632");
     EXPECT_EQ(iox_listener_init(nullptr), nullptr);
@@ -242,7 +243,8 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 }
 
-TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
+/// @todo iox-#1106 will be enabled when worked on this issue
+TEST_F(iox_listener_test, DISABLED_AttachingSubscriberEventWithNullptrCallbackFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "db39c3ef-1518-4769-942e-642d0f58abdb");
     EXPECT_THAT(iox_listener_attach_subscriber_event(
@@ -250,7 +252,8 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
                 Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
 }
 
-TEST_F(iox_listener_test, AttachingUserTriggerEventWithNullptrCallbackFails)
+/// @todo iox-#1106 will be enabled when worked on this issue
+TEST_F(iox_listener_test, DISABLED_AttachingUserTriggerEventWithNullptrCallbackFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "990e8f3c-36f0-4687-8246-ce8a02f969ae");
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], NULL),

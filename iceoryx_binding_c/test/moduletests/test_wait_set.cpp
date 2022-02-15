@@ -125,7 +125,8 @@ void userTriggerCallbackWithContextData(iox::popo::UserTrigger* userTrigger, voi
 
 } // namespace
 
-TEST_F(iox_ws_test, InitWaitSetWithNullptrForStorageReturnsNullptr)
+/// @todo iox-#1106 will be enabled when worked on this issue
+TEST_F(iox_ws_test, DISABLED_InitWaitSetWithNullptrForStorageReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0f6b413-de1f-441f-916e-aa158fbfdde3");
     EXPECT_EQ(iox_ws_init(nullptr), nullptr);
