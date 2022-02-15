@@ -40,6 +40,28 @@ target_compile_options(iox-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SA
 
 set_target_properties(iox-offer-service
                       iox-find-service
+
+add_executable(iox-wait-for-service ./iox_wait_for_service.cpp)
+target_link_libraries(iox-wait-for-service
+    iceoryx_posh::iceoryx_posh
+)
+
+add_executable(iox-discovery-monitor ./iox_discovery_monitor.cpp)
+target_link_libraries(iox-discovery-monitor
+    iceoryx_posh::iceoryx_posh
+)
+
+target_include_directories(iox-wait-for-service PRIVATE include)
+target_include_directories(iox-discovery-monitor PRIVATE include)
+
+target_compile_options(iox-wait-for-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-discovery-monitor PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-offer-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+set_target_properties(iox-offer-service
+                      iox-find-service
+                      iox-wait-for-service
+                      iox-discovery-monitor
                       PROPERTIES
                       CXX_STANDARD_REQUIRED ON
                       CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -50,4 +72,6 @@ set_target_properties(iox-offer-service
 
 install(TARGETS iox-offer-service
                 iox-find-service
+                iox-wait-for-service
+                iox-discovery-monitor               
         RUNTIME DESTINATION bin)
