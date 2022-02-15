@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
       - name: Get git diff
         id: changed_files
-        uses: jitterbit/get-changed-files@v1
+        uses: Ana06/get-changed-files@v1.2
       - name: Clang-Tidy of added or modified files
         run: |
           for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
