@@ -44,14 +44,14 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
 
 void iox_client_deinit(iox_client_t const self);
 
-ENUM iox_AllocationResult iox_client_allocate_request(iox_client_t const self,
-                                                      void** const userPayload,
-                                                      const uint32_t userPayloadSize,
-                                                      const uint32_t userPayloadAlignment);
+ENUM iox_AllocationResult iox_client_loan(iox_client_t const self,
+                                          void** const userPayload,
+                                          const uint32_t userPayloadSize,
+                                          const uint32_t userPayloadAlignment);
 
 void iox_client_release_request(iox_client_t const self, void* const userPayload);
 
-void iox_client_send_request(iox_client_t const self, void* const userPayload);
+void iox_client_send(iox_client_t const self, void* const userPayload);
 
 void iox_client_connect(iox_client_t const self);
 
@@ -59,17 +59,15 @@ void iox_client_disconnect(iox_client_t const self);
 
 ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self);
 
-iox_ChunkReceiveResult iox_client_get_response(iox_client_t const self, const void** const userPayload);
+iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload);
 
 void iox_client_release_response(iox_client_t const self, void* const userPayload);
 
 void iox_client_release_queued_responses(iox_client_t const self);
 
-bool iox_client_has_new_responses(iox_client_t const self);
+bool iox_client_has_responses(iox_client_t const self);
 
-bool iox_client_has_lost_responses_since_last_call(iox_client_t const self);
-
-void iox_client_release_queued_responses(iox_client_t const self);
+bool iox_client_has_missed_responses(iox_client_t const self);
 
 
 #endif

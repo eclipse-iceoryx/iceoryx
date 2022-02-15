@@ -17,8 +17,7 @@
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -77,11 +76,10 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
         clientOptions.serverTooSlowPolicy = c2cpp::consumerTooSlowPolicy(options->serverTooSlowPolicy);
     }
 
-    new (self) ClientPortUser(
-        *PoshRuntime::getInstance().getMiddlewareClient(ServiceDescription{IdString_t(TruncateToCapacity, service),
-                                                                           IdString_t(TruncateToCapacity, instance),
-                                                                           IdString_t(TruncateToCapacity, event)},
-                                                        clientOptions));
+    new (self) UntypedClient(ServiceDescription{IdString_t(TruncateToCapacity, service),
+                                                IdString_t(TruncateToCapacity, instance),
+                                                IdString_t(TruncateToCapacity, event)},
+                             clientOptions);
 
     return self;
 }
@@ -90,24 +88,24 @@ void iox_client_deinit(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
 
-    reinterpret_cast<ClientPortUser*>(self)->~ClientPortUser();
+    reinterpret_cast<UntypedClient*>(self)->~UntypedClient();
 }
 
-ENUM iox_AllocationResult iox_client_allocate_request(iox_client_t const self,
-                                                      void** const userPayload,
-                                                      const uint32_t userPayloadSize,
-                                                      const uint32_t userPayloadAlignment)
+ENUM iox_AllocationResult iox_client_loan(iox_client_t const self,
+                                          void** const userPayload,
+                                          const uint32_t userPayloadSize,
+                                          const uint32_t userPayloadAlignment)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    auto result = reinterpret_cast<ClientPortUser*>(self)->allocateRequest(userPayloadSize, userPayloadAlignment);
+    auto result = reinterpret_cast<UntypedClient*>(self)->loan(userPayloadSize, userPayloadAlignment);
     if (result.has_error())
     {
         return cpp2c::allocationResult(result.get_error());
     }
 
-    *userPayload = result.value()->getUserPayload();
+    *userPayload = result.value();
     return AllocationResult_SUCCESS;
 }
 
@@ -116,15 +114,15 @@ void iox_client_release_request(iox_client_t const self, void* const userPayload
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    reinterpret_cast<ClientPortUser*>(self)->releaseRequest(RequestHeader::fromPayload(userPayload));
+    reinterpret_cast<UntypedClient*>(self)->releaseRequest(userPayload);
 }
 
-void iox_client_send_request(iox_client_t const self, void* const userPayload)
+void iox_client_send(iox_client_t const self, void* const userPayload)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    reinterpret_cast<ClientPortUser*>(self)->sendRequest(RequestHeader::fromPayload(userPayload));
+    reinterpret_cast<UntypedClient*>(self)->send(userPayload);
 }
 
 void iox_client_connect(iox_client_t const self)
@@ -145,18 +143,18 @@ ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self
     reinterpret_cast<ClientPortUser*>(self)->getConnectionState();
 }
 
-iox_ChunkReceiveResult iox_client_get_response(iox_client_t const self, const void** const userPayload)
+iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    auto result = reinterpret_cast<ClientPortUser*>(self)->getResponse();
+    auto result = reinterpret_cast<UntypedClient*>(self)->take();
     if (result.has_error())
     {
         return cpp2c::chunkReceiveResult(result.get_error());
     }
 
-    *userPayload = result.value()->getUserPayload();
+    *userPayload = result.value();
     return ChunkReceiveResult_SUCCESS;
 }
 
@@ -165,23 +163,23 @@ void iox_client_release_response(iox_client_t const self, void* const userPayloa
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    reinterpret_cast<ClientPortUser*>(self)->releaseResponse(ResponseHeader::fromPayload(userPayload));
+    reinterpret_cast<UntypedClient*>(self)->releaseResponse(userPayload);
 }
 
 void iox_client_release_queued_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    reinterpret_cast<ClientPortUser*>(self)->releaseQueuedResponses();
+    reinterpret_cast<UntypedClient*>(self)->releaseQueuedResponses();
 }
 
-bool iox_client_has_new_responses(iox_client_t const self)
+bool iox_client_has_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    return reinterpret_cast<ClientPortUser*>(self)->hasNewResponses();
+    return reinterpret_cast<UntypedClient*>(self)->hasResponses();
 }
 
-bool iox_client_has_lost_responses_since_last_call(iox_client_t const self)
+bool iox_client_has_missed_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    return reinterpret_cast<ClientPortUser*>(self)->hasLostResponsesSinceLastCall();
+    return reinterpret_cast<UntypedClient*>(self)->hasMissedResponses();
 }
