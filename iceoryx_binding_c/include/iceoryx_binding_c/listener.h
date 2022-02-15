@@ -17,6 +17,7 @@
 #ifndef IOX_BINDING_C_LISTENER_H
 #define IOX_BINDING_C_LISTENER_H
 
+#include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/subscriber.h"
@@ -106,5 +107,21 @@ uint64_t iox_listener_size(iox_listener_t const self);
 /// @param[in] self listener where the capacity should be acquired
 /// @return the capacity of the listener
 uint64_t iox_listener_capacity(iox_listener_t const self);
+
+
+ENUM iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
+                                                         iox_client_t const client,
+                                                         const ENUM iox_ClientEvent clientEvent,
+                                                         void (*callback)(iox_client_t));
+
+ENUM iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listener_t const self,
+                                                                           iox_client_t const client,
+                                                                           const ENUM iox_ClientEvent clientEvent,
+                                                                           void (*callback)(iox_client_t, void*),
+                                                                           void* const contextData);
+
+void iox_listener_detach_client_event(iox_listener_t const self,
+                                      iox_client_t const client,
+                                      const ENUM iox_ClientEvent clientEvent);
 
 #endif

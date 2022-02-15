@@ -18,7 +18,10 @@
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+
+#include <type_traits>
 
 using namespace iox;
 using namespace iox::popo;
@@ -65,10 +68,6 @@ iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self
                                                        void (*callback)(iox_sub_t, void*),
                                                        void* const contextData)
 {
-    NotificationCallback<cpp2c_Subscriber, void> notificationCallback;
-    notificationCallback.m_callback = callback;
-    notificationCallback.m_contextData = contextData;
-
     auto result = self->attachEvent(*subscriber,
                                     c2cpp::subscriberEvent(subscriberEvent),
                                     NotificationCallback<cpp2c_Subscriber, void>{callback, contextData});
@@ -131,3 +130,50 @@ uint64_t iox_listener_capacity(iox_listener_t const self)
 {
     return self->capacity();
 }
+
+iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
+                                                    iox_client_t const client,
+                                                    const ENUM iox_ClientEvent clientEvent,
+                                                    void (*callback)(iox_client_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+
+    auto result = self->attachEvent(
+        *client,
+        c2cpp::clientEvent(clientEvent),
+        NotificationCallback<std::remove_pointer_t<iox_client_t>, internal::NoType_t>{callback, nullptr});
+    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
+                                : iox_ListenerResult::ListenerResult_SUCCESS;
+}
+
+iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listener_t const self,
+                                                                      iox_client_t const client,
+                                                                      const ENUM iox_ClientEvent clientEvent,
+                                                                      void (*callback)(iox_client_t, void*),
+                                                                      void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+    iox::cxx::Expects(contextData != nullptr);
+
+    auto result =
+        self->attachEvent(*client,
+                          c2cpp::clientEvent(clientEvent),
+                          NotificationCallback<std::remove_pointer_t<iox_client_t>, void>{callback, contextData});
+    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
+                                : iox_ListenerResult::ListenerResult_SUCCESS;
+}
+
+void iox_listener_detach_client_event(iox_listener_t const self,
+                                      iox_client_t const client,
+                                      const ENUM iox_ClientEvent clientEvent)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+
+    self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
+}
+
