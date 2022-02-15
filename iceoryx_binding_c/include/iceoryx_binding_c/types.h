@@ -96,4 +96,9 @@ typedef struct
     uint8_t do_not_touch_me[1];
 } iox_chunk_header_t;
 
+typedef struct
+{
+    uint8_t do_not_touch_me[12];
+} iox_client_storage_t;
+
 #endif
