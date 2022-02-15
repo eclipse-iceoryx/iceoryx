@@ -662,23 +662,26 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 
 void PortManager::publishServiceRegistry() const noexcept
 {
-    if (m_serviceRegistryPublisherPortData.has_value())
+    if (!m_serviceRegistryPublisherPortData.has_value())
     {
-        PublisherPortUserType publisher(m_serviceRegistryPublisherPortData.value());
-        publisher
-            .tryAllocateChunk(sizeof(ServiceRegistry),
-                              alignof(ServiceRegistry),
-                              CHUNK_NO_USER_HEADER_SIZE,
-                              CHUNK_NO_USER_HEADER_ALIGNMENT)
-            .and_then([&](auto& chunk) {
-                auto sample = static_cast<ServiceRegistry*>(chunk->userPayload());
-
-                // It's ok to copy as the modifications happen in the same thread and not concurrently
-                *sample = m_serviceRegistry;
-
-                publisher.sendChunk(chunk);
-            });
+        LogWarn() << "Could not publish service registry!";
+        return;
     }
+    PublisherPortUserType publisher(m_serviceRegistryPublisherPortData.value());
+    publisher
+        .tryAllocateChunk(sizeof(ServiceRegistry),
+                          alignof(ServiceRegistry),
+                          CHUNK_NO_USER_HEADER_SIZE,
+                          CHUNK_NO_USER_HEADER_ALIGNMENT)
+        .and_then([&](auto& chunk) {
+            auto sample = static_cast<ServiceRegistry*>(chunk->userPayload());
+
+            // It's ok to copy as the modifications happen in the same thread and not concurrently
+            *sample = m_serviceRegistry;
+
+            publisher.sendChunk(chunk);
+        })
+        .or_else([](auto&) { LogWarn() << "Could not allocate a chunk for the service registry!"; });
 }
 
 
