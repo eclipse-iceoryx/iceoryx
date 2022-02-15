@@ -36,7 +36,7 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
         // and we just increase the count in this case (multi-set semantics)
         // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
-        entry->count++;
+        entry->publisherCount++;
         return cxx::success<>();
     }
 
@@ -48,6 +48,7 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
     {
         auto& entry = m_serviceDescriptions[m_freeIndex];
         entry.emplace(serviceDescription);
+        entry->publisherCount = 1U;
         m_freeIndex = NO_INDEX;
         return cxx::success<>();
     }
@@ -58,6 +59,7 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
         if (!entry)
         {
             entry.emplace(serviceDescription);
+            entry->publisherCount = 1U;
             return cxx::success<>();
         }
     }
@@ -67,6 +69,57 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
     {
         auto& entry = m_serviceDescriptions.back();
         entry.emplace(serviceDescription);
+        entry->publisherCount = 1U;
+        return cxx::success<>();
+    }
+
+    return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
+}
+
+cxx::expected<ServiceRegistry::Error>
+ServiceRegistry::addServer(const capro::ServiceDescription& serviceDescription) noexcept
+{
+    auto index = findIndex(serviceDescription);
+    if (index != NO_INDEX)
+    {
+        // multiple publishers with the same service descripion are possible
+        // and we just increase the count in this case (multi-set semantics)
+        // entry exists, increment counter
+        auto& entry = m_serviceDescriptions[index];
+        entry->serverCount++;
+        return cxx::success<>();
+    }
+
+    // entry does not exist, find a free slot if it exists
+
+    // fast path to a free slot (which was occupied by previously removed entry),
+    // prefer to fill entries close to the front
+    if (m_freeIndex != NO_INDEX)
+    {
+        auto& entry = m_serviceDescriptions[m_freeIndex];
+        entry.emplace(serviceDescription);
+        entry->serverCount = 1U;
+        m_freeIndex = NO_INDEX;
+        return cxx::success<>();
+    }
+
+    // search from start
+    for (auto& entry : m_serviceDescriptions)
+    {
+        if (!entry)
+        {
+            entry.emplace(serviceDescription);
+            entry->serverCount = 1U;
+            return cxx::success<>();
+        }
+    }
+
+    // append new entry at the end (the size only grows up to capacity)
+    if (m_serviceDescriptions.emplace_back())
+    {
+        auto& entry = m_serviceDescriptions.back();
+        entry.emplace(serviceDescription);
+        entry->serverCount = 1U;
         return cxx::success<>();
     }
 
@@ -80,15 +133,48 @@ void ServiceRegistry::removePublisher(const capro::ServiceDescription& serviceDe
     {
         auto& entry = m_serviceDescriptions[index];
 
-        if (entry->count > 1)
+        if (entry)
         {
-            entry->count--;
+            if (entry->publisherCount >= 1U)
+            {
+                if (--entry->publisherCount >= 1U)
+                {
+                    return;
+                }
+                if (entry->serverCount == 0)
+                {
+                    entry.reset();
+                    // reuse the slot in the next insertion
+                    m_freeIndex = index;
+                }
+            }
         }
-        else
+    }
+}
+
+void ServiceRegistry::removeServer(const capro::ServiceDescription& serviceDescription) noexcept
+{
+    auto index = findIndex(serviceDescription);
+    if (index != NO_INDEX)
+    {
+        auto& entry = m_serviceDescriptions[index];
+
+        if (entry)
         {
-            entry.reset();
-            // reuse the slot in the next insertion
-            m_freeIndex = index;
+            if (entry->serverCount >= 1U)
+            {
+                entry->serverCount--;
+                if (--entry->serverCount >= 1U)
+                {
+                    return;
+                }
+                if (entry->publisherCount == 0)
+                {
+                    entry.reset();
+                    // reuse the slot in the next insertion
+                    m_freeIndex = index;
+                }
+            }
         }
     }
 }

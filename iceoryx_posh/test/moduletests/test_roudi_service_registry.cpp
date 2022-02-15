@@ -113,7 +113,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
 
     ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
-    EXPECT_THAT(searchResults[0].count, Eq(2));
+    EXPECT_THAT(searchResults[0].publisherCount, Eq(2));
 }
 
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
@@ -131,7 +131,7 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
 
     ASSERT_THAT(searchResults.size(), Eq(1));
     EXPECT_THAT(searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
-    EXPECT_THAT(searchResults[0].count, Eq(1));
+    EXPECT_THAT(searchResults[0].publisherCount, Eq(1));
 }
 
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndPurgeReturnsNoResult)

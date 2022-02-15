@@ -46,8 +46,13 @@ class ServiceRegistry
     {
         ServiceDescriptionEntry(const capro::ServiceDescription& serviceDescription);
 
-        capro::ServiceDescription serviceDescription{};
-        ReferenceCounter_t count{1U};
+        capro::ServiceDescription serviceDescription;
+
+        // it can be discussed whether the type of service (server or publisher)
+        // should be part of the ServiceDescription but this would lead to more
+        // exchanges (e.g. comparison semantics)
+        ReferenceCounter_t publisherCount{0U};
+        ReferenceCounter_t serverCount{0U};
     };
 
     /// @todo #415 #1074 set limits properly and define location for the limits,
@@ -65,6 +70,16 @@ class ServiceRegistry
     ///        in case of multiple occurrences only one occurrence is removed
     /// @param[in] serviceDescription, service to be removed
     void removePublisher(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    /// @brief Adds a given server service description to registry
+    /// @param[in] serviceDescription, service to be added
+    /// @return ServiceRegistryError, error wrapped in cxx::expected
+    cxx::expected<Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    /// @brief Removes a given server service description from registry if service is found,
+    ///        in case of multiple occurrences only one occurrence is removed
+    /// @param[in] serviceDescription, service to be removed
+    void removeServer(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes given service description from registry if service is found,
     ///        all occurences are removed
