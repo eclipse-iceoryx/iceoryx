@@ -22,6 +22,8 @@ project(test_iceoryx_posh VERSION ${test_iceoryx_posh_VERSION})
 find_package(iceoryx_hoofs_testing REQUIRED)
 find_package(iceoryx_posh_testing REQUIRED)
 
+set(ICEORYX_POSH_TEST_STACK_SIZE 5000000)
+
 if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
 endif(BUILD_TEST AND NOT GTest_FOUND)
@@ -58,6 +60,9 @@ set(TEST_LINK_LIBS
 
 if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
+    set(TEST_LINKER_FLAGS -Wl,-z,stack-size=${ICEORYX_SINGLE_PROCESS_STACK_SIZE})
+elseif(WIN32)
+    set(TEST_LINKER_FLAGS /STACK:${ICEORYX_SINGLE_PROCESS_STACK_SIZE})
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -73,8 +78,9 @@ add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${MOCKS_SRC})
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
+target_link_options(${PROJECT_PREFIX}_moduletests BEFORE PRIVATE ${TEST_LINKER_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -83,9 +89,10 @@ set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
 # integration tests
 add_executable( ${PROJECT_PREFIX}_integrationtests ${INTEGRATIONTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
 target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
+target_link_options(${PROJECT_PREFIX}_integrationtests BEFORE PRIVATE ${TEST_LINKER_FLAGS})
 target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
