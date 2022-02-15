@@ -172,9 +172,9 @@ Create a new publisher in RouDi which sends a `ServiceRegistryTopic`. This publi
 change in the service registry and to transmit the service discovery registry. The complete old service registry
 (saved locally) would be compared to the new service registry in a new class, extending the public user API.
 
-![overview diagram](diagrams/service-discovery/overview-alternative-b.svg)
+![overview diagram](diagrams/service-discovery/overview-alternative-d.svg)
 
-![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-b.svg)
+![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-d.svg)
 
 Pro:
 
@@ -262,53 +262,45 @@ myListener.attachEvent(caproSubscriber, DATA_RECEIVED, createNotificationCallbac
 #### Event-based notification: Alternative D
 
 ```cpp
-class DiscoveryInfo
+class ServiceDiscovery
 {
   public:
 
     // Move all service-related methods from PoshRuntime to this class
-    cxx::expected<InstanceContainer, FindServiceError>
-    PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
+    ServiceContainer
+    PoshRuntime::findService((const cxx::optional<capro::IdString_t>& service,
+                              const cxx::optional<capro::IdString_t>& instance,
+                              const cxx::optional<capro::IdString_t>& event) noexcept
     {
-        // Update local service registry
-        get();
-
-        return filterFor(serviceDescription);
-    }
-
-    // @todo check if still needed
-    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
-    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
-
-    ServiceRegistryTopic get() noexcept
-    {
-        m_subscriber.take().and_then([](auto& ServiceRegistryTopic){
-            // Update our local copy of the service registry
-            m_lastServiceRegistry = ServiceRegistryTopic;
-        }).or_else([](){
-            // No change in service registry
+        m_subscriber.take().and_then([&](auto& serviceRegistrySample) {
+            m_lastServiceRegistry = *serviceRegistrySample;
         });
-        return m_lastServiceRegistry;
+
+        m_lastServiceRegistry.find(tempSearchResult, service, instance, event);
+
+        ServiceContainer searchResult;
+        for (auto& service : tempSearchResult)
+        {
+            searchResult.push_back(service.serviceDescription);
+        }
+
+        return searchResult;
     }
 
-    ServiceRegistryTopic getDelta() noexcept
-    {
-        auto old = m_lastServiceRegistry;
-        get();
-        return old - m_lastServiceRegistry;
-    }
-
-    ServiceRegistryTopic getDelta(const capro::ServiceDescription& serviceDescription) noexcept;
-
-   filterFor(const capro::ServiceDescription& serviceDescription) noexcept;
   private:
+    void enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept;
+    void disableEvent(const ServiceDiscoveryEvent event) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId);
+    /// @todo #1098 This is not needed but currently required by the WaitSet
+    iox::popo::WaitSetIsConditionSatisfiedCallback
+    getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
     Subscriber<ServiceRegistryTopic> m_subscriber{"ServiceDiscovery", "GlobalInstance", "ServiceRegistryTopic"};
     ServiceRegistryTopic m_lastServiceRegistry;
 }
 
 // Class should be attachable to Listener
-iox::popo::DiscoveryInfo discoveryInfo;
-myListener.attachEvent(discoveryInfo, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
+iox::popo::ServiceDiscovery serviceDiscovery;
+myListener.attachEvent(serviceDiscovery, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
 ```
 
 #### Event-based notification: Alternative E
@@ -340,7 +332,7 @@ StatusPortReader {
 };
 
 // User facing API
-class DiscoveryInfo
+class ServiceDiscovery
 {
   public:
 
@@ -354,10 +346,7 @@ class DiscoveryInfo
         return filterFor(serviceDescription);
     }
 
-    // @todo check if still needed
-    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
-    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
-
+    /// @todo Only implemenet if needed to replace the InterfacePort's
     ServiceRegistryTopic get() noexcept
     {
         m_statusPortReader.read([&](auto& ServiceRegistryTopic){
@@ -378,10 +367,19 @@ class DiscoveryInfo
 
    filterFor(const capro::ServiceDescription& serviceDescription) noexcept;
   private:
+    void enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept;
+    void disableEvent(const ServiceDiscoveryEvent event) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId);
+    /// @todo #1098 This is not needed but currently required by the WaitSet
+    iox::popo::WaitSetIsConditionSatisfiedCallback
+    getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
     StatusPortReader<ServiceRegistryTopic> m_statusPortReader;
     ServiceRegistryTopic m_lastServiceRegistry;
 }
 
+// Class should be attachable to Listener
+iox::popo::ServiceDiscovery serviceDiscovery;
+myListener.attachEvent(serviceDiscovery, DATA_RECEIVED, createNotificationCallback(userDefinedCallback));
 ```
 
 #### Sychronous, one-shot RPC (Polling): Alternative B

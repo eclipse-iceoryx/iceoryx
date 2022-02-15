@@ -39,7 +39,6 @@ namespace roudi
 class ProcessManagerInterface
 {
   public:
-    virtual void sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& process_name) noexcept = 0;
     virtual void discoveryUpdate() noexcept = 0;
 
     virtual ~ProcessManagerInterface() noexcept = default;
@@ -107,11 +106,6 @@ class ProcessManager : public ProcessManagerInterface
 
     void updateLivelinessOfProcess(const RuntimeName_t& name) noexcept;
 
-    void findServiceForProcess(const RuntimeName_t& name,
-                               const cxx::optional<capro::IdString_t>& service,
-                               const cxx::optional<capro::IdString_t>& instance,
-                               const cxx::optional<capro::IdString_t>& event) noexcept;
-
     void
     addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
 
@@ -139,7 +133,6 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Notify the application that it sent an unsupported message
     void sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept;
 
-    void sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& process_name) noexcept override;
 
   private:
     bool searchForProcessAndThen(const RuntimeName_t& name,

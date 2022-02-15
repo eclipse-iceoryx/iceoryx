@@ -345,20 +345,6 @@ void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexce
         [&]() { LogWarn() << "Received Keepalive from unknown process " << name; });
 }
 
-void ProcessManager::findServiceForProcess(const RuntimeName_t& name,
-                                           const cxx::optional<capro::IdString_t>& service,
-                                           const cxx::optional<capro::IdString_t>& instance,
-                                           const cxx::optional<capro::IdString_t>& event) noexcept
-{
-    searchForProcessAndThen(
-        name,
-        [&](Process& process) {
-            process.sendViaIpcChannel({m_portManager.findService(service, instance, event)});
-            LogDebug() << "Sent all found services to application " << name;
-        },
-        [&]() { LogWarn() << "Unknown process " << name << " requested to find services."; });
-}
-
 void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
                                             capro::Interfaces interface,
                                             const NodeName_t& node) noexcept
@@ -380,22 +366,6 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
             LogDebug() << "Created new interface for application " << name;
         },
         [&]() { LogWarn() << "Unknown application " << name << " requested an interface."; });
-}
-
-void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& runtimeName) noexcept
-{
-    searchForProcessAndThen(
-        runtimeName,
-        [&](Process& process) {
-            // send counter to app as a serialized relative pointer
-            auto offset =
-                rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
-
-            runtime::IpcMessage sendBuffer;
-            sendBuffer << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
-            process.sendViaIpcChannel(sendBuffer);
-        },
-        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
 }
 
 void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept

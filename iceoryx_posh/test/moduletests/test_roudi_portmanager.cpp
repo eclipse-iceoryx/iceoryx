@@ -1092,25 +1092,4 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     }
 }
 
-TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounter)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "25b44ea6-be56-40ec-9567-24b4e3ef486a");
-    auto serviceCounter = m_portManager->serviceRegistryChangeCounter();
-    ASSERT_NE(serviceCounter, nullptr);
-
-    auto initialCount = serviceCounter->load();
-    PublisherOptions publisherOptions{1};
-
-    auto publisherPortData = m_portManager->acquirePublisherPortData(
-        {"1", "1", "1"}, publisherOptions, m_runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
-    ASSERT_FALSE(publisherPortData.has_error());
-
-    PublisherPortUser publisher(publisherPortData.value());
-
-    publisher.offer();
-    m_portManager->doDiscovery();
-
-    EXPECT_EQ(serviceCounter->load(), initialCount + 1);
-}
-
 } // namespace

@@ -18,12 +18,18 @@
 #define IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/roudi/service_registry.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
 {
 namespace runtime
 {
+enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
+{
+    SERVICE_REGISTRY_CHANGED
+};
 class ServiceDiscovery
 {
   public:
@@ -38,13 +44,11 @@ class ServiceDiscovery
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
     /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
     /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
-    /// @return cxx::expected<ServiceContainer, FindServiceError>
-    /// ServiceContainer: on success, container that is filled with all matching instances
-    /// FindServiceError: if any, encountered during the operation
-    cxx::expected<ServiceContainer, FindServiceError>
-    findService(const cxx::optional<capro::IdString_t>& service,
-                const cxx::optional<capro::IdString_t>& instance,
-                const cxx::optional<capro::IdString_t>& event) noexcept;
+    /// @return ServiceContainer
+    /// ServiceContainer: container that is filled with all matching instances
+    ServiceContainer findService(const cxx::optional<capro::IdString_t>& service,
+                                 const cxx::optional<capro::IdString_t>& instance,
+                                 const cxx::optional<capro::IdString_t>& event) noexcept;
 
     /// @brief Searches all services that match the provided service description and applies a function to each of them
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
@@ -56,11 +60,18 @@ class ServiceDiscovery
                      const cxx::optional<capro::IdString_t>& event,
                      const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept;
 
-    /// @brief Requests the serviceRegistryChangeCounter from the shared memory
-    /// @return pointer to the serviceRegistryChangeCounter
-    /// @todo #415 If this method is still used after refactoring, consider to return a reference so that a nullptr
-    /// check is not necessary
-    virtual const std::atomic<uint64_t>* getServiceRegistryChangeCounter() noexcept;
+    friend iox::popo::NotificationAttorney;
+
+  private:
+    void enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept;
+    void disableEvent(const ServiceDiscoveryEvent event) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId);
+    iox::popo::WaitSetIsConditionSatisfiedCallback
+    getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
+    roudi::ServiceRegistry m_serviceRegistry;
+    popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
+        {SERVICE_REGISTRY_SERVICE_NAME, SERVICE_REGISTRY_INSTANCE_NAME, SERVICE_REGISTRY_EVENT_NAME},
+        {1U, 1U, iox::NodeName_t("Service Registry"), true}};
 };
 
 

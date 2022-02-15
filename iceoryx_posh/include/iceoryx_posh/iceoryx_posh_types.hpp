@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,6 +70,9 @@ constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBE
 // 1x publisherPort process introspection
 // 3x publisherPort port introspection
 constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION = 5;
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_SERVICE_REGISTRY = 1;
+constexpr uint32_t NUMBER_OF_INTERNAL_PUBLISHERS =
+    PUBLISHERS_RESERVED_FOR_INTROSPECTION + PUBLISHERS_RESERVED_FOR_SERVICE_REGISTRY;
 /// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
 /// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
 /// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we
@@ -133,6 +136,10 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// @todo #415 increase number back to 50 once service registry is available via shared memory
 /// @todo #1074 define and set the limits concerning the service discovery
 constexpr uint32_t MAX_NUMBER_OF_SERVICES = 10U;
+constexpr const char SERVICE_REGISTRY_SERVICE_NAME[] = "ServiceRegistry";
+constexpr const char SERVICE_REGISTRY_INSTANCE_NAME[] = "RouDi_ID";
+constexpr const char SERVICE_REGISTRY_EVENT_NAME[] = "ServiceRegistry";
+
 
 // Nodes
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;

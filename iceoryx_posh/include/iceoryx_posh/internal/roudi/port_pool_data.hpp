@@ -58,10 +58,6 @@ struct PortPoolData
 
     FixedPositionContainer<iox::popo::PublisherPortData, MAX_PUBLISHERS> m_publisherPortMembers;
     FixedPositionContainer<iox::popo::SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberPortMembers;
-
-    // required to be atomic since a service can be offered or stopOffered while reading
-    // this variable in a user application
-    std::atomic<uint64_t> m_serviceRegistryChangeCounter{0};
 };
 
 } // namespace roudi

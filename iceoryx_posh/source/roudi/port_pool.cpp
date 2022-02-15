@@ -105,11 +105,6 @@ void PortPool::removeConditionVariableData(popo::ConditionVariableData* const co
     m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
 }
 
-std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept
-{
-    return &m_portPoolData->m_serviceRegistryChangeCounter;
-}
-
 cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> PortPool::getPublisherPortDataList() noexcept
 {
     return m_portPoolData->m_publisherPortMembers.content();

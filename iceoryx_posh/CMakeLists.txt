@@ -144,6 +144,7 @@ add_library(iceoryx_posh # @todo iox-#590 Rename this to iceoryx_posh_core
     source/runtime/node_data.cpp
     source/runtime/node_property.cpp
     source/runtime/shared_memory_user.cpp
+    source/roudi/service_registry.cpp              # @todo iox-#415 Move the service registry into runtime namespace?
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh) # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
@@ -260,7 +261,6 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi.cpp
     source/roudi/process.cpp
     source/roudi/process_manager.cpp
-    source/roudi/service_registry.cpp
     source/roudi/iceoryx_roudi_components.cpp
     source/roudi/roudi_cmd_line_parser.cpp
     source/roudi/roudi_cmd_line_parser_config_file_option.cpp

@@ -559,21 +559,4 @@ TEST_F(PortPool_test, RemoveConditionVariableDataIsSuccessful)
     ASSERT_EQ(condtionalVariableData.size(), 0U);
 }
 
-TEST_F(PortPool_test, GetServiceRegistryChangeCounterReturnsZeroAsInitialValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5c028500-6589-4947-9e9c-68b691028244");
-    auto serviceCounter = sut.serviceRegistryChangeCounter();
-
-    EXPECT_EQ(serviceCounter->load(), 0U);
-}
-
-TEST_F(PortPool_test, GetServiceRegistryChangeCounterIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "12c20e8b-f819-435c-b9c0-ca0acabacb8d");
-    sut.serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
-    auto serviceCounter = sut.serviceRegistryChangeCounter();
-
-    ASSERT_EQ(serviceCounter->load(), 1U);
-}
-
 } // namespace

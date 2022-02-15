@@ -95,11 +95,6 @@ class PortManager
 
     void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 
-    const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
-    runtime::IpcMessage findService(const cxx::optional<capro::IdString_t>& service,
-                                    const cxx::optional<capro::IdString_t>& instance,
-                                    const cxx::optional<capro::IdString_t>& event) noexcept;
-
   protected:
     void makeAllPublisherPortsToStopOffer() noexcept;
 
@@ -140,11 +135,15 @@ class PortManager
     cxx::optional<RuntimeName_t>
     doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) const noexcept;
 
+    void publishServiceRegistry() const noexcept;
+
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     PortPool* m_portPool{nullptr};
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
+
+    cxx::optional<PublisherPortRouDiType::MemberType_t*> m_serviceRegistryPublisherPortData;
 };
 } // namespace roudi
 } // namespace iox
