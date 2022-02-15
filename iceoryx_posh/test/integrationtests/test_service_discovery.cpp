@@ -51,10 +51,7 @@ class ServiceDiscovery_test : public RouDi_GTest
         searchResultOfFindServiceWithFindHandler.clear();
         callbackWasCalled = false;
         serviceContainer.clear();
-        m_watchdog.watchAndActOnFailure([] {
-            EXPECT_TRUE(false);
-            std::terminate();
-        });
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown() override
@@ -85,7 +82,7 @@ class ServiceDiscovery_test : public RouDi_GTest
         callbackWasCalled = true;
     }
 
-    const iox::units::Duration m_fatalTimeout = 2_s;
+    const iox::units::Duration m_fatalTimeout = 5_s;
     Watchdog m_watchdog{m_fatalTimeout};
 };
 
@@ -644,7 +641,7 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedbyWaitSetAboutSingleServ
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Moep", "Fluepp", "Shoezzel");
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
 
-    auto notificationVector = waitSet.wait();
+    auto notificationVector = waitSet.timedWait(1_s);
 
     for (auto& notification : notificationVector)
     {
@@ -669,7 +666,7 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryNotifiedbyWaitSetFindsSingleServic
 
     iox::popo::UntypedPublisher publisher(serviceDescriptionToSearchFor);
 
-    auto notificationVector = waitSet.wait();
+    auto notificationVector = waitSet.timedWait(1_s);
 
     for (auto& notification : notificationVector)
     {
