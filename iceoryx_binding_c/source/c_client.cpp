@@ -81,25 +81,25 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
                                                 IdString_t(TruncateToCapacity, event)},
                              clientOptions);
 
-    return self;
+    return reinterpret_cast<iox_client_t>(self);
 }
 
 void iox_client_deinit(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
 
-    reinterpret_cast<UntypedClient*>(self)->~UntypedClient();
+    self->~UntypedClient();
 }
 
-ENUM iox_AllocationResult iox_client_loan(iox_client_t const self,
-                                          void** const userPayload,
-                                          const uint32_t userPayloadSize,
-                                          const uint32_t userPayloadAlignment)
+iox_AllocationResult iox_client_loan(iox_client_t const self,
+                                     void** const userPayload,
+                                     const uint32_t userPayloadSize,
+                                     const uint32_t userPayloadAlignment)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    auto result = reinterpret_cast<UntypedClient*>(self)->loan(userPayloadSize, userPayloadAlignment);
+    auto result = self->loan(userPayloadSize, userPayloadAlignment);
     if (result.has_error())
     {
         return cpp2c::allocationResult(result.get_error());
@@ -114,7 +114,7 @@ void iox_client_release_request(iox_client_t const self, void* const userPayload
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    reinterpret_cast<UntypedClient*>(self)->releaseRequest(userPayload);
+    self->releaseRequest(userPayload);
 }
 
 void iox_client_send(iox_client_t const self, void* const userPayload)
@@ -122,25 +122,25 @@ void iox_client_send(iox_client_t const self, void* const userPayload)
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    reinterpret_cast<UntypedClient*>(self)->send(userPayload);
+    self->send(userPayload);
 }
 
 void iox_client_connect(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    reinterpret_cast<ClientPortUser*>(self)->connect();
+    self->connect();
 }
 
 void iox_client_disconnect(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    reinterpret_cast<ClientPortUser*>(self)->disconnect();
+    self->disconnect();
 }
 
-ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
+iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    reinterpret_cast<ClientPortUser*>(self)->getConnectionState();
+    self->getConnectionState();
 }
 
 iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload)
@@ -148,7 +148,7 @@ iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** con
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    auto result = reinterpret_cast<UntypedClient*>(self)->take();
+    auto result = self->take();
     if (result.has_error())
     {
         return cpp2c::chunkReceiveResult(result.get_error());
@@ -163,23 +163,23 @@ void iox_client_release_response(iox_client_t const self, void* const userPayloa
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
 
-    reinterpret_cast<UntypedClient*>(self)->releaseResponse(userPayload);
+    self->releaseResponse(userPayload);
 }
 
 void iox_client_release_queued_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    reinterpret_cast<UntypedClient*>(self)->releaseQueuedResponses();
+    self->releaseQueuedResponses();
 }
 
 bool iox_client_has_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    return reinterpret_cast<UntypedClient*>(self)->hasResponses();
+    return self->hasResponses();
 }
 
 bool iox_client_has_missed_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    return reinterpret_cast<UntypedClient*>(self)->hasMissedResponses();
+    return self->hasMissedResponses();
 }

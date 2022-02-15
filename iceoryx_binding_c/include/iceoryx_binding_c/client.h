@@ -21,7 +21,7 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/types.h"
 
-typedef iox_client_storage_t* iox_client_t;
+typedef CLASS UntypedClient* iox_client_t;
 
 typedef struct
 {
@@ -59,7 +59,7 @@ void iox_client_disconnect(iox_client_t const self);
 
 ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self);
 
-iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload);
+ENUM iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload);
 
 void iox_client_release_response(iox_client_t const self, void* const userPayload);
 

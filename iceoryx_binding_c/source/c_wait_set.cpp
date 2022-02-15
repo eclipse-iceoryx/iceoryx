@@ -20,8 +20,11 @@
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+
+#include <type_traits>
 
 using namespace iox;
 using namespace iox::popo;
@@ -201,3 +204,88 @@ void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t co
 {
     self->detachEvent(*userTrigger);
 }
+
+iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
+                                             const iox_client_t client,
+                                             const iox_ClientEvent clientEvent,
+                                             const uint64_t eventId,
+                                             void (*callback)(iox_client_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+
+    auto result = self->attachEvent(*client, c2cpp::clientEvent(clientEvent), eventId, {callback, nullptr});
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_client_event_with_context_data(iox_ws_t const self,
+                                                               iox_client_t const client,
+                                                               const ENUM iox_ClientEvent clientEvent,
+                                                               const uint64_t eventId,
+                                                               void (*callback)(iox_client_t, void*),
+                                                               void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+    iox::cxx::Expects(contextData != nullptr);
+
+    NotificationCallback<std::remove_pointer_t<iox_client_t>, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(*client, c2cpp::clientEvent(clientEvent), eventId, notificationCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
+                                             const iox_client_t client,
+                                             const iox_ClientState clientState,
+                                             const uint64_t eventId,
+                                             void (*callback)(iox_client_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+
+    auto result = self->attachState(*client, c2cpp::clientState(clientState), eventId, {callback, nullptr});
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const self,
+                                                               iox_client_t const client,
+                                                               const ENUM iox_ClientState clientState,
+                                                               const uint64_t eventId,
+                                                               void (*callback)(iox_client_t, void*),
+                                                               void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+    iox::cxx::Expects(contextData != nullptr);
+
+    NotificationCallback<std::remove_pointer_t<iox_client_t>, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
+
+    auto result = self->attachState(*client, c2cpp::clientState(clientState), eventId, notificationCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientEvent clientEvent)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+
+    self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
+}
+
+void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
+
+    self->detachState(*client, c2cpp::clientState(clientState));
+}
+

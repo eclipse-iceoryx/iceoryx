@@ -18,6 +18,7 @@
 #ifndef IOX_BINDING_C_WAIT_SET_H
 #define IOX_BINDING_C_WAIT_SET_H
 
+#include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/notification_info.h"
@@ -188,5 +189,35 @@ void iox_ws_detach_subscriber_state(iox_ws_t const self,
 /// @param[in] self handle to the waitset
 /// @param[in] usertrigger the user trigger which should be detached
 void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger);
+
+ENUM iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
+                                                  const iox_client_t client,
+                                                  const ENUM iox_ClientEvent clientEvent,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_client_t));
+
+ENUM iox_WaitSetResult iox_ws_attach_client_event_with_context_data(iox_ws_t const self,
+                                                                    iox_client_t const client,
+                                                                    const ENUM iox_ClientEvent clientEvent,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_client_t, void*),
+                                                                    void* const contextData);
+
+ENUM iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
+                                                  const iox_client_t client,
+                                                  const ENUM iox_ClientState clientState,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_client_t));
+
+ENUM iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const self,
+                                                                    iox_client_t const client,
+                                                                    const ENUM iox_ClientState clientEvent,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_client_t, void*),
+                                                                    void* const contextData);
+
+void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientEvent clientEvent);
+
+void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState);
 
 #endif
