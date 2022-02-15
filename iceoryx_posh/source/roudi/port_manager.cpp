@@ -687,7 +687,7 @@ void PortManager::publishServiceRegistry() const noexcept
 
 void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.add(service).or_else([&](auto&) {
+    m_serviceRegistry.addPublisher(service).or_else([&](auto&) {
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
@@ -696,7 +696,7 @@ void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& ser
 
 void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.remove(service);
+    m_serviceRegistry.removePublisher(service);
     publishServiceRegistry();
 }
 

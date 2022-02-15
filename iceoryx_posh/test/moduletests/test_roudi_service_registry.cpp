@@ -73,7 +73,7 @@ TEST_F(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 
     for (auto& service : services)
     {
-        auto result = sut.add(service);
+        auto result = sut.addPublisher(service);
         ASSERT_FALSE(result.has_error());
     }
 }
@@ -91,11 +91,11 @@ TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 
     for (auto& service : services)
     {
-        auto result = sut.add(service);
+        auto result = sut.addPublisher(service);
         ASSERT_FALSE(result.has_error());
     }
 
-    auto result = sut.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
+    auto result = sut.addPublisher(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
 }
@@ -103,10 +103,10 @@ TEST_F(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d8f61eb2-d082-4c26-9970-461427c3d200");
-    auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaer"));
+    auto result1 = sut.addPublisher(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result1.has_error());
 
-    auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaer"));
+    auto result2 = sut.addPublisher(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result2.has_error());
 
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
@@ -119,13 +119,13 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturn
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f8193ea-2d36-423f-a658-1dba30c1868d");
-    auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
+    auto result1 = sut.addPublisher(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result1.has_error());
 
-    auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
+    auto result2 = sut.addPublisher(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result2.has_error());
 
-    sut.remove(ServiceDescription("Li", "La", "Launebaerli"));
+    sut.removePublisher(ServiceDescription("Li", "La", "Launebaerli"));
 
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
@@ -137,10 +137,10 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsO
 TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndPurgeReturnsNoResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3185b67f-b891-4a82-8f91-047e059ed68f");
-    auto result1 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
+    auto result1 = sut.addPublisher(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result1.has_error());
 
-    auto result2 = sut.add(ServiceDescription("Li", "La", "Launebaerli"));
+    auto result2 = sut.addPublisher(ServiceDescription("Li", "La", "Launebaerli"));
     ASSERT_FALSE(result2.has_error());
 
     sut.purge(ServiceDescription("Li", "La", "Launebaerli"));
@@ -153,29 +153,29 @@ TEST_F(ServiceRegistry_test, AddServiceDescriptionsTwiceAndPurgeReturnsNoResult)
 TEST_F(ServiceRegistry_test, AddEmptyServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3cff55b0-d12f-48f5-8f0c-6501d0c2bf79");
-    auto result = sut.add(ServiceDescription());
+    auto result = sut.addPublisher(ServiceDescription());
     ASSERT_FALSE(result.has_error());
 }
 
 TEST_F(ServiceRegistry_test, RemovingServiceDescriptionsWhichWasntAddedFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cf3e39f5-c29d-4b5f-8e01-af69681b2ea8");
-    sut.remove(ServiceDescription("Sim", "Sa", "Lambim"));
+    sut.removePublisher(ServiceDescription("Sim", "Sa", "Lambim"));
     EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, RemovingEmptyServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "523f2320-c0e5-4590-a1b0-604e756ecaa5");
-    ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
-    sut.remove(ServiceDescription());
+    ASSERT_FALSE(sut.addPublisher(ServiceDescription()).has_error());
+    sut.removePublisher(ServiceDescription());
     EXPECT_THAT(sut.getServices().size(), Eq(0));
 }
 
 TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithWildcardSearch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be3e4b13-d930-47b2-aeaa-95c65f06deed");
-    ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
+    ASSERT_FALSE(sut.addPublisher(ServiceDescription()).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_THAT(searchResults.size(), Eq(1));
@@ -185,7 +185,7 @@ TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithWildcar
 TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1af0137f-6bf5-422e-a6ec-513f7d3f6191");
-    ASSERT_FALSE(sut.add(ServiceDescription()).has_error());
+    ASSERT_FALSE(sut.addPublisher(ServiceDescription()).has_error());
     sut.find(searchResults, iox::capro::IdString_t(""), iox::capro::IdString_t(""), iox::capro::IdString_t(""));
 
     ASSERT_THAT(searchResults.size(), Eq(1));
@@ -195,7 +195,7 @@ TEST_F(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithEmptySt
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a12c9d39-6379-4296-8987-df56a87169f7");
-    auto result = sut.add(ServiceDescription("Foo", "Bar", "Baz"));
+    auto result = sut.addPublisher(ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_FALSE(result.has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
@@ -207,7 +207,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithEventName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6df8fd7d-e4d1-4c51-8ad7-2fbe82e4ed09");
     iox::capro::ServiceDescription service("a", "b", "c");
-    ASSERT_FALSE(sut.add(service).has_error());
+    ASSERT_FALSE(sut.addPublisher(service).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::IdString_t("c"));
 
     ASSERT_THAT(searchResults.size(), Eq(1));
@@ -218,7 +218,7 @@ TEST_F(ServiceRegistry_test, ServiceDescriptionNotFoundWhenEventDoesNotMatch)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ba7785d1-08ec-4f7c-b341-dff033dae2c7");
     iox::capro::ServiceDescription service("Besser", "Wisser", "Girl");
-    ASSERT_FALSE(sut.add(service).has_error());
+    ASSERT_FALSE(sut.addPublisher(service).has_error());
     sut.find(searchResults,
              iox::capro::IdString_t("Besser"),
              iox::capro::IdString_t("Wisser"),
@@ -230,7 +230,7 @@ TEST_F(ServiceRegistry_test, ServiceDescriptionNotFoundWhenEventDoesNotMatch)
 TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1dfaa836-f1da-466f-a794-a7ac1b599ce3");
-    auto result = sut.add(ServiceDescription("Baz", "Bar", "Foo"));
+    auto result = sut.addPublisher(ServiceDescription("Baz", "Bar", "Foo"));
     ASSERT_FALSE(result.has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::IdString_t("Bar"), iox::capro::Wildcard);
 
@@ -242,7 +242,7 @@ TEST_F(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0890013c-e14b-4ae2-89cb-757624c12b4e");
     iox::capro::ServiceDescription service("a", "b", "c");
-    ASSERT_FALSE(sut.add(service).has_error());
+    ASSERT_FALSE(sut.addPublisher(service).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_THAT(searchResults.size(), Eq(1));
@@ -255,8 +255,8 @@ TEST_F(ServiceRegistry_test, EmptyAndNotEmptyServiceDescriptionsCanAllBeFoundWit
     ServiceDescription service1;
     ServiceDescription service2("alpha", "bravo", "charlie");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
     sut.find(searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_THAT(searchResults.size(), Eq(2));
@@ -271,9 +271,9 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAll
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_THAT(searchResults.size(), Eq(3));
@@ -301,8 +301,8 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceNameC
     iox::capro::ServiceDescription service1("a", "b", "b");
     iox::capro::ServiceDescription service2("c", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
     ASSERT_THAT(searchResults.size(), Eq(1));
@@ -321,9 +321,9 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsS
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
 
     ASSERT_THAT(searchResults.size(), Eq(1));
@@ -339,14 +339,14 @@ TEST_F(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFind
     iox::capro::ServiceDescription service4("d", "4", "moep");
     iox::capro::ServiceDescription service5("e", "5", "moep");
 
-    ASSERT_FALSE(sut.add(service5).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
-    ASSERT_FALSE(sut.add(service4).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service5).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service4).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
 
-    sut.remove(service5);
-    sut.remove(service1);
+    sut.removePublisher(service5);
+    sut.removePublisher(service1);
     EXPECT_THAT(sut.getServices().size(), Eq(3));
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
@@ -360,9 +360,9 @@ TEST_F(ServiceRegistry_test, FindSpecificNonExistingServiceDescriptionFails)
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("g"), iox::capro::IdString_t("f"));
 
     EXPECT_THAT(searchResults.size(), Eq(0));
@@ -375,11 +375,11 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameServicesAnd
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
 
-    sut.remove(service2);
+    sut.removePublisher(service2);
     EXPECT_THAT(sut.getServices().size(), Eq(2));
 
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
@@ -393,11 +393,11 @@ TEST_F(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceRegis
     iox::capro::ServiceDescription service2("b", "c", "c");
     iox::capro::ServiceDescription service3("c", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
 
-    sut.remove(service2);
+    sut.removePublisher(service2);
     EXPECT_THAT(sut.getServices().size(), Eq(2));
 
     sut.find(searchResults, iox::capro::IdString_t("b"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
@@ -411,13 +411,13 @@ TEST_F(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllDoesN
     iox::capro::ServiceDescription service2("a", "c", "c");
     iox::capro::ServiceDescription service3("a", "d", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
 
-    sut.remove(service1);
-    sut.remove(service2);
-    sut.remove(service3);
+    sut.removePublisher(service1);
+    sut.removePublisher(service2);
+    sut.removePublisher(service3);
 
     sut.find(searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
     EXPECT_THAT(searchResults.size(), Eq(0));
@@ -431,12 +431,12 @@ TEST_F(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNo
     iox::capro::ServiceDescription service3("a", "d", "d");
     iox::capro::ServiceDescription service4("e", "f", "f");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    // add same service a, instance c to check if in sut only one entry is created
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
-    ASSERT_FALSE(sut.add(service4).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    // addPublisher same service a, instance c to check if in sut only one entry is created
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service4).has_error());
 
     auto serviceDescriptionVector = sut.getServices();
 
@@ -506,7 +506,7 @@ TEST_F(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
         // may (rarely) generate duplicates to be counted internally
         auto id = randomString();
         ServiceDescription sd(id, id, id);
-        auto result = sut.add(sd);
+        auto result = sut.addPublisher(sd);
         if (result.has_error())
         {
             break;
@@ -515,7 +515,7 @@ TEST_F(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
     } while (true);
 
     // duplicates do not count to the max and may be generated randomly,
-    // but for the contract we only need to guarantee that we can at least add
+    // but for the contract we only need to guarantee that we can at least addPublisher
     // the configured max
     constexpr auto MAX = ServiceRegistry::MAX_SERVICE_DESCRIPTIONS;
     EXPECT_GE(numEntriesAdded, MAX);
@@ -535,7 +535,7 @@ TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
         auto id = randomString();
         ServiceDescription sd(fixedId, fixedId, id);
 
-        auto result = sut.add(sd);
+        auto result = sut.addPublisher(sd);
         if (result.has_error())
         {
             break;
@@ -543,7 +543,7 @@ TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
         lastAdded = sd;
     } while (true);
 
-    // remove the last and replace it with a unique service description
+    // removePublisher the last and replace it with a unique service description
     sut.purge(lastAdded);
 
     // is unique (random does not generate 0s) and last if a vector is used internally
@@ -552,7 +552,7 @@ TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
     id.unsafe_append("0");
 
     ServiceDescription uniqueSd(fixedId, fixedId, id);
-    auto result = sut.add(uniqueSd);
+    auto result = sut.addPublisher(uniqueSd);
     EXPECT_FALSE(result.has_error());
 
     ServiceRegistry::ServiceDescriptionVector_t searchResult;
@@ -579,9 +579,9 @@ TEST_F(ServiceRegistry_test, FunctionIsAppliedToAllEntriesInSearchResult)
     iox::capro::ServiceDescription service2("b", "c", "c");
     iox::capro::ServiceDescription service3("a", "b", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
 
     auto searchFunction = [&](const Entry& entry) { this->searchResults.emplace_back(entry); };
     sut.find(iox::capro::IdString_t("a"), iox::capro::IdString_t("b"), iox::capro::Wildcard, searchFunction);
@@ -598,9 +598,9 @@ TEST_F(ServiceRegistry_test, NoFunctionIsAppliedToEmptySearchResult)
     iox::capro::ServiceDescription service2("b", "c", "c");
     iox::capro::ServiceDescription service3("a", "b", "d");
 
-    ASSERT_FALSE(sut.add(service1).has_error());
-    ASSERT_FALSE(sut.add(service2).has_error());
-    ASSERT_FALSE(sut.add(service3).has_error());
+    ASSERT_FALSE(sut.addPublisher(service1).has_error());
+    ASSERT_FALSE(sut.addPublisher(service2).has_error());
+    ASSERT_FALSE(sut.addPublisher(service3).has_error());
 
     auto searchFunction = [&](const Entry& entry) { searchResults.emplace_back(entry); };
     sut.find(iox::capro::Wildcard, iox::capro::IdString_t("a"), iox::capro::Wildcard, searchFunction);
@@ -612,7 +612,7 @@ TEST_F(ServiceRegistry_test, FindWithEmptyCallableDoesNotDie)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ac27528-8650-4d8a-8440-4c9bbcbee4fb");
     iox::capro::ServiceDescription service("ninjababy", "pow", "pow");
-    ASSERT_FALSE(sut.add(service).has_error());
+    ASSERT_FALSE(sut.addPublisher(service).has_error());
     iox::cxx::function_ref<void(const Entry&)> searchFunction;
     sut.find(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
 }

@@ -56,15 +56,15 @@ class ServiceRegistry
 
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 
-    /// @brief Adds given service description to registry
+    /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in cxx::expected
-    cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription) noexcept;
+    cxx::expected<Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry if service is found,
+    /// @brief Removes a given publisher service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
     /// @param[in] serviceDescription, service to be removed
-    void remove(const capro::ServiceDescription& serviceDescription) noexcept;
+    void removePublisher(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes given service description from registry if service is found,
     ///        all occurences are removed

@@ -26,7 +26,8 @@ ServiceRegistry::ServiceDescriptionEntry::ServiceDescriptionEntry(const capro::S
 {
 }
 
-cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription) noexcept
+cxx::expected<ServiceRegistry::Error>
+ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescription) noexcept
 {
     auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
@@ -72,7 +73,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
     return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
 }
 
-void ServiceRegistry::remove(const capro::ServiceDescription& serviceDescription) noexcept
+void ServiceRegistry::removePublisher(const capro::ServiceDescription& serviceDescription) noexcept
 {
     auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
