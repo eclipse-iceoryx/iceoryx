@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_REQUEST_INL
 #define IOX_POSH_POPO_REQUEST_INL
 
+#include "iceoryx_posh/popo/request.hpp"
+
 namespace iox
 {
 namespace popo
@@ -25,7 +27,15 @@ template <typename T>
 template <typename S, typename>
 inline void Request<T>::send() noexcept
 {
-    BaseType::publish();
+    if (BaseType::m_members.smartChunkUniquePtr)
+    {
+        BaseType::m_members.producerRef.get().send(std::move(*(this)));
+    }
+    else
+    {
+        LogError() << "Tried to send empty Request! Might be an already sent or moved Request!";
+        errorHandler(Error::kPOSH__SENDING_EMPTY_REQUEST, nullptr, ErrorLevel::MODERATE);
+    }
 }
 
 template <typename T>

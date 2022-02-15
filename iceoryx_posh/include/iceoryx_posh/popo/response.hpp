@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
@@ -28,15 +29,15 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H>
-class ResponseInterface;
+template <typename RpcType>
+class RpcInterface;
 
 /// @brief The Response class is a mutable abstraction over types which are written to loaned shared memory.
 /// These responses are sent to the client via the iceoryx system.
 template <typename T>
-class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
+class Response : public SmartChunk<RpcInterface<Response<T>>, T, cxx::add_const_conditionally_t<ResponseHeader, T>>
 {
-    using BaseType = SmartChunk<ResponseInterface, T, ResponseHeader>;
+    using BaseType = SmartChunk<RpcInterface<Response<T>>, T, cxx::add_const_conditionally_t<ResponseHeader, T>>;
 
     template <typename S, typename TT>
     using ForServerOnly = typename BaseType::template ForProducerOnly<S, TT>;
@@ -63,6 +64,8 @@ class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
 
   private:
     template <typename, typename, typename>
+    friend class ClientImpl;
+    template <typename, typename, typename>
     friend class ServerImpl;
 
     using BaseType::release;
@@ -73,4 +76,5 @@ class Response : public SmartChunk<ResponseInterface, T, ResponseHeader>
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/response.inl"
+
 #endif

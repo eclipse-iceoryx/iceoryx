@@ -39,13 +39,11 @@ class PublisherInterface
 
     virtual void publish(SampleType&& sample) noexcept = 0;
 
-    virtual ~PublisherInterface(){};
-
   protected:
     PublisherInterface() = default;
 };
 template <typename T, typename H = mepoo::NoUserHeader, typename BasePublisher_t = BasePublisher<>>
-class PublisherImpl : public BasePublisher_t, public PublisherInterface<T, H>
+class PublisherImpl : public BasePublisher_t, private PublisherInterface<T, H>
 {
     static_assert(!std::is_void<T>::value, "The type `T` must not be void. Use the UntypedPublisher for void types.");
     static_assert(!std::is_void<H>::value, "The user-header `H` must not be void.");
