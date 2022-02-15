@@ -41,6 +41,15 @@ enum iox_SubscribeState
     SubscribeState_UNDEFINED_ERROR,
 };
 
+enum iox_ConnectionState
+{
+    ConnectionState_NOT_CONNECTED = 0,
+    ConnectionState_CONNECT_REQUESTED,
+    ConnectionState_CONNECTED,
+    ConnectionState_DISCONNECT_REQUESTED,
+    ConnectionState_WAIT_FOR_OFFER
+};
+
 /// @brief describes the state of getChunk in the subscriber
 enum iox_ChunkReceiveResult
 {
