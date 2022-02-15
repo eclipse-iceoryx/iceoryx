@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
@@ -45,13 +46,15 @@ using iox::runtime::ServiceContainer;
 class ServiceDiscovery_test : public RouDi_GTest
 {
   public:
-    static bool callbackWasCalled;
-    static ServiceContainer serviceContainer;
     void SetUp() override
     {
         searchResultOfFindServiceWithFindHandler.clear();
         callbackWasCalled = false;
         serviceContainer.clear();
+        m_watchdog.watchAndActOnFailure([] {
+            EXPECT_TRUE(false);
+            std::terminate();
+        });
     }
 
     void TearDown() override
@@ -60,8 +63,10 @@ class ServiceDiscovery_test : public RouDi_GTest
 
     iox::runtime::PoshRuntime* runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
     ServiceDiscovery sut;
-
+    static std::atomic_bool callbackWasCalled;
+    static ServiceContainer serviceContainer;
     static ServiceContainer searchResultOfFindServiceWithFindHandler;
+
     static void findHandler(const ServiceContainer& s)
     {
         searchResultOfFindServiceWithFindHandler = s;
@@ -77,10 +82,14 @@ class ServiceDiscovery_test : public RouDi_GTest
     {
         serviceContainer = serviceDiscoveryPointer->findService(
             service->getServiceIDString(), service->getInstanceIDString(), service->getEventIDString());
+        callbackWasCalled = true;
     }
+
+    const iox::units::Duration m_fatalTimeout = 2_s;
+    Watchdog m_watchdog{m_fatalTimeout};
 };
 
-bool ServiceDiscovery_test::callbackWasCalled{false};
+std::atomic_bool ServiceDiscovery_test::callbackWasCalled{false};
 ServiceContainer ServiceDiscovery_test::serviceContainer;
 ServiceContainer ServiceDiscovery_test::searchResultOfFindServiceWithFindHandler;
 
@@ -696,9 +705,12 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryIsNotifiedByListenerAboutSingleSer
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Moep", "Fluepp", "Shoezzel");
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
 
-    this->InterOpWait();
+    while (!callbackWasCalled.load())
+    {
+        std::this_thread::yield();
+    }
 
-    EXPECT_TRUE(callbackWasCalled);
+    EXPECT_TRUE(callbackWasCalled.load());
 }
 
 TEST_F(ServiceDiscovery_test, ServiceDiscoveryNotifiedbyListenerFindsSingleService)
@@ -715,7 +727,10 @@ TEST_F(ServiceDiscovery_test, ServiceDiscoveryNotifiedbyListenerFindsSingleServi
 
     iox::popo::UntypedPublisher publisher(serviceDescriptionToSearchFor);
 
-    this->InterOpWait();
+    while (!callbackWasCalled.load())
+    {
+        std::this_thread::yield();
+    }
 
     ASSERT_FALSE(serviceContainer.empty());
     EXPECT_THAT(serviceContainer.front(), Eq(serviceDescriptionToSearchFor));
