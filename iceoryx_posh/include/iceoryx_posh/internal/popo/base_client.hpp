@@ -95,7 +95,6 @@ class BaseClient
     using SelfType = BaseClient<Port>;
     using PortType = Port;
 
-    BaseClient() noexcept = default; // Required for testing.
     BaseClient(const capro::ServiceDescription& service, const ClientOptions& clientOptions) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.

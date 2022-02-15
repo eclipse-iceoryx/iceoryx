@@ -100,7 +100,6 @@ class BaseServer
     using SelfType = BaseServer<Port>;
     using PortType = Port;
 
-    BaseServer() noexcept = default; // Required for testing.
     BaseServer(const capro::ServiceDescription& service, const ServerOptions& serverOptions) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
