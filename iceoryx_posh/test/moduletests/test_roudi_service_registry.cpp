@@ -570,4 +570,51 @@ TEST_F(ServiceRegistry_test, SearchInFullRegistryWorks)
     ASSERT_EQ(searchResult.size(), 1);
 }
 
+using Entry = iox::roudi::ServiceRegistry::ServiceDescriptionEntry;
+
+TEST_F(ServiceRegistry_test, FunctionIsAppliedToAllEntriesInSearchResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b7828085-d879-43b7-9fee-e5e88cf36995");
+    iox::capro::ServiceDescription service1("a", "b", "b");
+    iox::capro::ServiceDescription service2("b", "c", "c");
+    iox::capro::ServiceDescription service3("a", "b", "d");
+
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+
+    auto searchFunction = [&](const Entry& entry) { this->searchResults.emplace_back(entry); };
+    sut.find(iox::capro::IdString_t("a"), iox::capro::IdString_t("b"), iox::capro::Wildcard, searchFunction);
+
+    ASSERT_THAT(searchResults.size(), Eq(2));
+    EXPECT_THAT(searchResults[0].serviceDescription, Eq(service1));
+    EXPECT_THAT(searchResults[1].serviceDescription, Eq(service3));
+}
+
+TEST_F(ServiceRegistry_test, NoFunctionIsAppliedToEmptySearchResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "220213cb-8fdf-4fd0-b8e2-24a96f11bfbc");
+    iox::capro::ServiceDescription service1("a", "b", "b");
+    iox::capro::ServiceDescription service2("b", "c", "c");
+    iox::capro::ServiceDescription service3("a", "b", "d");
+
+    ASSERT_FALSE(sut.add(service1).has_error());
+    ASSERT_FALSE(sut.add(service2).has_error());
+    ASSERT_FALSE(sut.add(service3).has_error());
+
+    auto searchFunction = [&](const Entry& entry) { searchResults.emplace_back(entry); };
+    sut.find(iox::capro::Wildcard, iox::capro::IdString_t("a"), iox::capro::Wildcard, searchFunction);
+
+    EXPECT_THAT(searchResults.size(), Eq(0));
+}
+
+TEST_F(ServiceRegistry_test, FindWithEmptyCallableDoesNotDie)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4ac27528-8650-4d8a-8440-4c9bbcbee4fb");
+    iox::capro::ServiceDescription service("ninjababy", "pow", "pow");
+    ASSERT_FALSE(sut.add(service).has_error());
+    iox::cxx::function_ref<void(const Entry&)> searchFunction;
+    sut.find(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
+}
+
 } // namespace

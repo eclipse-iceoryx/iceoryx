@@ -109,6 +109,20 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
                            const cxx::optional<capro::IdString_t>& instance,
                            const cxx::optional<capro::IdString_t>& event) const noexcept
 {
+    auto function = [&](const ServiceDescriptionEntry& entry) { searchResult.emplace_back(entry); };
+    find(service, instance, event, function);
+}
+
+void ServiceRegistry::find(const cxx::optional<capro::IdString_t>& service,
+                           const cxx::optional<capro::IdString_t>& instance,
+                           const cxx::optional<capro::IdString_t>& event,
+                           cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
+{
+    if (!callable)
+    {
+        return;
+    }
+
     for (auto& entry : m_serviceDescriptions)
     {
         if (entry)
@@ -119,7 +133,7 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
 
             if (match)
             {
-                searchResult.emplace_back(*entry);
+                callable(*entry);
             }
         }
     }
@@ -128,7 +142,8 @@ void ServiceRegistry::find(ServiceDescriptionVector_t& searchResult,
 const ServiceRegistry::ServiceDescriptionVector_t ServiceRegistry::getServices() const noexcept
 {
     ServiceDescriptionVector_t allEntries;
-    getAll(allEntries);
+    auto function = [&](const ServiceDescriptionEntry& entry) { allEntries.emplace_back(entry); };
+    applyToAll(function);
     return allEntries;
 }
 
@@ -145,13 +160,18 @@ uint32_t ServiceRegistry::findIndex(const capro::ServiceDescription& serviceDesc
     return NO_INDEX;
 }
 
-void ServiceRegistry::getAll(ServiceDescriptionVector_t& searchResult) const noexcept
+void ServiceRegistry::applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
+    if (!callable)
+    {
+        return;
+    }
+
     for (auto& entry : m_serviceDescriptions)
     {
         if (entry)
         {
-            searchResult.emplace_back(*entry);
+            callable(*entry);
         }
     }
 }
