@@ -41,6 +41,26 @@ enum iox_SubscribeState
     SubscribeState_UNDEFINED_ERROR,
 };
 
+enum iox_ClientEvent
+{
+    ClientEvent_RESPONSE_RECEIVED
+};
+
+enum iox_ClientState
+{
+    ClientState_HAS_RESPONSE
+};
+
+enum iox_ServerEvent
+{
+    ServerEvent_REQUEST_RECEIVED
+};
+
+enum iox_ServerState
+{
+    ServerState_HAS_REQUEST
+};
+
 enum iox_ConnectionState
 {
     ConnectionState_NOT_CONNECTED = 0,

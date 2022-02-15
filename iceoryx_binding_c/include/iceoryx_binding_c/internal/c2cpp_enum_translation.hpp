@@ -28,6 +28,11 @@ iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const ENUM iox_ConsumerTo
 iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy) noexcept;
 iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noexcept;
 iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noexcept;
+
+iox::popo::ClientEvent clientEvent(const iox_ClientEvent value) noexcept;
+iox::popo::ClientState clientState(const iox_ClientState value) noexcept;
+iox::popo::ServerEvent serverEvent(const iox_ServerEvent value) noexcept;
+iox::popo::ServerState serverState(const iox_ServerState value) noexcept;
 } // namespace c2cpp
 
 #endif

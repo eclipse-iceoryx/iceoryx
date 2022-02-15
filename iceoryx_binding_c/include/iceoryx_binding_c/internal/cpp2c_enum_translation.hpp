@@ -36,6 +36,10 @@ iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
 iox_ConsumerTooSlowPolicy consumerTooSlowPolicy(const iox::popo::ConsumerTooSlowPolicy policy) noexcept;
 iox_ConsumerTooSlowPolicy subscriberTooSlowPolicy(const iox::popo::ConsumerTooSlowPolicy policy) noexcept;
 iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy) noexcept;
+iox_ClientEvent clientEvent(const iox::popo::ClientEvent value) noexcept;
+iox_ClientState clientState(const iox::popo::ClientState value) noexcept;
+iox_ServerEvent serverEvent(const iox::popo::ServerEvent value) noexcept;
+iox_ServerState serverState(const iox::popo::ServerState value) noexcept;
 } // namespace cpp2c
 
 #endif

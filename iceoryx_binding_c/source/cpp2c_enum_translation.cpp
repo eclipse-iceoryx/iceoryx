@@ -128,4 +128,47 @@ iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy) noe
     return QueueFullPolicy_DISCARD_OLDEST_DATA;
 }
 
+iox_ClientEvent clientEvent(const iox::popo::ClientEvent value) noexcept
+{
+    switch (value)
+    {
+    case ClientEvent::RESPONSE_RECEIVED:
+        return ClientEvent_RESPONSE_RECEIVED;
+    }
+
+    return ClientEvent_RESPONSE_RECEIVED;
+}
+
+iox_ClientState clientState(const iox::popo::ClientState value) noexcept
+{
+    switch (value)
+    {
+    case ClientState::HAS_RESPONSE:
+        return ClientState_HAS_RESPONSE;
+    }
+
+    return ClientState_HAS_RESPONSE;
+}
+
+iox_ServerEvent serverEvent(const iox::popo::ServerEvent value) noexcept
+{
+    switch (value)
+    {
+    case ServerEvent::REQUEST_RECEIVED:
+        return ServerEvent_REQUEST_RECEIVED;
+    }
+
+    return ServerEvent_REQUEST_RECEIVED;
+}
+
+iox_ServerState serverState(const iox::popo::ServerState value) noexcept
+{
+    switch (value)
+    {
+    case ServerState::HAS_REQUEST:
+        return ServerState_HAS_REQUEST;
+    }
+
+    return ServerState_HAS_REQUEST;
+}
 } // namespace cpp2c
