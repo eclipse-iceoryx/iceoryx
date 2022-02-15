@@ -42,7 +42,7 @@ internal structures.
 Most Linux distributions offers 8 Megabyte of stack memory for a process which is enough
 for iceoryx. You can check this with the output from `ulimit -a`.
 
-On other platforms like windows apply other rules for the stack memory.
+On other platforms like windows other rules apply for the stack memory.
 On windows there is [only 1 Megabyte](https://docs.microsoft.com/en-us/cpp/build/reference/stack-stack-allocations?view=msvc-170) of stack available.
 Increasing the stack size generally on iceoryx is not recommended since `Roudi`
 could consume lots of memory without using it.
@@ -53,7 +53,7 @@ The `Single process` example shows that when compiling and executing it on windo
 Without setting the stack size the application will throw a `Stack overflow` exception
 when entering the `main()` method.
 
-This can be solved in CMake with by adding a linker flag:
+This can be solved in CMake by adding a linker flag:
 
 ```cmake
 target_link_options(single_process BEFORE PRIVATE /STACK:3500000)

@@ -21,6 +21,8 @@ project(example_singleprocess)
 
 include(GNUInstallDirs)
 
+set(ICEORYX_SINGLE_PROCESS_STACK_SIZE 3500000)
+
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
@@ -41,9 +43,9 @@ target_compile_options(single_process PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANI
 
 # Since we have one process where multiple threads are created we need to increase the stack size for some OS types
 if(QNX)
-    target_link_options(single_process BEFORE PRIVATE -Wl,-z,stack-size=3500000)
+    target_link_options(single_process BEFORE PRIVATE -Wl,-z,stack-size=${ICEORYX_SINGLE_PROCESS_STACK_SIZE})
 elseif(WIN32)
-    target_link_options(single_process BEFORE PRIVATE /STACK:3500000)
+    target_link_options(single_process BEFORE PRIVATE /STACK:${ICEORYX_SINGLE_PROCESS_STACK_SIZE})
 endif()
 
 install(

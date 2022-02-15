@@ -22,6 +22,8 @@ project(test_iceoryx_posh VERSION ${test_iceoryx_posh_VERSION})
 find_package(iceoryx_hoofs_testing REQUIRED)
 find_package(iceoryx_posh_testing REQUIRED)
 
+set(ICEORYX_POSH_TEST_STACK_SIZE 5000000)
+
 if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
 endif(BUILD_TEST AND NOT GTest_FOUND)
@@ -58,13 +60,15 @@ set(TEST_LINK_LIBS
 
 if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
+    set(TEST_LINKER_FLAGS -Wl,-z,stack-size=${ICEORYX_SINGLE_PROCESS_STACK_SIZE})
+elseif(WIN32)
+    set(TEST_LINKER_FLAGS /STACK:${ICEORYX_SINGLE_PROCESS_STACK_SIZE})
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
-    set(TEST_LINKER_FLAGS -Wl,-z,stack-size=5000000)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 endif()
