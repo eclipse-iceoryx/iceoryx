@@ -19,8 +19,6 @@
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/request.hpp"
-#include "iceoryx_posh/popo/response.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
@@ -42,8 +40,8 @@ struct DummyHeader
     uint64_t counter = 0;
 };
 
-template <template <typename, typename> class BaseType, typename T, typename H = iox::mepoo::NoUserHeader>
-class MockInterface : public BaseType<T, H>
+template <typename BaseType, typename T, typename H = iox::mepoo::NoUserHeader>
+class MockInterface : public BaseType
 {
   public:
     using SampleType = iox::popo::Sample<T, H>;
@@ -173,7 +171,7 @@ struct SampleTestCase
 {
     using DataType = DummyData;
     using HeaderType = DummyHeader;
-    using InterfaceType = MockInterface<iox::popo::PublisherInterface, DataType, HeaderType>;
+    using InterfaceType = MockInterface<iox::popo::PublisherInterface<DataType, HeaderType>, DataType, HeaderType>;
 
     template <typename Data, typename Header>
     using SutType = iox::popo::Sample<Data, Header>;

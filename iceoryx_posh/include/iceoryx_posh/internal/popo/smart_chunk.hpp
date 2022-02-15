@@ -30,10 +30,10 @@ namespace popo
 namespace internal
 {
 /// @brief helper struct for smartChunk
-template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+template <typename TransmissionInterface, typename T, typename H>
 struct SmartChunkPrivateData
 {
-    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& producer) noexcept;
+    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept;
 
     SmartChunkPrivateData(SmartChunkPrivateData&& rhs) noexcept = default;
     SmartChunkPrivateData& operator=(SmartChunkPrivateData&& rhs) noexcept = default;
@@ -43,11 +43,11 @@ struct SmartChunkPrivateData
     ~SmartChunkPrivateData() = default;
 
     cxx::unique_ptr<T> smartChunkUniquePtr;
-    std::reference_wrapper<TransmissionInterface<T, H>> producerRef;
+    std::reference_wrapper<TransmissionInterface> producerRef;
 };
 
 /// @brief specialization of helper struct for smartChunk for const T
-template <template <typename, typename> class TransmissionInterface, typename T, typename H>
+template <typename TransmissionInterface, typename T, typename H>
 struct SmartChunkPrivateData<TransmissionInterface, const T, H>
 {
     explicit SmartChunkPrivateData(cxx::unique_ptr<const T>&& smartChunkUniquePtr) noexcept;
@@ -64,7 +64,7 @@ struct SmartChunkPrivateData<TransmissionInterface, const T, H>
 } // namespace internal
 
 
-template <template <typename, typename> class TransmissionInterface,
+template <typename TransmissionInterface,
           typename T,
           typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class SmartChunk
@@ -93,13 +93,13 @@ class SmartChunk
     /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer is a reference to the producer to be able to use producer specific methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface<T, H>& producer) noexcept;
+    SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept;
 
     /// @brief Constructor for a SmartChunk used by the Consumer
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
-    SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr) noexcept;
+    explicit SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr) noexcept;
 
     ~SmartChunk() noexcept = default;
 
@@ -179,15 +179,6 @@ class SmartChunk
     ///
     template <typename R = H, typename = HasUserHeader<R, H>>
     const R& getUserHeader() const noexcept;
-
-    ///
-    /// @brief Publish the sample via the producer from which it was loaned and automatically
-    /// release ownership to it.
-    /// @details Only available for non-const type T.
-    ///
-    template <typename S = T, typename = ForProducerOnly<S, T>>
-    void deliver() noexcept;
-
 
     /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter

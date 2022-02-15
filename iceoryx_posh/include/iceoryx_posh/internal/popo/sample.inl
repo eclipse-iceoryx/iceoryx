@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_SAMPLE_INL
 #define IOX_POSH_POPO_SAMPLE_INL
 
+#include "iceoryx_posh/popo/sample.hpp"
+
 namespace iox
 {
 namespace popo
@@ -25,7 +27,15 @@ template <typename T, typename H>
 template <typename S, typename>
 void Sample<T, H>::publish() noexcept
 {
-    BaseType::deliver();
+    if (BaseType::m_members.smartChunkUniquePtr)
+    {
+        BaseType::m_members.producerRef.get().publish(std::move(*(this)));
+    }
+    else
+    {
+        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
+        errorHandler(Error::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
+    }
 }
 } // namespace popo
 } // namespace iox
