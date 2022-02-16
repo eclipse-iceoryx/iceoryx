@@ -33,10 +33,25 @@ namespace
 using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::popo;
+using namespace iox::capro;
+using namespace iox::cxx;
 
 class iox_client_test : public Test
 {
+  public:
+    class SutUntypedClient : public iox::popo::UntypedClient
+    {
+    };
+
+    std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("client_test");
+
+    static constexpr const char SERVICE[] = "allGlory";
+    static constexpr const char INSTANCE[] = "ToThe";
+    static constexpr const char EVENT[] = "HYPNOTOAD";
 };
+constexpr const char iox_client_test::SERVICE[];
+constexpr const char iox_client_test::INSTANCE[];
+constexpr const char iox_client_test::EVENT[];
 
 TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 {
@@ -55,6 +70,19 @@ TEST_F(iox_client_test, initializedOptionsAreInitialized)
     iox_client_options_t initializedOptions;
     iox_client_options_init(&initializedOptions);
     EXPECT_TRUE(iox_client_options_is_initialized(&initializedOptions));
+}
+
+TEST_F(iox_client_test, InitialConnectionStateOnPortWithConnectOnCreateIs_CONNECTED)
+{
+    iox_client_storage_t sutStorage;
+    ClientOptions defaultOptions;
+    EXPECT_CALL(*runtimeMock,
+                getMiddlewareClient(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
+                                                       IdString_t(TruncateToCapacity, INSTANCE),
+                                                       IdString_t(TruncateToCapacity, EVENT)},
+                                    defaultOptions,
+                                    _));
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 }
 
 
