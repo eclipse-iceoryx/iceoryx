@@ -345,13 +345,13 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
     // process STOP_OFFER for this server in RouDi and distribute it
     serverPortRoudi.tryGetCaProMessage().and_then([this, &serverPortRoudi](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
+        cxx::Ensures(caproMessage.m_serviceType == capro::CaproServiceType::SERVER);
 
         /// @todo iox-#27 report to port introspection
         /// @todo iox-#27 add server to service registry
         // this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
         this->sendToAllMatchingClientPorts(caproMessage, serverPortRoudi);
-        /// @todo iox-#27 forward server port to interface ports
-        // this->sendToAllMatchingInterfacePorts(caproMessage);
+        this->sendToAllMatchingInterfacePorts(caproMessage);
     });
 
     /// @todo iox-#27 remove from port introspection
@@ -403,7 +403,7 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
         }
 
         this->sendToAllMatchingClientPorts(caproMessage, serverPort);
-        /// @todo iox-#27 forward to interfaces?
+        this->sendToAllMatchingInterfacePorts(caproMessage);
     });
 }
 
@@ -435,6 +435,7 @@ void PortManager::handleInterfaces() noexcept
         // provide offer information from all active publisher ports to all new interfaces
         capro::CaproMessage caproMessage;
         caproMessage.m_type = capro::CaproMessageType::OFFER;
+        caproMessage.m_serviceType = capro::CaproServiceType::PUBLISHER;
         for (auto publisherPortData : m_portPool->getPublisherPortDataList())
         {
             PublisherPortUserType publisherPort(publisherPortData);
@@ -453,23 +454,24 @@ void PortManager::handleInterfaces() noexcept
                 }
             }
         }
-        // also forward services from service registry
-        /// @todo #415 do we still need this? yes but return a copy here to be stored in shared memory via new
-        /// StatusPort's
-        /// @todo iox-#27 I guess this was necessary since a service could be offered via ServiceDiscovery;
-        /// this was removed and I somehow have the feeling this breaks the interface ports with the changes from this
-        /// PR if the CaproServiceType is something different than NON
-        auto serviceVector = m_serviceRegistry.getServices();
-
-        caproMessage.m_serviceType = capro::CaproServiceType::NONE;
-
-        for (auto const& element : serviceVector)
+        // provide offer information from all active server ports to all new interfaces
+        caproMessage.m_serviceType = capro::CaproServiceType::SERVER;
+        for (auto serverPortData : m_portPool->getServerPortDataList())
         {
-            caproMessage.m_serviceDescription = element.serviceDescription;
-
-            for (auto& interfacePortData : interfacePortsForInitialForwarding)
+            popo::ServerPortUser serverPort(*serverPortData);
+            if (serverPort.isOffered())
             {
-                popo::InterfacePort(interfacePortData).dispatchCaProMessage(caproMessage);
+                caproMessage.m_serviceDescription = serverPort.getCaProServiceDescription();
+                for (auto& interfacePortData : interfacePortsForInitialForwarding)
+                {
+                    auto interfacePort = popo::InterfacePort(interfacePortData);
+                    // do not offer on same interface
+                    if (serverPort.getCaProServiceDescription().getSourceInterface()
+                        != interfacePort.getCaProServiceDescription().getSourceInterface())
+                    {
+                        interfacePort.dispatchCaProMessage(caproMessage);
+                    }
+                }
             }
         }
     }
