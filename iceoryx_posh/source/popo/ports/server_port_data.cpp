@@ -27,6 +27,8 @@ cxx::VariantQueueTypes getRequestQueueType(const QueueFullPolicy policy) noexcep
                                                           : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
 }
 
+constexpr uint64_t ServerPortData::HISTORY_REQUEST_OF_ZERO;
+
 ServerPortData::ServerPortData(const capro::ServiceDescription& serviceDescription,
                                const RuntimeName_t& runtimeName,
                                const ServerOptions& serverOptions,

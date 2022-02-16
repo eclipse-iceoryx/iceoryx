@@ -58,6 +58,29 @@ class PortPool_test : public Test
         return true;
     }
 
+    bool addServerPorts(uint32_t numberOfServerPortsToAdd,
+                        std::function<void(const capro::ServiceDescription& sd,
+                                           const RuntimeName_t& runtimeName,
+                                           const popo::ServerPortData& serverPortPort)> onAdd)
+    {
+        for (uint32_t i = 0; i < numberOfServerPortsToAdd; ++i)
+        {
+            std::string service = "service" + cxx::convert::toString(i);
+            IdString_t serviceId{cxx::TruncateToCapacity, service};
+            ServiceDescription sd{serviceId, "instance", "event"};
+            RuntimeName_t runtimeName{cxx::TruncateToCapacity, "AppName" + cxx::convert::toString(i)};
+
+            auto serverPortResult = sut.addServerPort(sd, &m_memoryManager, runtimeName, m_serverOptions, m_memoryInfo);
+            if (serverPortResult.has_error())
+            {
+                return false;
+            }
+            onAdd(sd, runtimeName, *serverPortResult.value());
+        }
+
+        return true;
+    }
+
   public:
     roudi::PortPoolData m_portPoolData;
     roudi::PortPool sut{m_portPoolData};
@@ -72,6 +95,7 @@ class PortPool_test : public Test
     popo::SubscriberOptions m_subscriberOptions{
         iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 10U, m_nodeName};
     popo::ClientOptions m_clientOptions{QUEUE_CAPACITY, m_nodeName};
+    popo::ServerOptions m_serverOptions{QUEUE_CAPACITY, m_nodeName};
     iox::mepoo::MemoryInfo m_memoryInfo{DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE};
 };
 
@@ -537,6 +561,114 @@ TEST_F(PortPool_test, RemoveClientPortIsSuccessful)
 }
 
 // END ClientPort tests
+
+// BEGIN ServerPort tests
+
+TEST_F(PortPool_test, AddServerPortIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ff0a77a0-5a60-460e-ba3c-f9c5669b7086");
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{1U};
+    auto addSuccessful =
+        addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& serverPort) {
+            EXPECT_EQ(serverPort.m_serviceDescription, sd);
+            EXPECT_EQ(serverPort.m_runtimeName, runtimeName);
+            EXPECT_EQ(serverPort.m_nodeName, m_serverOptions.nodeName);
+            EXPECT_EQ(serverPort.m_offeringRequested, m_serverOptions.offerOnCreate);
+            EXPECT_EQ(serverPort.m_offered, false);
+            EXPECT_EQ(serverPort.m_chunkReceiverData.m_queue.capacity(), QUEUE_CAPACITY);
+            EXPECT_EQ(serverPort.m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
+            EXPECT_EQ(serverPort.m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
+            EXPECT_EQ(serverPort.m_chunkSenderData.m_historyCapacity, popo::ServerPortData::HISTORY_REQUEST_OF_ZERO);
+            EXPECT_EQ(serverPort.m_chunkSenderData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
+            EXPECT_EQ(serverPort.m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
+        });
+
+    EXPECT_TRUE(addSuccessful);
+}
+
+TEST_F(PortPool_test, AddServerPortToMaxCapacityIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "496021f9-5ec3-4b1c-a551-8a0d50d0ac8f");
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{MAX_SERVERS};
+    auto addSuccessful =
+        addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto& sd, const auto&, const auto& serverPort) {
+            EXPECT_EQ(serverPort.m_serviceDescription, sd);
+        });
+
+    EXPECT_TRUE(addSuccessful);
+}
+
+
+TEST_F(PortPool_test, AddServerPortWhenServerListOverflowsReturnsError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "744b3d73-b2d2-49cf-a748-e13dc6f3b06c");
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{MAX_SERVERS};
+    auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
+
+    EXPECT_TRUE(addSuccessful);
+
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = ErrorHandler::setTemporaryErrorHandler(
+        [&](const Error error, const std::function<void()>, const ErrorLevel level) {
+            errorHandlerCalled = true;
+            EXPECT_THAT(error, Eq(Error::kPORT_POOL__SERVERLIST_OVERFLOW));
+            EXPECT_THAT(level, Eq(ErrorLevel::MODERATE));
+        });
+
+    constexpr uint32_t ONE_MORE_SERVER{1U};
+    auto additionalAddSuccessful = addServerPorts(ONE_MORE_SERVER, [&](const auto&, const auto&, const auto&) {});
+
+    EXPECT_FALSE(additionalAddSuccessful);
+    EXPECT_TRUE(errorHandlerCalled);
+}
+
+TEST_F(PortPool_test, GetServerPortDataListIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d30fa67c-7f7d-43f1-a7bc-599e5668ab65");
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{1U};
+    auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
+    EXPECT_TRUE(addSuccessful);
+
+    auto serverPortDataList = sut.getServerPortDataList();
+
+    ASSERT_EQ(serverPortDataList.size(), NUMBER_OF_SERVERS_TO_ADD);
+}
+
+TEST_F(PortPool_test, GetServerPortDataListWhenEmptyIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d1b32417-caeb-4a5c-ae40-49d651b418cd");
+    auto serverPortDataList = sut.getServerPortDataList();
+
+    ASSERT_EQ(serverPortDataList.size(), 0U);
+}
+
+TEST_F(PortPool_test, GetServerPortDataListCompletelyFilledIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2968e43d-6972-4667-82f6-7762d479a729");
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{MAX_SERVERS};
+    auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
+    EXPECT_TRUE(addSuccessful);
+
+    auto serverPortDataList = sut.getServerPortDataList();
+
+    ASSERT_EQ(serverPortDataList.size(), MAX_SERVERS);
+}
+
+TEST_F(PortPool_test, RemoveServerPortIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b140e3bf-0ddf-4e1a-824b-a4935596f371");
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{1U};
+    auto addSuccessful =
+        addServerPorts(NUMBER_OF_SERVERS_TO_ADD,
+                       [&](const auto&, const auto&, const auto& serverPort) { sut.removeServerPort(&serverPort); });
+    EXPECT_TRUE(addSuccessful);
+
+    auto serverPortDataList = sut.getServerPortDataList();
+
+    EXPECT_EQ(serverPortDataList.size(), 0U);
+}
+
+// END ServerPort tests
 
 // BEGIN InterfacePort tests
 
