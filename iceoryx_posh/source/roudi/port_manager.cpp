@@ -959,7 +959,20 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
                                    mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                                    const PortConfigInfo& portConfigInfo) noexcept
 {
-    /// @todo iox-#27 check for unique server port
+    // it is not allowed to have two servers with the same ServiceDescription;
+    // check if the server is already in the list
+    for (const auto serverPortData : m_portPool->getServerPortDataList())
+    {
+        if (service == serverPortData->m_serviceDescription)
+        {
+            LogWarn() << "Process '" << runtimeName
+                      << "' violates the communication policy by requesting a ServerPort which is already used by '"
+                      << serverPortData->m_runtimeName << "' with service '"
+                      << service.operator cxx::Serialization().toString() << "'.";
+            errorHandler(Error::kPOSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+            return cxx::error<PortPoolError>(PortPoolError::UNIQUE_SERVER_PORT_ALREADY_EXISTS);
+        }
+    }
 
     // we can create a new port
     return m_portPool
