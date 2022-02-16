@@ -245,4 +245,47 @@ TEST(cpp2c_enum_translation_test, QueueFullPolicy)
 #pragma GCC diagnostic pop
 }
 
+TEST(cpp2c_enum_translation_test, ClientEvent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ab11a6c4-309f-4403-8feb-d65ec8ab7b2d");
+    EXPECT_EQ(cpp2c::clientEvent(iox::popo::ClientEvent::RESPONSE_RECEIVED), ClientEvent_RESPONSE_RECEIVED);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::clientEvent(static_cast<iox::popo::ClientEvent>(-1)), ClientEvent_RESPONSE_RECEIVED);
+#pragma GCC diagnostic pop
+}
+
+TEST(cpp2c_enum_translation_test, ClientState)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7dd9ddce-2316-4a61-ace7-0c83b1b8e4c7");
+    EXPECT_EQ(cpp2c::clientState(iox::popo::ClientState::HAS_RESPONSE), ClientState_HAS_RESPONSE);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::clientState(static_cast<iox::popo::ClientState>(-1)), ClientState_HAS_RESPONSE);
+#pragma GCC diagnostic pop
+}
+
+TEST(cpp2c_enum_translation_test, ServerEvent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e6e4511f-1f14-405a-9edc-6100862a3a9f");
+    EXPECT_EQ(cpp2c::serverEvent(iox::popo::ServerEvent::REQUEST_RECEIVED), ServerEvent_REQUEST_RECEIVED);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::serverEvent(static_cast<iox::popo::ServerEvent>(-1)), ServerEvent_REQUEST_RECEIVED);
+#pragma GCC diagnostic pop
+}
+
+TEST(cpp2c_enum_translation_test, ServerState)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f9750af5-9002-4b08-bde5-16181b50b7d9");
+    EXPECT_EQ(cpp2c::serverState(iox::popo::ServerState::HAS_REQUEST), ServerState_HAS_REQUEST);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::serverState(static_cast<iox::popo::ServerState>(-1)), ServerState_HAS_REQUEST);
+#pragma GCC diagnostic pop
+}
 } // namespace
