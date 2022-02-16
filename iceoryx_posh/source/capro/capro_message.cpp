@@ -22,10 +22,10 @@ namespace capro
 {
 CaproMessage::CaproMessage(CaproMessageType type,
                            const ServiceDescription& serviceDescription,
-                           CaproMessageSubType subType,
+                           CaproServiceType serviceType,
                            void* chunkQueueData) noexcept
     : m_type(type)
-    , m_subType(subType)
+    , m_serviceType(serviceType)
     , m_serviceDescription(serviceDescription)
     , m_chunkQueueData(chunkQueueData)
 {

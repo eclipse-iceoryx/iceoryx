@@ -328,6 +328,22 @@ iox_pub_options_init(&options);
 options.subscriberTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
 ```
 
+- The `CaproMessageSubType` enum is renamed to `CaproServiceType` and the values are renamed from `NOSUBTYPE`,
+  `SERVICE`, `EVENT` and `FIELD` to `NONE`, `PUBLISHER` and `SERVER`
+
+This change only affects `InterfacePorts` which used this enum to communicate whether the `CaproMessage`
+was from a `SERVICE`, `EVENT` or `FIELD`. This was quite ara::com specific and with the introduction of the `ServerPort`
+changes were needed. The distinction between a `FIELD` and an `EVENT` can be made by checking
+`CaproMessage::m_historyCapacity`.
+
+```cpp
+// old
+caproMessage.m_subType = CaproMessageSubType::EVENT;
+
+// new
+caproMessage.m_serviceType = CaproServiceType::PUBLISHER;
+```
+
 ## [v1.0.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-06-15)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.0...v1.0.1)

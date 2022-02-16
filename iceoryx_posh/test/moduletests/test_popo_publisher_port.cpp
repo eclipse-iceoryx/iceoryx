@@ -180,7 +180,7 @@ TEST_F(PublisherPort_test, offerCallResultsInOfferCaProMessage)
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("a", "b", "c")));
-    EXPECT_THAT(caproMessage.m_subType, Eq(iox::capro::CaproMessageSubType::EVENT));
+    EXPECT_THAT(caproMessage.m_serviceType, Eq(iox::capro::CaproServiceType::PUBLISHER));
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(0U));
 }
 
@@ -233,7 +233,7 @@ TEST_F(PublisherPort_test,
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
-    EXPECT_THAT(caproMessage.m_subType, Eq(iox::capro::CaproMessageSubType::FIELD));
+    EXPECT_THAT(caproMessage.m_serviceType, Eq(iox::capro::CaproServiceType::PUBLISHER));
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_PUBLISHER_HISTORY));
 }
 

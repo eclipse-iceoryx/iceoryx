@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,12 +66,11 @@ inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) no
 /// @return the reference to `stream` which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept;
 
-enum class CaproMessageSubType : uint8_t
+enum class CaproServiceType : uint8_t
 {
-    NOSUBTYPE = 0,
-    SERVICE,
-    EVENT,
-    FIELD
+    NONE = 0,
+    PUBLISHER,
+    SERVER
 };
 
 /// @brief C'tors for CaPro messages
@@ -89,11 +88,11 @@ class CaproMessage
     /// @return                        Nothing
     CaproMessage(CaproMessageType type,
                  const ServiceDescription& serviceDescription,
-                 CaproMessageSubType subType = CaproMessageSubType::NOSUBTYPE,
+                 CaproServiceType serviceType = CaproServiceType::NONE,
                  void* chunkQueueData = nullptr) noexcept;
 
     CaproMessageType m_type{CaproMessageType::NOTYPE};
-    CaproMessageSubType m_subType{CaproMessageSubType::NOSUBTYPE};
+    CaproServiceType m_serviceType{CaproServiceType::NONE};
     ServiceDescription m_serviceDescription;
     void* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};

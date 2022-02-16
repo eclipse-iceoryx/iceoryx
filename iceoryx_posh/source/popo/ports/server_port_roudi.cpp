@@ -56,6 +56,7 @@ cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcep
         if (!offeringRequested)
         {
             capro::CaproMessage caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
+            caproMessage.m_serviceType = capro::CaproServiceType::SERVER;
             return dispatchCaProMessageAndGetPossibleResponse(caproMessage);
         }
     }
@@ -64,6 +65,7 @@ cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcep
         if (offeringRequested)
         {
             capro::CaproMessage caproMessage(capro::CaproMessageType::OFFER, this->getCaProServiceDescription());
+            caproMessage.m_serviceType = capro::CaproServiceType::SERVER;
             return dispatchCaProMessageAndGetPossibleResponse(caproMessage);
         }
     }
