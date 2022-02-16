@@ -133,9 +133,8 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// Maximum number of services, which can be found.
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
-/// @todo #415 increase number back to 50 once service registry is available via shared memory
 /// @todo #1074 define and set the limits concerning the service discovery
-constexpr uint32_t MAX_NUMBER_OF_SERVICES = 10U;
+constexpr uint32_t MAX_NUMBER_OF_SERVICES = 100U;
 constexpr const char SERVICE_REGISTRY_SERVICE_NAME[] = "ServiceRegistry";
 constexpr const char SERVICE_REGISTRY_INSTANCE_NAME[] = "RouDi_ID";
 constexpr const char SERVICE_REGISTRY_EVENT_NAME[] = "ServiceRegistry";
