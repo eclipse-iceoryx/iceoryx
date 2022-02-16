@@ -44,7 +44,7 @@ class FixedPositionContainer
     template <typename... Targs>
     T* insert(Targs&&... args) noexcept;
 
-    void erase(T* const element) noexcept;
+    void erase(const T* const element) noexcept;
 
     cxx::vector<T*, Capacity> content() noexcept;
 

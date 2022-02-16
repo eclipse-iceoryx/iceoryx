@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -125,13 +125,13 @@ class PortPool
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
-    void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
-    void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
-    void removeClientPort(popo::ClientPortData* const portData) noexcept;
-    void removeServerPort(popo::ServerPortData* const portData) noexcept;
-    void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
-    void removeNodeData(runtime::NodeData* const nodeData) noexcept;
-    void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
+    void removePublisherPort(const PublisherPortRouDiType::MemberType_t* const portData) noexcept;
+    void removeSubscriberPort(const SubscriberPortType::MemberType_t* const portData) noexcept;
+    void removeClientPort(const popo::ClientPortData* const portData) noexcept;
+    void removeServerPort(const popo::ServerPortData* const portData) noexcept;
+    void removeInterfacePort(const popo::InterfacePortData* const portData) noexcept;
+    void removeNodeData(const runtime::NodeData* const nodeData) noexcept;
+    void removeConditionVariableData(const popo::ConditionVariableData* const conditionVariableData) noexcept;
 
   private:
     PortPoolData* m_portPoolData;

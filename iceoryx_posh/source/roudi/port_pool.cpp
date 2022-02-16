@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -94,17 +94,17 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     }
 }
 
-void PortPool::removeInterfacePort(popo::InterfacePortData* const portData) noexcept
+void PortPool::removeInterfacePort(const popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolData->m_interfacePortMembers.erase(portData);
 }
 
-void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
+void PortPool::removeNodeData(const runtime::NodeData* const nodeData) noexcept
 {
     m_portPoolData->m_nodeMembers.erase(nodeData);
 }
 
-void PortPool::removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept
+void PortPool::removeConditionVariableData(const popo::ConditionVariableData* const conditionVariableData) noexcept
 {
     m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
 }
@@ -213,21 +213,21 @@ PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
     return cxx::success<popo::ServerPortData*>(serverPortData);
 }
 
-void PortPool::removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept
+void PortPool::removePublisherPort(const PublisherPortRouDiType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_publisherPortMembers.erase(portData);
 }
 
-void PortPool::removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept
+void PortPool::removeSubscriberPort(const SubscriberPortType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_subscriberPortMembers.erase(portData);
 }
 
-void PortPool::removeClientPort(popo::ClientPortData* const portData) noexcept
+void PortPool::removeClientPort(const popo::ClientPortData* const portData) noexcept
 {
     m_portPoolData->m_clientPortMembers.erase(portData);
 }
-void PortPool::removeServerPort(popo::ServerPortData* const portData) noexcept
+void PortPool::removeServerPort(const popo::ServerPortData* const portData) noexcept
 {
     m_portPoolData->m_serverPortMembers.erase(portData);
 }
