@@ -118,7 +118,7 @@ struct ServerTest
     iox::roudi::ServiceRegistry registry;
 };
 
-template <typename T>
+template <typename Sut>
 class ServiceRegistry_test : public Test
 {
   public:
@@ -138,7 +138,7 @@ class ServiceRegistry_test : public Test
     }
 
     SearchResult_t searchResult;
-    T sut;
+    Sut sut;
 };
 
 typedef ::testing::Types<PublisherTest, ServerTest> TestTypes;
@@ -174,6 +174,28 @@ TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 }
 
 TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
+    iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
+
+    for (uint64_t i = 0U; i < ServiceRegistry::MAX_SERVICE_DESCRIPTIONS; i++)
+    {
+        services.push_back(iox::capro::ServiceDescription(
+            "Foo", "Bar", iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))));
+    }
+
+    for (auto& service : services)
+    {
+        auto result = this->sut.add(service);
+        ASSERT_FALSE(result.has_error());
+    }
+
+    auto result = this->sut.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
+}
+
+TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
     auto result1 = this->sut.add(ServiceDescription("Li", "La", "Launebaer"));
@@ -697,7 +719,7 @@ TYPED_TEST(ServiceRegistry_test, FindWithEmptyCallableDoesNotDie)
 
 TYPED_TEST(ServiceRegistry_test, FindWithMixOfPublishersAndServersWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "220213cb-8fdf-4fd0-b8e2-24a96f11bfbc");
+    ::testing::Test::RecordProperty("TEST_ID", "3e8a9647-69cc-4cad-afb1-9188927aff04");
     iox::capro::ServiceDescription service1("a", "a", "a");
     iox::capro::ServiceDescription service2("a", "b", "b");
     iox::capro::ServiceDescription service3("a", "a", "c");

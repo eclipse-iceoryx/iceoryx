@@ -48,9 +48,8 @@ class ServiceRegistry
 
         capro::ServiceDescription serviceDescription;
 
-        // it can be discussed whether the type of service (server or publisher)
-        // should be part of the ServiceDescription but this would lead to more
-        // exchanges (e.g. comparison semantics)
+        // note that we can have publishers and servers with the same ServiceDescription
+        // and using the counters we save space
         ReferenceCounter_t publisherCount{0U};
         ReferenceCounter_t serverCount{0U};
     };
