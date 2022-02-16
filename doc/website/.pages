@@ -1,7 +1,10 @@
 nav:
   - index.md
   - getting-started
+  - concepts
   - tutorials
+  - design
   - FAQ.md
   - advanced
+  - Release notes
   - API-reference
