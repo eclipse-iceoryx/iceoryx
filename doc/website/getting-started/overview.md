@@ -117,7 +117,7 @@ Afterwards, we can start the applications which immediately connect to the RouDi
 When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
 includes all memory chunks used for the data transmission which may still be held by the application.
 
-<!-- @todo add overview graphic -->
+![Overview](https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif)
 
 We now briefly define the main entities of an iceoryx system which were partially already used in the example above.
 
