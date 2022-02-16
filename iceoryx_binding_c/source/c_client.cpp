@@ -140,7 +140,7 @@ void iox_client_disconnect(iox_client_t const self)
 iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    self->getConnectionState();
+    return cpp2c::connectionState(self->getConnectionState());
 }
 
 iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload)

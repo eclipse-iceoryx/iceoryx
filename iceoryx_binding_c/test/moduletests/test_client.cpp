@@ -22,6 +22,11 @@
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 
+using namespace iox::popo;
+using namespace iox::capro;
+using namespace iox::capro;
+using namespace iox::cxx;
+
 extern "C" {
 #include "iceoryx_binding_c/client.h"
 }
@@ -31,24 +36,46 @@ extern "C" {
 namespace
 {
 using namespace ::testing;
-using namespace iox::capro;
-using namespace iox::popo;
-using namespace iox::capro;
-using namespace iox::cxx;
 
 class iox_client_test : public Test
 {
   public:
-    class SutUntypedClient : public iox::popo::UntypedClient
-    {
-    };
+    static constexpr const char RUNTIME_NAME[] = "spongebob_floodler";
 
-    std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("client_test");
+    std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create(RUNTIME_NAME);
+
+    void SetUp() override
+    {
+        memoryConfig.addMemPool({1024, 100});
+        memoryManager.configureMemoryManager(memoryConfig, mgmtAllocator, dataAllocator);
+    }
+
+    ClientPortData* createClientPortData(const ClientOptions& options)
+    {
+        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
+                                           IdString_t(TruncateToCapacity, INSTANCE),
+                                           IdString_t(TruncateToCapacity, EVENT)},
+                        RUNTIME_NAME,
+                        options,
+                        &memoryManager);
+        return &*sutPort;
+    }
+
+    static constexpr uint64_t MANAGEMENT_MEMORY_SIZE = 1024 * 1024;
+    char managmentMemory[MANAGEMENT_MEMORY_SIZE];
+    iox::posix::Allocator mgmtAllocator{managmentMemory, MANAGEMENT_MEMORY_SIZE};
+    static constexpr uint64_t DATA_MEMORY_SIZE = 1024 * 1024;
+    char dataMemory[DATA_MEMORY_SIZE];
+    iox::posix::Allocator dataAllocator{dataMemory, DATA_MEMORY_SIZE};
+    iox::mepoo::MemoryManager memoryManager;
+    iox::mepoo::MePooConfig memoryConfig;
+    iox::cxx::optional<ClientPortData> sutPort;
 
     static constexpr const char SERVICE[] = "allGlory";
     static constexpr const char INSTANCE[] = "ToThe";
     static constexpr const char EVENT[] = "HYPNOTOAD";
 };
+constexpr const char iox_client_test::RUNTIME_NAME[];
 constexpr const char iox_client_test::SERVICE[];
 constexpr const char iox_client_test::INSTANCE[];
 constexpr const char iox_client_test::EVENT[];
@@ -74,6 +101,7 @@ TEST_F(iox_client_test, initializedOptionsAreInitialized)
 
 TEST_F(iox_client_test, InitialConnectionStateOnPortWithConnectOnCreateIs_CONNECTED)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1317bd7a-c6fe-445f-be44-502177ec885c");
     iox_client_storage_t sutStorage;
     ClientOptions defaultOptions;
     EXPECT_CALL(*runtimeMock,
@@ -81,9 +109,13 @@ TEST_F(iox_client_test, InitialConnectionStateOnPortWithConnectOnCreateIs_CONNEC
                                                        IdString_t(TruncateToCapacity, INSTANCE),
                                                        IdString_t(TruncateToCapacity, EVENT)},
                                     defaultOptions,
-                                    _));
+                                    _))
+        .WillOnce(Return(createClientPortData(defaultOptions)));
+
+
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+
+    ASSERT_THAT(sut, Ne(nullptr));
+    EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_CONNECTED));
 }
-
-
 } // namespace
