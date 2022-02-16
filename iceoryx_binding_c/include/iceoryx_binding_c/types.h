@@ -98,7 +98,9 @@ typedef struct
 
 typedef struct
 {
-    uint8_t do_not_touch_me[12];
+    // the value of the array size is the result of the following formula:
+    // sizeof(UntypedClient) / 8
+    uint64_t do_not_touch_me[19];
 } iox_client_storage_t;
 
 #endif
