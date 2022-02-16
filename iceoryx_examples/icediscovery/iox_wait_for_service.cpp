@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "discovery_wait_for_service.hpp"
+#include "discovery_waitset.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -71,14 +71,18 @@ int main()
         // did we wake up due to an unblock or because the service was available?
         if (serviceWasAvailable)
         {
-            std::cout << "<Radar FrontLeft SequenceCounter> was available ...\n" << std::endl;
+            std::cout << "<Radar FrontLeft Counter> was available ...\n" << std::endl;
 
             // service was available, proceed
             break;
         }
     }
 
-    // we can never be sure the service is still available
+    // service was available, but we can never be sure the service is still available
+    // if this is ipmortant we need to monitor it (see discovery monitor example)
+
+    // wait until any discovery change before we exit
+    discovery.waitUntilChange();
 
     return (EXIT_SUCCESS);
 }

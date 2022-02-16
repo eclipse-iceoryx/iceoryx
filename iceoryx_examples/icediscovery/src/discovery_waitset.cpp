@@ -1,0 +1,66 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#include "discovery_waitset.hpp"
+
+namespace discovery
+{
+ServiceDiscovery& serviceDiscovery()
+{
+    static ServiceDiscovery instance;
+    return instance;
+}
+
+Discovery::Discovery()
+    : m_discovery(&serviceDiscovery())
+{
+    update();
+    auto errorHandler = [](auto) {
+        std::cerr << "failed to attach to waitset" << std::endl;
+        std::terminate();
+    };
+
+    m_waitset.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED)
+        .or_else(errorHandler);
+}
+
+void Discovery::waitUntilChange()
+{
+    m_waitset.wait();
+}
+
+// unblock any wait, not reversible
+void Discovery::unblockWait()
+{
+    m_blocking = false;
+    // could also unblock with a dedicated trigger to break the wait but that requires more code
+    // and is not necessary if it is only supposed to happen once
+    m_waitset.markForDestruction();
+}
+
+ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
+                                        const iox::cxx::optional<iox::capro::IdString_t>& instance,
+                                        const iox::cxx::optional<iox::capro::IdString_t>& event)
+{
+    return m_discovery->findService(service, instance, event);
+}
+
+void Discovery::update()
+{
+    m_discovery->update();
+}
+
+} // namespace discovery

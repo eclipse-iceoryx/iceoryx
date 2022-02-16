@@ -41,7 +41,7 @@ target_compile_options(iox-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SA
 set_target_properties(iox-offer-service
                       iox-find-service
 
-add_executable(iox-wait-for-service ./iox_wait_for_service.cpp)
+add_executable(iox-wait-for-service ./iox_wait_for_service.cpp ./src/discovery_waitset.cpp)
 target_link_libraries(iox-wait-for-service
     iceoryx_posh::iceoryx_posh
 )
