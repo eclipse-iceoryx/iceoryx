@@ -348,8 +348,7 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
         cxx::Ensures(caproMessage.m_serviceType == capro::CaproServiceType::SERVER);
 
         /// @todo iox-#27 report to port introspection
-        /// @todo iox-#27 add server to service registry
-        // this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
+        this->removeServerFromServiceRegistry(caproMessage.m_serviceDescription);
         this->sendToAllMatchingClientPorts(caproMessage, serverPortRoudi);
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
@@ -387,11 +386,11 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
 
         if (capro::CaproMessageType::OFFER == caproMessage.m_type)
         {
-            /// @todo iox-#27 add to service registry?
+            this->addServerToServiceRegistry(caproMessage.m_serviceDescription);
         }
         else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
         {
-            /// @todo iox-#27 remove from service registry
+            this->removeServerFromServiceRegistry(caproMessage.m_serviceDescription);
         }
         else
         {
@@ -1028,6 +1027,23 @@ void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescrip
 {
     m_serviceRegistry.removePublisher(service);
     publishServiceRegistry();
+}
+
+void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept
+{
+    /// @todo iox-#27 add server to service registry
+    // m_serviceRegistry.add(service).or_else([&](auto&) {
+    //     LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
+    //     errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
+    // });
+    // publishServiceRegistry();
+}
+
+void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept
+{
+    /// @todo iox-#27 remove from service registry
+    // m_serviceRegistry.remove(service);
+    // publishServiceRegistry();
 }
 
 cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,

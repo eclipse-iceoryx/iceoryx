@@ -164,6 +164,9 @@ class PortManager
     void addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept;
     void removePublisherFromServiceRegistry(const capro::ServiceDescription& service) noexcept;
 
+    void addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept;
+    void removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept;
+
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     cxx::optional<RuntimeName_t>
     doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
