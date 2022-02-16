@@ -40,6 +40,7 @@ iox_ClientEvent clientEvent(const iox::popo::ClientEvent value) noexcept;
 iox_ClientState clientState(const iox::popo::ClientState value) noexcept;
 iox_ServerEvent serverEvent(const iox::popo::ServerEvent value) noexcept;
 iox_ServerState serverState(const iox::popo::ServerState value) noexcept;
+iox_ConnectionState connectionState(const iox::ConnectionState value) noexcept;
 } // namespace cpp2c
 
 #endif

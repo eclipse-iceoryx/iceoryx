@@ -171,4 +171,24 @@ iox_ServerState serverState(const iox::popo::ServerState value) noexcept
 
     return ServerState_HAS_REQUEST;
 }
+
+iox_ConnectionState connectionState(const iox::ConnectionState value) noexcept
+{
+    switch (value)
+    {
+    case iox::ConnectionState::CONNECTED:
+        return ConnectionState_CONNECTED;
+    case iox::ConnectionState::NOT_CONNECTED:
+        return ConnectionState_NOT_CONNECTED;
+    case iox::ConnectionState::CONNECT_REQUESTED:
+        return ConnectionState_CONNECT_REQUESTED;
+    case iox::ConnectionState::DISCONNECT_REQUESTED:
+        return ConnectionState_DISCONNECT_REQUESTED;
+    case iox::ConnectionState::WAIT_FOR_OFFER:
+        return ConnectionState_WAIT_FOR_OFFER;
+    }
+
+    return ConnectionState_NOT_CONNECTED;
+}
+
 } // namespace cpp2c

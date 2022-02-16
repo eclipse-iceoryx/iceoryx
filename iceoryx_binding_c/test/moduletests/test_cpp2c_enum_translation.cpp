@@ -288,4 +288,19 @@ TEST(cpp2c_enum_translation_test, ServerState)
     EXPECT_EQ(cpp2c::serverState(static_cast<iox::popo::ServerState>(-1)), ServerState_HAS_REQUEST);
 #pragma GCC diagnostic pop
 }
+
+TEST(cpp2c_enum_translation_test, ConnectionState)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "45ebb12f-81ac-45a6-ab6a-599b1ad2e4de");
+    EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::CONNECTED), ConnectionState_CONNECTED);
+    EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::NOT_CONNECTED), ConnectionState_NOT_CONNECTED);
+    EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::DISCONNECT_REQUESTED), ConnectionState_DISCONNECT_REQUESTED);
+    EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::CONNECT_REQUESTED), ConnectionState_CONNECT_REQUESTED);
+    EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::WAIT_FOR_OFFER), ConnectionState_WAIT_FOR_OFFER);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::connectionState(static_cast<iox::ConnectionState>(-1)), ConnectionState_NOT_CONNECTED);
+#pragma GCC diagnostic pop
+}
 } // namespace
