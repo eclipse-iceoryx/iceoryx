@@ -30,12 +30,18 @@ namespace
 using namespace ::testing;
 using namespace iox::roudi;
 using iox::capro::ServiceDescription;
+using SearchResult_t = iox::roudi::ServiceRegistry::ServiceDescriptionVector_t;
 
 struct PublisherTest
 {
     auto add(const ServiceDescription& sd)
     {
         return registry.addPublisher(sd);
+    }
+
+    auto otherAdd(const ServiceDescription& sd)
+    {
+        return registry.addServer(sd);
     }
 
     auto remove(const ServiceDescription& sd)
@@ -46,6 +52,19 @@ struct PublisherTest
     auto count(ServiceRegistry::ServiceDescriptionEntry& entry)
     {
         return entry.publisherCount;
+    }
+
+    auto filter(const SearchResult_t& result)
+    {
+        SearchResult_t filtered;
+        for (auto& entry : result)
+        {
+            if (entry.publisherCount > 0)
+            {
+                filtered.emplace_back(entry);
+            }
+        }
+        return filtered;
     }
 
     auto operator->()
@@ -63,6 +82,11 @@ struct ServerTest
         return registry.addServer(sd);
     }
 
+    auto otherAdd(const ServiceDescription& sd)
+    {
+        return registry.addPublisher(sd);
+    }
+
     auto remove(const ServiceDescription& sd)
     {
         return registry.removeServer(sd);
@@ -71,6 +95,19 @@ struct ServerTest
     auto count(ServiceRegistry::ServiceDescriptionEntry& entry)
     {
         return entry.serverCount;
+    }
+
+    auto filter(const SearchResult_t& result)
+    {
+        SearchResult_t filtered;
+        for (auto& entry : result)
+        {
+            if (entry.serverCount > 0)
+            {
+                filtered.emplace_back(entry);
+            }
+        }
+        return filtered;
     }
 
     auto operator->()
@@ -100,7 +137,7 @@ class ServiceRegistry_test : public Test
         }
     }
 
-    iox::roudi::ServiceRegistry::ServiceDescriptionVector_t searchResults;
+    SearchResult_t searchResult;
     T sut;
 };
 
@@ -113,9 +150,9 @@ TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes);
 TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3a050209-01d8-4d0e-9e70-c0662b9dbe76");
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
@@ -139,39 +176,17 @@ TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
-    iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
-
-    for (uint64_t i = 0U; i < ServiceRegistry::MAX_SERVICE_DESCRIPTIONS; i++)
-    {
-        services.push_back(iox::capro::ServiceDescription(
-            "Foo", "Bar", iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))));
-    }
-
-    for (auto& service : services)
-    {
-        auto result = this->sut.add(service);
-        ASSERT_FALSE(result.has_error());
-    }
-
-    auto result = this->sut.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
-}
-
-TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d8f61eb2-d082-4c26-9970-461427c3d200");
     auto result1 = this->sut.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result1.has_error());
 
     auto result2 = this->sut.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result2.has_error());
 
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
-    EXPECT_THAT(this->sut.count(this->searchResults[0]), Eq(2));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaer")));
+    EXPECT_THAT(this->sut.count(this->searchResult[0]), Eq(2));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndReturnsOneResult)
@@ -185,11 +200,11 @@ TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsTwiceAndRemoveOnceAndRetu
 
     this->sut.remove(ServiceDescription("Li", "La", "Launebaerli"));
 
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
-    EXPECT_THAT(this->sut.count(this->searchResults[0]), Eq(1));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(ServiceDescription("Li", "La", "Launebaerli")));
+    EXPECT_THAT(this->sut.count(this->searchResult[0]), Eq(1));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsTwiceAndPurgeReturnsNoResult)
@@ -203,9 +218,9 @@ TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsTwiceAndPurgeReturnsNoRes
 
     this->sut->purge(ServiceDescription("Li", "La", "Launebaerli"));
 
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddEmptyServiceDescriptionsWorks)
@@ -234,10 +249,10 @@ TYPED_TEST(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithWil
 {
     ::testing::Test::RecordProperty("TEST_ID", "be3e4b13-d930-47b2-aeaa-95c65f06deed");
     ASSERT_FALSE(this->sut.add(ServiceDescription()).has_error());
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(ServiceDescription()));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(ServiceDescription()));
 }
 
 TYPED_TEST(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithEmptyString)
@@ -245,10 +260,10 @@ TYPED_TEST(ServiceRegistry_test, SingleEmptyServiceDescriptionsCanBeFoundWithEmp
     ::testing::Test::RecordProperty("TEST_ID", "1af0137f-6bf5-422e-a6ec-513f7d3f6191");
     ASSERT_FALSE(this->sut.add(ServiceDescription()).has_error());
     this->sut->find(
-        this->searchResults, iox::capro::IdString_t(""), iox::capro::IdString_t(""), iox::capro::IdString_t(""));
+        this->searchResult, iox::capro::IdString_t(""), iox::capro::IdString_t(""), iox::capro::IdString_t(""));
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(ServiceDescription()));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(ServiceDescription()));
 }
 
 TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardSearch)
@@ -256,10 +271,10 @@ TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithWildcardS
     ::testing::Test::RecordProperty("TEST_ID", "a12c9d39-6379-4296-8987-df56a87169f7");
     auto result = this->sut.add(ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_FALSE(result.has_error());
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(ServiceDescription("Foo", "Bar", "Baz")));
 }
 
 TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithEventName)
@@ -267,10 +282,10 @@ TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithEventName
     ::testing::Test::RecordProperty("TEST_ID", "6df8fd7d-e4d1-4c51-8ad7-2fbe82e4ed09");
     iox::capro::ServiceDescription service("a", "b", "c");
     ASSERT_FALSE(this->sut.add(service).has_error());
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::IdString_t("c"));
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::IdString_t("c"));
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service));
 }
 
 TYPED_TEST(ServiceRegistry_test, ServiceDescriptionNotFoundWhenEventDoesNotMatch)
@@ -278,12 +293,12 @@ TYPED_TEST(ServiceRegistry_test, ServiceDescriptionNotFoundWhenEventDoesNotMatch
     ::testing::Test::RecordProperty("TEST_ID", "ba7785d1-08ec-4f7c-b341-dff033dae2c7");
     iox::capro::ServiceDescription service("Besser", "Wisser", "Girl");
     ASSERT_FALSE(this->sut.add(service).has_error());
-    this->sut->find(this->searchResults,
+    this->sut->find(this->searchResult,
                     iox::capro::IdString_t("Besser"),
                     iox::capro::IdString_t("Wisser"),
                     iox::capro::IdString_t("Boy"));
 
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceName)
@@ -291,10 +306,10 @@ TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithInstanceN
     ::testing::Test::RecordProperty("TEST_ID", "1dfaa836-f1da-466f-a794-a7ac1b599ce3");
     auto result = this->sut.add(ServiceDescription("Baz", "Bar", "Foo"));
     ASSERT_FALSE(result.has_error());
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::IdString_t("Bar"), iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::IdString_t("Bar"), iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(ServiceDescription("Baz", "Bar", "Foo")));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(ServiceDescription("Baz", "Bar", "Foo")));
 }
 
 TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceName)
@@ -302,10 +317,10 @@ TYPED_TEST(ServiceRegistry_test, SingleServiceDescriptionCanBeFoundWithServiceNa
     ::testing::Test::RecordProperty("TEST_ID", "0890013c-e14b-4ae2-89cb-757624c12b4e");
     iox::capro::ServiceDescription service("a", "b", "c");
     ASSERT_FALSE(this->sut.add(service).has_error());
-    this->sut->find(this->searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service));
 }
 
 TYPED_TEST(ServiceRegistry_test, EmptyAndNotEmptyServiceDescriptionsCanAllBeFoundWithWildcardSearch)
@@ -316,11 +331,11 @@ TYPED_TEST(ServiceRegistry_test, EmptyAndNotEmptyServiceDescriptionsCanAllBeFoun
 
     ASSERT_FALSE(this->sut.add(service1).has_error());
     ASSERT_FALSE(this->sut.add(service2).has_error());
-    this->sut->find(this->searchResults, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(2));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service1));
-    EXPECT_THAT(this->searchResults[1].serviceDescription, Eq(service2));
+    ASSERT_THAT(this->searchResult.size(), Eq(2));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service1));
+    EXPECT_THAT(this->searchResult[1].serviceDescription, Eq(service2));
 }
 
 TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCanAllBeFound)
@@ -333,15 +348,15 @@ TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameCa
     ASSERT_FALSE(this->sut.add(service1).has_error());
     ASSERT_FALSE(this->sut.add(service2).has_error());
     ASSERT_FALSE(this->sut.add(service3).has_error());
-    this->sut->find(this->searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(3));
+    ASSERT_THAT(this->searchResult.size(), Eq(3));
 
     bool hasFoundB = false;
     bool hasFoundC = false;
     bool hasFoundD = false;
 
-    for (auto& e : this->searchResults)
+    for (auto& e : this->searchResult)
     {
         if (e.serviceDescription == service1)
             hasFoundB = true;
@@ -362,15 +377,15 @@ TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionWithDifferentServiceN
 
     ASSERT_FALSE(this->sut.add(service1).has_error());
     ASSERT_FALSE(this->sut.add(service2).has_error());
-    this->sut->find(this->searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service1));
-    this->searchResults.clear();
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service1));
+    this->searchResult.clear();
 
-    this->sut->find(this->searchResults, iox::capro::IdString_t("c"), iox::capro::Wildcard, iox::capro::Wildcard);
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service2));
+    this->sut->find(this->searchResult, iox::capro::IdString_t("c"), iox::capro::Wildcard, iox::capro::Wildcard);
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service2));
 }
 
 TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFindsSpecificService)
@@ -384,10 +399,10 @@ TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionWithSameServiceNameFi
     ASSERT_FALSE(this->sut.add(service2).has_error());
     ASSERT_FALSE(this->sut.add(service3).has_error());
     this->sut->find(
-        this->searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
+        this->searchResult, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
 
-    ASSERT_THAT(this->searchResults.size(), Eq(1));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service2));
+    ASSERT_THAT(this->searchResult.size(), Eq(1));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service2));
 }
 
 TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrderFindsCorrectServices)
@@ -408,9 +423,9 @@ TYPED_TEST(ServiceRegistry_test, MultipleServiceDescriptionAddedInNonLinearOrder
     this->sut.remove(service5);
     this->sut.remove(service1);
     EXPECT_THAT(this->sut->getServices().size(), Eq(3));
-    this->sut->find(this->searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
+    this->sut->find(this->searchResult, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, FindSpecificNonExistingServiceDescriptionFails)
@@ -424,9 +439,9 @@ TYPED_TEST(ServiceRegistry_test, FindSpecificNonExistingServiceDescriptionFails)
     ASSERT_FALSE(this->sut.add(service2).has_error());
     ASSERT_FALSE(this->sut.add(service3).has_error());
     this->sut->find(
-        this->searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("g"), iox::capro::IdString_t("f"));
+        this->searchResult, iox::capro::IdString_t("a"), iox::capro::IdString_t("g"), iox::capro::IdString_t("f"));
 
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameServicesAndRemovingSpecificDoesNotFindSpecific)
@@ -444,8 +459,8 @@ TYPED_TEST(ServiceRegistry_test, AddingMultipleServiceDescriptionWithSameService
     EXPECT_THAT(this->sut->getServices().size(), Eq(2));
 
     this->sut->find(
-        this->searchResults, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+        this->searchResult, iox::capro::IdString_t("a"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceRegistry)
@@ -463,8 +478,8 @@ TYPED_TEST(ServiceRegistry_test, ServiceNotFoundAfterAddingAndRemovingToServiceR
     EXPECT_THAT(this->sut->getServices().size(), Eq(2));
 
     this->sut->find(
-        this->searchResults, iox::capro::IdString_t("b"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+        this->searchResult, iox::capro::IdString_t("b"), iox::capro::IdString_t("c"), iox::capro::IdString_t("c"));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllDoesNotFindAnything)
@@ -482,8 +497,8 @@ TYPED_TEST(ServiceRegistry_test, AddingMultipleServiceDescriptionAndRemovingAllD
     this->sut.remove(service2);
     this->sut.remove(service3);
 
-    this->sut->find(this->searchResults, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    this->sut->find(this->searchResult, iox::capro::IdString_t("a"), iox::capro::Wildcard, iox::capro::Wildcard);
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddingVariousServiceDescriptionAndGetServicesDoesNotReturnDuplicate)
@@ -646,12 +661,12 @@ TYPED_TEST(ServiceRegistry_test, FunctionIsAppliedToAllEntriesInSearchResult)
     ASSERT_FALSE(this->sut.add(service2).has_error());
     ASSERT_FALSE(this->sut.add(service3).has_error());
 
-    auto searchFunction = [&](const Entry& entry) { this->searchResults.emplace_back(entry); };
+    auto searchFunction = [&](const Entry& entry) { this->searchResult.emplace_back(entry); };
     this->sut->find(iox::capro::IdString_t("a"), iox::capro::IdString_t("b"), iox::capro::Wildcard, searchFunction);
 
-    ASSERT_THAT(this->searchResults.size(), Eq(2));
-    EXPECT_THAT(this->searchResults[0].serviceDescription, Eq(service1));
-    EXPECT_THAT(this->searchResults[1].serviceDescription, Eq(service3));
+    ASSERT_THAT(this->searchResult.size(), Eq(2));
+    EXPECT_THAT(this->searchResult[0].serviceDescription, Eq(service1));
+    EXPECT_THAT(this->searchResult[1].serviceDescription, Eq(service3));
 }
 
 TYPED_TEST(ServiceRegistry_test, NoFunctionIsAppliedToEmptySearchResult)
@@ -665,10 +680,10 @@ TYPED_TEST(ServiceRegistry_test, NoFunctionIsAppliedToEmptySearchResult)
     ASSERT_FALSE(this->sut.add(service2).has_error());
     ASSERT_FALSE(this->sut.add(service3).has_error());
 
-    auto searchFunction = [&](const Entry& entry) { this->searchResults.emplace_back(entry); };
+    auto searchFunction = [&](const Entry& entry) { this->searchResult.emplace_back(entry); };
     this->sut->find(iox::capro::Wildcard, iox::capro::IdString_t("a"), iox::capro::Wildcard, searchFunction);
 
-    EXPECT_THAT(this->searchResults.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0));
 }
 
 TYPED_TEST(ServiceRegistry_test, FindWithEmptyCallableDoesNotDie)
@@ -678,6 +693,33 @@ TYPED_TEST(ServiceRegistry_test, FindWithEmptyCallableDoesNotDie)
     ASSERT_FALSE(this->sut.add(service).has_error());
     iox::cxx::function_ref<void(const Entry&)> searchFunction;
     this->sut->find(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction);
+}
+
+TYPED_TEST(ServiceRegistry_test, FindWithMixOfPublishersAndServersWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "220213cb-8fdf-4fd0-b8e2-24a96f11bfbc");
+    iox::capro::ServiceDescription service1("a", "a", "a");
+    iox::capro::ServiceDescription service2("a", "b", "b");
+    iox::capro::ServiceDescription service3("a", "a", "c");
+    iox::capro::ServiceDescription service4("a", "a", "d");
+
+    ASSERT_FALSE(this->sut.add(service1).has_error());
+    ASSERT_FALSE(this->sut.otherAdd(service2).has_error());
+    ASSERT_FALSE(this->sut.add(service3).has_error());
+    ASSERT_FALSE(this->sut.otherAdd(service4).has_error());
+
+    auto searchFunction = [&](const Entry& entry) { this->searchResult.emplace_back(entry); };
+    this->sut->find(iox::capro::Wildcard, iox::capro::IdString_t("a"), iox::capro::Wildcard, searchFunction);
+
+    EXPECT_THAT(this->searchResult.size(), Eq(3U));
+
+    auto filtered = this->sut.filter(this->searchResult);
+
+    // only service1 and service3 match the category (server or publisher),
+    // the other match (service 4) is of a different category
+    ASSERT_EQ(filtered.size(), 2U);
+    EXPECT_EQ(filtered[0].serviceDescription, service1);
+    EXPECT_EQ(filtered[1].serviceDescription, service3);
 }
 
 } // namespace
