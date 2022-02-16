@@ -177,11 +177,11 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         m_portIntrospection.reportMessage(caproMessage);
         if (capro::CaproMessageType::OFFER == caproMessage.m_type)
         {
-            this->addEntryToServiceRegistry(caproMessage.m_serviceDescription);
+            this->addPublisherToServiceRegistry(caproMessage.m_serviceDescription);
         }
         else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
         {
-            this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
+            this->removePublisherFromServiceRegistry(caproMessage.m_serviceDescription);
         }
         else
         {
@@ -822,7 +822,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
 
         m_portIntrospection.reportMessage(caproMessage);
-        this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription);
+        this->removePublisherFromServiceRegistry(caproMessage.m_serviceDescription);
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
@@ -1015,7 +1015,7 @@ void PortManager::publishServiceRegistry() const noexcept
 }
 
 
-void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept
+void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.addPublisher(service).or_else([&](auto&) {
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
@@ -1024,7 +1024,7 @@ void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& ser
     publishServiceRegistry();
 }
 
-void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
+void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removePublisher(service);
     publishServiceRegistry();
