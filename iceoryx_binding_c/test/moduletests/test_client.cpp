@@ -216,5 +216,24 @@ TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
+TEST_F(iox_client_test, LoanAndSendWorks)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+
+    void* payload = nullptr;
+    printf("0.\n");
+    EXPECT_THAT(iox_client_loan(sut, &payload, sizeof(int64_t), 32), Eq(AllocationResult_SUCCESS));
+    *static_cast<int64_t*>(payload) = 8912389;
+
+    printf("1.\n");
+    iox_client_send(sut, payload);
+    printf("2.\n");
+    auto msg = sutServerQueue.pop();
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_THAT(*msg, Eq(8912389));
+}
+
 
 } // namespace
