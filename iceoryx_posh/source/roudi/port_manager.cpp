@@ -284,10 +284,10 @@ void PortManager::handleInterfaces() noexcept
         /// StatusPort's
         /// @todo iox-#27 I guess this was necessary since a service could be offered via ServiceDiscovery;
         /// this was removed and I somehow have the feeling this breaks the interface ports with the changes from this
-        /// PR if the CaproMessageSubType is something different than NOSUBTYPE
+        /// PR if the CaproServiceType is something different than NON
         auto serviceVector = m_serviceRegistry.getServices();
 
-        caproMessage.m_subType = capro::CaproMessageSubType::NOSUBTYPE;
+        caproMessage.m_serviceType = capro::CaproServiceType::NONE;
 
         for (auto const& element : serviceVector)
         {

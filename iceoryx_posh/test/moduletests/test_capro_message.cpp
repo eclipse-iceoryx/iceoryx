@@ -42,11 +42,11 @@ TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
     iox::popo::SubscriberPortData recData{
         sd, "foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, iox::popo::SubscriberOptions()};
 
-    CaproMessage testObj(CaproMessageType::OFFER, sd, CaproMessageSubType::PUBLISHER, &recData);
+    CaproMessage testObj(CaproMessageType::OFFER, sd, CaproServiceType::PUBLISHER, &recData);
 
     EXPECT_EQ(&recData, testObj.m_chunkQueueData);
     EXPECT_EQ(CaproMessageType::OFFER, testObj.m_type);
-    EXPECT_EQ(CaproMessageSubType::PUBLISHER, testObj.m_subType);
+    EXPECT_EQ(CaproServiceType::PUBLISHER, testObj.m_serviceType);
     EXPECT_EQ(0U, testObj.m_historyCapacity);
     EXPECT_EQ(sd, testObj.m_serviceDescription);
 }
@@ -57,7 +57,7 @@ TEST_F(CaproMessage_test, DefaultArgsOfCtor)
     ::testing::Test::RecordProperty("TEST_ID", "9192864e-3713-402e-9d92-1a5e803a93ee");
     CaproMessage testObj(CaproMessageType::OFFER, ServiceDescription("1", "2", "3"));
 
-    EXPECT_EQ(CaproMessageSubType::NOSUBTYPE, testObj.m_subType);
+    EXPECT_EQ(CaproServiceType::NONE, testObj.m_serviceType);
     EXPECT_EQ(nullptr, testObj.m_chunkQueueData);
 }
 

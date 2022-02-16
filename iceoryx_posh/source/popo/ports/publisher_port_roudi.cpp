@@ -57,7 +57,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
 
         const auto historyCapacity = m_chunkSender.getHistoryCapacity();
         caproMessage.m_historyCapacity = historyCapacity;
-        caproMessage.m_subType = capro::CaproMessageSubType::PUBLISHER;
+        caproMessage.m_serviceType = capro::CaproServiceType::PUBLISHER;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
@@ -69,7 +69,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
         m_chunkSender.removeAllQueues();
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
-        caproMessage.m_subType = capro::CaproMessageSubType::PUBLISHER;
+        caproMessage.m_serviceType = capro::CaproServiceType::PUBLISHER;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
@@ -84,7 +84,7 @@ cxx::optional<capro::CaproMessage>
 PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept
 {
     capro::CaproMessage responseMessage(
-        capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
+        capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproServiceType::NONE);
 
     if (getMembers()->m_offered.load(std::memory_order_relaxed))
     {

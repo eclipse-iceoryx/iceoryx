@@ -66,9 +66,9 @@ inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) no
 /// @return the reference to `stream` which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept;
 
-enum class CaproMessageSubType : uint8_t
+enum class CaproServiceType : uint8_t
 {
-    NOSUBTYPE = 0,
+    NONE = 0,
     PUBLISHER,
     SERVER
 };
@@ -88,11 +88,11 @@ class CaproMessage
     /// @return                        Nothing
     CaproMessage(CaproMessageType type,
                  const ServiceDescription& serviceDescription,
-                 CaproMessageSubType subType = CaproMessageSubType::NOSUBTYPE,
+                 CaproServiceType serviceType = CaproServiceType::NONE,
                  void* chunkQueueData = nullptr) noexcept;
 
     CaproMessageType m_type{CaproMessageType::NOTYPE};
-    CaproMessageSubType m_subType{CaproMessageSubType::NOSUBTYPE};
+    CaproServiceType m_serviceType{CaproServiceType::NONE};
     ServiceDescription m_serviceDescription;
     void* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};

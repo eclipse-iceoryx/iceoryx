@@ -66,7 +66,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnOfferWhenPortIsNotOffering)
     sut.portRouDi.tryGetCaProMessage()
         .and_then([&](const auto& caproMessage) {
             EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::OFFER));
-            EXPECT_THAT(caproMessage.m_subType, Eq(CaproMessageSubType::SERVER));
+            EXPECT_THAT(caproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
         })
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
@@ -95,7 +95,7 @@ TEST_F(ServerPort_test, TryGetCaProMessageOnStopOfferWhenPortIsOffering)
     sut.portRouDi.tryGetCaProMessage()
         .and_then([&](const auto& caproMessage) {
             EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::STOP_OFFER));
-            EXPECT_THAT(caproMessage.m_subType, Eq(CaproMessageSubType::SERVER));
+            EXPECT_THAT(caproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
         })
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
@@ -135,7 +135,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithAllRelevantCaProMessageTypesButOfferR
             .and_then([&](const auto& responseCaproMessage) {
                 EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
                 EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::NACK));
-                EXPECT_THAT(responseCaproMessage.m_subType, Eq(CaproMessageSubType::NOSUBTYPE));
+                EXPECT_THAT(responseCaproMessage.m_serviceType, Eq(CaproServiceType::NONE));
             })
             .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
     }
@@ -150,14 +150,14 @@ TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeOfferReactsWithOffer)
 
     // this is what tryGetCaProMessage does before it calls dispatchCaProMessageAndGetPossibleResponse
     auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
-    caproMessage.m_subType = CaproMessageSubType::SERVER;
+    caproMessage.m_serviceType = CaproServiceType::SERVER;
 
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
         .and_then([&](const auto& responseCaproMessage) {
             EXPECT_THAT(sut.portUser.isOffered(), Eq(true));
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
             EXPECT_THAT(responseCaproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
-            EXPECT_THAT(responseCaproMessage.m_subType, Eq(CaproMessageSubType::SERVER));
+            EXPECT_THAT(responseCaproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
         })
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 }
