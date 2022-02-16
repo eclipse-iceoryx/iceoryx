@@ -26,17 +26,17 @@ ServiceRegistry::ServiceDescriptionEntry::ServiceDescriptionEntry(const capro::S
 {
 }
 
-cxx::expected<ServiceRegistry::Error>
-ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescription) noexcept
+cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription,
+                                                           ReferenceCounter_t ServiceDescriptionEntry::*count)
 {
     auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
     {
-        // multiple publishers with the same service descripion are possible
+        // multiple entries with the same service descripion are possible
         // and we just increase the count in this case (multi-set semantics)
         // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
-        entry->publisherCount++;
+        ((*entry).*count)++;
         return cxx::success<>();
     }
 
@@ -48,7 +48,7 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
     {
         auto& entry = m_serviceDescriptions[m_freeIndex];
         entry.emplace(serviceDescription);
-        entry->publisherCount = 1U;
+        (*entry).*count = 1U;
         m_freeIndex = NO_INDEX;
         return cxx::success<>();
     }
@@ -59,7 +59,7 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
         if (!entry)
         {
             entry.emplace(serviceDescription);
-            entry->publisherCount = 1U;
+            (*entry).*count = 1U;
             return cxx::success<>();
         }
     }
@@ -69,7 +69,7 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
     {
         auto& entry = m_serviceDescriptions.back();
         entry.emplace(serviceDescription);
-        entry->publisherCount = 1U;
+        (*entry).*count = 1U;
         return cxx::success<>();
     }
 
@@ -77,53 +77,15 @@ ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescriptio
 }
 
 cxx::expected<ServiceRegistry::Error>
+ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescription) noexcept
+{
+    return add(serviceDescription, &ServiceDescriptionEntry::publisherCount);
+}
+
+cxx::expected<ServiceRegistry::Error>
 ServiceRegistry::addServer(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    auto index = findIndex(serviceDescription);
-    if (index != NO_INDEX)
-    {
-        // multiple publishers with the same service descripion are possible
-        // and we just increase the count in this case (multi-set semantics)
-        // entry exists, increment counter
-        auto& entry = m_serviceDescriptions[index];
-        entry->serverCount++;
-        return cxx::success<>();
-    }
-
-    // entry does not exist, find a free slot if it exists
-
-    // fast path to a free slot (which was occupied by previously removed entry),
-    // prefer to fill entries close to the front
-    if (m_freeIndex != NO_INDEX)
-    {
-        auto& entry = m_serviceDescriptions[m_freeIndex];
-        entry.emplace(serviceDescription);
-        entry->serverCount = 1U;
-        m_freeIndex = NO_INDEX;
-        return cxx::success<>();
-    }
-
-    // search from start
-    for (auto& entry : m_serviceDescriptions)
-    {
-        if (!entry)
-        {
-            entry.emplace(serviceDescription);
-            entry->serverCount = 1U;
-            return cxx::success<>();
-        }
-    }
-
-    // append new entry at the end (the size only grows up to capacity)
-    if (m_serviceDescriptions.emplace_back())
-    {
-        auto& entry = m_serviceDescriptions.back();
-        entry.emplace(serviceDescription);
-        entry->serverCount = 1U;
-        return cxx::success<>();
-    }
-
-    return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
+    return add(serviceDescription, &ServiceDescriptionEntry::serverCount);
 }
 
 void ServiceRegistry::removePublisher(const capro::ServiceDescription& serviceDescription) noexcept

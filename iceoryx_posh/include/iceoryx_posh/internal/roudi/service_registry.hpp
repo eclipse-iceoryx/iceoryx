@@ -127,6 +127,9 @@ class ServiceRegistry
     void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
 
     void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+
+    cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription,
+                             ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
 } // namespace roudi
 } // namespace iox
