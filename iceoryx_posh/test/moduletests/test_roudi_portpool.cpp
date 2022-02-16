@@ -48,6 +48,8 @@ class PortPool_test : public Test
     iox::mepoo::MemoryInfo m_memoryInfo{DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE};
 };
 
+// BEGIN Node tests
+
 TEST_F(PortPool_test, AddNodeDataIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a917fe3d-08a4-4c8f-83a5-4b99b915c0dd");
@@ -141,6 +143,10 @@ TEST_F(PortPool_test, RemoveNodeDataIsSuccessful)
 
     EXPECT_EQ(nodeDataList.size(), 0U);
 }
+
+// END Node tests
+
+// BEGIN PublisherPort tests
 
 TEST_F(PortPool_test, AddPublisherPortIsSuccessful)
 {
@@ -269,6 +275,10 @@ TEST_F(PortPool_test, RemovePublisherPortIsSuccessful)
     EXPECT_EQ(publisherPortDataList.size(), 0U);
 }
 
+// END PublisherPort tests
+
+// BEGIN SubscriberPort tests
+
 TEST_F(PortPool_test, AddSubscriberPortIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b4703d69-bec1-49cf-8f7b-00e805577d8f");
@@ -391,6 +401,10 @@ TEST_F(PortPool_test, RemoveSubscriberPortIsSuccessful)
     EXPECT_EQ(subscriberPortDataList.size(), 0U);
 }
 
+// END SubscriberPort tests
+
+// BEGIN InterfacePort tests
+
 TEST_F(PortPool_test, AddInterfacePortIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "28116302-dc19-4927-aab4-6d03c9befd88");
@@ -476,6 +490,10 @@ TEST_F(PortPool_test, RemoveInterfacePortIsSuccessful)
     ASSERT_EQ(interfacePortDataList.size(), 0U);
 }
 
+// END InterfacePort tests
+
+// BEGIN ConditionVariable tests
+
 TEST_F(PortPool_test, AddConditionVariableDataIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08021def-be31-42f2-855f-38cac6120c3f");
@@ -558,5 +576,7 @@ TEST_F(PortPool_test, RemoveConditionVariableDataIsSuccessful)
 
     ASSERT_EQ(condtionalVariableData.size(), 0U);
 }
+
+// END ConditionVariable tests
 
 } // namespace
