@@ -38,7 +38,7 @@ int main()
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    DiscoveryMonitor discovery;
+    Discovery discovery;
 
     auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
         auto result = discovery.findService(

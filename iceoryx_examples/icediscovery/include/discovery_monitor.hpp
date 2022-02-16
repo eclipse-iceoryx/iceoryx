@@ -1,3 +1,19 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include "iceoryx_posh/popo/listener.hpp"
@@ -10,52 +26,34 @@
 namespace discovery
 {
 using ServiceDiscovery = iox::runtime::ServiceDiscovery;
+using ServiceContainer = iox::runtime::ServiceContainer;
 
-ServiceDiscovery& serviceDiscovery()
-{
-    static ServiceDiscovery instance;
-    return instance;
-}
+ServiceDiscovery& serviceDiscovery();
 
-class DiscoveryMonitor
+/// @brief User defined discovery with monitoring functionality that allows
+/// to execute a callback in a background thread whenever the discovery changes.
+class Discovery
 {
   public:
-    DiscoveryMonitor()
-        : m_discovery(&serviceDiscovery())
-    {
-    }
+    Discovery();
 
+    /// @brief register a callback to be executed on any service discovery change
+    /// @param callback callback with signature void(ServiceDiscovery& discovery)
+    /// @note callback is executed in a background thread
+    /// @todo signature of callback is due to the listener signatue requirement
+    ///       but we could hide this from the user (by e.g. accessing ServiceRegistry via singleton
+    ///       and passing it)
     template <typename Callback>
-    bool registerCallback(Callback callback)
-    {
-        if (m_callback)
-        {
-            return false;
-        }
+    bool registerCallback(Callback callback);
 
-        m_callback = callback;
+    /// @brief deregister the active callback (if any)
+    void deregisterCallback();
 
-        auto errorHandler = [](auto) {
-            std::cerr << "failed to attach to listener" << std::endl;
-            std::exit(EXIT_FAILURE);
-        };
-
-        auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
-        m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
-            .or_else(errorHandler);
-
-        return true;
-    }
-
-    // no more information needed since there is at most one callback
-    void deregisterCallback()
-    {
-        if (m_callback)
-        {
-            m_listener.detachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
-        }
-        m_callback = nullptr;
-    }
+    /// @brief get all services matching a findService query
+    /// @note invokes findService of the native iceoryx ServiceDiscovery API
+    ServiceContainer findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
+                                 const iox::cxx::optional<iox::capro::IdString_t>& instance,
+                                 const iox::cxx::optional<iox::capro::IdString_t>& event);
 
   private:
     using callback_t = iox::cxx::function<void(ServiceDiscovery&)>;
@@ -66,12 +64,33 @@ class DiscoveryMonitor
     // only once (per event but there is only one)
     iox::popo::Listener m_listener;
 
+    /// @note currently only one callback can be active (and there is no need to have more
+    /// as we only have one event at the ServiceDiscovery to attach to - SERVICE_REGISTRY_CHANGED)
     callback_t m_callback;
 
-    static void invokeCallback(ServiceDiscovery* discovery, DiscoveryMonitor* self)
-    {
-        self->m_callback(*discovery);
-    }
+    static void invokeCallback(ServiceDiscovery* discovery, Discovery* self);
 };
+
+template <typename Callback>
+bool Discovery::registerCallback(Callback callback)
+{
+    if (m_callback)
+    {
+        return false;
+    }
+
+    m_callback = callback;
+
+    auto errorHandler = [](auto) {
+        std::cerr << "failed to attach to listener" << std::endl;
+        std::exit(EXIT_FAILURE);
+    };
+
+    auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
+    m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
+        .or_else(errorHandler);
+
+    return true;
+}
 
 } // namespace discovery

@@ -34,10 +34,10 @@ class Discovery
     Discovery();
 
     /// @brief wait until service availability changes AND some condition evaluates to true
-    /// @note condition must be bool(void) (we can enforce this later ...)
+    /// @param condition condition with signature bool(void)
     /// @note blocks the current thread, can be unblocked by unblockWait (as a final action)
     template <typename Condition>
-    bool waitUntil(const Condition& discoveryCondition);
+    bool waitUntil(const Condition& condition);
 
     /// @brief wait for any change of the registry since the last update
     void waitUntilChange();
@@ -61,14 +61,14 @@ class Discovery
 };
 
 template <typename Condition>
-bool Discovery::waitUntil(const Condition& discoveryCondition)
+bool Discovery::waitUntil(const Condition& condition)
 {
     update();
     do
     {
         // 1) we have current discovery data (almost, as it can have changed again already)
         // condition holds?
-        bool result = discoveryCondition();
+        bool result = condition();
         if (result)
         {
             // 2) condition held and we return (without mutex to protect condition changes

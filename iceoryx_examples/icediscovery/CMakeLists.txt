@@ -46,7 +46,7 @@ target_link_libraries(iox-wait-for-service
     iceoryx_posh::iceoryx_posh
 )
 
-add_executable(iox-discovery-monitor ./iox_discovery_monitor.cpp)
+add_executable(iox-discovery-monitor ./iox_discovery_monitor.cpp ./src/discovery_monitor.cpp)
 target_link_libraries(iox-discovery-monitor
     iceoryx_posh::iceoryx_posh
 )
