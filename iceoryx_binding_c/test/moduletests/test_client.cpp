@@ -66,7 +66,7 @@ class iox_client_test : public Test
         sutPort->m_connectRequested.store(true);
         sutPort->m_connectionState = iox::ConnectionState::CONNECTED;
 
-        sutPort->m_chunkSenderData.m_queues.emplace_back(&sutServerQueue);
+        sutPort->m_chunkSenderData.m_queues.emplace_back(&serverChunkQueueData);
     }
 
     void prepareClientInit(const ClientOptions& options = ClientOptions())
@@ -99,7 +99,10 @@ class iox_client_test : public Test
 
     iox::cxx::optional<ClientPortData> sutPort;
     iox_client_storage_t sutStorage;
-    iox::cxx::VariantQueue<int64_t, 2> sutServerQueue{iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+
+    ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+    ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
     static constexpr const char SERVICE[] = "allGlory";
     static constexpr const char INSTANCE[] = "ToThe";
@@ -223,16 +226,17 @@ TEST_F(iox_client_test, LoanAndSendWorks)
     connect();
 
     void* payload = nullptr;
-    printf("0.\n");
     EXPECT_THAT(iox_client_loan(sut, &payload, sizeof(int64_t), 32), Eq(AllocationResult_SUCCESS));
     *static_cast<int64_t*>(payload) = 8912389;
 
-    printf("1.\n");
     iox_client_send(sut, payload);
-    printf("2.\n");
-    auto msg = sutServerQueue.pop();
-    ASSERT_TRUE(msg.has_value());
-    EXPECT_THAT(*msg, Eq(8912389));
+
+    serverRequestQueue.tryPop()
+        .and_then([&](auto& sharedChunk) {
+            auto msg = static_cast<int64_t*>(sharedChunk.getUserPayload());
+            EXPECT_THAT(*msg, Eq(8912389));
+        })
+        .or_else([&] { GTEST_FAIL() << "Expected chunk but got none"; });
 }
 
 
