@@ -24,7 +24,7 @@ set -e
 MODE=${1:-full} # Can be either `full` for all files or `hook` for formatting with git hooks
 
 FILE_FILTER="\.(h|hpp|inl|c|cpp)$"
-FILE_BLACKLIST='(test|testing|tools|iceoryx_dds|iceoryx_dds|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples)'
+FILE_BLACKLIST='(test|testing|tools|iceoryx_dds|iceoryx_binding_c|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples)'
 
 fail() {
     printf "\033[1;31merror: %s: %s\033[0m\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
@@ -81,8 +81,12 @@ elif [[ "$MODE" == "full"* ]]; then
     run-$CLANG_TIDY_CMD -p build $FILES
     exit $?
 elif [[ "$MODE" == "ci_pull_request"* ]]; then
-    FILES=$2
+    FILES=$(echo $2 | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
     echo " "
     echo $FILES
-    $CLANG_TIDY_CMD -p build $FILES
+    if [ -z "$FILES" ]; then
+          echo "No modified files to check, skipping clang-tidy"
+    else
+        $CLANG_TIDY_CMD -p build $FILES
+    fi
 fi
