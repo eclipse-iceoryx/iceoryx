@@ -144,6 +144,15 @@ class PortManager
     PortIntrospectionType m_portIntrospection;
 
     cxx::optional<PublisherPortRouDiType::MemberType_t*> m_serviceRegistryPublisherPortData;
+
+    // some ports for the service registry requires special handling
+    // as we cannot send registry information if it was not created yet
+    cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+    acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescription& service,
+                                             const popo::PublisherOptions& publisherOptions,
+                                             const RuntimeName_t& runtimeName,
+                                             mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                                             const PortConfigInfo& portConfigInfo) noexcept;
 };
 } // namespace roudi
 } // namespace iox

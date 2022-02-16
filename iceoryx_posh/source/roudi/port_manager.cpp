@@ -68,7 +68,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     registryPortOptions.offerOnCreate = true;
 
     m_serviceRegistryPublisherPortData =
-        acquirePublisherPortData(
+        acquirePublisherPortDataWithoutDiscovery(
             {SERVICE_REGISTRY_SERVICE_NAME, SERVICE_REGISTRY_INSTANCE_NAME, SERVICE_REGISTRY_EVENT_NAME},
             registryPortOptions,
             IPC_CHANNEL_ROUDI_NAME,
@@ -79,6 +79,9 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                 errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY, nullptr, ErrorLevel::FATAL);
             })
             .value();
+    // now the port to send registry information exists and can be used to publish service registry changes
+    PublisherPortRouDiType serviceRegistryPort(m_serviceRegistryPublisherPortData.value());
+    doDiscoveryForPublisherPort(serviceRegistryPort);
 
     popo::PublisherOptions options;
     options.historyCapacity = 1U;
@@ -613,6 +616,41 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
             // we do discovery here for trying to connect the waiting subscribers if offer on create is desired
             PublisherPortRouDiType publisherPort(publisherPortData);
             doDiscoveryForPublisherPort(publisherPort);
+        }
+    }
+
+    return maybePublisherPortData;
+}
+
+cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescription& service,
+                                                      const popo::PublisherOptions& publisherOptions,
+                                                      const RuntimeName_t& runtimeName,
+                                                      mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                                                      const PortConfigInfo& portConfigInfo) noexcept
+{
+    if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
+            [&](const auto& usedByProcess) {
+                LogWarn()
+                    << "Process '" << runtimeName
+                    << "' violates the communication policy by requesting a PublisherPort which is already used by '"
+                    << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
+            }))
+    {
+        errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
+    }
+
+    // we can create a new port
+    auto maybePublisherPortData = m_portPool->addPublisherPort(
+        service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
+
+    if (!maybePublisherPortData.has_error())
+    {
+        auto publisherPortData = maybePublisherPortData.value();
+        if (publisherPortData)
+        {
+            m_portIntrospection.addPublisher(*publisherPortData);
         }
     }
 
