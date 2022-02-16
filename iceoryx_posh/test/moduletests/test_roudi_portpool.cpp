@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
+#include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "test.hpp"
@@ -30,8 +31,33 @@ using namespace iox;
 
 static constexpr uint32_t DEFAULT_DEVICE_ID{20U};
 static constexpr uint32_t DEFAULT_MEMORY_TYPE{100U};
+static constexpr uint32_t QUEUE_CAPACITY{10U};
 class PortPool_test : public Test
 {
+  public:
+    bool addClientPorts(uint32_t numberOfClientPortsToAdd,
+                        std::function<void(const capro::ServiceDescription& sd,
+                                           const RuntimeName_t& runtimeName,
+                                           const popo::ClientPortData& clientPort)> onAdd)
+    {
+        for (uint32_t i = 0; i < numberOfClientPortsToAdd; ++i)
+        {
+            std::string service = "service" + cxx::convert::toString(i);
+            IdString_t serviceId{cxx::TruncateToCapacity, service};
+            ServiceDescription sd{serviceId, "instance", "event"};
+            RuntimeName_t runtimeName{cxx::TruncateToCapacity, "AppName" + cxx::convert::toString(i)};
+
+            auto clientPortResult = sut.addClientPort(sd, &m_memoryManager, runtimeName, m_clientOptions, m_memoryInfo);
+            if (clientPortResult.has_error())
+            {
+                return false;
+            }
+            onAdd(sd, runtimeName, *clientPortResult.value());
+        }
+
+        return true;
+    }
+
   public:
     roudi::PortPoolData m_portPoolData;
     roudi::PortPool sut{m_portPoolData};
@@ -45,6 +71,7 @@ class PortPool_test : public Test
     popo::PublisherOptions m_publisherOptions{10U, m_nodeName};
     popo::SubscriberOptions m_subscriberOptions{
         iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 10U, m_nodeName};
+    popo::ClientOptions m_clientOptions{QUEUE_CAPACITY, m_nodeName};
     iox::mepoo::MemoryInfo m_memoryInfo{DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE};
 };
 
@@ -402,6 +429,114 @@ TEST_F(PortPool_test, RemoveSubscriberPortIsSuccessful)
 }
 
 // END SubscriberPort tests
+
+// BEGIN ClientPort tests
+
+TEST_F(PortPool_test, AddClientPortIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "47d9cd34-22a6-480a-8595-d4abf46df428");
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{1U};
+    auto addSuccessful =
+        addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& clientPort) {
+            EXPECT_EQ(clientPort.m_serviceDescription, sd);
+            EXPECT_EQ(clientPort.m_runtimeName, runtimeName);
+            EXPECT_EQ(clientPort.m_nodeName, m_clientOptions.nodeName);
+            EXPECT_EQ(clientPort.m_connectRequested, m_clientOptions.connectOnCreate);
+            EXPECT_EQ(clientPort.m_connectionState, ConnectionState::NOT_CONNECTED);
+            EXPECT_EQ(clientPort.m_chunkReceiverData.m_queue.capacity(), QUEUE_CAPACITY);
+            EXPECT_EQ(clientPort.m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
+            EXPECT_EQ(clientPort.m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
+            EXPECT_EQ(clientPort.m_chunkSenderData.m_historyCapacity, popo::ClientPortData::HISTORY_CAPACITY_ZERO);
+            EXPECT_EQ(clientPort.m_chunkSenderData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
+            EXPECT_EQ(clientPort.m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
+        });
+
+    EXPECT_TRUE(addSuccessful);
+}
+
+TEST_F(PortPool_test, AddClientPortToMaxCapacityIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f8ee6f26-fdac-4bfd-9e28-46362e4359e9");
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{MAX_CLIENTS};
+    auto addSuccessful =
+        addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto& sd, const auto&, const auto& clientPort) {
+            EXPECT_EQ(clientPort.m_serviceDescription, sd);
+        });
+
+    EXPECT_TRUE(addSuccessful);
+}
+
+
+TEST_F(PortPool_test, AddClientPortWhenClientListOverflowsReturnsError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "98c47d42-5f75-42a3-84b5-b97e72a17992");
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{MAX_CLIENTS};
+    auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
+
+    EXPECT_TRUE(addSuccessful);
+
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = ErrorHandler::setTemporaryErrorHandler(
+        [&](const Error error, const std::function<void()>, const ErrorLevel level) {
+            errorHandlerCalled = true;
+            EXPECT_THAT(error, Eq(Error::kPORT_POOL__CLIENTLIST_OVERFLOW));
+            EXPECT_THAT(level, Eq(ErrorLevel::MODERATE));
+        });
+
+    constexpr uint32_t ONE_MORE_CLIENT{1U};
+    auto additionalAddSuccessful = addClientPorts(ONE_MORE_CLIENT, [&](const auto&, const auto&, const auto&) {});
+
+    EXPECT_FALSE(additionalAddSuccessful);
+    EXPECT_TRUE(errorHandlerCalled);
+}
+
+TEST_F(PortPool_test, GetClientPortDataListIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "39119f21-ca97-4320-a805-029927a79372");
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{1U};
+    auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
+    EXPECT_TRUE(addSuccessful);
+
+    auto clientPortDataList = sut.getClientPortDataList();
+
+    ASSERT_EQ(clientPortDataList.size(), NUMBER_OF_CLIENTS_TO_ADD);
+}
+
+TEST_F(PortPool_test, GetClientPortDataListWhenEmptyIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6c08ae7d-1eed-46d6-b363-b2dc294d0e0e");
+    auto clientPortDataList = sut.getClientPortDataList();
+
+    ASSERT_EQ(clientPortDataList.size(), 0U);
+}
+
+TEST_F(PortPool_test, GetClientPortDataListCompletelyFilledIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cdac1dca-f438-4816-90f9-ca976b6ccd88");
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{MAX_CLIENTS};
+    auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
+    EXPECT_TRUE(addSuccessful);
+
+    auto clientPortDataList = sut.getClientPortDataList();
+
+    ASSERT_EQ(clientPortDataList.size(), MAX_CLIENTS);
+}
+
+TEST_F(PortPool_test, RemoveClientPortIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d93ecaef-555a-4db4-a49d-390366457f97");
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{1U};
+    auto addSuccessful =
+        addClientPorts(NUMBER_OF_CLIENTS_TO_ADD,
+                       [&](const auto&, const auto&, const auto& clientPort) { sut.removeClientPort(&clientPort); });
+    EXPECT_TRUE(addSuccessful);
+
+    auto clientPortDataList = sut.getClientPortDataList();
+
+    EXPECT_EQ(clientPortDataList.size(), 0U);
+}
+
+// END ClientPort tests
 
 // BEGIN InterfacePort tests
 
