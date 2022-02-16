@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_STRING_INL
 #define IOX_HOOFS_CXX_STRING_INL
 
+#include "iceoryx_hoofs/cxx/string.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -98,7 +100,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 
 template <uint64_t Capacity>
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(TruncateToCapacity, other, strnlen(other, Capacity))
+    : string(TruncateToCapacity, other, [&]() -> uint64_t { return other ? strnlen(other, Capacity) : 0U; }())
 {
 }
 

@@ -22,6 +22,7 @@
 #include "optional.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 
