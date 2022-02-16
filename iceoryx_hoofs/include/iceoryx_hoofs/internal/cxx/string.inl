@@ -98,7 +98,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 
 template <uint64_t Capacity>
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(TruncateToCapacity, other, strnlen(other, Capacity))
+    : string(TruncateToCapacity, other, [&]() -> uint64_t { return other ? strnlen(other, Capacity) : 0U; }())
 {
 }
 
