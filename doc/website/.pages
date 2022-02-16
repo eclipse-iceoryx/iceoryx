@@ -1,6 +1,7 @@
 nav:
   - index.md
   - getting-started
-  - API-reference
+  - tutorials
   - FAQ.md
   - advanced
+  - API-reference
