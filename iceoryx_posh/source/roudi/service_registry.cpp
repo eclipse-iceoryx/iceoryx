@@ -95,20 +95,13 @@ void ServiceRegistry::removePublisher(const capro::ServiceDescription& serviceDe
     {
         auto& entry = m_serviceDescriptions[index];
 
-        if (entry)
+        if (entry && entry->publisherCount >= 1U)
         {
-            if (entry->publisherCount >= 1U)
+            if (--entry->publisherCount == 0U && entry->serverCount == 0)
             {
-                if (--entry->publisherCount >= 1U)
-                {
-                    return;
-                }
-                if (entry->serverCount == 0)
-                {
-                    entry.reset();
-                    // reuse the slot in the next insertion
-                    m_freeIndex = index;
-                }
+                entry.reset();
+                // reuse the slot in the next insertion
+                m_freeIndex = index;
             }
         }
     }
@@ -121,20 +114,13 @@ void ServiceRegistry::removeServer(const capro::ServiceDescription& serviceDescr
     {
         auto& entry = m_serviceDescriptions[index];
 
-        if (entry)
+        if (entry && entry->serverCount >= 1U)
         {
-            if (entry->serverCount >= 1U)
+            if (--entry->serverCount == 0U && entry->publisherCount == 0)
             {
-                if (--entry->serverCount >= 1U)
-                {
-                    return;
-                }
-                if (entry->publisherCount == 0)
-                {
-                    entry.reset();
-                    // reuse the slot in the next insertion
-                    m_freeIndex = index;
-                }
+                entry.reset();
+                // reuse the slot in the next insertion
+                m_freeIndex = index;
             }
         }
     }

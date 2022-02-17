@@ -724,11 +724,13 @@ TYPED_TEST(ServiceRegistry_test, FindWithMixOfPublishersAndServersWorks)
     iox::capro::ServiceDescription service2("a", "b", "b");
     iox::capro::ServiceDescription service3("a", "a", "c");
     iox::capro::ServiceDescription service4("a", "a", "d");
+    iox::capro::ServiceDescription service5("b", "b", "d");
 
     ASSERT_FALSE(this->sut.add(service1).has_error());
     ASSERT_FALSE(this->sut.otherAdd(service2).has_error());
     ASSERT_FALSE(this->sut.add(service3).has_error());
     ASSERT_FALSE(this->sut.otherAdd(service4).has_error());
+    ASSERT_FALSE(this->sut.add(service5).has_error());
 
     auto searchFunction = [&](const Entry& entry) { this->searchResult.emplace_back(entry); };
     this->sut->find(iox::capro::Wildcard, iox::capro::IdString_t("a"), iox::capro::Wildcard, searchFunction);
