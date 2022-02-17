@@ -778,9 +778,11 @@ TEST_F(iox_ws_test, NotifyingClientEventWorks)
 
     notifyClient(portData);
 
-    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
                 Eq(1));
     EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(13137));
+    EXPECT_THAT(iox_notification_info_get_client_origin(m_eventInfoStorage[0]), Eq(client));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_client(m_eventInfoStorage[0], client));
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
@@ -800,8 +802,10 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
 
     notifyClient(portData);
 
-    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
                 Eq(1));
+    EXPECT_THAT(iox_notification_info_get_client_origin(m_eventInfoStorage[0]), Eq(client));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_client(m_eventInfoStorage[0], client));
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
@@ -837,9 +841,12 @@ TEST_F(iox_ws_test, NotifyingClientStateWorks)
 
     notifyClient(portData);
 
-    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
                 Eq(1));
     EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(1589123));
+    EXPECT_THAT(iox_notification_info_get_client_origin(m_eventInfoStorage[0]), Eq(client));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_client(m_eventInfoStorage[0], client));
+
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
@@ -859,8 +866,10 @@ TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
 
     notifyClient(portData);
 
-    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
                 Eq(1));
+    EXPECT_THAT(iox_notification_info_get_client_origin(m_eventInfoStorage[0]), Eq(client));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_client(m_eventInfoStorage[0], client));
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));

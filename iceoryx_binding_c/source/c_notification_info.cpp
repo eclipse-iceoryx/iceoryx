@@ -16,6 +16,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 
 using namespace iox;
@@ -44,6 +45,11 @@ bool iox_notification_info_does_originate_from_user_trigger(iox_notification_inf
     return self->doesOriginateFrom(user_trigger);
 }
 
+bool iox_notification_info_does_originate_from_client(iox_notification_info_t const self, iox_client_t const client)
+{
+    return self->doesOriginateFrom(client);
+}
+
 iox_sub_t iox_notification_info_get_subscriber_origin(iox_notification_info_t const self)
 {
     return self->getOrigin<cpp2c_Subscriber>();
@@ -52,6 +58,11 @@ iox_sub_t iox_notification_info_get_subscriber_origin(iox_notification_info_t co
 iox_user_trigger_t iox_notification_info_get_user_trigger_origin(iox_notification_info_t const self)
 {
     return self->getOrigin<UserTrigger>();
+}
+
+iox_client_t iox_notification_info_get_client_origin(iox_notification_info_t const self)
+{
+    return self->getOrigin<UntypedClient>();
 }
 
 void iox_notification_info_call(iox_notification_info_t const self)
