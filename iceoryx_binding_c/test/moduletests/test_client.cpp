@@ -190,8 +190,20 @@ TEST_F(iox_client_test, LoanWithValidArgumentsWorks)
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
     void* payload = nullptr;
-    EXPECT_THAT(iox_client_loan(sut, &payload, 32, 32), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 32), Eq(AllocationResult_SUCCESS));
     EXPECT_TRUE(isPayloadInDataSegment(payload));
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+}
+
+TEST_F(iox_client_test, LoanAlignedChunkWithValidArgumentsWorks)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    constexpr uint64_t ALIGNMENT = 128;
+    void* payload = nullptr;
+    EXPECT_THAT(iox_client_loan_aligned_request(sut, &payload, 32, ALIGNMENT), Eq(AllocationResult_SUCCESS));
+    EXPECT_TRUE(isPayloadInDataSegment(payload));
+    EXPECT_THAT(reinterpret_cast<uint64_t>(payload) % ALIGNMENT, Eq(0U));
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
@@ -201,11 +213,11 @@ TEST_F(iox_client_test, LoanFailsWhenNoMoreChunksAreAvailable)
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
     void* payload = nullptr;
-    iox_client_loan(sut, &payload, 32, 32);
-    iox_client_loan(sut, &payload, 32, 32);
+    iox_client_loan_request(sut, &payload, 32);
+    iox_client_loan_request(sut, &payload, 32);
 
     payload = nullptr;
-    EXPECT_THAT(iox_client_loan(sut, &payload, 32, 32), Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 322), Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
     EXPECT_THAT(payload, Eq(nullptr));
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
 }
@@ -216,7 +228,7 @@ TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
     void* payload = nullptr;
-    iox_client_loan(sut, &payload, 32, 32);
+    iox_client_loan_request(sut, &payload, 32);
 
     iox_client_release_request(sut, payload);
 
@@ -230,7 +242,7 @@ TEST_F(iox_client_test, LoanAndSendWorks)
     connect();
 
     void* payload = nullptr;
-    EXPECT_THAT(iox_client_loan(sut, &payload, sizeof(int64_t), 32), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
     *static_cast<int64_t*>(payload) = 8912389;
 
     iox_client_send(sut, payload);
@@ -240,7 +252,7 @@ TEST_F(iox_client_test, LoanAndSendWorks)
             auto msg = static_cast<int64_t*>(sharedChunk.getUserPayload());
             EXPECT_THAT(*msg, Eq(8912389));
         })
-        .or_else([&] { GTEST_FAIL() << "Expected chunk but got none"; });
+        .or_else([&] { GTEST_FAIL() << "Expected request but got none"; });
 }
 
 TEST_F(iox_client_test, ConnectWorks)
@@ -324,7 +336,7 @@ TEST_F(iox_client_test, TakeReturnsNoChunkAvailableWhenNothingWasReceived)
     connect();
     const void* payload = nullptr;
 
-    EXPECT_THAT(iox_client_take(sut, &payload), Eq(ChunkReceiveResult_NO_CHUNK_AVAILABLE));
+    EXPECT_THAT(iox_client_take_response(sut, &payload), Eq(ChunkReceiveResult_NO_CHUNK_AVAILABLE));
 }
 
 TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
@@ -335,7 +347,7 @@ TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
     receiveChunk(800131);
     const void* payload = nullptr;
 
-    EXPECT_THAT(iox_client_take(sut, &payload), Eq(ChunkReceiveResult_SUCCESS));
+    EXPECT_THAT(iox_client_take_response(sut, &payload), Eq(ChunkReceiveResult_SUCCESS));
     ASSERT_THAT(payload, Ne(nullptr));
     EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(800131));
 }
@@ -348,7 +360,7 @@ TEST_F(iox_client_test, ReleasingResponseReleasesChunk)
     receiveChunk();
     const void* payload = nullptr;
 
-    iox_client_take(sut, &payload);
+    iox_client_take_response(sut, &payload);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     iox_client_release_response(sut, payload);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));

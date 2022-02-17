@@ -91,10 +91,17 @@ void iox_client_deinit(iox_client_t const self)
     self->~UntypedClient();
 }
 
-iox_AllocationResult iox_client_loan(iox_client_t const self,
-                                     void** const userPayload,
-                                     const uint32_t userPayloadSize,
-                                     const uint32_t userPayloadAlignment)
+iox_AllocationResult
+iox_client_loan_request(iox_client_t const self, void** const userPayload, const uint32_t userPayloadSize)
+{
+    return iox_client_loan_aligned_request(
+        self, userPayload, userPayloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+}
+
+iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
+                                                     void** const userPayload,
+                                                     const uint32_t userPayloadSize,
+                                                     const uint32_t userPayloadAlignment)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);
@@ -143,7 +150,7 @@ iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
     return cpp2c::connectionState(self->getConnectionState());
 }
 
-iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload)
+iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const userPayload)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);

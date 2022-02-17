@@ -106,7 +106,7 @@ ENUM iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self);
 ///         an enum which describes the error
 ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayload);
 
-/// @brief release a previously acquired chunk (via iox_sub_getChunk)
+/// @brief release a previously acquired chunk (via iox_sub_take_chunk)
 /// @param[in] self handle to the subscriber
 /// @param[in] userPayload pointer to the user-payload of chunk which should be released
 void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayload);
