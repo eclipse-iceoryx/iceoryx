@@ -101,6 +101,13 @@ class PortPool
                                                        const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
+    /// @brief Adds a ClientPortData to the internal pool and returns a pointer for further usage
+    /// @param[in] serviceDescription for the new client port
+    /// @param[in] memoryManager to acquire chunks for the requests
+    /// @param[in] runtimeName of the runtime the new client port belongs to
+    /// @param[in] clientOptions for the new client port
+    /// @param[in] memoryInfo for the new client port
+    /// @return on success a pointer to a ClientPortData; on error a PortPoolError
     cxx::expected<popo::ClientPortData*, PortPoolError>
     addClientPort(const capro::ServiceDescription& serviceDescription,
                   mepoo::MemoryManager* const memoryManager,
@@ -108,6 +115,13 @@ class PortPool
                   const popo::ClientOptions& clientOptions,
                   const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
+    /// @brief Adds a ServerPortData to the internal pool and returns a pointer for further usage
+    /// @param[in] serviceDescription for the new server port
+    /// @param[in] memoryManager to acquire chunks for the responses
+    /// @param[in] runtimeName of the runtime the new server port belongs to
+    /// @param[in] serverOptions for the new server port
+    /// @param[in] memoryInfo for the new server port
+    /// @return on success a pointer to a ServerPortData; on error a PortPoolError
     cxx::expected<popo::ServerPortData*, PortPoolError>
     addServerPort(const capro::ServiceDescription& serviceDescription,
                   mepoo::MemoryManager* const memoryManager,
@@ -125,12 +139,39 @@ class PortPool
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
+    /// @brief Removes a PublisherPortData from the internal pool
+    /// @param[in] portData is a  pointer to the PublisherPortData to be removed
+    /// @note after this call the provided PublisherPortData is no longer available for usage
     void removePublisherPort(const PublisherPortRouDiType::MemberType_t* const portData) noexcept;
+
+    /// @brief Removes a SubscriberPortData from the internal pool
+    /// @param[in] portData is a  pointer to the SubscriberPortData to be removed
+    /// @note after this call the provided SubscriberPortData is no longer available for usage
     void removeSubscriberPort(const SubscriberPortType::MemberType_t* const portData) noexcept;
+
+    /// @brief Removes a ClientPortData from the internal pool
+    /// @param[in] portData is a  pointer to the ClientPortData to be removed
+    /// @note after this call the provided ClientPortData is no longer available for usage
     void removeClientPort(const popo::ClientPortData* const portData) noexcept;
+
+    /// @brief Removes a ServerPortData from the internal pool
+    /// @param[in] portData is a  pointer to the ServerPortData to be removed
+    /// @note after this call the provided ServerPortData is no longer available for usage
     void removeServerPort(const popo::ServerPortData* const portData) noexcept;
+
+    /// @brief Removes a InterfacePortData from the internal pool
+    /// @param[in] portData is a  pointer to the InterfacePortData to be removed
+    /// @note after this call the provided InterfacePortData is no longer available for usage
     void removeInterfacePort(const popo::InterfacePortData* const portData) noexcept;
+
+    /// @brief Removes a NodeData from the internal pool
+    /// @param[in] nodeData is a pointer to the NodeData to be removed
+    /// @note after this call the provided NodeData is no longer available for usage
     void removeNodeData(const runtime::NodeData* const nodeData) noexcept;
+
+    /// @brief Removes a ConditionVariableData from the internal pool
+    /// @param[in] conditionVariableData is a pointer to the ConditionVariableData to be removed
+    /// @note after this call the provided ConditionVariableData is no longer available for usage
     void removeConditionVariableData(const popo::ConditionVariableData* const conditionVariableData) noexcept;
 
   private:

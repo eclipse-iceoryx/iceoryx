@@ -80,6 +80,13 @@ class PortManager
                               const RuntimeName_t& runtimeName,
                               const PortConfigInfo& portConfigInfo) noexcept;
 
+    /// @brief Acquires a ClientPortData for further usage
+    /// @param[in] service is the ServiceDescription for the new client port
+    /// @param[in] clientOptions for the new client port
+    /// @param[in] runtimeName of the runtime the new client port belongs to
+    /// @param[in] payloadDataSegmentMemoryManager to acquire chunks for the requests
+    /// @param[in] portConfigInfo for the new client port
+    /// @return on success a pointer to a ClientPortData; on error a PortPoolError
     cxx::expected<popo::ClientPortData*, PortPoolError>
     acquireClientPortData(const capro::ServiceDescription& service,
                           const popo::ClientOptions& clientOptions,
@@ -87,6 +94,13 @@ class PortManager
                           mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                           const PortConfigInfo& portConfigInfo) noexcept;
 
+    /// @brief Acquires a ServerPortData for further usage
+    /// @param[in] service is the ServiceDescription for the new server port
+    /// @param[in] serverOptions for the new server port
+    /// @param[in] runtimeName of the runtime the new server port belongs to
+    /// @param[in] payloadDataSegmentMemoryManager to acquire chunks for the requests
+    /// @param[in] portConfigInfo for the new server port
+    /// @return on success a pointer to a ServerPortData; on error a PortPoolError
     cxx::expected<popo::ServerPortData*, PortPoolError>
     acquireServerPortData(const capro::ServiceDescription& service,
                           const popo::ServerOptions& serverOptions,
