@@ -509,7 +509,8 @@ void PortManager::handleConditionVariables() noexcept
 }
 
 /// @todo consider making the matching function available in some interface
-bool isCompatible(const PublisherPortRouDiType& publisher, const SubscriberPortType& subscriber)
+bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
+                                     const SubscriberPortType& subscriber) const noexcept
 {
     const bool servicesMatch = subscriber.getCaProServiceDescription() == publisher.getCaProServiceDescription();
 
@@ -544,7 +545,7 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
             break;
         }
 
-        if (isCompatible(publisherPort, subscriberSource))
+        if (isCompatiblePubSub(publisherPort, subscriberSource))
         {
             auto publisherResponse = publisherPort.dispatchCaProMessageAndGetPossibleResponse(message);
             if (publisherResponse.has_value())
@@ -582,7 +583,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
             break;
         }
 
-        if (isCompatible(publisherSource, subscriberPort))
+        if (isCompatiblePubSub(publisherSource, subscriberPort))
         {
             auto subscriberResponse = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(message);
 
@@ -614,6 +615,18 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
     }
 }
 
+bool PortManager::isCompatibleClientServer(const popo::ServerPortRouDi& server,
+                                           const popo::ClientPortRouDi& client) const noexcept
+{
+    auto requestMatch = !(client.getServerTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+                          && server.getRequestQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
+
+    auto responseMatch = !(server.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+                           && client.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
+
+    return requestMatch && responseMatch;
+}
+
 void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& message,
                                                popo::ServerPortRouDi& serverSource) noexcept
 {
@@ -621,8 +634,7 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
     {
         popo::ClientPortRouDi clientPort(*clientPortData);
         if (clientPort.getCaProServiceDescription() == serverSource.getCaProServiceDescription()
-            && !(serverSource.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
-                 && clientPort.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER))
+            && isCompatibleClientServer(serverSource, clientPort))
         {
             // send OFFER/STOP_OFFER to client
             auto clientResponse = clientPort.dispatchCaProMessageAndGetPossibleResponse(message);
@@ -660,8 +672,7 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
     {
         popo::ServerPortRouDi serverPort(*serverPortData);
         if (clientSource.getCaProServiceDescription() == serverPort.getCaProServiceDescription()
-            && !(serverPort.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
-                 && clientSource.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER))
+            && isCompatibleClientServer(serverPort, clientSource))
         {
             // send CONNECT/DISCONNECT to server
             auto serverResponse = serverPort.dispatchCaProMessageAndGetPossibleResponse(message);

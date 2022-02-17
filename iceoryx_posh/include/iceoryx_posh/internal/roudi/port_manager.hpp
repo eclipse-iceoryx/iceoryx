@@ -162,12 +162,17 @@ class PortManager
 
     void handleConditionVariables() noexcept;
 
+    bool isCompatiblePubSub(const PublisherPortRouDiType& publisher,
+                            const SubscriberPortType& subscriber) const noexcept;
+
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                          SubscriberPortType& subscriberSource) noexcept;
 
     void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
                                           PublisherPortRouDiType& publisherSource) noexcept;
 
+    bool isCompatibleClientServer(const popo::ServerPortRouDi& server,
+                                  const popo::ClientPortRouDi& client) const noexcept;
 
     void sendToAllMatchingClientPorts(const capro::CaproMessage& message, popo::ServerPortRouDi& serverSource) noexcept;
 
