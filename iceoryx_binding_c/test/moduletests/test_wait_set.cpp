@@ -20,7 +20,9 @@
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
@@ -78,6 +80,7 @@ class iox_ws_test : public Test
         }
     }
 
+    std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("rudi_ruessel");
     const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
     iox::popo::SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_portDataVector;
@@ -93,6 +96,9 @@ class iox_ws_test : public Test
     uint64_t m_missedElements = 0U;
     uint64_t m_numberOfTriggeredConditions = 0U;
     timespec m_timeout{0, 0};
+
+    iox::mepoo::MemoryManager memoryManager;
+    ClientPortData portData{{"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &memoryManager};
 
     static void* m_callbackOrigin;
     static void* m_contextData;
@@ -123,6 +129,16 @@ void userTriggerCallbackWithContextData(iox::popo::UserTrigger* userTrigger, voi
     iox_ws_test::m_contextData = contextData;
 }
 
+void clientCallback(iox::popo::UntypedClient* client)
+{
+    iox_ws_test::m_callbackOrigin = client;
+}
+
+void clientCallbackWithContextData(iox::popo::UntypedClient* client, void* const contextData)
+{
+    iox_ws_test::m_callbackOrigin = client;
+    iox_ws_test::m_contextData = contextData;
+}
 } // namespace
 
 /// @todo iox-#1106 will be enabled when worked on this issue
@@ -726,4 +742,130 @@ TEST_F(iox_ws_test, UserTriggerCallbackWithContextDataIsCalled)
     EXPECT_THAT(m_contextData, Eq(&someContextData));
 }
 
+TEST_F(iox_ws_test, AttachingClientEventWorks)
+{
+    iox_client_storage_t clientStorage;
+    iox::mepoo::MemoryManager memoryManager;
+    ClientPortData portData({"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &memoryManager);
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+    iox_ws_attach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED, 0, nullptr);
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(1));
+
+    iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+}
+
+void notifyClient(ClientPortData& portData)
+{
+    portData.m_connectRequested.store(true);
+    portData.m_connectionState = iox::ConnectionState::CONNECTED;
+    iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    pusher.push(iox::mepoo::SharedChunk());
+    portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post();
+}
+
+TEST_F(iox_ws_test, NotifyingClientEventWorks)
+{
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_ws_attach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED, 13137, &clientCallback);
+
+    notifyClient(portData);
+
+    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+                Eq(1));
+    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(13137));
+    iox_notification_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
+    EXPECT_THAT(m_contextData, Eq(nullptr));
+
+    iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+}
+
+TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
+{
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_ws_attach_client_event_with_context_data(
+        m_sut, client, ClientEvent_RESPONSE_RECEIVED, 0, &clientCallbackWithContextData, &clientStorage);
+
+    notifyClient(portData);
+
+    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+                Eq(1));
+    iox_notification_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&clientStorage)));
+
+    iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+}
+
+TEST_F(iox_ws_test, AttachingClientStateWorks)
+{
+    iox_client_storage_t clientStorage;
+    iox::mepoo::MemoryManager memoryManager;
+    ClientPortData portData({"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &memoryManager);
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+    iox_ws_attach_client_state(m_sut, client, ClientState_HAS_RESPONSE, 0, nullptr);
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(1));
+
+    iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+}
+
+TEST_F(iox_ws_test, NotifyingClientStateWorks)
+{
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_ws_attach_client_state(m_sut, client, ClientState_HAS_RESPONSE, 1589123, &clientCallback);
+
+    notifyClient(portData);
+
+    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+                Eq(1));
+    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(1589123));
+    iox_notification_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
+    EXPECT_THAT(m_contextData, Eq(nullptr));
+
+    iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
+}
+
+TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
+{
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_ws_attach_client_state_with_context_data(
+        m_sut, client, ClientState_HAS_RESPONSE, 0, &clientCallbackWithContextData, &clientStorage);
+
+    notifyClient(portData);
+
+    EXPECT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+                Eq(1));
+    iox_notification_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&clientStorage)));
+
+    iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
+}
 } // namespace
