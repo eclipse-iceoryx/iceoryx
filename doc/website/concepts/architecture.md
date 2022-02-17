@@ -1,1 +1,1 @@
-# Eclipse iceoryx architecture
+# Architecture

@@ -11,7 +11,6 @@ consumers of messages. On its own, this is not a new innovation as the approach 
 However, iceoryx takes the approach further, ending up in an inter-process-communication technology with a
 publish/subscribe architecture that is fast, flexible and dependable.
 
-
 ## Fast
 
 With the iceoryx API, a publisher can write the message directly into a chunk of memory that was previously requested
@@ -21,11 +20,11 @@ zero-copy — an end-to-end approach from publishers to subscribers without crea
 
 Avoiding the copies on API level is crucial when GBytes of sensor data have to be processed per second on robotics and
 autonomous driving systems. Therefore the iceoryx team contributed to the standardization of true zero-copy capable
-APIs in [ROS 2](https://www.ros.org/) and [AUTOSAR Adaptive](https://www.autosar.org/standards/adaptive-platform/). 
-  
+APIs in [ROS 2](https://www.ros.org/) and [AUTOSAR Adaptive](https://www.autosar.org/standards/adaptive-platform/).
+
 On modern processors iceoryx has a latency of less than 1 µs for transferring a message. And the best message is that
 this latency is constant as size doesn't matter. Want to give it a try? Then have a look at our
-[iceperf example](../examples/iceperf) after having made the first steps. 
+[iceperf example](iceperf.md) after having made the first steps.
 
 ## Flexible
 
@@ -36,13 +35,13 @@ integrating iceoryx as shared memory backbone into a bigger framework.
 
 The APIs support polling access and event-driven interactions with the [Waitset](../overview/#waitset) and
 [Listener](../overview/#listener). Applications can be started and stopped flexibly as there is a service discovery
-behind the scenes that dynamically connects matching communication entities. 
+behind the scenes that dynamically connects matching communication entities.
 
 That iceoryx has the right set of features can be seen from the already existing integrations in middleware and
 frameworks such as [Eclipse Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds),
  [eCAL from Continental](https://continental.github.io/ecal/),
  [RTA-VRTE from ETAS](https://www.etas.com/en/products/rta-vrte.php) and
- [Apex.OS from Apex.AI](https://www.apex.ai/apex-os).  
+ [Apex.OS from Apex.AI](https://www.apex.ai/apex-os).
 
 ## Dependable
 
@@ -52,13 +51,13 @@ design and implementation of features. The usage of heap, exceptions and any und
 to increase the predictability. Instead a custom memory allocation is being used, based on static memory pools.
 Additionally, the handling of return values and error cases was inspired by upcoming C++ features and other
 languages like Rust (details can be found
-[here](../../advanced/how-optional-and-error-values-are-returned-in-iceoryx/)).
+[here](how-optional-and-error-values-are-returned-in-iceoryx.md)).
 
 As different processes are operating on shared data structures, avoiding deadlocks is becoming all the more important.
 iceoryx uses lock-free data structures like the multi-producer multi-consumer (MPMC) queue that was written portably
-thanks to modern C++.  
+thanks to modern C++.
 
 The tools available for automotive-compliant software development are always one or two releases behind the latest C++
 standard. This fact, combined with our already mentioned constraints, led to a bunch of STL like C++ classes that have
 the goal to combine modern C++ with the reliability needed for the domains iceoryx is used in. They can be found in
-the iceoryx hoofs which are introduced [here](../../advanced/iceoryx_hoofs/)
+the iceoryx hoofs which are introduced [here](iceoryx_hoofs.md).

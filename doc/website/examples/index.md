@@ -1,5 +1,5 @@
 ---
-title: List of examples
+title: Examples
 ---
 
 {! ../iceoryx/iceoryx_examples/README.md !}
