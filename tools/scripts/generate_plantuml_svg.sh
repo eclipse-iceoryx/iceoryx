@@ -23,7 +23,8 @@ set -e
 
 WORKSPACE="$(git rev-parse --show-toplevel)"
 PUML_DIR="$WORKSPACE/doc/design/diagrams"
-EXPORT_DIR=${1:-$PUML_DIR}
+IMPORT_DIR=${1:-$PUML_DIR}
+EXPORT_DIR="$WORKSPACE/doc/website/images/"
 TEMP_DIR="/var/tmp/iceoryx" # this is persistent across reboots
 PLANTUML_DIR="$TEMP_DIR/plantuml-jar-mit-1.2021.5"
 NUM_THREADS=1
@@ -59,6 +60,7 @@ java -jar $PLANTUML_DIR/plantuml.jar \
      -nometadata \
      -nbthread "$NUM_THREADS" \
      -tsvg \
-     -I "$EXPORT_DIR/**.puml"
+     -I "$IMPORT_DIR/**.puml" \
+     -output "$EXPORT_DIR"
 
 echo " [i] Finished"
