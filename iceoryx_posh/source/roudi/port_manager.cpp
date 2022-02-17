@@ -624,7 +624,7 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
             && !(serverSource.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
                  && clientPort.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER))
         {
-            // send OFFER to client
+            // send OFFER/STOP_OFFER to client
             auto clientResponse = clientPort.dispatchCaProMessageAndGetPossibleResponse(message);
 
             // if the clients react on the change, process it immediately on server side
@@ -663,10 +663,10 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
             && !(serverPort.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
                  && clientSource.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER))
         {
-            // send CONNECT to server
+            // send CONNECT/DISCONNECT to server
             auto serverResponse = serverPort.dispatchCaProMessageAndGetPossibleResponse(message);
 
-            // if the clients react on the change, process it immediately on server side
+            // if the server react on the change, process it immediately on client side
             if (serverResponse.has_value())
             {
                 // send response to client port
@@ -675,7 +675,7 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
                 // ACK or NACK are sent back to the client port, no further response from this one expected
                 cxx::Ensures(!returnMessage.has_value());
 
-                /// @todo iox-#27 inform port introspection about server
+                /// @todo iox-#27 inform port introspection about client
             }
             serverFound = true;
         }
