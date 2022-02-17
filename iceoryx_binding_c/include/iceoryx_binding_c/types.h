@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,6 +96,7 @@ typedef struct
     uint8_t do_not_touch_me[1];
 } iox_chunk_header_t;
 
+/// @brief has exactly the size required to store the underlying object of iox_client_t
 typedef struct
 {
     // the value of the array size is the result of the following formula:

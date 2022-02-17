@@ -73,6 +73,7 @@ TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
 
 TEST(iox_types_test, ClientStorageSizeFits)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "70aa551d-4220-4389-8cae-cd3c5314b2b0");
     EXPECT_THAT(sizeof(UntypedClient), Le(sizeof(iox_client_storage_t)));
     EXPECT_THAT(alignof(UntypedClient), Le(alignof(iox_client_storage_t)));
 }

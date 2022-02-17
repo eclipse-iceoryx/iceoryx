@@ -744,6 +744,7 @@ TEST_F(iox_ws_test, UserTriggerCallbackWithContextDataIsCalled)
 
 TEST_F(iox_ws_test, AttachingClientEventWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8024ff87-166a-4d4c-8cc9-c1f277d30247");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -768,6 +769,7 @@ void notifyClient(ClientPortData& portData)
 
 TEST_F(iox_ws_test, NotifyingClientEventWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7d460351-f1ee-4538-94ee-40a59e82e877");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -791,6 +793,7 @@ TEST_F(iox_ws_test, NotifyingClientEventWorks)
 
 TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6f1017b4-5edf-44aa-80ab-a4e438816082");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -814,6 +817,7 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
 
 TEST_F(iox_ws_test, AttachingClientStateWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3eecba2f-07be-4073-8596-a7d2d2966f96");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -829,6 +833,7 @@ TEST_F(iox_ws_test, AttachingClientStateWorks)
 
 TEST_F(iox_ws_test, NotifyingClientStateWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9464c3a0-4669-43fe-9edf-0996f744801e");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -853,6 +858,7 @@ TEST_F(iox_ws_test, NotifyingClientStateWorks)
 
 TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f0f25612-dc08-40a9-9b2c-646b2e003e85");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 

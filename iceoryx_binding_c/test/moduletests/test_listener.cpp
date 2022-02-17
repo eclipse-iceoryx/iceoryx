@@ -318,6 +318,7 @@ TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_AT
 }
 
 TIMING_TEST_F(iox_listener_test, UserTriggerCallbackIsCalledWhenTriggered, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "9cf3ca3b-fc51-4d64-8871-6e4c3d51ac49");
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], &userTriggerCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
     iox_user_trigger_trigger(m_userTrigger[0U]);
@@ -326,6 +327,7 @@ TIMING_TEST_F(iox_listener_test, UserTriggerCallbackIsCalledWhenTriggered, Repea
 });
 
 TIMING_TEST_F(iox_listener_test, UserTriggerCallbackWithContextDataIsCalledWhenTriggered, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "55c61dc2-4aa3-4c26-b14a-5c137ad1f20e");
     int someContextData;
     EXPECT_THAT(iox_listener_attach_user_trigger_event_with_context_data(
                     &m_sut, m_userTrigger[0U], &userTriggerCallbackWithContextData, &someContextData),
@@ -337,6 +339,7 @@ TIMING_TEST_F(iox_listener_test, UserTriggerCallbackWithContextDataIsCalledWhenT
 });
 
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "541b118b-4a7a-4ea5-aa5f-8e922dfd4aa0");
     EXPECT_THAT(iox_listener_attach_subscriber_event(
                     &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
@@ -357,6 +360,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
 });
 
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSampleIsReceived, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "a51ff99b-f1df-458d-b3c0-a97ddfacf4ec");
     int someContextData;
     EXPECT_THAT(
         iox_listener_attach_subscriber_event_with_context_data(&m_sut,
@@ -384,6 +388,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
 
 TEST_F(iox_listener_test, AttachingClientWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d0513caa-78c0-4be4-a140-1468c1c4e6e7");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -407,6 +412,7 @@ void notifyClient(ClientPortData& portData)
 }
 
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "1f857df5-47d9-4116-83fd-acc9df4c3d6e");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
@@ -422,6 +428,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "64178bc6-ec8f-4504-aceb-6a32ee568ab8");
     iox_client_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 

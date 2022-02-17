@@ -128,6 +128,7 @@ constexpr const char iox_client_test::EVENT[];
 
 TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "347f3a6d-8659-4ac3-81be-720e8a444d5e");
     iox_client_options_t uninitializedOptions;
     // ignore the warning since we would like to test the behavior of an uninitialized option
 #pragma GCC diagnostic push
@@ -138,6 +139,7 @@ TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 
 TEST_F(iox_client_test, initializedOptionsAreInitialized)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b512741e-9c1f-410f-a40b-68fec4a72bc5");
     iox_client_options_t initializedOptions;
     iox_client_options_init(&initializedOptions);
     EXPECT_TRUE(iox_client_options_is_initialized(&initializedOptions));
@@ -145,6 +147,7 @@ TEST_F(iox_client_test, initializedOptionsAreInitialized)
 
 TEST_F(iox_client_test, InitializingClientWithNullptrOptionsGetMiddlewareClientWithDefaultOptions)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a0775190-5672-479b-afe9-8e127abc1bc2");
     ClientOptions defaultOptions;
     prepareClientInit(defaultOptions);
 
@@ -154,6 +157,7 @@ TEST_F(iox_client_test, InitializingClientWithNullptrOptionsGetMiddlewareClientW
 
 TEST_F(iox_client_test, InitializingClientWithCustomOptionsWork)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "69b2da3d-fc4f-48cf-86e7-4e4365557391");
     iox_client_options_t options;
     iox_client_options_init(&options);
     options.responseQueueCapacity = 456;
@@ -176,6 +180,7 @@ TEST_F(iox_client_test, InitializingClientWithCustomOptionsWork)
 
 TEST_F(iox_client_test, DeinitReleasesClient)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "91311811-6741-4bca-839d-326c375e9b8c");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     ASSERT_THAT(sut, Ne(nullptr));
@@ -186,6 +191,7 @@ TEST_F(iox_client_test, DeinitReleasesClient)
 
 TEST_F(iox_client_test, LoanWithValidArgumentsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2f7ae32e-8a43-479b-beb7-6d174b791010");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
@@ -197,6 +203,7 @@ TEST_F(iox_client_test, LoanWithValidArgumentsWorks)
 
 TEST_F(iox_client_test, LoanAlignedChunkWithValidArgumentsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ff897354-8213-4f13-88fe-530e29830d79");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     constexpr uint64_t ALIGNMENT = 128;
@@ -209,6 +216,7 @@ TEST_F(iox_client_test, LoanAlignedChunkWithValidArgumentsWorks)
 
 TEST_F(iox_client_test, LoanFailsWhenNoMoreChunksAreAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5ad2c0a6-1f39-44e7-ba7a-c286a1d2d40b");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
@@ -224,6 +232,7 @@ TEST_F(iox_client_test, LoanFailsWhenNoMoreChunksAreAvailable)
 
 TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "159e9b42-4f43-41df-8449-5891950eb592");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
@@ -237,6 +246,7 @@ TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
 
 TEST_F(iox_client_test, LoanAndSendWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fd83a4cd-6f86-47f8-aa46-e20f34959461");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -257,6 +267,7 @@ TEST_F(iox_client_test, LoanAndSendWorks)
 
 TEST_F(iox_client_test, ConnectWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4809d1ce-3a53-4981-bded-4709599f62b5");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     iox_client_connect(sut);
@@ -266,6 +277,7 @@ TEST_F(iox_client_test, ConnectWorks)
 
 TEST_F(iox_client_test, DisconnectWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ebb07dc5-1aa2-4dbe-8b86-7378e6bd2ed2");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     iox_client_connect(sut);
@@ -276,6 +288,7 @@ TEST_F(iox_client_test, DisconnectWorks)
 
 TEST_F(iox_client_test, GetConnectionIsNotConnectedWhenCreatedWithoutAutoConnect)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8689930e-5ce8-4d1e-8863-01689d6d0fbd");
     iox_client_options_t options;
     iox_client_options_init(&options);
     options.connectOnCreate = false;
@@ -290,6 +303,7 @@ TEST_F(iox_client_test, GetConnectionIsNotConnectedWhenCreatedWithoutAutoConnect
 
 TEST_F(iox_client_test, GetConnectionReturnsConnectRequested)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "adeca842-72ba-406e-890b-1124f8bfcee5");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     sutPort->m_connectRequested = true;
@@ -300,6 +314,7 @@ TEST_F(iox_client_test, GetConnectionReturnsConnectRequested)
 
 TEST_F(iox_client_test, GetConnectionReturnsConnected)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ad20a316-9f14-4ef5-a67e-ba0cf6a37ce3");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     sutPort->m_connectRequested = true;
@@ -310,6 +325,7 @@ TEST_F(iox_client_test, GetConnectionReturnsConnected)
 
 TEST_F(iox_client_test, GetConnectionReturnsDisconnectRequested)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4a1e3ab3-fe8e-4624-ac10-48bebad8f782");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     sutPort->m_connectRequested = false;
@@ -321,6 +337,7 @@ TEST_F(iox_client_test, GetConnectionReturnsDisconnectRequested)
 
 TEST_F(iox_client_test, GetConnectionReturnsWaitForOffer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "941ab168-895d-43ee-af8f-0ac2650dea51");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     sutPort->m_connectRequested = true;
@@ -331,6 +348,7 @@ TEST_F(iox_client_test, GetConnectionReturnsWaitForOffer)
 
 TEST_F(iox_client_test, TakeReturnsNoChunkAvailableWhenNothingWasReceived)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9f367fca-322c-4246-9349-5519f22c118e");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -341,6 +359,7 @@ TEST_F(iox_client_test, TakeReturnsNoChunkAvailableWhenNothingWasReceived)
 
 TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6e991175-2b7e-4940-b099-94a4e648a0a4");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -354,6 +373,7 @@ TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
 
 TEST_F(iox_client_test, ReleasingResponseReleasesChunk)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "49a608c3-a5e7-46d8-b1eb-851c3d4dbfd9");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -368,6 +388,7 @@ TEST_F(iox_client_test, ReleasingResponseReleasesChunk)
 
 TEST_F(iox_client_test, ReleasingQueuedResponsesReleasesEverything)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "45f34faf-dc39-4658-adf5-936e2a33c5df");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -381,6 +402,7 @@ TEST_F(iox_client_test, ReleasingQueuedResponsesReleasesEverything)
 
 TEST_F(iox_client_test, HasResponsesIsFalseWhenThereIsNoResponse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "40a108ef-a5ed-47b7-9729-8e2dc0ceabd3");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -389,6 +411,7 @@ TEST_F(iox_client_test, HasResponsesIsFalseWhenThereIsNoResponse)
 
 TEST_F(iox_client_test, HasResponsesIsTrueWhenThereIsAreResponses)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "15d14dc9-fef6-4c6f-b423-13946b633848");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -399,6 +422,7 @@ TEST_F(iox_client_test, HasResponsesIsTrueWhenThereIsAreResponses)
 
 TEST_F(iox_client_test, HasMissedResponsesOnOverflow)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f8bb1562-0bd9-4ea9-98a6-eeabcfc6d4cc");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
@@ -409,6 +433,7 @@ TEST_F(iox_client_test, HasMissedResponsesOnOverflow)
 
 TEST_F(iox_client_test, HasNoMissedResponses)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "97e52ac8-f9a4-4f81-ba37-c41b6e750b55");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
