@@ -78,25 +78,35 @@ class TestIcediscoveryExample(unittest.TestCase):
 
     def test_find_service(self, proc_output):
         proc_output.assertWaitFor(
-            'Searched for {\'Radar\', \'FrontLeft\', \'SequenceCounter\'}.\nFound the following 1 services:\n- Service: Radar, Instance: FrontLeft, Event: SequenceCounter', timeout=45, stream='stdout')
+            'Searched for {\'Radar\', \'FrontLeft\', \'Image\'}.\nFound the following 1 services:\n- Service: Radar, Instance: FrontLeft, Event: Image',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {\'Radar\', *, *}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontLeft, Event: SequenceCounter\n- Service: Radar, Instance: FrontRight, Event: SequenceCounter', timeout=45, stream='stdout')
+            'Searched for {\'Radar\', *, *}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Radar, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {*, \'FrontLeft\', *}.\nFound the following 4 services:\n- Service: Radar, Instance: FrontLeft, Event: SequenceCounter\n- Service: Lidar, Instance: FrontLeft, Event: Counter\n- Service: Camera, Instance: FrontLeft, Event: SequenceCounter\n- Service: Camera, Instance: FrontLeft, Event: Counter', timeout=45, stream='stdout')
+            'Searched for {*, \'FrontLeft\', *}.\nFound the following 4 services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Lidar, Instance: FrontLeft, Event: Counter\n- Service: Camera, Instance: FrontLeft, Event: Image\n- Service: Camera, Instance: FrontLeft, Event: Counter',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {*, \'FrontRight\', \'SequenceCounter\'}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontRight, Event: SequenceCounter\n- Service: Camera, Instance: FrontRight, Event: SequenceCounter', timeout=45, stream='stdout')
+            'Searched for {*, \'FrontRight\', \'Image\'}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontRight, Event: Image\n- Service: Camera, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {\'Camera\', *, *}.\nFound the following 5 services:\n- Service: Camera, Instance: FrontLeft, Event: SequenceCounter\n- Service: Camera, Instance: FrontRight, Event: Counter\n- Service: Camera, Instance: FrontRight, Event: SequenceCounter\n- Service: Camera, Instance: BackLeft, Event: SequenceCounter\n- Service: Camera, Instance: FrontLeft, Event: Counter', timeout=45, stream='stdout')
+            'Searched for {\'Camera\', *, *}.\nFound the following 5 services:\n- Service: Camera, Instance: FrontLeft, Event: Image\n- Service: Camera, Instance: FrontRight, Event: Counter\n- Service: Camera, Instance: FrontRight, Event: Image\n- Service: Camera, Instance: BackLeft, Event: Image\n- Service: Camera, Instance: FrontLeft, Event: Counter',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            '=========================================\nSearched for {\'Radar\', \'FrontLeft\', \'SequenceCounter\'}.\nFound the following 1 services:\n- Service: Radar, Instance: FrontLeft, Event: SequenceCounter', timeout=45, stream='stdout')
+            '=========================================\nSearched for {\'Radar\', \'FrontLeft\', \'Image\'}.\nFound the following 1 services:\n- Service: Radar, Instance: FrontLeft, Event: Image',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {\'Radar\', *, *}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontLeft, Event: SequenceCounter\n- Service: Radar, Instance: FrontRight, Event: SequenceCounter', timeout=45, stream='stdout')
+            'Searched for {\'Radar\', *, *}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Radar, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {*, \'FrontLeft\', *}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontLeft, Event: SequenceCounter\n- Service: Lidar, Instance: FrontLeft, Event: Counter', timeout=45, stream='stdout')
+            'Searched for {*, \'FrontLeft\', *}.\nFound the following 2 services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Lidar, Instance: FrontLeft, Event: Counter',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {*, \'FrontRight\', \'SequenceCounter\'}.\nFound the following 1 services:\n- Service: Radar, Instance: FrontRight, Event: SequenceCounter', timeout=45, stream='stdout')
+            'Searched for {*, \'FrontRight\', \'Image\'}.\nFound the following 1 services:\n- Service: Radar, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Searched for {\'Camera\', *, *}.\nFound the following 0 services:', timeout=45, stream='stdout')
+            'Searched for {\'Camera\', *, *}.\nFound the following 0 services:',
+            timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 

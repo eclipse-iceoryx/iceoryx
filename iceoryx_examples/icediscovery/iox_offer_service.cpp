@@ -25,16 +25,16 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // offer services by creating publishers
-    iox::popo::Publisher<uint32_t> radarLeft({"Radar", "FrontLeft", "SequenceCounter"});
-    iox::popo::Publisher<uint32_t> radarRight({"Radar", "FrontRight", "SequenceCounter"});
+    iox::popo::Publisher<uint32_t> radarLeft({"Radar", "FrontLeft", "Image"});
+    iox::popo::Publisher<uint32_t> radarRight({"Radar", "FrontRight", "Image"});
     iox::popo::Publisher<uint32_t> lidarLeft({"Lidar", "FrontLeft", "Counter"});
 
     iox::cxx::vector<iox::popo::Publisher<uint32_t>, 5> cameraPublishers;
     cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontLeft", "Counter"});
-    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontLeft", "SequenceCounter"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontLeft", "Image"});
     cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontRight", "Counter"});
-    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontRight", "SequenceCounter"});
-    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "BackLeft", "SequenceCounter"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "FrontRight", "Image"});
+    cameraPublishers.emplace_back(iox::capro::ServiceDescription{"Camera", "BackLeft", "Image"});
 
     bool offer = false;
     while (!iox::posix::hasTerminationRequested())

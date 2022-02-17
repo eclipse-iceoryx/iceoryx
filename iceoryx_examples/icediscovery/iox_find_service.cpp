@@ -41,10 +41,10 @@ int main()
     {
         std::cout << "=========================================" << std::endl;
 
-        std::cout << "Searched for {'Radar', 'FrontLeft', 'SequenceCounter'}." << std::endl;
+        std::cout << "Searched for {'Radar', 'FrontLeft', 'Image'}." << std::endl;
         serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
                                      iox::capro::IdString_t{"FrontLeft"},
-                                     iox::capro::IdString_t{"SequenceCounter"},
+                                     iox::capro::IdString_t{"Image"},
                                      printSearchResult);
 
         std::cout << "Searched for {'Radar', *, *}." << std::endl;
@@ -55,10 +55,10 @@ int main()
         serviceDiscovery.findService(
             iox::capro::Wildcard, iox::capro::IdString_t{"FrontLeft"}, iox::capro::Wildcard, printSearchResult);
 
-        std::cout << "Searched for {*, 'FrontRight', 'SequenceCounter'}." << std::endl;
+        std::cout << "Searched for {*, 'FrontRight', 'Image'}." << std::endl;
         serviceDiscovery.findService(iox::capro::Wildcard,
                                      iox::capro::IdString_t{"FrontRight"},
-                                     iox::capro::IdString_t{"SequenceCounter"},
+                                     iox::capro::IdString_t{"Image"},
                                      printSearchResult);
 
         std::cout << "Searched for {'Camera', *, *}." << std::endl;
