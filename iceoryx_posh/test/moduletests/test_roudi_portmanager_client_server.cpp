@@ -156,4 +156,240 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceAnd
 
 // END aquireServerPortData tests
 
+// BEGIN discovery tests
+
+TEST_F(PortManager_test, CreateClientWithConnectOnCreateAndNoServerResultsInWaitForOffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "14070d7b-d8e1-4df5-84fc-119e5e126cde");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::WAIT_FOR_OFFER));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientConnectOnCreateAndNoServerResultsInClientNotConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6829e506-9f58-4253-bc42-469f2970a2c7");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+
+    auto clientPortUser = createClient(clientOptions);
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::WAIT_FOR_OFFER));
+}
+
+TEST_F(PortManager_test, CreateClientWithConnectOnCreateAndNotOfferingServerResultsInWaitForOffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0f7098d0-2646-4c10-b347-9b57b0f593ce");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = false;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::WAIT_FOR_OFFER));
+}
+
+TEST_F(PortManager_test, CreateClientWithConnectOnCreateAndOfferingServerResultsInClientConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "108170d4-786b-4266-ad2a-ef922188f70b");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, CreateServerWithOfferOnCreateAndClientWaitingToConnectResultsInClientConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b5bb10b2-bf9b-400e-ab5c-aa3a1e0e826f");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto clientPortUser = createClient(clientOptions);
+    auto serverPortUser = createServer(serverOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, CreateClientWithNotConnectOnCreateAndNoServerResultsInClientNotConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fde662f1-f9e1-4302-be41-59a7a0bfa4e7");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = false;
+
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::NOT_CONNECTED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientNotConnectOnCreateAndNoServerResultsInClientNotConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c59b7343-6277-4a4b-8204-506048726be4");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = false;
+
+    auto clientPortUser = createClient(clientOptions);
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::NOT_CONNECTED));
+}
+
+TEST_F(PortManager_test, CreateClientWithNotConnectOnCreateAndOfferingServerResultsInClientNotConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "17cf22ba-066a-418a-8366-1c6b75177b9a");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = false;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::NOT_CONNECTED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientNotConnectOnCreateAndServerResultsInConnectedWhenCallingConnect)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "87bbb991-4aaf-49c1-b238-d9b0bb18d699");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = false;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    clientPortUser.connect();
+
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientConnectResultsInClientNotConnectedWhenCallingDisconnect)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b6826f93-096d-473d-b846-ab824efff1ee");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    clientPortUser.disconnect();
+
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::NOT_CONNECTED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientConnectResultsInWaitForOfferWhenCallingStopOffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "45c9cc27-4198-4539-943f-2111ae2d1368");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    serverPortUser.stopOffer();
+
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::WAIT_FOR_OFFER));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientConnectResultsInWaitForOfferWhenServerIsDestroyed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "585ad47d-1a03-4599-a4dc-57ea1fb6eac7");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    serverPortUser.destroy();
+
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::WAIT_FOR_OFFER));
+}
+
+TEST_F(PortManager_test, DoDiscoveryWithClientConnectResultsInNoClientsWhenClientIsDestroyed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3be2f7b5-7e22-4676-a25b-c8a93a4aaa7d");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_TRUE(serverPortUser.hasClients());
+
+    clientPortUser.destroy();
+
+    m_portManager->doDiscovery();
+
+    EXPECT_FALSE(serverPortUser.hasClients());
+}
+
+TEST_F(PortManager_test, CreateMultipleClientsWithConnectOnCreateAndOfferingServerResultsInAllClientsConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "08f9981f-2585-4574-b0fc-c16cf0eef7d4");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser1 = createClient(clientOptions);
+    auto clientPortUser2 = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test,
+       DoDiscoveryWithMultipleClientsNotConnectedAndOfferingServerResultsSomeClientsConnectedWhenSomeClientsCallConnect)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7d210259-7c50-479e-b108-bf9747ceb0ef");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = false;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser1 = createClient(clientOptions);
+    auto clientPortUser2 = createClient(clientOptions);
+
+    clientPortUser2.connect();
+    m_portManager->doDiscovery();
+
+    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::NOT_CONNECTED));
+    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+// END discovery tests
+
 } // namespace iox_test_roudi_portmanager
