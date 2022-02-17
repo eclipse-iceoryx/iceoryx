@@ -115,9 +115,10 @@ uint32_t iox_cfg_max_process_number()
     return iox::MAX_PROCESS_NUMBER;
 }
 
+/// @todo 1074 rename
 uint32_t iox_cfg_max_number_of_services()
 {
-    return iox::MAX_NUMBER_OF_SERVICES;
+    return iox::MAX_FINDSERVICE_RESULT_SIZE;
 }
 
 uint32_t iox_cfg_max_runtime_name_length()

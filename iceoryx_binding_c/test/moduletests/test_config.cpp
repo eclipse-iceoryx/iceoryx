@@ -52,7 +52,7 @@ TEST(iox_cfg, valuesAreCorrectlyConnected)
     EXPECT_EQ(iox_cfg_no_user_header_size(), iox::CHUNK_NO_USER_HEADER_SIZE);
     EXPECT_EQ(iox_cfg_no_user_header_alignment(), iox::CHUNK_NO_USER_HEADER_ALIGNMENT);
     EXPECT_EQ(iox_cfg_max_process_number(), iox::MAX_PROCESS_NUMBER);
-    EXPECT_EQ(iox_cfg_max_number_of_services(), iox::MAX_NUMBER_OF_SERVICES);
+    EXPECT_EQ(iox_cfg_max_number_of_services(), iox::MAX_FINDSERVICE_RESULT_SIZE);
     EXPECT_EQ(iox_cfg_max_runtime_name_length(), iox::MAX_RUNTIME_NAME_LENGTH);
 }
 } // namespace

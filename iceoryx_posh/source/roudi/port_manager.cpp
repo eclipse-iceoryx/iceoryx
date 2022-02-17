@@ -69,7 +69,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     m_serviceRegistryPublisherPortData =
         acquirePublisherPortDataWithoutDiscovery(
-            {SERVICE_REGISTRY_SERVICE_NAME, SERVICE_REGISTRY_INSTANCE_NAME, SERVICE_REGISTRY_EVENT_NAME},
+            {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
             registryPortOptions,
             IPC_CHANNEL_ROUDI_NAME,
             introspectionMemoryManager,

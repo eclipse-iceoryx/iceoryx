@@ -579,16 +579,20 @@ TEST_F(ServiceDiscovery_test, NonExistingServicesAreNotFound)
     EXPECT_TRUE(searchResultOfFindServiceWithFindHandler.empty());
 }
 
-TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxServices)
+TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxPublisherServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68628cc2-df6d-46e4-8586-7563f43bf10c");
     const IdString_t SERVICE = "s";
     ServiceContainer serviceContainerExp;
-    iox::cxx::vector<iox::popo::UntypedPublisher, iox::MAX_NUMBER_OF_SERVICES> publishers;
-    for (size_t i = 0; i < iox::MAX_NUMBER_OF_SERVICES; i++)
+    constexpr auto MAX_PUBLISHERS = iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS;
+
+    // if the result size is limited to be lower than the number of publishers in the registry,
+    // there is no way to retrieve them all
+    constexpr auto NUM_PUBLISHERS = std::min(MAX_PUBLISHERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    iox::cxx::vector<iox::popo::UntypedPublisher, NUM_PUBLISHERS> publishers;
+
+    for (size_t i = 0; i < NUM_PUBLISHERS; i++)
     {
-        // Service & Instance string is kept short , to reduce the response size in find service request ,
-        // (message queue has a limit of 512)
         std::string instance = "i" + iox::cxx::convert::toString(i);
         iox::capro::ServiceDescription SERVICE_DESCRIPTION(
             SERVICE, IdString_t(iox::cxx::TruncateToCapacity, instance), "foo");
@@ -598,7 +602,7 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxServices)
 
     auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(serviceContainer.size(), Eq(iox::MAX_NUMBER_OF_SERVICES));
+    EXPECT_THAT(serviceContainer.size(), Eq(NUM_PUBLISHERS));
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
 
     sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard, findHandler);

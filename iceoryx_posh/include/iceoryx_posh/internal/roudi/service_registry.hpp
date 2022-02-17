@@ -54,9 +54,7 @@ class ServiceRegistry
         ReferenceCounter_t serverCount{0U};
     };
 
-    /// @todo #415 #1074 set limits properly and define location for the limits,
-    ///       e.g posh_types.hpp
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::MAX_PUBLISHERS;
+    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::SERVICE_REGISTRY_CAPACITY;
 
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 
