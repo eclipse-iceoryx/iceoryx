@@ -591,35 +591,12 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
-    if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
-            [&](const auto& usedByProcess) {
-                LogWarn()
-                    << "Process '" << runtimeName
-                    << "' violates the communication policy by requesting a PublisherPort which is already used by '"
-                    << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
-            }))
-    {
-        errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
-    }
-
-    // we can create a new port
-    auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
-    if (!maybePublisherPortData.has_error())
-    {
-        auto publisherPortData = maybePublisherPortData.value();
-        if (publisherPortData)
-        {
-            m_portIntrospection.addPublisher(*publisherPortData);
-
-            // we do discovery here for trying to connect the waiting subscribers if offer on create is desired
-            PublisherPortRouDiType publisherPort(publisherPortData);
-            doDiscoveryForPublisherPort(publisherPort);
-        }
-    }
-
-    return maybePublisherPortData;
+    return acquirePublisherPortDataWithoutDiscovery(
+               service, publisherOptions, runtimeName, payloadDataSegmentMemoryManager, portConfigInfo)
+        .and_then([&](auto publisherPortData) {
+            PublisherPortRouDiType port(publisherPortData);
+            doDiscoveryForPublisherPort(port);
+        });
 }
 
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
