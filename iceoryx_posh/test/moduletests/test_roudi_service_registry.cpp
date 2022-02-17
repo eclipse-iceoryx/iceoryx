@@ -197,7 +197,7 @@ TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFa
 
 TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
+    ::testing::Test::RecordProperty("TEST_ID", "79234425-98ce-49eb-bf04-82883ee22a92");
     auto result1 = this->sut.add(ServiceDescription("Li", "La", "Launebaer"));
     ASSERT_FALSE(result1.has_error());
 
