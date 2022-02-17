@@ -598,7 +598,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                service, publisherOptions, runtimeName, payloadDataSegmentMemoryManager, portConfigInfo)
         .and_then([&](auto publisherPortData) {
             PublisherPortRouDiType port(publisherPortData);
-            doDiscoveryForPublisherPort(port);
+            this->doDiscoveryForPublisherPort(port);
         });
 }
 
