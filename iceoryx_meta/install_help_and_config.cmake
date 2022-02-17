@@ -22,7 +22,6 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE
         ${CMAKE_CURRENT_SOURCE_DIR}/../NOTICE.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../README.md
-        ${CMAKE_CURRENT_SOURCE_DIR}/../CHANGELOG.md
   DESTINATION share/doc/iceoryx
   COMPONENT dev)
 
@@ -30,3 +29,8 @@ install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../doc/3rd_party_licenses
   DESTINATION share/doc/iceoryx
   COMPONENT dev)
+
+  install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/release-notes
+    DESTINATION share/doc/iceoryx
+    COMPONENT dev)

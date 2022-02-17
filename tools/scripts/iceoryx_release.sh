@@ -22,7 +22,7 @@ set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
 
-echo "Did you updated the Changelog.md?"
+echo "Did you updated the changelogs?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) break;;
