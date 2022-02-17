@@ -119,6 +119,8 @@ cxx::expected<const ResponseHeader*, ChunkReceiveResult> ClientPortUser::getResp
         return cxx::error<ChunkReceiveResult>(getChunkResult.get_error());
     }
 
+    printf("chunkResult %p\n", getChunkResult.value());
+    printf("chunkResult userHeader %p\n", getChunkResult.value()->userHeader());
     return cxx::success<const ResponseHeader*>(
         static_cast<const ResponseHeader*>(getChunkResult.value()->userHeader()));
 }

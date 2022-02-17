@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/relocatable_pointer/atomic_relocatable_pointer.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -67,6 +68,16 @@ class iox_client_test : public Test
         sutPort->m_connectionState = iox::ConnectionState::CONNECTED;
 
         sutPort->m_chunkSenderData.m_queues.emplace_back(&serverChunkQueueData);
+    }
+
+    void receiveChunk(const int64_t chunkValue)
+    {
+        auto chunk = memoryManager.getChunk(*iox::mepoo::ChunkSettings::create(sizeof(int64_t)));
+        ASSERT_FALSE(chunk.has_error());
+        *static_cast<int64_t*>(chunk->getUserPayload()) = chunkValue;
+        printf(">> %p \n", chunk->getUserPayload());
+        iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
+        pusher.push(*chunk);
     }
 
     void prepareClientInit(const ClientOptions& options = ClientOptions())
@@ -137,15 +148,6 @@ TEST_F(iox_client_test, InitializingClientWithNullptrOptionsGetMiddlewareClientW
 
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     ASSERT_THAT(sut, Ne(nullptr));
-}
-
-/// @todo enable and adjust it when iox-#1032 is implemented
-TEST_F(iox_client_test, DISABLED_InitializingClientWithInitializedOptionsFails)
-{
-    iox_client_options_t uninitializedOptions;
-
-    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
-    ASSERT_THAT(sut, Eq(nullptr));
 }
 
 TEST_F(iox_client_test, InitializingClientWithCustomOptionsWork)
@@ -239,5 +241,100 @@ TEST_F(iox_client_test, LoanAndSendWorks)
         .or_else([&] { GTEST_FAIL() << "Expected chunk but got none"; });
 }
 
+TEST_F(iox_client_test, ConnectWorks)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_client_connect(sut);
 
+    EXPECT_THAT(sutPort->m_connectRequested.load(), Eq(true));
+}
+
+TEST_F(iox_client_test, DisconnectWorks)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_client_connect(sut);
+    iox_client_disconnect(sut);
+
+    EXPECT_THAT(sutPort->m_connectRequested.load(), Eq(false));
+}
+
+TEST_F(iox_client_test, GetConnectionIsNotConnectedWhenCreatedWithoutAutoConnect)
+{
+    iox_client_options_t options;
+    iox_client_options_init(&options);
+    options.connectOnCreate = false;
+
+    ClientOptions cppOptions;
+    cppOptions.connectOnCreate = false;
+    prepareClientInit(cppOptions);
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
+
+    EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_NOT_CONNECTED));
+}
+
+TEST_F(iox_client_test, GetConnectionReturnsConnectRequested)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    sutPort->m_connectRequested = true;
+    sutPort->m_connectionState = iox::ConnectionState::CONNECT_REQUESTED;
+
+    EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_CONNECT_REQUESTED));
+}
+
+TEST_F(iox_client_test, GetConnectionReturnsConnected)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    sutPort->m_connectRequested = true;
+    sutPort->m_connectionState = iox::ConnectionState::CONNECTED;
+
+    EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_CONNECTED));
+}
+
+TEST_F(iox_client_test, GetConnectionReturnsDisconnectRequested)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    sutPort->m_connectRequested = false;
+    sutPort->m_connectionState = iox::ConnectionState::DISCONNECT_REQUESTED;
+
+    EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_DISCONNECT_REQUESTED));
+}
+
+
+TEST_F(iox_client_test, GetConnectionReturnsWaitForOffer)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    sutPort->m_connectRequested = true;
+    sutPort->m_connectionState = iox::ConnectionState::WAIT_FOR_OFFER;
+
+    EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_WAIT_FOR_OFFER));
+}
+
+TEST_F(iox_client_test, TakeReturnsNoChunkAvailableWhenNothingWasReceived)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    const void* payload = nullptr;
+
+    EXPECT_THAT(iox_client_take(sut, &payload), Eq(ChunkReceiveResult_NO_CHUNK_AVAILABLE));
+}
+
+TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    receiveChunk(800131);
+    const void* payload = nullptr;
+
+    EXPECT_THAT(iox_client_take(sut, &payload), Eq(ChunkReceiveResult_SUCCESS));
+    ASSERT_THAT(payload, Ne(nullptr));
+    EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(800131));
+}
 } // namespace

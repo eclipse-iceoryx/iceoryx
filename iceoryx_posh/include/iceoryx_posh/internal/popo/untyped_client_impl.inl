@@ -66,11 +66,16 @@ void UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
 template <typename BaseClientT>
 cxx::expected<const void*, ChunkReceiveResult> UntypedClientImpl<BaseClientT>::take() noexcept
 {
+    printf("Pre take\n");
     auto responseResult = port().getResponse();
+    printf("post take\n");
     if (responseResult.has_error())
     {
         return cxx::error<ChunkReceiveResult>(responseResult.get_error());
     }
+    printf("ResponseHeader RR>> %p \n", (*responseResult));
+    printf("AA RR>> %p \n", (*responseResult)->getChunkHeader());
+    printf("RR>> %p \n", (*responseResult)->getChunkHeader()->userPayload());
 
     return cxx::success<const void*>(mepoo::ChunkHeader::fromUserHeader(responseResult.value())->userPayload());
 }
