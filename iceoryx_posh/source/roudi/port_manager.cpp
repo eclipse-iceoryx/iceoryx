@@ -969,6 +969,11 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
     {
         if (service == serverPortData->m_serviceDescription)
         {
+            if (serverPortData->m_toBeDestroyed)
+            {
+                destroyServerPort(serverPortData);
+                continue;
+            }
             LogWarn() << "Process '" << runtimeName
                       << "' violates the communication policy by requesting a ServerPort which is already used by '"
                       << serverPortData->m_runtimeName << "' with service '"
