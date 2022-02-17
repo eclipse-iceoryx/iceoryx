@@ -58,7 +58,7 @@ class ServiceDiscovery
     void findService(const cxx::optional<capro::IdString_t>& service,
                      const cxx::optional<capro::IdString_t>& instance,
                      const cxx::optional<capro::IdString_t>& event,
-                     const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept;
+                     const cxx::function_ref<void(const capro::ServiceDescription&)>& callable) noexcept;
 
     friend iox::popo::NotificationAttorney;
 

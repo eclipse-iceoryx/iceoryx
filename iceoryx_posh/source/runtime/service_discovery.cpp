@@ -47,15 +47,19 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
 void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                    const cxx::optional<capro::IdString_t>& instance,
                                    const cxx::optional<capro::IdString_t>& event,
-                                   const cxx::function_ref<void(const ServiceContainer&)>& callable) noexcept
+                                   const cxx::function_ref<void(const capro::ServiceDescription&)>& callable) noexcept
 {
     if (!callable)
     {
         return;
     }
 
-    auto searchResult = findService(service, instance, event);
-    callable(searchResult);
+    auto lambda = [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& s) { callable(s.serviceDescription); };
+
+    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
+        m_serviceRegistry = *serviceRegistrySample;
+    });
+    m_serviceRegistry.find(service, instance, event, lambda);
 }
 
 void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept

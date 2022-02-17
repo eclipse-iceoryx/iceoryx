@@ -22,14 +22,10 @@
 
 constexpr char APP_NAME[] = "iox-find-service";
 
-auto printSearchResult = [](const iox::runtime::ServiceContainer& services) {
-    std::cout << "Found the following " << services.size() << " services:" << std::endl;
-    for (const auto& service : services)
-    {
-        std::cout << "- " << service << std::endl;
-    }
-    std::cout << std::endl;
-};
+void printSearchResult(const iox::capro::ServiceDescription& service)
+{
+    std::cout << "- " << service << std::endl;
+}
 
 int main()
 {
@@ -39,29 +35,29 @@ int main()
 
     while (!iox::posix::hasTerminationRequested())
     {
-        std::cout << "=========================================" << std::endl;
+        std::cout << "\n=========================================" << std::endl;
 
-        std::cout << "Searched for {'Radar', 'FrontLeft', 'Image'}." << std::endl;
+        std::cout << "\nSearched for {'Radar', 'FrontLeft', 'Image'}. Found the following services:" << std::endl;
         serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
                                      iox::capro::IdString_t{"FrontLeft"},
                                      iox::capro::IdString_t{"Image"},
                                      printSearchResult);
 
-        std::cout << "Searched for {'Radar', *, *}." << std::endl;
+        std::cout << "\nSearched for {'Radar', *, *}. Found the following services:" << std::endl;
         serviceDiscovery.findService(
             iox::capro::IdString_t{"Radar"}, iox::capro::Wildcard, iox::capro::Wildcard, printSearchResult);
 
-        std::cout << "Searched for {*, 'FrontLeft', *}." << std::endl;
+        std::cout << "\nSearched for {*, 'FrontLeft', *}. Found the following services:" << std::endl;
         serviceDiscovery.findService(
             iox::capro::Wildcard, iox::capro::IdString_t{"FrontLeft"}, iox::capro::Wildcard, printSearchResult);
 
-        std::cout << "Searched for {*, 'FrontRight', 'Image'}." << std::endl;
+        std::cout << "\nSearched for {*, 'FrontRight', 'Image'}. Found the following services:" << std::endl;
         serviceDiscovery.findService(iox::capro::Wildcard,
                                      iox::capro::IdString_t{"FrontRight"},
                                      iox::capro::IdString_t{"Image"},
                                      printSearchResult);
 
-        std::cout << "Searched for {'Camera', *, *}." << std::endl;
+        std::cout << "\nSearched for {'Camera', *, *}. Found the following services:" << std::endl;
         serviceDiscovery.findService(
             iox::capro::IdString_t{"Camera"}, iox::capro::Wildcard, iox::capro::Wildcard, printSearchResult);
 
