@@ -70,12 +70,14 @@ class iox_client_test : public Test
         sutPort->m_chunkSenderData.m_queues.emplace_back(&serverChunkQueueData);
     }
 
-    void receiveChunk(const int64_t chunkValue)
+    void receiveChunk(const int64_t chunkValue = 0)
     {
-        auto chunk = memoryManager.getChunk(*iox::mepoo::ChunkSettings::create(sizeof(int64_t)));
+        auto chunk = memoryManager.getChunk(*iox::mepoo::ChunkSettings::create(
+            sizeof(int64_t), iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(ResponseHeader)));
         ASSERT_FALSE(chunk.has_error());
+        new (chunk->getChunkHeader()->userHeader())
+            ResponseHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, 0U);
         *static_cast<int64_t*>(chunk->getUserPayload()) = chunkValue;
-        printf(">> %p \n", chunk->getUserPayload());
         iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
         pusher.push(*chunk);
     }
@@ -336,5 +338,70 @@ TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
     EXPECT_THAT(iox_client_take(sut, &payload), Eq(ChunkReceiveResult_SUCCESS));
     ASSERT_THAT(payload, Ne(nullptr));
     EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(800131));
+}
+
+TEST_F(iox_client_test, ReleasingResponseReleasesChunk)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    receiveChunk();
+    const void* payload = nullptr;
+
+    iox_client_take(sut, &payload);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+    iox_client_release_response(sut, payload);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(iox_client_test, ReleasingQueuedResponsesReleasesEverything)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    receiveChunk();
+    receiveChunk();
+
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
+    iox_client_release_queued_responses(sut);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(iox_client_test, HasResponsesIsFalseWhenThereIsNoResponse)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    EXPECT_FALSE(iox_client_has_responses(sut));
+}
+
+TEST_F(iox_client_test, HasResponsesIsTrueWhenThereIsAreResponses)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    receiveChunk();
+
+    EXPECT_TRUE(iox_client_has_responses(sut));
+}
+
+TEST_F(iox_client_test, HasMissedResponsesOnOverflow)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+
+    sutPort->m_chunkReceiverData.m_queueHasLostChunks = true;
+    EXPECT_TRUE(iox_client_has_missed_responses(sut));
+}
+
+TEST_F(iox_client_test, HasNoMissedResponses)
+{
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+
+    sutPort->m_chunkReceiverData.m_queueHasLostChunks = false;
+    EXPECT_FALSE(iox_client_has_missed_responses(sut));
 }
 } // namespace

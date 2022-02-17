@@ -158,7 +158,7 @@ iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** con
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_client_release_response(iox_client_t const self, void* const userPayload)
+void iox_client_release_response(iox_client_t const self, const void* const userPayload)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(userPayload != nullptr);

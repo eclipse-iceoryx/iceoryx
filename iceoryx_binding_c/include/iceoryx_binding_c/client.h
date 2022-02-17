@@ -61,7 +61,7 @@ ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self
 
 ENUM iox_ChunkReceiveResult iox_client_take(iox_client_t const self, const void** const userPayload);
 
-void iox_client_release_response(iox_client_t const self, void* const userPayload);
+void iox_client_release_response(iox_client_t const self, const void* const userPayload);
 
 void iox_client_release_queued_responses(iox_client_t const self);
 
