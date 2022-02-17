@@ -38,6 +38,9 @@ if(BUILD_TESTING)
   add_ros_test(iceoryx_integrationtest/test_icediscovery_monitoring.py)
   add_ros_test(iceoryx_integrationtest/test_request_response_in_c_basic.py)
   add_ros_test(iceoryx_integrationtest/test_request_response_in_c_listener_and_waitset.py)
+  add_ros_test(iceoryx_integrationtest/test_request_response_basic.py)
+  add_ros_test(iceoryx_integrationtest/test_request_response_listener.py)
+  add_ros_test(iceoryx_integrationtest/test_request_response_untyped.py)
 
 endif()
 
