@@ -392,4 +392,120 @@ TEST_F(PortManager_test,
 
 // END discovery tests
 
+// BEGIN policy based connection tests
+
+TEST_F(PortManager_test, ClientWithDiscardOldestDataAndServerWithDiscardOldestDataAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "56871f9d-d7c1-4c3c-b86c-9a1e1dc9fd74");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.responseQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ClientWithDiscardOldestDataAndServerWithWaitForConsumerAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4767b263-1ca4-4e54-b489-5e486f40f4db");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.responseQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ClientWithBlockProducerAndServerWithWaitForConsumerAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c118ce87-25bf-4f53-b157-7414b9f10193");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.responseQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ClientWithBlockProducerAndServerWithDiscardOldestDataAreNotConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f5c6213a-b875-42bd-b55b-17bc04179e6d");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.responseQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Ne(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ServerWithDiscardOldestDataAndClientWithDiscardOldestDataAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "53d4ee50-5799-4405-8505-4b7ac3037310");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.serverTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.requestQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ServerWithDiscardOldestDataAndClientWithWaitForConsumerAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0d7a8819-3e33-478e-a13b-844b83fe92ae");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.serverTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.requestQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithWaitForConsumerAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8c3b7770-13e6-4003-aa9f-b04a34df67c9");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.serverTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Eq(ConnectionState::CONNECTED));
+}
+
+TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithDiscardOldestDataAreNotConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1d89fa87-3628-4645-9147-82f4223e878a");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.serverTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    EXPECT_THAT(clientPortUser.getConnectionState(), Ne(ConnectionState::CONNECTED));
+}
+
+// END policy based connection tests
+
 } // namespace iox_test_roudi_portmanager
