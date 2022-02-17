@@ -316,4 +316,3 @@ void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, 
 
     self->detachState(*client, c2cpp::clientState(clientState));
 }
-
