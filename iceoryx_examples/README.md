@@ -14,6 +14,7 @@
 |[waitset](./waitset/)                             | Waiting for events like arrival of data using C++                         | :star::star:       |
 |[waitset_in_c](./waitset_in_c/)                   | Waiting for events like arrival of data using C                           | :star::star:       |
 |[iceensemble](./iceensemble/)                     | Using multiple publishers for one topic                                   | :star::star:       |
+|[request_response](./request_response/)           | Communication pattern which delivers data on demand (Client/Server)       | :star::star:       |
 |[singleprocess](./singleprocess/)                 | Communicating in a single process between threads                         | :star::star:       |
 |[user_header](./user_header/)                     | Using a user-header for additional meta-information like timestamps       | :star::star:       |
 |[icediscovery](./icediscovery)                    | Searching for currently available services                                | :star::star:       |
