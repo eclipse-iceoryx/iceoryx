@@ -68,7 +68,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     registryPortOptions.offerOnCreate = true;
 
     m_serviceRegistryPublisherPortData =
-        acquirePublisherPortData(
+        acquirePublisherPortDataWithoutDiscovery(
             {SERVICE_REGISTRY_SERVICE_NAME, SERVICE_REGISTRY_INSTANCE_NAME, SERVICE_REGISTRY_EVENT_NAME},
             registryPortOptions,
             IPC_CHANNEL_ROUDI_NAME,
@@ -79,6 +79,9 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                 errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY, nullptr, ErrorLevel::FATAL);
             })
             .value();
+    // now the port to send registry information exists and can be used to publish service registry changes
+    PublisherPortRouDiType serviceRegistryPort(m_serviceRegistryPublisherPortData.value());
+    doDiscoveryForPublisherPort(serviceRegistryPort);
 
     popo::PublisherOptions options;
     options.historyCapacity = 1U;
@@ -591,6 +594,21 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
+    return acquirePublisherPortDataWithoutDiscovery(
+               service, publisherOptions, runtimeName, payloadDataSegmentMemoryManager, portConfigInfo)
+        .and_then([&](auto publisherPortData) {
+            PublisherPortRouDiType port(publisherPortData);
+            doDiscoveryForPublisherPort(port);
+        });
+}
+
+cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescription& service,
+                                                      const popo::PublisherOptions& publisherOptions,
+                                                      const RuntimeName_t& runtimeName,
+                                                      mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                                                      const PortConfigInfo& portConfigInfo) noexcept
+{
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
             [&](const auto& usedByProcess) {
                 LogWarn()
@@ -606,16 +624,13 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
         service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
+
     if (!maybePublisherPortData.has_error())
     {
         auto publisherPortData = maybePublisherPortData.value();
         if (publisherPortData)
         {
             m_portIntrospection.addPublisher(*publisherPortData);
-
-            // we do discovery here for trying to connect the waiting subscribers if offer on create is desired
-            PublisherPortRouDiType publisherPort(publisherPortData);
-            doDiscoveryForPublisherPort(publisherPort);
         }
     }
 
@@ -690,7 +705,7 @@ void PortManager::publishServiceRegistry() const noexcept
 
 void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.add(service).or_else([&](auto&) {
+    m_serviceRegistry.addPublisher(service).or_else([&](auto&) {
         LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
@@ -699,7 +714,7 @@ void PortManager::addEntryToServiceRegistry(const capro::ServiceDescription& ser
 
 void PortManager::removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
-    m_serviceRegistry.remove(service);
+    m_serviceRegistry.removePublisher(service);
     publishServiceRegistry();
 }
 

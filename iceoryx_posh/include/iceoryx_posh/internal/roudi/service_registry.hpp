@@ -46,8 +46,12 @@ class ServiceRegistry
     {
         ServiceDescriptionEntry(const capro::ServiceDescription& serviceDescription);
 
-        capro::ServiceDescription serviceDescription{};
-        ReferenceCounter_t count{1U};
+        capro::ServiceDescription serviceDescription;
+
+        // note that we can have publishers and servers with the same ServiceDescription
+        // and using the counters we save space
+        ReferenceCounter_t publisherCount{0U};
+        ReferenceCounter_t serverCount{0U};
     };
 
     /// @todo #415 #1074 set limits properly and define location for the limits,
@@ -56,15 +60,25 @@ class ServiceRegistry
 
     using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
 
-    /// @brief Adds given service description to registry
+    /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in cxx::expected
-    cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription) noexcept;
+    cxx::expected<Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
 
-    /// @brief Removes given service description from registry if service is found,
+    /// @brief Removes a given publisher service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
     /// @param[in] serviceDescription, service to be removed
-    void remove(const capro::ServiceDescription& serviceDescription) noexcept;
+    void removePublisher(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    /// @brief Adds a given server service description to registry
+    /// @param[in] serviceDescription, service to be added
+    /// @return ServiceRegistryError, error wrapped in cxx::expected
+    cxx::expected<Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
+
+    /// @brief Removes a given server service description from registry if service is found,
+    ///        in case of multiple occurrences only one occurrence is removed
+    /// @param[in] serviceDescription, service to be removed
+    void removeServer(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes given service description from registry if service is found,
     ///        all occurences are removed
@@ -112,6 +126,9 @@ class ServiceRegistry
     void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
 
     void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+
+    cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription,
+                             ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
 } // namespace roudi
 } // namespace iox

@@ -35,7 +35,10 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
     ServiceContainer searchResult;
     for (auto& service : tempSearchResult)
     {
-        searchResult.push_back(service.serviceDescription);
+        if (service.publisherCount > 0)
+        {
+            searchResult.push_back(service.serviceDescription);
+        }
     }
 
     return searchResult;
