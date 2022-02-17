@@ -128,9 +128,9 @@ Contra:
 * Built-in topic approach based on `InterfacePort`'s
   * Sniff and intercept `CaproMessage`
 
-![overview diagram](diagrams/service-discovery/overview-alternative-b.svg)
+![overview diagram](overview-alternative-b.svg)
 
-![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-b.svg)
+![sequence diagram](sequence-diagram-alternative-b.svg)
 
 Pro:
 
@@ -172,9 +172,9 @@ Create a new publisher in RouDi which sends a `ServiceRegistryTopic`. This publi
 change in the service registry and to transmit the service discovery registry. The complete old service registry
 (saved locally) would be compared to the new service registry in a new class, extending the public user API.
 
-![overview diagram](diagrams/service-discovery/overview-alternative-d.svg)
+![overview diagram](overview-alternative-d.svg)
 
-![sequence diagram](diagrams/service-discovery/sequence-diagram-alternative-d.svg)
+![sequence diagram](sequence-diagram-alternative-d.svg)
 
 Pro:
 
@@ -416,5 +416,5 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
 * [x] How does the SOME/IP-SD service discovery API look like?
 * [x] What does a `ros topic list` do in rmw_iceoryx?
 * [ ] Filter for `ServiceDescription::EventString` needed by AUTOSAR? Not supported by `ServiceRegistry::find()` as of today
-* [ ] Decision on mapping table between iceory and DDS (see [overview.md](../website/getting-started/overview.md))
+* [ ] Decision on mapping table between iceory and DDS (see [Overview](overview.md))
   * [ ] Current mapping table between iceoryx and DDS does not work with service discovery
