@@ -555,7 +555,7 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
     EXPECT_THAT(receivedRequestHeader->getSequenceId(), Eq(SEQUENCE_ID));
 
     auto allocateResponseResult =
-    serverPortUser.allocateResponse(receivedRequestHeader, sizeof(DataType), alignof(DataType));
+        serverPortUser.allocateResponse(receivedRequestHeader, sizeof(DataType), alignof(DataType));
     ASSERT_FALSE(allocateResponseResult.has_error());
     auto responseHeader = allocateResponseResult.value();
     serverPortUser.sendResponse(responseHeader);
@@ -567,5 +567,7 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
 }
 
 // END discovery tests
+
+/// @todo iox-#27 add service registry tests once it is possible to query the service registry for server
 
 } // namespace iox_test_roudi_portmanager

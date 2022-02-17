@@ -1050,7 +1050,7 @@ void PortManager::publishServiceRegistry() const noexcept
 void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.addPublisher(service).or_else([&](auto&) {
-        LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
+        LogWarn() << "Could not add publisher with service description '" << service << "' to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
     });
     publishServiceRegistry();
@@ -1064,19 +1064,17 @@ void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescrip
 
 void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept
 {
-    /// @todo iox-#27 add server to service registry
-    // m_serviceRegistry.add(service).or_else([&](auto&) {
-    //     LogWarn() << "Could not add service " << service.getServiceIDString() << " to service registry!";
-    //     errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
-    // });
-    // publishServiceRegistry();
+    m_serviceRegistry.addServer(service).or_else([&](auto&) {
+        LogWarn() << "Could not add server with service description '" << service << "' to service registry!";
+        errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
+    });
+    publishServiceRegistry();
 }
 
 void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept
 {
-    /// @todo iox-#27 remove from service registry
-    // m_serviceRegistry.remove(service);
-    // publishServiceRegistry();
+    m_serviceRegistry.removeServer(service);
+    publishServiceRegistry();
 }
 
 cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
