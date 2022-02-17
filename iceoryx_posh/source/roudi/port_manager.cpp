@@ -254,7 +254,6 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
     popo::ClientPortRouDi clientPortRoudi(*clientPortData);
     popo::ClientPortUser clientPortUser(*clientPortData);
 
-    clientPortRoudi.releaseAllChunks();
     clientPortUser.disconnect();
 
     // process DISCONNECT for this client in RouDi and distribute it
@@ -264,6 +263,8 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
         /// @todo iox-#27 report to port introspection
         this->sendToAllMatchingServerPorts(caproMessage, clientPortRoudi);
     });
+
+    clientPortRoudi.releaseAllChunks();
 
     /// @todo iox-#27 remove from to port introspection
 
@@ -339,7 +340,6 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
     popo::ServerPortRouDi serverPortRoudi{*serverPortData};
     popo::ServerPortUser serverPortUser{*serverPortData};
 
-    serverPortRoudi.releaseAllChunks();
     serverPortUser.stopOffer();
 
     // process STOP_OFFER for this server in RouDi and distribute it
@@ -352,6 +352,8 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
         this->sendToAllMatchingClientPorts(caproMessage, serverPortRoudi);
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
+
+    serverPortRoudi.releaseAllChunks();
 
     /// @todo iox-#27 remove from port introspection
 
@@ -813,7 +815,6 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     PublisherPortRouDiType publisherPortRoudi{publisherPortData};
     PublisherPortUserType publisherPortUser{publisherPortData};
 
-    publisherPortRoudi.releaseAllChunks();
     publisherPortUser.stopOffer();
 
     // process STOP_OFFER for this publisher in RouDi and distribute it
@@ -825,6 +826,8 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
+
+    publisherPortRoudi.releaseAllChunks();
 
     m_portIntrospection.removePublisher(publisherPortUser);
 
@@ -840,7 +843,6 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     SubscriberPortType subscriberPortRoudi(subscriberPortData);
     SubscriberPortUserType subscriberPortUser(subscriberPortData);
 
-    subscriberPortRoudi.releaseAllChunks();
     subscriberPortUser.unsubscribe();
 
     // process UNSUB for this subscriber in RouDi and distribute it
@@ -850,6 +852,8 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
         m_portIntrospection.reportMessage(caproMessage);
         this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
     });
+
+    subscriberPortRoudi.releaseAllChunks();
 
     m_portIntrospection.removeSubscriber(subscriberPortUser);
 
