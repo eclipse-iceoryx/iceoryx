@@ -527,4 +527,45 @@ TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithDiscardOldestDataAr
 
 // END policy based connection tests
 
+// BEGIN communication tests
+
+TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6376b58d-a796-4cc4-9c40-0c5a117b53f5");
+    auto clientOptions = createTestClientOptions();
+    clientOptions.connectOnCreate = true;
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    auto clientPortUser = createClient(clientOptions);
+
+    using DataType = uint64_t;
+    constexpr int64_t SEQUENCE_ID{42};
+
+    auto allocateRequestResult = clientPortUser.allocateRequest(sizeof(DataType), alignof(DataType));
+    ASSERT_FALSE(allocateRequestResult.has_error());
+    auto requestHeader = allocateRequestResult.value();
+    requestHeader->setSequenceId(SEQUENCE_ID);
+    clientPortUser.sendRequest(requestHeader);
+
+    auto getRequestResult = serverPortUser.getRequest();
+    ASSERT_FALSE(getRequestResult.has_error());
+    auto receivedRequestHeader = getRequestResult.value();
+    EXPECT_THAT(receivedRequestHeader->getSequenceId(), Eq(SEQUENCE_ID));
+
+    auto allocateResponseResult =
+    serverPortUser.allocateResponse(receivedRequestHeader, sizeof(DataType), alignof(DataType));
+    ASSERT_FALSE(allocateResponseResult.has_error());
+    auto responseHeader = allocateResponseResult.value();
+    serverPortUser.sendResponse(responseHeader);
+
+    auto getResponseResult = clientPortUser.getResponse();
+    ASSERT_FALSE(getResponseResult.has_error());
+    auto receivedResponseHeader = getResponseResult.value();
+    EXPECT_THAT(receivedResponseHeader->getSequenceId(), Eq(SEQUENCE_ID));
+}
+
+// END discovery tests
+
 } // namespace iox_test_roudi_portmanager
