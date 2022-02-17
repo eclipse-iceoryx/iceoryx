@@ -22,11 +22,13 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
 
 extern "C" {
+#include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/listener.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
@@ -46,6 +48,7 @@ using namespace iox::mepoo;
 
 iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
+iox_client_t g_clientCallbackArgument = nullptr;
 void* g_contextData = nullptr;
 
 void userTriggerCallback(iox_user_trigger_t userTrigger)
@@ -70,6 +73,17 @@ void subscriberCallbackWithContextData(iox_sub_t subscriber, void* const context
     g_contextData = contextData;
 }
 
+void clientCallback(iox_client_t client)
+{
+    g_clientCallbackArgument = client;
+}
+
+void clientCallbackWithContextData(iox_client_t client, void* const contextData)
+{
+    g_clientCallbackArgument = client;
+    g_contextData = contextData;
+}
+
 class iox_listener_test : public Test
 {
   public:
@@ -86,6 +100,7 @@ class iox_listener_test : public Test
     {
         g_userTriggerCallbackArgument = nullptr;
         g_subscriberCallbackArgument = nullptr;
+        g_clientCallbackArgument = nullptr;
         g_contextData = nullptr;
 
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
@@ -146,6 +161,7 @@ class iox_listener_test : public Test
 
     ConditionVariableData m_condVar{"hypnotoadKnueppeltRetour"};
     TestListener m_sut{m_condVar};
+    std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("long_live_lord_buckethead");
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U];
     cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U> m_userTrigger;
@@ -162,6 +178,7 @@ class iox_listener_test : public Test
 
     iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
 
+    ClientPortData portData{{"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &m_memoryManager};
     cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriberPortData;
     cxx::vector<cpp2c_Subscriber, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriber;
     cxx::vector<ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t>, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1>
@@ -364,5 +381,62 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
     EXPECT_THAT(g_contextData, Eq(static_cast<void*>(&someContextData)));
 });
+
+TEST_F(iox_listener_test, AttachingClientWorks)
+{
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    iox_listener_attach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallback);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+
+    iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+}
+
+void notifyClient(ClientPortData& portData)
+{
+    portData.m_connectRequested.store(true);
+    portData.m_connectionState = iox::ConnectionState::CONNECTED;
+    iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    pusher.push(iox::mepoo::SharedChunk());
+    portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post();
+}
+
+TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    iox_listener_attach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallback);
+
+    notifyClient(portData);
+    std::this_thread::sleep_for(TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(g_clientCallbackArgument == client);
+
+    iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+});
+
+TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repeat(5), [&] {
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    iox_listener_attach_client_event_with_context_data(
+        &m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, &clientStorage);
+
+    notifyClient(portData);
+    std::this_thread::sleep_for(TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(g_clientCallbackArgument == client);
+    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&clientStorage));
+
+    iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+});
+
 
 } // namespace

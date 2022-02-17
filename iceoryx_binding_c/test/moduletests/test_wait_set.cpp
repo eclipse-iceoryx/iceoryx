@@ -745,8 +745,6 @@ TEST_F(iox_ws_test, UserTriggerCallbackWithContextDataIsCalled)
 TEST_F(iox_ws_test, AttachingClientEventWorks)
 {
     iox_client_storage_t clientStorage;
-    iox::mepoo::MemoryManager memoryManager;
-    ClientPortData portData({"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &memoryManager);
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
@@ -817,8 +815,6 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
 TEST_F(iox_ws_test, AttachingClientStateWorks)
 {
     iox_client_storage_t clientStorage;
-    iox::mepoo::MemoryManager memoryManager;
-    ClientPortData portData({"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &memoryManager);
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
