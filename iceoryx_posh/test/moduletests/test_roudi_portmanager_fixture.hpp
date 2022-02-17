@@ -22,28 +22,29 @@
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
+#include "iceoryx_posh/popo/client_options.hpp"
+#include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 
 #include "test.hpp"
 
 #include <cstdint>
-#include <limits> // std::numeric_limits
+#include <limits>
 
 namespace iox_test_roudi_portmanager
 {
 using namespace ::testing;
+using namespace iox;
+using namespace iox::capro;
 using namespace iox::cxx;
+using namespace iox::popo;
+using namespace iox::roudi;
 
-using iox::popo::PublisherOptions;
-using iox::popo::PublisherPortUser;
-using iox::popo::QueueFullPolicy;
-using iox::popo::SubscriberOptions;
-using iox::popo::SubscriberPortUser;
-using iox::roudi::IceOryxRouDiMemoryManager;
-using iox::roudi::PortManager;
-using iox::roudi::PortPoolError;
 using iox::runtime::PortConfigInfo;
 
 class PortManagerTester : public PortManager
@@ -69,6 +70,8 @@ class PortManager_test : public Test
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
 
     iox::RuntimeName_t m_runtimeName{"TestApp"};
+
+    cxx::GenericRAII suppressLogging = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
 
     void SetUp() override
     {
@@ -191,6 +194,24 @@ class PortManager_test : public Test
     {
         return SubscriberPortUser(
             m_portManager->acquireSubscriberPortData({"1", "1", "1"}, options, "schlomo", PortConfigInfo()).value());
+    }
+
+    ClientPortUser createClient(const ClientOptions& options)
+    {
+        const ServiceDescription sd{"1", "1", "1"};
+        const RuntimeName_t runtimeName{"guiseppe"};
+        return ClientPortUser(
+            *m_portManager->acquireClientPortData(sd, options, runtimeName, m_payloadDataSegmentMemoryManager, {})
+                 .value());
+    }
+
+    ServerPortUser createServer(const ServerOptions& options)
+    {
+        const ServiceDescription sd{"1", "1", "1"};
+        const RuntimeName_t runtimeName{"schlomo"};
+        return ServerPortUser(
+            *m_portManager->acquireServerPortData(sd, options, runtimeName, m_payloadDataSegmentMemoryManager, {})
+                 .value());
     }
 };
 
