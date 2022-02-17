@@ -39,6 +39,11 @@ ServerPortRouDi::MemberType_t* ServerPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
+QueueFullPolicy ServerPortRouDi::getRequestQueueFullPolicy() const noexcept
+{
+    return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
+}
+
 ConsumerTooSlowPolicy ServerPortRouDi::getClientTooSlowPolicy() const noexcept
 {
     return getMembers()->m_chunkSenderData.m_consumerTooSlowPolicy;

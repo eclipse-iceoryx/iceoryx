@@ -45,6 +45,12 @@ class ServerPortRouDi : public BasePort
     ServerPortRouDi& operator=(ServerPortRouDi&& rhs) noexcept = default;
     ~ServerPortRouDi() = default;
 
+    /// @brief Access to the configured requestQueueFullPolicy
+    /// @return the configured requestQueueFullPolicy
+    QueueFullPolicy getRequestQueueFullPolicy() const noexcept;
+
+    /// @brief Access to the configured clientTooSlowPolicy
+    /// @return the configured clientTooSlowPolicy
     ConsumerTooSlowPolicy getClientTooSlowPolicy() const noexcept;
 
     /// @brief get an optional CaPro message that changes the offer state of the server
