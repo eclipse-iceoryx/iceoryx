@@ -33,6 +33,10 @@ class UntypedClientImpl : public BaseClientT
   public:
     explicit UntypedClientImpl(const capro::ServiceDescription& service,
                                const ClientOptions& clientOptions = {}) noexcept;
+    UntypedClientImpl(const UntypedClientImpl&) = delete;
+    UntypedClientImpl(UntypedClientImpl&&) = delete;
+    UntypedClientImpl& operator=(const UntypedClientImpl&) = delete;
+    UntypedClientImpl& operator=(UntypedClientImpl&&) = delete;
 
     /// @brief Get a request chunk from loaned shared memory.
     /// @param payloadSize The expected payload size of the chunk.

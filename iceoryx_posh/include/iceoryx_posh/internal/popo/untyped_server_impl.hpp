@@ -31,6 +31,10 @@ class UntypedServerImpl : public BaseServerT
   public:
     explicit UntypedServerImpl(const capro::ServiceDescription& service,
                                const ServerOptions& serverOptions = {}) noexcept;
+    UntypedServerImpl(const UntypedServerImpl&) = delete;
+    UntypedServerImpl(UntypedServerImpl&&) = delete;
+    UntypedServerImpl& operator=(const UntypedServerImpl&) = delete;
+    UntypedServerImpl& operator=(UntypedServerImpl&&) = delete;
 
     /// @brief Take the request chunk from the top of the receive queue.
     /// @return The payload pointer of the request chunk taken.
