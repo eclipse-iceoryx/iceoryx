@@ -1066,7 +1066,7 @@ void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescrip
     publishServiceRegistry();
 }
 
-void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept
+void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.addServer(service).or_else([&](auto&) {
         LogWarn() << "Could not add server with service description '" << service << "' to service registry!";
@@ -1075,7 +1075,7 @@ void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& se
     publishServiceRegistry();
 }
 
-void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept
+void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removeServer(service);
     publishServiceRegistry();
