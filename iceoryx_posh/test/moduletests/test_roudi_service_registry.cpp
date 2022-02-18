@@ -141,11 +141,17 @@ class ServiceRegistry_test : public Test
     Sut sut;
 };
 
+constexpr auto CAPACITY = ServiceRegistry::capacity();
+
+TEST(ServiceRegistry_test, CapacityEqualsIceoryxConfigurationValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "37d31e44-1072-4d45-a164-d391fb28d247");
+    EXPECT_EQ(ServiceRegistry::capacity(), iox::SERVICE_REGISTRY_CAPACITY);
+    EXPECT_EQ(ServiceRegistry::capacity(), ServiceRegistry::CAPACITY);
+}
+
 typedef ::testing::Types<PublisherTest, ServerTest> TestTypes;
-
-
 TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes);
-
 
 TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
 {
@@ -158,9 +164,9 @@ TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturn
 TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fa7d6416-4183-4942-a323-01f78c1bb6c1");
-    iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
+    iox::cxx::vector<ServiceDescription, CAPACITY> services;
 
-    for (uint64_t i = 0U; i < ServiceRegistry::MAX_SERVICE_DESCRIPTIONS; i++)
+    for (uint64_t i = 0U; i < CAPACITY; i++)
     {
         services.push_back(iox::capro::ServiceDescription(
             "Foo", "Bar", iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))));
@@ -176,9 +182,9 @@ TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
-    iox::cxx::vector<ServiceDescription, ServiceRegistry::MAX_SERVICE_DESCRIPTIONS> services;
+    iox::cxx::vector<ServiceDescription, CAPACITY> services;
 
-    for (uint64_t i = 0U; i < ServiceRegistry::MAX_SERVICE_DESCRIPTIONS; i++)
+    for (uint64_t i = 0U; i < CAPACITY; i++)
     {
         services.push_back(iox::capro::ServiceDescription(
             "Foo", "Bar", iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))));
@@ -586,15 +592,15 @@ string_t randomString(uint64_t size = string_t::capacity())
     constexpr auto N = string_t::capacity();
     size = std::min(N, size);
 
-    char a[N + 1];
+    char a[N + 1U];
     for (uint64_t i = 0U; i < size; ++i)
     {
-        a[i] = chars[uniform(sizeof(chars) - 1)];
+        // -2 is needed to avoid generating the '\0' terminator of chars
+        a[i] = chars[uniform(sizeof(chars) - 2U)];
     }
     a[size] = '\0';
 
-    string_t s(a);
-    return s;
+    return string_t(a);
 }
 
 TYPED_TEST(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptions)
@@ -617,7 +623,7 @@ TYPED_TEST(ServiceRegistry_test, CanAddMaximumNumberOfDifferentServiceDescriptio
     // duplicates do not count to the max and may be generated randomly,
     // but for the contract we only need to guarantee that we can at least addPublisher
     // the configured max
-    constexpr auto MAX = ServiceRegistry::MAX_SERVICE_DESCRIPTIONS;
+    constexpr auto MAX = ServiceRegistry::CAPACITY;
     EXPECT_GE(numEntriesAdded, MAX);
 }
 

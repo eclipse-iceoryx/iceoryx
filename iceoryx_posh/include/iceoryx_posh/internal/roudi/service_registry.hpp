@@ -40,6 +40,8 @@ class ServiceRegistry
         SERVICE_REGISTRY_FULL,
     };
 
+    static constexpr uint32_t CAPACITY = iox::SERVICE_REGISTRY_CAPACITY;
+
     using ReferenceCounter_t = uint64_t;
 
     struct ServiceDescriptionEntry
@@ -54,9 +56,7 @@ class ServiceRegistry
         ReferenceCounter_t serverCount{0U};
     };
 
-    static constexpr uint32_t MAX_SERVICE_DESCRIPTIONS = iox::SERVICE_REGISTRY_CAPACITY;
-
-    using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, MAX_SERVICE_DESCRIPTIONS>;
+    using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, CAPACITY>;
 
     /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
@@ -105,11 +105,15 @@ class ServiceRegistry
     /// @return ServiceDescriptionVector_t, copy of complete service registry
     const ServiceDescriptionVector_t getServices() const noexcept;
 
+    /// @brief Returns the capacity of the ServiceRegistry
+    /// @return capacity (= maximum number of distinct service descriptions)
+    static constexpr uint32_t capacity() noexcept;
+
   private:
     using Entry_t = cxx::optional<ServiceDescriptionEntry>;
-    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, MAX_SERVICE_DESCRIPTIONS>;
+    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, CAPACITY>;
 
-    static constexpr uint32_t NO_INDEX = MAX_SERVICE_DESCRIPTIONS;
+    static constexpr uint32_t NO_INDEX = CAPACITY;
 
     ServiceDescriptionContainer_t m_serviceDescriptions;
 
@@ -121,13 +125,17 @@ class ServiceRegistry
   private:
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
-    void getAll(ServiceDescriptionVector_t& searchResult) const noexcept;
-
     void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
     cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription,
                              ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
+
+constexpr uint32_t ServiceRegistry::capacity() noexcept
+{
+    return CAPACITY;
+}
+
 } // namespace roudi
 } // namespace iox
 
