@@ -434,10 +434,10 @@ TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
     ::testing::Test::RecordProperty("TEST_ID", "42bc3f21-d9f4-4cc3-a37e-6508e1f981c1");
     Logger_Mock loggerMock;
 
-    const IdString_t SERVICE_ID{"S"};
-    const IdString_t INSTANCE_ID{"I"};
-    const IdString_t EVENT_ID{"E"};
-    const std::string SERVICE_DESCRIPTION_AS_STRING{"Service: S, Instance: I, Event: E"};
+    const IdString_t SERVICE_ID{"all"};
+    const IdString_t INSTANCE_ID{"glory"};
+    const IdString_t EVENT_ID{"hypnotoad"};
+    const std::string SERVICE_DESCRIPTION_AS_STRING{"Service: all, Instance: glory, Event: hypnotoad"};
     auto sut = ServiceDescription{SERVICE_ID, INSTANCE_ID, EVENT_ID};
 
     {
