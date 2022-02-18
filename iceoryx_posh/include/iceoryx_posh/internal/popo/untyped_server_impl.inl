@@ -53,7 +53,7 @@ void UntypedServerImpl<BaseServerT>::releaseRequest(const void* const requestPay
 }
 
 template <typename BaseServerT>
-cxx::expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const RequestHeader* requestHeader,
+cxx::expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const RequestHeader* const requestHeader,
                                                                            const uint32_t payloadSize,
                                                                            const uint32_t payloadAlignment) noexcept
 {
