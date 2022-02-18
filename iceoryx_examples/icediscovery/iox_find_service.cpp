@@ -16,32 +16,40 @@
 
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+//! [include ServiceDiscovery]
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+//! [include ServiceDiscovery]
 
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-find-service";
 
+//! [print function to be applied to search results]
 void printSearchResult(const iox::capro::ServiceDescription& service)
 {
     std::cout << "- " << service << std::endl;
 }
+//! [print function to be applied to search results]
 
 int main()
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
+    //! [create ServiceDiscovery object]
     iox::runtime::ServiceDiscovery serviceDiscovery;
+    //! [create ServiceDiscovery object]
 
     while (!iox::posix::hasTerminationRequested())
     {
         std::cout << "\n=========================================" << std::endl;
 
         std::cout << "\nSearched for {'Radar', 'FrontLeft', 'Image'}. Found the following services:" << std::endl;
+        //! [search for unique service]
         serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
                                      iox::capro::IdString_t{"FrontLeft"},
                                      iox::capro::IdString_t{"Image"},
                                      printSearchResult);
+        //! [search for unique service]
 
         std::cout << "\nSearched for {'Radar', *, *}. Found the following services:" << std::endl;
         serviceDiscovery.findService(
@@ -58,8 +66,10 @@ int main()
                                      printSearchResult);
 
         std::cout << "\nSearched for {'Camera', *, *}. Found the following services:" << std::endl;
+        //! [search for all Camera services]
         serviceDiscovery.findService(
             iox::capro::IdString_t{"Camera"}, iox::capro::Wildcard, iox::capro::Wildcard, printSearchResult);
+        //! [search for all Camera services]
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
