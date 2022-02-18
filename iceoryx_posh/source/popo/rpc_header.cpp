@@ -86,12 +86,14 @@ bool RequestHeader::isFireAndForget() const noexcept
 
 RequestHeader* RequestHeader::fromPayload(void* const payload) noexcept
 {
-    return static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<RequestHeader*>(chunkHeader->userHeader()) : nullptr;
 }
 
 const RequestHeader* RequestHeader::fromPayload(const void* const payload) noexcept
 {
-    return static_cast<const RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<const RequestHeader*>(chunkHeader->userHeader()) : nullptr;
 }
 
 ResponseHeader::ResponseHeader(const cxx::UniqueId& uniqueClientQueueId,
@@ -113,12 +115,14 @@ bool ResponseHeader::hasServerError() const noexcept
 
 ResponseHeader* ResponseHeader::fromPayload(void* const payload) noexcept
 {
-    return static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<ResponseHeader*>(chunkHeader->userHeader()) : nullptr;
 }
 
 const ResponseHeader* ResponseHeader::fromPayload(const void* const payload) noexcept
 {
-    return static_cast<const ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<const ResponseHeader*>(chunkHeader->userHeader()) : nullptr;
 }
 
 } // namespace popo

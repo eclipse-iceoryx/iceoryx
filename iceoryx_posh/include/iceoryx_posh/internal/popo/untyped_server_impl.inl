@@ -45,8 +45,11 @@ cxx::expected<const void*, ServerRequestResult> UntypedServerImpl<BaseServerT>::
 template <typename BaseServerT>
 void UntypedServerImpl<BaseServerT>::releaseRequest(const void* const requestPayload) noexcept
 {
-    port().releaseRequest(
-        static_cast<const RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(requestPayload)->userHeader()));
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
+    if (chunkHeader)
+    {
+        port().releaseRequest(static_cast<const RequestHeader*>(chunkHeader->userHeader()));
+    }
 }
 
 template <typename BaseServerT>
@@ -66,15 +69,21 @@ cxx::expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const
 template <typename BaseServerT>
 void UntypedServerImpl<BaseServerT>::send(void* const responsePayload) noexcept
 {
-    port().sendResponse(
-        static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(responsePayload)->userHeader()));
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
+    if (chunkHeader)
+    {
+        port().sendResponse(static_cast<ResponseHeader*>(chunkHeader->userHeader()));
+    }
 }
 
 template <typename BaseServerT>
 void UntypedServerImpl<BaseServerT>::releaseResponse(void* const responsePayload) noexcept
 {
-    port().releaseResponse(
-        static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(responsePayload)->userHeader()));
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
+    if (chunkHeader)
+    {
+        port().releaseResponse(static_cast<ResponseHeader*>(chunkHeader->userHeader()));
+    }
 }
 
 } // namespace popo
