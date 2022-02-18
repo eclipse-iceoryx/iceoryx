@@ -38,11 +38,23 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>>
   public:
     explicit ServerImpl(const capro::ServiceDescription& service, const ServerOptions& serverOptions = {}) noexcept;
 
+    /// @brief Take the Request from the top of the receive queue.
+    /// @return Either a Request or a ServerRequestResult.
+    /// @details The Request takes care of the cleanup. Don't store the raw pointer to the content of the Request, but
+    /// always the whole Request.
     cxx::expected<Request<const Req>, ServerRequestResult> take() noexcept;
 
+    /// @brief Get a Response from loaned shared memory and construct the data with the given arguments.
+    /// @param[in] request The request to which the Response belongs to, to determine where to send the response
+    /// @param[in] args Arguments used to construct the data.
+    /// @return An instance of the Response that resides in shared memory or an error if unable to allocate memory to
+    /// loan.
+    /// @details The loaned Response is automatically released when it goes out of scope.
     template <typename... Args>
     cxx::expected<Response<Res>, AllocationError> loan(const Request<const Req>& request, Args&&... args) noexcept;
 
+    /// @brief Sends the given Response and then releases its loan.
+    /// @param response to send.
     void send(Response<Res>&& response) noexcept override;
 
   private:

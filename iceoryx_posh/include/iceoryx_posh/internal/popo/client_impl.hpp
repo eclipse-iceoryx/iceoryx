@@ -38,11 +38,22 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
   public:
     explicit ClientImpl(const capro::ServiceDescription& service, const ClientOptions& clientOptions = {}) noexcept;
 
+    /// @brief Get a Request from loaned shared memory and construct the data with the given arguments.
+    /// @param[in] args Arguments used to construct the data.
+    /// @return An instance of the Request that resides in shared memory or an error if unable to allocate memory to
+    /// loan.
+    /// @details The loaned Request is automatically released when it goes out of scope.
     template <typename... Args>
     cxx::expected<Request<Req>, AllocationError> loan(Args&&... args) noexcept;
 
+    /// @brief Sends the given Request and then releases its loan.
+    /// @param request to send.
     void send(Request<Req>&& request) noexcept override;
 
+    /// @brief Take the Response from the top of the receive queue.
+    /// @return Either a Response or a ChunkReceiveResult.
+    /// @details The Response takes care of the cleanup. Don't store the raw pointer to the content of the Response, but
+    /// always the whole Response.
     cxx::expected<Response<const Res>, ChunkReceiveResult> take() noexcept;
 
   private:
