@@ -52,9 +52,9 @@ class BaseServer
 
     ///
     /// @brief Get the service description of the server.
-    /// @return The service description.
+    /// @return A reference to the service description.
     ///
-    capro::ServiceDescription getServiceDescription() const noexcept;
+    const capro::ServiceDescription& getServiceDescription() const noexcept;
 
     ///
     /// @brief Offer the service to be connected to.

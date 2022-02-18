@@ -44,7 +44,7 @@ inline uid_t BaseServer<Port>::getUid() const noexcept
 }
 
 template <typename Port>
-inline capro::ServiceDescription BaseServer<Port>::getServiceDescription() const noexcept
+inline const capro::ServiceDescription& BaseServer<Port>::getServiceDescription() const noexcept
 {
     return m_port.getCaProServiceDescription();
 }

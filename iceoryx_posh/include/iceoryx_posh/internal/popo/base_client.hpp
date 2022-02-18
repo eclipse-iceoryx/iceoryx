@@ -52,9 +52,9 @@ class BaseClient
 
     ///
     /// @brief Get the service description of the client.
-    /// @return The service description.
+    /// @return A reference to the service description.
     ///
-    capro::ServiceDescription getServiceDescription() const noexcept;
+    const capro::ServiceDescription& getServiceDescription() const noexcept;
 
     ///
     /// @brief Initiate connection to server.
