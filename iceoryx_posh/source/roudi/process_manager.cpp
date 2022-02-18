@@ -430,7 +430,8 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                            << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
-                LogDebug() << "Created new SubscriberPort for application " << name;
+                LogDebug() << "Created new SubscriberPort for application '" << name << "' with service description '"
+                           << service << "'";
             }
             else
             {
@@ -438,10 +439,14 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SUBSCRIBER_LIST_FULL);
                 process->sendViaIpcChannel(sendBuffer);
-                LogError() << "Could not create SubscriberPort for application " << name;
+                LogError() << "Could not create SubscriberPort for application '" << name
+                           << "' with service description '" << service << "'";
             }
         })
-        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a SubscriberPort."; });
+        .or_else([&]() {
+            LogWarn() << "Unknown application '" << name << "' requested a SubscriberPort with service description '"
+                      << service << "'";
+        });
 }
 
 void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
@@ -477,7 +482,8 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                            << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
-                LogDebug() << "Created new PublisherPort for application " << name;
+                LogDebug() << "Created new PublisherPort for application '" << name << "' with service description '"
+                           << service << "'";
             }
             else
             {
@@ -488,10 +494,14 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                          ? runtime::IpcMessageErrorType::NO_UNIQUE_CREATED
                          : runtime::IpcMessageErrorType::PUBLISHER_LIST_FULL));
                 process->sendViaIpcChannel(sendBuffer);
-                LogError() << "Could not create PublisherPort for application " << name;
+                LogError() << "Could not create PublisherPort for application '" << name
+                           << "' with service description '" << service << "'";
             }
         })
-        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a PublisherPort."; });
+        .or_else([&]() {
+            LogWarn() << "Unknown application '" << name << "' requested a PublisherPort with service description '"
+                      << service << "'";
+        });
 }
 
 void ProcessManager::addClientForProcess(const RuntimeName_t& name,
@@ -526,7 +536,8 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Created new ClientPort for application " << name;
+                    LogDebug() << "Created new ClientPort for application '" << name << "' with service description '"
+                               << service << "'";
                 })
                 .or_else([&](auto&) {
                     runtime::IpcMessage sendBuffer;
@@ -534,10 +545,14 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::CLIENT_LIST_FULL);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    LogError() << "Could not create Client for application " << name;
+                    LogError() << "Could not create ClientPort for application '" << name
+                               << "' with service description '" << service << "'";
                 });
         })
-        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a ClientPort."; });
+        .or_else([&]() {
+            LogWarn() << "Unknown application '" << name << "' requested a ClientPort with service description '"
+                      << service << "'";
+        });
 }
 
 void ProcessManager::addServerForProcess(const RuntimeName_t& name,
@@ -572,7 +587,8 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Created new ServerPort for application " << name;
+                    LogDebug() << "Created new ServerPort for application '" << name << "' with service description '"
+                               << service << "'";
                 })
                 .or_else([&](auto&) {
                     runtime::IpcMessage sendBuffer;
@@ -580,10 +596,14 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SERVER_LIST_FULL);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    LogError() << "Could not create server for application " << name;
+                    LogError() << "Could not create ServerPort for application '" << name
+                               << "' with service description '" << service << "'";
                 });
         })
-        .or_else([&]() { LogWarn() << "Unknown application " << name << " requested a ServerPort."; });
+        .or_else([&]() {
+            LogWarn() << "Unknown application '" << name << "' requested a ServerPort with service description '"
+                      << service << "'";
+        });
 }
 
 void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtimeName) noexcept

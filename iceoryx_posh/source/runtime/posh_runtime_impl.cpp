@@ -297,17 +297,19 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
         switch (maybeClient.get_error())
         {
         case IpcMessageErrorType::CLIENT_LIST_FULL:
-            LogWarn() << "Could not create client as we are out of memory for clients.";
+            LogWarn() << "Could not create client with service description '" << service
+                      << "' as we are out of memory for clients.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_OUT_OF_CLIENTS, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE:
-            LogWarn() << "Could not create client; received wrong IPC channel response.";
+            LogWarn() << "Could not create client with service description '" << service
+                      << "'; received wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
         default:
-            LogWarn() << "Unknown error occurred while creating client";
+            LogWarn() << "Unknown error occurred while creating client with service description '" << service << "'";
             errorHandler(Error::kPOSH__RUNTIME_CLIENT_PORT_CREATION_UNKNOWN_ERROR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
@@ -368,17 +370,19 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
         switch (maybeServer.get_error())
         {
         case IpcMessageErrorType::SERVER_LIST_FULL:
-            LogWarn() << "Could not create server as we are out of memory for servers.";
+            LogWarn() << "Could not create server with service description '" << service
+                      << "' as we are out of memory for servers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_OUT_OF_SERVERS, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE:
-            LogWarn() << "Could not create server; received wrong IPC channel response.";
+            LogWarn() << "Could not create server with service description '" << service
+                      << "'; received wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
         default:
-            LogWarn() << "Unknown error occurred while creating server";
+            LogWarn() << "Unknown error occurred while creating server with service description '" << service << "'";
             errorHandler(Error::kPOSH__RUNTIME_SERVER_PORT_CREATION_UNKNOWN_ERROR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
