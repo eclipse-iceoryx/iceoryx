@@ -49,7 +49,7 @@ cxx::expected<Response<Res>, AllocationError>
 ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& request) noexcept
 {
     const auto* requestHeader = &request.getRequestHeader();
-    auto result = port().allocateResponse(requestHeader, sizeof(Req), alignof(Req));
+    auto result = port().allocateResponse(requestHeader, sizeof(Res), alignof(Res));
     if (result.has_error())
     {
         return cxx::error<AllocationError>(result.get_error());
