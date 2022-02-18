@@ -441,4 +441,16 @@ TEST_F(iox_client_test, HasNoMissedResponses)
     sutPort->m_chunkReceiverData.m_queueHasLostChunks = false;
     EXPECT_FALSE(iox_client_has_missed_responses(sut));
 }
+
+TEST_F(iox_client_test, GetServiceDescriptionWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d456aa37-4c28-4de7-9adc-2c5c4108f588");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_service_description_t serviceDescription = iox_client_get_service_description(sut);
+
+    EXPECT_THAT(serviceDescription.serviceString, StrEq(SERVICE));
+    EXPECT_THAT(serviceDescription.instanceString, StrEq(INSTANCE));
+    EXPECT_THAT(serviceDescription.eventString, StrEq(EVENT));
+}
 } // namespace

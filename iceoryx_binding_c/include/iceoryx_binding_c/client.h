@@ -19,6 +19,7 @@
 
 #include "iceoryx_binding_c/config.h"
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/service_description.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief client handle
@@ -153,5 +154,8 @@ bool iox_client_has_responses(iox_client_t const self);
 /// @return true if there are lost responses due to overflowing queue, otherwise false
 bool iox_client_has_missed_responses(iox_client_t const self);
 
-
+/// @brief returns the service description of the client
+/// @param[in] self handle to the client
+/// @return the service description
+iox_service_description_t iox_client_get_service_description(iox_client_t const self);
 #endif

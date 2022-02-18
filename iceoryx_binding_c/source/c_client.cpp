@@ -16,6 +16,7 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
 
@@ -189,4 +190,9 @@ bool iox_client_has_missed_responses(iox_client_t const self)
 {
     iox::cxx::Expects(self != nullptr);
     return self->hasMissedResponses();
+}
+
+iox_service_description_t iox_client_get_service_description(iox_client_t const self)
+{
+    return TranslateServiceDescription(self->getServiceDescription());
 }
