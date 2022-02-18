@@ -121,11 +121,25 @@ class ProcessManager : public ProcessManagerInterface
                                 const popo::PublisherOptions& publisherOptions,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
+    /// @brief Adds a client port to the internal process object and sends it to the OS process
+    /// @param[in] name is the name of the runtime requesting the port
+    /// @param[in] service is the service description for the new client port
+    /// @param[in] clientOptions like the queue capacity and queue full policy by a client
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created client port data
     void addClientForProcess(const RuntimeName_t& name,
                              const capro::ServiceDescription& service,
                              const popo::ClientOptions& clientOptions,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
+    /// @brief Adds a server port to the internal process object and sends it to the OS process
+    /// @param[in] name is the name of the runtime requesting the port
+    /// @param[in] service is the service description for the new server port
+    /// @param[in] serverOptions like the queue capacity and queue full policy by a server
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created server port data
     void addServerForProcess(const RuntimeName_t& name,
                              const capro::ServiceDescription& service,
                              const popo::ServerOptions& serverOptions,

@@ -99,12 +99,24 @@ class PoshRuntime
                             const popo::SubscriberOptions& subscriberOptions = {},
                             const PortConfigInfo& portConfigInfo = {}) noexcept = 0;
 
-    virtual popo::ClientPortUser::MemberType_t*
+    /// @brief request the RouDi daemon to create a client port
+    /// @param[in] serviceDescription service description for the new client port
+    /// @param[in] clientOptions like the queue capacity and queue full policy by a client
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created client port data
+    virtual popo::ClientPortData*
     getMiddlewareClient(const capro::ServiceDescription& service,
                         const popo::ClientOptions& clientOptions = {},
                         const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
 
-    virtual popo::ServerPortUser::MemberType_t*
+    /// @brief request the RouDi daemon to create a server port
+    /// @param[in] serviceDescription service description for the new server port
+    /// @param[in] serverOptions like the queue capacity and queue full policy by a server
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created server port data
+    virtual popo::ServerPortData*
     getMiddlewareServer(const capro::ServiceDescription& service,
                         const popo::ServerOptions& serverOptions = {},
                         const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
