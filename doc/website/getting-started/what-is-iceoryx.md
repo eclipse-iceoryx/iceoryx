@@ -41,7 +41,7 @@ That iceoryx has the right set of features can be seen from the already existing
 frameworks such as [Eclipse Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds),
  [eCAL from Continental](https://continental.github.io/ecal/),
  [RTA-VRTE from ETAS](https://www.etas.com/en/products/rta-vrte.php) and
- [Apex.OS from Apex.AI](https://www.apex.ai/apex-os).
+ [Apex.Middleware from Apex.AI](https://www.apex.ai/apex-middleware).
 
 ## Dependable
 
