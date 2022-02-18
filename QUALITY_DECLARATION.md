@@ -23,7 +23,7 @@ On Git, the tags have a `v` prefix before the version numbers. A [release script
 
 `iceoryx` is at a stable version, i.e. `>= 1.0.0`. The latest valid release can be found on the [release page](https://github.com/eclipse-iceoryx/iceoryx/releases) of iceoryx.
 
-The change history can be found in the [CHANGELOG](https://github.com/eclipse-iceoryx/iceoryx/blob/master/CHANGELOG.md).
+The change history can be found in the [release notes section](https://iceoryx.io/latest/release-notes).
 
 ### Public API Declaration [1.iii]
 

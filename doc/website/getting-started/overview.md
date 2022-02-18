@@ -57,7 +57,7 @@ and exhaust memory. We have to handle this potential error since the expected cl
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also
 explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about `expected`,
 take a look at
-[How optional and error values are returned in iceoryx](../advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
+[How optional and error values are returned in iceoryx](how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 Let's create a corresponding subscriber.
 
@@ -66,8 +66,8 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](../examples/waitset/) or the
-[Listener](../examples/callbacks/). The code to receive the data is the same, the only difference is the way we wake
+is also possible to explicitly wait for data using the [WaitSet](waitset.md) or the
+[Listener](callbacks.md). The code to receive the data is the same, the only difference is the way we wake
 up before checking for data.
 
 ```cpp
@@ -117,7 +117,9 @@ Afterwards, we can start the applications which immediately connect to the RouDi
 When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
 includes all memory chunks used for the data transmission which may still be held by the application.
 
-<!-- @todo add overview graphic -->
+Before going into the details in the next section, the following animations depicts the course of events.
+
+![Overview](https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif)
 
 We now briefly define the main entities of an iceoryx system which were partially already used in the example above.
 
@@ -256,7 +258,7 @@ picture below. This is sufficient for simple use cases but inefficient in genera
 latency and wake-ups without data. An alternative approach to receive data is to wait for user-defined events to occur.
 This is provided by our `WaitSet` and `Listener` which are introduced in the following sections.
 
-![Polling alternatives](../images/avoid-polling.svg)
+![Polling alternatives](avoid-polling.svg)
 
 ### WaitSet
 
@@ -298,12 +300,12 @@ For more information about the Listener see our
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](../examples/icedelivery/) and
-[C example](../examples/icedelivery_in_c/).
+[C++ example](icedelivery.md) and
+[C example](icedelivery_in_c.md).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `cxx::expected` and `cxx::optional` which are introduced
-[here](../advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
+[here](how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 With the C++ API, we distinguish between the `typed API` and the `untyped API`. In the typed API, the underlying
 data type is made apparent by typed pointers or references to some data type T (often a template parameter). This allows

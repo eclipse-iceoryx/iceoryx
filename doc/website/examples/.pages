@@ -3,6 +3,7 @@ nav:
   - icehello.md
   - icedelivery.md
   - icedelivery_in_c.md
+  - icedocker.md
   - iceoptions.md
   - callbacks.md
   - callbacks_in_c.md

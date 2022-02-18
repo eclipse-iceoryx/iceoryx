@@ -20,7 +20,7 @@
 [eca]: http://www.eclipse.org/legal/ECA.php
 [contributing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#coding-style
 [testing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/best-practice-for-testing.md
-[changelog]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/CHANGELOG.md
+[changelog]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/release-notes/iceoryx-unreleased.md
 
 ## Notes for Reviewer
 <!-- Items in addition to the checklist below that the reviewer should look for -->

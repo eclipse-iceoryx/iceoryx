@@ -40,26 +40,26 @@ In order to support asynchronous requests, a sequence ID should be part of each 
 
 This is an overview of the untyped `Client` and `Server` classes.
 
-![simple class diagram](diagrams/request_response/overview_class.svg)
+![simple class diagram](overview_class.svg)
 
 The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` building blocks. The `Client` uses a `ChunkSender` to send requests and a `ChunkReceiver` to get the responses while the `Server` uses a `ChunkReceiver` to get the requests and a `ChunkSender` to send the responses.
 
 #### Typed API
 
-![typed API](diagrams/request_response/typed_api.svg)
+![typed API](../website/images/typed_api.svg)
 
 Since the `Response` is tied to a specific `Request`, the `loan` method takes a `Request` to populate the `Response` with the correct settings.
 Alternatively, a `Request` could have a `createResponse` method which returns a `Response` with the correct settings.
 
 #### Untyped API
 
-![untyped API](diagrams/request_response/untyped_api.svg)
+![untyped API](../website/images/untyped_api.svg)
 
 Similar to the the typed API, `loan` takes a pointer to a `RequestHeader` to populate the `ResponseHeader` with the correct settings.
 
 #### Client Port
 
-![client port](diagrams/request_response/client_port.svg)
+![client port](../website/images/client_port.svg)
 
 The `ClientPortData` is located in the shared memory and contain only the data but no methods to access them.
 `ClientPortUser` is the class providing the methods for the user access and `ClientPortRouDi` provides the
@@ -67,7 +67,7 @@ interface RouDi needs to connect the client to the server and to cleanup the por
 
 #### Server Port
 
-![server port](diagrams/request_response/server_port.svg)
+![server port](../website/images/server_port.svg)
 
 Similar to the Client Port, the Server Port has `ServerPortData` which is located in the shared memory and contain only the data but no methods to access them.
 `ServerPortUser` is the class providing the methods for the user access and `ServerPortRouDi` provides the
@@ -77,7 +77,7 @@ It must be ensured that only one server with a given `ServiceDescription` can ru
 
 #### Request/Response Header
 
-![rpc header](diagrams/request_response/request_response_header.svg)
+![rpc header](../website/images/request_response_header.svg)
 
 Since request and response need to encode different meta-information, we also need different header for the messages.
 The common data is aggregated in `RpcBaseHeader` which contains a `cxx::UniqueId` to the `ClientChunkQueueData_t` and a sequence ID.
@@ -101,7 +101,7 @@ The `RequestHeader` has also the option to specify a message as fire and forget,
 
 #### Client/Server Options
 
-![client and server options](diagrams/request_response/client_and_server_options.svg)
+![client and server options](../website/images/client_and_server_options.svg)
 
 The client and server options can be used to control certain aspects of the clients and servers.
 Beside setting the capacity of the queues and defining whether a client should be connected and a server offering on creation,
@@ -114,14 +114,14 @@ If the options don't match, the client will not be connected to the server, simi
 
 The client is guided by the following state machine.
 
-![client state machine](diagrams/request_response/client_state_machine.svg)
+![client state machine](../website/images/client_state_machine.svg)
 
 Similar to the subscriber state machine, the client passes it's response queue with the `CONNECT` CaPro message to the server.
 The server will pass its request queue with the `ACK` CaPro message to the client.
 
 Following is a sequence diagram which shows all this cases
 
-![client and server service discovery](diagrams/request_response/client_and_server_service_discovery.svg)
+![client and server service discovery](../website/images/client_and_server_service_discovery.svg)
 
 ### Code example
 

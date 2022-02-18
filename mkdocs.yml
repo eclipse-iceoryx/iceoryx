@@ -17,14 +17,18 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
 plugins:
   - awesome-pages
   - search
+  - autolinks
 theme:
   name: 'material'
   custom_dir: doc/website/overrides
   font: false
   logo: images/iceoryx-logo-white.png
+  favicon: images/favicon.ico
   features:
     - navigation.indexes
 extra:
@@ -32,4 +36,4 @@ extra:
     provider: mike
 extra_css:
   - stylesheets/extra.css
-  
+use_directory_urls: true
