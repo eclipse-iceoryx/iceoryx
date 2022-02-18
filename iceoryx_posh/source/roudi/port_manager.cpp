@@ -190,6 +190,7 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(
                 Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
+            return;
         }
 
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
@@ -242,6 +243,7 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
             errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
                          nullptr,
                          iox::ErrorLevel::MODERATE);
+            return;
         }
     });
 }
@@ -317,6 +319,7 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(
                 Error::kPORT_MANAGER__HANDLE_CLIENT_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
+            return;
         }
     });
 }
@@ -401,6 +404,7 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(
                 Error::kPORT_MANAGER__HANDLE_SERVER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
+            return;
         }
 
         this->sendToAllMatchingClientPorts(caproMessage, serverPort);
