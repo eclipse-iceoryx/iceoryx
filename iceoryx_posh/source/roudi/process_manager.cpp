@@ -528,12 +528,12 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                 .acquireClientPortData(
                     service, clientOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
                 .and_then([&](auto& clientPort) {
-                    // send ClientPort to app as a serialized relative pointer
-                    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, clientPort);
+                    auto relativePtrToClientPort = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, clientPort);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CLIENT_ACK)
-                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                               << cxx::convert::toString(relativePtrToClientPort)
+                               << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ClientPort for application '" << name << "' with service description '"
@@ -579,12 +579,12 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                 .acquireServerPortData(
                     service, serverOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
                 .and_then([&](auto& serverPort) {
-                    // send ServerPort to app as a serialized relative pointer
-                    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, serverPort);
+                    auto relativePtrToServerPort = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, serverPort);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SERVER_ACK)
-                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                               << cxx::convert::toString(relativePtrToServerPort)
+                               << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
                     LogDebug() << "Created new ServerPort for application '" << name << "' with service description '"
