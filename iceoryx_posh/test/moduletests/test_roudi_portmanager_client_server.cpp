@@ -392,6 +392,105 @@ TEST_F(PortManager_test,
 
 // END discovery tests
 
+// BEGIN forwarding to InterfacePort tests
+
+TEST_F(PortManager_test, ServerStateIsForwardedToInterfacePortWhenOffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e51d6f8b-55dd-43b6-977a-da08cfed7be1");
+    auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::DDS, "penguin");
+    auto serverOptions = createTestServerOptions();
+    m_portManager->doDiscovery();
+
+    serverOptions.offerOnCreate = true;
+    auto serverPortUser = createServer(serverOptions);
+
+    m_portManager->doDiscovery();
+
+    interfacePort->m_caproMessageFiFo.pop()
+        .and_then([&](const auto& caproMessage) {
+            EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::OFFER));
+            EXPECT_THAT(caproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
+        })
+        .or_else([&]() { GTEST_FAIL() << "Expected OFFER message but got none"; });
+    EXPECT_FALSE(interfacePort->m_caproMessageFiFo.pop().has_value());
+}
+
+TEST_F(PortManager_test, ServerStateIsForwardedToInterfacePortWhenStopOffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "70692935-82da-4694-a2b0-8307ab2c167c");
+    auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::DDS, "penguin");
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+    auto serverPortUser = createServer(serverOptions);
+    m_portManager->doDiscovery();
+
+    // empty fifo
+    while (interfacePort->m_caproMessageFiFo.pop().has_value())
+    {
+    }
+
+    serverPortUser.stopOffer();
+    m_portManager->doDiscovery();
+
+    interfacePort->m_caproMessageFiFo.pop()
+        .and_then([&](const auto& caproMessage) {
+            EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::STOP_OFFER));
+            EXPECT_THAT(caproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
+        })
+        .or_else([&]() { GTEST_FAIL() << "Expected STOP_OFFER message but got none"; });
+    EXPECT_FALSE(interfacePort->m_caproMessageFiFo.pop().has_value());
+}
+
+TEST_F(PortManager_test, ServerStateIsForwardedToInterfacePortWhenDestroyed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3e9660f8-046c-4e3a-acfd-bad33a6f999c");
+    auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::DDS, "penguin");
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+    auto serverPortUser = createServer(serverOptions);
+    m_portManager->doDiscovery();
+
+    // empty fifo
+    while (interfacePort->m_caproMessageFiFo.pop().has_value())
+    {
+    }
+
+    serverPortUser.destroy();
+    m_portManager->doDiscovery();
+
+    interfacePort->m_caproMessageFiFo.pop()
+        .and_then([&](const auto& caproMessage) {
+            EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::STOP_OFFER));
+            EXPECT_THAT(caproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
+        })
+        .or_else([&]() { GTEST_FAIL() << "Expected STOP_OFFER message but got none"; });
+    EXPECT_FALSE(interfacePort->m_caproMessageFiFo.pop().has_value());
+}
+
+TEST_F(PortManager_test, ServerStateIsForwardedToInterfacePortWhenAlreadyOfferAndInterfacePortIsNewlyCreated)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "31563bb9-561c-43ee-8e3e-b6676cfc9547");
+    auto serverOptions = createTestServerOptions();
+
+    serverOptions.offerOnCreate = true;
+    auto serverPortUser = createServer(serverOptions);
+
+    m_portManager->doDiscovery();
+
+    auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::DDS, "penguin");
+    m_portManager->doDiscovery();
+
+    interfacePort->m_caproMessageFiFo.pop()
+        .and_then([&](const auto& caproMessage) {
+            EXPECT_THAT(caproMessage.m_type, Eq(CaproMessageType::OFFER));
+            EXPECT_THAT(caproMessage.m_serviceType, Eq(CaproServiceType::SERVER));
+        })
+        .or_else([&]() { GTEST_FAIL() << "Expected OFFER message but got none"; });
+    EXPECT_FALSE(interfacePort->m_caproMessageFiFo.pop().has_value());
+}
+
+// END forwarding to InterfacePort tests
+
 // BEGIN policy based connection tests
 
 // NOTE: there is a client/server sandwich to test both code paths where the client and
@@ -566,7 +665,7 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
     EXPECT_THAT(receivedResponseHeader->getSequenceId(), Eq(SEQUENCE_ID));
 }
 
-// END discovery tests
+// END communication tests
 
 /// @todo iox-#27 add service registry tests once it is possible to query the service registry for server
 
