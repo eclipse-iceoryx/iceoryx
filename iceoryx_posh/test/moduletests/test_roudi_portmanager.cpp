@@ -442,6 +442,76 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     }
 }
 
+constexpr bool IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY{
+    std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value};
+
+TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwiceWorksAccordingCommunicationPolicy)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6b26220c-01a3-4f3a-8af4-06c66d6f98ef");
+    const iox::capro::ServiceDescription sd{"hyp", "no", "toad"};
+    const iox::RuntimeName_t runtimeName{"hypnotoad"};
+    auto publisherOptions = createTestPubOptions();
+
+    // first call must be successful
+    m_portManager->acquirePublisherPortData(sd, publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, {})
+        .or_else([&](const auto& error) {
+            GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
+        });
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard =
+        iox::ErrorHandler::setTemporaryErrorHandler([&](const auto error, const auto, const auto errorLevel) {
+            EXPECT_THAT(error, Eq(iox::Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+            detectedError.emplace(error);
+        });
+
+    // second call
+    auto acquirePublisherPortResult = m_portManager->acquirePublisherPortData(
+        sd, publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, {});
+
+    if (IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY)
+    {
+        ASSERT_TRUE(acquirePublisherPortResult.has_error());
+        EXPECT_THAT(acquirePublisherPortResult.get_error(), Eq(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS));
+        EXPECT_TRUE(detectedError.has_value());
+    }
+    else
+    {
+        EXPECT_FALSE(detectedError.has_value());
+    }
+}
+
+TEST_F(PortManager_test,
+       AcquirePublisherPortDataWithSameServiceDescriptionTwiceAndFirstPortMarkedToBeDestroyedReturnsPort)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0840c279-5429-4c93-a120-738735a89100");
+    const iox::capro::ServiceDescription sd{"hyp", "no", "toad"};
+    const iox::RuntimeName_t runtimeName{"hypnotoad"};
+    auto publisherOptions = createTestPubOptions();
+
+    // first call must be successful
+    auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
+        sd, publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, {});
+
+    ASSERT_FALSE(publisherPortDataResult.has_error());
+
+    publisherPortDataResult.value()->m_toBeDestroyed = true;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const auto error, const auto, const auto) { detectedError.emplace(error); });
+
+    // second call must now also succeed
+    m_portManager->acquirePublisherPortData(sd, publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, {})
+        .or_else([&](const auto& error) {
+            GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
+        });
+
+    detectedError.and_then(
+        [&](const auto& error) { GTEST_FAIL() << "Expected error handler to not be called but got: " << error; });
+}
+
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5039eff5-f2d1-4f58-8bd2-fc9768a9bc92");
