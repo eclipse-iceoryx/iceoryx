@@ -37,6 +37,10 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
 {
   public:
     explicit ClientImpl(const capro::ServiceDescription& service, const ClientOptions& clientOptions = {}) noexcept;
+    ClientImpl(const ClientImpl&) = delete;
+    ClientImpl(ClientImpl&&) = delete;
+    ClientImpl& operator=(const ClientImpl&) = delete;
+    ClientImpl& operator=(ClientImpl&&) = delete;
 
     /// @brief Get a Request from loaned shared memory and construct the data with the given arguments.
     /// @param[in] args Arguments used to construct the data.

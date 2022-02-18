@@ -37,6 +37,10 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>>
 {
   public:
     explicit ServerImpl(const capro::ServiceDescription& service, const ServerOptions& serverOptions = {}) noexcept;
+    ServerImpl(const ServerImpl&) = delete;
+    ServerImpl(ServerImpl&&) = delete;
+    ServerImpl& operator=(const ServerImpl&) = delete;
+    ServerImpl& operator=(ServerImpl&&) = delete;
 
     /// @brief Take the Request from the top of the receive queue.
     /// @return Either a Request or a ServerRequestResult.
