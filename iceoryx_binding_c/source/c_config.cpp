@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -115,8 +115,12 @@ uint32_t iox_cfg_max_process_number()
     return iox::MAX_PROCESS_NUMBER;
 }
 
-/// @todo 1074 rename
-uint32_t iox_cfg_max_number_of_services()
+uint32_t iox_cfg_service_registry_capacity()
+{
+    return iox::SERVICE_REGISTRY_CAPACITY;
+}
+
+uint32_t iox_cfg_max_findservice_result_size()
 {
     return iox::MAX_FINDSERVICE_RESULT_SIZE;
 }
