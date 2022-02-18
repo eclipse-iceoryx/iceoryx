@@ -504,12 +504,12 @@ TEST_F(PortManager_test, ClientWithDiscardOldestDataAndServerWithDiscardOldestDa
     auto serverOptions = createTestServerOptions();
     serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ClientWithDiscardOldestDataAndServerWithWaitForConsumerAreConnected)
@@ -520,12 +520,12 @@ TEST_F(PortManager_test, ClientWithDiscardOldestDataAndServerWithWaitForConsumer
     auto serverOptions = createTestServerOptions();
     serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ClientWithBlockProducerAndServerWithWaitForConsumerAreConnected)
@@ -536,12 +536,12 @@ TEST_F(PortManager_test, ClientWithBlockProducerAndServerWithWaitForConsumerAreC
     auto serverOptions = createTestServerOptions();
     serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ClientWithBlockProducerAndServerWithDiscardOldestDataAreNotConnected)
@@ -552,12 +552,12 @@ TEST_F(PortManager_test, ClientWithBlockProducerAndServerWithDiscardOldestDataAr
     auto serverOptions = createTestServerOptions();
     serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Ne(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Ne(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Ne(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Ne(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ServerWithDiscardOldestDataAndClientWithDiscardOldestDataAreConnected)
@@ -568,12 +568,12 @@ TEST_F(PortManager_test, ServerWithDiscardOldestDataAndClientWithDiscardOldestDa
     auto serverOptions = createTestServerOptions();
     serverOptions.requestQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ServerWithDiscardOldestDataAndClientWithWaitForConsumerAreConnected)
@@ -584,12 +584,12 @@ TEST_F(PortManager_test, ServerWithDiscardOldestDataAndClientWithWaitForConsumer
     auto serverOptions = createTestServerOptions();
     serverOptions.requestQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithWaitForConsumerAreConnected)
@@ -600,12 +600,12 @@ TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithWaitForConsumerAreC
     auto serverOptions = createTestServerOptions();
     serverOptions.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Eq(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Eq(ConnectionState::CONNECTED));
 }
 
 TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithDiscardOldestDataAreNotConnected)
@@ -616,12 +616,12 @@ TEST_F(PortManager_test, ServerWithBlockProducerAndClientWithDiscardOldestDataAr
     auto serverOptions = createTestServerOptions();
     serverOptions.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
 
-    auto clientPortUser1 = createClient(clientOptions);
+    auto clientBeforeServerOffer = createClient(clientOptions);
     auto serverPortUser = createServer(serverOptions);
-    auto clientPortUser2 = createClient(clientOptions);
+    auto clientAfterServerOffer = createClient(clientOptions);
 
-    EXPECT_THAT(clientPortUser1.getConnectionState(), Ne(ConnectionState::CONNECTED));
-    EXPECT_THAT(clientPortUser2.getConnectionState(), Ne(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientBeforeServerOffer.getConnectionState(), Ne(ConnectionState::CONNECTED));
+    EXPECT_THAT(clientAfterServerOffer.getConnectionState(), Ne(ConnectionState::CONNECTED));
 }
 
 // END policy based connection tests
