@@ -23,26 +23,53 @@ namespace runtime
 {
 ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                                const cxx::optional<capro::IdString_t>& instance,
-                                               const cxx::optional<capro::IdString_t>& event) noexcept
+                                               const cxx::optional<capro::IdString_t>& event,
+                                               const MessagingPattern pattern) noexcept
 {
     ServiceContainer searchResult;
 
     auto lambda = [&](const capro::ServiceDescription& entry) { searchResult.emplace_back(entry); };
-    findService(service, instance, event, lambda);
+    findService(service, instance, event, lambda, pattern);
 
     return searchResult;
 }
 
-void ServiceDiscovery::findService(
-    const cxx::optional<capro::IdString_t>& service,
-    const cxx::optional<capro::IdString_t>& instance,
-    const cxx::optional<capro::IdString_t>& event,
-    const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach) noexcept
+void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
+                                   const cxx::optional<capro::IdString_t>& instance,
+                                   const cxx::optional<capro::IdString_t>& event,
+                                   const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
+                                   const MessagingPattern pattern) noexcept
 {
     if (!callableForEach)
     {
         return;
     }
+
+    auto lambda IOX_MAYBE_UNUSED = [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
+        switch (pattern)
+        {
+        case MessagingPattern::PUB_SUB:
+        {
+            if (serviceEntry.publisherCount > 0 && serviceEntry.serverCount == 0)
+            {
+                callableForEach(serviceEntry.serviceDescription);
+            }
+            break;
+        }
+        case MessagingPattern::REQ_RES:
+        {
+            if (serviceEntry.serverCount > 0 && serviceEntry.publisherCount == 0)
+            {
+                callableForEach(serviceEntry.serviceDescription);
+            }
+            break;
+        }
+        default:
+        {
+            /// @todo #27 add error
+        }
+        }
+    };
 
     m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
         m_serviceRegistry = *serviceRegistrySample;
