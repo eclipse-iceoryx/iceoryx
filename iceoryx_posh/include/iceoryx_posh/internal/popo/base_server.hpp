@@ -57,12 +57,12 @@ class BaseServer
     const capro::ServiceDescription& getServiceDescription() const noexcept;
 
     ///
-    /// @brief Offer the service to be connected to.
+    /// @brief Offer the service to be connected to when not already offering, otherwise nothing.
     ///
     void offer() noexcept;
 
     ///
-    /// @brief Stop offering the service.
+    /// @brief Stop offering the service when already offering, otherwise nothing.
     ///
     void stopOffer() noexcept;
 
@@ -102,31 +102,33 @@ class BaseServer
 
     BaseServer(const capro::ServiceDescription& service, const ServerOptions& serverOptions) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
+    /// @brief Only usable by the WaitSet/Listener, not for public use. Invalidates the internal triggerHandle.
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @brief Only usable by the WaitSet/Listener, not for public use. Attaches the triggerHandle to the internal
+    /// trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] serverState the state which should be attached
     void enableState(iox::popo::TriggerHandle&& triggerHandle, const ServerState serverState) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to the event corresponding
-    /// hasTriggered method callback
+    /// @brief Only usable by the WaitSet/Listener, not for public use. Returns method pointer to the event
+    /// corresponding hasTriggered method callback
     /// @param[in] serverState the state to which the hasTriggeredCallback is required
     WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const ServerState serverState) const noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
+    /// @brief Only usable by the WaitSet/Listener, not for public use. Resets the internal triggerHandle
     /// @param[in] serverState the state which should be detached
     void disableState(const ServerState serverState) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @brief Only usable by the WaitSet/Listener, not for public use. Attaches the triggerHandle to the internal
+    /// trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] serverEvent the event which should be attached
     void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const ServerEvent serverEvent) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
+    /// @brief Only usable by the WaitSet/Listener, not for public use. Resets the internal triggerHandle
     /// @param[in] serverEvent the event which should be detached
     void disableEvent(const ServerEvent serverEvent) noexcept;
 
