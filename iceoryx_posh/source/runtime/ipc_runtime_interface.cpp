@@ -75,10 +75,10 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
         {
             using namespace units;
             using namespace std::chrono;
-            auto timestamp = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+            auto timestamp = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
             while (transmissionTimestamp == timestamp)
             {
-                timestamp = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+                timestamp = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
             }
             transmissionTimestamp = timestamp;
 

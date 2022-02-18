@@ -33,7 +33,7 @@ LogStream::LogStream(Logger& logger, LogLevel logLevel) noexcept
 {
     m_logEntry.level = logLevel;
     /// @todo do we want to do this only when loglevel is higher than global loglevel?
-    auto timePoint = std::chrono::high_resolution_clock::now();
+    auto timePoint = std::chrono::system_clock::now();
     m_logEntry.time = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch());
 }
 

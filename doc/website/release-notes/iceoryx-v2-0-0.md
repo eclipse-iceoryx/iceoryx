@@ -46,6 +46,7 @@
 - When posix mutex fails a correct error message is reported on the console [\#999](https://github.com/eclipse-iceoryx/iceoryx/issues/999)
 - Only use `std::result_of` for C++14 to be able to use iceoryx in C++20 projects [\#1076](https://github.com/eclipse-iceoryx/iceoryx/issues/1076)
 - Set stack size for windows in `singleprocess` example and posh tests [\#1082](https://github.com/eclipse-iceoryx/iceoryx/issues/1082)
+- Roudi console timestamps is out of date [#1130](https://github.com/eclipse-iceoryx/iceoryx/issues/1130)
 
 **Refactoring:**
 
