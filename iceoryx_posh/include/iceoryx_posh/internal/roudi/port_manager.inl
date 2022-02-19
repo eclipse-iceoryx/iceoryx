@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +17,15 @@
 #ifndef IOX_POSH_INTERNAL_ROUDI_PORT_MANAGER_INL
 #define IOX_POSH_INTERNAL_ROUDI_PORT_MANAGER_INL
 
+#include "iceoryx_posh/internal/roudi/port_manager.hpp"
+
 namespace iox
 {
 namespace roudi
 {
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline cxx::optional<RuntimeName_t>
-PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept
+PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept
 {
     // check if the publisher is already in the list
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
@@ -30,6 +33,11 @@ PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& ser
         popo::PublisherPortRouDi publisherPort(publisherPortData);
         if (service == publisherPort.getCaProServiceDescription())
         {
+            if (publisherPortData->m_toBeDestroyed)
+            {
+                destroyPublisherPort(publisherPortData);
+                continue;
+            }
             return cxx::make_optional<RuntimeName_t>(publisherPortData->m_runtimeName);
         }
     }
@@ -38,7 +46,7 @@ PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& ser
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline cxx::optional<RuntimeName_t>
-PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) const noexcept
+PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription&) noexcept
 {
     // Duplicates are allowed when using n:m policy
     return cxx::nullopt;
