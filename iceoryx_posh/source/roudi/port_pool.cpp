@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ PortPool::addInterfacePort(const RuntimeName_t& runtimeName, const capro::Interf
     }
     else
     {
+        LogWarn() << "Out of interface ports! Requested by runtime '" << runtimeName << "'";
         errorHandler(Error::kPORT_POOL__INTERFACELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::INTERFACE_PORT_LIST_FULL);
     }
@@ -70,6 +71,8 @@ cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const Run
     }
     else
     {
+        LogWarn() << "Out of node data! Requested by runtime '" << runtimeName << "' and node name '" << nodeName
+                  << "'";
         errorHandler(Error::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::NODE_DATA_LIST_FULL);
     }
@@ -85,22 +88,23 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     }
     else
     {
+        LogWarn() << "Out of condition variables! Requested by runtime '" << runtimeName << "'";
         errorHandler(Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
 }
 
-void PortPool::removeInterfacePort(popo::InterfacePortData* const portData) noexcept
+void PortPool::removeInterfacePort(const popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolData->m_interfacePortMembers.erase(portData);
 }
 
-void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
+void PortPool::removeNodeData(const runtime::NodeData* const nodeData) noexcept
 {
     m_portPoolData->m_nodeMembers.erase(nodeData);
 }
 
-void PortPool::removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept
+void PortPool::removeConditionVariableData(const popo::ConditionVariableData* const conditionVariableData) noexcept
 {
     m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
 }
@@ -130,6 +134,8 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
     }
     else
     {
+        LogWarn() << "Out of publisher ports! Requested by runtime '" << runtimeName
+                  << "' and with service description '" << serviceDescription << "'";
         errorHandler(Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::PUBLISHER_PORT_LIST_FULL);
     }
@@ -150,19 +156,80 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
     }
     else
     {
+        LogWarn() << "Out of subscriber ports! Requested by runtime '" << runtimeName
+                  << "' and with service description '" << serviceDescription << "'";
         errorHandler(Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
     }
 }
 
-void PortPool::removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept
+cxx::vector<popo::ClientPortData*, MAX_CLIENTS> PortPool::getClientPortDataList() noexcept
+{
+    return m_portPoolData->m_clientPortMembers.content();
+}
+
+cxx::vector<popo::ServerPortData*, MAX_SERVERS> PortPool::getServerPortDataList() noexcept
+{
+    return m_portPoolData->m_serverPortMembers.content();
+}
+
+cxx::expected<popo::ClientPortData*, PortPoolError>
+PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
+                        mepoo::MemoryManager* const memoryManager,
+                        const RuntimeName_t& runtimeName,
+                        const popo::ClientOptions& clientOptions,
+                        const mepoo::MemoryInfo& memoryInfo) noexcept
+{
+    if (!m_portPoolData->m_clientPortMembers.hasFreeSpace())
+    {
+        LogWarn() << "Out of client ports! Requested by runtime '" << runtimeName << "' and with service description '"
+                  << serviceDescription << "'";
+        errorHandler(Error::kPORT_POOL__CLIENTLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::CLIENT_PORT_LIST_FULL);
+    }
+
+    auto clientPortData = m_portPoolData->m_clientPortMembers.insert(
+        serviceDescription, runtimeName, clientOptions, memoryManager, memoryInfo);
+    return cxx::success<popo::ClientPortData*>(clientPortData);
+}
+
+cxx::expected<popo::ServerPortData*, PortPoolError>
+PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
+                        mepoo::MemoryManager* const memoryManager,
+                        const RuntimeName_t& runtimeName,
+                        const popo::ServerOptions& serverOptions,
+                        const mepoo::MemoryInfo& memoryInfo) noexcept
+{
+    if (!m_portPoolData->m_serverPortMembers.hasFreeSpace())
+    {
+        LogWarn() << "Out of server ports! Requested by runtime '" << runtimeName << "' and with service description '"
+                  << serviceDescription << "'";
+        errorHandler(Error::kPORT_POOL__SERVERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::SERVER_PORT_LIST_FULL);
+    }
+
+    auto serverPortData = m_portPoolData->m_serverPortMembers.insert(
+        serviceDescription, runtimeName, serverOptions, memoryManager, memoryInfo);
+    return cxx::success<popo::ServerPortData*>(serverPortData);
+}
+
+void PortPool::removePublisherPort(const PublisherPortRouDiType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_publisherPortMembers.erase(portData);
 }
 
-void PortPool::removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept
+void PortPool::removeSubscriberPort(const SubscriberPortType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_subscriberPortMembers.erase(portData);
+}
+
+void PortPool::removeClientPort(const popo::ClientPortData* const portData) noexcept
+{
+    m_portPoolData->m_clientPortMembers.erase(portData);
+}
+void PortPool::removeServerPort(const popo::ServerPortData* const portData) noexcept
+{
+    m_portPoolData->m_serverPortMembers.erase(portData);
 }
 
 } // namespace roudi

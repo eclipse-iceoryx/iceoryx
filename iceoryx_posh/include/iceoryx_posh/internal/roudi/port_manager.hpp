@@ -25,9 +25,13 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
@@ -76,6 +80,34 @@ class PortManager
                               const RuntimeName_t& runtimeName,
                               const PortConfigInfo& portConfigInfo) noexcept;
 
+    /// @brief Acquires a ClientPortData for further usage
+    /// @param[in] service is the ServiceDescription for the new client port
+    /// @param[in] clientOptions for the new client port
+    /// @param[in] runtimeName of the runtime the new client port belongs to
+    /// @param[in] payloadDataSegmentMemoryManager to acquire chunks for the requests
+    /// @param[in] portConfigInfo for the new client port
+    /// @return on success a pointer to a ClientPortData; on error a PortPoolError
+    cxx::expected<popo::ClientPortData*, PortPoolError>
+    acquireClientPortData(const capro::ServiceDescription& service,
+                          const popo::ClientOptions& clientOptions,
+                          const RuntimeName_t& runtimeName,
+                          mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                          const PortConfigInfo& portConfigInfo) noexcept;
+
+    /// @brief Acquires a ServerPortData for further usage
+    /// @param[in] service is the ServiceDescription for the new server port
+    /// @param[in] serverOptions for the new server port
+    /// @param[in] runtimeName of the runtime the new server port belongs to
+    /// @param[in] payloadDataSegmentMemoryManager to acquire chunks for the requests
+    /// @param[in] portConfigInfo for the new server port
+    /// @return on success a pointer to a ServerPortData; on error a PortPoolError
+    cxx::expected<popo::ServerPortData*, PortPoolError>
+    acquireServerPortData(const capro::ServiceDescription& service,
+                          const popo::ServerOptions& serverOptions,
+                          const RuntimeName_t& runtimeName,
+                          mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
+                          const PortConfigInfo& portConfigInfo) noexcept;
+
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const RuntimeName_t& runtimeName,
                                                       const NodeName_t& nodeName = {""}) noexcept;
@@ -110,11 +142,28 @@ class PortManager
 
     void doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept;
 
+    void destroyClientPort(popo::ClientPortData* const clientPortData) noexcept;
+
+    void handleClientPorts() noexcept;
+
+    void doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) noexcept;
+
+    void makeAllServerPortsToStopOffer() noexcept;
+
+    void destroyServerPort(popo::ServerPortData* const clientPortData) noexcept;
+
+    void handleServerPorts() noexcept;
+
+    void doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) noexcept;
+
     void handleInterfaces() noexcept;
 
     void handleNodes() noexcept;
 
     void handleConditionVariables() noexcept;
+
+    bool isCompatiblePubSub(const PublisherPortRouDiType& publisher,
+                            const SubscriberPortType& subscriber) const noexcept;
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                          SubscriberPortType& subscriberSource) noexcept;
@@ -122,10 +171,20 @@ class PortManager
     void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
                                           PublisherPortRouDiType& publisherSource) noexcept;
 
+    bool isCompatibleClientServer(const popo::ServerPortRouDi& server,
+                                  const popo::ClientPortRouDi& client) const noexcept;
+
+    void sendToAllMatchingClientPorts(const capro::CaproMessage& message, popo::ServerPortRouDi& serverSource) noexcept;
+
+    bool sendToAllMatchingServerPorts(const capro::CaproMessage& message, popo::ClientPortRouDi& clientSource) noexcept;
+
     void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message) noexcept;
 
-    void addEntryToServiceRegistry(const capro::ServiceDescription& service) noexcept;
-    void removeEntryFromServiceRegistry(const capro::ServiceDescription& service) noexcept;
+    void addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept;
+    void removePublisherFromServiceRegistry(const capro::ServiceDescription& service) noexcept;
+
+    void addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept;
+    void removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     cxx::optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept;

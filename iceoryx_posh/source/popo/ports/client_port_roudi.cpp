@@ -45,6 +45,11 @@ QueueFullPolicy ClientPortRouDi::getResponseQueueFullPolicy() const noexcept
     return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
 }
 
+ConsumerTooSlowPolicy ClientPortRouDi::getServerTooSlowPolicy() const noexcept
+{
+    return getMembers()->m_chunkSenderData.m_consumerTooSlowPolicy;
+}
+
 cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcept
 {
     // get connect request from user side

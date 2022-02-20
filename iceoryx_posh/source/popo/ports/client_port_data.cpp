@@ -27,6 +27,8 @@ cxx::VariantQueueTypes getResponseQueueType(const QueueFullPolicy policy) noexce
                                                           : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
 }
 
+constexpr uint64_t ClientPortData::HISTORY_CAPACITY_ZERO;
+
 ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescription,
                                const RuntimeName_t& runtimeName,
                                const ClientOptions& clientOptions,
@@ -35,7 +37,8 @@ ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescripti
     : BasePortData(serviceDescription, runtimeName, clientOptions.nodeName)
     , m_chunkSenderData(memoryManager, clientOptions.serverTooSlowPolicy, HISTORY_CAPACITY_ZERO, memoryInfo)
     , m_chunkReceiverData(getResponseQueueType(clientOptions.responseQueueFullPolicy),
-                          clientOptions.responseQueueFullPolicy)
+                          clientOptions.responseQueueFullPolicy,
+                          memoryInfo)
     , m_connectRequested(clientOptions.connectOnCreate)
 {
     m_chunkReceiverData.m_queue.setCapacity(clientOptions.responseQueueCapacity);

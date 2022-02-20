@@ -52,6 +52,10 @@ class ClientPortRouDi : public BasePort
     /// @return the configured responseQueueFullPolicy
     QueueFullPolicy getResponseQueueFullPolicy() const noexcept;
 
+    /// @brief Access to the configured serverTooSlowPolicy
+    /// @return the configured serverTooSlowPolicy
+    ConsumerTooSlowPolicy getServerTooSlowPolicy() const noexcept;
+
     /// @brief get an optional CaPro message that requests changes to the desired connection state of the client
     /// @return CaPro message with desired connection state, empty optional if no state change
     cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;

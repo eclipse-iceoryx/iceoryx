@@ -21,8 +21,10 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 
@@ -42,7 +44,7 @@ class FixedPositionContainer
     template <typename... Targs>
     T* insert(Targs&&... args) noexcept;
 
-    void erase(T* const element) noexcept;
+    void erase(const T* const element) noexcept;
 
     cxx::vector<T*, Capacity> content() noexcept;
 
@@ -58,6 +60,9 @@ struct PortPoolData
 
     FixedPositionContainer<iox::popo::PublisherPortData, MAX_PUBLISHERS> m_publisherPortMembers;
     FixedPositionContainer<iox::popo::SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberPortMembers;
+
+    FixedPositionContainer<iox::popo::ServerPortData, MAX_SERVERS> m_serverPortMembers;
+    FixedPositionContainer<iox::popo::ClientPortData, MAX_CLIENTS> m_clientPortMembers;
 };
 
 } // namespace roudi

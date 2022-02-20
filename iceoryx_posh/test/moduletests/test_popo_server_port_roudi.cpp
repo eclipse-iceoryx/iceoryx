@@ -20,6 +20,18 @@ namespace iox_test_popo_server_port
 {
 constexpr iox::units::Duration ServerPort_test::DEADLOCK_TIMEOUT;
 
+TEST_F(ServerPort_test, GetRequestQueueFullPolicyReturnsCorrectValues)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4b3dbe4c-6c3d-4129-a4f0-643a801a4803");
+
+    auto& sutWithDiscardOldestData = serverPortWithOfferOnCreate;
+    auto& sutWithBlockProducer = serverOptionsWithBlockProducerRequestQueueFullPolicy;
+
+    EXPECT_THAT(sutWithDiscardOldestData.portRouDi.getRequestQueueFullPolicy(),
+                Eq(QueueFullPolicy::DISCARD_OLDEST_DATA));
+    EXPECT_THAT(sutWithBlockProducer.portRouDi.getRequestQueueFullPolicy(), Eq(QueueFullPolicy::BLOCK_PRODUCER));
+}
+
 TEST_F(ServerPort_test, GetClientTooSlowPolicyReturnsCorrectValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7090916c-57c5-4ef4-9876-87e58ab64058");

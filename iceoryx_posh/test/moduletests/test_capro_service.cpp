@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/serialization.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 /// @todo #415 replace the service registry include with the new discovery API header
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
@@ -428,6 +429,25 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
     EXPECT_FALSE(serviceDescription1 < serviceDescription2);
 }
 
+TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "42bc3f21-d9f4-4cc3-a37e-6508e1f981c1");
+    Logger_Mock loggerMock;
+
+    const IdString_t SERVICE_ID{"all"};
+    const IdString_t INSTANCE_ID{"glory"};
+    const IdString_t EVENT_ID{"hypnotoad"};
+    const std::string SERVICE_DESCRIPTION_AS_STRING{"Service: all, Instance: glory, Event: hypnotoad"};
+    auto sut = ServiceDescription{SERVICE_ID, INSTANCE_ID, EVENT_ID};
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(SERVICE_DESCRIPTION_AS_STRING));
+}
 
 /// END SERVICEDESCRIPTION TESTS
 

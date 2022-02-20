@@ -195,6 +195,13 @@ class ClientPort_test : public Test
         return options;
     }();
 
+    ClientOptions m_clientOptionsWithWaitForConsumerServerTooSlowPolicy = [&] {
+        ClientOptions options;
+        options.responseQueueCapacity = QUEUE_CAPACITY;
+        options.serverTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+        return options;
+    }();
+
     iox::cxx::optional<SutClientPort> clientPortForStateTransitionTests;
 
   public:
@@ -211,6 +218,8 @@ class ClientPort_test : public Test
         m_serviceDescription, m_runtimeName, m_clientOptionsWithoutConnectOnCreate, m_memoryManager};
     SutClientPort clientPortWithBlockProducerResponseQueuePolicy{
         m_serviceDescription, m_runtimeName, m_clientOptionsWithBlockProducerResponseQueueFullPolicy, m_memoryManager};
+    SutClientPort clientPortWithWaitForConsumerServerTooSlowPolicy{
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithWaitForConsumerServerTooSlowPolicy, m_memoryManager};
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
@@ -620,6 +629,14 @@ TEST_F(ClientPort_test, GetResponseQueueFullPolicyOnPortWithBlockProducerOptionI
     auto& sut = clientPortWithBlockProducerResponseQueuePolicy;
 
     EXPECT_THAT(sut.portRouDi.getResponseQueueFullPolicy(), Eq(QueueFullPolicy::BLOCK_PRODUCER));
+}
+
+TEST_F(ClientPort_test, GetServerTooSlowPolicyOnPortWithWaitForConsumerOptionIsWaitForConsumer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f0036542-bb93-4975-b70b-ec40b0947d13");
+    auto& sut = clientPortWithWaitForConsumerServerTooSlowPolicy;
+
+    EXPECT_THAT(sut.portRouDi.getServerTooSlowPolicy(), Eq(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER));
 }
 
 TEST_F(ClientPort_test, TryGetCaProMessageOnConnectHasCaProMessageTypeConnect)

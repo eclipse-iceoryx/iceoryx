@@ -16,6 +16,8 @@
 #ifndef IOX_POSH_ROUDI_PORT_POOL_DATA_INL
 #define IOX_POSH_ROUDI_PORT_POOL_DATA_INL
 
+#include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
+
 namespace iox
 {
 namespace roudi
@@ -58,7 +60,7 @@ T* FixedPositionContainer<T, Capacity>::insert(Targs&&... args) noexcept
 }
 
 template <typename T, uint64_t Capacity>
-void FixedPositionContainer<T, Capacity>::erase(T* const element) noexcept
+void FixedPositionContainer<T, Capacity>::erase(const T* const element) noexcept
 {
     for (auto& e : m_data)
     {
