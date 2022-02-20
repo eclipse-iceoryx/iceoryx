@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/atomic_relocatable_pointer.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
@@ -130,11 +131,13 @@ TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "347f3a6d-8659-4ac3-81be-720e8a444d5e");
     iox_client_options_t uninitializedOptions;
+#if !defined(__clang__)
     // ignore the warning since we would like to test the behavior of an uninitialized option
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     EXPECT_FALSE(iox_client_options_is_initialized(&uninitializedOptions));
 #pragma GCC diagnostic pop
+#endif
 }
 
 TEST_F(iox_client_test, initializedOptionsAreInitialized)
@@ -143,6 +146,23 @@ TEST_F(iox_client_test, initializedOptionsAreInitialized)
     iox_client_options_t initializedOptions;
     iox_client_options_init(&initializedOptions);
     EXPECT_TRUE(iox_client_options_is_initialized(&initializedOptions));
+}
+
+TEST_F(iox_client_test, initializedOptionsAreToCPPDefaults)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a48477c1-7762-4790-acd1-5b13db486cac");
+    iox_client_options_t initializedOptions;
+    iox_client_options_init(&initializedOptions);
+
+    ClientOptions cppOptions;
+
+    EXPECT_THAT(initializedOptions.responseQueueCapacity, Eq(cppOptions.responseQueueCapacity));
+    EXPECT_THAT(initializedOptions.nodeName, StrEq(cppOptions.nodeName.c_str()));
+    EXPECT_THAT(initializedOptions.connectOnCreate, Eq(cppOptions.connectOnCreate));
+    EXPECT_THAT(initializedOptions.responseQueueFullPolicy,
+                Eq(cpp2c::queueFullPolicy(cppOptions.responseQueueFullPolicy)));
+    EXPECT_THAT(initializedOptions.serverTooSlowPolicy,
+                Eq(cpp2c::consumerTooSlowPolicy(cppOptions.serverTooSlowPolicy)));
 }
 
 TEST_F(iox_client_test, InitializingClientWithNullptrOptionsGetMiddlewareClientWithDefaultOptions)
