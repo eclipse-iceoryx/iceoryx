@@ -135,7 +135,7 @@ ENUM iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_l
 
 /// @brief Detaches a client from the listener
 /// @param[in] self listener from which the event should be detached
-/// @param[in] client the user trigger which emits the event
+/// @param[in] client the client which emits the event
 /// @param[in] clientEvent the event which should be removed from the listener
 void iox_listener_detach_client_event(iox_listener_t const self,
                                       iox_client_t const client,

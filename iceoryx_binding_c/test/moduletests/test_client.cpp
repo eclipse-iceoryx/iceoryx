@@ -102,8 +102,8 @@ class iox_client_test : public Test
     }
 
     static constexpr uint64_t MANAGEMENT_MEMORY_SIZE = 1024 * 1024;
-    char managmentMemory[MANAGEMENT_MEMORY_SIZE];
-    iox::posix::Allocator mgmtAllocator{managmentMemory, MANAGEMENT_MEMORY_SIZE};
+    char managementMemory[MANAGEMENT_MEMORY_SIZE];
+    iox::posix::Allocator mgmtAllocator{managementMemory, MANAGEMENT_MEMORY_SIZE};
     static constexpr uint64_t DATA_MEMORY_SIZE = 1024 * 1024;
     char dataMemory[DATA_MEMORY_SIZE];
     iox::posix::Allocator dataAllocator{dataMemory, DATA_MEMORY_SIZE};
@@ -221,8 +221,24 @@ TEST_F(iox_client_test, LoanFailsWhenNoMoreChunksAreAvailable)
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
     void* payload = nullptr;
-    iox_client_loan_request(sut, &payload, 32);
-    iox_client_loan_request(sut, &payload, 32);
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 32), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 32), Eq(AllocationResult_SUCCESS));
+
+    payload = nullptr;
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 322), Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
+    EXPECT_THAT(payload, Eq(nullptr));
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
+}
+
+TEST_F(iox_client_test, LoanAlignedFailsWhenNoMoreChunksAreAvailable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7720afdd-b106-4081-a79d-0f0edfc1edcb");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_client_loan_aligned_request(sut, &payload, 32, 32), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(iox_client_loan_aligned_request(sut, &payload, 32, 32), Eq(AllocationResult_SUCCESS));
 
     payload = nullptr;
     EXPECT_THAT(iox_client_loan_request(sut, &payload, 322), Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));

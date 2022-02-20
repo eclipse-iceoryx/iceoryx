@@ -81,38 +81,38 @@ void iox_client_deinit(iox_client_t const self);
 
 /// @brief allocates a request in the shared memory
 /// @param[in] self handle of the client
-/// @param[in] userPayload pointer in which a pointer to the user-payload of the allocated chunk is stored
-/// @param[in] userPayloadSize user-payload size of the allocated request
+/// @param[in] payload pointer in which a pointer to the user-payload of the allocated chunk is stored
+/// @param[in] payloadSize user-payload size of the allocated request
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
 /// @note for the user-payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
 ///       for a custom user-payload alignment please use `iox_client_loan_aligned_request`
 ENUM iox_AllocationResult iox_client_loan_request(iox_client_t const self,
-                                                  void** const userPayload,
-                                                  const uint32_t userPayloadSize);
+                                                  void** const payload,
+                                                  const uint32_t payloadSize);
 
 /// @brief allocates a request in the shared memory with a custom alignment for the user-payload
 /// @param[in] self handle of the client
-/// @param[in] userPayload pointer in which a pointer to the user-payload of the allocated request is stored
-/// @param[in] userPayloadSize user-payload size of the allocated request
-/// @param[in] userPayloadAlignment user-payload alignment of the allocated request
+/// @param[in] payload pointer in which a pointer to the user-payload of the allocated request is stored
+/// @param[in] payloadSize user-payload size of the allocated request
+/// @param[in] payloadAlignment user-payload alignment of the allocated request
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
 ENUM iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
-                                                          void** const userPayload,
-                                                          const uint32_t userPayloadSize,
-                                                          const uint32_t userPayloadAlignment);
+                                                          void** const payload,
+                                                          const uint32_t payloadSize,
+                                                          const uint32_t payloadAlignment);
 
 
 /// @brief releases ownership of a previously allocated loaned request without sending it
 /// @param[in] self handle of the client
-/// @param[in] userPayload pointer to the user-payload of the loaned request which should be free'd
-void iox_client_release_request(iox_client_t const self, void* const userPayload);
+/// @param[in] payload pointer to the user-payload of the loaned request which should be free'd
+void iox_client_release_request(iox_client_t const self, void* const payload);
 
 /// @brief sends a previously loaned request
 /// @param[in] self handle of the client
-/// @param[in] userPayload pointer to the user-payload of the request which should be send
-void iox_client_send(iox_client_t const self, void* const userPayload);
+/// @param[in] payload pointer to the user-payload of the request which should be send
+void iox_client_send(iox_client_t const self, void* const payload);
 
 /// @brief connects to the service
 /// @param[in] self handle to the client
@@ -130,15 +130,15 @@ ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self
 
 /// @brief retrieve a received respone
 /// @param[in] self handle to the client
-/// @param[in] userPayload pointer in which the pointer to the user-payload of the response is stored
+/// @param[in] payload pointer in which the pointer to the user-payload of the response is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const userPayload);
+ENUM iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const payload);
 
 /// @brief release a previously acquired response (via iox_client_take_response)
 /// @param[in] self handle to the client
-/// @param[in] userPayload pointer to the user-payload of chunk which should be released
-void iox_client_release_response(iox_client_t const self, const void* const userPayload);
+/// @param[in] payload pointer to the user-payload of chunk which should be released
+void iox_client_release_response(iox_client_t const self, const void* const payload);
 
 /// @brief release all responses which are stored in the chunk queue
 /// @param[in] self handle to the client
@@ -149,7 +149,7 @@ void iox_client_release_queued_responses(iox_client_t const self);
 /// @return true if there are responses, otherwise false
 bool iox_client_has_responses(iox_client_t const self);
 
-/// @brief were responses missed missed?
+/// @brief were responses missed?
 /// @param[in] self handle to the client
 /// @return true if there are lost responses due to overflowing queue, otherwise false
 bool iox_client_has_missed_responses(iox_client_t const self);

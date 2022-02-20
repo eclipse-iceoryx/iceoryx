@@ -131,6 +131,7 @@ void iox_listener_detach_subscriber_event(iox_listener_t const self,
                                           const ENUM iox_SubscriberEvent subscriberEvent)
 {
     iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(subscriber != nullptr);
 
     self->detachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent));
 }
@@ -138,6 +139,7 @@ void iox_listener_detach_subscriber_event(iox_listener_t const self,
 void iox_listener_detach_user_trigger_event(iox_listener_t const self, iox_user_trigger_t const userTrigger)
 {
     iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(userTrigger != nullptr);
 
     self->detachEvent(*userTrigger);
 }

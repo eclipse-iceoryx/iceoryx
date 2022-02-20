@@ -208,7 +208,7 @@ TEST(c2cpp_enum_translation_test, ClientState)
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
-// return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
+// return the default value HAS_RESPONSE always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
@@ -244,7 +244,7 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
-// return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
+// return the default value RESPONSE_RECEIVED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
@@ -280,7 +280,7 @@ TEST(c2cpp_enum_translation_test, ServerState)
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
-// return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
+// return the default value HAS_REQUEST always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
@@ -316,7 +316,7 @@ TEST(c2cpp_enum_translation_test, ServerEvent)
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
-// return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
+// return the default value REQUEST_RECEIVED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;

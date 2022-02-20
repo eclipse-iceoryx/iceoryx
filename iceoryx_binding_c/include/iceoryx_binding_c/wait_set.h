@@ -204,7 +204,7 @@ ENUM iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
                                                   const uint64_t eventId,
                                                   void (*callback)(iox_client_t));
 
-/// @brief attaches a client event to a waitset
+/// @brief attaches a client event to a waitset with additional context data for the callback
 /// @param[in] self handle to the waitset
 /// @param[in] client the client of the event which should be attached
 /// @param[in] clientEvent the event which should be attached
@@ -222,7 +222,7 @@ ENUM iox_WaitSetResult iox_ws_attach_client_event_with_context_data(iox_ws_t con
 
 /// @brief attaches a client state to a waitset
 /// @param[in] self handle to the waitset
-/// @param[in] client the client of the event state which should be attached
+/// @param[in] client the client of the state which should be attached
 /// @param[in] clientState the state which should be attached
 /// @param[in] eventId an arbitrary id which will be tagged to the state
 /// @param[in] callback a callback which is attached to the state
@@ -234,7 +234,7 @@ ENUM iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
                                                   const uint64_t eventId,
                                                   void (*callback)(iox_client_t));
 
-/// @brief attaches a client state to a waitset
+/// @brief attaches a client state to a waitset with additional context data for the callback
 /// @param[in] self handle to the waitset
 /// @param[in] client the client of the state which should be attached
 /// @param[in] clientState the state which should be attached
@@ -245,7 +245,7 @@ ENUM iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
 ///             an enum which describes the error
 ENUM iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const self,
                                                                     iox_client_t const client,
-                                                                    const ENUM iox_ClientState clientEvent,
+                                                                    const ENUM iox_ClientState clientState,
                                                                     const uint64_t eventId,
                                                                     void (*callback)(iox_client_t, void*),
                                                                     void* const contextData);
@@ -253,11 +253,13 @@ ENUM iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t con
 /// @brief detaches a client event from a waitset
 /// @param[in] self handle to the waitset
 /// @param[in] client the client which should be detached
+/// @param[in] clientEvent the event which should be detached from the client
 void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientEvent clientEvent);
 
 /// @brief detaches a client state from a waitset
 /// @param[in] self handle to the waitset
 /// @param[in] client the client which should be detached
+/// @param[in] clientState the state which should be detached from the client
 void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState);
 
 #endif

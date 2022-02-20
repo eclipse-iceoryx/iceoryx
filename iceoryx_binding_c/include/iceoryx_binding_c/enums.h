@@ -114,7 +114,7 @@ enum iox_AllocationResult
     AllocationResult_SUCCESS,
 };
 
-/// @brief used to describe if attaching an object to a waitset was successul or the kind of attachment error
+/// @brief used to describe if attaching an object to a waitset was successful or the kind of attachment error
 enum iox_WaitSetResult
 {
     WaitSetResult_WAIT_SET_FULL,
@@ -123,7 +123,7 @@ enum iox_WaitSetResult
     WaitSetResult_SUCCESS
 };
 
-/// @brief used to describe if attaching an object to a listener was successul or the kind of attachment error
+/// @brief used to describe if attaching an object to a listener was successful or the kind of attachment error
 enum iox_ListenerResult
 {
     ListenerResult_LISTENER_FULL,

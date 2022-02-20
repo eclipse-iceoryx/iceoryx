@@ -92,45 +92,43 @@ void iox_client_deinit(iox_client_t const self)
     self->~UntypedClient();
 }
 
-iox_AllocationResult
-iox_client_loan_request(iox_client_t const self, void** const userPayload, const uint32_t userPayloadSize)
+iox_AllocationResult iox_client_loan_request(iox_client_t const self, void** const payload, const uint32_t payloadSize)
 {
-    return iox_client_loan_aligned_request(
-        self, userPayload, userPayloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    return iox_client_loan_aligned_request(self, payload, payloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
 }
 
 iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
-                                                     void** const userPayload,
-                                                     const uint32_t userPayloadSize,
-                                                     const uint32_t userPayloadAlignment)
+                                                     void** const payload,
+                                                     const uint32_t payloadSize,
+                                                     const uint32_t payloadAlignment)
 {
     iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(userPayload != nullptr);
+    iox::cxx::Expects(payload != nullptr);
 
-    auto result = self->loan(userPayloadSize, userPayloadAlignment);
+    auto result = self->loan(payloadSize, payloadAlignment);
     if (result.has_error())
     {
         return cpp2c::allocationResult(result.get_error());
     }
 
-    *userPayload = result.value();
+    *payload = result.value();
     return AllocationResult_SUCCESS;
 }
 
-void iox_client_release_request(iox_client_t const self, void* const userPayload)
+void iox_client_release_request(iox_client_t const self, void* const payload)
 {
     iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(userPayload != nullptr);
+    iox::cxx::Expects(payload != nullptr);
 
-    self->releaseRequest(userPayload);
+    self->releaseRequest(payload);
 }
 
-void iox_client_send(iox_client_t const self, void* const userPayload)
+void iox_client_send(iox_client_t const self, void* const payload)
 {
     iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(userPayload != nullptr);
+    iox::cxx::Expects(payload != nullptr);
 
-    self->send(userPayload);
+    self->send(payload);
 }
 
 void iox_client_connect(iox_client_t const self)
@@ -151,10 +149,10 @@ iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
     return cpp2c::connectionState(self->getConnectionState());
 }
 
-iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const userPayload)
+iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const payload)
 {
     iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(userPayload != nullptr);
+    iox::cxx::Expects(payload != nullptr);
 
     auto result = self->take();
     if (result.has_error())
@@ -162,16 +160,16 @@ iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const v
         return cpp2c::chunkReceiveResult(result.get_error());
     }
 
-    *userPayload = result.value();
+    *payload = result.value();
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_client_release_response(iox_client_t const self, const void* const userPayload)
+void iox_client_release_response(iox_client_t const self, const void* const payload)
 {
     iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(userPayload != nullptr);
+    iox::cxx::Expects(payload != nullptr);
 
-    self->releaseResponse(userPayload);
+    self->releaseResponse(payload);
 }
 
 void iox_client_release_queued_responses(iox_client_t const self)

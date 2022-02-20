@@ -799,7 +799,7 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
     iox_ws_attach_client_event_with_context_data(
-        m_sut, client, ClientEvent_RESPONSE_RECEIVED, 0, &clientCallbackWithContextData, &clientStorage);
+        m_sut, client, ClientEvent_RESPONSE_RECEIVED, 89123, &clientCallbackWithContextData, &clientStorage);
 
     notifyClient(portData);
 
@@ -807,6 +807,7 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
                 Eq(1));
     EXPECT_THAT(iox_notification_info_get_client_origin(m_eventInfoStorage[0]), Eq(client));
     EXPECT_TRUE(iox_notification_info_does_originate_from_client(m_eventInfoStorage[0], client));
+    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(89123));
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
