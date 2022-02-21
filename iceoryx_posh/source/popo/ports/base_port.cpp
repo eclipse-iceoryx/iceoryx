@@ -41,12 +41,12 @@ BasePort& BasePort::operator=(BasePort&& rhs) noexcept
     return *this;
 }
 
-capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
+const capro::ServiceDescription& BasePort::getCaProServiceDescription() const noexcept
 {
     return getMembers()->m_serviceDescription;
 }
 
-RuntimeName_t BasePort::getRuntimeName() const noexcept
+const RuntimeName_t& BasePort::getRuntimeName() const noexcept
 {
     return getMembers()->m_runtimeName;
 }
@@ -56,7 +56,7 @@ UniquePortId BasePort::getUniqueID() const noexcept
     return getMembers()->m_uniqueId;
 }
 
-NodeName_t BasePort::getNodeName() const noexcept
+const NodeName_t& BasePort::getNodeName() const noexcept
 {
     return getMembers()->m_nodeName;
 }

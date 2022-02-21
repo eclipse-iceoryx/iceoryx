@@ -55,7 +55,7 @@ ClientPortUser::allocateRequest(const uint32_t userPayloadSize, const uint32_t u
     return cxx::success<RequestHeader*>(requestHeader);
 }
 
-void ClientPortUser::freeRequest(RequestHeader* const requestHeader) noexcept
+void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
 {
     if (requestHeader)
     {
@@ -84,7 +84,7 @@ void ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
     }
     else
     {
-        freeRequest(requestHeader);
+        releaseRequest(requestHeader);
         LogWarn() << "Try to send request without being connected!";
     }
 }
@@ -133,6 +133,11 @@ void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     {
         errorHandler(Error::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
+}
+
+void ClientPortUser::releaseQueuedResponses() noexcept
+{
+    m_chunkReceiver.clear();
 }
 
 bool ClientPortUser::hasNewResponses() const noexcept

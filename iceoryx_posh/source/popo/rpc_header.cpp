@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/rpc_header.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 namespace iox
 {
@@ -83,6 +84,18 @@ bool RequestHeader::isFireAndForget() const noexcept
     return m_isFireAndForget;
 }
 
+RequestHeader* RequestHeader::fromPayload(void* const payload) noexcept
+{
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<RequestHeader*>(chunkHeader->userHeader()) : nullptr;
+}
+
+const RequestHeader* RequestHeader::fromPayload(const void* const payload) noexcept
+{
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<const RequestHeader*>(chunkHeader->userHeader()) : nullptr;
+}
+
 ResponseHeader::ResponseHeader(const cxx::UniqueId& uniqueClientQueueId,
                                const uint32_t lastKnownClientQueueIndex,
                                const int64_t sequenceId) noexcept
@@ -99,5 +112,18 @@ bool ResponseHeader::hasServerError() const noexcept
 {
     return m_hasServerError;
 }
+
+ResponseHeader* ResponseHeader::fromPayload(void* const payload) noexcept
+{
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<ResponseHeader*>(chunkHeader->userHeader()) : nullptr;
+}
+
+const ResponseHeader* ResponseHeader::fromPayload(const void* const payload) noexcept
+{
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);
+    return chunkHeader ? static_cast<const ResponseHeader*>(chunkHeader->userHeader()) : nullptr;
+}
+
 } // namespace popo
 } // namespace iox

@@ -6,11 +6,11 @@ class UntypedClient {
   disconnect(): void
   getConnectionState(): ConnectionState
   loan(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
-  send(request: void*): void
-  release(request: void*): void
+  send(requestPayload: void*): void
+  releaseRequest(requestPayload: const void*): void
   hasResponses(): bool
   take(): expected<void*, Error>
-  release(response: void*): void
+  releaseResponse(responsePayload: void*): void
   releaseQueuedResponses(): void
   hasMissedResponses(): bool
 }
@@ -23,12 +23,12 @@ class UntypedServer {
   hasClients(): bool
   hasRequests(): bool
   take(): expected<void*, Error>
-  release(request: void*): void
+  releaseRequest(requestPayload: void*): void
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
   loan(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
-  send(response: void*): void
-  release(response: void*): void
+  send(responsePayload: void*): void
+  releaseResponse(responsePayload: const void*): void
 }
 
 @enduml

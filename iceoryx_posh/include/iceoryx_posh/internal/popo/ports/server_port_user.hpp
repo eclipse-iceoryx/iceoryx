@@ -95,6 +95,9 @@ class ServerPortUser : public BasePort
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
     void releaseRequest(const RequestHeader* const requestHeader) noexcept;
 
+    /// @brief Release all the requests that are currently queued up.
+    void releaseQueuedRequests() noexcept;
+
     /// @brief check if there are requests in the queue
     /// @return if there are requests in the queue return true, otherwise false
     bool hasNewRequests() const noexcept;
@@ -114,9 +117,9 @@ class ServerPortUser : public BasePort
                                                                      const uint32_t userPayloadSize,
                                                                      const uint32_t userPayloadAlignment) noexcept;
 
-    /// @brief Free an allocated response without sending it
+    /// @brief Releases an allocated response without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void freeResponse(ResponseHeader* const responseHeader) noexcept;
+    void releaseResponse(const ResponseHeader* const responseHeader) noexcept;
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send

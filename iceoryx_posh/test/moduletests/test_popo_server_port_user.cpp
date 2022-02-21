@@ -593,9 +593,9 @@ TEST_F(ServerPort_test, AllocateResponseWithValidParameterReturnsResponseHeader)
 
 // END allocateResponse tests
 
-// BEGIN freeResponse tests
+// BEGIN releaseResponse tests
 
-TEST_F(ServerPort_test, FreeResponseWithValidResponseHeaderWorksAndReleasesTheChunkToTheMempool)
+TEST_F(ServerPort_test, ReleaseResponseWithValidResponseHeaderWorksAndReleasesTheChunkToTheMempool)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2f5ff38e-92a2-4169-98ea-38985350dc85");
     auto& sut = serverPortWithOfferOnCreate;
@@ -604,12 +604,12 @@ TEST_F(ServerPort_test, FreeResponseWithValidResponseHeaderWorksAndReleasesTheCh
         constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
         constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
-        sut.portUser.freeResponse(res);
+        sut.portUser.releaseResponse(res);
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS));
     });
 }
 
-TEST_F(ServerPort_test, FreeResponseWithInvalidChunkCallsTheErrorHandler)
+TEST_F(ServerPort_test, ReleaseResponseWithInvalidChunkCallsTheErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb09c788-0e1b-41c6-877a-1b13a37829d4");
     auto& sut = serverPortWithOfferOnCreate;
@@ -623,16 +623,16 @@ TEST_F(ServerPort_test, FreeResponseWithInvalidChunkCallsTheErrorHandler)
         });
 
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
-        sut.portUser.freeResponse(res);
+        sut.portUser.releaseResponse(res);
         // since the response is already freed, it should not be in the UsedChunkList anymore and the error handler
         // should be called
-        sut.portUser.freeResponse(res);
+        sut.portUser.releaseResponse(res);
     });
 
     EXPECT_TRUE(detectedError.has_value());
 }
 
-TEST_F(ServerPort_test, FreeResponseWithWithNullptrResponseHeaderCallsTheErrorHandler)
+TEST_F(ServerPort_test, ReleaseResponseWithWithNullptrResponseHeaderCallsTheErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ecb40c4d-7b95-4780-9b51-ac1708830453");
     auto& sut = serverPortWithOfferOnCreate;
@@ -645,12 +645,12 @@ TEST_F(ServerPort_test, FreeResponseWithWithNullptrResponseHeaderCallsTheErrorHa
             detectedError.emplace(error);
         });
 
-    sut.portUser.freeResponse(nullptr);
+    sut.portUser.releaseResponse(nullptr);
 
     EXPECT_TRUE(detectedError.has_value());
 }
 
-// END freeResponse tests
+// END releaseResponse tests
 
 // BEGIN sendResponse tests
 
