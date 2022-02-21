@@ -125,7 +125,7 @@ void compareAndClearServiceContainers(ServiceContainer& lhs, ServiceContainer& r
 }
 
 ///
-/// Publish-Subscribe & Request-Response
+/// Publish-Subscribe || Request-Response
 ///
 
 using CommunicationKind = Types<Publisher, Server>;
@@ -726,6 +726,37 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxPublisherServices)
                           this->findHandler,
                           TestFixture::CommunicationKind::KIND);
     compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
+}
+
+///
+/// Publisher-Subscriber && Request-Response
+///
+
+TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSameServiceDescriptionAreBothFound)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1ea59629-2fc7-4ef4-9acb-9892a9ec640c");
+
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Curry", "Chicken tikka", "Ginger");
+
+    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
+    /// @todo #27 Replace the type of server with popo::UntypedServer once available
+    iox::popo::UntypedPublisher server(SERVICE_DESCRIPTION);
+
+    auto serviceContainerPubSub = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                                        SERVICE_DESCRIPTION.getInstanceIDString(),
+                                                        SERVICE_DESCRIPTION.getEventIDString(),
+                                                        MessagingPattern::PUB_SUB);
+
+    auto serviceContainerReqRes = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                                                        SERVICE_DESCRIPTION.getInstanceIDString(),
+                                                        SERVICE_DESCRIPTION.getEventIDString(),
+                                                        MessagingPattern::REQ_RES);
+
+    ASSERT_THAT(serviceContainerPubSub.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainerPubSub.begin(), Eq(SERVICE_DESCRIPTION));
+
+    ASSERT_THAT(serviceContainerReqRes.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainerReqRes.begin(), Eq(SERVICE_DESCRIPTION));
 }
 
 ///
