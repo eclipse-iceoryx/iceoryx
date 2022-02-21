@@ -2,9 +2,9 @@
 
 ## Introduction
 
-This example demonstrates how to search for specific services using the
-iceoryx's `ServiceDiscovery`. It provides two applications - one offering
-different services and one searching for these making different search queries.
+This example demonstrates how to search for specific services using iceoryx's
+`ServiceDiscovery`. It provides two applications - one offering different
+services and one searching for these making different search queries.
 A `service` in iceoryx is defined by a `ServiceDescription` that represents a
 topic under which publisher/server and subscriber/client can exchange data.
 
@@ -52,7 +52,7 @@ void printSearchResult(const iox::capro::ServiceDescription& service)
 }
 ```
 
-We can search for unique services:
+We can search for exactly matching services:
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_find_service.cpp][search for unique service]-->
 ```cpp
