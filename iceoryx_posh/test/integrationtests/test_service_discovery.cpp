@@ -69,20 +69,19 @@ class ServiceDiscovery_test : public RouDi_GTest
         searchResultOfFindServiceWithFindHandler.emplace_back(s);
     };
 
-    static void testCallback(ServiceDiscovery* const serviceDiscoveryPointer)
+    static void testCallback(ServiceDiscovery* const)
     {
-        IOX_DISCARD_RESULT(serviceDiscoveryPointer);
         callbackWasCalled = true;
     }
 
-    static void searchForService(ServiceDiscovery* const serviceDiscoveryPointer, ServiceDescription* service)
+    static void searchForService(ServiceDiscovery* const serviceDiscovery, ServiceDescription* service)
     {
-        serviceContainer = serviceDiscoveryPointer->findService(
+        serviceContainer = serviceDiscovery->findService(
             service->getServiceIDString(), service->getInstanceIDString(), service->getEventIDString());
         callbackWasCalled = true;
     }
 
-    const iox::units::Duration m_fatalTimeout = 5_s;
+    const iox::units::Duration m_fatalTimeout = 10_s;
     Watchdog m_watchdog{m_fatalTimeout};
 };
 

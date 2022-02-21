@@ -25,21 +25,10 @@ ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdStri
                                                const cxx::optional<capro::IdString_t>& instance,
                                                const cxx::optional<capro::IdString_t>& event) noexcept
 {
-    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
-        m_serviceRegistry = *serviceRegistrySample;
-    });
-
-    roudi::ServiceRegistry::ServiceDescriptionVector_t tempSearchResult;
-    m_serviceRegistry.find(tempSearchResult, service, instance, event);
-
     ServiceContainer searchResult;
-    for (auto& service : tempSearchResult)
-    {
-        if (service.publisherCount > 0)
-        {
-            searchResult.push_back(service.serviceDescription);
-        }
-    }
+
+    auto lambda = [&](const capro::ServiceDescription& entry) { searchResult.emplace_back(entry); };
+    findService(service, instance, event, lambda);
 
     return searchResult;
 }
@@ -55,14 +44,17 @@ void ServiceDiscovery::findService(
         return;
     }
 
-    auto lambda = [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& s) {
-        callableForEach(s.serviceDescription);
-    };
-
     m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
         m_serviceRegistry = *serviceRegistrySample;
     });
-    m_serviceRegistry.find(service, instance, event, lambda);
+
+    m_serviceRegistry.find(
+        service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
+            if (serviceEntry.publisherCount > 0)
+            {
+                callableForEach(serviceEntry.serviceDescription);
+            }
+        });
 }
 
 void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept
