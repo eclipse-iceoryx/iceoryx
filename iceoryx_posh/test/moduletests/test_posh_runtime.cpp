@@ -679,6 +679,141 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNameLeadsToTermination)
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE));
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cb3c1b4d-0d81-494c-954d-c1de10c244d7");
+    const iox::capro::ServiceDescription sd{"811", "1", "20"};
+    iox::popo::ServerOptions defaultOptions;
+    iox::runtime::PortConfigInfo defaultPortConfigInfo;
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+
+    EXPECT_EQ(serverPort->m_serviceDescription, sd);
+    EXPECT_EQ(serverPort->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(serverPort->m_nodeName, defaultOptions.nodeName);
+    EXPECT_EQ(serverPort->m_offeringRequested, defaultOptions.offerOnCreate);
+    EXPECT_EQ(serverPort->m_offered, true);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), defaultOptions.requestQueueCapacity);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queueFullPolicy, defaultOptions.requestQueueFullPolicy);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_memoryInfo.deviceId, defaultPortConfigInfo.memoryInfo.deviceId);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_memoryInfo.memoryType, defaultPortConfigInfo.memoryInfo.memoryType);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_historyCapacity, iox::popo::ServerPortData::HISTORY_REQUEST_OF_ZERO);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_consumerTooSlowPolicy, defaultOptions.clientTooSlowPolicy);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_memoryInfo.deviceId, defaultPortConfigInfo.memoryInfo.deviceId);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_memoryInfo.memoryType, defaultPortConfigInfo.memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithCustomServerOptionsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "881c342c-58b9-4094-9e77-b4e68ab9a52a");
+    const iox::capro::ServiceDescription sd{"811", "1", "20"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 13U;
+    serverOptions.nodeName = m_nodeName;
+    serverOptions.offerOnCreate = false;
+    serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    const iox::runtime::PortConfigInfo portConfig{11U, 22U, 33U};
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions, portConfig);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+
+    EXPECT_EQ(serverPort->m_serviceDescription, sd);
+    EXPECT_EQ(serverPort->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(serverPort->m_nodeName, serverOptions.nodeName);
+    EXPECT_EQ(serverPort->m_offeringRequested, serverOptions.offerOnCreate);
+    EXPECT_EQ(serverPort->m_offered, false);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), serverOptions.requestQueueCapacity);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queueFullPolicy, serverOptions.requestQueueFullPolicy);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_memoryInfo.deviceId, portConfig.memoryInfo.deviceId);
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_memoryInfo.memoryType, portConfig.memoryInfo.memoryType);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_historyCapacity, iox::popo::ServerPortData::HISTORY_REQUEST_OF_ZERO);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_consumerTooSlowPolicy, serverOptions.clientTooSlowPolicy);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_memoryInfo.deviceId, portConfig.memoryInfo.deviceId);
+    EXPECT_EQ(serverPort->m_chunkSenderData.m_memoryInfo.memoryType, portConfig.memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQueueToMaximum)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "91b21e80-0f98-4ae3-982c-54deaab93d96");
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ServerChunkQueueConfig::MAX_QUEUE_CAPACITY;
+    const iox::capro::ServiceDescription sd{"819", "1", "20"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), MAX_QUEUE_CAPACITY);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueCapacityZeroClampsQueueCapacityTo1)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a28a30eb-f3be-43c9-a948-26c71c5f12c9");
+    const iox::capro::ServiceDescription sd{"89", "19", "20"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 0U;
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), 1U);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerlistOverflow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8f679838-3332-440c-aa95-d5c82d53a7cd");
+    auto serverOverflowDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__SERVERLIST_OVERFLOW)
+            {
+                serverOverflowDetected = true;
+            }
+        });
+
+    uint32_t i{0U};
+    for (; i < iox::MAX_SERVERS; ++i)
+    {
+        auto serverPort = m_runtime->getMiddlewareServer(
+            iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+        ASSERT_THAT(serverPort, Ne(nullptr));
+    }
+    EXPECT_FALSE(serverOverflowDetected);
+
+    auto serverPort = m_runtime->getMiddlewareServer(
+        iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+    EXPECT_THAT(serverPort, Eq(nullptr));
+    EXPECT_TRUE(serverOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNameLeadsToTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "95603ddc-1051-4dd7-a163-1c621f8a211a");
+    const iox::capro::ServiceDescription sd{"89", "19", "200"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.nodeName = m_invalidNodeName;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    m_runtime->getMiddlewareServer(sd, serverOptions);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_INVALID_RESPONSE));
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2ccdca8-53ec-46d8-a34e-f56f996f57e0");
