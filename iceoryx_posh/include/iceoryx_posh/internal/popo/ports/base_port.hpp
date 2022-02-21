@@ -60,11 +60,11 @@ class BasePort
 
     /// @brief Reads Type of actual CaPro Port (publisher/subscriber...)
     /// @return m_portType  Type of Port in struct BasePortType
-    capro::ServiceDescription getCaProServiceDescription() const noexcept;
+    const capro::ServiceDescription& getCaProServiceDescription() const noexcept;
 
     /// @brief Gets name of the application's runtime for the active port
     /// @return runtime name as String
-    RuntimeName_t getRuntimeName() const noexcept;
+    const RuntimeName_t& getRuntimeName() const noexcept;
 
     /// @brief Gets Id of the active port
     /// @return UniqueId name as Integer
@@ -72,7 +72,7 @@ class BasePort
 
     /// @brief returns node name for the active port
     /// @return node name as a string
-    NodeName_t getNodeName() const noexcept;
+    const NodeName_t& getNodeName() const noexcept;
 
     /// @brief Indicate that this port can be destroyed
     void destroy() noexcept;
