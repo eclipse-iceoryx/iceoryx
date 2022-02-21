@@ -35,7 +35,7 @@ typedef struct
 } iox_server_options_t;
 
 void iox_server_options_init(iox_server_options_t* const options);
-void iox_server_options_is_initialized(const iox_server_options_t* const options);
+bool iox_server_options_is_initialized(const iox_server_options_t* const options);
 
 iox_server_t iox_server_init(iox_server_storage_t* self,
                              const char* const service,
