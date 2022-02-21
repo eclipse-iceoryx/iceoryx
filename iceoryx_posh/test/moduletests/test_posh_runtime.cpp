@@ -158,8 +158,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessfu
     m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(),
-                Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
@@ -543,6 +542,141 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
 
     EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
                 Eq(iox::popo::QueueFullPolicy::BLOCK_PRODUCER));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2db35746-e402-443f-b374-3b6a239ab5fd");
+    const iox::capro::ServiceDescription sd{"911", "1", "20"};
+    iox::popo::ClientOptions defaultOptions;
+    iox::runtime::PortConfigInfo defaultPortConfigInfo;
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+
+    EXPECT_EQ(clientPort->m_serviceDescription, sd);
+    EXPECT_EQ(clientPort->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(clientPort->m_nodeName, defaultOptions.nodeName);
+    EXPECT_EQ(clientPort->m_connectRequested, defaultOptions.connectOnCreate);
+    EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::WAIT_FOR_OFFER);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), defaultOptions.responseQueueCapacity);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queueFullPolicy, defaultOptions.responseQueueFullPolicy);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.deviceId, defaultPortConfigInfo.memoryInfo.deviceId);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.memoryType, defaultPortConfigInfo.memoryInfo.memoryType);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_historyCapacity, iox::popo::ClientPortData::HISTORY_CAPACITY_ZERO);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_consumerTooSlowPolicy, defaultOptions.serverTooSlowPolicy);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.deviceId, defaultPortConfigInfo.memoryInfo.deviceId);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.memoryType, defaultPortConfigInfo.memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f61a81f4-f610-4e61-853b-ac114d9a801c");
+    const iox::capro::ServiceDescription sd{"911", "1", "20"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 13U;
+    clientOptions.nodeName = m_nodeName;
+    clientOptions.connectOnCreate = false;
+    clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    const iox::runtime::PortConfigInfo portConfig{11U, 22U, 33U};
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions, portConfig);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+
+    EXPECT_EQ(clientPort->m_serviceDescription, sd);
+    EXPECT_EQ(clientPort->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(clientPort->m_nodeName, clientOptions.nodeName);
+    EXPECT_EQ(clientPort->m_connectRequested, clientOptions.connectOnCreate);
+    EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::NOT_CONNECTED);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), clientOptions.responseQueueCapacity);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queueFullPolicy, clientOptions.responseQueueFullPolicy);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.deviceId, portConfig.memoryInfo.deviceId);
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.memoryType, portConfig.memoryInfo.memoryType);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_historyCapacity, iox::popo::ClientPortData::HISTORY_CAPACITY_ZERO);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_consumerTooSlowPolicy, clientOptions.serverTooSlowPolicy);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.deviceId, portConfig.memoryInfo.deviceId);
+    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.memoryType, portConfig.memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQueueToMaximum)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8e34f962-e7c9-40ac-9796-a12f92c4d674");
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ClientChunkQueueConfig::MAX_QUEUE_CAPACITY;
+    const iox::capro::ServiceDescription sd{"919", "1", "20"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), MAX_QUEUE_CAPACITY);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueCapacityZeroClampsQueueCapacityTo1)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7b6ffd68-46d4-4339-a0df-6fecb621f765");
+    const iox::capro::ServiceDescription sd{"99", "19", "20"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 0U;
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), 1U);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClientlistOverflow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6f2de2bf-5e7e-47b1-be42-92cf3fa71ba6");
+    auto clientOverflowDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__CLIENTLIST_OVERFLOW)
+            {
+                clientOverflowDetected = true;
+            }
+        });
+
+    uint32_t i{0U};
+    for (; i < iox::MAX_CLIENTS; ++i)
+    {
+        auto clientPort = m_runtime->getMiddlewareClient(
+            iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+        ASSERT_THAT(clientPort, Ne(nullptr));
+    }
+    EXPECT_FALSE(clientOverflowDetected);
+
+    auto clientPort = m_runtime->getMiddlewareClient(
+        iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+    EXPECT_THAT(clientPort, Eq(nullptr));
+    EXPECT_TRUE(clientOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNameLeadsToTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b4433dfd-d2f8-4567-9483-aed956275ce8");
+    const iox::capro::ServiceDescription sd{"99", "19", "200"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.nodeName = m_invalidNodeName;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    m_runtime->getMiddlewareClient(sd, clientOptions);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
