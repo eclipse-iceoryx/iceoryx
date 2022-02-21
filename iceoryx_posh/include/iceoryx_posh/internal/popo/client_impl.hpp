@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/request_deleter.hpp"
 #include "iceoryx_posh/internal/popo/response_deleter.hpp"
 #include "iceoryx_posh/internal/popo/rpc_interface.hpp"
+#include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/request.hpp"
 #include "iceoryx_posh/popo/response.hpp"
@@ -35,15 +36,8 @@ namespace popo
 template <typename Req, typename Res, typename BaseClientT = BaseClient<>>
 class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
 {
-    static_assert(!std::is_void<Req>::value, "The type `Req` must not be void. Use the UntypedClient for void types.");
-    static_assert(!std::is_void<Res>::value, "The type `Res` must not be void. Use the UntypedClient for void types.");
-
-    static_assert(!std::is_const<Req>::value, "The type `Req` must not be const.");
-    static_assert(!std::is_const<Res>::value, "The type `Res` must not be const.");
-    static_assert(!std::is_reference<Req>::value, "The type `Req` must not be a reference.");
-    static_assert(!std::is_reference<Res>::value, "The type `Res` must not be a reference.");
-    static_assert(!std::is_pointer<Req>::value, "The type `Req` must not be a pointer.");
-    static_assert(!std::is_pointer<Res>::value, "The type `Res` must not be a pointer.");
+    using RequestTypeAssert = typename TypedPortApiTrait<Req>::Assert;
+    using ResponseTypeAssert = typename TypedPortApiTrait<Res>::Assert;
 
   public:
     /// @brief Constructor for a client

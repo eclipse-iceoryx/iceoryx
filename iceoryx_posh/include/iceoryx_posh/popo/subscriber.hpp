@@ -19,6 +19,7 @@
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/internal/popo/sample_deleter.hpp"
+#include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 
 namespace iox
@@ -29,7 +30,9 @@ template <typename T, typename H = iox::mepoo::NoUserHeader, typename BaseSubscr
 class SubscriberImpl : public BaseSubscriber_t
 {
     using SelfType = SubscriberImpl<T, BaseSubscriber_t>;
-    static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
+
+    using DataTypeAssert = typename TypedPortApiTrait<T>::Assert;
+    using HeaderTypeAssert = typename TypedPortApiTrait<H>::Assert;
 
   public:
     SubscriberImpl(const capro::ServiceDescription& service,
