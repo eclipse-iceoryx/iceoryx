@@ -21,6 +21,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
+#include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "mocks/posh_runtime_mock.hpp"
@@ -925,6 +927,141 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
 
     blockingPublisher.join(); // ensure the wasChunkSent store happens before the read
     EXPECT_THAT(wasSampleSent.load(), Eq(true));
+}
+
+TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
+    // get publisher and subscriber
+    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
+
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 10U;
+    clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 1U;
+    serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::UntypedClient client{serviceDescription, clientOptions};
+    iox::popo::UntypedServer server{serviceDescription, serverOptions};
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    ASSERT_TRUE(server.hasClients());
+    ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasRequestSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingServer([&] {
+        auto sendRequest = [&]() {
+            auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
+            ASSERT_FALSE(clientLoanResult.has_error());
+            client.send(clientLoanResult.value());
+        };
+
+        // send request till queue is full
+        for (uint64_t i = 0; i < serverOptions.requestQueueCapacity; ++i)
+        {
+            sendRequest();
+        }
+
+        // signal that an blocking sind is expected
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        sendRequest();
+        wasRequestSent = true;
+    });
+
+    // wait some time to check if the client is blocked
+    constexpr int64_t SLEEP_IN_MS = 100;
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    EXPECT_THAT(wasRequestSent.load(), Eq(false));
+
+    m_runtime->shutdown();
+
+    blockingServer.join(); // ensure the wasRequestSent store happens before the read
+    EXPECT_THAT(wasRequestSent.load(), Eq(true));
+}
+
+TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
+    // get publisher and subscriber
+    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
+
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 1U;
+    clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 10U;
+    serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::UntypedClient client{serviceDescription, clientOptions};
+    iox::popo::UntypedServer server{serviceDescription, serverOptions};
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    ASSERT_TRUE(server.hasClients());
+    ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
+
+    // send requests to fill request queue
+    for (uint64_t i = 0; i < clientOptions.responseQueueCapacity + 1; ++i)
+    {
+        auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
+        ASSERT_FALSE(clientLoanResult.has_error());
+        client.send(clientLoanResult.value());
+    }
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasResponseSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingServer([&] {
+        auto processRequest = [&]() {
+            auto takeResult = server.take();
+            ASSERT_FALSE(takeResult.has_error());
+            auto loanResult = server.loan(
+                iox::popo::RequestHeader::fromPayload(takeResult.value()), sizeof(uint64_t), alignof(uint64_t));
+            ASSERT_FALSE(loanResult.has_error());
+            server.send(loanResult.value());
+        };
+
+        for (uint64_t i = 0; i < clientOptions.responseQueueCapacity; ++i)
+        {
+            processRequest();
+        }
+
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        processRequest();
+        wasResponseSent = true;
+    });
+
+    // wait some time to check if the server is blocked
+    constexpr int64_t SLEEP_IN_MS = 100;
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    EXPECT_THAT(wasResponseSent.load(), Eq(false));
+
+    m_runtime->shutdown();
+
+    blockingServer.join(); // ensure the wasResponseSent store happens before the read
+    EXPECT_THAT(wasResponseSent.load(), Eq(true));
 }
 
 TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
