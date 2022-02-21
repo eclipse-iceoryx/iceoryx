@@ -29,6 +29,7 @@
 - Add event parameter to `findService` method [#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
 - Implement stream operator for `ChunkReceiveResult` and `AllocationError` to be able to use it with ostream and LogStream [\#1062](https://github.com/eclipse-iceoryx/iceoryx/issues/1062)
 - Replace IPC-channel-based `findService` with pub/sub-based on [#415](https://github.com/eclipse-iceoryx/iceoryx/issues/415)
+- Add `findService` method to `ServiceDiscovery` which applies a callable to all matching services [\#1105](https://github.com/eclipse-iceoryx/iceoryx/pull/1105)
 
 **Bugfixes:**
 
