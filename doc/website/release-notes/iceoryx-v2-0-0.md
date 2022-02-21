@@ -39,6 +39,11 @@
 - C binding for service discovery [\#1142](https://github.com/eclipse-iceoryx/iceoryx/issues/1142)
 - Introduce `iox::popo::MessagingPattern` to `findService` to allow separate searches for publishers (`MessagingPattern::PUB_SUB`) and
 servers (`iox::popo::MessagingPattern::REQ_RES`) [\#27](https://github.com/eclipse-iceoryx/iceoryx/pull/1134)
+- Request/Response communication with iceoryx [\#27](https://github.com/eclipse-iceoryx/iceoryx/issues/27)
+    - For more details how this feature can be used please have a look at the `iceoryx_examples/request_response`
+    - Limitations
+        - The port introspection is not aware of the new `Client` and `Server` [\#1128](https://github.com/eclipse-iceoryx/iceoryx/issues/1128)
+        - The DDS gateway is not aware of the new `Server` [\#1145](https://github.com/eclipse-iceoryx/iceoryx/issues/1145)
 
 **Bugfixes:**
 
