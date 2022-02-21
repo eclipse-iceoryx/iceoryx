@@ -141,13 +141,7 @@ class ServiceRegistry_test : public Test
     Sut sut;
 };
 
-constexpr auto CAPACITY = ServiceRegistry::capacity();
-
-TEST(ServiceRegistry_test, CapacityEqualsIceoryxConfigurationValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "37d31e44-1072-4d45-a164-d391fb28d247");
-    EXPECT_EQ(ServiceRegistry::capacity(), iox::SERVICE_REGISTRY_CAPACITY);
-}
+constexpr auto CAPACITY = ServiceRegistry::CAPACITY;
 
 typedef ::testing::Types<PublisherTest, ServerTest> TestTypes;
 TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes);

@@ -105,10 +105,6 @@ class ServiceRegistry
     /// @return ServiceDescriptionVector_t, copy of complete service registry
     const ServiceDescriptionVector_t getServices() const noexcept;
 
-    /// @brief Returns the capacity of the ServiceRegistry
-    /// @return capacity (= maximum number of distinct service descriptions)
-    static constexpr uint32_t capacity() noexcept;
-
   private:
     using Entry_t = cxx::optional<ServiceDescriptionEntry>;
     using ServiceDescriptionContainer_t = cxx::vector<Entry_t, CAPACITY>;
@@ -130,11 +126,6 @@ class ServiceRegistry
     cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription,
                              ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
-
-constexpr uint32_t ServiceRegistry::capacity() noexcept
-{
-    return CAPACITY;
-}
 
 } // namespace roudi
 } // namespace iox
