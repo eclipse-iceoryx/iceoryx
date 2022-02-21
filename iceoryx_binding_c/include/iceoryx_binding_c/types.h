@@ -120,5 +120,13 @@ typedef struct
 #endif
 } iox_server_storage_t;
 
+/// @brief has exactly the size required to store the underlying object of iox_service_discovery_t
+struct iox_service_discovery_storage_t
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(ServiceDiscovery) / 8
+    uint64_t do_not_touch_me[196768];
+};
+typedef struct iox_service_discovery_storage_t iox_service_discovery_storage_t;
 
 #endif

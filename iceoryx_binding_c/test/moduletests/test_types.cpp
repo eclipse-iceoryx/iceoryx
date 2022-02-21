@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/types.h"
@@ -86,4 +88,10 @@ TEST(iox_types_test, ServerStorageSizeFits)
     EXPECT_THAT(alignof(UntypedServer), Le(alignof(iox_server_storage_t)));
 }
 
+TEST(iox_types_test, ServiceDiscoveryStorageSizeFits)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8fd3af84-ca73-4e38-a061-5e4638f48b77");
+    EXPECT_THAT(sizeof(ServiceDiscovery), Le(sizeof(iox_service_discovery_storage_t)));
+    EXPECT_THAT(alignof(ServiceDiscovery), Le(alignof(iox_service_discovery_storage_t)));
+}
 } // namespace
