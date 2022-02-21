@@ -45,45 +45,40 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
         return;
     }
 
-    auto lambda IOX_MAYBE_UNUSED = [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
-        switch (pattern)
-        {
-        case MessagingPattern::PUB_SUB:
-        {
-            if (serviceEntry.publisherCount > 0 && serviceEntry.serverCount == 0)
-            {
-                callableForEach(serviceEntry.serviceDescription);
-            }
-            break;
-        }
-        case MessagingPattern::REQ_RES:
-        {
-            if (serviceEntry.serverCount > 0 && serviceEntry.publisherCount == 0)
-            {
-                callableForEach(serviceEntry.serviceDescription);
-            }
-            break;
-        }
-        default:
-        {
-            LogWarn() << "ServiceDiscovery could not perform search due to unknown MessagingPattern!";
-            errorHandler(
-                Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_MESSAGE_PATTERN_PROVIDED, nullptr, ErrorLevel::MODERATE);
-        }
-        }
-    };
-
     m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
         m_serviceRegistry = *serviceRegistrySample;
     });
 
-    m_serviceRegistry.find(
-        service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
-            if (serviceEntry.publisherCount > 0)
-            {
-                callableForEach(serviceEntry.serviceDescription);
-            }
-        });
+    switch (pattern)
+    {
+    case MessagingPattern::PUB_SUB:
+    {
+        m_serviceRegistry.find(
+            service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
+                if (serviceEntry.publisherCount > 0)
+                {
+                    callableForEach(serviceEntry.serviceDescription);
+                }
+            });
+        break;
+    }
+    case MessagingPattern::REQ_RES:
+    {
+        m_serviceRegistry.find(
+            service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
+                if (serviceEntry.serverCount > 0)
+                {
+                    callableForEach(serviceEntry.serviceDescription);
+                }
+            });
+        break;
+    }
+    default:
+    {
+        LogWarn() << "ServiceDiscovery could not perform search due to unknown MessagingPattern!";
+        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_MESSAGE_PATTERN_PROVIDED, nullptr, ErrorLevel::MODERATE);
+    }
+    }
 }
 
 void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept
