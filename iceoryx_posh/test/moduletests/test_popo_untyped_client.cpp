@@ -27,7 +27,7 @@ using namespace iox::capro;
 using namespace iox::popo;
 using ::testing::_;
 
-using TestUntypedClient = iox::popo::UntypedClientImpl<MockBaseClient<void>>;
+using TestUntypedClient = iox::popo::UntypedClientImpl<MockBaseClient>;
 
 class UntypedClient_test : public Test
 {
