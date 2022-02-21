@@ -46,6 +46,9 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
     static_assert(!std::is_pointer<Res>::value, "The type `Res` must not be a pointer.");
 
   public:
+    /// @brief Constructor for a client
+    /// @param[in] service is the ServiceDescription for the new client
+    /// @param[in] clientOptions like the queue capacity and queue full policy by a client
     explicit ClientImpl(const capro::ServiceDescription& service, const ClientOptions& clientOptions = {}) noexcept;
     ClientImpl(const ClientImpl&) = delete;
     ClientImpl(ClientImpl&&) = delete;

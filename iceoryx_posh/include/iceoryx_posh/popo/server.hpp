@@ -23,6 +23,9 @@ namespace iox
 {
 namespace popo
 {
+/// @brief The Server class for the request-response messaging pattern in iceoryx.
+/// @param[in] Req type of request data
+/// @param[in] Res type of response data
 template <typename Req, typename Res>
 class Server : public ServerImpl<Req, Res>
 {

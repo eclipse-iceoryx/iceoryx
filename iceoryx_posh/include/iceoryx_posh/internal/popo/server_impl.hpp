@@ -46,6 +46,9 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>>
     static_assert(!std::is_pointer<Res>::value, "The type `Res` must not be a pointer.");
 
   public:
+    /// @brief Constructor for a sserver
+    /// @param[in] service is the ServiceDescription for the new server
+    /// @param[in] serverOptions like the queue capacity and queue full policy by a server
     explicit ServerImpl(const capro::ServiceDescription& service, const ServerOptions& serverOptions = {}) noexcept;
     ServerImpl(const ServerImpl&) = delete;
     ServerImpl(ServerImpl&&) = delete;
