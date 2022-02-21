@@ -137,7 +137,7 @@ class BaseClient
     Port& port() noexcept;
 
   protected:
-    Port m_port{nullptr};    // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    Port m_port;             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     TriggerHandle m_trigger; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 };
 } // namespace popo
