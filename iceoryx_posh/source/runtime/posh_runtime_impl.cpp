@@ -302,9 +302,25 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
                                                                          const popo::ClientOptions& clientOptions,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ClientChunkQueueConfig::MAX_QUEUE_CAPACITY;
+    auto options = clientOptions;
+    if (options.responseQueueCapacity > MAX_QUEUE_CAPACITY)
+    {
+        LogWarn() << "Requested response queue capacity " << options.responseQueueCapacity
+                  << " exceeds the maximum possible one for this client"
+                  << ", limiting from " << options.responseQueueCapacity << " to " << MAX_QUEUE_CAPACITY;
+        options.responseQueueCapacity = MAX_QUEUE_CAPACITY;
+    }
+    else if (options.responseQueueCapacity == 0U)
+    {
+        LogWarn() << "Requested response queue capacity of 0 doesn't make sense as no data would be received,"
+                  << " the capacity is set to 1";
+        options.responseQueueCapacity = 1U;
+    }
+
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_CLIENT) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << clientOptions.serialize().toString()
+               << static_cast<cxx::Serialization>(service).toString() << options.serialize().toString()
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeClient = requestClientFromRoudi(sendBuffer);
@@ -386,12 +402,28 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
 }
 
 popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const capro::ServiceDescription& service,
-                                                                         const popo::ServerOptions& ServerOptions,
+                                                                         const popo::ServerOptions& serverOptions,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ServerChunkQueueConfig::MAX_QUEUE_CAPACITY;
+    auto options = serverOptions;
+    if (options.requestQueueCapacity > MAX_QUEUE_CAPACITY)
+    {
+        LogWarn() << "Requested request queue capacity " << options.requestQueueCapacity
+                  << " exceeds the maximum possible one for this server"
+                  << ", limiting from " << options.requestQueueCapacity << " to " << MAX_QUEUE_CAPACITY;
+        options.requestQueueCapacity = MAX_QUEUE_CAPACITY;
+    }
+    else if (options.requestQueueCapacity == 0U)
+    {
+        LogWarn() << "Requested request queue capacity of 0 doesn't make sense as no data would be received,"
+                  << " the capacity is set to 1";
+        options.requestQueueCapacity = 1U;
+    }
+
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SERVER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << ServerOptions.serialize().toString()
+               << static_cast<cxx::Serialization>(service).toString() << options.serialize().toString()
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeServer = requestServerFromRoudi(sendBuffer);
