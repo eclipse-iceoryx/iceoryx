@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,15 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
+#include "iceoryx_posh/popo/client_options.hpp"
+#include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 
@@ -94,6 +98,28 @@ class PoshRuntime
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const popo::SubscriberOptions& subscriberOptions = {},
                             const PortConfigInfo& portConfigInfo = {}) noexcept = 0;
+
+    /// @brief request the RouDi daemon to create a client port
+    /// @param[in] serviceDescription service description for the new client port
+    /// @param[in] clientOptions like the queue capacity and queue full policy by a client
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created client port data
+    virtual popo::ClientPortData*
+    getMiddlewareClient(const capro::ServiceDescription& service,
+                        const popo::ClientOptions& clientOptions = {},
+                        const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
+
+    /// @brief request the RouDi daemon to create a server port
+    /// @param[in] serviceDescription service description for the new server port
+    /// @param[in] serverOptions like the queue capacity and queue full policy by a server
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created server port data
+    virtual popo::ServerPortData*
+    getMiddlewareServer(const capro::ServiceDescription& service,
+                        const popo::ServerOptions& serverOptions = {},
+                        const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create

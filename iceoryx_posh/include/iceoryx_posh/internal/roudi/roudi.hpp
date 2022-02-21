@@ -79,7 +79,7 @@ class RouDi
     RouDi& operator=(const RouDi& other) = delete;
     RouDi(const RouDi& other) = delete;
 
-    RouDi(RouDiMemoryInterface& roudiMemoryInteface,
+    RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           PortManager& portManager,
           RoudiStartupParameters roudiStartupParameters) noexcept;
 

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,6 +55,18 @@ class PoshRuntimeImpl : public PoshRuntime
                             const popo::SubscriberOptions& subscriberOptions = popo::SubscriberOptions(),
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept override;
 
+    /// @copydoc PoshRuntime::getMiddlewareClient
+    popo::ClientPortUser::MemberType_t*
+    getMiddlewareClient(const capro::ServiceDescription& service,
+                        const popo::ClientOptions& clientOptions = {},
+                        const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept override;
+
+    /// @copydoc PoshRuntime::getMiddlewareServer
+    popo::ServerPortUser::MemberType_t*
+    getMiddlewareServer(const capro::ServiceDescription& service,
+                        const popo::ServerOptions& ServerOptions = {},
+                        const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept override;
+
     /// @copydoc PoshRuntime::getMiddlewareInterface
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
                                                     const NodeName_t& nodeName = {""}) noexcept override;
@@ -82,6 +94,12 @@ class PoshRuntimeImpl : public PoshRuntime
 
     cxx::expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
     requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept;
+
+    cxx::expected<popo::ClientPortUser::MemberType_t*, IpcMessageErrorType>
+    requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept;
+
+    cxx::expected<popo::ServerPortUser::MemberType_t*, IpcMessageErrorType>
+    requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
