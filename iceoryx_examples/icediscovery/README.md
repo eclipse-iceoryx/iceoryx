@@ -5,6 +5,8 @@
 This example demonstrates how to search for specific services using the
 iceoryx's `ServiceDiscovery`. It provides two applications - one offering
 different services and one searching for these making different search queries.
+A `service` in iceoryx is defined by a `ServiceDescription` that represents a
+topic under which publisher/server and subscriber/client can exchange data.
 
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->
@@ -16,9 +18,9 @@ different services and one searching for these making different search queries.
 We create several publishers which offer their services on construction by
 default. For more dynamism the `cameraPublishers` offer/stop their services
 periodically. If you want more information on how to create a publisher, have a
-look at the [icehello](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icehello),
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery),
-and [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
+look at the [icehello](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icehello),
+[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery),
+and [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery)
 examples.
 
 ### Find services
@@ -38,7 +40,7 @@ It is included via:
 ```
 
 On that object we can call the method `findService` which expects the three
-service [string identifiers](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/getting-started/overview.md#creating-service-descriptions-for-topics)
+service [string identifiers](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/website/getting-started/overview.md#creating-service-descriptions-for-topics)
 and a callable which will be applied to all matching services. In this example
 we pass a function that prints the found services on the console:
 
@@ -73,5 +75,5 @@ instance and any event. Since the `cameraPublishers` periodically offer/stop
 their services, you should see sometimes 5 `Camera` services and sometimes none.
 
 <center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery){ .md-button }
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery){ .md-button }
 </center>
