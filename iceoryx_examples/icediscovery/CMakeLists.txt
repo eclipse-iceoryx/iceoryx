@@ -38,10 +38,7 @@ target_link_libraries(iox-find-service
 )
 target_compile_options(iox-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-offer-service
-                      iox-find-service
-
-add_executable(iox-wait-for-service ./iox_wait_for_service.cpp ./src/discovery_waitset.cpp)
+add_executable(iox-wait-for-service ./iox_wait_for_service.cpp ./src/discovery_blocking.cpp)
 target_link_libraries(iox-wait-for-service
     iceoryx_posh::iceoryx_posh
 )

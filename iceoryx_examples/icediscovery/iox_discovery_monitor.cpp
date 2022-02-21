@@ -20,19 +20,24 @@
 
 #include <iostream>
 
+using namespace discovery;
+
 constexpr char APP_NAME[] = "iox-monitor-discovery";
 
-void printSearchResult(const iox::runtime::ServiceContainer result)
+iox::capro::IdString_t service{"Camera"};
+iox::capro::IdString_t instance{"FrontLeft"};
+iox::capro::IdString_t event{"Image"};
+
+void printSearchResult(const iox::runtime::ServiceContainer& result)
 {
-    std::cout << "Searchresult " << std::endl;
+    std::cout << "Search result: " << (result.empty() ? "empty" : "") << std::endl;
+
     for (auto entry : result)
     {
         std::cout << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
                   << entry.getEventIDString() << std::endl;
     }
 }
-
-using namespace discovery;
 
 int main()
 {
@@ -41,21 +46,24 @@ int main()
     Discovery discovery;
 
     auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
-        auto result = discovery.findService(
-            iox::capro::IdString_t{"Radar"}, iox::capro::IdString_t{"FrontLeft"}, iox::capro::IdString_t{"Counter"});
+        auto result = discovery.findService(service, instance, event);
 
         if (result.size() > 0)
         {
-            std::cout << "Discovery Monitor: service available" << std::endl;
+            std::cout << "Discovery Monitor <" << service << ", " << instance << ", " << event << "> available"
+                      << std::endl;
             printSearchResult(result);
         }
         else
         {
-            std::cout << "Discovery Monitor: service unavailable" << std::endl;
+            std::cout << "Discovery Monitor <" << service << ", " << instance << ", " << event << "> unavailable"
+                      << std::endl;
+            printSearchResult(result);
         }
     };
 
-    // only one callback allowed, hence no handles required
+    // only one callback allowed, hence we require no handles to deregister
+    // the callback later
     discovery.registerCallback(callback);
 
     while (!iox::posix::hasTerminationRequested())

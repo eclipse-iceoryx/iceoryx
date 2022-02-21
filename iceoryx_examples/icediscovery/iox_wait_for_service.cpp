@@ -14,33 +14,38 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "discovery_waitset.hpp"
+#include "discovery_blocking.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 
+using namespace discovery;
+
 constexpr char APP_NAME[] = "iox-wait-for-service";
 
-void printSearchResult(const iox::runtime::ServiceContainer result)
+iox::capro::IdString_t service{"Camera"};
+iox::capro::IdString_t instance{"FrontLeft"};
+iox::capro::IdString_t event{"Image"};
+
+void printSearchResult(const iox::runtime::ServiceContainer& result)
 {
-    std::cout << "Search Result " << std::endl;
+    std::cout << "Search result: " << (result.empty() ? "empty" : "") << std::endl;
+
     for (auto entry : result)
     {
-        std::cout << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
-                  << entry.getEventIDString() << std::endl;
+        std::cout << "<" << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
+                  << entry.getEventIDString() << ">" << std::endl;
     }
 }
-
-using namespace discovery;
 
 Discovery* discoveryPtr{nullptr};
 
 void sigHandler(int)
 {
+    std::cout << "sig handler" << std::endl;
     if (discoveryPtr)
     {
-        std::cout << "sig handler" << std::endl;
         discoveryPtr->unblockWait();
     }
 }
@@ -57,32 +62,36 @@ int main()
     auto sigIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
     auto query = [&]() {
-        auto result = discovery.findService(
-            iox::capro::IdString_t{"Radar"}, iox::capro::IdString_t{"FrontLeft"}, iox::capro::IdString_t{"Counter"});
-
+        auto result = discovery.findService(service, instance, event);
         return result.size() > 0;
     };
 
     while (!iox::posix::hasTerminationRequested())
     {
-        std::cout << "waiting for service" << std::endl;
+        std::cout << "Waiting for service <" << service << ", " << instance << ", " << event << "> ..." << std::endl;
         bool serviceWasAvailable = discovery.waitUntil(query);
 
         // did we wake up due to an unblock or because the service was available?
         if (serviceWasAvailable)
         {
-            std::cout << "<Radar FrontLeft Counter> was available ...\n" << std::endl;
+            std::cout << "<" << service << ", " << instance << ", " << event << "> was available" << std::endl;
 
-            // service was available, proceed
+            // service was available, but we can never be sure the service is still available
+            // if this is important we need to monitor it (see discovery monitor example)
+
+            std::cout << "Waiting for any discovery change ..." << std::endl;
+            discovery.waitUntilChange();
+
+            std::cout << "Discovery changed. Searching <" << service << ", " << instance << ", " << event << "> ..."
+                      << std::endl;
+
+            // we will usually find nothing here unless offer and stop offering very fast
+            auto result = discovery.findService(service, instance, event);
+            printSearchResult(result);
             break;
         }
     }
 
-    // service was available, but we can never be sure the service is still available
-    // if this is ipmortant we need to monitor it (see discovery monitor example)
-
-    // wait until any discovery change before we exit
-    discovery.waitUntilChange();
 
     return (EXIT_SUCCESS);
 }

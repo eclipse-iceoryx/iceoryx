@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "discovery_waitset.hpp"
+#include "discovery_blocking.hpp"
 
 namespace discovery
 {

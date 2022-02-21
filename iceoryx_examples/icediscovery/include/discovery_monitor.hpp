@@ -59,9 +59,6 @@ class Discovery
     using callback_t = iox::cxx::function<void(ServiceDiscovery&)>;
 
     ServiceDiscovery* m_discovery{nullptr};
-
-    // no reason to use a pointer here, the same listener can attach to the registry
-    // only once (per event but there is only one)
     iox::popo::Listener m_listener;
 
     /// @note currently only one callback can be active (and there is no need to have more
