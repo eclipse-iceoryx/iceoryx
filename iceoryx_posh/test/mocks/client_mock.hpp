@@ -74,7 +74,9 @@ class MockBaseClient
   public:
     using PortType = MockClientPortUser;
 
-    MockBaseClient(const iox::capro::ServiceDescription&, const iox::popo::ClientOptions&) noexcept
+    MockBaseClient(const iox::capro::ServiceDescription& sd, const iox::popo::ClientOptions& options) noexcept
+        : serviceDescription(sd)
+        , clientOptions(options)
     {
     }
 
@@ -100,21 +102,17 @@ class MockBaseClient
 
     const PortType& port() const noexcept
     {
-        return m_port;
+        return mockPort;
     }
 
     PortType& port() noexcept
     {
-        return m_port;
+        return mockPort;
     }
 
-    // for testing
-    PortType& mockPort() noexcept
-    {
-        return port();
-    }
-
-    PortType m_port;
+    PortType mockPort;
+    iox::capro::ServiceDescription serviceDescription;
+    iox::popo::ClientOptions clientOptions;
 };
 
 #endif // IOX_POSH_MOCKS_CLIENT_MOCK_HPP
