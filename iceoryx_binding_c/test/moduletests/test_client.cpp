@@ -304,8 +304,14 @@ TEST_F(iox_client_test, LoanAndSendWorks)
 TEST_F(iox_client_test, ConnectWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4809d1ce-3a53-4981-bded-4709599f62b5");
-    prepareClientInit();
-    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_client_options_t options;
+    iox_client_options_init(&options);
+    options.connectOnCreate = false;
+
+    ClientOptions cppOptions;
+    cppOptions.connectOnCreate = false;
+    prepareClientInit(cppOptions);
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
     iox_client_connect(sut);
 
     EXPECT_THAT(sutPort->m_connectRequested.load(), Eq(true));
@@ -316,7 +322,6 @@ TEST_F(iox_client_test, DisconnectWorks)
     ::testing::Test::RecordProperty("TEST_ID", "ebb07dc5-1aa2-4dbe-8b86-7378e6bd2ed2");
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
-    iox_client_connect(sut);
     iox_client_disconnect(sut);
 
     EXPECT_THAT(sutPort->m_connectRequested.load(), Eq(false));
@@ -346,30 +351,14 @@ TEST_F(iox_client_test, GetConnectionReturnsConnectRequested)
     sutPort->m_connectionState = iox::ConnectionState::CONNECT_REQUESTED;
 
     EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_CONNECT_REQUESTED));
-}
 
-TEST_F(iox_client_test, GetConnectionReturnsConnected)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "ad20a316-9f14-4ef5-a67e-ba0cf6a37ce3");
-    prepareClientInit();
-    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
-    sutPort->m_connectRequested = true;
     sutPort->m_connectionState = iox::ConnectionState::CONNECTED;
-
     EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_CONNECTED));
-}
 
-TEST_F(iox_client_test, GetConnectionReturnsDisconnectRequested)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4a1e3ab3-fe8e-4624-ac10-48bebad8f782");
-    prepareClientInit();
-    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     sutPort->m_connectRequested = false;
     sutPort->m_connectionState = iox::ConnectionState::DISCONNECT_REQUESTED;
-
     EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_DISCONNECT_REQUESTED));
 }
-
 
 TEST_F(iox_client_test, GetConnectionReturnsWaitForOffer)
 {
@@ -481,9 +470,10 @@ TEST_F(iox_client_test, HasNoMissedResponses)
 TEST_F(iox_client_test, GetServiceDescriptionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d456aa37-4c28-4de7-9adc-2c5c4108f588");
+
     prepareClientInit();
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
-    iox_service_description_t serviceDescription = iox_client_get_service_description(sut);
+    auto serviceDescription = iox_client_get_service_description(sut);
 
     EXPECT_THAT(serviceDescription.serviceString, StrEq(SERVICE));
     EXPECT_THAT(serviceDescription.instanceString, StrEq(INSTANCE));

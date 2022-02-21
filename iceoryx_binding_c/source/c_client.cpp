@@ -71,7 +71,7 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
     if (options != nullptr)
     {
         clientOptions.responseQueueCapacity = options->responseQueueCapacity;
-        clientOptions.nodeName.append(TruncateToCapacity, options->nodeName);
+        clientOptions.nodeName = iox::NodeName_t(TruncateToCapacity, options->nodeName);
         clientOptions.connectOnCreate = options->connectOnCreate;
         clientOptions.responseQueueFullPolicy = c2cpp::queueFullPolicy(options->responseQueueFullPolicy);
         clientOptions.serverTooSlowPolicy = c2cpp::consumerTooSlowPolicy(options->serverTooSlowPolicy);
