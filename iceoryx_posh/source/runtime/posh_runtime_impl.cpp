@@ -120,6 +120,12 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
                       << "' could not be created since we are out of memory for publishers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_PUBLISHER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
+        case IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. Request publisher got invalid response.";
+            errorHandler(
+                Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_INVALID_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+            break;
         case IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' could not be created. Request publisher got wrong IPC channel response.";
@@ -148,7 +154,12 @@ cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
 PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request publisher got invalid response!";
+        return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3U)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -164,17 +175,14 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
                 reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
     }
-    else
+    else if (receiveBuffer.getNumberOfElements() == 2U)
     {
-        if (receiveBuffer.getNumberOfElements() == 2U)
+        std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
+        std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
-            std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-            if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
-            {
-                LogError() << "Request publisher received no valid publisher port from RouDi.";
-                return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
-            }
+            LogError() << "Request publisher received no valid publisher port from RouDi.";
+            return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
@@ -225,6 +233,12 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
                       << "' could not be created since we are out of memory for subscribers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_SUBSCRIBER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
+        case IpcMessageErrorType::REQUEST_SUBSCRIBER_INVALID_RESPONSE:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. Request subscriber got invalid response.";
+            errorHandler(
+                Error::kPOSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_INVALID_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+            break;
         case IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' could not be created. Request subscriber got wrong IPC channel response.";
@@ -248,7 +262,12 @@ cxx::expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
 PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request subscriber got invalid response!";
+        return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SUBSCRIBER_INVALID_RESPONSE);
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3U)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -263,18 +282,15 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
                 reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
     }
-    else
+    else if (receiveBuffer.getNumberOfElements() == 2U)
     {
-        if (receiveBuffer.getNumberOfElements() == 2U)
-        {
-            std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
-            std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
+        std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
+        std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
 
-            if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
-            {
-                LogError() << "Request subscriber received no valid subscriber port from RouDi.";
-                return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
-            }
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
+        {
+            LogError() << "Request subscriber received no valid subscriber port from RouDi.";
+            return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
@@ -301,12 +317,23 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
                       << "' as we are out of memory for clients.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_OUT_OF_CLIENTS, nullptr, iox::ErrorLevel::SEVERE);
             break;
+        case IpcMessageErrorType::REQUEST_CLIENT_INVALID_RESPONSE:
+            LogWarn() << "Could not create client with service description '" << service
+                      << "'; received invalid response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+            break;
         case IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Could not create client with service description '" << service
                       << "'; received wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
+            break;
+        case IpcMessageErrorType::REQUEST_CLIENT_NO_WRITABLE_SHM_SEGMENT:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. RouDi did not find a writable shared memory segment for the current "
+                         "user. Try using another user or adapt RouDi's config.";
+            errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Unknown error occurred while creating client with service description '" << service << "'";
@@ -322,7 +349,12 @@ cxx::expected<popo::ClientPortUser::MemberType_t*, IpcMessageErrorType>
 PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request client got invalid response!";
+        return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CLIENT_INVALID_RESPONSE);
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3U)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -337,19 +369,17 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
                 reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
         }
     }
-    else
+    else if (receiveBuffer.getNumberOfElements() == 2U)
     {
-        if (receiveBuffer.getNumberOfElements() == 2U)
+        std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
+        std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
-            std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-            if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
-            {
-                LogError() << "Request client received no valid client port from RouDi.";
-                return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
-            }
+            LogError() << "Request client received no valid client port from RouDi.";
+            return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
+
 
     LogError() << "Request client got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE);
@@ -374,12 +404,23 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
                       << "' as we are out of memory for servers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_OUT_OF_SERVERS, nullptr, iox::ErrorLevel::SEVERE);
             break;
+        case IpcMessageErrorType::REQUEST_SERVER_INVALID_RESPONSE:
+            LogWarn() << "Could not create server with service description '" << service
+                      << "'; received invalid response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_INVALID_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+            break;
         case IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Could not create server with service description '" << service
                       << "'; received wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
+            break;
+        case IpcMessageErrorType::REQUEST_SERVER_NO_WRITABLE_SHM_SEGMENT:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. RouDi did not find a writable shared memory segment for the current "
+                         "user. Try using another user or adapt RouDi's config.";
+            errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Unknown error occurred while creating server with service description '" << service << "'";
@@ -395,7 +436,12 @@ cxx::expected<popo::ServerPortUser::MemberType_t*, IpcMessageErrorType>
 PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request server got invalid response!";
+        return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SERVER_INVALID_RESPONSE);
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3U)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -410,17 +456,14 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
                 reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
         }
     }
-    else
+    else if (receiveBuffer.getNumberOfElements() == 2U)
     {
-        if (receiveBuffer.getNumberOfElements() == 2U)
+        std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
+        std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
-            std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-            if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
-            {
-                LogError() << "Request server received no valid server port from RouDi.";
-                return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
-            }
+            LogError() << "Request server received no valid server port from RouDi.";
+            return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
@@ -437,7 +480,13 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
 
     IpcMessage receiveBuffer;
 
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request interface got invalid response!";
+        errorHandler(Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+        return nullptr;
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3u)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -466,7 +515,13 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 
     IpcMessage receiveBuffer;
 
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request node got invalid response!";
+        errorHandler(Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_INVALID_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+        return nullptr;
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3U)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -490,7 +545,12 @@ cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
 PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept
 {
     IpcMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
+    {
+        LogError() << "Request condition variable got invalid response!";
+        return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE);
+    }
+    else if (receiveBuffer.getNumberOfElements() == 3U)
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
@@ -504,17 +564,14 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
             return cxx::success<popo::ConditionVariableData*>(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
     }
-    else
+    else if (receiveBuffer.getNumberOfElements() == 2U)
     {
-        if (receiveBuffer.getNumberOfElements() == 2U)
+        std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
+        std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
-            std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-            if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
-            {
-                LogError() << "Request condition variable received no valid condition variable port from RouDi.";
-                return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
-            }
+            LogError() << "Request condition variable received no valid condition variable port from RouDi.";
+            return cxx::error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
@@ -536,6 +593,12 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
         case IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL:
             LogWarn() << "Could not create condition variable as we are out of memory for condition variables.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE:
+            LogWarn() << "Could not create condition variables; received invalid IPC channel response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
             break;
         case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Could not create condition variables; received wrong IPC channel response.";
