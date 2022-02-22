@@ -262,4 +262,34 @@ void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, 
 /// @param[in] clientState the state which should be detached from the client
 void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState);
 
+
+ENUM iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
+                                                  const iox_server_t server,
+                                                  const ENUM iox_ServerEvent serverEvent,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_server_t));
+
+ENUM iox_WaitSetResult iox_ws_attach_server_event_with_context_data(iox_ws_t const self,
+                                                                    iox_server_t const server,
+                                                                    const ENUM iox_ServerEvent serverEvent,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_server_t, void*),
+                                                                    void* const contextData);
+
+ENUM iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
+                                                  const iox_server_t server,
+                                                  const ENUM iox_ServerState serverState,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_server_t));
+
+ENUM iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const self,
+                                                                    iox_server_t const server,
+                                                                    const ENUM iox_ServerState serverState,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_server_t, void*),
+                                                                    void* const contextData);
+
+void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerEvent serverEvent);
+
+void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerState serverState);
 #endif
