@@ -33,6 +33,7 @@ iox::popo::ClientEvent clientEvent(const iox_ClientEvent value) noexcept;
 iox::popo::ClientState clientState(const iox_ClientState value) noexcept;
 iox::popo::ServerEvent serverEvent(const iox_ServerEvent value) noexcept;
 iox::popo::ServerState serverState(const iox_ServerState value) noexcept;
+iox::popo::ServerRequestResult serverRequestResult(const iox_ServerRequestResult value) noexcept;
 } // namespace c2cpp
 
 #endif

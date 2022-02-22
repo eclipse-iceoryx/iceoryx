@@ -126,4 +126,23 @@ iox::popo::ServerState serverState(const iox_ServerState value) noexcept
     errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE);
     return iox::popo::ServerState::HAS_REQUEST;
 }
+
+iox::popo::ServerRequestResult serverRequestResult(const iox_ServerRequestResult value) noexcept
+{
+    switch (value)
+    {
+    case ServerRequestResult_TOO_MANY_REQUESTS_HELD_IN_PARALLEL:
+        return iox::popo::ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL;
+    case ServerRequestResult_NO_PENDING_REQUESTS:
+        return iox::popo::ServerRequestResult::NO_PENDING_REQUESTS;
+    case ServerRequestResult_UNDEFINED_CHUNK_RECEIVE_ERROR:
+        return iox::popo::ServerRequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR;
+    case ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER:
+        return iox::popo::ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER;
+    }
+
+    iox::LogFatal() << "invalid iox_ServerRequestResult value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_REQUEST_RESULT_VALUE);
+    return iox::popo::ServerRequestResult::NO_PENDING_REQUESTS;
+}
 } // namespace c2cpp
