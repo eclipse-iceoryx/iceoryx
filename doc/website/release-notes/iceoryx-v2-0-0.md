@@ -72,6 +72,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Roudi console timestamps are out of date [#1130](https://github.com/eclipse-iceoryx/iceoryx/issues/1130)
 - Application can't create publisher repeatedly with previous one already destroyed [\#938](https://github.com/eclipse-iceoryx/iceoryx/issues/938)
 - Prevent creation of `popo::Publisher`'s with internal `ServiceDescription` [\#1120](https://github.com/eclipse-iceoryx/iceoryx/issues/1120)
+- Introduce defined behaviour for subscribers without read access [\#722](https://github.com/eclipse-iceoryx/iceoryx/issues/722)
 
 **Refactoring:**
 
