@@ -33,14 +33,14 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
     }
 
     m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
-        m_serviceRegistry = *serviceRegistrySample;
+        *m_serviceRegistry = *serviceRegistrySample;
     });
 
     switch (pattern)
     {
     case popo::MessagingPattern::PUB_SUB:
     {
-        m_serviceRegistry.find(
+        m_serviceRegistry->find(
             service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
                 if (serviceEntry.publisherCount > 0)
                 {
@@ -51,7 +51,7 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
     }
     case popo::MessagingPattern::REQ_RES:
     {
-        m_serviceRegistry.find(
+        m_serviceRegistry->find(
             service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
                 if (serviceEntry.serverCount > 0)
                 {

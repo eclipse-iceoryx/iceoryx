@@ -22,6 +22,8 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
+#include <memory>
+
 namespace iox
 {
 namespace popo
@@ -41,23 +43,15 @@ enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
 class ServiceDiscovery
 {
   public:
-    ServiceDiscovery() noexcept = default;
+    ServiceDiscovery()
+    {
+    }
+
     ServiceDiscovery(const ServiceDiscovery&) = delete;
     ServiceDiscovery& operator=(const ServiceDiscovery&) = delete;
     ServiceDiscovery(ServiceDiscovery&&) = delete;
     ServiceDiscovery& operator=(ServiceDiscovery&&) = delete;
     ~ServiceDiscovery() noexcept = default;
-
-    /// @brief Searches all services that match the provided service description
-    /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
-    /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
-    /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
-    /// @return ServiceContainer
-    /// ServiceContainer: container that is filled with all matching instances
-    ServiceContainer findService(const cxx::optional<capro::IdString_t>& service,
-                                 const cxx::optional<capro::IdString_t>& instance,
-                                 const cxx::optional<capro::IdString_t>& event,
-                                 const popo::MessagingPattern pattern) noexcept;
 
     /// @brief Searches all services that match the provided service description and applies a function to each of them
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
@@ -78,15 +72,17 @@ class ServiceDiscovery
     void invalidateTrigger(const uint64_t uniqueTriggerId);
     iox::popo::WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
-    roudi::ServiceRegistry m_serviceRegistry;
+
+    //  use dynamic memory to reduce stack usage,
+    /// @todo improve solution to avoid stack usage without using dynamic memory
+    std::unique_ptr<roudi::ServiceRegistry> m_serviceRegistry{new roudi::ServiceRegistry};
+
     popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
         {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
         {1U, 1U, iox::NodeName_t("Service Registry"), true}};
 };
 
-
 } // namespace runtime
-
 } // namespace iox
 
 #endif // IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
