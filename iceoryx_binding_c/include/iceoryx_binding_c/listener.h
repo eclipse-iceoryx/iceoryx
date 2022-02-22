@@ -20,6 +20,7 @@
 #include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/server.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
@@ -141,4 +142,18 @@ void iox_listener_detach_client_event(iox_listener_t const self,
                                       iox_client_t const client,
                                       const ENUM iox_ClientEvent clientEvent);
 
+ENUM iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
+                                                         iox_server_t const server,
+                                                         const ENUM iox_ServerEvent serverEvent,
+                                                         void (*callback)(iox_server_t));
+
+ENUM iox_ListenerResult iox_listener_attach_client_server_with_context_data(iox_listener_t const self,
+                                                                            iox_server_t const server,
+                                                                            const ENUM iox_ServerEvent serverEvent,
+                                                                            void (*callback)(iox_server_t, void*),
+                                                                            void* const contextData);
+
+void iox_listener_detach_server_event(iox_listener_t const self,
+                                      iox_server_t const server,
+                                      const ENUM iox_ServerEvent serverEvent);
 #endif

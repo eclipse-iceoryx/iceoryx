@@ -84,7 +84,7 @@ void iox_server_deinit(iox_server_t const self);
 /// @param[in] payload pointer in which the pointer to the user-payload of the request is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-iox_ServerRequestResult iox_server_take_request(iox_server_t const self, const void** const payload);
+ENUM iox_ServerRequestResult iox_server_take_request(iox_server_t const self, const void** const payload);
 
 /// @brief release a previously acquired request (via iox_server_take_request)
 /// @param[in] self handle to the server
@@ -100,10 +100,10 @@ void iox_server_release_request(iox_server_t const self, const void* const paylo
 ///         describes the error
 /// @note for the user-payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
 ///       for a custom user-payload alignment please use `iox_server_loan_aligned_response`
-iox_AllocationResult iox_server_loan_response(iox_server_t const self,
-                                              const void* const requestPayload,
-                                              void** const payload,
-                                              const uint32_t payloadSize);
+ENUM iox_AllocationResult iox_server_loan_response(iox_server_t const self,
+                                                   const void* const requestPayload,
+                                                   void** const payload,
+                                                   const uint32_t payloadSize);
 
 /// @brief allocates a response in the shared memory
 /// @param[in] self handle of the server
@@ -113,11 +113,11 @@ iox_AllocationResult iox_server_loan_response(iox_server_t const self,
 /// @param[in] payloadAlignment user-payload alignment of the allocated request
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
-                                                      const void* const requestPayload,
-                                                      void** const payload,
-                                                      const uint32_t payloadSize,
-                                                      const uint32_t payloadAlignment);
+ENUM iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
+                                                           const void* const requestPayload,
+                                                           void** const payload,
+                                                           const uint32_t payloadSize,
+                                                           const uint32_t payloadAlignment);
 
 /// @brief sends a previously loaned response
 /// @param[in] self handle of the server

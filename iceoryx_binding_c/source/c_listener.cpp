@@ -19,6 +19,7 @@
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
+#include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 
 #include <type_traits>
@@ -202,4 +203,51 @@ void iox_listener_detach_client_event(iox_listener_t const self,
     iox::cxx::Expects(client != nullptr);
 
     self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
+}
+
+
+iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
+                                                    iox_server_t const server,
+                                                    const ENUM iox_ServerEvent serverEvent,
+                                                    void (*callback)(iox_server_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+
+    auto result = self->attachEvent(
+        *server,
+        c2cpp::serverEvent(serverEvent),
+        NotificationCallback<std::remove_pointer_t<iox_server_t>, internal::NoType_t>{callback, nullptr});
+    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
+                                : iox_ListenerResult::ListenerResult_SUCCESS;
+}
+
+iox_ListenerResult iox_listener_attach_client_server_with_context_data(iox_listener_t const self,
+                                                                       iox_server_t const server,
+                                                                       const ENUM iox_ServerEvent serverEvent,
+                                                                       void (*callback)(iox_server_t, void*),
+                                                                       void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+    iox::cxx::Expects(contextData != nullptr);
+
+    auto result =
+        self->attachEvent(*server,
+                          c2cpp::serverEvent(serverEvent),
+                          NotificationCallback<std::remove_pointer_t<iox_server_t>, void>{callback, contextData});
+    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
+                                : iox_ListenerResult::ListenerResult_SUCCESS;
+}
+
+void iox_listener_detach_server_event(iox_listener_t const self,
+                                      iox_server_t const server,
+                                      const ENUM iox_ServerEvent serverEvent)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    self->detachEvent(*server, c2cpp::serverEvent(serverEvent));
 }
