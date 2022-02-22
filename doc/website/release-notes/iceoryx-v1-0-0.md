@@ -23,6 +23,7 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 - New chunk available callback for the new C++ and C APIs [\#350](https://github.com/eclipse-iceoryx/iceoryx/issues/350)
 - Add generic QNX toolchain files [\#609](https://github.com/eclipse-iceoryx/iceoryx/issues/609)
 - Introduction of Runnables/Nodes for the new APIs [\#349](https://github.com/eclipse-iceoryx/iceoryx/issues/349)
+- extend waitset and listener for member use case and waitset callback for user type [\#707](https://github.com/eclipse-iceoryx/iceoryx/issues/707)
 
 **Refactoring:**
 

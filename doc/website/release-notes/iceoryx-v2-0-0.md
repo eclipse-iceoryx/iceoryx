@@ -6,13 +6,18 @@
 
 **Features:**
 
+- block publisher when subscriber queue full [\#615](https://github.com/eclipse-iceoryx/iceoryx/issues/615)
+- extend chunk header for gateways and recompute [\#711](https://github.com/eclipse-iceoryx/iceoryx/pull/711)
+- Basic Windows 10 support [\#33](https://github.com/eclipse-iceoryx/iceoryx/issues/33)
+- Common puml file for common settings [\#865](https://github.com/eclipse-iceoryx/iceoryx/issues/865)
+- Relocatable Pointers - Version 2.0 [\#926](https://github.com/eclipse-iceoryx/iceoryx/issues/926)
+- Implement `waitForTerminationRequest` [\#973](https://github.com/eclipse-iceoryx/iceoryx/issues/973)
 - Partial enable iceoryx building with msvc2015+clang [\#965](https://github.com/eclipse-iceoryx/iceoryx/issues/965)
 - C binding for posh configuration [\#930](https://github.com/eclipse-iceoryx/iceoryx/issues/930)
 - Enhance MacOS performance with timed{send,receive} functionality in unix domain socket[\#903](https://github.com/eclipse-iceoryx/iceoryx/issues/903)
 - Multi-Publisher support for DDS gateway and generic gateway class [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)
 - Replace `iox-gw-iceoryx2dds` and `iox-gw-dds2iceoryx` gateways with `iox-dds-gateway` [\#900](https://github.com/eclipse-iceoryx/iceoryx/issues/900)
 - Enhance `posixCall` [\#805](https://github.com/eclipse-iceoryx/iceoryx/issues/805)
-- New chunk available callback for the new C++ [\#391](https://github.com/eclipse-iceoryx/iceoryx/issues/391)
 - Git Hooks on iceoryx [\#486](https://github.com/eclipse-iceoryx/iceoryx/issues/486)
 - static memory alternative for std::function [\#391](https://github.com/eclipse-iceoryx/iceoryx/issues/391)
 - Adding support for Helix QAC 2021.1 [\#755](https://github.com/eclipse-iceoryx/iceoryx/issues/755) thanks to @toniglandy1
@@ -33,6 +38,20 @@
 
 **Bugfixes:**
 
+- Analyse suppressed errors of AddressSanitizer, LeakSanitizer & UndefinedBehaviorSanitizer [\#423](https://github.com/eclipse-iceoryx/iceoryx/issues/423)
+- CMake file duplicate option in build_options.cmake [\#709](https://github.com/eclipse-iceoryx/iceoryx/issues/709) thanks to @ZhenshengLee
+- SharedChunk should internally store an absolute pointer [\#713](https://github.com/eclipse-iceoryx/iceoryx/issues/713)
+- loanPreviousChunk is broken [\#729](https://github.com/eclipse-iceoryx/iceoryx/issues/729)
+- Runtime Error in SubscriberImpl [\#714](https://github.com/eclipse-iceoryx/iceoryx/issues/714)
+- Wrong Values of iox-cpp-subscriber and iox-cpp-publisher [\#781](https://github.com/eclipse-iceoryx/iceoryx/issues/781)
+- CMake fails during googletest step with gcc 11.1.0 [\#798](https://github.com/eclipse-iceoryx/iceoryx/issues/798)
+- NewType Copy-Assign raises compiler warning on GCC 8.4.0 [\#282](https://github.com/eclipse-iceoryx/iceoryx/issues/282)
+- Apply noexcept all the things rule to posh, hoofs and binding_c [\#916](https://github.com/eclipse-iceoryx/iceoryx/pull/916)
+- Doxygen shows wrong include paths [\#922](https://github.com/eclipse-iceoryx/iceoryx/pull/922)
+- `find_package(iceoryx_posh)` fails [\#944](https://github.com/eclipse-iceoryx/iceoryx/pull/944) thanks to @ijnek
+- iox-roudi report error when running in docker [\#946](https://github.com/eclipse-iceoryx/iceoryx/pull/946)
+- compile error: duration.inl - duration literals are not found (Windows) [\#1078](https://github.com/eclipse-iceoryx/iceoryx/pull/1078)
+- `cxx::string` initialization with nullptr leads to segfault [\#1108](https://github.com/eclipse-iceoryx/iceoryx/pull/1108)
 - Fix support for libc++ on clang [\#905](https://github.com/eclipse-iceoryx/iceoryx/issues/905)
 - Fix warnings for gcc-11.1 [\#838](https://github.com/eclipse-iceoryx/iceoryx/issues/838)
 - Incremental builds with the build script are broken [\#821](https://github.com/eclipse-iceoryx/iceoryx/issues/821)
@@ -41,7 +60,8 @@
 - Fix format string issues with introspection client [\#960](https://github.com/eclipse-iceoryx/iceoryx/issues/960) thanks to @roehling
 - Add support for Multi-Arch install destinations [\#961](https://github.com/eclipse-iceoryx/iceoryx/issues/961) thanks to @roehling
 - Fix a few misspellings in log messages [\#962](https://github.com/eclipse-iceoryx/iceoryx/issues/962) thanks to @roehling
-- Fix typos in goals/non-goals document [\#968](https://github.com/eclipse-iceoryx/iceoryx/issues/968)
+- Fix typos in goals/non-goals document [\#968](https://github.com/eclipse-iceoryx/iceoryx/issues/968) thanks to @
+fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Catch deserialization errors for enums in publisher and subscriber options [\#989](https://github.com/eclipse-iceoryx/iceoryx/issues/989)
 - Fix linker error on QNX [\#1013](https://github.com/eclipse-iceoryx/iceoryx/issues/1013)
 - When posix mutex fails a correct error message is reported on the console [\#999](https://github.com/eclipse-iceoryx/iceoryx/issues/999)
@@ -52,12 +72,24 @@
 
 **Refactoring:**
 
+- implement Module-Tests for smart_lock [\#588](https://github.com/eclipse-iceoryx/iceoryx/issues/588)
+- improve Helix QAC parsing coverage [\#759](https://github.com/eclipse-iceoryx/iceoryx/issues/759) thanks to @toniglandy1
+- Write "ROS 2" with a space between "ROS" and "2" [\#762](https://github.com/eclipse-iceoryx/iceoryx/issues/762) thanks to @christophebedard
+- Enforce unix line endings [\#794](https://github.com/eclipse-iceoryx/iceoryx/issues/794)
+- Rename utils to hoofs [\#790](https://github.com/eclipse-iceoryx/iceoryx/pull/790)
+- Cleanup MemoryProvider and MemoryBlock [\#842](https://github.com/eclipse-iceoryx/iceoryx/issues/842)
+- Remove #define private public from all tests [\#529](https://github.com/eclipse-iceoryx/iceoryx/issues/529)
+- Write example on how to use iceoryx in a docker environment [\#924](https://github.com/eclipse-iceoryx/iceoryx/issues/924)
+- Allow cpptoml to be provided externally and not vendored by CMake [\#950](https://github.com/eclipse-iceoryx/iceoryx/issue/950) thanks to @photex
+- Reworked iceoryx examples [\#482](https://github.com/eclipse-iceoryx/iceoryx/issues/482)
 - Handle nullptr callbacks in waitset and listener [\#932](https://github.com/eclipse-iceoryx/iceoryx/issues/932)
+- Add CI job that checks formatting with clang-format [\#887](https://github.com/eclipse-iceoryx/iceoryx/pull/887)
 - Add clang-tidy rules for iceoryx_hoofs [\#889](https://github.com/eclipse-iceoryx/iceoryx/issues/889)
+- Consolidate CI jobs in one workflow [\#891](https://github.com/eclipse-iceoryx/iceoryx/issues/891)
 - Move all tests into an anonymous namespace [\#563](https://github.com/eclipse-iceoryx/iceoryx/issues/563)
 - Refactor `smart_c` to use contract by design and expected [\#418](https://github.com/eclipse-iceoryx/iceoryx/issues/418)
 - `PoshRuntime` Mock [\#449](https://github.com/eclipse-iceoryx/iceoryx/issues/449)
-- Clean-up Doxygen for all methods in headers [\#583](https://github.com/eclipse-iceoryx/iceoryx/issues/583)
+- Clean-up Doxygen for dds [\#583](https://github.com/eclipse-iceoryx/iceoryx/issues/583)
 - Rename utils to hoofs [\#790](https://github.com/eclipse-iceoryx/iceoryx/pull/790)
 - plantuml in design documentation [\#787](https://github.com/eclipse-iceoryx/iceoryx/pull/787)
 - Refine quality levels [\#425](https://github.com/eclipse-iceoryx/iceoryx/issues/425)
