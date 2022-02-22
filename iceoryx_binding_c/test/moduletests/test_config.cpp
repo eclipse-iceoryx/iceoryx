@@ -55,6 +55,8 @@ TEST(iox_cfg, valuesAreCorrectlyConnected)
     EXPECT_EQ(iox_cfg_service_registry_capacity(), iox::SERVICE_REGISTRY_CAPACITY);
     EXPECT_EQ(iox_cfg_max_findservice_result_size(), iox::MAX_FINDSERVICE_RESULT_SIZE);
     EXPECT_EQ(iox_cfg_max_runtime_name_length(), iox::MAX_RUNTIME_NAME_LENGTH);
-    EXPECT_EQ(IOX_CONFIG_NODE_NAME_SIZE, iox::NodeName_t::capacity());
+
+    constexpr uint64_t ZERO_TERMINATOR_SIZE = 1;
+    EXPECT_EQ(IOX_CONFIG_NODE_NAME_SIZE, iox::NodeName_t::capacity() + ZERO_TERMINATOR_SIZE);
 }
 } // namespace

@@ -94,7 +94,7 @@ uint32_t iox_cfg_max_findservice_result_size();
 /// @brief returns the maximum runtime name length
 uint32_t iox_cfg_max_runtime_name_length();
 
-/// @brief the maximum size of a node name string
-#define IOX_CONFIG_NODE_NAME_SIZE 100
+/// @brief the maximum size of a node name string + \0 terminator
+#define IOX_CONFIG_NODE_NAME_SIZE 101
 
 #endif // IOX_BINDING_C_CONFIG_H
