@@ -34,7 +34,9 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::runtime;
+using namespace iox::capro;
 using namespace iox::cxx;
+using namespace iox::popo;
 using iox::roudi::RouDiEnvironment;
 
 class PoshRuntime_test : public Test
@@ -65,6 +67,27 @@ class PoshRuntime_test : public Test
     void InterOpWait()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+
+    void checkClientInitialization(const ClientPortData* const portData,
+                                   const ServiceDescription& sd,
+                                   const ClientOptions& options,
+                                   const iox::mepoo::MemoryInfo& memoryInfo) const
+    {
+        ASSERT_THAT(portData, Ne(nullptr));
+
+        EXPECT_EQ(portData->m_serviceDescription, sd);
+        EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
+        EXPECT_EQ(portData->m_nodeName, options.nodeName);
+        EXPECT_EQ(portData->m_connectRequested, options.connectOnCreate);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.responseQueueCapacity);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.responseQueueFullPolicy);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.deviceId, memoryInfo.deviceId);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.memoryType, memoryInfo.memoryType);
+        EXPECT_EQ(portData->m_chunkSenderData.m_historyCapacity, iox::popo::ClientPortData::HISTORY_CAPACITY_ZERO);
+        EXPECT_EQ(portData->m_chunkSenderData.m_consumerTooSlowPolicy, options.serverTooSlowPolicy);
+        EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.deviceId, memoryInfo.deviceId);
+        EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.memoryType, memoryInfo.memoryType);
     }
 
     const iox::RuntimeName_t m_runtimeName{"publisher"};
@@ -557,19 +580,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
 
     ASSERT_THAT(clientPort, Ne(nullptr));
 
-    EXPECT_EQ(clientPort->m_serviceDescription, sd);
-    EXPECT_EQ(clientPort->m_runtimeName, m_runtimeName);
-    EXPECT_EQ(clientPort->m_nodeName, defaultOptions.nodeName);
-    EXPECT_EQ(clientPort->m_connectRequested, defaultOptions.connectOnCreate);
+    checkClientInitialization(clientPort, sd, defaultOptions, defaultPortConfigInfo.memoryInfo);
     EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::WAIT_FOR_OFFER);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), defaultOptions.responseQueueCapacity);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queueFullPolicy, defaultOptions.responseQueueFullPolicy);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.deviceId, defaultPortConfigInfo.memoryInfo.deviceId);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.memoryType, defaultPortConfigInfo.memoryInfo.memoryType);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_historyCapacity, iox::popo::ClientPortData::HISTORY_CAPACITY_ZERO);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_consumerTooSlowPolicy, defaultOptions.serverTooSlowPolicy);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.deviceId, defaultPortConfigInfo.memoryInfo.deviceId);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.memoryType, defaultPortConfigInfo.memoryInfo.memoryType);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
@@ -588,19 +600,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
 
     ASSERT_THAT(clientPort, Ne(nullptr));
 
-    EXPECT_EQ(clientPort->m_serviceDescription, sd);
-    EXPECT_EQ(clientPort->m_runtimeName, m_runtimeName);
-    EXPECT_EQ(clientPort->m_nodeName, clientOptions.nodeName);
-    EXPECT_EQ(clientPort->m_connectRequested, clientOptions.connectOnCreate);
+    checkClientInitialization(clientPort, sd, clientOptions, portConfig.memoryInfo);
     EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::NOT_CONNECTED);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), clientOptions.responseQueueCapacity);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queueFullPolicy, clientOptions.responseQueueFullPolicy);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.deviceId, portConfig.memoryInfo.deviceId);
-    EXPECT_EQ(clientPort->m_chunkReceiverData.m_memoryInfo.memoryType, portConfig.memoryInfo.memoryType);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_historyCapacity, iox::popo::ClientPortData::HISTORY_CAPACITY_ZERO);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_consumerTooSlowPolicy, clientOptions.serverTooSlowPolicy);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.deviceId, portConfig.memoryInfo.deviceId);
-    EXPECT_EQ(clientPort->m_chunkSenderData.m_memoryInfo.memoryType, portConfig.memoryInfo.memoryType);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQueueToMaximum)
