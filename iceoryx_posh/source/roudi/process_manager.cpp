@@ -416,6 +416,19 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
 {
     findProcess(name)
         .and_then([&](auto& process) {
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithReadAccessForUser(process->getUser());
+
+            if (!segmentInfo.m_memoryManager.has_value())
+            {
+                // Tell the app no readable shared memory segment was found
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_SUBSCRIBER_NO_READABLE_SHM_SEGMENT);
+                process->sendViaIpcChannel(sendBuffer);
+                return;
+            }
+
             // create a SubscriberPort
             auto maybeSubscriber =
                 m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, portConfigInfo);

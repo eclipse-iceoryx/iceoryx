@@ -244,6 +244,12 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
+        case IpcMessageErrorType::REQUEST_SUBSCRIBER_NO_READABLE_SHM_SEGMENT:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. RouDi did not find a readable shared memory segment for the current "
+                         "user. Try using another user or adapt RouDi's config.";
+            errorHandler(Error::kPOSH__RUNTIME_NO_READABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
+            break;
         default:
             LogWarn() << "Unknown error occurred while creating service '" << service << "'.";
             errorHandler(

@@ -112,7 +112,7 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const p
 {
     auto groupContainer = user.getGroups();
 
-    SegmentUserInformation segmentInfo{cxx::nullopt_t(), 0u};
+    SegmentUserInformation segmentInfo{cxx::nullopt_t(), 0U};
 
     // with the groups we can search for the writable segment of this user
     for (const auto& groupID : groupContainer)
@@ -120,6 +120,31 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const p
         for (auto& segment : m_segmentContainer)
         {
             if (segment.getWriterGroup() == groupID)
+            {
+                segmentInfo.m_memoryManager = segment.getMemoryManager();
+                segmentInfo.m_segmentID = segment.getSegmentId();
+                return segmentInfo;
+            }
+        }
+    }
+
+    return segmentInfo;
+}
+
+template <typename SegmentType>
+inline typename SegmentManager<SegmentType>::SegmentUserInformation
+SegmentManager<SegmentType>::getSegmentInformationWithReadAccessForUser(const posix::PosixUser& user) noexcept
+{
+    auto groupContainer = user.getGroups();
+
+    SegmentUserInformation segmentInfo{cxx::nullopt_t(), 0U};
+
+    // with the groups we can search for the readable segment of this user
+    for (const auto& groupID : groupContainer)
+    {
+        for (auto& segment : m_segmentContainer)
+        {
+            if (segment.getReaderGroup() == groupID)
             {
                 segmentInfo.m_memoryManager = segment.getMemoryManager();
                 segmentInfo.m_segmentID = segment.getSegmentId();
