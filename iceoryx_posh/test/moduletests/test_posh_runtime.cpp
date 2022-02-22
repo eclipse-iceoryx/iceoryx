@@ -593,7 +593,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2db35746-e402-443f-b374-3b6a239ab5fd");
-    const iox::capro::ServiceDescription sd{"911", "1", "20"};
+    const iox::capro::ServiceDescription sd{"moon", "light", "drive"};
     iox::popo::ClientOptions defaultOptions;
     iox::runtime::PortConfigInfo defaultPortConfigInfo;
 
@@ -608,7 +608,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f61a81f4-f610-4e61-853b-ac114d9a801c");
-    const iox::capro::ServiceDescription sd{"911", "1", "20"};
+    const iox::capro::ServiceDescription sd{"my", "guitar", "weeps"};
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 13U;
     clientOptions.nodeName = m_nodeName;
@@ -629,7 +629,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQue
 {
     ::testing::Test::RecordProperty("TEST_ID", "8e34f962-e7c9-40ac-9796-a12f92c4d674");
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ClientChunkQueueConfig::MAX_QUEUE_CAPACITY;
-    const iox::capro::ServiceDescription sd{"919", "1", "20"};
+    const iox::capro::ServiceDescription sd{"take", "guns", "down"};
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
 
@@ -642,7 +642,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQue
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b6ffd68-46d4-4339-a0df-6fecb621f765");
-    const iox::capro::ServiceDescription sd{"99", "19", "20"};
+    const iox::capro::ServiceDescription sd{"rock", "and", "roll"};
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 0U;
 
@@ -686,7 +686,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b4433dfd-d2f8-4567-9483-aed956275ce8");
-    const iox::capro::ServiceDescription sd{"99", "19", "200"};
+    const iox::capro::ServiceDescription sd{"great", "gig", "sky"};
     iox::popo::ClientOptions clientOptions;
     clientOptions.nodeName = m_invalidNodeName;
 
@@ -706,7 +706,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandl
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb3c1b4d-0d81-494c-954d-c1de10c244d7");
-    const iox::capro::ServiceDescription sd{"811", "1", "20"};
+    const iox::capro::ServiceDescription sd{"ghouls", "night", "out"};
     iox::popo::ServerOptions defaultOptions;
     iox::runtime::PortConfigInfo defaultPortConfigInfo;
 
@@ -720,7 +720,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithCustomServerOptionsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "881c342c-58b9-4094-9e77-b4e68ab9a52a");
-    const iox::capro::ServiceDescription sd{"811", "1", "20"};
+    const iox::capro::ServiceDescription sd{"take", "power", "back"};
     iox::popo::ServerOptions serverOptions;
     serverOptions.requestQueueCapacity = 13U;
     serverOptions.nodeName = m_nodeName;
@@ -740,7 +740,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQue
 {
     ::testing::Test::RecordProperty("TEST_ID", "91b21e80-0f98-4ae3-982c-54deaab93d96");
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ServerChunkQueueConfig::MAX_QUEUE_CAPACITY;
-    const iox::capro::ServiceDescription sd{"819", "1", "20"};
+    const iox::capro::ServiceDescription sd{"stray", "cat", "blues"};
     iox::popo::ServerOptions serverOptions;
     serverOptions.requestQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
 
@@ -753,7 +753,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQue
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a28a30eb-f3be-43c9-a948-26c71c5f12c9");
-    const iox::capro::ServiceDescription sd{"89", "19", "20"};
+    const iox::capro::ServiceDescription sd{"she", "talks", "rainbow"};
     iox::popo::ServerOptions serverOptions;
     serverOptions.requestQueueCapacity = 0U;
 
@@ -797,7 +797,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95603ddc-1051-4dd7-a163-1c621f8a211a");
-    const iox::capro::ServiceDescription sd{"89", "19", "200"};
+    const iox::capro::ServiceDescription sd{"it's", "over", "now"};
     iox::popo::ServerOptions serverOptions;
     serverOptions.nodeName = m_invalidNodeName;
 
@@ -930,8 +930,8 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
-    // get publisher and subscriber
-    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
+    // get client and server
+    iox::capro::ServiceDescription serviceDescription{"stop", "and", "smell"};
 
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 10U;
@@ -993,8 +993,8 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
-    // get publisher and subscriber
-    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
+    // get client and server
+    iox::capro::ServiceDescription serviceDescription{"stop", "name", "love"};
 
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 1U;
