@@ -24,7 +24,7 @@ WORKSPACE=$(git rev-parse --show-toplevel)
 CONFIG="OFF"
 RUN="OFF"
 SESSION=ice_access_control
-TMUX="TMUX -2 -q"
+TMUX="tmux -2 -q"
 
 while (( "$#" )); do
   case "$1" in
