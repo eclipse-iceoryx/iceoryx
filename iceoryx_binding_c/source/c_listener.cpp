@@ -26,6 +26,7 @@
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/listener.h"
@@ -250,4 +251,52 @@ void iox_listener_detach_server_event(iox_listener_t const self,
     iox::cxx::Expects(server != nullptr);
 
     self->detachEvent(*server, c2cpp::serverEvent(serverEvent));
+}
+
+iox_ListenerResult
+iox_listener_attach_service_discovery_event(iox_listener_t const self,
+                                            iox_service_discovery_t const serviceDiscovery,
+                                            const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                            void (*callback)(iox_service_discovery_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+
+    auto result = self->attachEvent(*serviceDiscovery,
+                                    c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
+                                    NotificationCallback<ServiceDiscovery, internal::NoType_t>{callback, nullptr});
+
+    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
+                                : iox_ListenerResult::ListenerResult_SUCCESS;
+}
+
+iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data(
+    iox_listener_t const self,
+    iox_service_discovery_t const serviceDiscovery,
+    const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+    void (*callback)(iox_service_discovery_t, void*),
+    void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
+    iox::cxx::Expects(callback != nullptr);
+    iox::cxx::Expects(contextData != nullptr);
+
+    auto result = self->attachEvent(*serviceDiscovery,
+                                    c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
+                                    NotificationCallback<ServiceDiscovery, void>{callback, contextData});
+
+    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
+                                : iox_ListenerResult::ListenerResult_SUCCESS;
+}
+
+void iox_listener_detach_service_discovery_event(iox_listener_t const self,
+                                                 iox_service_discovery_t const serviceDiscovery,
+                                                 const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
+
+    self->detachEvent(*serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent));
 }

@@ -100,6 +100,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithContextDataReturnsOfferedServi
 
 TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEventReturnsAllServices)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "75b411d7-b8c7-42d5-8acd-3916fd172081");
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
@@ -116,6 +117,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEven
 
 TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4bbd0b26-ed9d-4fcd-ae85-e7ea3783996d");
     iox_pub_options_t options;
     iox_pub_options_init(&options);
     iox_pub_storage_t storage;
@@ -143,6 +145,7 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
 
 TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhenServiceContainerTooSmall)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "01047b88-f257-447c-8c5e-9bef7c358433");
     const uint64_t SERVICE_CONTAINER_CAPACITY = 3U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;

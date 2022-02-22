@@ -84,6 +84,12 @@ enum iox_ChunkReceiveResult
     ChunkReceiveResult_SUCCESS,
 };
 
+/// @brief describes events which can be triggered by a service discovery
+enum iox_ServiceDiscoveryEvent
+{
+    ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED
+};
+
 /// @brief Used by consumers to request a specific behavior from the producer; describes whether a producer blocks when
 /// consumer queue is full
 enum iox_QueueFullPolicy

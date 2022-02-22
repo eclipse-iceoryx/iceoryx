@@ -126,4 +126,18 @@ iox::popo::ServerState serverState(const iox_ServerState value) noexcept
     errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE);
     return iox::popo::ServerState::HAS_REQUEST;
 }
+
+iox::runtime::ServiceDiscoveryEvent serviceDiscoveryEvent(const iox_ServiceDiscoveryEvent value) noexcept
+{
+    switch (value)
+    {
+    case ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED:
+        return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
+    }
+
+    iox::LogFatal() << "invalid iox_ServiceDiscoveryEvent value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE);
+    return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
+}
+
 } // namespace c2cpp
