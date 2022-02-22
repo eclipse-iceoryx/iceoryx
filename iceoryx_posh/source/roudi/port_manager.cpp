@@ -490,7 +490,7 @@ bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
     const bool historyRequestIsCompatible =
         !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;
 
-    /// @todo #722 Add read access right check here
+    /// @todo #722 Add read access right check here once segment info is available in pub/sub
     return blockingPoliciesAreCompatible && historyRequestIsCompatible;
 }
 
