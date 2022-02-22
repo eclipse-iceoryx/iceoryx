@@ -20,11 +20,13 @@
 // Provides the complete iceoryx C API in one header.
 
 #include "chunk.h"
+#include "client.h"
+#include "config.h"
 #include "enums.h"
-#include "event_info.h"
 #include "listener.h"
 #include "log.h"
 #include "node.h"
+#include "notification_info.h"
 #include "publisher.h"
 #include "runtime.h"
 #include "service_description.h"
