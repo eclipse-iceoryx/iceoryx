@@ -23,21 +23,22 @@ namespace runtime
 {
 ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                                const cxx::optional<capro::IdString_t>& instance,
-                                               const cxx::optional<capro::IdString_t>& event) noexcept
+                                               const cxx::optional<capro::IdString_t>& event,
+                                               const popo::MessagingPattern pattern) noexcept
 {
     ServiceContainer searchResult;
 
     auto lambda = [&](const capro::ServiceDescription& entry) { searchResult.emplace_back(entry); };
-    findService(service, instance, event, lambda);
+    findService(service, instance, event, lambda, pattern);
 
     return searchResult;
 }
 
-void ServiceDiscovery::findService(
-    const cxx::optional<capro::IdString_t>& service,
-    const cxx::optional<capro::IdString_t>& instance,
-    const cxx::optional<capro::IdString_t>& event,
-    const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach) noexcept
+void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
+                                   const cxx::optional<capro::IdString_t>& instance,
+                                   const cxx::optional<capro::IdString_t>& event,
+                                   const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
+                                   const popo::MessagingPattern pattern) noexcept
 {
     if (!callableForEach)
     {
@@ -48,13 +49,36 @@ void ServiceDiscovery::findService(
         m_serviceRegistry = *serviceRegistrySample;
     });
 
-    m_serviceRegistry.find(
-        service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
-            if (serviceEntry.publisherCount > 0)
-            {
-                callableForEach(serviceEntry.serviceDescription);
-            }
-        });
+    switch (pattern)
+    {
+    case popo::MessagingPattern::PUB_SUB:
+    {
+        m_serviceRegistry.find(
+            service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
+                if (serviceEntry.publisherCount > 0)
+                {
+                    callableForEach(serviceEntry.serviceDescription);
+                }
+            });
+        break;
+    }
+    case popo::MessagingPattern::REQ_RES:
+    {
+        m_serviceRegistry.find(
+            service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
+                if (serviceEntry.serverCount > 0)
+                {
+                    callableForEach(serviceEntry.serviceDescription);
+                }
+            });
+        break;
+    }
+    default:
+    {
+        LogWarn() << "ServiceDiscovery could not perform search due to unknown MessagingPattern!";
+        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_MESSAGE_PATTERN_PROVIDED, nullptr, ErrorLevel::MODERATE);
+    }
+    }
 }
 
 void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept
@@ -68,7 +92,7 @@ void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const Se
     }
     default:
     {
-        LogWarn() << "ServiceDiscovery::enableEvent() called with unkown event!";
+        LogWarn() << "ServiceDiscovery::enableEvent() called with unknown event!";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, nullptr, ErrorLevel::MODERATE);
     }
     }
@@ -85,7 +109,7 @@ void ServiceDiscovery::disableEvent(const ServiceDiscoveryEvent event) noexcept
     }
     default:
     {
-        LogWarn() << "ServiceDiscovery::disableEvent() called with unkown event!";
+        LogWarn() << "ServiceDiscovery::disableEvent() called with unknown event!";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, nullptr, ErrorLevel::MODERATE);
     }
     }
