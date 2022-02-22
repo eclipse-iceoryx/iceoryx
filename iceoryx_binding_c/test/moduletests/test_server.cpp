@@ -77,6 +77,11 @@ class iox_server_test : public Test
         }
     }
 
+    void connectClient()
+    {
+        sutPort->m_chunkSenderData.m_queues.emplace_back(&serverChunkQueueData);
+    }
+
     void prepareServerInit(const ServerOptions& options = ServerOptions())
     {
         EXPECT_CALL(*runtimeMock,
@@ -250,6 +255,17 @@ TEST_F(iox_server_test, ReleaseQueuedRequestsWorks)
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
+TEST_F(iox_server_test, HasClientsWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+
+    EXPECT_FALSE(iox_server_has_clients(sut));
+    connectClient();
+    EXPECT_TRUE(iox_server_has_clients(sut));
+}
+
 TEST_F(iox_server_test, HasRequestWorks)
 {
     prepareServerInit();
@@ -289,5 +305,15 @@ TEST_F(iox_server_test, OfferReturnsCorrectOfferState)
     EXPECT_FALSE(iox_server_is_offered(sut));
 }
 
+TEST_F(iox_server_test, GetServiceDescriptionWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    auto serviceDescription = iox_server_get_service_description(sut);
+
+    EXPECT_THAT(serviceDescription.serviceString, StrEq(SERVICE));
+    EXPECT_THAT(serviceDescription.instanceString, StrEq(INSTANCE));
+    EXPECT_THAT(serviceDescription.eventString, StrEq(EVENT));
+}
 
 } // namespace
