@@ -24,7 +24,7 @@ namespace runtime
 ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                                const cxx::optional<capro::IdString_t>& instance,
                                                const cxx::optional<capro::IdString_t>& event,
-                                               const MessagingPattern pattern) noexcept
+                                               const popo::MessagingPattern pattern) noexcept
 {
     ServiceContainer searchResult;
 
@@ -38,7 +38,7 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
                                    const cxx::optional<capro::IdString_t>& instance,
                                    const cxx::optional<capro::IdString_t>& event,
                                    const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
-                                   const MessagingPattern pattern) noexcept
+                                   const popo::MessagingPattern pattern) noexcept
 {
     if (!callableForEach)
     {
@@ -51,7 +51,7 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
 
     switch (pattern)
     {
-    case MessagingPattern::PUB_SUB:
+    case popo::MessagingPattern::PUB_SUB:
     {
         m_serviceRegistry.find(
             service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
@@ -62,7 +62,7 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
             });
         break;
     }
-    case MessagingPattern::REQ_RES:
+    case popo::MessagingPattern::REQ_RES:
     {
         m_serviceRegistry.find(
             service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {

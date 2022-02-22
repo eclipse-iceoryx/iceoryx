@@ -24,16 +24,19 @@
 
 namespace iox
 {
+namespace popo
+{
+enum class MessagingPattern
+{
+    PUB_SUB,
+    REQ_RES
+};
+}
 namespace runtime
 {
 enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
 {
     SERVICE_REGISTRY_CHANGED
-};
-enum class MessagingPattern
-{
-    PUB_SUB,
-    REQ_RES
 };
 class ServiceDiscovery
 {
@@ -54,7 +57,7 @@ class ServiceDiscovery
     ServiceContainer findService(const cxx::optional<capro::IdString_t>& service,
                                  const cxx::optional<capro::IdString_t>& instance,
                                  const cxx::optional<capro::IdString_t>& event,
-                                 const MessagingPattern pattern) noexcept;
+                                 const popo::MessagingPattern pattern) noexcept;
 
     /// @brief Searches all services that match the provided service description and applies a function to each of them
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
@@ -65,7 +68,7 @@ class ServiceDiscovery
                      const cxx::optional<capro::IdString_t>& instance,
                      const cxx::optional<capro::IdString_t>& event,
                      const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
-                     const MessagingPattern pattern) noexcept;
+                     const popo::MessagingPattern pattern) noexcept;
 
     friend iox::popo::NotificationAttorney;
 
