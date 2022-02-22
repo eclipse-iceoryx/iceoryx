@@ -130,15 +130,19 @@ constexpr uint32_t APP_MESSAGE_SIZE = 512U;
 
 // Processes
 constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
-/// Maximum number of services, which can be found.
-/// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
-/// instances)
-/// @todo #1074 define and set the limits concerning the service discovery
-constexpr uint32_t MAX_NUMBER_OF_SERVICES = 100U;
-constexpr const char SERVICE_REGISTRY_SERVICE_NAME[] = "ServiceRegistry";
-constexpr const char SERVICE_REGISTRY_INSTANCE_NAME[] = "RouDi_ID";
-constexpr const char SERVICE_REGISTRY_EVENT_NAME[] = "ServiceRegistry";
 
+// Service Discovery
+constexpr uint32_t SERVICE_REGISTRY_CAPACITY = MAX_PUBLISHERS + MAX_SERVERS;
+constexpr uint32_t MAX_FINDSERVICE_RESULT_SIZE = SERVICE_REGISTRY_CAPACITY;
+
+constexpr const char SERVICE_DISCOVERY_SERVICE_NAME[] = "ServiceDiscovery";
+constexpr const char SERVICE_DISCOVERY_INSTANCE_NAME[] = "RouDi_ID";
+constexpr const char SERVICE_DISCOVERY_EVENT_NAME[] = "ServiceRegistry";
+
+namespace runtime
+{
+using ServiceContainer = iox::cxx::vector<capro::ServiceDescription, MAX_FINDSERVICE_RESULT_SIZE>;
+}
 
 // Nodes
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
@@ -256,7 +260,6 @@ using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
 
 namespace runtime
 {
-using ServiceContainer = iox::cxx::vector<capro::ServiceDescription, MAX_NUMBER_OF_SERVICES>;
 using namespace units::duration_literals;
 constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * roudi::DISCOVERY_INTERVAL;  // > DISCOVERY_INTERVAL

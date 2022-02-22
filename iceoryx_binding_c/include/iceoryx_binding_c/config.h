@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,8 +85,11 @@ uint32_t iox_cfg_no_user_header_alignment();
 /// runtime
 uint32_t iox_cfg_max_process_number();
 
-/// @brief returns the maximum supported amount of services
-uint32_t iox_cfg_max_number_of_services();
+/// @brief returns the maximum number of services that are supported byt the service registry
+uint32_t iox_cfg_service_registry_capacity();
+
+/// @brief returns the maximum number of services a findservice call can return
+uint32_t iox_cfg_max_findservice_result_size();
 
 /// @brief returns the maximum runtime name length
 uint32_t iox_cfg_max_runtime_name_length();
