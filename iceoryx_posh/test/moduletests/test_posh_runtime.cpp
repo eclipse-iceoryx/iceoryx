@@ -1,5 +1,5 @@
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
+#include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "mocks/posh_runtime_mock.hpp"
@@ -32,7 +34,9 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::runtime;
+using namespace iox::capro;
 using namespace iox::cxx;
+using namespace iox::popo;
 using iox::roudi::RouDiEnvironment;
 
 class PoshRuntime_test : public Test
@@ -63,6 +67,48 @@ class PoshRuntime_test : public Test
     void InterOpWait()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+
+    void checkClientInitialization(const ClientPortData* const portData,
+                                   const ServiceDescription& sd,
+                                   const ClientOptions& options,
+                                   const iox::mepoo::MemoryInfo& memoryInfo) const
+    {
+        ASSERT_THAT(portData, Ne(nullptr));
+
+        EXPECT_EQ(portData->m_serviceDescription, sd);
+        EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
+        EXPECT_EQ(portData->m_nodeName, options.nodeName);
+        EXPECT_EQ(portData->m_connectRequested, options.connectOnCreate);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.responseQueueCapacity);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.responseQueueFullPolicy);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.deviceId, memoryInfo.deviceId);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.memoryType, memoryInfo.memoryType);
+        EXPECT_EQ(portData->m_chunkSenderData.m_historyCapacity, iox::popo::ClientPortData::HISTORY_CAPACITY_ZERO);
+        EXPECT_EQ(portData->m_chunkSenderData.m_consumerTooSlowPolicy, options.serverTooSlowPolicy);
+        EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.deviceId, memoryInfo.deviceId);
+        EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.memoryType, memoryInfo.memoryType);
+    }
+
+    void checkServerInitialization(const ServerPortData* const portData,
+                                   const ServiceDescription& sd,
+                                   const ServerOptions& options,
+                                   const iox::mepoo::MemoryInfo& memoryInfo) const
+    {
+        ASSERT_THAT(portData, Ne(nullptr));
+
+        EXPECT_EQ(portData->m_serviceDescription, sd);
+        EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
+        EXPECT_EQ(portData->m_nodeName, options.nodeName);
+        EXPECT_EQ(portData->m_offeringRequested, options.offerOnCreate);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.requestQueueCapacity);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.requestQueueFullPolicy);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.deviceId, memoryInfo.deviceId);
+        EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.memoryType, memoryInfo.memoryType);
+        EXPECT_EQ(portData->m_chunkSenderData.m_historyCapacity, iox::popo::ServerPortData::HISTORY_REQUEST_OF_ZERO);
+        EXPECT_EQ(portData->m_chunkSenderData.m_consumerTooSlowPolicy, options.clientTooSlowPolicy);
+        EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.deviceId, memoryInfo.deviceId);
+        EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.memoryType, memoryInfo.memoryType);
     }
 
     const iox::RuntimeName_t m_runtimeName{"publisher"};
@@ -158,8 +204,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessfu
     m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(),
-                Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_IPC_MESSAGE_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
@@ -424,7 +469,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueGreaterMaxCapacityClamp
     EXPECT_EQ(MAX_QUEUE_CAPACITY, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueCapacityZeroClampsQueueCapacityTo1)
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9da3f4da-abe8-454c-9bc6-7f866d6d0545");
     iox::popo::SubscriberOptions subscriberOptions;
@@ -545,6 +590,230 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
                 Eq(iox::popo::QueueFullPolicy::BLOCK_PRODUCER));
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2db35746-e402-443f-b374-3b6a239ab5fd");
+    const iox::capro::ServiceDescription sd{"moon", "light", "drive"};
+    iox::popo::ClientOptions defaultOptions;
+    iox::runtime::PortConfigInfo defaultPortConfigInfo;
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+
+    checkClientInitialization(clientPort, sd, defaultOptions, defaultPortConfigInfo.memoryInfo);
+    EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::WAIT_FOR_OFFER);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f61a81f4-f610-4e61-853b-ac114d9a801c");
+    const iox::capro::ServiceDescription sd{"my", "guitar", "weeps"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 13U;
+    clientOptions.nodeName = m_nodeName;
+    clientOptions.connectOnCreate = false;
+    clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    const iox::runtime::PortConfigInfo portConfig{11U, 22U, 33U};
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions, portConfig);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+
+    checkClientInitialization(clientPort, sd, clientOptions, portConfig.memoryInfo);
+    EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::NOT_CONNECTED);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQueueToMaximum)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8e34f962-e7c9-40ac-9796-a12f92c4d674");
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ClientChunkQueueConfig::MAX_QUEUE_CAPACITY;
+    const iox::capro::ServiceDescription sd{"take", "guns", "down"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), MAX_QUEUE_CAPACITY);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueCapacityZeroClampsQueueCapacityToOne)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7b6ffd68-46d4-4339-a0df-6fecb621f765");
+    const iox::capro::ServiceDescription sd{"rock", "and", "roll"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 0U;
+
+    auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions);
+
+    ASSERT_THAT(clientPort, Ne(nullptr));
+    EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), 1U);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClientlistOverflow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6f2de2bf-5e7e-47b1-be42-92cf3fa71ba6");
+    auto clientOverflowDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__CLIENTLIST_OVERFLOW)
+            {
+                clientOverflowDetected = true;
+            }
+        });
+
+    uint32_t i{0U};
+    for (; i < iox::MAX_CLIENTS; ++i)
+    {
+        auto clientPort = m_runtime->getMiddlewareClient(
+            iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+        ASSERT_THAT(clientPort, Ne(nullptr));
+    }
+    EXPECT_FALSE(clientOverflowDetected);
+
+    auto clientPort = m_runtime->getMiddlewareClient(
+        iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+    EXPECT_THAT(clientPort, Eq(nullptr));
+    EXPECT_TRUE(clientOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b4433dfd-d2f8-4567-9483-aed956275ce8");
+    const iox::capro::ServiceDescription sd{"great", "gig", "sky"};
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.nodeName = m_invalidNodeName;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    m_runtime->getMiddlewareClient(sd, clientOptions);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cb3c1b4d-0d81-494c-954d-c1de10c244d7");
+    const iox::capro::ServiceDescription sd{"ghouls", "night", "out"};
+    iox::popo::ServerOptions defaultOptions;
+    iox::runtime::PortConfigInfo defaultPortConfigInfo;
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+    checkServerInitialization(serverPort, sd, defaultOptions, defaultPortConfigInfo.memoryInfo);
+    EXPECT_EQ(serverPort->m_offered, true);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithCustomServerOptionsIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "881c342c-58b9-4094-9e77-b4e68ab9a52a");
+    const iox::capro::ServiceDescription sd{"take", "power", "back"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 13U;
+    serverOptions.nodeName = m_nodeName;
+    serverOptions.offerOnCreate = false;
+    serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    const iox::runtime::PortConfigInfo portConfig{11U, 22U, 33U};
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions, portConfig);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+    checkServerInitialization(serverPort, sd, serverOptions, portConfig.memoryInfo);
+    EXPECT_EQ(serverPort->m_offered, false);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQueueToMaximum)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "91b21e80-0f98-4ae3-982c-54deaab93d96");
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ServerChunkQueueConfig::MAX_QUEUE_CAPACITY;
+    const iox::capro::ServiceDescription sd{"stray", "cat", "blues"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), MAX_QUEUE_CAPACITY);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueCapacityZeroClampsQueueCapacityToOne)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a28a30eb-f3be-43c9-a948-26c71c5f12c9");
+    const iox::capro::ServiceDescription sd{"she", "talks", "rainbow"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 0U;
+
+    auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions);
+
+    ASSERT_THAT(serverPort, Ne(nullptr));
+    EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), 1U);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerlistOverflow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8f679838-3332-440c-aa95-d5c82d53a7cd");
+    auto serverOverflowDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__SERVERLIST_OVERFLOW)
+            {
+                serverOverflowDetected = true;
+            }
+        });
+
+    uint32_t i{0U};
+    for (; i < iox::MAX_SERVERS; ++i)
+    {
+        auto serverPort = m_runtime->getMiddlewareServer(
+            iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                           iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+        ASSERT_THAT(serverPort, Ne(nullptr));
+    }
+    EXPECT_FALSE(serverOverflowDetected);
+
+    auto serverPort = m_runtime->getMiddlewareServer(
+        iox::capro::ServiceDescription(iox::capro::IdString_t(TruncateToCapacity, convert::toString(i)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 1U)),
+                                       iox::capro::IdString_t(TruncateToCapacity, convert::toString(i + 2U))));
+    EXPECT_THAT(serverPort, Eq(nullptr));
+    EXPECT_TRUE(serverOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "95603ddc-1051-4dd7-a163-1c621f8a211a");
+    const iox::capro::ServiceDescription sd{"it's", "over", "now"};
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.nodeName = m_invalidNodeName;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    m_runtime->getMiddlewareServer(sd, serverOptions);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_REQUEST_SERVER_INVALID_RESPONSE));
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2ccdca8-53ec-46d8-a34e-f56f996f57e0");
@@ -593,7 +862,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
 }
 
-TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
+TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "de0254ab-c413-4dbe-83c5-2b16fb8fb88f");
     const uint32_t nodeDeviceIdentifier = 1U;
@@ -609,7 +878,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
     m_runtime->createNode(nodeProperty);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
@@ -647,15 +916,150 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     });
 
     // wait some time to check if the publisher is blocked
-    constexpr int64_t SLEEP_IN_MS = 100;
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
     ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasSampleSent.load(), Eq(false));
 
     m_runtime->shutdown();
 
     blockingPublisher.join(); // ensure the wasChunkSent store happens before the read
     EXPECT_THAT(wasSampleSent.load(), Eq(true));
+}
+
+TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
+    // get client and server
+    iox::capro::ServiceDescription serviceDescription{"stop", "and", "smell"};
+
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 10U;
+    clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 1U;
+    serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::UntypedClient client{serviceDescription, clientOptions};
+    iox::popo::UntypedServer server{serviceDescription, serverOptions};
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    ASSERT_TRUE(server.hasClients());
+    ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasRequestSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingServer([&] {
+        auto sendRequest = [&]() {
+            auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
+            ASSERT_FALSE(clientLoanResult.has_error());
+            client.send(clientLoanResult.value());
+        };
+
+        // send request till queue is full
+        for (uint64_t i = 0; i < serverOptions.requestQueueCapacity; ++i)
+        {
+            sendRequest();
+        }
+
+        // signal that an blocking send is expected
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        sendRequest();
+        wasRequestSent = true;
+    });
+
+    // wait some time to check if the client is blocked
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(SLEEP_TIME);
+    EXPECT_THAT(wasRequestSent.load(), Eq(false));
+
+    m_runtime->shutdown();
+
+    blockingServer.join(); // ensure the wasRequestSent store happens before the read
+    EXPECT_THAT(wasRequestSent.load(), Eq(true));
+}
+
+TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
+    // get client and server
+    iox::capro::ServiceDescription serviceDescription{"stop", "name", "love"};
+
+    iox::popo::ClientOptions clientOptions;
+    clientOptions.responseQueueCapacity = 1U;
+    clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::ServerOptions serverOptions;
+    serverOptions.requestQueueCapacity = 10U;
+    serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    iox::popo::UntypedClient client{serviceDescription, clientOptions};
+    iox::popo::UntypedServer server{serviceDescription, serverOptions};
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    ASSERT_TRUE(server.hasClients());
+    ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
+
+    // send requests to fill request queue
+    for (uint64_t i = 0; i < clientOptions.responseQueueCapacity + 1; ++i)
+    {
+        auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
+        ASSERT_FALSE(clientLoanResult.has_error());
+        client.send(clientLoanResult.value());
+    }
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasResponseSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingServer([&] {
+        auto processRequest = [&]() {
+            auto takeResult = server.take();
+            ASSERT_FALSE(takeResult.has_error());
+            auto loanResult = server.loan(
+                iox::popo::RequestHeader::fromPayload(takeResult.value()), sizeof(uint64_t), alignof(uint64_t));
+            ASSERT_FALSE(loanResult.has_error());
+            server.send(loanResult.value());
+        };
+
+        for (uint64_t i = 0; i < clientOptions.responseQueueCapacity; ++i)
+        {
+            processRequest();
+        }
+
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        processRequest();
+        wasResponseSent = true;
+    });
+
+    // wait some time to check if the server is blocked
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(SLEEP_TIME);
+    EXPECT_THAT(wasResponseSent.load(), Eq(false));
+
+    m_runtime->shutdown();
+
+    blockingServer.join(); // ensure the wasResponseSent store happens before the read
+    EXPECT_THAT(wasResponseSent.load(), Eq(true));
 }
 
 TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
