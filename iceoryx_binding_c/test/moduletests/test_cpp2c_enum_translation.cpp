@@ -303,4 +303,22 @@ TEST(cpp2c_enum_translation_test, ConnectionState)
     EXPECT_EQ(cpp2c::connectionState(static_cast<iox::ConnectionState>(-1)), ConnectionState_NOT_CONNECTED);
 #pragma GCC diagnostic pop
 }
+
+TEST(cpp2c_enum_translation_test, ServerRequestResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e985715c-d4d1-4a66-8375-bed41e682b91");
+    EXPECT_EQ(cpp2c::serverRequestResult(iox::popo::ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL),
+              ServerRequestResult_TOO_MANY_REQUESTS_HELD_IN_PARALLEL);
+    EXPECT_EQ(cpp2c::serverRequestResult(iox::popo::ServerRequestResult::NO_PENDING_REQUESTS),
+              ServerRequestResult_NO_PENDING_REQUESTS);
+    EXPECT_EQ(cpp2c::serverRequestResult(iox::popo::ServerRequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR),
+              ServerRequestResult_UNDEFINED_CHUNK_RECEIVE_ERROR);
+    EXPECT_EQ(cpp2c::serverRequestResult(iox::popo::ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER),
+              ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::serverRequestResult(static_cast<iox::popo::ServerRequestResult>(-1)), ServerRequestResult_SUCCESS);
+#pragma GCC diagnostic pop
+}
 } // namespace
