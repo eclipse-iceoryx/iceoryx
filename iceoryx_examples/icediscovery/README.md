@@ -8,6 +8,10 @@ services and one searching for these making different search queries.
 A `service` in iceoryx is defined by a `ServiceDescription` that represents a
 topic under which publisher/server and subscriber/client can exchange data.
 
+In addition the applications `iox-wait-for-service` and `iox-discovery-monitor` demonstrate how
+to write custom discovery functionality to wait for specific services or monitor
+the availability of services, respectively.
+
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->
 
@@ -77,3 +81,19 @@ their services, you should see sometimes 5 `Camera` services and sometimes none.
 <center>
 [Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery){ .md-button }
 </center>
+
+### Wait for services
+
+Start the applications `iox-wait-for-service` and `iox-offer-service` (in any order).
+
+`iox-wait-for-service` uses a customized service discovery which supports to wait for services by including
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
+
+### Discovery with blocking wait
+
+### Monitor service availability
+
+### Monitoring discovery changes

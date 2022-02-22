@@ -14,7 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include custom discovery]
 #include "discovery_blocking.hpp"
+//! [include custom discovery]
+
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -54,22 +57,30 @@ int main()
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // requires the runtime
+    //! [create custom discovery]
+    // requires the runtime to be created first
     Discovery discovery;
+    //! [create custom discovery]
     discoveryPtr = &discovery;
+
 
     auto sigTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
     auto sigIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
+    //! [define search query]
     auto query = [&]() {
         auto result = discovery.findService(service, instance, event);
         return result.size() > 0;
     };
+    //! [define search query]
 
     while (!iox::posix::hasTerminationRequested())
     {
         std::cout << "Waiting for service <" << service << ", " << instance << ", " << event << "> ..." << std::endl;
+
+        //! [wait until query returns true]
         bool serviceWasAvailable = discovery.waitUntil(query);
+        //! [wait until query returns true]
 
         // did we wake up due to an unblock or because the service was available?
         if (serviceWasAvailable)
@@ -80,18 +91,31 @@ int main()
             // if this is important we need to monitor it (see discovery monitor example)
 
             std::cout << "Waiting for any discovery change ..." << std::endl;
-            discovery.waitUntilChange();
 
-            std::cout << "Discovery changed. Searching <" << service << ", " << instance << ", " << event << "> ..."
-                      << std::endl;
+            do
+            {
+                //! [wait until discovery changes]
+                discovery.waitUntilChange();
+                //! [wait until discovery changes]
+                std::cout << "Discovery changed. Searching <" << service << ", " << instance << ", " << event << "> ..."
+                          << std::endl;
 
-            // we will usually find nothing here unless offer and stop offering very fast
-            auto result = discovery.findService(service, instance, event);
-            printSearchResult(result);
+                //! [check service availability]
+                auto result = discovery.findService(service, instance, event);
+                //! [check service availability]
+
+                // we may still have found the service
+                if (result.size() == 0)
+                {
+                    // service was unavailable
+                    break;
+                }
+            } while (true);
+
+            std::cout << "<" << service << ", " << instance << ", " << event << "> was unavailable" << std::endl;
             break;
         }
     }
-
 
     return (EXIT_SUCCESS);
 }
