@@ -21,19 +21,6 @@ namespace iox
 {
 namespace runtime
 {
-ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
-                                               const cxx::optional<capro::IdString_t>& instance,
-                                               const cxx::optional<capro::IdString_t>& event,
-                                               const popo::MessagingPattern pattern) noexcept
-{
-    ServiceContainer searchResult;
-
-    auto lambda = [&](const capro::ServiceDescription& entry) { searchResult.emplace_back(entry); };
-    findService(service, instance, event, lambda, pattern);
-
-    return searchResult;
-}
-
 void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                    const cxx::optional<capro::IdString_t>& instance,
                                    const cxx::optional<capro::IdString_t>& event,
