@@ -469,7 +469,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueGreaterMaxCapacityClamp
     EXPECT_EQ(MAX_QUEUE_CAPACITY, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueCapacityZeroClampsQueueCapacityTo1)
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9da3f4da-abe8-454c-9bc6-7f866d6d0545");
     iox::popo::SubscriberOptions subscriberOptions;
@@ -639,7 +639,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQue
     EXPECT_EQ(clientPort->m_chunkReceiverData.m_queue.capacity(), MAX_QUEUE_CAPACITY);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueCapacityZeroClampsQueueCapacityTo1)
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b6ffd68-46d4-4339-a0df-6fecb621f765");
     const iox::capro::ServiceDescription sd{"99", "19", "20"};
@@ -683,7 +683,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
     EXPECT_TRUE(clientOverflowDetected);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNameLeadsToTermination)
+TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b4433dfd-d2f8-4567-9483-aed956275ce8");
     const iox::capro::ServiceDescription sd{"99", "19", "200"};
@@ -750,7 +750,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQue
     EXPECT_EQ(serverPort->m_chunkReceiverData.m_queue.capacity(), MAX_QUEUE_CAPACITY);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueCapacityZeroClampsQueueCapacityTo1)
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a28a30eb-f3be-43c9-a948-26c71c5f12c9");
     const iox::capro::ServiceDescription sd{"89", "19", "20"};
@@ -794,7 +794,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
     EXPECT_TRUE(serverOverflowDetected);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNameLeadsToTermination)
+TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95603ddc-1051-4dd7-a163-1c621f8a211a");
     const iox::capro::ServiceDescription sd{"89", "19", "200"};
@@ -862,7 +862,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
 }
 
-TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
+TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "de0254ab-c413-4dbe-83c5-2b16fb8fb88f");
     const uint32_t nodeDeviceIdentifier = 1U;
@@ -972,7 +972,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
             sendRequest();
         }
 
-        // signal that an blocking sind is expected
+        // signal that an blocking send is expected
         ASSERT_FALSE(threadSyncSemaphore->post().has_error());
         sendRequest();
         wasRequestSent = true;
