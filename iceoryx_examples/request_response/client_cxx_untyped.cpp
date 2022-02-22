@@ -60,7 +60,7 @@ int main()
             });
         //! [send request]
 
-        // the server polls with an interval of 100ms
+        // the client polls with an interval of 150ms
         constexpr std::chrono::milliseconds DELAY_TIME{150U};
         std::this_thread::sleep_for(DELAY_TIME);
 

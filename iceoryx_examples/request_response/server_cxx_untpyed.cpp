@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ int main()
 
             //! [send response]
             auto requestHeader = iox::popo::RequestHeader::fromPayload(requestPayload);
-            server.loan(requestHeader, sizeof(AddRequest), alignof(AddResponse))
+            server.loan(requestHeader, sizeof(AddResponse), alignof(AddResponse))
                 .and_then([&](auto& responsePayload) {
                     auto response = static_cast<AddResponse*>(responsePayload);
                     response->sum = request->augend + request->addend;

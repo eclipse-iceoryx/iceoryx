@@ -81,7 +81,7 @@ int main()
                      iox::popo::ClientEvent::RESPONSE_RECEIVED,
                      iox::popo::createNotificationCallback(onResponseReceived, ctx))
         .or_else([](auto) {
-            std::cerr << "unable to attach server" << std::endl;
+            std::cerr << "unable to attach client" << std::endl;
             std::exit(EXIT_FAILURE);
         });
 

@@ -4,7 +4,6 @@
 
 This example demonstrates how to use iceoryx in a client-server architecture
 using the request-response communication pattern.
-The main feature is that the server only response data at the request of a client.
 
 ## Expected output
 
@@ -127,7 +126,7 @@ Next, the iceoryx runtime is initialized. With this call,
 the application will be registered at `RouDi`, the routing and discovery daemon.
 <!-- [geoffrey] [iceoryx_examples/request_response/server_cxx_basic.cpp] [initialize runtime] -->
 ```cpp
-constexpr char APP_NAME[] = "iox-cpp-user-header-publisher";
+constexpr char APP_NAME[] = "iox-cpp-request-response-server-basic;
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
