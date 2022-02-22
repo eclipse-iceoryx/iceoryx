@@ -21,6 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
@@ -50,8 +51,7 @@ struct Publisher
 
 struct Server
 {
-    /// @todo #27 Replace with iox::popo::UntypedServer once available
-    using Producer = iox::popo::UntypedPublisher;
+    using Producer = iox::popo::UntypedServer;
     static constexpr MessagingPattern KIND{MessagingPattern::REQ_RES};
 };
 
@@ -739,8 +739,7 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSame
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Curry", "Chicken tikka", "Ginger");
 
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
-    /// @todo #27 Replace the type of server with popo::UntypedServer once available
-    iox::popo::UntypedPublisher server(SERVICE_DESCRIPTION);
+    iox::popo::UntypedServer server(SERVICE_DESCRIPTION);
 
     auto serviceContainerPubSub = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
                                                         SERVICE_DESCRIPTION.getInstanceIDString(),
