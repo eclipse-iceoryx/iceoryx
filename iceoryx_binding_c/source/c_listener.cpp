@@ -203,4 +203,3 @@ void iox_listener_detach_client_event(iox_listener_t const self,
 
     self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
 }
-
