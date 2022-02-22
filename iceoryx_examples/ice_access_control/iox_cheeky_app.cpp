@@ -34,7 +34,6 @@ int main()
     // The error POSH__RUNTIME_NO_READABLE_SHM_SEGMENT will be reported and programm execution will end
     //! [subscriber]
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
-
     //! [subscriber]
 
     // 2) The publisher object can't be initalised correctly because the user 'notallowed' isn't in any group which has

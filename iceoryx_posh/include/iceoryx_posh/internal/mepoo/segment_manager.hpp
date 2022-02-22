@@ -88,7 +88,6 @@ class SegmentManager
 
     SegmentMappingContainer getSegmentMappings(const posix::PosixUser& user) noexcept;
     SegmentUserInformation getSegmentInformationWithWriteAccessForUser(const posix::PosixUser& user) noexcept;
-
     SegmentUserInformation getSegmentInformationWithReadAccessForUser(const posix::PosixUser& user) noexcept;
 
     static uint64_t requiredManagementMemorySize(const SegmentConfig& config) noexcept;
