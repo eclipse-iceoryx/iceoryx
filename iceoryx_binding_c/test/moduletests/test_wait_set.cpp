@@ -764,7 +764,7 @@ void notifyClient(ClientPortData& portData)
     portData.m_connectionState = iox::ConnectionState::CONNECTED;
     iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post();
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
 }
 
 TEST_F(iox_ws_test, NotifyingClientEventWorks)

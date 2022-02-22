@@ -21,11 +21,14 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::posix;
+using namespace iox::mepoo;
 
 extern "C" {
 #include "iceoryx_binding_c/client.h"
@@ -43,8 +46,6 @@ extern "C" {
 namespace
 {
 using namespace ::testing;
-using namespace iox::posix;
-using namespace iox::mepoo;
 
 iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
@@ -408,7 +409,7 @@ void notifyClient(ClientPortData& portData)
     portData.m_connectionState = iox::ConnectionState::CONNECTED;
     iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post();
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
 }
 
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
