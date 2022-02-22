@@ -68,7 +68,7 @@ class iox_server_test : public Test
             sizeof(int64_t), iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(RequestHeader)));
         ASSERT_FALSE(chunk.has_error());
         new (chunk->getChunkHeader()->userHeader())
-            RequestHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
+            RequestHeader(clientResponseQueueData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
         *static_cast<int64_t*>(chunk->getUserPayload()) = requestValue;
         iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
         if (!pusher.push(*chunk))
@@ -79,7 +79,7 @@ class iox_server_test : public Test
 
     void connectClient()
     {
-        sutPort->m_chunkSenderData.m_queues.emplace_back(&serverChunkQueueData);
+        sutPort->m_chunkSenderData.m_queues.emplace_back(&clientResponseQueueData);
     }
 
     void prepareServerInit(const ServerOptions& options = ServerOptions())
@@ -105,9 +105,9 @@ class iox_server_test : public Test
     iox::cxx::optional<ServerPortData> sutPort;
     iox_server_storage_t sutStorage;
 
-    ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
-    ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
+    ClientChunkQueueData_t clientResponseQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                   iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+    ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{&clientResponseQueueData};
 
     static constexpr const char SERVICE[] = "TheHoff";
     static constexpr const char INSTANCE[] = "IsAll";
@@ -316,4 +316,76 @@ TEST_F(iox_server_test, GetServiceDescriptionWorks)
     EXPECT_THAT(serviceDescription.eventString, StrEq(EVENT));
 }
 
+TEST_F(iox_server_test, LoanWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest(31711);
+
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(payload, Ne(nullptr));
+}
+
+TEST_F(iox_server_test, LoanAlignedWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest(31711);
+
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_server_loan_aligned_response(sut, requestPayload, &payload, sizeof(int64_t), 16),
+                Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(payload, Ne(nullptr));
+    EXPECT_THAT(reinterpret_cast<uint64_t>(payload) % 16, Eq(0));
+}
+
+TEST_F(iox_server_test, ReleaseResponseWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest(31711);
+
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
+    iox_server_release_response(sut, payload);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+    iox_server_release_request(sut, requestPayload);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(iox_server_test, SendWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest(31711);
+
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
+    ASSERT_THAT(payload, Ne(nullptr));
+    *static_cast<int64_t*>(payload) = 42424242;
+
+    iox_server_send(sut, payload);
+    clientResponseQueue.tryPop()
+        .and_then(
+            [&](auto& sharedChunk) { EXPECT_THAT(*static_cast<int64_t*>(sharedChunk.getUserPayload()), Eq(42424242)); })
+        .or_else([&] { GTEST_FAIL() << "Expected response but got nothing"; });
+}
 } // namespace
