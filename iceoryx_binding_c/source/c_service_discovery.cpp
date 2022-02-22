@@ -41,11 +41,56 @@ void iox_service_discovery_deinit(iox_service_discovery_t const self)
     self->~ServiceDiscovery();
 }
 
-void iox_service_discovery_find_service(iox_service_discovery_t const self,
-                                        const char* const service,
-                                        const char* const instance,
-                                        const char* const event,
-                                        void (*callable)(const iox_service_description_t))
+uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
+                                            const char* const service,
+                                            const char* const instance,
+                                            const char* const event,
+                                            iox_service_description_t* const serviceContainer,
+                                            const uint64_t serviceContainerCapacity,
+                                            uint64_t* missedServices)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceContainer != nullptr);
+
+    cxx::optional<capro::IdString_t> maybeService;
+    if (service != nullptr)
+    {
+        maybeService.emplace(cxx::TruncateToCapacity, service);
+    }
+    cxx::optional<capro::IdString_t> maybeInstance;
+    if (instance != nullptr)
+    {
+        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+    }
+    cxx::optional<capro::IdString_t> maybeEvent;
+    if (event != nullptr)
+    {
+        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+    }
+
+    uint64_t currentSize = 0U;
+    auto filter = [&](const capro::ServiceDescription& s) {
+        if (currentSize + 1U <= serviceContainerCapacity)
+        {
+            serviceContainer[currentSize] = TranslateServiceDescription(s);
+            ++currentSize;
+        }
+        else
+        {
+            ++(*missedServices);
+        }
+    };
+    self->findService(maybeService, maybeInstance, maybeEvent, filter, iox::popo::MessagingPattern::PUB_SUB);
+
+    return currentSize;
+}
+
+void iox_service_discovery_find_service_with_context_data(iox_service_discovery_t const self,
+                                                          const char* const service,
+                                                          const char* const instance,
+                                                          const char* const event,
+                                                          void (*callable)(const iox_service_description_t, void*),
+                                                          void* const contextData)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(callable != nullptr);
@@ -66,6 +111,6 @@ void iox_service_discovery_find_service(iox_service_discovery_t const self,
         maybeEvent.emplace(cxx::TruncateToCapacity, event);
     }
 
-    auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s)); };
+    auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s), contextData); };
     self->findService(maybeService, maybeInstance, maybeEvent, filter, iox::popo::MessagingPattern::PUB_SUB);
 }

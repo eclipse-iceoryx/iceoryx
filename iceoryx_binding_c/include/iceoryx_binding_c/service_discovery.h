@@ -21,18 +21,35 @@
 #include "iceoryx_binding_c/types.h"
 #include "service_description.h"
 
-/////// @brief service discovery handle
-////// typedef struct cpp2c_ServiceDiscovery* iox_service_discovery_t;
+/// @brief service discovery handle
 typedef CLASS ServiceDiscovery* iox_service_discovery_t;
 
-///// @brief initializes a listener struct from a storage struct pointer
-///// @param[in] self pointer to raw memory which can hold a listener
-///// @return an initialized iox_listener_t
+/// @brief initializes a service discovery from a storage struct pointer
+/// @param[in] self pointer to raw memory which can hold a service discovery
+/// @return an initialized iox_service_discovery_t
 iox_service_discovery_t iox_service_discovery_init(iox_service_discovery_storage_t* self);
 
-///// @brief after using an iox_listener_t it must be cleaned up with this function
-///// @param[in] self the listener which should be deinitialized
+/// @brief after using an iox_service_discovery_t it must be cleaned up with this function
+/// @param[in] self the service discovery which should be deinitialized
 void iox_service_discovery_deinit(iox_service_discovery_t const self);
+
+/// @brief Searches all services that match the provided service description
+/// @param[in] self handle of the service discovery
+/// @param[in] service service string to search for, a nullptr corresponds to a wildcard
+/// @param[in] instance instance string to search for, a nullptr corresponds to a wildcard
+/// @param[in] event event string to search for, a nullptr corresponds to a wildcard
+/// @param[in] serviceContainer preallocated memory to an array of ***** in which the matching services can be written
+/// @param[in] serviceContainerCapacity the capacity of the preallocated serviceContainer
+/// @param[in] missedServices if the serviceContainer has insufficient size the number of missed services which could
+/// not be written into the serviceContainer are stored here
+/// @return the number of services which were written into the serviceContainer
+uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
+                                            const char* const service,
+                                            const char* const instance,
+                                            const char* const event,
+                                            iox_service_description_t* const serviceContainer,
+                                            const uint64_t serviceContainerCapacity,
+                                            uint64_t* missedServices);
 
 /// @brief Searches all services that match the provided service description and applies a function to each of them
 /// @param[in] self handle of the service discovery
@@ -40,10 +57,11 @@ void iox_service_discovery_deinit(iox_service_discovery_t const self);
 /// @param[in] instance instance string to search for, a nullptr corresponds to a wildcard
 /// @param[in] event event string to search for, a nullptr corresponds to a wildcard
 /// @param[in] callable to apply to all matching services
-void iox_service_discovery_find_service(iox_service_discovery_t const self,
-                                        const char* const service,
-                                        const char* const instance,
-                                        const char* const event,
-                                        void (*callable)(const iox_service_description_t));
+void iox_service_discovery_find_service_with_context_data(iox_service_discovery_t const self,
+                                                          const char* const service,
+                                                          const char* const instance,
+                                                          const char* const event,
+                                                          void (*callable)(const iox_service_description_t, void*),
+                                                          void* const contextData);
 
 #endif
