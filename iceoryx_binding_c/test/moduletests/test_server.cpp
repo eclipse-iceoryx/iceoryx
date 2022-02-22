@@ -16,7 +16,6 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/atomic_relocatable_pointer.hpp"
-#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
@@ -52,7 +51,7 @@ class iox_server_test : public Test
         memoryManager.configureMemoryManager(memoryConfig, mgmtAllocator, dataAllocator);
     }
 
-    ClientPortData* createClientPortData(const ClientOptions& options)
+    ServerPortData* createServerPortData(const ServerOptions& options)
     {
         sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
                                            IdString_t(TruncateToCapacity, INSTANCE),
@@ -63,43 +62,30 @@ class iox_server_test : public Test
         return &*sutPort;
     }
 
-    void connect()
-    {
-        sutPort->m_connectRequested.store(true);
-        sutPort->m_connectionState = iox::ConnectionState::CONNECTED;
-
-        sutPort->m_chunkSenderData.m_queues.emplace_back(&serverChunkQueueData);
-    }
-
-    void receiveChunk(const int64_t chunkValue = 0)
+    void receiveRequest(const int64_t requestValue)
     {
         auto chunk = memoryManager.getChunk(*iox::mepoo::ChunkSettings::create(
-            sizeof(int64_t), iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(ResponseHeader)));
+            sizeof(int64_t), iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(RequestHeader)));
         ASSERT_FALSE(chunk.has_error());
         new (chunk->getChunkHeader()->userHeader())
-            ResponseHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, 0U);
-        *static_cast<int64_t*>(chunk->getUserPayload()) = chunkValue;
-        iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
-        pusher.push(*chunk);
+            RequestHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
+        *static_cast<int64_t*>(chunk->getUserPayload()) = requestValue;
+        iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
+        if (!pusher.push(*chunk))
+        {
+            sutPort->m_chunkReceiverData.m_queueHasLostChunks = true;
+        }
     }
 
-    void prepareClientInit(const ClientOptions& options = ClientOptions())
+    void prepareServerInit(const ServerOptions& options = ServerOptions())
     {
         EXPECT_CALL(*runtimeMock,
-                    getMiddlewareClient(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
+                    getMiddlewareServer(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
                                                            IdString_t(TruncateToCapacity, INSTANCE),
                                                            IdString_t(TruncateToCapacity, EVENT)},
                                         options,
                                         _))
-            .WillOnce(Return(createClientPortData(options)));
-    }
-
-    bool isPayloadInDataSegment(const void* payload)
-    {
-        uint64_t startDataSegment = reinterpret_cast<uint64_t>(&dataMemory[0]);
-        uint64_t payloadPosition = reinterpret_cast<uint64_t>(payload);
-
-        return (startDataSegment <= payloadPosition && payloadPosition <= startDataSegment + DATA_MEMORY_SIZE);
+            .WillOnce(Return(createServerPortData(options)));
     }
 
     static constexpr uint64_t MANAGEMENT_MEMORY_SIZE = 1024 * 1024;
@@ -111,16 +97,16 @@ class iox_server_test : public Test
     iox::mepoo::MemoryManager memoryManager;
     iox::mepoo::MePooConfig memoryConfig;
 
-    iox::cxx::optional<ClientPortData> sutPort;
-    iox_client_storage_t sutStorage;
+    iox::cxx::optional<ServerPortData> sutPort;
+    iox_server_storage_t sutStorage;
 
     ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                                 iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
     ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
-    static constexpr const char SERVICE[] = "allGlory";
-    static constexpr const char INSTANCE[] = "ToThe";
-    static constexpr const char EVENT[] = "HYPNOTOAD";
+    static constexpr const char SERVICE[] = "TheHoff";
+    static constexpr const char INSTANCE[] = "IsAll";
+    static constexpr const char EVENT[] = "YouNeed";
 };
 constexpr const char iox_server_test::RUNTIME_NAME[];
 constexpr const char iox_server_test::SERVICE[];
@@ -160,5 +146,148 @@ TEST_F(iox_server_test, initializedOptionsToCPPDefaults)
     EXPECT_THAT(initializedOptions.clientTooSlowPolicy,
                 Eq(cpp2c::consumerTooSlowPolicy(cppOptions.clientTooSlowPolicy)));
 }
+
+TEST_F(iox_server_test, InitializingServerWithNullptrOptionsGetsMiddlewareServerWithDefaultOptions)
+{
+    ServerOptions defaultOptions;
+    prepareServerInit(defaultOptions);
+
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    ASSERT_THAT(sut, Ne(nullptr));
+}
+
+TEST_F(iox_server_test, InitializingServerWithCustomOptionsWorks)
+{
+    iox_server_options_t options;
+    iox_server_options_init(&options);
+    options.requestQueueCapacity = 32;
+    strncpy(options.nodeName, "do not hassel with the hoff", IOX_CONFIG_NODE_NAME_SIZE);
+    options.offerOnCreate = false;
+    options.requestQueueFullPolicy = QueueFullPolicy_BLOCK_PRODUCER;
+    options.clientTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
+
+    ServerOptions cppOptions;
+    cppOptions.requestQueueCapacity = 32;
+    cppOptions.nodeName = "do not hassel with the hoff";
+    cppOptions.offerOnCreate = false;
+    cppOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
+    cppOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+
+    prepareServerInit(cppOptions);
+
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
+    ASSERT_THAT(sut, Ne(nullptr));
+}
+
+TEST_F(iox_server_test, DeinitReleasesServer)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_deinit(sut);
+    EXPECT_THAT(sutPort->m_toBeDestroyed.load(), Eq(true));
+}
+
+TEST_F(iox_server_test, WhenNotOfferedTakeRequestFails)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_stop_offer(sut);
+
+    const void* payload;
+    EXPECT_THAT(iox_server_take_request(sut, &payload),
+                Eq(ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER));
+}
+
+TEST_F(iox_server_test, WhenOfferedAndNoRequestsPresentTakeFails)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+
+    const void* payload;
+    EXPECT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_NO_PENDING_REQUESTS));
+}
+
+TEST_F(iox_server_test, WhenOfferedAndRequestsPresentTakeSucceeds)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    receiveRequest(64461001);
+
+    const void* payload;
+    ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_SUCCESS));
+    ASSERT_THAT(payload, Ne(nullptr));
+    EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(64461001));
+}
+
+TEST_F(iox_server_test, ReleaseRequestWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    receiveRequest(64461001);
+
+    const void* payload;
+    ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_SUCCESS));
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    iox_server_release_request(sut, payload);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(iox_server_test, ReleaseQueuedRequestsWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    receiveRequest(64461001);
+    receiveRequest(313);
+
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
+
+    iox_server_release_queued_requests(sut);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+}
+
+TEST_F(iox_server_test, HasRequestWorks)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    EXPECT_FALSE(iox_server_has_requests(sut));
+    receiveRequest(64461001);
+    EXPECT_TRUE(iox_server_has_requests(sut));
+}
+
+TEST_F(iox_server_test, HasMissedRequestWorks)
+{
+    iox_server_options_t options;
+    iox_server_options_init(&options);
+    options.requestQueueCapacity = 1;
+
+    ServerOptions cppOptions;
+    cppOptions.requestQueueCapacity = 1;
+
+    prepareServerInit(cppOptions);
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
+    iox_server_offer(sut);
+    EXPECT_FALSE(iox_server_has_missed_requests(sut));
+    receiveRequest(64461001);
+    receiveRequest(6321);
+    EXPECT_TRUE(iox_server_has_missed_requests(sut));
+    EXPECT_FALSE(iox_server_has_missed_requests(sut));
+}
+
+TEST_F(iox_server_test, OfferReturnsCorrectOfferState)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    EXPECT_TRUE(iox_server_is_offered(sut));
+    iox_server_stop_offer(sut);
+    EXPECT_FALSE(iox_server_is_offered(sut));
+}
+
 
 } // namespace

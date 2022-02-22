@@ -58,5 +58,12 @@ ServerOptions::deserialize(const cxx::Serialization& serialized) noexcept
 
     return cxx::success<ServerOptions>(serverOptions);
 }
+
+bool ServerOptions::operator==(const ServerOptions& rhs) const noexcept
+{
+    return requestQueueCapacity == rhs.requestQueueCapacity && nodeName == rhs.nodeName
+           && offerOnCreate == rhs.offerOnCreate && requestQueueFullPolicy == rhs.requestQueueFullPolicy
+           && clientTooSlowPolicy == rhs.clientTooSlowPolicy;
+}
 } // namespace popo
 } // namespace iox
