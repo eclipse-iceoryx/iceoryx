@@ -47,12 +47,16 @@ struct Publisher
 {
     using Producer = iox::popo::UntypedPublisher;
     static constexpr MessagingPattern KIND{MessagingPattern::PUB_SUB};
+    static constexpr auto MAX_PRODUCERS{iox::MAX_PUBLISHERS};
+    static constexpr auto MAX_USER_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
 };
 
 struct Server
 {
     using Producer = iox::popo::UntypedServer;
     static constexpr MessagingPattern KIND{MessagingPattern::REQ_RES};
+    static constexpr auto MAX_PRODUCERS{iox::MAX_SERVERS};
+    static constexpr auto MAX_USER_PRODUCERS{iox::MAX_SERVERS};
 };
 
 
@@ -686,15 +690,16 @@ TYPED_TEST(ServiceDiscovery_test, NonExistingServicesAreNotFound)
     EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 }
 
-TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxPublisherServices)
+TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxProducerServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68628cc2-df6d-46e4-8586-7563f43bf10c");
     const IdString_t SERVICE = "s";
-    constexpr auto MAX_USER_PUBLISHERS = iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS;
 
-    // if the result size is limited to be lower than the number of publishers in the registry,
+
+    // if the result size is limited to be lower than the number of producers in the registry,
     // there is no way to retrieve them all
-    constexpr auto NUM_PRODUCERS = std::min(MAX_USER_PUBLISHERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    constexpr auto NUM_PRODUCERS =
+        std::min(TestFixture::CommunicationKind::MAX_USER_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
     iox::cxx::vector<typename TestFixture::CommunicationKind::Producer, NUM_PRODUCERS> producers;
 
     // we want to check whether we find all the services, including internal ones like introspection,
@@ -712,12 +717,13 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxPublisherServices)
     }
 
     // now we should find the maximum number of services we can search for,
-    // i.e. internal services and those we just created (iox::MAX_PUBLISHERS combined)
+    // i.e. internal services and those we just created (iox::MAX_PRODUCERS combined)
     auto serviceContainer = this->sut.findService(
         iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, TestFixture::CommunicationKind::KIND);
 
-    constexpr auto EXPECTED_NUM_PUBLISHERS = std::min(iox::MAX_PUBLISHERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
-    EXPECT_EQ(serviceContainer.size(), EXPECTED_NUM_PUBLISHERS);
+    constexpr auto EXPECTED_NUM_PRODUCERS =
+        std::min(TestFixture::CommunicationKind::MAX_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    EXPECT_EQ(serviceContainer.size(), EXPECTED_NUM_PRODUCERS);
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
 
     this->sut.findService(iox::capro::Wildcard,
