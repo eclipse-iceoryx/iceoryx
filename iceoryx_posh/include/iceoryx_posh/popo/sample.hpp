@@ -20,6 +20,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
@@ -33,9 +34,9 @@ class PublisherInterface;
 /// @brief The Sample class is a mutable abstraction over types which are written to loaned shared memory.
 /// These samples are publishable to the iceoryx system.
 template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
-class Sample : public SmartChunk<PublisherInterface, T, H>
+class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
 {
-    using BaseType = SmartChunk<PublisherInterface, T, H>;
+    using BaseType = SmartChunk<PublisherInterface<T, H>, T, H>;
 
   public:
     template <typename T1, typename T2>

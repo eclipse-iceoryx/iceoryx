@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_RESPONSE_INL
 #define IOX_POSH_POPO_RESPONSE_INL
 
+#include "iceoryx_posh/popo/response.hpp"
+
 namespace iox
 {
 namespace popo
@@ -25,7 +27,15 @@ template <typename T>
 template <typename S, typename>
 inline void Response<T>::send() noexcept
 {
-    BaseType::publish();
+    if (BaseType::m_members.smartChunkUniquePtr)
+    {
+        BaseType::m_members.producerRef.get().send(std::move(*(this)));
+    }
+    else
+    {
+        LogError() << "Tried to send empty Response! Might be an already sent or moved Response!";
+        errorHandler(Error::kPOSH__SENDING_EMPTY_RESPONSE, nullptr, ErrorLevel::MODERATE);
+    }
 }
 
 template <typename T>
