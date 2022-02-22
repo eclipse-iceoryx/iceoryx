@@ -50,6 +50,7 @@ using namespace ::testing;
 iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
 iox_client_t g_clientCallbackArgument = nullptr;
+iox_server_t g_serverCallbackArgument = nullptr;
 void* g_contextData = nullptr;
 
 void userTriggerCallback(iox_user_trigger_t userTrigger)
@@ -82,6 +83,17 @@ void clientCallback(iox_client_t client)
 void clientCallbackWithContextData(iox_client_t client, void* const contextData)
 {
     g_clientCallbackArgument = client;
+    g_contextData = contextData;
+}
+
+void serverCallback(iox_server_t server)
+{
+    g_serverCallbackArgument = server;
+}
+
+void serverCallbackWithContextData(iox_server_t server, void* const contextData)
+{
+    g_serverCallbackArgument = server;
     g_contextData = contextData;
 }
 
@@ -179,7 +191,10 @@ class iox_listener_test : public Test
 
     iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
 
-    ClientPortData portData{{"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &m_memoryManager};
+    ServerPortData serverPortData{
+        {"ServiceA", "InstanceA", "EventA"}, "der_wilde_bert", ServerOptions(), &m_memoryManager};
+    ClientPortData clientPortData{
+        {"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &m_memoryManager};
     cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriberPortData;
     cxx::vector<cpp2c_Subscriber, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriber;
     cxx::vector<ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t>, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1>
@@ -391,7 +406,7 @@ TEST_F(iox_listener_test, AttachingClientWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0513caa-78c0-4be4-a140-1468c1c4e6e7");
     iox_client_storage_t clientStorage;
-    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
 
@@ -412,16 +427,23 @@ void notifyClient(ClientPortData& portData)
     EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
 }
 
+void notifyServer(ServerPortData& portData)
+{
+    iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    pusher.push(iox::mepoo::SharedChunk());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+}
+
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "1f857df5-47d9-4116-83fd-acc9df4c3d6e");
     iox_client_storage_t clientStorage;
-    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
 
     iox_listener_attach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallback);
 
-    notifyClient(portData);
+    notifyClient(clientPortData);
     std::this_thread::sleep_for(TIMEOUT);
     TIMING_TEST_EXPECT_TRUE(g_clientCallbackArgument == client);
 
@@ -431,19 +453,67 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "64178bc6-ec8f-4504-aceb-6a32ee568ab8");
     iox_client_storage_t clientStorage;
-    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&portData));
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
 
     iox_listener_attach_client_event_with_context_data(
         &m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, &clientStorage);
 
-    notifyClient(portData);
+    notifyClient(clientPortData);
     std::this_thread::sleep_for(TIMEOUT);
     TIMING_TEST_EXPECT_TRUE(g_clientCallbackArgument == client);
     TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&clientStorage));
 
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+});
+
+
+TEST_F(iox_listener_test, AttachingServerWorks)
+{
+    iox_server_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
+
+    iox_server_t server = iox_server_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    iox_listener_attach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallback);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+
+    iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+}
+
+TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
+    iox_server_storage_t serverStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
+
+    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    iox_listener_attach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallback);
+
+    notifyServer(serverPortData);
+    std::this_thread::sleep_for(TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(g_serverCallbackArgument == server);
+
+    iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
+});
+
+TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repeat(5), [&] {
+    iox_server_storage_t serverStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
+
+    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    iox_listener_attach_server_event_with_context_data(
+        &m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &serverStorage);
+
+    notifyServer(serverPortData);
+    std::this_thread::sleep_for(TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(g_serverCallbackArgument == server);
+    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&serverStorage));
+
+    iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
 });
 
 

@@ -147,11 +147,11 @@ ENUM iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const se
                                                          const ENUM iox_ServerEvent serverEvent,
                                                          void (*callback)(iox_server_t));
 
-ENUM iox_ListenerResult iox_listener_attach_client_server_with_context_data(iox_listener_t const self,
-                                                                            iox_server_t const server,
-                                                                            const ENUM iox_ServerEvent serverEvent,
-                                                                            void (*callback)(iox_server_t, void*),
-                                                                            void* const contextData);
+ENUM iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listener_t const self,
+                                                                           iox_server_t const server,
+                                                                           const ENUM iox_ServerEvent serverEvent,
+                                                                           void (*callback)(iox_server_t, void*),
+                                                                           void* const contextData);
 
 void iox_listener_detach_server_event(iox_listener_t const self,
                                       iox_server_t const server,

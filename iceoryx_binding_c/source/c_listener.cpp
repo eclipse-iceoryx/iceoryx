@@ -223,11 +223,11 @@ iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
                                 : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
-iox_ListenerResult iox_listener_attach_client_server_with_context_data(iox_listener_t const self,
-                                                                       iox_server_t const server,
-                                                                       const ENUM iox_ServerEvent serverEvent,
-                                                                       void (*callback)(iox_server_t, void*),
-                                                                       void* const contextData)
+iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listener_t const self,
+                                                                      iox_server_t const server,
+                                                                      const ENUM iox_ServerEvent serverEvent,
+                                                                      void (*callback)(iox_server_t, void*),
+                                                                      void* const contextData)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(server != nullptr);
