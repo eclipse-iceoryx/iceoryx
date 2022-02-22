@@ -273,7 +273,7 @@ TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
 
     void* payload = nullptr;
-    iox_client_loan_request(sut, &payload, 32);
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 32), Eq(AllocationResult_SUCCESS));
 
     iox_client_release_request(sut, payload);
 

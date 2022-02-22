@@ -90,7 +90,7 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
-// return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
+// return the default value DATA_RECEIVED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
     iox::Error errorValue = iox::Error::kNO_ERROR;
