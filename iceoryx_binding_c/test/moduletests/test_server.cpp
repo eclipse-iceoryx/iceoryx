@@ -331,6 +331,22 @@ TEST_F(iox_server_test, LoanWorks)
     EXPECT_THAT(payload, Ne(nullptr));
 }
 
+TEST_F(iox_server_test, LoanFailsWhenNoMoreChunksAreAvailable)
+{
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest(31711);
+
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)),
+                Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
+}
+
 TEST_F(iox_server_test, LoanAlignedWorks)
 {
     prepareServerInit();
