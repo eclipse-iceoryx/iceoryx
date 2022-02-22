@@ -169,8 +169,6 @@ TEST_F(RequestHeader_test, ConstructorWorks)
                        LAST_KNOWN_CLIENT_QUEUE_INDEX,
                        EXPECTED_SEQUENCE_ID,
                        EXPECTED_RPC_HEADER_VERSION);
-
-    EXPECT_THAT(requestHeader->isFireAndForget(), Eq(false));
 }
 
 TEST_F(RequestHeader_test, SetSequenceIdWorks)
@@ -181,14 +179,6 @@ TEST_F(RequestHeader_test, SetSequenceIdWorks)
     sut->setSequenceId(SEQUENCE_ID);
 
     EXPECT_THAT(sut->getSequenceId(), Eq(SEQUENCE_ID));
-}
-
-TEST_F(RequestHeader_test, SetFireAndForgetWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1947a27b-251c-403f-a063-74d47309486d");
-    sut->setFireAndForget();
-
-    EXPECT_THAT(sut->isFireAndForget(), Eq(true));
 }
 
 class ResponseHeader_test : public Test

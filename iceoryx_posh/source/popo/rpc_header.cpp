@@ -74,16 +74,6 @@ void RequestHeader::setSequenceId(const int64_t sequenceId) noexcept
     this->m_sequenceId = sequenceId;
 }
 
-void RequestHeader::setFireAndForget() noexcept
-{
-    m_isFireAndForget = true;
-}
-
-bool RequestHeader::isFireAndForget() const noexcept
-{
-    return m_isFireAndForget;
-}
-
 RequestHeader* RequestHeader::fromPayload(void* const payload) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(payload);

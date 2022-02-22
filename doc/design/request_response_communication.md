@@ -40,7 +40,7 @@ In order to support asynchronous requests, a sequence ID should be part of each 
 
 This is an overview of the untyped `Client` and `Server` classes.
 
-![simple class diagram](overview_class.svg)
+![simple class diagram](../website/images/overview_class.svg)
 
 The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` building blocks. The `Client` uses a `ChunkSender` to send requests and a `ChunkReceiver` to get the responses while the `Server` uses a `ChunkReceiver` to get the requests and a `ChunkSender` to send the responses.
 
@@ -97,8 +97,6 @@ Depending on the client and server options, a request might be dropped or a serv
 which results in sending the responses in a different order than the request were received.
 The sequence ID must be set by the user and also checked by the user on response.
 
-The `RequestHeader` has also the option to specify a message as fire and forget, which means it won't get a response to this request.
-
 #### Client/Server Options
 
 ![client and server options](../website/images/client_and_server_options.svg)
@@ -127,5 +125,5 @@ Following is a sequence diagram which shows all this cases
 
 ## Open issues
 
+- integration into port introspection
 - integration into a gateway, e.g. the DDS gateway
-- check if a Listener can be used for a timed wait for a response on the client side

@@ -15,9 +15,6 @@ class RpcBaseHeader {
 class RequestHeader {
   + RequestHeader(uniqueClientQueueId: cxx::UniqueId, lastKnownQueueIndex: uint32_t)
   + setSequenceId(sequenceId: int64_t): void
-  + setFireAndForget(): void
-  + isFireAndForget(): bool
-  - m_isFireAndForget: bool
 }
 
 class ResponseHeader {
