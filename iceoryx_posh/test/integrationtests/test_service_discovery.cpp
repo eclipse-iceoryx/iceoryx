@@ -582,13 +582,17 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxPublisherServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68628cc2-df6d-46e4-8586-7563f43bf10c");
     const IdString_t SERVICE = "s";
-    ServiceContainer serviceContainerExp;
-    constexpr auto MAX_PUBLISHERS = iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS;
+    constexpr auto MAX_USER_PUBLISHERS = iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS;
 
     // if the result size is limited to be lower than the number of publishers in the registry,
     // there is no way to retrieve them all
-    constexpr auto NUM_PUBLISHERS = std::min(MAX_PUBLISHERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    constexpr auto NUM_PUBLISHERS = std::min(MAX_USER_PUBLISHERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
     iox::cxx::vector<iox::popo::UntypedPublisher, NUM_PUBLISHERS> publishers;
+
+    // we want to check whether we find all the services, including internal ones like introspection,
+    // so we first search for them without creating other services to obtain the internal ones
+    ServiceContainer serviceContainerExp =
+        sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
     for (size_t i = 0; i < NUM_PUBLISHERS; i++)
     {
@@ -599,12 +603,15 @@ TEST_F(ServiceDiscovery_test, FindServiceReturnsMaxPublisherServices)
         serviceContainerExp.push_back(SERVICE_DESCRIPTION);
     }
 
-    auto serviceContainer = sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
+    // now we should find the maximum number of services we can search for,
+    // i.e. internal services and those we just created (iox::MAX_PUBLISHERS combined)
+    auto serviceContainer = sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(serviceContainer.size(), Eq(NUM_PUBLISHERS));
+    constexpr auto EXPECTED_NUM_PUBLISHERS = std::min(iox::MAX_PUBLISHERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    EXPECT_EQ(serviceContainer.size(), EXPECTED_NUM_PUBLISHERS);
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
 
-    sut.findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard, findHandler);
+    sut.findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, findHandler);
     compareAndClearServiceContainers(serviceContainer, searchResultOfFindServiceWithFindHandler);
 }
 
