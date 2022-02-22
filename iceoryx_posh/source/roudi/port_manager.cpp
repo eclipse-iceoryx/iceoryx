@@ -490,6 +490,7 @@ bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
     const bool historyRequestIsCompatible =
         !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;
 
+    /// @todo #722 Add read access right check here
     return blockingPoliciesAreCompatible && historyRequestIsCompatible;
 }
 
@@ -589,11 +590,11 @@ bool PortManager::isCompatibleClientServer(const popo::ServerPortRouDi& server,
         return false;
     }
 
-    auto requestMatch = !(client.getServerTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
-                          && server.getRequestQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
+    const auto requestMatch = !(client.getServerTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+                                && server.getRequestQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
 
-    auto responseMatch = !(server.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
-                           && client.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
+    const auto responseMatch = !(server.getClientTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+                                 && client.getResponseQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
 
     return requestMatch && responseMatch;
 }
