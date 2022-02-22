@@ -50,6 +50,11 @@ bool iox_notification_info_does_originate_from_client(iox_notification_info_t co
     return self->doesOriginateFrom(client);
 }
 
+bool iox_notification_info_does_originate_from_server(iox_notification_info_t const self, iox_server_t const server)
+{
+    return self->doesOriginateFrom(server);
+}
+
 iox_sub_t iox_notification_info_get_subscriber_origin(iox_notification_info_t const self)
 {
     return self->getOrigin<cpp2c_Subscriber>();

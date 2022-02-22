@@ -19,6 +19,7 @@
 
 #include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/server.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/user_trigger.h"
 
@@ -49,6 +50,12 @@ bool iox_notification_info_does_originate_from_user_trigger(iox_notification_inf
 /// @param[in] client handle to the client in question
 /// @return true if the notification originates from the client, otherwise false
 bool iox_notification_info_does_originate_from_client(iox_notification_info_t const self, iox_client_t const client);
+
+/// @brief does the notification originate from a certain server
+/// @param[in] self handle to notification info
+/// @param[in] server handle to the server in question
+/// @return true if the notification originates from the server, otherwise false
+bool iox_notification_info_does_originate_from_server(iox_notification_info_t const self, iox_server_t const server);
 
 /// @brief acquires the handle of the subscriber origin
 /// @param[in] self handle to notification info
