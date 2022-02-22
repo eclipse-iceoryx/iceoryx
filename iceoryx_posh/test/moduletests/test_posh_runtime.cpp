@@ -916,9 +916,9 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     });
 
     // wait some time to check if the publisher is blocked
-    constexpr int64_t SLEEP_IN_MS = 100;
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
     ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasSampleSent.load(), Eq(false));
 
     m_runtime->shutdown();
@@ -979,9 +979,9 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     });
 
     // wait some time to check if the client is blocked
-    constexpr int64_t SLEEP_IN_MS = 100;
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
     ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasRequestSent.load(), Eq(false));
 
     m_runtime->shutdown();
@@ -1051,9 +1051,9 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
     });
 
     // wait some time to check if the server is blocked
-    constexpr int64_t SLEEP_IN_MS = 100;
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
     ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasResponseSent.load(), Eq(false));
 
     m_runtime->shutdown();
