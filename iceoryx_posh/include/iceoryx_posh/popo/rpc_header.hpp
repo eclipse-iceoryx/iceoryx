@@ -112,18 +112,8 @@ class RequestHeader : public RpcBaseHeader
     /// order
     void setSequenceId(const int64_t sequenceId) noexcept;
 
-    /// @brief Sets the fire and forget flag which indicates that no response is expected
-    void setFireAndForget() noexcept;
-
-    /// @brief Obtains the fire and forget flag
-    /// @return true if set and no response is expected, false otherwise
-    bool isFireAndForget() const noexcept;
-
     static RequestHeader* fromPayload(void* const payload) noexcept;
     static const RequestHeader* fromPayload(const void* const payload) noexcept;
-
-  private:
-    bool m_isFireAndForget{false};
 };
 
 class ResponseHeader : public RpcBaseHeader
