@@ -84,13 +84,67 @@ their services, you should see sometimes 5 `Camera` services and sometimes none.
 
 ### Wait for services
 
-Start the applications `iox-wait-for-service` and `iox-offer-service` (in any order).
+Start the applications `iox-wait-for-service` and `iox-offer-service` (in any order, but for demonstration purposes `iox-offer-service` should be started last).
 
-`iox-wait-for-service` uses a customized service discovery which supports to wait for services by including
+`iox-wait-for-service` uses a customized service discovery `Discovery` which supports to wait for services by including
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
 
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
+We then can use our custom discovery class
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][create custom discovery]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][create custom discovery]-->
+
+which provides a function `waitUntil` to wait for some discovery-related search query condition.
+
+We define the search query
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][define search query]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][define search query]-->
+
+This is essentially any callable with `bool(void)` signature, but it should depend on the discovery somehow (by capture),
+as it is only checked when the service availability changes in some way. Here we require some specific service to be found
+before we proceed.
+
+Now we can wait until the service discovery changes and the services becomes available.
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until service was available]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until service was available]-->
+This wait is blocking until the service was available. If it already is available we do not block and proceed.
+It is important that due to the nature of concurrent systems we cannot know that the service is still available
+once we return from `waitUntil`, as the application offering the service may have stopped doing so in the meantime.
+
+Usually we will assume that the service is available and may continue, e.g. by creating subscribers and running
+application specific code.
+
+We can also block until any unspecified change in the service availability occurs
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until discovery changes]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until discovery changes]-->
+
+This change is relative to the last `findService` call we issued, i.e. if something changed compared to
+the available services at this point, we wake up and continue.
+
+We then can check any condition we like, but usually it will be most useful to again check discovery-related conditions.
+Here we check whether a particular service becomes unavailable (essentially the negation of our query before)
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][check service availability]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][check service availability]-->
+
+Note that we use a customized `findService` version which returns a result container which can easily be build
+using the version which takes a function to be applied to all services in the search result.
+
+Once the service becomes unavailable, the application exits.
+
+Should the service we wait for never become available we can unblock any of the wait calls with
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][unblock wait]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][unblock wait]-->
 
 ### Discovery with blocking wait
 

@@ -46,11 +46,12 @@ Discovery* discoveryPtr{nullptr};
 
 void sigHandler(int)
 {
-    std::cout << "sig handler" << std::endl;
+    //! [unblock wait]
     if (discoveryPtr)
     {
         discoveryPtr->unblockWait();
     }
+    //! [unblock wait]
 }
 
 int main()
@@ -61,8 +62,8 @@ int main()
     // requires the runtime to be created first
     Discovery discovery;
     //! [create custom discovery]
-    discoveryPtr = &discovery;
 
+    discoveryPtr = &discovery;
 
     auto sigTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
     auto sigIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
@@ -74,47 +75,35 @@ int main()
     };
     //! [define search query]
 
-    while (!iox::posix::hasTerminationRequested())
+    std::cout << "Waiting for service <" << service << ", " << instance << ", " << event << "> ..." << std::endl;
+
+    //! [wait until service was available]
+    bool serviceWasAvailable = discovery.waitUntil(query);
+    //! [wait until service was available]
+
+    // did we wake up due to an unblock or because the service was available?
+    if (serviceWasAvailable)
     {
-        std::cout << "Waiting for service <" << service << ", " << instance << ", " << event << "> ..." << std::endl;
+        std::cout << "<" << service << ", " << instance << ", " << event << "> was available" << std::endl;
 
-        //! [wait until query returns true]
-        bool serviceWasAvailable = discovery.waitUntil(query);
-        //! [wait until query returns true]
+        // service was available, but we can never be sure the service is still available
+        // if this is important we need to monitor it (see discovery monitor example)
 
-        // did we wake up due to an unblock or because the service was available?
-        if (serviceWasAvailable)
+        std::cout << "Waiting for any discovery change ..." << std::endl;
+
+        do
         {
-            std::cout << "<" << service << ", " << instance << ", " << event << "> was available" << std::endl;
+            //! [wait until discovery changes]
+            discovery.waitUntilChange();
+            //! [wait until discovery changes]
+            std::cout << "Discovery changed. Searching <" << service << ", " << instance << ", " << event << "> ..."
+                      << std::endl;
 
-            // service was available, but we can never be sure the service is still available
-            // if this is important we need to monitor it (see discovery monitor example)
+            //! [check service availability]
+        } while (discovery.findService(service, instance, event).size() > 0);
+        //! [check service availability]
 
-            std::cout << "Waiting for any discovery change ..." << std::endl;
-
-            do
-            {
-                //! [wait until discovery changes]
-                discovery.waitUntilChange();
-                //! [wait until discovery changes]
-                std::cout << "Discovery changed. Searching <" << service << ", " << instance << ", " << event << "> ..."
-                          << std::endl;
-
-                //! [check service availability]
-                auto result = discovery.findService(service, instance, event);
-                //! [check service availability]
-
-                // we may still have found the service
-                if (result.size() == 0)
-                {
-                    // service was unavailable
-                    break;
-                }
-            } while (true);
-
-            std::cout << "<" << service << ", " << instance << ", " << event << "> was unavailable" << std::endl;
-            break;
-        }
+        std::cout << "<" << service << ", " << instance << ", " << event << "> was unavailable" << std::endl;
     }
 
     return (EXIT_SUCCESS);
