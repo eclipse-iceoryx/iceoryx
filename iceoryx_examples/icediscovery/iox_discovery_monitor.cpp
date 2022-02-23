@@ -33,11 +33,11 @@ iox::capro::IdString_t event{"Image"};
 
 void printSearchResult(const iox::runtime::ServiceContainer& result)
 {
-    std::cout << "Search result: " << (result.empty() ? "empty" : "") << std::endl;
+    std::cout << APP_NAME << " search result:" << (result.empty() ? "empty" : "") << std::endl;
 
-    for (auto entry : result)
+    for (const auto& entry : result)
     {
-        std::cout << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
+        std::cout << APP_NAME << " " << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
                   << entry.getEventIDString() << std::endl;
     }
 }
@@ -55,18 +55,16 @@ int main()
     auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
         auto result = discovery.findService(service, instance, event);
 
-        if (result.size() > 0)
+        if (!result.empty())
         {
-            std::cout << "Discovery Monitor <" << service << ", " << instance << ", " << event << "> available"
-                      << std::endl;
-            printSearchResult(result);
+            std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> available" << std::endl;
         }
         else
         {
-            std::cout << "Discovery Monitor <" << service << ", " << instance << ", " << event << "> unavailable"
+            std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> unavailable"
                       << std::endl;
-            printSearchResult(result);
         }
+        printSearchResult(result);
     };
     //! [create monitoring callback]
 
@@ -78,7 +76,9 @@ int main()
     //! [register callback]
 
     while (!iox::posix::hasTerminationRequested())
+    {
         ;
+    }
 
     //! [deregister callback]
     discovery.deregisterCallback();

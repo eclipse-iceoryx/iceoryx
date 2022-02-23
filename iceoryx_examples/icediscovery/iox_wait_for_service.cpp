@@ -33,11 +33,11 @@ iox::capro::IdString_t event{"Image"};
 
 void printSearchResult(const iox::runtime::ServiceContainer& result)
 {
-    std::cout << "Search result: " << (result.empty() ? "empty" : "") << std::endl;
+    std::cout << APP_NAME << " search result: " << (result.empty() ? "empty" : "") << std::endl;
 
     for (auto entry : result)
     {
-        std::cout << "<" << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
+        std::cout << APP_NAME << " <" << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
                   << entry.getEventIDString() << ">" << std::endl;
     }
 }
@@ -71,11 +71,12 @@ int main()
     //! [define search query]
     auto query = [&]() {
         auto result = discovery.findService(service, instance, event);
-        return result.size() > 0;
+        return !result.empty();
     };
     //! [define search query]
 
-    std::cout << "Waiting for service <" << service << ", " << instance << ", " << event << "> ..." << std::endl;
+    std::cout << APP_NAME << " waiting for service <" << service << ", " << instance << ", " << event << "> ..."
+              << std::endl;
 
     //! [wait until service was available]
     bool serviceWasAvailable = discovery.waitUntil(query);
@@ -84,26 +85,27 @@ int main()
     // did we wake up due to an unblock or because the service was available?
     if (serviceWasAvailable)
     {
-        std::cout << "<" << service << ", " << instance << ", " << event << "> was available" << std::endl;
+        std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was available" << std::endl;
 
         // service was available, but we can never be sure the service is still available
         // if this is important we need to monitor it (see discovery monitor example)
 
-        std::cout << "Waiting for any discovery change ..." << std::endl;
+        std::cout << APP_NAME << " waiting for any discovery change ..." << std::endl;
 
         do
         {
             //! [wait until discovery changes]
             discovery.waitUntilChange();
             //! [wait until discovery changes]
-            std::cout << "Discovery changed. Searching <" << service << ", " << instance << ", " << event << "> ..."
-                      << std::endl;
+            std::cout << APP_NAME << " discovery changed. Searching <" << service << ", " << instance << ", " << event
+                      << "> ..." << std::endl;
 
             //! [check service availability]
-        } while (discovery.findService(service, instance, event).size() > 0);
+        } while (!discovery.findService(service, instance, event).empty());
         //! [check service availability]
 
-        std::cout << "<" << service << ", " << instance << ", " << event << "> was unavailable" << std::endl;
+        std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was unavailable"
+                  << std::endl;
     }
 
     return (EXIT_SUCCESS);
