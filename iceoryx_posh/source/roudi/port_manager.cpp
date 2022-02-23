@@ -1102,7 +1102,7 @@ PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noex
 
 bool PortManager::isInternal(const capro::ServiceDescription& service) const noexcept
 {
-    capro::ServiceDescription serviceRegistry{
+    const capro::ServiceDescription serviceRegistry{
         SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
 
     return service == serviceRegistry || service == IntrospectionPortService || service == IntrospectionMempoolService

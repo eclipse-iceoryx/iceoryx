@@ -257,6 +257,32 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     }
 }
 
+TEST_F(PortManager_test, AcquiringPublisherWithAnyInternalServiceDescriptionFails)
+{
+    cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
+
+    const PublisherOptions defaultPublisherOptions;
+    const iox::RuntimeName_t runtimeName = "foobar";
+
+    const capro::ServiceDescription serviceRegistry{
+        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
+
+    internalServices.push_back(serviceRegistry);
+    internalServices.push_back(IntrospectionPortService);
+    internalServices.push_back(IntrospectionMempoolService);
+    internalServices.push_back(IntrospectionMempoolService);
+    internalServices.push_back(IntrospectionPortThroughputService);
+    internalServices.push_back(IntrospectionSubscriberPortChangingDataService);
+
+    for (auto& service : internalServices)
+    {
+        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
+            service, defaultPublisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
+        ASSERT_TRUE(publisherPortDataResult.has_error());
+        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED));
+    }
+}
+
 constexpr bool IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY{
     std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value};
 
