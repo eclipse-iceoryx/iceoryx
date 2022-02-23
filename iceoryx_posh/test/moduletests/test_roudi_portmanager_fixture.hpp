@@ -74,7 +74,6 @@ class PortManager_test : public Test
     cxx::GenericRAII suppressLogging = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
 
     cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
-    const PublisherOptions defaultPublisherOptions;
     const capro::ServiceDescription serviceRegistry{
         SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
 

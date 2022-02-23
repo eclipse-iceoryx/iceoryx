@@ -265,7 +265,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescripti
     for (auto& service : internalServices)
     {
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
-            service, defaultPublisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
+            service, iox::popo::PublisherOptions(), runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         ASSERT_TRUE(publisherPortDataResult.has_error());
         EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
     }
@@ -278,7 +278,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescript
     for (auto& service : internalServices)
     {
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(service,
-                                                                               defaultPublisherOptions,
+                                                                               iox::popo::PublisherOptions(),
                                                                                IPC_CHANNEL_ROUDI_NAME,
                                                                                m_payloadDataSegmentMemoryManager,
                                                                                PortConfigInfo());
