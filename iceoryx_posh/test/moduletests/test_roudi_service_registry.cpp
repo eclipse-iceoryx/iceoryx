@@ -639,8 +639,6 @@ TYPED_TEST(ServiceRegistry_test, SearchInFullRegistryWorks)
     ASSERT_EQ(this->searchResult.size(), 1);
 }
 
-using Entry = iox::roudi::ServiceRegistry::ServiceDescriptionEntry;
-
 TYPED_TEST(ServiceRegistry_test, FunctionIsAppliedToAllEntriesInSearchResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b7828085-d879-43b7-9fee-e5e88cf36995");

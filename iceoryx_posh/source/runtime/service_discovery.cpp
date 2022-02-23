@@ -21,6 +21,15 @@ namespace iox
 {
 namespace runtime
 {
+void ServiceDiscovery::update()
+{
+    // allows us to use update and hence findService concurrently
+    std::lock_guard<std::mutex> lock(m_serviceRegistryMutex);
+    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
+        *m_serviceRegistry = *serviceRegistrySample;
+    });
+}
+
 void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
                                    const cxx::optional<capro::IdString_t>& instance,
                                    const cxx::optional<capro::IdString_t>& event,
@@ -32,9 +41,7 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
         return;
     }
 
-    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
-        *m_serviceRegistry = *serviceRegistrySample;
-    });
+    update();
 
     switch (pattern)
     {

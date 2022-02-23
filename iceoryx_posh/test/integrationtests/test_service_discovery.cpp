@@ -208,6 +208,13 @@ TYPED_TEST(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInsta
                       SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
+
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
 }
 
 TYPED_TEST(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)

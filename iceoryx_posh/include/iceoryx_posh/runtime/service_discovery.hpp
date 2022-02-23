@@ -23,6 +23,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <memory>
+#include <mutex>
 
 namespace iox
 {
@@ -43,10 +44,7 @@ enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
 class ServiceDiscovery
 {
   public:
-    ServiceDiscovery()
-    {
-    }
-
+    ServiceDiscovery() = default;
     ServiceDiscovery(const ServiceDiscovery&) = delete;
     ServiceDiscovery& operator=(const ServiceDiscovery&) = delete;
     ServiceDiscovery(ServiceDiscovery&&) = delete;
@@ -73,13 +71,16 @@ class ServiceDiscovery
     iox::popo::WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
 
-    //  use dynamic memory to reduce stack usage,
-    /// @todo improve solution to avoid stack usage without using dynamic memory
-    std::unique_ptr<roudi::ServiceRegistry> m_serviceRegistry{new roudi::ServiceRegistry};
+    // use dynamic memory to reduce stack usage
+    /// @todo #1155 improve solution to avoid stack usage without using dynamic memory
+    std::unique_ptr<roudi::ServiceRegistry> m_serviceRegistry{new iox::roudi::ServiceRegistry};
+    std::mutex m_serviceRegistryMutex;
 
     popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
         {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
         {1U, 1U, iox::NodeName_t("Service Registry"), true}};
+
+    void update();
 };
 
 } // namespace runtime
