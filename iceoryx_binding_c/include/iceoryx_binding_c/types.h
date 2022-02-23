@@ -101,11 +101,11 @@ typedef struct
 {
     // the value of the array size is the result of the following formula:
     // sizeof(UntypedClient) / 8
-    #if defined(__APPLE__)
+#if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
-    #else
+#else
     uint64_t do_not_touch_me[19];
-    #endif
+#endif
 } iox_client_storage_t;
 
 #endif
