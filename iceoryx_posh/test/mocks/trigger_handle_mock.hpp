@@ -31,6 +31,7 @@ class MockTriggeHandle
                      const iox::cxx::MethodCallback<void, uint64_t>,
                      const uint64_t) noexcept {};
     MockTriggeHandle() noexcept = default;
+    ~MockTriggeHandle() = default;
 
     MockTriggeHandle(const MockTriggeHandle&) = delete;
     MockTriggeHandle& operator=(const MockTriggeHandle&) = delete;
@@ -50,7 +51,7 @@ class MockTriggeHandle
     MOCK_METHOD(uint64_t, getUniqueId, (), (const noexcept));
     MOCK_METHOD(iox::popo::ConditionVariableData*, getConditionVariableData, (), (noexcept));
 
-    operator bool() const
+    explicit operator bool() const
     {
         return true;
     }

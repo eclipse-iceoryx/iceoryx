@@ -30,8 +30,11 @@ class MockClientPortUser : public MockBasePort
 {
   public:
     using MemberType_t = iox::popo::ClientPortData;
-    MockClientPortUser(MemberType_t&){};
+    explicit MockClientPortUser(MemberType_t&)
+    {
+    }
     MockClientPortUser() = default;
+    ~MockClientPortUser() = default;
 
     MockClientPortUser(const MockClientPortUser&) = delete;
     MockClientPortUser& operator=(const MockClientPortUser&) = delete;

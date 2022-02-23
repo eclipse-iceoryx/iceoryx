@@ -28,8 +28,11 @@ class MockBasePort
 {
   public:
     using MemberType_t = iox::popo::BasePortData;
-    MockBasePort(MemberType_t*){};
+    explicit MockBasePort(MemberType_t*)
+    {
+    }
     MockBasePort() = default;
+    ~MockBasePort() = default;
 
     MockBasePort(const MockBasePort&) = delete;
     MockBasePort& operator=(const MockBasePort&) = delete;
@@ -48,7 +51,7 @@ class MockBasePort
     MOCK_METHOD(void, destroy, (), (noexcept));
     MOCK_METHOD(bool, toBeDestroyed, (), (const noexcept));
 
-    operator bool() const
+    explicit operator bool() const
     {
         return true;
     }
