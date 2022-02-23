@@ -41,6 +41,40 @@ enum iox_SubscribeState
     SubscribeState_UNDEFINED_ERROR,
 };
 
+/// @brief describes events which can be triggered by a client
+enum iox_ClientEvent
+{
+    ClientEvent_RESPONSE_RECEIVED
+};
+
+/// @brief describes states which can be triggered by a client
+enum iox_ClientState
+{
+    ClientState_HAS_RESPONSE
+};
+
+/// @brief describes events which can be triggered by a server
+enum iox_ServerEvent
+{
+    ServerEvent_REQUEST_RECEIVED
+};
+
+/// @brief describes states which can be triggered by a server
+enum iox_ServerState
+{
+    ServerState_HAS_REQUEST
+};
+
+/// @brief describes the current connection state of a client
+enum iox_ConnectionState
+{
+    ConnectionState_NOT_CONNECTED = 0,
+    ConnectionState_CONNECT_REQUESTED,
+    ConnectionState_CONNECTED,
+    ConnectionState_DISCONNECT_REQUESTED,
+    ConnectionState_WAIT_FOR_OFFER
+};
+
 /// @brief describes the state of getChunk in the subscriber
 enum iox_ChunkReceiveResult
 {
@@ -80,6 +114,7 @@ enum iox_AllocationResult
     AllocationResult_SUCCESS,
 };
 
+/// @brief used to describe if attaching an object to a waitset was successful or the kind of attachment error
 enum iox_WaitSetResult
 {
     WaitSetResult_WAIT_SET_FULL,
@@ -88,6 +123,7 @@ enum iox_WaitSetResult
     WaitSetResult_SUCCESS
 };
 
+/// @brief used to describe if attaching an object to a listener was successful or the kind of attachment error
 enum iox_ListenerResult
 {
     ListenerResult_LISTENER_FULL,

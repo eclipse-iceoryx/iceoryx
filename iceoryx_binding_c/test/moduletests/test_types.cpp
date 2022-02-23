@@ -18,8 +18,10 @@
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+
 
 using namespace iox;
 using namespace iox::popo;
@@ -68,5 +70,13 @@ TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
     EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }
+
+TEST(iox_types_test, ClientStorageSizeFits)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "70aa551d-4220-4389-8cae-cd3c5314b2b0");
+    EXPECT_THAT(sizeof(UntypedClient), Le(sizeof(iox_client_storage_t)));
+    EXPECT_THAT(alignof(UntypedClient), Le(alignof(iox_client_storage_t)));
+}
+
 
 } // namespace

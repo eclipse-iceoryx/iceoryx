@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #ifndef IOX_BINDING_C_WAIT_SET_H
 #define IOX_BINDING_C_WAIT_SET_H
 
+#include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/notification_info.h"
@@ -188,5 +189,77 @@ void iox_ws_detach_subscriber_state(iox_ws_t const self,
 /// @param[in] self handle to the waitset
 /// @param[in] usertrigger the user trigger which should be detached
 void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger);
+
+/// @brief attaches a client event to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] client the client of the event which should be attached
+/// @param[in] clientEvent the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
+                                                  const iox_client_t client,
+                                                  const ENUM iox_ClientEvent clientEvent,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_client_t));
+
+/// @brief attaches a client event to a waitset with additional context data for the callback
+/// @param[in] self handle to the waitset
+/// @param[in] client the client of the event which should be attached
+/// @param[in] clientEvent the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_client_event_with_context_data(iox_ws_t const self,
+                                                                    iox_client_t const client,
+                                                                    const ENUM iox_ClientEvent clientEvent,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_client_t, void*),
+                                                                    void* const contextData);
+
+/// @brief attaches a client state to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] client the client of the state which should be attached
+/// @param[in] clientState the state which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the state
+/// @param[in] callback a callback which is attached to the state
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
+                                                  const iox_client_t client,
+                                                  const ENUM iox_ClientState clientState,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_client_t));
+
+/// @brief attaches a client state to a waitset with additional context data for the callback
+/// @param[in] self handle to the waitset
+/// @param[in] client the client of the state which should be attached
+/// @param[in] clientState the state which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the state
+/// @param[in] callback a callback which is attached to the state
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const self,
+                                                                    iox_client_t const client,
+                                                                    const ENUM iox_ClientState clientState,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_client_t, void*),
+                                                                    void* const contextData);
+
+/// @brief detaches a client event from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] client the client which should be detached
+/// @param[in] clientEvent the event which should be detached from the client
+void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientEvent clientEvent);
+
+/// @brief detaches a client state from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] client the client which should be detached
+/// @param[in] clientState the state which should be detached from the client
+void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState);
 
 #endif

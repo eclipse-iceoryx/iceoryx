@@ -57,5 +57,12 @@ ClientOptions::deserialize(const cxx::Serialization& serialized) noexcept
     clientOptions.serverTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(serverTooSlowPolicy);
     return cxx::success<ClientOptions>(clientOptions);
 }
+
+bool ClientOptions::operator==(const ClientOptions& rhs) const noexcept
+{
+    return responseQueueCapacity == rhs.responseQueueCapacity && nodeName == rhs.nodeName
+           && connectOnCreate == rhs.connectOnCreate && responseQueueFullPolicy == rhs.responseQueueFullPolicy
+           && serverTooSlowPolicy == rhs.serverTooSlowPolicy;
+}
 } // namespace popo
 } // namespace iox

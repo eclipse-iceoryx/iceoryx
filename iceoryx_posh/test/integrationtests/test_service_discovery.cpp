@@ -25,8 +25,8 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
-#include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
 
 #include <type_traits>

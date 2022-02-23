@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef IOX_BINDING_C_LISTENER_H
 #define IOX_BINDING_C_LISTENER_H
 
+#include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/subscriber.h"
@@ -106,5 +107,38 @@ uint64_t iox_listener_size(iox_listener_t const self);
 /// @param[in] self listener where the capacity should be acquired
 /// @return the capacity of the listener
 uint64_t iox_listener_capacity(iox_listener_t const self);
+
+/// @brief Attaches a client event to the listener
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] client client which emits the event
+/// @param[in] clientEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
+                                                         iox_client_t const client,
+                                                         const ENUM iox_ClientEvent clientEvent,
+                                                         void (*callback)(iox_client_t));
+
+/// @brief Attaches a client event to the listener. The callback has an additional contextData argument to provide
+/// access to user defined data.
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] client client which emits the event
+/// @param[in] clientEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listener_t const self,
+                                                                           iox_client_t const client,
+                                                                           const ENUM iox_ClientEvent clientEvent,
+                                                                           void (*callback)(iox_client_t, void*),
+                                                                           void* const contextData);
+
+/// @brief Detaches a client from the listener
+/// @param[in] self listener from which the event should be detached
+/// @param[in] client the client which emits the event
+/// @param[in] clientEvent the event which should be removed from the listener
+void iox_listener_detach_client_event(iox_listener_t const self,
+                                      iox_client_t const client,
+                                      const ENUM iox_ClientEvent clientEvent);
 
 #endif

@@ -17,6 +17,9 @@
 
 #include "test.hpp"
 
+/// just to check that no non-existing headers are included
+#include "iceoryx_binding_c/api.h"
+
 using namespace ::testing;
 using ::testing::_;
 

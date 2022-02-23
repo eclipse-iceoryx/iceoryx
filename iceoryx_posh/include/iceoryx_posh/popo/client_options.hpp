@@ -54,6 +54,10 @@ struct ClientOptions
     /// @brief deserialization of the ClientOptions
     static cxx::expected<ClientOptions, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
+
+    /// @brief comparision operator
+    /// @param[in] rhs the right hand side of the comparision
+    bool operator==(const ClientOptions& rhs) const noexcept;
 };
 
 } // namespace popo
