@@ -34,6 +34,7 @@ uint8_t iox_response_header_get_rpc_header_version(iox_response_header_t const s
 uint8_t iox_response_header_get_rpc_header_version_const(iox_const_response_header_t const self);
 int64_t iox_response_header_get_sequence_id(iox_response_header_t const self);
 int64_t iox_response_header_get_sequence_id_const(iox_const_response_header_t const self);
+
 void* iox_response_header_get_user_payload(iox_response_header_t const self);
 const void* iox_response_header_get_user_payload_const(iox_const_response_header_t const self);
 iox_chunk_header_t* iox_response_header_get_chunk_header(iox_response_header_t const self);
