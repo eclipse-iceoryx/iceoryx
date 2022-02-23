@@ -912,7 +912,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
-    if (isInternal(service) && runtimeName.c_str() != IPC_CHANNEL_ROUDI_NAME)
+    if (isInternal(service) && runtimeName != RuntimeName_t{IPC_CHANNEL_ROUDI_NAME})
     {
         errorHandler(
             Error::kPOSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED, nullptr, ErrorLevel::MODERATE);
