@@ -14,7 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! [include custom discovery]
 #include "discovery_monitor.hpp"
+//! [include custom discovery]
+
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -43,8 +46,12 @@ int main()
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
+    //! [create custom discovery]
+    // requires the runtime to be created first
     Discovery discovery;
+    //! [create custom discovery]
 
+    //! [create monitoring callback]
     auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
         auto result = discovery.findService(service, instance, event);
 
@@ -61,15 +68,21 @@ int main()
             printSearchResult(result);
         }
     };
+    //! [create monitoring callback]
 
     // only one callback allowed, hence we require no handles to deregister
     // the callback later
+
+    //! [register callback]
     discovery.registerCallback(callback);
+    //! [register callback]
 
     while (!iox::posix::hasTerminationRequested())
         ;
 
+    //! [deregister callback]
     discovery.deregisterCallback();
+    //! [deregister callback]
 
     return (EXIT_SUCCESS);
 }

@@ -146,8 +146,54 @@ Should the service we wait for never become available we can unblock any of the 
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][unblock wait]-->
 
-### Discovery with blocking wait
-
 ### Monitor service availability
 
-### Monitoring discovery changes
+If we want to continously monitor the availability of some service or check some discovery condition we can do so by using e.g. a listener.
+To do so, we start the applications `iox-discovery-monitor` and `iox-offer-service` (again in any order, but for demonstration purposes `iox-offer-service` should be started last).
+
+Again we can use a service discovery `Discovery` customized for this purpose by including
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][include custom discovery]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][include custom discovery]-->
+
+and creating it like so
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create custom discovery]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create custom discovery]-->
+
+Afterwards we create a callback to be called whenever the service availability changes.
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create monitoring callback]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create monitoring callback]-->
+
+This callback essentially checks whether a specific service is available or unavailable and generates output accordingly.
+Other reactions are possible as well, such as changing the processing logic of an pplication.
+
+To start the monitoring, we register the callback
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][register callback]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][register callback]-->
+
+Monitoring happens in a background thread implicitly created by the `Discovery`, i.e. the callback is executed in this thread.
+
+When we want to stop monitoring we have to deregister the callback
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][deregister callback]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][deregister callback]-->
+
+Here this is done at the very end where it is technically not required, but in a more complex example it could be done
+while the application is processing data. The main processing loop of the application is deliberately left empty for simplicty.
+Usually it would interact with the callback by e.g. changing application behavior whenever the availability of some service changes.
+
+While we only can attach one callback to the general event that the service availability changes in some way, we can generalize the mechanism
+here to check for multiple conditions and react to each of them by e.g. calling a specific function.
+These conditions would still need to be checked in the callback we defined though.
+
+### Implementation of Discovery with blocking wait
+
+### Implemtation of Discovery monitoring
