@@ -433,6 +433,24 @@ TEST_F(ServerPort_test, ReleaseRequestWithNullptrRequestHeaderCallsTheErrorHandl
 
 // END releaseRequest tests
 
+// BEGIN releaseQueuedRequests tests
+
+TEST_F(ServerPort_test, ReleaseQueuedRequestsReleasesAllChunksToTheMempool)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "90d918e4-a1cf-4a78-b987-7f0c03ca8805");
+    auto& sut = serverPortWithOfferOnCreate;
+
+    constexpr uint64_t NUMBER_OF_REQUESTS{3U};
+    constexpr uint64_t REQUEST_DATA{42};
+    pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA);
+
+    EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUESTS));
+    sut.portUser.releaseQueuedRequests();
+    EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
+}
+
+// END releaseQueuedRequests tests
+
 // BEGIN hasLostRequestsSinceLastCall tests
 
 TEST_F(ServerPort_test, HasLostRequestsSinceLastCallWhenNoRequestsAreLostReturnsFalse)
