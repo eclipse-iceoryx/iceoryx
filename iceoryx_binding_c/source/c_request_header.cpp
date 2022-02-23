@@ -47,27 +47,6 @@ void iox_request_header_set_sequence_id(iox_request_header_t const self, const i
     self->setSequenceId(sequenceId);
 }
 
-void iox_request_header_set_fire_and_forget(iox_request_header_t const self)
-{
-    iox::cxx::Expects(self != nullptr);
-
-    self->setFireAndForget();
-}
-
-bool iox_request_header_is_fire_and_forget(iox_request_header_t const self)
-{
-    iox::cxx::Expects(self != nullptr);
-
-    return self->isFireAndForget();
-}
-
-bool iox_request_header_is_fire_and_forget_const(iox_const_request_header_t const self)
-{
-    iox::cxx::Expects(self != nullptr);
-
-    return self->isFireAndForget();
-}
-
 uint8_t iox_request_header_get_rpc_header_version(iox_request_header_t const self)
 {
     iox::cxx::Expects(self != nullptr);

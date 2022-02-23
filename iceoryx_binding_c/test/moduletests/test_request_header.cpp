@@ -81,17 +81,6 @@ TEST_F(iox_request_header_test, setSequenceIdWorks)
     EXPECT_THAT(iox_request_header_get_sequence_id_const(sutConst), Eq(SOME_LUCKY_SEQUENCE_ID));
 }
 
-TEST_F(iox_request_header_test, setFireAndForgetWorks)
-{
-    EXPECT_FALSE(iox_request_header_is_fire_and_forget(sut));
-    EXPECT_FALSE(iox_request_header_is_fire_and_forget_const(sutConst));
-
-    iox_request_header_set_fire_and_forget(sut);
-
-    EXPECT_TRUE(iox_request_header_is_fire_and_forget(sut));
-    EXPECT_TRUE(iox_request_header_is_fire_and_forget_const(sutConst));
-}
-
 TEST_F(iox_request_header_test, rpcHeaderVersionIsSetCorrectly)
 {
     EXPECT_THAT(iox_request_header_get_rpc_header_version(sut), Eq(headerVersion));

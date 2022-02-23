@@ -41,20 +41,6 @@ iox_const_request_header_t iox_request_header_from_payload_const(const void* con
 /// @param[in] sequenceId the new sequence id value
 void iox_request_header_set_sequence_id(iox_request_header_t const self, const int64_t sequenceId);
 
-/// @brief sets the request into fire and forget mode
-/// @param[in] self handle to the request header
-void iox_request_header_set_fire_and_forget(iox_request_header_t const self);
-
-/// @brief is the request header in fire and forget mode?
-/// @param[in] self handle to the request header
-/// @return true if fire and forget is activated, otherwise false
-bool iox_request_header_is_fire_and_forget(iox_request_header_t const self);
-
-/// @brief is the request header in fire and forget mode?
-/// @param[in] self handle to the request header
-/// @return true if fire and forget is activated, otherwise false
-bool iox_request_header_is_fire_and_forget_const(iox_const_request_header_t const self);
-
 /// @brief returns the rpc header version
 /// @param[in] self handle to the request header
 /// @return rpc header version
