@@ -81,7 +81,7 @@ TEST(iox_types_test, ClientStorageSizeFits)
 
 TEST(iox_types_test, ServerStorageSizeFits)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "92B71F19-680E-4FB9-B10B-DAF74D5AE639");
+    ::testing::Test::RecordProperty("TEST_ID", "ccebf221-8f51-4f55-a94e-9348174a37d0");
     EXPECT_THAT(sizeof(UntypedServer), Le(sizeof(iox_server_storage_t)));
     EXPECT_THAT(alignof(UntypedServer), Le(alignof(iox_server_storage_t)));
 }
