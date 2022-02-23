@@ -116,4 +116,3 @@ const iox_chunk_header_t* iox_response_header_get_chunk_header_const(iox_const_r
 
     return reinterpret_cast<const iox_chunk_header_t*>(self->getChunkHeader());
 }
-
