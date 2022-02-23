@@ -23,10 +23,12 @@
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 
+#include <vector>
+
 namespace discovery
 {
 using ServiceDiscovery = iox::runtime::ServiceDiscovery;
-using ServiceContainer = iox::runtime::ServiceContainer;
+using ServiceContainer = std::vector<iox::capro::ServiceDescription>;
 
 ServiceDiscovery& serviceDiscovery();
 

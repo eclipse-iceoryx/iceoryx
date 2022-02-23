@@ -186,7 +186,7 @@ When we want to stop monitoring we have to deregister the callback
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][deregister callback]-->
 
-Here this is done at the very end where it is technically not required, but in a more complex example it could be done
+Here this is done at the very end where it is technically not required, but in a more complex application it could be done
 while the application is processing data. The main processing loop of the application is deliberately left empty for simplicty.
 Usually it would interact with the callback by e.g. changing application behavior whenever the availability of some service changes.
 
@@ -195,5 +195,53 @@ here to check for multiple conditions and react to each of them by e.g. calling 
 These conditions would still need to be checked in the callback we defined though.
 
 ### Implementation of Discovery with blocking wait
+
+We build our custom discovery on top of the `iox::runtime::ServiceDiscovery` by composition. While inheritance is an option,
+composition has the advantage that we can use `ServiceDiscovery` as a singleton.
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][service discovery singleton]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][service discovery singleton]-->
+
+This is useful as the `ServiceDiscovery` may be fairly large and in general there is no point in having multiple `ServiceDiscovery` objects that all have the same purpose and (if updated) same view of the available services.
+
+The key idea is to use a waitset and attach to the event that the service availability changes
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][attach waitset]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][attach waitset]-->
+
+Waiting for any availability change is now as simple as waiting on the waitset
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][wait until change]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][wait until change]-->
+
+If we want to wait for a specific condition, we can do so with
+
+<!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_blocking.hpp][wait until condition]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_blocking.hpp][wait until condition]-->
+
+The  condition needs to be evaluable to `bool` and takes no arguments. While this can be generalized to any variadic arguments,
+it is not needed as we can use capturing lambda expressions. The wait simply checks for the condition, and if true returns
+immediately. Otherwise it waits until the available services change using `waitUntilChange` before checking the condition again.
+
+It is also possible to unblock any of the waits even if nothing changes or the condition does not hold
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][unblock wait]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][unblock wait]-->
+
+This is can only be called once and makes all future wait calls non-blocking. It is useful to unblock any wait calls to be able to stop the application.
+
+Finally we provide a custom implementation of `findService` which returns a container of our choice, in this case a `std::vector`.
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][findService]-->
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][findService]-->
+
+It is implemenented by using the native `findService` call of the `ServiceDiscovery` with an appropriate filter function.
+The benefit is that this way we can choose containers which do not necessrily reside on the stack.
 
 ### Implemtation of Discovery monitoring

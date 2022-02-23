@@ -18,49 +18,55 @@
 
 namespace discovery
 {
+//! [service discovery singleton]
 ServiceDiscovery& serviceDiscovery()
 {
     static ServiceDiscovery instance;
     return instance;
 }
+//! [service discovery singleton]
 
 Discovery::Discovery()
     : m_discovery(&serviceDiscovery())
 {
-    update();
-    auto errorHandler = [](auto) {
+    auto errorHandler = [](auto&) {
         std::cerr << "failed to attach to waitset" << std::endl;
         std::terminate();
     };
 
+    //! [attach waitset]
     m_waitset.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED)
         .or_else(errorHandler);
+    //! [attach waitset]
 }
 
+//! [wait until change]
 void Discovery::waitUntilChange()
 {
     m_waitset.wait();
 }
+//! [wait until change]
 
-// unblock any wait, not reversible
+//! [unblock wait]
 void Discovery::unblockWait()
 {
     m_blocking = false;
-    // could also unblock with a dedicated trigger to break the wait but that requires more code
+    // could also unblock with a dedicated condition to break the wait but that requires more code
     // and is not necessary if it is only supposed to happen once
     m_waitset.markForDestruction();
 }
+//! [unblock wait]
 
+//! [findService]
 ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
                                         const iox::cxx::optional<iox::capro::IdString_t>& instance,
                                         const iox::cxx::optional<iox::capro::IdString_t>& event)
 {
-    return m_discovery->findService(service, instance, event);
+    ServiceContainer result;
+    auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };
+    m_discovery->findService(service, instance, event, filter);
+    return result;
 }
-
-void Discovery::update()
-{
-    m_discovery->update();
-}
+//! [findService]
 
 } // namespace discovery

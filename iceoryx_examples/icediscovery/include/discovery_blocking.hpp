@@ -19,10 +19,13 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
+#include <atomic>
+#include <vector>
+
 namespace discovery
 {
 using ServiceDiscovery = iox::runtime::ServiceDiscovery;
-using ServiceContainer = iox::runtime::ServiceContainer;
+using ServiceContainer = std::vector<iox::capro::ServiceDescription>;
 
 ServiceDiscovery& serviceDiscovery();
 
@@ -35,6 +38,7 @@ class Discovery
 
     /// @brief wait until service availability changes AND some condition evaluates to true
     /// @param condition condition with signature bool(void)
+    /// @return true if the condition held, false otherwise (i.e. was unblocked)
     /// @note blocks the current thread, can be unblocked by unblockWait (as a final action)
     template <typename Condition>
     bool waitUntil(const Condition& condition);
@@ -55,19 +59,16 @@ class Discovery
   private:
     ServiceDiscovery* m_discovery{nullptr};
     iox::popo::WaitSet<1> m_waitset;
-    bool m_blocking{true};
-
-    void update();
+    std::atomic_bool m_blocking{true};
 };
 
+//! [wait until condition]
 template <typename Condition>
 bool Discovery::waitUntil(const Condition& condition)
 {
-    update();
     do
     {
-        // 1) we have current discovery data (almost, as it can have changed again already)
-        // condition holds?
+        // 1) does the condition hold?
         bool result = condition();
         if (result)
         {
@@ -92,5 +93,6 @@ bool Discovery::waitUntil(const Condition& condition)
 
     return false;
 }
+//! [wait until condition]
 
 } // namespace discovery

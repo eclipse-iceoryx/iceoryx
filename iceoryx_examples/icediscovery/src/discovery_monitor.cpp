@@ -42,7 +42,10 @@ ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdS
                                         const iox::cxx::optional<iox::capro::IdString_t>& instance,
                                         const iox::cxx::optional<iox::capro::IdString_t>& event)
 {
-    return m_discovery->findService(service, instance, event);
+    ServiceContainer result;
+    auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };
+    m_discovery->findService(service, instance, event, filter);
+    return result;
 }
 
 void Discovery::invokeCallback(ServiceDiscovery* discovery, Discovery* self)
