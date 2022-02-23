@@ -98,7 +98,7 @@ class BaseServer
     friend class NotificationAttorney;
 
   protected:
-    using SelfType = BaseServer<PortT>;
+    using SelfType = BaseServer<PortT, TriggerHandleT>;
     using PortType = PortT;
 
     BaseServer(const capro::ServiceDescription& service, const ServerOptions& serverOptions) noexcept;
@@ -145,8 +145,8 @@ class BaseServer
     ///
     PortT& port() noexcept;
 
-    PortT m_port;            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    TriggerHandle m_trigger; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    PortT m_port;             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    TriggerHandleT m_trigger; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 };
 
 } // namespace popo

@@ -43,6 +43,14 @@ class TestBaseServer : public BaseServerWithMocks
     }
 
     using BaseServerWithMocks::port;
+
+    using BaseServerWithMocks::disableEvent;
+    using BaseServerWithMocks::disableState;
+    using BaseServerWithMocks::enableEvent;
+    using BaseServerWithMocks::enableState;
+    using BaseServerWithMocks::getCallbackForIsStateConditionSatisfied;
+    using BaseServerWithMocks::invalidateTrigger;
+    using BaseServerWithMocks::m_trigger;
 };
 
 class BaseServer_test : public Test
@@ -173,5 +181,149 @@ TEST_F(BaseServer_test, ReleaseQueuedRequestsCallsUnderlyingPort)
 
     sut->releaseQueuedRequests();
 }
+
+// BEGIN Listener and WaitSet related test
+
+TEST_F(BaseServer_test, InvalidateTriggerWithFittingTriggerIdCallsUnderlyingPortAndTriggerHandle)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fab216c1-b88f-4755-b5d4-7cf0fb95bc5a");
+
+    constexpr uint64_t TRIGGER_ID{13U};
+
+    EXPECT_CALL(sut->m_trigger, getUniqueId).WillOnce(Return(TRIGGER_ID));
+    EXPECT_CALL(sut->port(), unsetConditionVariable).Times(1);
+    EXPECT_CALL(sut->m_trigger, invalidate).Times(1);
+
+    sut->invalidateTrigger(TRIGGER_ID);
+}
+
+TEST_F(BaseServer_test, InvalidateTriggerWithUnfittingTriggerIdDoesNotCallUnderlyingPortAndTriggerHandle)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a895a258-1237-4de6-ab85-7246e3404d3a");
+
+    constexpr uint64_t TRIGGER_ID_1{1U};
+    constexpr uint64_t TRIGGER_ID_2{2U};
+
+    EXPECT_CALL(sut->m_trigger, getUniqueId).WillOnce(Return(TRIGGER_ID_2));
+    EXPECT_CALL(sut->port(), unsetConditionVariable).Times(0);
+    EXPECT_CALL(sut->m_trigger, invalidate).Times(0);
+
+    sut->invalidateTrigger(TRIGGER_ID_1);
+}
+
+TEST_F(BaseServer_test, EnableStateCallsUnderlyingPortAndTriggerHandle)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e97beefa-f83d-42c5-8087-02bf4b9f2a32");
+
+    for (const bool serverAttachedIndicator : {false, true})
+    {
+        SCOPED_TRACE(std::string("Test 'enableState' with server ")
+                     + (serverAttachedIndicator ? "attached" : " not attached"));
+
+        const uint64_t TRIGGER_ID{serverAttachedIndicator ? 42U : 73U};
+        MockTriggeHandle triggerHandle;
+        triggerHandle.triggerId = TRIGGER_ID;
+        ConditionVariableData condVar{runtimeName};
+
+        EXPECT_THAT(sut->m_trigger.triggerId, Ne(TRIGGER_ID));
+
+        EXPECT_CALL(sut->m_trigger, operatorBoolMock).WillOnce(Return(serverAttachedIndicator));
+        EXPECT_CALL(sut->m_trigger, getConditionVariableData).WillOnce(Return(&condVar));
+        EXPECT_CALL(sut->m_trigger, getUniqueId).WillOnce(Return(TRIGGER_ID));
+
+        EXPECT_CALL(sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
+
+        bool errorDetected{false};
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([&](const iox::Error error,
+                                                                                 const std::function<void()>,
+                                                                                 const iox::ErrorLevel errorLevel) {
+            EXPECT_THAT(
+                error,
+                Eq(iox::Error::
+                       kPOPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+            errorDetected = true;
+        });
+
+        sut->enableState(std::move(triggerHandle), ServerState::HAS_REQUEST);
+
+        EXPECT_THAT(sut->m_trigger.triggerId, Eq(TRIGGER_ID));
+        EXPECT_THAT(errorDetected, Eq(serverAttachedIndicator));
+    }
+}
+
+TEST_F(BaseServer_test, GetCallbackForIsStateConditionSatisfiedReturnsCallbackToSelf)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7f9d8e30-ae60-4f68-9961-ad36b4fa9bae");
+
+    auto callback = sut->getCallbackForIsStateConditionSatisfied(ServerState::HAS_REQUEST);
+
+    constexpr bool HAS_REQUESTS{true};
+    EXPECT_CALL(sut->port(), hasNewRequests).WillOnce(Return(HAS_REQUESTS));
+    callback();
+}
+
+TEST_F(BaseServer_test, DisableStateCallsUnderlyingPortAndTriggerHandle)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ce85051e-f18c-4c0f-a5c9-4c2701c4bb30");
+
+    EXPECT_CALL(sut->m_trigger, reset).Times(1);
+    EXPECT_CALL(sut->port(), unsetConditionVariable).Times(1);
+
+    sut->disableState(ServerState::HAS_REQUEST);
+}
+
+TEST_F(BaseServer_test, EnableEventCallsUnderlyingPortAndTriggerHandle)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a5715e02-7362-4d4e-a387-11367b804ce1");
+
+    for (const bool serverAttachedIndicator : {false, true})
+    {
+        SCOPED_TRACE(std::string("Test 'enableEvent' with server ")
+                     + (serverAttachedIndicator ? "attached" : " not attached"));
+
+        const uint64_t TRIGGER_ID{serverAttachedIndicator ? 42U : 73U};
+        MockTriggeHandle triggerHandle;
+        triggerHandle.triggerId = TRIGGER_ID;
+        ConditionVariableData condVar{runtimeName};
+
+        EXPECT_THAT(sut->m_trigger.triggerId, Ne(TRIGGER_ID));
+
+        EXPECT_CALL(sut->m_trigger, operatorBoolMock).WillOnce(Return(serverAttachedIndicator));
+        EXPECT_CALL(sut->m_trigger, getConditionVariableData).WillOnce(Return(&condVar));
+        EXPECT_CALL(sut->m_trigger, getUniqueId).WillOnce(Return(TRIGGER_ID));
+
+        EXPECT_CALL(sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
+
+        bool errorDetected{false};
+        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([&](const iox::Error error,
+                                                                                 const std::function<void()>,
+                                                                                 const iox::ErrorLevel errorLevel) {
+            EXPECT_THAT(
+                error,
+                Eq(iox::Error::
+                       kPOPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+            errorDetected = true;
+        });
+
+        sut->enableEvent(std::move(triggerHandle), ServerEvent::REQUEST_RECEIVED);
+
+        EXPECT_THAT(sut->m_trigger.triggerId, Eq(TRIGGER_ID));
+        EXPECT_THAT(errorDetected, Eq(serverAttachedIndicator));
+    }
+}
+
+TEST_F(BaseServer_test, DisableEventCallsUnderlyingPortAndTriggerHandle)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5d7bee13-e654-4048-a57a-f7ba94b614b1");
+
+    EXPECT_CALL(sut->m_trigger, reset).Times(1);
+    EXPECT_CALL(sut->port(), unsetConditionVariable).Times(1);
+
+    sut->disableEvent(ServerEvent::REQUEST_RECEIVED);
+}
+
+// END Listener and WaitSet related test
 
 } // namespace
