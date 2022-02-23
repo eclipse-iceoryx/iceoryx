@@ -70,6 +70,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Set stack size for windows in `singleprocess` example and posh tests [\#1082](https://github.com/eclipse-iceoryx/iceoryx/issues/1082)
 - Roudi console timestamps are out of date [#1130](https://github.com/eclipse-iceoryx/iceoryx/issues/1130)
 - Application can't create publisher repeatedly with previous one already destroyed [\#938](https://github.com/eclipse-iceoryx/iceoryx/issues/938)
+- Prevent creation of `popo::Publisher`'s with internal `ServiceDescription` [\#1120](https://github.com/eclipse-iceoryx/iceoryx/issues/1120)
 
 **Refactoring:**
 
