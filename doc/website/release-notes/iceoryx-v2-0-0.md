@@ -44,6 +44,7 @@ servers (`iox::popo::MessagingPattern::REQ_RES`) [\#27](https://github.com/eclip
     - Limitations
         - The port introspection is not aware of the new `Client` and `Server` [\#1128](https://github.com/eclipse-iceoryx/iceoryx/issues/1128)
         - The DDS gateway is not aware of the new `Server` [\#1145](https://github.com/eclipse-iceoryx/iceoryx/issues/1145)
+- Let `MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE` be configurable via CMake switch [\#1144](https://github.com/eclipse-iceoryx/iceoryx/issues/1144)
 
 **Bugfixes:**
 
