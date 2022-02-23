@@ -125,7 +125,11 @@ struct iox_service_discovery_storage_t
 {
     // the value of the array size is the result of the following formula:
     // sizeof(ServiceDiscovery) / 8
-    uint64_t do_not_touch_me[196768];
+#if defined(__APPLE__)
+    uint64_t do_not_touch_me[49175];
+#else
+    uint64_t do_not_touch_me[49172];
+#endif
 };
 typedef struct iox_service_discovery_storage_t iox_service_discovery_storage_t;
 

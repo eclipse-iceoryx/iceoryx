@@ -29,6 +29,7 @@
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
@@ -1104,7 +1105,7 @@ void notifyServiceDiscovery(SubscriberPortData& portData)
 {
     iox::popo::ChunkQueuePusher<SubscriberChunkReceiverData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post();
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
 }
 
 TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWorks)

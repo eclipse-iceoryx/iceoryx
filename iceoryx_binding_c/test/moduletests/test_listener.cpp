@@ -30,6 +30,7 @@ using namespace iox;
 using namespace iox::popo;
 using namespace iox::posix;
 using namespace iox::mepoo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/client.h"
