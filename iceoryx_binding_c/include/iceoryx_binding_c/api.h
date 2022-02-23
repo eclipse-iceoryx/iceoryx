@@ -29,6 +29,7 @@
 #include "notification_info.h"
 #include "publisher.h"
 #include "runtime.h"
+#include "server.h"
 #include "service_description.h"
 #include "subscriber.h"
 #include "types.h"
