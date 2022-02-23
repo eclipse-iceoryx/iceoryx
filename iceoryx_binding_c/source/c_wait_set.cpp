@@ -29,6 +29,7 @@
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
@@ -394,4 +395,48 @@ void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, 
     iox::cxx::Expects(server != nullptr);
 
     self->detachState(*server, c2cpp::serverState(serverState));
+}
+
+iox_WaitSetResult iox_ws_attach_service_discovery_event(const iox_ws_t self,
+                                                        const iox_service_discovery_t serviceDiscovery,
+                                                        const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                                        const uint64_t eventId,
+                                                        void (*callback)(iox_service_discovery_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
+
+    auto result = self->attachEvent(
+        *serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent), eventId, {callback, nullptr});
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult
+iox_ws_attach_service_discovery_event_with_context_data(iox_ws_t const self,
+                                                        iox_service_discovery_t const serviceDiscovery,
+                                                        const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                                        const uint64_t eventId,
+                                                        void (*callback)(iox_service_discovery_t, void*),
+                                                        void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
+
+    NotificationCallback<std::remove_pointer_t<iox_service_discovery_t>, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(
+        *serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent), eventId, notificationCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+void iox_ws_detach_service_discovery_event(iox_ws_t const self,
+                                           iox_service_discovery_t const serviceDiscovery,
+                                           const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
+
+    self->detachEvent(*serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent));
 }

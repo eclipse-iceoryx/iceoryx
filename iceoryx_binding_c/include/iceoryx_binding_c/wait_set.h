@@ -22,6 +22,7 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/notification_info.h"
+#include "iceoryx_binding_c/service_discovery.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
@@ -333,4 +334,44 @@ void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, 
 /// @param[in] server the server which should be detached
 /// @param[in] serverState the state which should be detached from the server
 void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerState serverState);
+
+/// @brief attaches a service discovery event to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] serviceDiscovery service discovery which emits the event
+/// @param[in] serviceDiscoveryEvent the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_service_discovery_event(const iox_ws_t self,
+                                                             const iox_service_discovery_t serviceDiscovery,
+                                                             const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                                             const uint64_t eventId,
+                                                             void (*callback)(iox_service_discovery_t));
+
+/// @brief attaches a service discovery event to a waitset with additional context data for the callback
+/// @param[in] self handle to the waitset
+/// @param[in] serviceDiscovery service discovery which emits the event
+/// @param[in] serviceDiscoveryEvent the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult
+iox_ws_attach_service_discovery_event_with_context_data(iox_ws_t const self,
+                                                        iox_service_discovery_t const serviceDiscovery,
+                                                        const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                                        const uint64_t eventId,
+                                                        void (*callback)(iox_service_discovery_t, void*),
+                                                        void* const contextData);
+
+/// @brief detaches a service discovery event from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] serviceDiscovery the service discovery which should be detached
+/// @param[in] serviceDiscoveryEvent the event which should be detached from the service discovery
+void iox_ws_detach_service_discovery_event(iox_ws_t const self,
+                                           iox_service_discovery_t const serviceDiscovery,
+                                           const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent);
+
 #endif
