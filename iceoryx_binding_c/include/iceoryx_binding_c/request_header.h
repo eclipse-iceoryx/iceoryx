@@ -21,16 +21,22 @@
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
 typedef CLASS RequestHeader* iox_request_header_t;
+typedef const CLASS RequestHeader* iox_const_request_header_t;
 
-iox_request_header_t iox_request_header_from_payload(void* const payload) noexcept;
-iox_request_header_t iox_request_header_from_const_payload(const void* const payload) noexcept;
+iox_request_header_t iox_request_header_from_payload(void* const payload);
+iox_const_request_header_t iox_request_header_from_payload_const(const void* const payload);
 
 void iox_request_header_set_sequence_id(iox_request_header_t const self, const int64_t sequenceId);
 void iox_request_header_set_fire_and_forget(iox_request_header_t const self);
 bool iox_request_header_is_fire_and_forget(iox_request_header_t const self);
-uint8_t iox_request_header_get_header_version(iox_request_header_t const self);
+bool iox_request_header_is_fire_and_forget_const(iox_const_request_header_t const self);
+uint8_t iox_request_header_get_rpc_header_version(iox_request_header_t const self);
+uint8_t iox_request_header_get_rpc_header_version_const(iox_const_request_header_t const self);
 int64_t iox_request_header_get_sequence_id(iox_request_header_t const self);
+int64_t iox_request_header_get_sequence_id_const(iox_const_request_header_t const self);
 void* iox_request_header_get_user_payload(iox_request_header_t const self);
-iox_chunk_header_t iox_request_header_get_chunk_header(iox_request_header_t const self);
+const void* iox_request_header_get_user_payload_const(iox_const_request_header_t const self);
+iox_chunk_header_t* iox_request_header_get_chunk_header(iox_request_header_t const self);
+const iox_chunk_header_t* iox_request_header_get_chunk_header_const(iox_const_request_header_t const self);
 
 #endif

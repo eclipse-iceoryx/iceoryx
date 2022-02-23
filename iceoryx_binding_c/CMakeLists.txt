@@ -61,6 +61,7 @@ add_library(${PROJECT_NAME}
     source/c_listener.cpp
     source/c_node.cpp
     source/c_publisher.cpp
+    source/c_request_header.cpp
     source/c_runtime.cpp
     source/c_server.cpp
     source/c_subscriber.cpp
