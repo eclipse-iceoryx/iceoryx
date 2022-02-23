@@ -460,6 +460,27 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
         });
 }
 
+TEST_F(ClientPort_test, ReleaseQueuedResponsesReleasesAllChunksToTheMempool)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d51674b7-ad92-47cc-85d9-06169e8a813b");
+    auto& sut = clientPortWithConnectOnCreate;
+
+    constexpr uint32_t USER_PAYLOAD_SIZE{10};
+    constexpr uint32_t NUMBER_OF_QUEUED_RESPONSES{3};
+
+    for (uint32_t i = 0; i < NUMBER_OF_QUEUED_RESPONSES; ++i)
+    {
+        iox::cxx::optional<iox::mepoo::SharedChunk> sharedChunk{
+            getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
+        sut.responseQueuePusher.push(sharedChunk.value());
+        sharedChunk.reset();
+    }
+
+    EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_QUEUED_RESPONSES));
+    sut.portUser.releaseQueuedResponses();
+    EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
+}
+
 TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42f50429-e1e1-41b9-bbcd-5d14a0eda189");
