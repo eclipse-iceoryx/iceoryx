@@ -31,7 +31,7 @@ bool iox_response_header_has_server_error(iox_response_header_t const self);
 bool iox_response_header_has_server_error_const(iox_const_response_header_t const self);
 
 uint8_t iox_response_header_get_rpc_header_version(iox_response_header_t const self);
-uint8_t iox_response_header_get_rpc_header_version(iox_response_header_t const self);
+uint8_t iox_response_header_get_rpc_header_version_const(iox_const_response_header_t const self);
 int64_t iox_response_header_get_sequence_id(iox_response_header_t const self);
 int64_t iox_response_header_get_sequence_id_const(iox_const_response_header_t const self);
 void* iox_response_header_get_user_payload(iox_response_header_t const self);
