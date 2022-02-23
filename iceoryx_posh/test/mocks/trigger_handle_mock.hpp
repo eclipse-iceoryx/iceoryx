@@ -30,16 +30,20 @@ class MockTriggeHandle
     MockTriggeHandle(iox::popo::ConditionVariableData&,
                      const iox::cxx::MethodCallback<void, uint64_t>,
                      const uint64_t) noexcept {};
-    MockTriggeHandle() noexcept = default;
+    MockTriggeHandle() noexcept
+    {
+    }
     ~MockTriggeHandle() = default;
 
     MockTriggeHandle(const MockTriggeHandle&) = delete;
     MockTriggeHandle& operator=(const MockTriggeHandle&) = delete;
-    MockTriggeHandle(MockTriggeHandle&&) noexcept
+    MockTriggeHandle(MockTriggeHandle&& other) noexcept
+        : triggerId(other.triggerId)
     {
     }
-    MockTriggeHandle& operator=(MockTriggeHandle&&) noexcept
+    MockTriggeHandle& operator=(MockTriggeHandle&& rhs) noexcept
     {
+        triggerId = rhs.triggerId;
         return *this;
     }
 
@@ -53,8 +57,12 @@ class MockTriggeHandle
 
     explicit operator bool() const
     {
-        return true;
+        return operatorBoolMock();
     }
+
+    MOCK_METHOD(bool, operatorBoolMock, (), (const));
+
+    uint64_t triggerId{0};
 };
 
 #endif // IOX_POSH_MOCKS_TRIGGER_HANDLE_MOCK_HPP
