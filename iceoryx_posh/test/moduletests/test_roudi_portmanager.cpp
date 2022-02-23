@@ -259,20 +259,8 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 
 TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescriptionFails)
 {
-    cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
-
-    const PublisherOptions defaultPublisherOptions;
     const iox::RuntimeName_t runtimeName = "foobar";
-
-    const capro::ServiceDescription serviceRegistry{
-        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
-
-    internalServices.push_back(serviceRegistry);
-    internalServices.push_back(IntrospectionPortService);
-    internalServices.push_back(IntrospectionMempoolService);
-    internalServices.push_back(IntrospectionMempoolService);
-    internalServices.push_back(IntrospectionPortThroughputService);
-    internalServices.push_back(IntrospectionSubscriberPortChangingDataService);
+    addAllInternalPublisherToVector();
 
     for (auto& service : internalServices)
     {
@@ -283,21 +271,9 @@ TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescripti
     }
 }
 
-TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescriptionIsSuccessfull)
+TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescriptionIsSuccessful)
 {
-    cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
-
-    const PublisherOptions defaultPublisherOptions;
-
-    const capro::ServiceDescription serviceRegistry{
-        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
-
-    internalServices.push_back(serviceRegistry);
-    internalServices.push_back(IntrospectionPortService);
-    internalServices.push_back(IntrospectionMempoolService);
-    internalServices.push_back(IntrospectionMempoolService);
-    internalServices.push_back(IntrospectionPortThroughputService);
-    internalServices.push_back(IntrospectionSubscriberPortChangingDataService);
+    addAllInternalPublisherToVector();
 
     for (auto& service : internalServices)
     {
