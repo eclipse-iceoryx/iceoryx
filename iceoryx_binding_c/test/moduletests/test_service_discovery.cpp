@@ -69,7 +69,8 @@ TEST(iox_service_discovery_DeathTest, InitServiceDiscoveryWithNullptrForStorageT
 TEST_F(iox_service_discovery_test, FindServiceWithContextDataWithNullptrsForServiceInstanceEventReturnsAllServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "09a2cd6c-fba9-4b9d-af96-c5a6cc168d98");
-    iox_service_discovery_find_service_with_context_data(sut, nullptr, nullptr, nullptr, findHandler, &searchResult);
+    iox_service_discovery_find_service_with_context_data(
+        sut, nullptr, nullptr, nullptr, findHandler, &searchResult, MessagingPattern_PUB_SUB);
     for (const auto& service : searchResult)
     {
         EXPECT_THAT(service.instanceString, StrEq("RouDi_ID"));
@@ -91,7 +92,8 @@ TEST_F(iox_service_discovery_test, FindServiceWithContextDataReturnsOfferedServi
                                                          SERVICE_DESCRIPTION.instanceString,
                                                          SERVICE_DESCRIPTION.eventString,
                                                          findHandler,
-                                                         &searchResult);
+                                                         &searchResult,
+                                                         MessagingPattern_PUB_SUB);
     ASSERT_THAT(searchResult.size(), Eq(1U));
     EXPECT_THAT(*searchResult.begin()->serviceString, Eq(*SERVICE_DESCRIPTION.serviceString));
     EXPECT_THAT(*searchResult.begin()->instanceString, Eq(*SERVICE_DESCRIPTION.instanceString));
@@ -104,8 +106,14 @@ TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEven
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
-    const auto numberFoundServices = iox_service_discovery_find_service(
-        sut, nullptr, nullptr, nullptr, serviceContainer, SERVICE_CONTAINER_CAPACITY, &missedServices);
+    const auto numberFoundServices = iox_service_discovery_find_service(sut,
+                                                                        nullptr,
+                                                                        nullptr,
+                                                                        nullptr,
+                                                                        serviceContainer,
+                                                                        SERVICE_CONTAINER_CAPACITY,
+                                                                        &missedServices,
+                                                                        MessagingPattern_PUB_SUB);
 
     EXPECT_THAT(numberFoundServices, Eq(6U));
     EXPECT_THAT(missedServices, Eq(0U));
@@ -134,7 +142,8 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
                                                                         SERVICE_DESCRIPTION.eventString,
                                                                         serviceContainer,
                                                                         SERVICE_CONTAINER_CAPACITY,
-                                                                        &missedServices);
+                                                                        &missedServices,
+                                                                        MessagingPattern_PUB_SUB);
 
     EXPECT_THAT(numberFoundServices, Eq(1U));
     EXPECT_THAT(missedServices, Eq(0U));
@@ -149,8 +158,14 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhen
     const uint64_t SERVICE_CONTAINER_CAPACITY = 3U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
-    const auto numberFoundServices = iox_service_discovery_find_service(
-        sut, nullptr, nullptr, nullptr, serviceContainer, SERVICE_CONTAINER_CAPACITY, &missedServices);
+    const auto numberFoundServices = iox_service_discovery_find_service(sut,
+                                                                        nullptr,
+                                                                        nullptr,
+                                                                        nullptr,
+                                                                        serviceContainer,
+                                                                        SERVICE_CONTAINER_CAPACITY,
+                                                                        &missedServices,
+                                                                        MessagingPattern_PUB_SUB);
 
     EXPECT_THAT(numberFoundServices, Eq(SERVICE_CONTAINER_CAPACITY));
     EXPECT_THAT(missedServices, Eq(6U - SERVICE_CONTAINER_CAPACITY));

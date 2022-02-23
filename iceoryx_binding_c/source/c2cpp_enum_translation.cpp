@@ -140,4 +140,19 @@ iox::runtime::ServiceDiscoveryEvent serviceDiscoveryEvent(const iox_ServiceDisco
     return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
 }
 
+iox::popo::MessagingPattern messagingPattern(const iox_MessagingPattern value) noexcept
+{
+    switch (value)
+    {
+    case MessagingPattern_PUB_SUB:
+        return iox::popo::MessagingPattern::PUB_SUB;
+    case MessagingPattern_REQ_RES:
+        return iox::popo::MessagingPattern::REQ_RES;
+    }
+
+    iox::LogFatal() << "invalid iox_MessagingPattern value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE);
+    return iox::popo::MessagingPattern::PUB_SUB;
+}
+
 } // namespace c2cpp

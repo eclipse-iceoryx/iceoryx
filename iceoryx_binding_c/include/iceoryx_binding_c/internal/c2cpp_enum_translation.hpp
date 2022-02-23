@@ -36,6 +36,7 @@ iox::popo::ServerEvent serverEvent(const iox_ServerEvent value) noexcept;
 iox::popo::ServerState serverState(const iox_ServerState value) noexcept;
 
 iox::runtime::ServiceDiscoveryEvent serviceDiscoveryEvent(const iox_ServiceDiscoveryEvent value) noexcept;
+iox::popo::MessagingPattern messagingPattern(const iox_MessagingPattern value) noexcept;
 } // namespace c2cpp
 
 #endif

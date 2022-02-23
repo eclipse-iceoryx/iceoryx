@@ -149,4 +149,11 @@ enum iox_ServerRequestResult
     ServerRequestResult_SUCCESS
 };
 
+/// @brief used to describe the messaging pattern
+enum iox_MessagingPattern
+{
+    MessagingPattern_PUB_SUB,
+    MessagingPattern_REQ_RES
+};
+
 #endif
