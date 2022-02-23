@@ -193,6 +193,8 @@ class PortManager
     cxx::optional<RuntimeName_t>
     doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept;
 
+    bool isInternal(const capro::ServiceDescription& service) const noexcept;
+
     void publishServiceRegistry() const noexcept;
 
   private:

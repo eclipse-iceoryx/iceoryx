@@ -912,6 +912,13 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
+    if (isInternal(service))
+    {
+        errorHandler(
+            Error::kPOSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED);
+    }
+
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
         service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
@@ -1092,6 +1099,17 @@ PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noex
 {
     return m_portPool->addConditionVariableData(runtimeName);
 }
+
+bool PortManager::isInternal(const capro::ServiceDescription& service) const noexcept
+{
+    capro::ServiceDescription serviceRegistry{
+        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
+
+    return service == serviceRegistry || service == IntrospectionPortService || service == IntrospectionMempoolService
+           || service == IntrospectionMempoolService || service == IntrospectionPortThroughputService
+           || service == IntrospectionSubscriberPortChangingDataService;
+}
+
 
 } // namespace roudi
 } // namespace iox
