@@ -471,6 +471,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repea
 
 TEST_F(iox_listener_test, AttachingServerWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "80eeda1a-f147-427b-9d2e-1510b96b043e");
     iox_server_storage_t clientStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
@@ -485,6 +486,7 @@ TEST_F(iox_listener_test, AttachingServerWorks)
 }
 
 TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "0b8c6951-7682-47d2-9c2d-3d43689af144");
     iox_server_storage_t serverStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
@@ -500,6 +502,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "ae71bd2c-474b-4f39-b2d8-7959d26e7d90");
     iox_server_storage_t serverStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 

@@ -894,6 +894,7 @@ TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
 
 TEST_F(iox_ws_test, AttachingServerEventWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4e3fe5f-59a4-4cba-851d-77d4951eed72");
     iox_server_storage_t serverStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
@@ -916,6 +917,7 @@ void notifyServer(ServerPortData& portData)
 
 TEST_F(iox_ws_test, NotifyingServerEventWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "003b92c9-3607-4247-8385-3d03085fa574");
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
@@ -938,6 +940,7 @@ TEST_F(iox_ws_test, NotifyingServerEventWorks)
 
 TEST_F(iox_ws_test, NotifyingServerEventWithContextDataWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a08df13b-ad50-4753-9a1d-07b306d6f8d2");
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
@@ -961,6 +964,7 @@ TEST_F(iox_ws_test, NotifyingServerEventWithContextDataWorks)
 
 TEST_F(iox_ws_test, AttachingServerStateWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7a29c16e-f164-420e-8824-785df24ae8f3");
     iox_server_storage_t serverStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
@@ -976,6 +980,7 @@ TEST_F(iox_ws_test, AttachingServerStateWorks)
 
 TEST_F(iox_ws_test, NotifyingServerStateWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0fc37898-5aa1-416c-ab19-e64a428ad5ba");
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
@@ -998,6 +1003,7 @@ TEST_F(iox_ws_test, NotifyingServerStateWorks)
 
 TEST_F(iox_ws_test, NotifyingServerStateWithContextDataWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "29905ac6-e146-4bd8-a1d9-a0626ff0ee54");
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
