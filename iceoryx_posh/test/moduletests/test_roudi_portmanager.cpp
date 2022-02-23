@@ -257,7 +257,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     }
 }
 
-TEST_F(PortManager_test, AcquiringPublisherWithAnyInternalServiceDescriptionFails)
+TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescriptionFails)
 {
     cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
 
@@ -280,6 +280,34 @@ TEST_F(PortManager_test, AcquiringPublisherWithAnyInternalServiceDescriptionFail
             service, defaultPublisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         ASSERT_TRUE(publisherPortDataResult.has_error());
         EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED));
+    }
+}
+
+TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescriptionIsSuccessfull)
+{
+    cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
+
+    const PublisherOptions defaultPublisherOptions;
+
+    const capro::ServiceDescription serviceRegistry{
+        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
+
+    internalServices.push_back(serviceRegistry);
+    internalServices.push_back(IntrospectionPortService);
+    internalServices.push_back(IntrospectionMempoolService);
+    internalServices.push_back(IntrospectionMempoolService);
+    internalServices.push_back(IntrospectionPortThroughputService);
+    internalServices.push_back(IntrospectionSubscriberPortChangingDataService);
+
+    for (auto& service : internalServices)
+    {
+        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(service,
+                                                                               defaultPublisherOptions,
+                                                                               IPC_CHANNEL_ROUDI_NAME,
+                                                                               m_payloadDataSegmentMemoryManager,
+                                                                               PortConfigInfo());
+        ASSERT_FALSE(publisherPortDataResult.has_error());
+        EXPECT_THAT(publisherPortDataResult.value(), Ne(nullptr));
     }
 }
 
