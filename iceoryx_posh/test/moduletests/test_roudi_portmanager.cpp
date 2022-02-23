@@ -279,7 +279,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescripti
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
             service, defaultPublisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         ASSERT_TRUE(publisherPortDataResult.has_error());
-        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED));
+        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
     }
 }
 

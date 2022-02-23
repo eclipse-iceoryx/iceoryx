@@ -489,11 +489,29 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             {
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
-                /// @todo make this a switch case
-                sendBuffer << runtime::IpcMessageErrorTypeToString( // map error codes
-                    (maybePublisher.get_error() == PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS
-                         ? runtime::IpcMessageErrorType::NO_UNIQUE_CREATED
-                         : runtime::IpcMessageErrorType::PUBLISHER_LIST_FULL));
+
+                std::string error;
+                switch (maybePublisher.get_error())
+                {
+                case PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS:
+                {
+                    error = runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::NO_UNIQUE_CREATED);
+                    break;
+                }
+                case PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN:
+                {
+                    error = runtime::IpcMessageErrorTypeToString(
+                        runtime::IpcMessageErrorType::SERVICE_DESCRIPTION_IS_FORBIDDEN);
+                    break;
+                }
+                default:
+                {
+                    error = runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::PUBLISHER_LIST_FULL);
+                    break;
+                }
+                }
+                sendBuffer << error;
+
                 process->sendViaIpcChannel(sendBuffer);
                 LogError() << "Could not create PublisherPort for application '" << name
                            << "' with service description '" << service << "'";

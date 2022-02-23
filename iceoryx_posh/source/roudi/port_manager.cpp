@@ -915,8 +915,8 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
     if (isInternal(service) && runtimeName != RuntimeName_t{IPC_CHANNEL_ROUDI_NAME})
     {
         errorHandler(
-            Error::kPOSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_PROHIBITED);
+            Error::kPOSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN);
     }
 
     // we can create a new port
