@@ -72,6 +72,11 @@ iox_user_trigger_t iox_notification_info_get_user_trigger_origin(iox_notificatio
 /// @return the handle to the client if the notification originated from a client, otherwise NULL
 iox_client_t iox_notification_info_get_client_origin(iox_notification_info_t const self);
 
+/// @brief acquires the handle of the server origin
+/// @param[in] self handle to notification info
+/// @return the handle to the server if the notification originated from a server, otherwise NULL
+iox_server_t iox_notification_info_get_server_origin(iox_notification_info_t const self);
+
 /// @brief calls the callback of the notification
 /// @param[in] self handle to notification info
 void iox_notification_info_call(iox_notification_info_t const self);
