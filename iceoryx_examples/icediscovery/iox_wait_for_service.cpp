@@ -101,6 +101,7 @@ int main()
                       << "> ..." << std::endl;
 
             //! [check service availability]
+            // loop while the service is available
         } while (!discovery.findService(service, instance, event).empty());
         //! [check service availability]
 

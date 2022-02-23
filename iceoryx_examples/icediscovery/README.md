@@ -89,22 +89,29 @@ Start the applications `iox-wait-for-service` and `iox-offer-service` (in any or
 `iox-wait-for-service` uses a customized service discovery `Discovery` which supports to wait for services by including
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
+```cpp
+#include "discovery_blocking.hpp"
+```
 
 We then can use our custom discovery class
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][create custom discovery]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][create custom discovery]-->
+```cpp
+// requires the runtime to be created first
+Discovery discovery;
+```
 
 which provides a function `waitUntil` to wait for some discovery-related search query condition.
 
 We define the search query
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][define search query]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][define search query]-->
+```cpp
+auto query = [&]() {
+    auto result = discovery.findService(service, instance, event);
+    return !result.empty();
+};
+```
 
 This is essentially any callable with `bool(void)` signature, but it should depend on the discovery somehow (by capture),
 as it is only checked when the service availability changes in some way. Here we require some specific service to be found
@@ -112,8 +119,10 @@ before we proceed.
 
 Now we can wait until the service discovery changes and the services becomes available.
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until service was available]-->
+```cpp
+bool serviceWasAvailable = discovery.waitUntil(query);
+```
 
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until service was available]-->
 This wait is blocking until the service was available. If it already is available we do not block and proceed.
 It is important that due to the nature of concurrent systems we cannot know that the service is still available
 once we return from `waitUntil`, as the application offering the service may have stopped doing so in the meantime.
@@ -123,8 +132,9 @@ application specific code.
 
 We can also block until any unspecified change in the service availability occurs
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until discovery changes]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until discovery changes]-->
+```cpp
+discovery.waitUntilChange();
+```
 
 This change is relative to the last `findService` call we issued, i.e. if something changed compared to
 the available services at this point, we wake up and continue.
@@ -132,8 +142,10 @@ the available services at this point, we wake up and continue.
 We then can check any condition we like, but usually it will be most useful to again check discovery-related conditions.
 Here we check whether a particular service becomes unavailable (essentially the negation of our query before)
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][check service availability]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][check service availability]-->
+```cpp
+// loop while the service is available
+        } while (!discovery.findService(service, instance, event).empty());
+```
 
 Note that we use a customized `findService` version which returns a result container which can easily be build
 using the version which takes a function to be applied to all services in the search result.
@@ -143,8 +155,12 @@ Once the service becomes unavailable, the application exits.
 Should the service we wait for never become available we can unblock any of the wait calls with
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][unblock wait]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][unblock wait]-->
+```cpp
+if (discoveryPtr)
+{
+    discoveryPtr->unblockWait();
+}
+```
 
 ### Monitor service availability
 
@@ -154,20 +170,37 @@ To do so, we start the applications `iox-discovery-monitor` and `iox-offer-servi
 Again we can use a service discovery `Discovery` customized for this purpose by including
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][include custom discovery]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][include custom discovery]-->
+```cpp
+#include "discovery_monitor.hpp"
+```
 
 and creating it like so
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create custom discovery]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create custom discovery]-->
+```cpp
+// requires the runtime to be created first
+Discovery discovery;
+```
 
 Afterwards we create a callback to be called whenever the service availability changes.
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create monitoring callback]-->
+```cpp
+auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
+    auto result = discovery.findService(service, instance, event);
 
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create monitoring callback]-->
+    if (!result.empty())
+    {
+        std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> available" << std::endl;
+    }
+    else
+    {
+        std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> unavailable"
+                  << std::endl;
+    }
+    printSearchResult(result);
+};
+```
 
 This callback essentially checks whether a specific service is available or unavailable and generates output accordingly.
 Other reactions are possible as well, such as changing the processing logic of an pplication.
@@ -175,16 +208,18 @@ Other reactions are possible as well, such as changing the processing logic of a
 To start the monitoring, we register the callback
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][register callback]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][register callback]-->
+```cpp
+discovery.registerCallback(callback);
+```
 
 Monitoring happens in a background thread implicitly created by the `Discovery`, i.e. the callback is executed in this thread.
 
 When we want to stop monitoring we have to deregister the callback
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][deregister callback]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][deregister callback]-->
+```cpp
+discovery.deregisterCallback();
+```
 
 Here this is done at the very end where it is technically not required, but in a more complex application it could be done
 while the application is processing data. The main processing loop of the application is deliberately left empty for simplicty.
@@ -200,28 +235,69 @@ We build our custom discovery on top of the `iox::runtime::ServiceDiscovery` by 
 composition has the advantage that we can use `ServiceDiscovery` as a singleton.
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][service discovery singleton]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][service discovery singleton]-->
+```cpp
+ServiceDiscovery& serviceDiscovery()
+{
+    static ServiceDiscovery instance;
+    return instance;
+}
+```
 
 This is useful as the `ServiceDiscovery` may be fairly large and in general there is no point in having multiple `ServiceDiscovery` objects that all have the same purpose and (if updated) same view of the available services.
 
 The key idea is to use a waitset and attach to the event that the service availability changes
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][attach waitset]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][attach waitset]-->
+```cpp
+m_waitset.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED)
+    .or_else(errorHandler);
+```
 
 Waiting for any availability change is now as simple as waiting on the waitset
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][wait until change]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][wait until change]-->
+```cpp
+void Discovery::waitUntilChange()
+{
+    m_waitset.wait();
+}
+```
 
 If we want to wait for a specific condition, we can do so with
 
 <!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_blocking.hpp][wait until condition]-->
+```cpp
+template <typename Condition>
+bool Discovery::waitUntil(const Condition& condition)
+{
+    do
+    {
+        // 1) does the condition hold?
+        bool result = condition();
+        if (result)
+        {
+            // 2) condition held and we return (without mutex to protect condition changes
+            // there is no way to guarantee it still holds)
+            return true;
+        }
+        else
+        {
+            if (!m_blocking)
+            {
+                return false;
+            }
+        }
+        // 3) condition did not hold but it may hold if we use the latest discovery data
+        //    which may have arrived in the meantime
 
-<!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_blocking.hpp][wait until condition]-->
+        // 4) this does not wait if there is new discovery data (and hence we try again immediately)
+        waitUntilChange();
+        // 5) discovery data changed, check condition again (even if unblocked)
+    } while (true);
+
+    return false;
+}
+```
 
 The  condition needs to be evaluable to `bool` and takes no arguments. While this can be generalized to any variadic arguments,
 it is not needed as we can use capturing lambda expressions. The wait simply checks for the condition, and if true returns
@@ -230,18 +306,85 @@ immediately. Otherwise it waits until the available services change using `waitU
 It is also possible to unblock any of the waits even if nothing changes or the condition does not hold
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][unblock wait]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][unblock wait]-->
+```cpp
+void Discovery::unblockWait()
+{
+    m_blocking = false;
+    // could also unblock with a dedicated condition to break the wait but that requires more code
+    // and is not necessary if it is only supposed to happen once
+    m_waitset.markForDestruction();
+}
+```
 
 This is can only be called once and makes all future wait calls non-blocking. It is useful to unblock any wait calls to be able to stop the application.
 
 Finally we provide a custom implementation of `findService` which returns a container of our choice, in this case a `std::vector`.
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][findService]-->
-
-<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][findService]-->
+```cpp
+ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
+                                        const iox::cxx::optional<iox::capro::IdString_t>& instance,
+                                        const iox::cxx::optional<iox::capro::IdString_t>& event)
+{
+    ServiceContainer result;
+    auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };
+    m_discovery->findService(service, instance, event, filter);
+    return result;
+}
+```
 
 It is implemenented by using the native `findService` call of the `ServiceDiscovery` with an appropriate filter function.
 The benefit is that this way we can choose containers which do not necessrily reside on the stack.
 
 ### Implemtation of Discovery monitoring
+
+To implement a `Discovery` where we actively monitor availability of services we employ a listener. Contrary to the blocking solution
+this does not block the usr threads and executes any callback in a background thread created by the listener.
+The callback will be executed on any change of the available services.
+
+To register the callback we call
+<!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_monitor.hpp][registerCallback]-->
+```cpp
+template <typename Callback>
+bool Discovery::registerCallback(Callback callback)
+```
+
+which attaches the callback to the listener.
+
+<!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_monitor.hpp][attach listener]-->
+```cpp
+auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
+m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
+    .or_else(errorHandler);
+```
+
+The callback is stored as a `cxx::function` which does not require dynamic memory (but limits the size of the stored function, which is relvant e.g. for capturing lambdas).
+If dynamic memory s no concern we can also use a `std::function`. The callback can be any callable with a `(void)(iox::runtime::ServiceDiscovery& discovery)` signature. Again the callback signature can be generalized somewhat but there are constraints to use it with the listener. Since the listener can only call static or free functions, we use an additional indirection to call the actual callback
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_monitor.cpp][invokeCallback]-->
+```cpp
+void Discovery::invokeCallback(ServiceDiscovery* discovery, Discovery* self)
+{
+    self->m_callback(*discovery);
+}
+```
+
+As soon as the callback is registered, the listener thread will invoke it on any service availability change. There is a small caveat though that while callback is called on any change, we can only access the latest discovery information by e.g. calling `findService`. This means all intermediate changes cannot be detected, in particular we might encounter an ABA problem of service availabilty: the service is availalable, becomes unavailable and available again in quick succession. If the callback issues a `findService`, it will not observe any change in this case. As one is usually mainly interested in the available services this can be considered a minor limitation.
+
+To stop monitoring changes in the availability of services we simply call
+
+<!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_monitor.cpp][deregisterCallback]-->
+```cpp
+void Discovery::deregisterCallback()
+{
+    if (m_callback)
+    {
+        m_listener.detachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
+    }
+    m_callback = nullptr;
+}
+```
+
+which detaches the callback from the listener.
+
+As before we built on an `iox::runtime::ServiceDiscovery` by composition and define a custom`findService` function which returns a `std::vector`.

@@ -70,8 +70,10 @@ class Discovery
     static void invokeCallback(ServiceDiscovery* discovery, Discovery* self);
 };
 
+//! [registerCallback]
 template <typename Callback>
 bool Discovery::registerCallback(Callback callback)
+//! [registerCallback]
 {
     if (m_callback)
     {
@@ -79,15 +81,16 @@ bool Discovery::registerCallback(Callback callback)
     }
 
     m_callback = callback;
-
     auto errorHandler = [](auto) {
         std::cerr << "failed to attach to listener" << std::endl;
         std::exit(EXIT_FAILURE);
     };
 
+    //! [attach listener]
     auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
     m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
         .or_else(errorHandler);
+    //! [attach listener]
 
     return true;
 }

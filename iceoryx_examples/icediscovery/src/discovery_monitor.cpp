@@ -29,6 +29,7 @@ Discovery::Discovery()
 {
 }
 
+//! [deregisterCallback]
 void Discovery::deregisterCallback()
 {
     if (m_callback)
@@ -37,6 +38,7 @@ void Discovery::deregisterCallback()
     }
     m_callback = nullptr;
 }
+//! [deregisterCallback]
 
 ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
                                         const iox::cxx::optional<iox::capro::IdString_t>& instance,
@@ -48,9 +50,11 @@ ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdS
     return result;
 }
 
+//! [invokeCallback]
 void Discovery::invokeCallback(ServiceDiscovery* discovery, Discovery* self)
 {
     self->m_callback(*discovery);
 }
+//! [invokeCallback]
 
 } // namespace discovery
