@@ -83,7 +83,7 @@ enum class ServerEvent : EventEnumIdentifier
     REQUEST_RECEIVED
 };
 
-enum class ServerState : EventEnumIdentifier
+enum class ServerState : StateEnumIdentifier
 {
     HAS_REQUEST
 };

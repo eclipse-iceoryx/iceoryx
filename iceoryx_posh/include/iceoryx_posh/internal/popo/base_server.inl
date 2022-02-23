@@ -24,75 +24,75 @@ namespace iox
 {
 namespace popo
 {
-template <typename Port>
-inline BaseServer<Port>::BaseServer(const capro::ServiceDescription& service,
-                                    const ServerOptions& serverOptions) noexcept
+template <typename PortT, typename TriggerHandleT>
+inline BaseServer<PortT, TriggerHandleT>::BaseServer(const capro::ServiceDescription& service,
+                                                     const ServerOptions& serverOptions) noexcept
     : m_port(*iox::runtime::PoshRuntime::getInstance().getMiddlewareServer(service, serverOptions))
 {
 }
 
-template <typename Port>
-inline BaseServer<Port>::~BaseServer() noexcept
+template <typename PortT, typename TriggerHandleT>
+inline BaseServer<PortT, TriggerHandleT>::~BaseServer() noexcept
 {
     m_port.destroy();
 }
 
-template <typename Port>
-inline uid_t BaseServer<Port>::getUid() const noexcept
+template <typename PortT, typename TriggerHandleT>
+inline uid_t BaseServer<PortT, TriggerHandleT>::getUid() const noexcept
 {
     return m_port.getUniqueID();
 }
 
-template <typename Port>
-inline const capro::ServiceDescription& BaseServer<Port>::getServiceDescription() const noexcept
+template <typename PortT, typename TriggerHandleT>
+inline const capro::ServiceDescription& BaseServer<PortT, TriggerHandleT>::getServiceDescription() const noexcept
 {
     return m_port.getCaProServiceDescription();
 }
 
-template <typename Port>
-inline void BaseServer<Port>::offer() noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::offer() noexcept
 {
     m_port.offer();
 }
 
-template <typename Port>
-inline void BaseServer<Port>::stopOffer() noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::stopOffer() noexcept
 {
     m_port.stopOffer();
 }
 
-template <typename Port>
-inline bool BaseServer<Port>::isOffered() const noexcept
+template <typename PortT, typename TriggerHandleT>
+inline bool BaseServer<PortT, TriggerHandleT>::isOffered() const noexcept
 {
     return m_port.isOffered();
 }
 
-template <typename Port>
-inline bool BaseServer<Port>::hasClients() const noexcept
+template <typename PortT, typename TriggerHandleT>
+inline bool BaseServer<PortT, TriggerHandleT>::hasClients() const noexcept
 {
     return m_port.hasClients();
 }
 
-template <typename Port>
-inline bool BaseServer<Port>::hasRequests() const noexcept
+template <typename PortT, typename TriggerHandleT>
+inline bool BaseServer<PortT, TriggerHandleT>::hasRequests() const noexcept
 {
     return m_port.hasNewRequests();
 }
 
-template <typename Port>
-inline bool BaseServer<Port>::hasMissedRequests() noexcept
+template <typename PortT, typename TriggerHandleT>
+inline bool BaseServer<PortT, TriggerHandleT>::hasMissedRequests() noexcept
 {
     return m_port.hasLostRequestsSinceLastCall();
 }
 
-template <typename Port>
-inline void BaseServer<Port>::releaseQueuedRequests() noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::releaseQueuedRequests() noexcept
 {
     m_port.releaseQueuedRequests();
 }
 
-template <typename Port>
-inline void BaseServer<Port>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
@@ -101,9 +101,9 @@ inline void BaseServer<Port>::invalidateTrigger(const uint64_t uniqueTriggerId) 
     }
 }
 
-template <typename Port>
-inline void BaseServer<Port>::enableState(iox::popo::TriggerHandle&& triggerHandle,
-                                          const ServerState serverState) noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::enableState(TriggerHandleT&& triggerHandle,
+                                                           const ServerState serverState) noexcept
 {
     switch (serverState)
     {
@@ -126,9 +126,9 @@ inline void BaseServer<Port>::enableState(iox::popo::TriggerHandle&& triggerHand
     }
 }
 
-template <typename Port>
+template <typename PortT, typename TriggerHandleT>
 inline WaitSetIsConditionSatisfiedCallback
-BaseServer<Port>::getCallbackForIsStateConditionSatisfied(const ServerState serverState) const noexcept
+BaseServer<PortT, TriggerHandleT>::getCallbackForIsStateConditionSatisfied(const ServerState serverState) const noexcept
 {
     switch (serverState)
     {
@@ -138,8 +138,8 @@ BaseServer<Port>::getCallbackForIsStateConditionSatisfied(const ServerState serv
     return {};
 }
 
-template <typename Port>
-inline void BaseServer<Port>::disableState(const ServerState serverState) noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::disableState(const ServerState serverState) noexcept
 {
     switch (serverState)
     {
@@ -150,9 +150,9 @@ inline void BaseServer<Port>::disableState(const ServerState serverState) noexce
     }
 }
 
-template <typename Port>
-inline void BaseServer<Port>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
-                                          const ServerEvent serverEvent) noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& triggerHandle,
+                                                           const ServerEvent serverEvent) noexcept
 {
     switch (serverEvent)
     {
@@ -175,8 +175,8 @@ inline void BaseServer<Port>::enableEvent(iox::popo::TriggerHandle&& triggerHand
     }
 }
 
-template <typename Port>
-inline void BaseServer<Port>::disableEvent(const ServerEvent serverEvent) noexcept
+template <typename PortT, typename TriggerHandleT>
+inline void BaseServer<PortT, TriggerHandleT>::disableEvent(const ServerEvent serverEvent) noexcept
 {
     switch (serverEvent)
     {
@@ -187,14 +187,14 @@ inline void BaseServer<Port>::disableEvent(const ServerEvent serverEvent) noexce
     }
 }
 
-template <typename Port>
-const Port& BaseServer<Port>::port() const noexcept
+template <typename PortT, typename TriggerHandleT>
+const PortT& BaseServer<PortT, TriggerHandleT>::port() const noexcept
 {
     return m_port;
 }
 
-template <typename Port>
-Port& BaseServer<Port>::port() noexcept
+template <typename PortT, typename TriggerHandleT>
+PortT& BaseServer<PortT, TriggerHandleT>::port() noexcept
 {
     return m_port;
 }

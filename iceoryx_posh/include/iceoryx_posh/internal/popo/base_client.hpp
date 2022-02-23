@@ -32,8 +32,9 @@ namespace popo
 using uid_t = UniquePortId;
 
 /// @brief The BaseClient class contains the common implementation for the different clients
-/// @param[in] Port type of the underlying port, required for testing
-template <typename Port = ClientPortUser>
+/// @param[in] PortT type of the underlying port, required for testing
+/// @param[in] TriggerHandleT type of the underlying trigger handle, required for testing
+template <typename PortT = ClientPortUser, typename TriggerHandleT = TriggerHandle>
 class BaseClient
 {
   public:
@@ -91,8 +92,8 @@ class BaseClient
     friend class NotificationAttorney;
 
   protected:
-    using SelfType = BaseClient<Port>;
-    using PortType = Port;
+    using SelfType = BaseClient<PortT>;
+    using PortType = PortT;
 
     BaseClient(const capro::ServiceDescription& service, const ClientOptions& clientOptions) noexcept;
 
@@ -104,7 +105,7 @@ class BaseClient
     /// trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] clientState the state which should be attached
-    void enableState(iox::popo::TriggerHandle&& triggerHandle, const ClientState clientState) noexcept;
+    void enableState(TriggerHandleT&& triggerHandle, const ClientState clientState) noexcept;
 
     /// @brief Only usable by the WaitSet/Listener, not for public use. Returns method pointer to the event
     /// corresponding hasTriggered method callback
@@ -120,7 +121,7 @@ class BaseClient
     /// trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] clientEvent the event which should be attached
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const ClientEvent clientEvent) noexcept;
+    void enableEvent(TriggerHandleT&& triggerHandle, const ClientEvent clientEvent) noexcept;
 
     /// @brief Only usable by the WaitSet/Listener, not for public use. Resets the internal triggerHandle
     /// @param[in] clientEvent the event which should be detached
@@ -129,16 +130,16 @@ class BaseClient
     ///
     /// @brief const accessor of the underlying port
     ///
-    const Port& port() const noexcept;
+    const PortT& port() const noexcept;
 
     ///
     /// @brief accessor of the underlying port
     ///
-    Port& port() noexcept;
+    PortT& port() noexcept;
 
   protected:
-    Port m_port;             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    TriggerHandle m_trigger; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    PortT m_port;             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    TriggerHandleT m_trigger; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 };
 } // namespace popo
 } // namespace iox

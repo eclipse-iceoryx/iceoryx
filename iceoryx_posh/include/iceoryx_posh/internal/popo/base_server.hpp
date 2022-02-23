@@ -32,8 +32,9 @@ namespace popo
 using uid_t = UniquePortId;
 
 /// @brief The BaseServer class contains the common implementation for the different server
-/// @param[in] Port type of the underlying port, required for testing specializations.
-template <typename Port = ServerPortUser>
+/// @param[in] PortT type of the underlying port, required for testing specializations.
+/// @param[in] TriggerHandleT type of the underlying trigger handle, required for testing
+template <typename PortT = ServerPortUser, typename TriggerHandleT = TriggerHandle>
 class BaseServer
 {
   public:
@@ -97,8 +98,8 @@ class BaseServer
     friend class NotificationAttorney;
 
   protected:
-    using SelfType = BaseServer<Port>;
-    using PortType = Port;
+    using SelfType = BaseServer<PortT>;
+    using PortType = PortT;
 
     BaseServer(const capro::ServiceDescription& service, const ServerOptions& serverOptions) noexcept;
 
@@ -110,7 +111,7 @@ class BaseServer
     /// trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] serverState the state which should be attached
-    void enableState(iox::popo::TriggerHandle&& triggerHandle, const ServerState serverState) noexcept;
+    void enableState(TriggerHandleT&& triggerHandle, const ServerState serverState) noexcept;
 
     /// @brief Only usable by the WaitSet/Listener, not for public use. Returns method pointer to the event
     /// corresponding hasTriggered method callback
@@ -126,7 +127,7 @@ class BaseServer
     /// trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] serverEvent the event which should be attached
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const ServerEvent serverEvent) noexcept;
+    void enableEvent(TriggerHandleT&& triggerHandle, const ServerEvent serverEvent) noexcept;
 
     /// @brief Only usable by the WaitSet/Listener, not for public use. Resets the internal triggerHandle
     /// @param[in] serverEvent the event which should be detached
@@ -136,15 +137,15 @@ class BaseServer
     /// @brief port
     /// @return const accessor of the underlying port
     ///
-    const Port& port() const noexcept;
+    const PortT& port() const noexcept;
 
     ///
     /// @brief port
     /// @return accessor of the underlying port
     ///
-    Port& port() noexcept;
+    PortT& port() noexcept;
 
-    Port m_port;             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    PortT m_port;            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     TriggerHandle m_trigger; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 };
 

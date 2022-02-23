@@ -516,7 +516,10 @@ void PortManager::handleConditionVariables() noexcept
 bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
                                      const SubscriberPortType& subscriber) const noexcept
 {
-    const bool servicesMatch = subscriber.getCaProServiceDescription() == publisher.getCaProServiceDescription();
+    if (subscriber.getCaProServiceDescription() != publisher.getCaProServiceDescription())
+    {
+        return false;
+    }
 
     auto& pubOpts = publisher.getOptions();
     auto& subOpts = subscriber.getOptions();
@@ -528,7 +531,7 @@ bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
     const bool historyRequestIsCompatible =
         !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;
 
-    return servicesMatch && blockingPoliciesAreCompatible && historyRequestIsCompatible;
+    return blockingPoliciesAreCompatible && historyRequestIsCompatible;
 }
 
 bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
@@ -622,6 +625,11 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
 bool PortManager::isCompatibleClientServer(const popo::ServerPortRouDi& server,
                                            const popo::ClientPortRouDi& client) const noexcept
 {
+    if (server.getCaProServiceDescription() != client.getCaProServiceDescription())
+    {
+        return false;
+    }
+
     auto requestMatch = !(client.getServerTooSlowPolicy() == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
                           && server.getRequestQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PRODUCER);
 
@@ -637,8 +645,7 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
     for (auto clientPortData : m_portPool->getClientPortDataList())
     {
         popo::ClientPortRouDi clientPort(*clientPortData);
-        if (clientPort.getCaProServiceDescription() == serverSource.getCaProServiceDescription()
-            && isCompatibleClientServer(serverSource, clientPort))
+        if (isCompatibleClientServer(serverSource, clientPort))
         {
             // send OFFER/STOP_OFFER to client
             auto clientResponse = clientPort.dispatchCaProMessageAndGetPossibleResponse(message);
@@ -675,8 +682,7 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
     for (auto serverPortData : m_portPool->getServerPortDataList())
     {
         popo::ServerPortRouDi serverPort(*serverPortData);
-        if (clientSource.getCaProServiceDescription() == serverPort.getCaProServiceDescription()
-            && isCompatibleClientServer(serverPort, clientSource))
+        if (isCompatibleClientServer(serverPort, clientSource))
         {
             // send CONNECT/DISCONNECT to server
             auto serverResponse = serverPort.dispatchCaProMessageAndGetPossibleResponse(message);
