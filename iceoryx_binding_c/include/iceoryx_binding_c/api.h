@@ -28,6 +28,8 @@
 #include "node.h"
 #include "notification_info.h"
 #include "publisher.h"
+#include "request_header.h"
+#include "response_header.h"
 #include "runtime.h"
 #include "server.h"
 #include "service_description.h"
