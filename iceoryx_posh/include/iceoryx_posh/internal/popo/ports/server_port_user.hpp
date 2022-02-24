@@ -62,11 +62,18 @@ namespace cxx
 {
 template <>
 constexpr popo::ServerRequestResult
-from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult result) noexcept;
+from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value) noexcept;
 } // namespace cxx
 
 namespace popo
 {
+enum class ServerSendError
+{
+    NOT_OFFERING,
+    CLIENT_NOT_AVAILABLE,
+    INVALID_RESPONSE,
+};
+
 /// @brief The ServerPortUser provides the API for accessing a server port from the user side. The server port
 /// is divided in the three parts ServerPortData, ServerPortRouDi and ServerPortUser. The ServerPortUser
 /// uses the functionality of a ChunkSender and ChunReceiver for receiving requests and sending responses.
@@ -123,9 +130,8 @@ class ServerPortUser : public BasePort
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
-    /// @todo iox-#27 change signature to return the responseHeader if an error or overflow occurs
-    ///       in order to be able to return the overflow value, some changes in lower layers are necessary
-    void sendResponse(ResponseHeader* const responseHeader) noexcept;
+    /// @return ServerSendError if sending was not successful
+    cxx::expected<ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief offer this server port in the system
     void offer() noexcept;
