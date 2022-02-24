@@ -44,7 +44,8 @@ enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
 class ServiceDiscovery
 {
   public:
-    ServiceDiscovery() = default;
+    ServiceDiscovery() noexcept;
+
     ServiceDiscovery(const ServiceDiscovery&) = delete;
     ServiceDiscovery& operator=(const ServiceDiscovery&) = delete;
     ServiceDiscovery(ServiceDiscovery&&) = delete;

@@ -21,6 +21,10 @@ namespace iox
 {
 namespace runtime
 {
+ServiceDiscovery::ServiceDiscovery() noexcept
+{
+}
+
 void ServiceDiscovery::update()
 {
     // allows us to use update and hence findService concurrently
