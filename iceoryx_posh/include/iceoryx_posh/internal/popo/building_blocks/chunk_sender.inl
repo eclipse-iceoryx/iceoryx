@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
 
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -177,18 +179,21 @@ inline void ChunkSender<ChunkSenderDataType>::release(const mepoo::ChunkHeader* 
 }
 
 template <typename ChunkSenderDataType>
-inline void ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chunkHeader) noexcept
+inline uint64_t ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
+    uint64_t numberOfReceiverTheChunkWasDelivered{0};
     mepoo::SharedChunk chunk(nullptr);
     // BEGIN of critical section, chunk will be lost if the process terminates in this section
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
-        this->deliverToAllStoredQueues(chunk);
+        numberOfReceiverTheChunkWasDelivered = this->deliverToAllStoredQueues(chunk);
 
         getMembers()->m_lastChunkUnmanaged.releaseToSharedChunk();
         getMembers()->m_lastChunkUnmanaged = chunk;
     }
     // END of critical section
+
+    return numberOfReceiverTheChunkWasDelivered;
 }
 
 template <typename ChunkSenderDataType>

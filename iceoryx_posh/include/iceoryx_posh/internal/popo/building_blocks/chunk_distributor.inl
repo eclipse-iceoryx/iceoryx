@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 
 namespace iox
 {
@@ -131,8 +133,9 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const 
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
+inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
+    uint64_t numberOfQueuesTheChunkWasDelivered{0U};
     typename ChunkDistributorDataType::QueueContainer_t remainingQueues;
     {
         typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -143,7 +146,11 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
         {
             bool isBlockingQueue = (willWaitForConsumer && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PRODUCER);
 
-            if (!pushToQueue(queue.get(), chunk))
+            if (pushToQueue(queue.get(), chunk))
+            {
+                ++numberOfQueuesTheChunkWasDelivered;
+            }
+            else
             {
                 if (isBlockingQueue)
                 {
@@ -184,6 +191,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
                 if (pushToQueue(remainingQueues[i].get(), chunk))
                 {
                     remainingQueues.erase(remainingQueues.begin() + i);
+                    ++numberOfQueuesTheChunkWasDelivered;
                 }
 
                 // don't move this up since the for loop counts downwards and the algorithm would break
@@ -196,6 +204,8 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
     }
 
     addToHistoryWithoutDelivery(chunk);
+
+    return numberOfQueuesTheChunkWasDelivered;
 }
 
 template <typename ChunkDistributorDataType>

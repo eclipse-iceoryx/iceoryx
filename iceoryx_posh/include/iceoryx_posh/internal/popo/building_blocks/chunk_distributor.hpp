@@ -81,7 +81,7 @@ class ChunkDistributor
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
     cxx::expected<ChunkDistributorError> tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                     const uint64_t requestedHistory = 0u) noexcept;
+                                                     const uint64_t requestedHistory = 0U) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] queueToRemove is the queue to remove from the list
@@ -98,7 +98,8 @@ class ChunkDistributor
     /// @brief Deliver the provided shared chunk to all the stored chunk queues. The chunk will be added to the chunk
     /// history
     /// @param[in] chunk is the SharedChunk to be delivered
-    void deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept;
+    /// @return the number of queues the chunk was delivered to
+    uint64_t deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Deliver the provided shared chunk to the chunk queue with the provided ID. The chunk will NOT be added
     /// to the chunk history
