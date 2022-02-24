@@ -21,6 +21,7 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/server.h"
+#include "iceoryx_binding_c/service_discovery.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
@@ -174,4 +175,40 @@ ENUM iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_l
 void iox_listener_detach_server_event(iox_listener_t const self,
                                       iox_server_t const server,
                                       const ENUM iox_ServerEvent serverEvent);
+
+/// @brief Attaches a service discovery event to the listener
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] serviceDiscovery service discovery which emits the event
+/// @param[in] serviceDiscoveryEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult
+iox_listener_attach_service_discovery_event(iox_listener_t const self,
+                                            iox_service_discovery_t const serviceDiscovery,
+                                            const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                            void (*callback)(iox_service_discovery_t));
+
+/// @brief Attaches a service discovery event to the listener. The callback has an additional contextData argument to
+/// provide access to user defined data.
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] serviceDiscovery service discovery which emits the event
+/// @param[in] serviceDiscoveryEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data(
+    iox_listener_t const self,
+    iox_service_discovery_t const serviceDiscovery,
+    const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+    void (*callback)(iox_service_discovery_t, void*),
+    void* const contextData);
+
+/// @brief Detaches a service discovery event from the listener
+/// @param[in] self listener from which the event should be detached
+/// @param[in] serviceDiscovery the service discovery which emits the event
+/// @param[in] serviceDiscoveryEvent the service discovery event which should be removed from the listener
+void iox_listener_detach_service_discovery_event(iox_listener_t const self,
+                                                 iox_service_discovery_t const serviceDiscovery,
+                                                 const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent);
+
 #endif

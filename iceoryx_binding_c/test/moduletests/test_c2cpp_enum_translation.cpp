@@ -327,4 +327,84 @@ TEST(c2cpp_enum_translation_test, ServerEvent)
 #endif
 #pragma GCC diagnostic pop
 }
+
+TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9eb978fa-8fa9-452f-b0e3-cb26c0cecfbf");
+    constexpr EnumMapping<iox::runtime::ServiceDiscoveryEvent, iox_ServiceDiscoveryEvent> EVENTS[]{
+        {iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED,
+         ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED}};
+
+    for (const auto event : EVENTS)
+    {
+        switch (event.cpp)
+        {
+        case iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED:
+            EXPECT_EQ(c2cpp::serviceDiscoveryEvent(event.c), event.cpp);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
+
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+// ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
+// which is tested and handled here
+// explicitly commented out since we are testing undefined behavior here and that we
+// return the default value SERVICE_REGISTRY_CHANGED always in the undefined behavior case
+// the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
+#if !defined(__clang__)
+    iox::Error errorValue = iox::Error::kNO_ERROR;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
+    EXPECT_EQ(c2cpp::serviceDiscoveryEvent(static_cast<iox_ServiceDiscoveryEvent>(-1)),
+              iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
+    EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE));
+#endif
+#pragma GCC diagnostic pop
+}
+
+TEST(c2cpp_enum_translation_test, MessagingPattern)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "934d1fa5-e345-4a3b-9730-5467ec03c281");
+    constexpr EnumMapping<iox::popo::MessagingPattern, iox_MessagingPattern> VALUE[]{
+        {iox::popo::MessagingPattern::PUB_SUB, MessagingPattern_PUB_SUB},
+        {iox::popo::MessagingPattern::REQ_RES, MessagingPattern_REQ_RES},
+    };
+
+    for (const auto value : VALUE)
+    {
+        switch (value.cpp)
+        {
+        case iox::popo::MessagingPattern::PUB_SUB:
+            EXPECT_EQ(c2cpp::messagingPattern(value.c), value.cpp);
+            break;
+        case iox::popo::MessagingPattern::REQ_RES:
+            EXPECT_EQ(c2cpp::messagingPattern(value.c), value.cpp);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
+
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+// ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
+// which is tested and handled here
+// explicitly commented out since we are testing undefined behavior here and that we
+// return the default value PUB_SUB always in the undefined behavior case
+// the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
+#if !defined(__clang__)
+    iox::Error errorValue = iox::Error::kNO_ERROR;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
+    EXPECT_EQ(c2cpp::messagingPattern(static_cast<iox_MessagingPattern>(-1)), iox::popo::MessagingPattern::PUB_SUB);
+    EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE));
+#endif
+#pragma GCC diagnostic pop
+}
+
 } // namespace

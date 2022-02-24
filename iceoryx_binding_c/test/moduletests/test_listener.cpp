@@ -30,6 +30,7 @@ using namespace iox;
 using namespace iox::popo;
 using namespace iox::posix;
 using namespace iox::mepoo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/client.h"
@@ -52,6 +53,7 @@ iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
 iox_client_t g_clientCallbackArgument = nullptr;
 iox_server_t g_serverCallbackArgument = nullptr;
+iox_service_discovery_t g_serviceDiscoveryCallbackArgument = nullptr;
 void* g_contextData = nullptr;
 
 void userTriggerCallback(iox_user_trigger_t userTrigger)
@@ -98,6 +100,17 @@ void serverCallbackWithContextData(iox_server_t server, void* const contextData)
     g_contextData = contextData;
 }
 
+void serviceDiscoveryCallback(iox_service_discovery_t serviceDiscovery)
+{
+    g_serviceDiscoveryCallbackArgument = serviceDiscovery;
+}
+
+void serviceDiscoveryCallbackWithContextData(iox_service_discovery_t serviceDiscovery, void* const contextData)
+{
+    g_serviceDiscoveryCallbackArgument = serviceDiscovery;
+    g_contextData = contextData;
+}
+
 class iox_listener_test : public Test
 {
   public:
@@ -115,6 +128,7 @@ class iox_listener_test : public Test
         g_userTriggerCallbackArgument = nullptr;
         g_subscriberCallbackArgument = nullptr;
         g_clientCallbackArgument = nullptr;
+        g_serviceDiscoveryCallbackArgument = nullptr;
         g_contextData = nullptr;
 
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
@@ -543,5 +557,97 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repea
 //////////////////////
 /// END server tests
 //////////////////////
+
+TEST_F(iox_listener_test, AttachingServiceDiscoveryWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "75fd4e6f-ee2f-4e28-a2d8-8a0f01dbd91c");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    iox_listener_attach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, &serviceDiscoveryCallback);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+
+    iox_listener_detach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+
+    iox_service_discovery_deinit(serviceDiscovery);
+}
+
+TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2d7cbe60-bda1-4191-b2d5-d67c47312a48");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    iox_listener_attach_service_discovery_event_with_context_data(&m_sut,
+                                                                  serviceDiscovery,
+                                                                  ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
+                                                                  &serviceDiscoveryCallbackWithContextData,
+                                                                  &serviceDiscoveryStorage);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+
+    iox_listener_detach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+
+    iox_service_discovery_deinit(serviceDiscovery);
+}
+
+void notifyServiceDiscovery(SubscriberPortData& portData)
+{
+    ConditionNotifier(*portData.m_chunkReceiverData.m_conditionVariableDataPtr, 0).notify();
+}
+
+TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "538a50bc-60c8-4485-b70e-59d0c53f618b");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+
+    iox_listener_attach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, &serviceDiscoveryCallback);
+
+    notifyServiceDiscovery(m_subscriberPortData[0]);
+    std::this_thread::sleep_for(TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(g_serviceDiscoveryCallbackArgument == serviceDiscovery);
+
+    iox_listener_detach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+
+    iox_service_discovery_deinit(serviceDiscovery);
+});
+
+TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWithContextDataWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "257c27a5-95c6-489d-919f-125471b399e8");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+
+    iox_listener_attach_service_discovery_event_with_context_data(&m_sut,
+                                                                  serviceDiscovery,
+                                                                  ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
+                                                                  &serviceDiscoveryCallbackWithContextData,
+                                                                  &serviceDiscoveryStorage);
+
+    notifyServiceDiscovery(m_subscriberPortData[0]);
+    std::this_thread::sleep_for(TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(g_serviceDiscoveryCallbackArgument == serviceDiscovery);
+    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&serviceDiscoveryStorage));
+
+    iox_listener_detach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+
+    iox_service_discovery_deinit(serviceDiscovery);
+});
 
 } // namespace

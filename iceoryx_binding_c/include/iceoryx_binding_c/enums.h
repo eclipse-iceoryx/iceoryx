@@ -84,6 +84,12 @@ enum iox_ChunkReceiveResult
     ChunkReceiveResult_SUCCESS,
 };
 
+/// @brief describes events which can be triggered by a service discovery
+enum iox_ServiceDiscoveryEvent
+{
+    ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED
+};
+
 /// @brief Used by consumers to request a specific behavior from the producer; describes whether a producer blocks when
 /// consumer queue is full
 enum iox_QueueFullPolicy
@@ -141,6 +147,13 @@ enum iox_ServerRequestResult
     ServerRequestResult_UNDEFINED_CHUNK_RECEIVE_ERROR,
     ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER,
     ServerRequestResult_SUCCESS
+};
+
+/// @brief used to describe the messaging pattern
+enum iox_MessagingPattern
+{
+    MessagingPattern_PUB_SUB,
+    MessagingPattern_REQ_RES
 };
 
 #endif

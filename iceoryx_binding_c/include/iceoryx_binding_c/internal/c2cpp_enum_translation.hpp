@@ -21,6 +21,7 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 namespace c2cpp
 {
@@ -33,6 +34,9 @@ iox::popo::ClientEvent clientEvent(const iox_ClientEvent value) noexcept;
 iox::popo::ClientState clientState(const iox_ClientState value) noexcept;
 iox::popo::ServerEvent serverEvent(const iox_ServerEvent value) noexcept;
 iox::popo::ServerState serverState(const iox_ServerState value) noexcept;
+
+iox::runtime::ServiceDiscoveryEvent serviceDiscoveryEvent(const iox_ServiceDiscoveryEvent value) noexcept;
+iox::popo::MessagingPattern messagingPattern(const iox_MessagingPattern value) noexcept;
 } // namespace c2cpp
 
 #endif

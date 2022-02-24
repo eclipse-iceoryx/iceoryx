@@ -20,6 +20,7 @@
 #include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/server.h"
+#include "iceoryx_binding_c/service_discovery.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/user_trigger.h"
 
@@ -57,6 +58,13 @@ bool iox_notification_info_does_originate_from_client(iox_notification_info_t co
 /// @return true if the notification originates from the server, otherwise false
 bool iox_notification_info_does_originate_from_server(iox_notification_info_t const self, iox_server_t const server);
 
+/// @brief does the notification originate from a certain service discovery
+/// @param[in] self handle to notification info
+/// @param[in] serviceDiscovery handle to serviceDiscovery in question
+/// @return true if the notifiaction originates from the service discovery, otherwise false
+bool iox_notification_info_does_originate_from_service_discovery(iox_notification_info_t const self,
+                                                                 iox_service_discovery_t const serviceDiscovery);
+
 /// @brief acquires the handle of the subscriber origin
 /// @param[in] self handle to notification info
 /// @return the handle to the subscriber if the notification originated from a subscriber, otherwise NULL
@@ -76,6 +84,11 @@ iox_client_t iox_notification_info_get_client_origin(iox_notification_info_t con
 /// @param[in] self handle to notification info
 /// @return the handle to the server if the notification originated from a server, otherwise NULL
 iox_server_t iox_notification_info_get_server_origin(iox_notification_info_t const self);
+
+/// @brief acquires the handle of the service discovery origin
+/// @param[in] self handle to the notification info
+/// @return the handle to the service discovery if the notification originated from a service discovery, otherwise NULL
+iox_service_discovery_t iox_notification_info_get_service_discovery_origin(iox_notification_info_t const self);
 
 /// @brief calls the callback of the notification
 /// @param[in] self handle to notification info

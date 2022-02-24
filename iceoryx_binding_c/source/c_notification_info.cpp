@@ -19,9 +19,11 @@
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/notification_info.h"
@@ -56,6 +58,12 @@ bool iox_notification_info_does_originate_from_server(iox_notification_info_t co
     return self->doesOriginateFrom(server);
 }
 
+bool iox_notification_info_does_originate_from_service_discovery(iox_notification_info_t const self,
+                                                                 iox_service_discovery_t const serviceDiscovery)
+{
+    return self->doesOriginateFrom(serviceDiscovery);
+}
+
 iox_sub_t iox_notification_info_get_subscriber_origin(iox_notification_info_t const self)
 {
     return self->getOrigin<cpp2c_Subscriber>();
@@ -74,6 +82,11 @@ iox_client_t iox_notification_info_get_client_origin(iox_notification_info_t con
 iox_server_t iox_notification_info_get_server_origin(iox_notification_info_t const self)
 {
     return self->getOrigin<UntypedServer>();
+}
+
+iox_service_discovery_t iox_notification_info_get_service_discovery_origin(iox_notification_info_t const self)
+{
+    return self->getOrigin<ServiceDiscovery>();
 }
 
 void iox_notification_info_call(iox_notification_info_t const self)

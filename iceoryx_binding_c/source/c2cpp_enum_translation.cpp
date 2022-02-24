@@ -126,4 +126,33 @@ iox::popo::ServerState serverState(const iox_ServerState value) noexcept
     errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE);
     return iox::popo::ServerState::HAS_REQUEST;
 }
+
+iox::runtime::ServiceDiscoveryEvent serviceDiscoveryEvent(const iox_ServiceDiscoveryEvent value) noexcept
+{
+    switch (value)
+    {
+    case ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED:
+        return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
+    }
+
+    iox::LogFatal() << "invalid iox_ServiceDiscoveryEvent value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE);
+    return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
+}
+
+iox::popo::MessagingPattern messagingPattern(const iox_MessagingPattern value) noexcept
+{
+    switch (value)
+    {
+    case MessagingPattern_PUB_SUB:
+        return iox::popo::MessagingPattern::PUB_SUB;
+    case MessagingPattern_REQ_RES:
+        return iox::popo::MessagingPattern::REQ_RES;
+    }
+
+    iox::LogFatal() << "invalid iox_MessagingPattern value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE);
+    return iox::popo::MessagingPattern::PUB_SUB;
+}
+
 } // namespace c2cpp

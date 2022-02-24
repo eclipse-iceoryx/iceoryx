@@ -34,7 +34,7 @@ enum class MessagingPattern
     PUB_SUB,
     REQ_RES
 };
-}
+} // namespace popo
 namespace runtime
 {
 enum class ServiceDiscoveryEvent : popo::EventEnumIdentifier
@@ -52,11 +52,13 @@ class ServiceDiscovery
     ServiceDiscovery& operator=(ServiceDiscovery&&) = delete;
     ~ServiceDiscovery() noexcept = default;
 
-    /// @brief Searches all services that match the provided service description and applies a function to each of them
+    /// @brief Searches all services with the given messaging pattern that match the provided service description and
+    /// applies a function to each of them
     /// @param[in] service service string to search for, a nullopt corresponds to a wildcard
     /// @param[in] instance instance string to search for, a nullopt corresponds to a wildcard
     /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
     /// @param[in] callableForEach callable to apply to all matching services
+    /// @param[in] pattern messaging pattern of the service to search
     void findService(const cxx::optional<capro::IdString_t>& service,
                      const cxx::optional<capro::IdString_t>& instance,
                      const cxx::optional<capro::IdString_t>& event,
