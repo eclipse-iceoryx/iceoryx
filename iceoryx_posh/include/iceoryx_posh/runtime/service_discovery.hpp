@@ -67,11 +67,6 @@ class ServiceDiscovery
 
     friend iox::popo::NotificationAttorney;
 
-    // depending on design/efficiency - not needed
-    /// @brief updates the service discovery with latest service information
-    /// @note findService performs this update automatically before searching
-    void update();
-
   private:
     void enableEvent(popo::TriggerHandle&& triggerHandle, const ServiceDiscoveryEvent event) noexcept;
     void disableEvent(const ServiceDiscoveryEvent event) noexcept;
