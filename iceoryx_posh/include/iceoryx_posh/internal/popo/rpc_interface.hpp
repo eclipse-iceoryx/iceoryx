@@ -32,6 +32,8 @@ class RpcInterface
   public:
     /// @brief Sends the given Request<T> or Response<T> via the type which implements this interface
     /// @param[in] rpcData is the actual Request<T> or Response<T> instance
+    /// @todo iox-#27 for Request<T> the return value must be a `cxx::expected<ClientSendError>` and for
+    /// Response<T> a `cxx::expected<ServerSendError>`
     virtual void send(RpcType&& rpcData) noexcept = 0;
 
   protected:
