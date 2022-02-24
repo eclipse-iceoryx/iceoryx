@@ -1111,19 +1111,20 @@ void notifyServiceDiscovery(SubscriberPortData& portData)
 TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "945dcf94-4679-469f-aa47-1a87d536da72");
+    constexpr uint64_t EVENT_ID = 13;
     iox_service_discovery_storage_t serviceDiscoveryStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_portDataVector[0]));
 
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
 
     iox_ws_attach_service_discovery_event(
-        m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, 13, &serviceDiscoveryCallback);
+        m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, EVENT_ID, &serviceDiscoveryCallback);
 
     notifyServiceDiscovery(m_portDataVector[0]);
 
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
                 Eq(1));
-    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(13));
+    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(EVENT_ID));
     EXPECT_THAT(iox_notification_info_get_service_discovery_origin(m_eventInfoStorage[0]), Eq(serviceDiscovery));
     EXPECT_TRUE(iox_notification_info_does_originate_from_service_discovery(m_eventInfoStorage[0], serviceDiscovery));
     iox_notification_info_call(m_eventInfoStorage[0]);
@@ -1137,6 +1138,7 @@ TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWorks)
 TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWithContextDataWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "510a0351-afeb-4c0f-a4b6-3032f1f3f831");
+    constexpr uint64_t EVENT_ID = 31;
     iox_service_discovery_storage_t serviceDiscoveryStorage;
     EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_portDataVector[0]));
 
@@ -1145,7 +1147,7 @@ TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWithContextDataWorks)
     iox_ws_attach_service_discovery_event_with_context_data(m_sut,
                                                             serviceDiscovery,
                                                             ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
-                                                            31,
+                                                            EVENT_ID,
                                                             &serviceDiscoveryCallbackWithContextData,
                                                             &serviceDiscoveryStorage);
 
@@ -1153,7 +1155,7 @@ TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWithContextDataWorks)
 
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
                 Eq(1));
-    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(31));
+    EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(EVENT_ID));
     EXPECT_THAT(iox_notification_info_get_service_discovery_origin(m_eventInfoStorage[0]), Eq(serviceDiscovery));
     EXPECT_TRUE(iox_notification_info_does_originate_from_service_discovery(m_eventInfoStorage[0], serviceDiscovery));
     iox_notification_info_call(m_eventInfoStorage[0]);
