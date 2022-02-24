@@ -23,6 +23,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::popo;
 
 template <typename CPP, typename C>
 struct EnumMapping
@@ -148,6 +149,72 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
     EXPECT_EQ(cpp2c::allocationResult(static_cast<iox::popo::AllocationError>(-1)), AllocationResult_UNDEFINED_ERROR);
+#pragma GCC diagnostic pop
+}
+
+TEST(cpp2c_enum_translation_test, ClientSendResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f9ab6c2d-1801-4b8b-9915-2c3c2b4245b2");
+    constexpr EnumMapping<ClientSendError, iox_ClientSendResult> CLIENT_SEND_ERRORR[]{
+        {ClientSendError::NO_CONNECT_REQUESTED, ClientSendResult_NO_CONNECT_REQUESTED},
+        {ClientSendError::SERVER_NOT_AVAILABLE, ClientSendResult_SERVER_NOT_AVAILABLE},
+        {ClientSendError::INVALID_REQUEST, ClientSendResult_INVALID_REQUEST}};
+
+    for (const auto clientSendError : CLIENT_SEND_ERRORR)
+    {
+        switch (clientSendError.cpp)
+        {
+        case ClientSendError::NO_CONNECT_REQUESTED:
+            EXPECT_EQ(cpp2c::clientSendResult(clientSendError.cpp), clientSendError.c);
+            break;
+        case ClientSendError::SERVER_NOT_AVAILABLE:
+            EXPECT_EQ(cpp2c::clientSendResult(clientSendError.cpp), clientSendError.c);
+            break;
+        case ClientSendError::INVALID_REQUEST:
+            EXPECT_EQ(cpp2c::clientSendResult(clientSendError.cpp), clientSendError.c);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
+
+// ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::clientSendResult(static_cast<iox::popo::ClientSendError>(-1)), ClientSendResult_UNDEFINED_ERROR);
+#pragma GCC diagnostic pop
+}
+
+TEST(cpp2c_enum_translation_test, ServerSendResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d1950346-26f0-4a61-9dac-f43f32ea6bd5");
+    constexpr EnumMapping<ServerSendError, iox_ServerSendResult> SERVER_SEND_ERRORR[]{
+        {ServerSendError::NOT_OFFERING, ServerSendResult_NOT_OFFERING},
+        {ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendResult_CLIENT_NOT_AVAILABLE},
+        {ServerSendError::INVALID_RESPONSE, ServerSendResult_INVALID_RESPONSE}};
+
+    for (const auto serverSendError : SERVER_SEND_ERRORR)
+    {
+        switch (serverSendError.cpp)
+        {
+        case ServerSendError::NOT_OFFERING:
+            EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
+            break;
+        case ServerSendError::CLIENT_NOT_AVAILABLE:
+            EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
+            break;
+        case ServerSendError::INVALID_RESPONSE:
+            EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
+
+// ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::serverSendResult(static_cast<iox::popo::ServerSendError>(-1)), ServerSendResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
 
