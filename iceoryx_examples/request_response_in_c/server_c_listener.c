@@ -14,6 +14,77 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/listener.h"
+#include "iceoryx_binding_c/request_header.h"
+#include "iceoryx_binding_c/response_header.h"
+#include "iceoryx_binding_c/runtime.h"
+#include "iceoryx_binding_c/server.h"
+#include "request_and_response_c_types.h"
+#include "sleep_for.h"
+
+#include <signal.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+
+bool keepRunning = true;
+const char APP_NAME[] = "iox-c-request-response-server-listener";
+
+void sigHandler(int signalValue)
+{
+    (void)signalValue;
+    keepRunning = false;
+}
+
+void onRequestReceived(iox_server_t server)
+{
+    const struct AddRequest* request = NULL;
+    while (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
+    {
+        printf("%s Got Request: %lu + %lu\n", APP_NAME, request->augend, request->addend);
+
+        struct AddResponse* response = NULL;
+        enum iox_AllocationResult loanResult =
+            iox_server_loan_response(server, request, (void**)&response, sizeof(struct AddResponse));
+        if (loanResult == AllocationResult_SUCCESS)
+        {
+            response->sum = request->augend + request->addend;
+            iox_server_send(server, response);
+        }
+        else
+        {
+            printf("Could not allocate Response! Return value = %d\n", loanResult);
+        }
+        iox_server_release_request(server, request);
+    }
+}
+
 int main()
 {
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+
+    iox_runtime_init(APP_NAME);
+
+    iox_listener_storage_t listenerStorage;
+    iox_listener_t listener = iox_listener_init(&listenerStorage);
+
+    iox_server_storage_t serverStorage;
+    iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
+
+    if (iox_listener_attach_server_event(listener, server, ServerEvent_REQUEST_RECEIVED, onRequestReceived)
+        != ListenerResult_SUCCESS)
+    {
+        printf("unable to attach server\n");
+        _exit(-1);
+    }
+
+    while (keepRunning)
+    {
+        const uint32_t SLEEP_TIME_IN_MS = 500U;
+        sleep_for(SLEEP_TIME_IN_MS);
+    }
+
+    iox_server_deinit(server);
+    iox_listener_deinit(listener);
 }
