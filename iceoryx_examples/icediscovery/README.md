@@ -10,7 +10,7 @@ topic under which publisher/server and subscriber/client can exchange data.
 
 In addition the applications `iox-wait-for-service` and `iox-discovery-monitor` demonstrate how
 to write custom discovery functionality to wait for specific services or monitor
-the availability of services, respectively.
+the availability of services respectively.
 
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->
@@ -63,15 +63,19 @@ We can search for exactly matching services:
 serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
                              iox::capro::IdString_t{"FrontLeft"},
                              iox::capro::IdString_t{"Image"},
-                             printSearchResult);
+                             printSearchResult,
+                             iox::popo::MessagingPattern::PUB_SUB);
 ```
 
 or add wildcards to our search query:
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_find_service.cpp][search for all Camera services]-->
 ```cpp
-serviceDiscovery.findService(
-    iox::capro::IdString_t{"Camera"}, iox::capro::Wildcard, iox::capro::Wildcard, printSearchResult);
+serviceDiscovery.findService(iox::capro::IdString_t{"Camera"},
+                             iox::capro::Wildcard,
+                             iox::capro::Wildcard,
+                             printSearchResult,
+                             iox::popo::MessagingPattern::PUB_SUB);
 ```
 
 With the above `findService` call we look for every `Camera` service with any
@@ -84,7 +88,8 @@ their services, you should see sometimes 5 `Camera` services and sometimes none.
 
 ### Wait for services
 
-Start the applications `iox-wait-for-service` and `iox-offer-service` (in any order, but for demonstration purposes `iox-offer-service` should be started last).
+Start the applications `iox-wait-for-service` and `iox-offer-service`. This can be done in any order,
+but for demonstration purposes `iox-offer-service` should be started last).
 
 `iox-wait-for-service` uses a customized service discovery `Discovery` which supports to wait for services by including
 
@@ -117,7 +122,14 @@ This is essentially any callable with `bool(void)` signature, but it should depe
 as it is only checked when the service availability changes in some way. Here we require some specific service to be found
 before we proceed.
 
-Now we can wait until the service discovery changes and the services becomes available.
+<!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][service to wait for]-->
+```cpp
+iox::capro::IdString_t service{"Camera"};
+iox::capro::IdString_t instance{"FrontLeft"};
+iox::capro::IdString_t event{"Image"};
+```
+
+Now we can wait until the service discovery changes and the service becomes available.
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][wait until service was available]-->
 ```cpp
 bool serviceWasAvailable = discovery.waitUntil(query);
@@ -186,7 +198,7 @@ Afterwards we create a callback to be called whenever the service availability c
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][create monitoring callback]-->
 ```cpp
-auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
+auto callback = [&](Discovery& discovery) -> void {
     auto result = discovery.findService(service, instance, event);
 
     if (!result.empty())
@@ -232,7 +244,8 @@ These conditions would still need to be checked in the callback we defined thoug
 ### Implementation of Discovery with blocking wait
 
 We build our custom discovery on top of the `iox::runtime::ServiceDiscovery` by composition. While inheritance is an option,
-composition has the advantage that we can use `ServiceDiscovery` as a singleton.
+composition has the advantage that we can use `ServiceDiscovery` as a singleton (to save memory)
+but our custom `Discovery` class can be fairly lightweight and does not need to be a singleton.
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][service discovery singleton]-->
 ```cpp
@@ -328,7 +341,7 @@ ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdS
 {
     ServiceContainer result;
     auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };
-    m_discovery->findService(service, instance, event, filter);
+    m_discovery->findService(service, instance, event, filter, iox::popo::MessagingPattern::PUB_SUB);
     return result;
 }
 ```
@@ -346,7 +359,7 @@ To register the callback we call
 <!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_monitor.hpp][registerCallback]-->
 ```cpp
 template <typename Callback>
-bool Discovery::registerCallback(Callback callback)
+bool Discovery::registerCallback(const Callback& callback)
 ```
 
 which attaches the callback to the listener.
@@ -359,15 +372,18 @@ m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVIC
 ```
 
 The callback is stored as a `cxx::function` which does not require dynamic memory (but limits the size of the stored function, which is relvant e.g. for capturing lambdas).
-If dynamic memory s no concern we can also use a `std::function`. The callback can be any callable with a `(void)(iox::runtime::ServiceDiscovery& discovery)` signature. Again the callback signature can be generalized somewhat but there are constraints to use it with the listener. Since the listener can only call static or free functions, we use an additional indirection to call the actual callback
+If dynamic memory s no concern we can also use a `std::function`. The callback can be any callable with a `(void)(discovery::Discovery&)` signature. Again the callback signature can be generalized somewhat but there are constraints to use it with the listener. Since the listener can only call static or free functions, we use an additional indirection to call the actual callback
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_monitor.cpp][invokeCallback]-->
 ```cpp
-void Discovery::invokeCallback(ServiceDiscovery* discovery, Discovery* self)
+void Discovery::invokeCallback(ServiceDiscovery*, Discovery* self)
 {
-    self->m_callback(*discovery);
+    // discarded discovery argument is required by the listener
+    self->m_callback(*self);
 }
 ```
+
+Note that the discarded argument is required by the listener to be able to attach the function.
 
 As soon as the callback is registered, the listener thread will invoke it on any service availability change. There is a small caveat though that while callback is called on any change, we can only access the latest discovery information by e.g. calling `findService`. This means all intermediate changes cannot be detected, in particular we might encounter an ABA problem of service availabilty: the service is availalable, becomes unavailable and available again in quick succession. If the callback issues a `findService`, it will not observe any change in this case. As one is usually mainly interested in the available services this can be considered a minor limitation.
 

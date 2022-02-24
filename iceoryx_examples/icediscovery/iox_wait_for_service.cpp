@@ -27,11 +27,13 @@ using namespace discovery;
 
 constexpr char APP_NAME[] = "iox-wait-for-service";
 
+//! [service to wait for]
 iox::capro::IdString_t service{"Camera"};
 iox::capro::IdString_t instance{"FrontLeft"};
 iox::capro::IdString_t event{"Image"};
+//! [service to wait for]
 
-void printSearchResult(const iox::runtime::ServiceContainer& result)
+void printSearchResult(const discovery::ServiceContainer& result)
 {
     std::cout << APP_NAME << " search result: " << (result.empty() ? "empty" : "") << std::endl;
 

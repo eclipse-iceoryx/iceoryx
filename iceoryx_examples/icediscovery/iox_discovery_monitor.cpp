@@ -31,7 +31,7 @@ iox::capro::IdString_t service{"Camera"};
 iox::capro::IdString_t instance{"FrontLeft"};
 iox::capro::IdString_t event{"Image"};
 
-void printSearchResult(const iox::runtime::ServiceContainer& result)
+void printSearchResult(const discovery::ServiceContainer& result)
 {
     std::cout << APP_NAME << " search result:" << (result.empty() ? "empty" : "") << std::endl;
 
@@ -52,7 +52,7 @@ int main()
     //! [create custom discovery]
 
     //! [create monitoring callback]
-    auto callback = [&](iox::runtime::ServiceDiscovery& discovery) -> void {
+    auto callback = [&](Discovery& discovery) -> void {
         auto result = discovery.findService(service, instance, event);
 
         if (!result.empty())

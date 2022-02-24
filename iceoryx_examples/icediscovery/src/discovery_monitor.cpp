@@ -46,14 +46,15 @@ ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdS
 {
     ServiceContainer result;
     auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };
-    m_discovery->findService(service, instance, event, filter);
+    m_discovery->findService(service, instance, event, filter, iox::popo::MessagingPattern::PUB_SUB);
     return result;
 }
 
 //! [invokeCallback]
-void Discovery::invokeCallback(ServiceDiscovery* discovery, Discovery* self)
+void Discovery::invokeCallback(ServiceDiscovery*, Discovery* self)
 {
-    self->m_callback(*discovery);
+    // discarded discovery argument is required by the listener
+    self->m_callback(*self);
 }
 //! [invokeCallback]
 

@@ -46,7 +46,7 @@ class Discovery
     ///       but we could hide this from the user (by e.g. accessing ServiceRegistry via singleton
     ///       and passing it)
     template <typename Callback>
-    bool registerCallback(Callback callback);
+    bool registerCallback(const Callback& callback);
 
     /// @brief deregister the active callback (if any)
     void deregisterCallback();
@@ -58,7 +58,7 @@ class Discovery
                                  const iox::cxx::optional<iox::capro::IdString_t>& event);
 
   private:
-    using callback_t = iox::cxx::function<void(ServiceDiscovery&)>;
+    using callback_t = iox::cxx::function<void(Discovery&)>;
 
     ServiceDiscovery* m_discovery{nullptr};
     iox::popo::Listener m_listener;
@@ -72,7 +72,7 @@ class Discovery
 
 //! [registerCallback]
 template <typename Callback>
-bool Discovery::registerCallback(Callback callback)
+bool Discovery::registerCallback(const Callback& callback)
 //! [registerCallback]
 {
     if (m_callback)
