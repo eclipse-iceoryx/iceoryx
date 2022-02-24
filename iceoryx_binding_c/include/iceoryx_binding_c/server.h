@@ -158,13 +158,12 @@ bool iox_server_has_clients(iox_server_t const self);
 bool iox_server_has_requests(iox_server_t const self);
 
 /// @brief were requests missed?
-/// @param[in] self handle to the client
+/// @param[in] self handle to the server
 /// @return true if there are lost requests due to overflowing queue, otherwise false
 bool iox_server_has_missed_requests(iox_server_t const self);
 
 /// @brief release a previously acquired request (via iox_server_take_request)
-/// @param[in] self handle to the client
-/// @param[in] payload pointer to the user-payload of chunk which should be released
+/// @param[in] self handle to the server
 void iox_server_release_queued_requests(iox_server_t const self);
 
 #endif

@@ -44,10 +44,12 @@ class iox_server_test : public Test
     static constexpr const char RUNTIME_NAME[] = "sven_shwiddzler";
 
     std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create(RUNTIME_NAME);
+    static constexpr uint64_t MAX_REQUESTS_HOLD_IN_PARALLEL = iox::MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY + 1U;
 
     void SetUp() override
     {
-        memoryConfig.addMemPool({1024, 2});
+        memoryConfig.addMemPool({128, 2});
+        memoryConfig.addMemPool({1024, MAX_REQUESTS_HOLD_IN_PARALLEL + 1});
         memoryManager.configureMemoryManager(memoryConfig, mgmtAllocator, dataAllocator);
     }
 
@@ -62,10 +64,10 @@ class iox_server_test : public Test
         return &*sutPort;
     }
 
-    void receiveRequest(const int64_t requestValue)
+    void receiveRequest(const int64_t requestValue = 0, const uint32_t chunkSize = sizeof(int64_t))
     {
         auto chunk = memoryManager.getChunk(*iox::mepoo::ChunkSettings::create(
-            sizeof(int64_t), iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(RequestHeader)));
+            chunkSize, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(RequestHeader)));
         ASSERT_FALSE(chunk.has_error());
         new (chunk->getChunkHeader()->userHeader())
             RequestHeader(clientResponseQueueData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
@@ -177,9 +179,9 @@ TEST_F(iox_server_test, InitializingServerWithCustomOptionsWorks)
     options.clientTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
 
     ServerOptions cppOptions;
-    cppOptions.requestQueueCapacity = 32;
-    cppOptions.nodeName = "do not hassel with the hoff";
-    cppOptions.offerOnCreate = false;
+    cppOptions.requestQueueCapacity = options.requestQueueCapacity;
+    cppOptions.nodeName = iox::NodeName_t(TruncateToCapacity, options.nodeName);
+    cppOptions.offerOnCreate = options.offerOnCreate;
     cppOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     cppOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
@@ -227,12 +229,38 @@ TEST_F(iox_server_test, WhenOfferedAndRequestsPresentTakeSucceeds)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     iox_server_offer(sut);
-    receiveRequest(64461001);
+    constexpr int64_t REQUEST_VALUE = 64461001;
+    receiveRequest(REQUEST_VALUE);
 
     const void* payload;
     ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_SUCCESS));
     ASSERT_THAT(payload, Ne(nullptr));
-    EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(64461001));
+    EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(REQUEST_VALUE));
+}
+
+TEST_F(iox_server_test, TakingToMuchRequestsInParallelLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1175d14-0268-42d9-a174-97713e622200");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+
+    constexpr int64_t REQUEST_VALUE = 0;
+    constexpr int64_t PAYLOAD_SIZE = 512;
+    const void* payload;
+    for (uint64_t i = 0U; i < MAX_REQUESTS_HOLD_IN_PARALLEL; ++i)
+    {
+        receiveRequest(REQUEST_VALUE, PAYLOAD_SIZE);
+
+        payload = nullptr;
+        ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_SUCCESS));
+        ASSERT_THAT(payload, Ne(nullptr));
+    }
+
+    receiveRequest(REQUEST_VALUE, PAYLOAD_SIZE);
+    payload = nullptr;
+    ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_TOO_MANY_REQUESTS_HELD_IN_PARALLEL));
+    ASSERT_THAT(payload, Eq(nullptr));
 }
 
 TEST_F(iox_server_test, ReleaseRequestWorks)
@@ -241,7 +269,7 @@ TEST_F(iox_server_test, ReleaseRequestWorks)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     iox_server_offer(sut);
-    receiveRequest(64461001);
+    receiveRequest();
 
     const void* payload;
     ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_SUCCESS));
@@ -257,8 +285,8 @@ TEST_F(iox_server_test, ReleaseQueuedRequestsWorks)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     iox_server_offer(sut);
-    receiveRequest(64461001);
-    receiveRequest(313);
+    receiveRequest();
+    receiveRequest();
 
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
 
@@ -285,7 +313,7 @@ TEST_F(iox_server_test, HasRequestWorks)
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     iox_server_offer(sut);
     EXPECT_FALSE(iox_server_has_requests(sut));
-    receiveRequest(64461001);
+    receiveRequest();
     EXPECT_TRUE(iox_server_has_requests(sut));
 }
 
@@ -303,8 +331,8 @@ TEST_F(iox_server_test, HasMissedRequestWorks)
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
     iox_server_offer(sut);
     EXPECT_FALSE(iox_server_has_missed_requests(sut));
-    receiveRequest(64461001);
-    receiveRequest(6321);
+    receiveRequest();
+    receiveRequest();
     EXPECT_TRUE(iox_server_has_missed_requests(sut));
     EXPECT_FALSE(iox_server_has_missed_requests(sut));
 }
@@ -338,7 +366,7 @@ TEST_F(iox_server_test, LoanWorks)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connectClient();
-    receiveRequest(31711);
+    receiveRequest();
 
     const void* requestPayload;
     EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
@@ -354,7 +382,7 @@ TEST_F(iox_server_test, LoanFailsWhenNoMoreChunksAreAvailable)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connectClient();
-    receiveRequest(31711);
+    receiveRequest();
 
     const void* requestPayload;
     EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
@@ -371,7 +399,7 @@ TEST_F(iox_server_test, LoanAlignedWorks)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connectClient();
-    receiveRequest(31711);
+    receiveRequest();
 
     const void* requestPayload;
     EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
@@ -383,13 +411,31 @@ TEST_F(iox_server_test, LoanAlignedWorks)
     EXPECT_THAT(reinterpret_cast<uint64_t>(payload) % 16, Eq(0));
 }
 
+TEST_F(iox_server_test, LoanAlignedFailsWhenNoChunksAreAvailable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2fad0479-1e87-4a0a-a52c-cb437091018d");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest();
+
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_server_loan_aligned_response(sut, requestPayload, &payload, sizeof(int64_t), 16),
+                Eq(AllocationResult_SUCCESS));
+    EXPECT_THAT(iox_server_loan_aligned_response(sut, requestPayload, &payload, sizeof(int64_t), 16),
+                Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
+}
+
 TEST_F(iox_server_test, ReleaseResponseWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "06d1e165-eb60-4bf7-94b5-290535c6541e");
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connectClient();
-    receiveRequest(31711);
+    receiveRequest();
 
     const void* requestPayload;
     EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
@@ -409,7 +455,7 @@ TEST_F(iox_server_test, SendWorks)
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connectClient();
-    receiveRequest(31711);
+    receiveRequest();
 
     const void* requestPayload;
     EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));

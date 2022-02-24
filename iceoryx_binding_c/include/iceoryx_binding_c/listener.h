@@ -144,7 +144,7 @@ void iox_listener_detach_client_event(iox_listener_t const self,
 
 /// @brief Attaches a server event to the listener
 /// @param[in] self listener to which the event should be attached to
-/// @param[in] server server which emits the event
+/// @param[in] server the server which emits the event
 /// @param[in] serverEvent the event which should trigger the listener
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
@@ -156,7 +156,7 @@ ENUM iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const se
 /// @brief Attaches a server event to the listener. The callback has an additional contextData argument to provide
 /// access to user defined data.
 /// @param[in] self listener to which the event should be attached to
-/// @param[in] server server which emits the event
+/// @param[in] server the server which emits the event
 /// @param[in] serverEvent the event which should trigger the listener
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
