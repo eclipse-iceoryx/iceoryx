@@ -23,6 +23,9 @@ extern "C" {
 #include "iceoryx_binding_c/runtime.h"
 }
 
+#include "test.hpp"
+#include "test_types_storage_size.hpp"
+
 namespace
 {
 using namespace iox;
@@ -46,6 +49,12 @@ class iox_node_test : public RouDi_GTest
 
     iox_node_t m_sut;
 };
+
+TEST_F(iox_node_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b124ab08-5ba5-44a8-bc72-746e1a998fe5");
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
+}
 
 TEST_F(iox_node_test, createdNodeHasCorrectNodeName)
 {

@@ -34,6 +34,7 @@ extern "C" {
 }
 
 #include "test.hpp"
+#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -130,8 +131,7 @@ constexpr const char iox_client_test::EVENT[];
 TEST_F(iox_client_test, StorageSizesFit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8e4523c5-5a76-41ab-acc8-ebf101593632");
-    EXPECT_THAT(sizeof(UntypedClient), Le(sizeof(iox_client_storage_t)));
-    EXPECT_THAT(alignof(UntypedClient), Le(alignof(iox_client_storage_t)));
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
 }
 
 TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)

@@ -21,6 +21,9 @@ extern "C" {
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
+#include "test.hpp"
+#include "test_types_storage_size.hpp"
+
 namespace
 {
 using namespace iox;
@@ -37,6 +40,12 @@ class BindingC_Runtime_test : public RouDi_GTest
     {
     }
 };
+
+TEST_F(BindingC_Runtime_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a2ff93bc-a4f3-4197-aee1-019610699aac");
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
+}
 
 TEST_F(BindingC_Runtime_test, SuccessfulRegistration)
 {

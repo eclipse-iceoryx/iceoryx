@@ -26,6 +26,9 @@ extern "C" {
 #include "iceoryx_binding_c/service_discovery.h"
 }
 
+#include "test.hpp"
+#include "test_types_storage_size.hpp"
+
 namespace
 {
 using namespace ::testing;
@@ -62,6 +65,12 @@ TEST(iox_service_discovery_DeathTest, InitServiceDiscoveryWithNullptrForStorageT
 {
     ::testing::Test::RecordProperty("TEST_ID", "be551a9e-7dcf-406a-a74c-7dcb1ee16c30");
     EXPECT_DEATH({ iox_service_discovery_init(nullptr); }, ".*");
+}
+
+TEST_F(iox_service_discovery_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b4556cdc-43e5-42c4-b732-130674fb79fc");
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
 }
 
 /// @note We test only if the arguments of iox_service_discovery_find_service are correctly passed to

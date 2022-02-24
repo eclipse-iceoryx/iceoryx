@@ -27,6 +27,7 @@ extern "C" {
 }
 
 #include "test.hpp"
+#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -60,6 +61,12 @@ class iox_user_trigger_test : public Test
 };
 
 bool iox_user_trigger_test::wasTriggerCallbackCalled = false;
+
+TEST_F(iox_user_trigger_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "49d6ab71-288d-4409-8dc1-61cf221b6be9");
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
+}
 
 TEST_F(iox_user_trigger_test, initUserTriggerWithNullptrForStorageReturnsNullptr)
 {

@@ -22,6 +22,9 @@ extern "C" {
 
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
+#include "test.hpp"
+#include "test_types_storage_size.hpp"
+
 namespace
 {
 using namespace iox;
@@ -45,6 +48,12 @@ class Chunk_test : public RouDi_GTest
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher{nullptr};
 };
+
+TEST_F(Chunk_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c6087850-d330-4462-a9ff-6ead04871933");
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
+}
 
 TEST_F(Chunk_test, GettingChunkHeaderFromNonConstUserPayloadWorks)
 {

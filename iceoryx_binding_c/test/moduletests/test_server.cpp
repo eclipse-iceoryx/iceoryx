@@ -33,6 +33,7 @@ extern "C" {
 }
 
 #include "test.hpp"
+#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -119,6 +120,12 @@ constexpr const char iox_server_test::RUNTIME_NAME[];
 constexpr const char iox_server_test::SERVICE[];
 constexpr const char iox_server_test::INSTANCE[];
 constexpr const char iox_server_test::EVENT[];
+
+TEST_F(iox_server_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5da044e6-f01b-4112-ad15-4395413e9d96");
+    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
+}
 
 TEST_F(iox_server_test, notInitializedOptionsAreUninitialized)
 {
