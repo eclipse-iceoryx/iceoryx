@@ -28,6 +28,7 @@
 
 constexpr char APP_NAME[] = "iox-cpp-request-response-server-listener";
 
+//! [request callback]
 void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
 {
     //! [take request]
@@ -51,6 +52,7 @@ void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
     }
     //! [take request]
 }
+//! [request callback]
 
 int main()
 {
@@ -64,6 +66,7 @@ int main()
     iox::popo::Server<AddRequest, AddResponse> server({"Example", "Request-Response", "Add"});
     //! [create server]
 
+    //! [attach listener]
     listener
         .attachEvent(
             server, iox::popo::ServerEvent::REQUEST_RECEIVED, iox::popo::createNotificationCallback(onRequestReceived))
@@ -71,10 +74,15 @@ int main()
             std::cerr << "unable to attach server" << std::endl;
             std::exit(EXIT_FAILURE);
         });
+    //! [attach listener]
 
+    //! [wait for termination]
     iox::posix::waitForTerminationRequest();
+    //! [wait for termination]
 
+    //! [cleanup]
     listener.detachEvent(server, iox::popo::ServerEvent::REQUEST_RECEIVED);
+    //! [cleanup]
 
     return EXIT_SUCCESS;
 }

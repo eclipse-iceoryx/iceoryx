@@ -34,7 +34,7 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-cpp-request-response-listener-client', 'iox-cpp-request-response-listener-server']
+    executable_list = ['iox-cpp-request-response-listener-server', 'iox-cpp-request-response-waitset-client']
     process_list = []
 
     for exec in executable_list:
@@ -64,7 +64,7 @@ def generate_test_description():
         process_list[1],
         roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-cpp-request-response-listener-client': process_list[0], 'iox-cpp-request-response-listener-server': process_list[1],
+    ]), {'iox-cpp-request-response-listener-server': process_list[0], 'iox-cpp-request-response-waitset-client': process_list[1],
          'roudi_process': roudi_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
@@ -78,19 +78,16 @@ class TestRequestResponseListenerExample(unittest.TestCase):
 
     def test_listener_server_client_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-cpp-request-response-client-listener Send Request: 55 + 89', timeout=45, stream='stdout')
+            'iox-cpp-request-response-client-waitset Send Request: 55 + 89', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
             'iox-cpp-request-response-server-listener Got Request: 55 + 89', timeout=45, stream='stdout')
 
         proc_output.assertWaitFor(
             'iox-cpp-request-response-server-listener Send Response: 144', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-cpp-request-response-client-listener Got Response : 144', timeout=45, stream='stdout')
-
+            'iox-cpp-request-response-client-waitset Got Response : 144', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
-
-
 @launch_testing.post_shutdown_test()
 class TestRequestResponseListenerExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
