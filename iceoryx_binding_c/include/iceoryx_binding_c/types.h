@@ -44,7 +44,7 @@ struct iox_user_trigger_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(UserTrigger) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[17];
+    uint64_t do_not_touch_me[15];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[16];
 #else
@@ -58,7 +58,7 @@ struct iox_sub_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Subscriber) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[17];
+    uint64_t do_not_touch_me[16];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[17];
 #else
@@ -130,7 +130,7 @@ struct iox_service_discovery_storage_t
     // the value of the array size is the result of the following formula:
     // sizeof(ServiceDiscovery) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[24];
+    uint64_t do_not_touch_me[30];
 #else
     uint64_t do_not_touch_me[24];
 #endif
