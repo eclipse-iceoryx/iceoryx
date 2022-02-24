@@ -77,7 +77,8 @@ int main()
 
     while (!iox::posix::hasTerminationRequested())
     {
-        ;
+        // here the app would run its functional code while the
+        // service availability is monitored in the background
     }
 
     //! [deregister callback]

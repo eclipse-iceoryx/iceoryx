@@ -37,6 +37,8 @@
 - Add `findService` method to `ServiceDiscovery` which applies a callable to all matching services [\#1105](https://github.com/eclipse-iceoryx/iceoryx/pull/1105)
 - Increase limits of `ServiceRegistry` to support the maximum number of publishers and servers that are configured in `iceoryx_posh_types.hpp` [\#1074](https://github.com/eclipse-iceoryx/iceoryx/issues/1074)
 - C binding for service discovery [\#1142](https://github.com/eclipse-iceoryx/iceoryx/issues/1142)
+- Introduce `iox::popo::MessagingPattern` to `findService` to allow separate searches for publishers (`MessagingPattern::PUB_SUB`) and
+Servers (`iox::popo::MessagingPattern::REQ_RES`) [\#27](https://github.com/eclipse-iceoryx/iceoryx/pull/1134)
 
 **Bugfixes:**
 
@@ -260,7 +262,12 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
    The default `ServiceDescription` consists of empty strings.
 
 1. The service-related methods have been moved from `PoshRuntime` to `ServiceDiscovery`. The `offerService`
-   and `stopOfferService` methods have been removed and `findService` has now an additional event parameter:
+   and `stopOfferService` methods have been removed and `findService` has now an additional event parameter.
+   Furthermore it requires a function to be provided which is applied to each `ServiceDescription` in
+   the search result (and can be used to collect them in a container etc.).
+
+   The `iox::popo::MessagingPattern` parameter allows to search publishers (`PUB_SUB`) or
+   servers (`REQ_RES`).
 
     ```cpp
     // before
@@ -273,7 +280,12 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
     // after
     #include "iceoryx_posh/runtime/service_discovery.hpp"
 
-    serviceDiscovery.findService("ServiceA", Wildcard, Wildcard);
+    void printSearchResult(const iox::capro::ServiceDescription& service)
+    {
+        std::cout << "- " << service << std::endl;
+    }
+
+    serviceDiscovery.findService("ServiceA", Wildcard, Wildcard, printSearchResult, iox::popo::MessagingPattern::PUB_SUB);
     ```
 
 1. The following classes have now an constructor marked as `explicit`:

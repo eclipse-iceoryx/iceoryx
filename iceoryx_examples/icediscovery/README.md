@@ -383,8 +383,6 @@ void Discovery::invokeCallback(ServiceDiscovery*, Discovery* self)
 }
 ```
 
-Note that the discarded argument is required by the listener to be able to attach the function.
-
 As soon as the callback is registered, the listener thread will invoke it on any service availability change. There is a small caveat though that while callback is called on any change, we can only access the latest discovery information by e.g. calling `findService`. This means all intermediate changes cannot be detected, in particular we might encounter an ABA problem of service availabilty: the service is availalable, becomes unavailable and available again in quick succession. If the callback issues a `findService`, it will not observe any change in this case. As one is usually mainly interested in the available services this can be considered a minor limitation.
 
 To stop monitoring changes in the availability of services we simply call
