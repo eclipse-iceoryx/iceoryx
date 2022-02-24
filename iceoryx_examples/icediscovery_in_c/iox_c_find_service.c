@@ -21,6 +21,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 bool keepRunning = true;
 
@@ -40,6 +41,14 @@ void printSearchResult(const iox_service_description_t service)
         "- Service: %s, Instance: %s, Event: %s\n", service.serviceString, service.instanceString, service.eventString);
 }
 
+void searchFrontCameras(const iox_service_description_t service, void* count)
+{
+    if (strcmp(service.instanceString, "FrontLeft") == 0 || strcmp(service.instanceString, "FrontRight") == 0)
+    {
+        ++*(uint64_t*)count;
+    }
+}
+
 int main()
 {
     signal(SIGINT, sigHandler);
@@ -50,8 +59,16 @@ int main()
     iox_service_discovery_storage_t storage;
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&storage);
 
+    const uint64_t searchResultCapacity = 10U;
+    iox_service_description_t searchResult[searchResultCapacity];
+    uint64_t missedServices = 0U;
+    uint64_t numberFoundServices = 0U;
+
+
     while (keepRunning)
     {
+        uint64_t numberFrontCameras = 0U;
+
         printf("\n=========================================\n");
 
         printf("\nSearched for {'Radar', 'FrontLeft', 'Image'}. Found the following services:\n");
@@ -70,9 +87,28 @@ int main()
         iox_service_discovery_find_service_apply_callable(
             serviceDiscovery, NULL, "FrontRight", "Image", printSearchResult, MessagingPattern_PUB_SUB);
 
+        numberFoundServices = iox_service_discovery_find_service(serviceDiscovery,
+                                                                 "Camera",
+                                                                 NULL,
+                                                                 NULL,
+                                                                 searchResult,
+                                                                 searchResultCapacity,
+                                                                 &missedServices,
+                                                                 MessagingPattern_PUB_SUB);
         printf("\nSearched for {'Camera', *, *}. Found the following services:\n");
-        iox_service_discovery_find_service_apply_callable(
-            serviceDiscovery, "Camera", NULL, NULL, printSearchResult, MessagingPattern_PUB_SUB);
+        for (uint64_t i = 0; i < numberFoundServices; ++i)
+        {
+            printSearchResult(searchResult[i]);
+        }
+
+        iox_service_discovery_find_service_apply_callable_with_context_data(serviceDiscovery,
+                                                                            "Camera",
+                                                                            NULL,
+                                                                            NULL,
+                                                                            searchFrontCameras,
+                                                                            (void*)&numberFrontCameras,
+                                                                            MessagingPattern_PUB_SUB);
+        printf("\nFound %lu front cameras\n", numberFrontCameras);
 
         sleep_for(1000);
     }
