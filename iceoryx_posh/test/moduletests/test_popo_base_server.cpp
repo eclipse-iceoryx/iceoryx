@@ -28,6 +28,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::capro;
 using namespace iox::cxx;
+using namespace iox::mepoo;
 using namespace iox::popo;
 using namespace iox::runtime;
 using ::testing::_;
@@ -63,9 +64,9 @@ class BaseServer_test : public Test
 
         // the default ctor is used in the getMiddlewareServer call
         PortConfigInfo portInfo;
-
-        // it is okay to not return any port since the mock does not use it anyway
-        EXPECT_CALL(*mockRuntime, getMiddlewareServer(sd, options, portInfo)).Times(1);
+        MemoryManager memoryManager;
+        ServerPortData portData{sd, runtimeName, options, &memoryManager, portInfo.memoryInfo};
+        EXPECT_CALL(*mockRuntime, getMiddlewareServer(sd, options, portInfo)).WillOnce(Return(&portData));
 
         sut.emplace(sd, options);
     }
