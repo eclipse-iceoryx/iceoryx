@@ -137,11 +137,6 @@ constexpr const char SERVICE_DISCOVERY_SERVICE_NAME[] = "ServiceDiscovery";
 constexpr const char SERVICE_DISCOVERY_INSTANCE_NAME[] = "RouDi_ID";
 constexpr const char SERVICE_DISCOVERY_EVENT_NAME[] = "ServiceRegistry";
 
-namespace runtime
-{
-using ServiceContainer = iox::cxx::vector<capro::ServiceDescription, MAX_FINDSERVICE_RESULT_SIZE>;
-}
-
 // Nodes
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
 constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;

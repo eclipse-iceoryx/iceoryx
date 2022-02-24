@@ -29,6 +29,7 @@
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "test.hpp"
 
+#include <set>
 #include <type_traits>
 #include <vector>
 
@@ -716,6 +717,148 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryNotifiedbyListenerFindsSingl
 
     ASSERT_FALSE(serviceContainer.empty());
     EXPECT_THAT(serviceContainer.front(), Eq(serviceDescriptionToSearchFor));
+}
+
+struct Comparator
+{
+    bool operator()(const ServiceDescription& a, const ServiceDescription& b)
+    {
+        if (a.getServiceIDString() < b.getServiceIDString())
+        {
+            return true;
+        }
+        if (b.getServiceIDString() < a.getServiceIDString())
+        {
+            return false;
+        }
+
+        if (a.getInstanceIDString() < b.getInstanceIDString())
+        {
+            return true;
+        }
+        if (b.getInstanceIDString() < a.getInstanceIDString())
+        {
+            return false;
+        }
+
+        if (a.getEventIDString() < b.getEventIDString())
+        {
+            return true;
+        }
+        return false;
+    }
+};
+
+bool sortAndCompare(ServiceContainer& a, ServiceContainer& b)
+{
+    std::sort(a.begin(), a.end(), Comparator());
+    std::sort(b.begin(), b.end(), Comparator());
+    return a == b;
+}
+
+struct ReferenceDiscovery
+{
+    std::set<ServiceDescription> services;
+
+    ReferenceDiscovery()
+    {
+        services.emplace(iox::roudi::IntrospectionMempoolService);
+        services.emplace(iox::roudi::IntrospectionPortService);
+        services.emplace(iox::roudi::IntrospectionPortThroughputService);
+        services.emplace(iox::roudi::IntrospectionSubscriberPortChangingDataService);
+        services.emplace(iox::roudi::IntrospectionProcessService);
+        services.emplace(iox::SERVICE_DISCOVERY_SERVICE_NAME,
+                         iox::SERVICE_DISCOVERY_INSTANCE_NAME,
+                         iox::SERVICE_DISCOVERY_EVENT_NAME);
+    }
+
+    void add(const ServiceDescription& s)
+    {
+        services.emplace(s);
+    }
+
+    // brute force reference implementation
+    ServiceContainer findService(const optional<IdString_t>& service,
+                                 const optional<IdString_t>& instance,
+                                 const optional<IdString_t>& event)
+    {
+        ServiceContainer result;
+        for (auto& s : services)
+        {
+            bool match = (service) ? (s.getServiceIDString() == *service) : true;
+            match &= (instance) ? (s.getInstanceIDString() == *instance) : true;
+            match &= (event) ? (s.getEventIDString() == *event) : true;
+
+            if (match)
+            {
+                result.emplace_back(s);
+            }
+        }
+        return result;
+    }
+
+    auto size()
+    {
+        return services.size();
+    }
+};
+
+#include <functional>
+
+// generalize for REQ-RES
+class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
+{
+  public:
+    static constexpr uint32_t CAPACITY = iox::MAX_PUBLISHERS;
+
+    // std::vector<iox::popo::UntypedPublisher> publishers;
+    iox::cxx::vector<iox::popo::UntypedPublisher, CAPACITY> publishers;
+    ReferenceDiscovery referenceDiscovery;
+    ServiceContainer expectedResult;
+
+    // variation point
+    std::function<void(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>& event)>
+        modifySearchArgs =
+            [](optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>&) { instance.reset(); };
+
+    void add(const ServiceDescription& s)
+    {
+        // does not work with std::vector, but probably with std::array
+        // probably because vector grows dynamically and may require copying (though the error is about move)
+        publishers.emplace_back(s);
+        referenceDiscovery.add(s);
+    }
+
+    void findService(const optional<IdString_t>& service,
+                     const optional<IdString_t>& instance,
+                     const optional<IdString_t>& event) noexcept
+    {
+        optional<IdString_t> s(service);
+        optional<IdString_t> i(instance);
+        optional<IdString_t> e(event);
+
+        modifySearchArgs(s, i, e);
+
+        ServiceDiscoveryPubSub_test::findService(s, i, e, MessagingPattern::PUB_SUB);
+        expectedResult = referenceDiscovery.findService(s, i, e);
+        EXPECT_TRUE(sortAndCompare(serviceContainer, expectedResult));
+    }
+
+    void clear()
+    {
+        expectedResult.clear();
+    }
+};
+
+TEST_F(ReferenceServiceDiscovery_test, FindInternalServices)
+{
+    findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+}
+
+TEST_F(ReferenceServiceDiscovery_test, FindSingleService)
+{
+    add({"a", "b", "c"});
+    findService({"a"}, {"b"}, {"c"});
 }
 
 } // namespace
