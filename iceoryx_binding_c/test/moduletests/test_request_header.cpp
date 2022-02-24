@@ -42,23 +42,16 @@ class iox_request_header_test : public Test
 
     void TearDown() override
     {
-        ++initialSequenceId;
-        ++headerVersion;
     }
 
-    static int64_t initialSequenceId;
-    static uint8_t headerVersion;
-    ChunkMock<int64_t, RpcBaseHeader> chunk;
-    RpcBaseHeader* baseHeader{new (chunk.userHeader())
-                                  RpcBaseHeader(iox::cxx::UniqueId(), 0U, initialSequenceId, headerVersion)};
+    ChunkMock<int64_t, RequestHeader> chunk;
+    RequestHeader* baseHeader{new (chunk.userHeader()) RequestHeader(iox::cxx::UniqueId(), 0U)};
     void* payload = nullptr;
     const void* constPayload = nullptr;
     iox_request_header_t sut = nullptr;
     iox_const_request_header_t sutConst = nullptr;
 };
 
-int64_t iox_request_header_test::initialSequenceId = 313;
-uint8_t iox_request_header_test::headerVersion = 4U;
 
 TEST_F(iox_request_header_test, createRequestHeaderFromPayloadWorks)
 {
@@ -72,8 +65,8 @@ TEST_F(iox_request_header_test, createRequestHeaderFromPayloadWorks)
 TEST_F(iox_request_header_test, setSequenceIdWorks)
 {
     constexpr int64_t SOME_LUCKY_SEQUENCE_ID = 182673231;
-    EXPECT_THAT(iox_request_header_get_sequence_id(sut), Eq(initialSequenceId));
-    EXPECT_THAT(iox_request_header_get_sequence_id_const(sutConst), Eq(initialSequenceId));
+    EXPECT_THAT(iox_request_header_get_sequence_id(sut), Eq(0U));
+    EXPECT_THAT(iox_request_header_get_sequence_id_const(sutConst), Eq(0U));
 
     iox_request_header_set_sequence_id(sut, SOME_LUCKY_SEQUENCE_ID);
 
@@ -83,8 +76,8 @@ TEST_F(iox_request_header_test, setSequenceIdWorks)
 
 TEST_F(iox_request_header_test, rpcHeaderVersionIsSetCorrectly)
 {
-    EXPECT_THAT(iox_request_header_get_rpc_header_version(sut), Eq(headerVersion));
-    EXPECT_THAT(iox_request_header_get_rpc_header_version_const(sutConst), Eq(headerVersion));
+    EXPECT_THAT(iox_request_header_get_rpc_header_version(sut), Eq(RpcBaseHeader::RPC_HEADER_VERSION));
+    EXPECT_THAT(iox_request_header_get_rpc_header_version_const(sutConst), Eq(RpcBaseHeader::RPC_HEADER_VERSION));
 }
 
 TEST_F(iox_request_header_test, getUserPayloadWorks)

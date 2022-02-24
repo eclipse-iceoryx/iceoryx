@@ -43,14 +43,11 @@ class iox_response_header_test : public Test
     void TearDown() override
     {
         ++initialSequenceId;
-        ++headerVersion;
     }
 
     static int64_t initialSequenceId;
-    static uint8_t headerVersion;
-    ChunkMock<int64_t, RpcBaseHeader> chunk;
-    RpcBaseHeader* baseHeader{new (chunk.userHeader())
-                                  RpcBaseHeader(iox::cxx::UniqueId(), 0U, initialSequenceId, headerVersion)};
+    ChunkMock<int64_t, ResponseHeader> chunk;
+    ResponseHeader* baseHeader{new (chunk.userHeader()) ResponseHeader(iox::cxx::UniqueId(), 0U, initialSequenceId)};
     void* payload = nullptr;
     const void* constPayload = nullptr;
     iox_response_header_t sut = nullptr;
@@ -58,7 +55,6 @@ class iox_response_header_test : public Test
 };
 
 int64_t iox_response_header_test::initialSequenceId = 9128;
-uint8_t iox_response_header_test::headerVersion = 32U;
 
 TEST_F(iox_response_header_test, createResponseHeaderFromPayloadWorks)
 {
@@ -77,8 +73,8 @@ TEST_F(iox_response_header_test, getSequenceIdWorks)
 
 TEST_F(iox_response_header_test, rpcHeaderVersionIsSetCorrectly)
 {
-    EXPECT_THAT(iox_response_header_get_rpc_header_version(sut), Eq(headerVersion));
-    EXPECT_THAT(iox_response_header_get_rpc_header_version_const(sutConst), Eq(headerVersion));
+    EXPECT_THAT(iox_response_header_get_rpc_header_version(sut), Eq(RpcBaseHeader::RPC_HEADER_VERSION));
+    EXPECT_THAT(iox_response_header_get_rpc_header_version_const(sutConst), Eq(RpcBaseHeader::RPC_HEADER_VERSION));
 }
 
 TEST_F(iox_response_header_test, setServerErrorWorks)
