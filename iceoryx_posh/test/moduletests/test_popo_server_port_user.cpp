@@ -685,12 +685,14 @@ TEST_F(ServerPort_test, SendResponseWithWithNullptrResponseHeaderCallsTheErrorHa
             detectedError.emplace(error);
         });
 
-    sut.portUser.sendResponse(nullptr);
+    sut.portUser.sendResponse(nullptr)
+        .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
+        .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::INVALID_RESPONSE)); });
 
     EXPECT_TRUE(detectedError.has_value());
 }
 
-TEST_F(ServerPort_test, SendResponseWithWithoutOfferReleasesTheChunkToTheMempool)
+TEST_F(ServerPort_test, SendResponseWithoutOfferReleasesTheChunkToTheMempool)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc4e31b1-18bf-4c42-9084-dd7abd52609b");
     auto& sut = serverPortWithoutOfferOnCreate;
@@ -699,7 +701,9 @@ TEST_F(ServerPort_test, SendResponseWithWithoutOfferReleasesTheChunkToTheMempool
         constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
         constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
-        sut.portUser.sendResponse(res);
+        sut.portUser.sendResponse(res)
+            .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
+            .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::NOT_OFFERING)); });
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS));
     });
 }
@@ -714,7 +718,9 @@ TEST_F(ServerPort_test, SendResponseWithInvalidClientQueueIdReleasesTheChunkToTh
         constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
         constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
-        sut.portUser.sendResponse(res);
+        sut.portUser.sendResponse(res)
+            .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
+            .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::CLIENT_NOT_AVAILABLE)); });
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS));
     });
 }
@@ -729,7 +735,11 @@ TEST_F(ServerPort_test, SendResponseWithValidClientQueueIdReleasesDeliversToTheC
     constexpr uint64_t RESPONSE_DATA{111U};
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
         new (ChunkHeader::fromUserHeader(res)->userPayload()) int64_t(RESPONSE_DATA);
-        sut.portUser.sendResponse(res);
+        sut.portUser.sendResponse(res)
+            .and_then([&]() { GTEST_SUCCEED() << "Response successfully sent"; })
+            .or_else([&](auto error) {
+                GTEST_FAIL() << "Expected response to be sent but got error: " << static_cast<uint64_t>(error);
+            });
     });
 
     auto maybeChunk IOX_MAYBE_UNUSED = clientResponseQueue.tryPop()
