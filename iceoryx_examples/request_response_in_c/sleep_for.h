@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,24 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_EXAMPLES_REQUEST_RESPONSE_IN_C_REQUEST_AND_RESPONSE_C_TYPES_H
-#define IOX_EXAMPLES_REQUEST_RESPONSE_IN_C_REQUEST_AND_RESPONSE_C_TYPES_H
+#ifndef IOX_BINDING_C_SLEEP_FOR_H
+#define IOX_BINDING_C_SLEEP_FOR_H
 
-#include <stdint.h>
+#ifdef _WIN32
+#include <windows.h>
 
-//! [request]
-struct AddRequest
+void sleep_for(uint32_t milliseconds)
 {
-    uint64_t augend;
-    uint64_t addend;
-};
-//! [request]
+    Sleep((uint64_t)milliseconds);
+}
 
-//! [response]
-struct AddResponse
+#else
+#include <unistd.h>
+
+void sleep_for(uint32_t milliseconds)
 {
-    uint64_t sum;
-};
-//! [response]
+    usleep(milliseconds * 1000U);
+}
+#endif
 
 #endif
