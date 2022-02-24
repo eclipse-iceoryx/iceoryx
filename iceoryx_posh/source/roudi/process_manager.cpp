@@ -501,7 +501,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                 case PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN:
                 {
                     error = runtime::IpcMessageErrorTypeToString(
-                        runtime::IpcMessageErrorType::SERVICE_DESCRIPTION_IS_FORBIDDEN);
+                        runtime::IpcMessageErrorType::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN);
                     break;
                 }
                 default:

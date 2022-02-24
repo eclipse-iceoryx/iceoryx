@@ -114,8 +114,8 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
             LogWarn() << "Service '" << service << "' already in use by another process.";
             errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::SEVERE);
             break;
-        case IpcMessageErrorType::SERVICE_DESCRIPTION_IS_FORBIDDEN:
-            LogWarn() << "Usage of service '" << service << "' is forbidden.";
+        case IpcMessageErrorType::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN:
+            LogWarn() << "Usage of internal service '" << service << "' is forbidden.";
             errorHandler(Error::kPOSH__RUNTIME_SERVICE_DESCRIPTION_FORBIDDEN, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case IpcMessageErrorType::PUBLISHER_LIST_FULL:
