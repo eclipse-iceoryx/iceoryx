@@ -34,7 +34,7 @@ namespace iox
 namespace popo
 {
 template <typename Req, typename Res, typename BaseClientT = BaseClient<>>
-class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
+class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>, ClientSendError>
 {
     using RequestTypeAssert = typename TypedPortApiTrait<Req>::Assert;
     using ResponseTypeAssert = typename TypedPortApiTrait<Res>::Assert;

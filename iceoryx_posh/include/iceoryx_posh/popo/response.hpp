@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
@@ -29,15 +30,18 @@ namespace iox
 {
 namespace popo
 {
-template <typename RpcType>
+template <typename RpcType, typename SendErrorEnum>
 class RpcInterface;
 
 /// @brief The Response class is a mutable abstraction over types which are written to loaned shared memory.
 /// These responses are sent to the client via the iceoryx system.
 template <typename T>
-class Response : public SmartChunk<RpcInterface<Response<T>>, T, cxx::add_const_conditionally_t<ResponseHeader, T>>
+class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
+                                   T,
+                                   cxx::add_const_conditionally_t<ResponseHeader, T>>
 {
-    using BaseType = SmartChunk<RpcInterface<Response<T>>, T, cxx::add_const_conditionally_t<ResponseHeader, T>>;
+    using BaseType =
+        SmartChunk<RpcInterface<Response<T>, ServerSendError>, T, cxx::add_const_conditionally_t<ResponseHeader, T>>;
 
     template <typename S, typename TT>
     using ForServerOnly = typename BaseType::template ForProducerOnly<S, TT>;
@@ -52,7 +56,7 @@ class Response : public SmartChunk<RpcInterface<Response<T>>, T, cxx::add_const_
     /// release ownership to it.
     /// @details Only available for server (non-const type T)
     template <typename S = T, typename = ForServerOnly<S, T>>
-    void send() noexcept;
+    cxx::expected<ServerSendError> send() noexcept;
 
     /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
     /// @return The response-header of the underlying memory chunk.
