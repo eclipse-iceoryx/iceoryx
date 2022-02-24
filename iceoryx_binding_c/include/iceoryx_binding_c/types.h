@@ -103,6 +103,8 @@ typedef struct
     // sizeof(UntypedClient) / 8
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
+#elif defined(_WIN32)
+    uint64_t do_not_touch_me[23];
 #else
     uint64_t do_not_touch_me[19];
 #endif
