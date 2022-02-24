@@ -55,43 +55,45 @@ int main()
         struct AddRequest* request = NULL;
         enum iox_AllocationResult loanResult =
             iox_client_loan_request(client, (void**)&request, sizeof(struct AddRequest));
-        if (loanResult != AllocationResult_SUCCESS)
+
+        if (loanResult == AllocationResult_SUCCESS)
+        {
+            iox_request_header_t requestHeader = iox_request_header_from_payload(request);
+            iox_request_header_set_sequence_id(requestHeader, requestSequenceId);
+            expectedResponseSequenceId = requestSequenceId;
+            requestSequenceId += 1;
+            request->augend = fibonacciLast;
+            request->addend = fibonacciCurrent;
+            printf("%s Send Request: %lu + %lu\n", APP_NAME, fibonacciLast, fibonacciCurrent);
+            iox_client_send(client, request);
+
+            const uint32_t DELAY_TIME_IN_MS = 150U;
+            sleep_for(DELAY_TIME_IN_MS);
+
+            const struct AddResponse* response = NULL;
+            while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)
+            {
+                iox_const_response_header_t responseHeader = iox_response_header_from_payload_const(response);
+                int64_t receivedSequenceId = iox_response_header_get_sequence_id_const(responseHeader);
+                if (receivedSequenceId == expectedResponseSequenceId)
+                {
+                    fibonacciLast = fibonacciCurrent;
+                    fibonacciCurrent = response->sum;
+                    printf("%s Got Response : %lu\n", APP_NAME, fibonacciCurrent);
+                }
+                else
+                {
+                    printf("Got Response with outdated sequence ID! Expected = %lu; Actual = %lu! -> skip\n",
+                           expectedResponseSequenceId,
+                           receivedSequenceId);
+                }
+
+                iox_client_release_response(client, response);
+            }
+        }
+        else
         {
             printf("Could not allocate Request! Return value = %d\n", loanResult);
-            continue;
-        }
-
-        iox_request_header_t requestHeader = iox_request_header_from_payload(request);
-        iox_request_header_set_sequence_id(requestHeader, requestSequenceId);
-        expectedResponseSequenceId = requestSequenceId;
-        requestSequenceId += 1;
-        request->augend = fibonacciLast;
-        request->addend = fibonacciCurrent;
-        printf("%s Send Request: %lu + %lu\n", APP_NAME, fibonacciLast, fibonacciCurrent);
-        iox_client_send(client, request);
-
-        const uint32_t DELAY_TIME_IN_MS = 150U;
-        sleep_for(DELAY_TIME_IN_MS);
-
-        const struct AddResponse* response = NULL;
-        while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)
-        {
-            iox_const_response_header_t responseHeader = iox_response_header_from_payload_const(response);
-            int64_t receivedSequenceId = iox_response_header_get_sequence_id_const(responseHeader);
-            if (receivedSequenceId == expectedResponseSequenceId)
-            {
-                fibonacciLast = fibonacciCurrent;
-                fibonacciCurrent = response->sum;
-                printf("%s Got Response : %lu\n", APP_NAME, fibonacciCurrent);
-            }
-            else
-            {
-                printf("Got Response with outdated sequence ID! Expected = %lu; Actual = %lu! -> skip\n",
-                       expectedResponseSequenceId,
-                       receivedSequenceId);
-            }
-
-            iox_client_release_response(client, response);
         }
 
         const uint32_t SLEEP_TIME_IN_MS = 950U;
