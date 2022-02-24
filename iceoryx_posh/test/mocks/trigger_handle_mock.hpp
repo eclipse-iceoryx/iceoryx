@@ -47,12 +47,12 @@ class MockTriggeHandle
         return *this;
     }
 
-    MOCK_METHOD(bool, isValid, (), (const noexcept));
-    MOCK_METHOD(bool, wasTriggered, (), (const noexcept));
+    MOCK_METHOD(bool, isValid, (), (const, noexcept));
+    MOCK_METHOD(bool, wasTriggered, (), (const, noexcept));
     MOCK_METHOD(void, trigger, (), (noexcept));
     MOCK_METHOD(void, reset, (), (noexcept));
     MOCK_METHOD(void, invalidate, (), (noexcept));
-    MOCK_METHOD(uint64_t, getUniqueId, (), (const noexcept));
+    MOCK_METHOD(uint64_t, getUniqueId, (), (const, noexcept));
     MOCK_METHOD(iox::popo::ConditionVariableData*, getConditionVariableData, (), (noexcept));
 
     explicit operator bool() const

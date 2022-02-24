@@ -54,18 +54,18 @@ class MockClientPortUser : public MockBasePort
     MOCK_METHOD(void, sendRequest, (iox::popo::RequestHeader* const), (noexcept));
     MOCK_METHOD(void, connect, (), (noexcept));
     MOCK_METHOD(void, disconnect, (), (noexcept));
-    MOCK_METHOD(iox::ConnectionState, getConnectionState, (), (const noexcept));
+    MOCK_METHOD(iox::ConnectionState, getConnectionState, (), (const, noexcept));
     MOCK_METHOD((iox::cxx::expected<const iox::popo::ResponseHeader*, iox::popo::ChunkReceiveResult>),
                 getResponse,
                 (),
                 (noexcept));
     MOCK_METHOD(void, releaseResponse, (const iox::popo::ResponseHeader* const), (noexcept));
     MOCK_METHOD(void, releaseQueuedResponses, (), (noexcept));
-    MOCK_METHOD(bool, hasNewResponses, (), (const noexcept));
+    MOCK_METHOD(bool, hasNewResponses, (), (const, noexcept));
     MOCK_METHOD(bool, hasLostResponsesSinceLastCall, (), (noexcept));
     MOCK_METHOD(void, setConditionVariable, (iox::popo::ConditionVariableData&, const uint64_t), (noexcept));
     MOCK_METHOD(void, unsetConditionVariable, (), (noexcept));
-    MOCK_METHOD(bool, isConditionVariableSet, (), (const noexcept));
+    MOCK_METHOD(bool, isConditionVariableSet, (), (const, noexcept));
 };
 
 template <typename T>
@@ -80,12 +80,12 @@ class MockBaseClient
     {
     }
 
-    MOCK_METHOD(iox::popo::uid_t, getUid, (), (const noexcept));
-    MOCK_METHOD(const iox::capro::ServiceDescription&, getServiceDescription, (), (const noexcept));
+    MOCK_METHOD(iox::popo::uid_t, getUid, (), (const, noexcept));
+    MOCK_METHOD(const iox::capro::ServiceDescription&, getServiceDescription, (), (const, noexcept));
     MOCK_METHOD(void, connect, (), (noexcept));
-    MOCK_METHOD(iox::ConnectionState, getConnectionState, (), (const noexcept));
+    MOCK_METHOD(iox::ConnectionState, getConnectionState, (), (const, noexcept));
     MOCK_METHOD(void, disconnect, (), (noexcept));
-    MOCK_METHOD(bool, hasResponses, (), (const noexcept));
+    MOCK_METHOD(bool, hasResponses, (), (const, noexcept));
     MOCK_METHOD(bool, hasMissedResponses, (), (noexcept));
     MOCK_METHOD(void, releaseQueuedResponses, (), (noexcept));
 
@@ -94,7 +94,7 @@ class MockBaseClient
     MOCK_METHOD(iox::popo::WaitSetIsConditionSatisfiedCallback,
                 getCallbackForIsStateConditionSatisfied,
                 (const iox::popo::ClientState),
-                (const noexcept));
+                (const, noexcept));
     MOCK_METHOD(void, disableState, (const iox::popo::ClientState), (noexcept));
     MOCK_METHOD(void, enableEvent, (iox::popo::TriggerHandle&&, const iox::popo::ClientEvent), (noexcept));
     MOCK_METHOD(void, disableEvent, (const iox::popo::ClientEvent), (noexcept));
