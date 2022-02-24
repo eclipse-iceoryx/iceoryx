@@ -250,7 +250,7 @@ TEST_F(BaseClient_test, GetCallbackForIsStateConditionSatisfiedReturnsCallbackTo
 
     constexpr bool HAS_RESPONSES{true};
     EXPECT_CALL(sut->port(), hasNewResponses).WillOnce(Return(HAS_RESPONSES));
-    callback();
+    EXPECT_FALSE(callback().has_error());
 }
 
 TEST_F(BaseClient_test, DisableStateCallsUnderlyingPortAndTriggerHandle)
