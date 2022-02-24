@@ -31,6 +31,7 @@ class UntypedServerImpl : public BaseServerT
   public:
     explicit UntypedServerImpl(const capro::ServiceDescription& service,
                                const ServerOptions& serverOptions = {}) noexcept;
+    ~UntypedServerImpl() = default;
     UntypedServerImpl(const UntypedServerImpl&) = delete;
     UntypedServerImpl(UntypedServerImpl&&) = delete;
     UntypedServerImpl& operator=(const UntypedServerImpl&) = delete;
@@ -63,8 +64,8 @@ class UntypedServerImpl : public BaseServerT
 
     /// @brief Sends the provided memory chunk as response to the client.
     /// @param responsePayload Pointer to the payload of the allocated shared memory chunk.
-    /// @return Error if provided pointer is not a payload of a valid memory chunk.
-    void send(void* const responsePayload) noexcept;
+    /// @return Error if sending was not successful
+    cxx::expected<ServerSendError> send(void* const responsePayload) noexcept;
 
     /// @brief Releases the ownership of the response chunk provided by the payload pointer.
     /// @param responsePayload pointer to the payload of the chunk to be released

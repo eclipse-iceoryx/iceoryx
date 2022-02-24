@@ -44,6 +44,7 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>>
     /// @param[in] service is the ServiceDescription for the new server
     /// @param[in] serverOptions like the queue capacity and queue full policy by a server
     explicit ServerImpl(const capro::ServiceDescription& service, const ServerOptions& serverOptions = {}) noexcept;
+    ~ServerImpl() = default;
     ServerImpl(const ServerImpl&) = delete;
     ServerImpl(ServerImpl&&) = delete;
     ServerImpl& operator=(const ServerImpl&) = delete;
@@ -66,7 +67,8 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>>
 
     /// @brief Sends the given Response and then releases its loan.
     /// @param response to send.
-    void send(Response<Res>&& response) noexcept override;
+    /// @return Error if sending was not successful
+    cxx::expected<ServerSendError> send(Response<Res>&& response) noexcept override;
 
   private:
     using BaseServerT::port;

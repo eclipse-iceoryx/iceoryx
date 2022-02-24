@@ -70,12 +70,12 @@ cxx::expected<Response<Res>, AllocationError> ServerImpl<Req, Res, BaseServerT>:
 }
 
 template <typename Req, typename Res, typename BaseServerT>
-void ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
+cxx::expected<ServerSendError> ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
 {
     // take the ownership of the chunk from the Response to transfer it to `sendResponse`
     auto payload = response.release();
     auto* responseHeader = static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
-    port().sendResponse(responseHeader);
+    return port().sendResponse(responseHeader);
 }
 
 } // namespace popo
