@@ -53,12 +53,12 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
 }
 
 template <typename Req, typename Res, typename BaseClientT>
-void ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
+cxx::expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
     // take the ownership of the chunk from the Request to transfer it to `sendRequest`
     auto payload = request.release();
     auto* requestHeader = static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
-    port().sendRequest(requestHeader);
+    return port().sendRequest(requestHeader);
 }
 
 template <typename Req, typename Res, typename BaseClientT>

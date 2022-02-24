@@ -33,6 +33,8 @@ class UntypedClientImpl : public BaseClientT
   public:
     explicit UntypedClientImpl(const capro::ServiceDescription& service,
                                const ClientOptions& clientOptions = {}) noexcept;
+    ~UntypedClientImpl() = default;
+
     UntypedClientImpl(const UntypedClientImpl&) = delete;
     UntypedClientImpl(UntypedClientImpl&&) = delete;
     UntypedClientImpl& operator=(const UntypedClientImpl&) = delete;
@@ -55,8 +57,8 @@ class UntypedClientImpl : public BaseClientT
 
     /// @brief Sends the provided memory chunk as request to the server.
     /// @param requestPayload Pointer to the payload of the allocated shared memory chunk.
-    /// @return Error if provided pointer is not a payload of a valid memory chunk.
-    void send(void* const requestPayload) noexcept;
+    /// @return Error if sending was not successful
+    cxx::expected<ClientSendError> send(void* const requestPayload) noexcept;
 
     /// @brief Take the response chunk from the top of the receive queue.
     /// @return The payload pointer of the request chunk taken.

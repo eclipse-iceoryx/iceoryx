@@ -44,6 +44,8 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
     /// @param[in] service is the ServiceDescription for the new client
     /// @param[in] clientOptions like the queue capacity and queue full policy by a client
     explicit ClientImpl(const capro::ServiceDescription& service, const ClientOptions& clientOptions = {}) noexcept;
+    ~ClientImpl() = default;
+
     ClientImpl(const ClientImpl&) = delete;
     ClientImpl(ClientImpl&&) = delete;
     ClientImpl& operator=(const ClientImpl&) = delete;
@@ -59,7 +61,8 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>>
 
     /// @brief Sends the given Request and then releases its loan.
     /// @param request to send.
-    void send(Request<Req>&& request) noexcept override;
+    /// @return Error if sending was not successful
+    cxx::expected<ClientSendError> send(Request<Req>&& request) noexcept override;
 
     /// @brief Take the Response from the top of the receive queue.
     /// @return Either a Response or a ChunkReceiveResult.

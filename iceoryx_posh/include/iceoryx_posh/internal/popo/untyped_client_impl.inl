@@ -46,21 +46,23 @@ cxx::expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const
 template <typename BaseClientT>
 void UntypedClientImpl<BaseClientT>::releaseRequest(void* const requestPayload) noexcept
 {
-    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
-    if (chunkHeader)
+    auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
+    if (chunkHeader != nullptr)
     {
         port().releaseRequest(static_cast<RequestHeader*>(chunkHeader->userHeader()));
     }
 }
 
 template <typename BaseClientT>
-void UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
+cxx::expected<ClientSendError> UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
 {
-    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
-    if (chunkHeader)
+    auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
+    if (chunkHeader == nullptr)
     {
-        port().sendRequest(static_cast<RequestHeader*>(chunkHeader->userHeader()));
+        return cxx::error<ClientSendError>(ClientSendError::INVALID_REQUEST);
     }
+
+    return port().sendRequest(static_cast<RequestHeader*>(chunkHeader->userHeader()));
 }
 
 template <typename BaseClientT>
@@ -78,8 +80,8 @@ cxx::expected<const void*, ChunkReceiveResult> UntypedClientImpl<BaseClientT>::t
 template <typename BaseClientT>
 void UntypedClientImpl<BaseClientT>::releaseResponse(const void* const responsePayload) noexcept
 {
-    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
-    if (chunkHeader)
+    const auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
+    if (chunkHeader != nullptr)
     {
         port().releaseResponse(static_cast<const ResponseHeader*>(chunkHeader->userHeader()));
     }
