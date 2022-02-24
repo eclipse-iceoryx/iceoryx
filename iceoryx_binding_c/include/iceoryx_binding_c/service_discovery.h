@@ -34,7 +34,7 @@ iox_service_discovery_t iox_service_discovery_init(iox_service_discovery_storage
 /// @param[in] self the service discovery which should be deinitialized
 void iox_service_discovery_deinit(iox_service_discovery_t const self);
 
-/// @brief Searches all services that match the provided service description
+/// @brief Searches all services with the given messaging pattern that match the provided service description
 /// @param[in] self handle of the service discovery
 /// @param[in] service service string to search for, a nullptr corresponds to a wildcard
 /// @param[in] instance instance string to search for, a nullptr corresponds to a wildcard
@@ -44,7 +44,7 @@ void iox_service_discovery_deinit(iox_service_discovery_t const self);
 /// @param[in] serviceContainerCapacity the capacity of the preallocated serviceContainer
 /// @param[in] missedServices if the serviceContainer has insufficient size the number of missed services which could
 /// not be written into the serviceContainer are stored here
-/// @param[in] pattern messaging pattern to which the service belongs
+/// @param[in] pattern messaging pattern of the service
 /// @return the number of services which were written into the serviceContainer
 uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
                                             const char* const service,
@@ -55,19 +55,37 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
                                             uint64_t* missedServices,
                                             const ENUM iox_MessagingPattern pattern);
 
-/// @brief Searches all services that match the provided service description and applies a function to each of them
+/// @brief Searches all services with the given messaging pattern that match the provided service description and
+/// applies a function to each of them
 /// @param[in] self handle of the service discovery
 /// @param[in] service service string to search for, a nullptr corresponds to a wildcard
 /// @param[in] instance instance string to search for, a nullptr corresponds to a wildcard
 /// @param[in] event event string to search for, a nullptr corresponds to a wildcard
 /// @param[in] callable to apply to all matching services
-/// @param[in] pattern messaging pattern to which the service belongs
-void iox_service_discovery_find_service_with_context_data(iox_service_discovery_t const self,
-                                                          const char* const service,
-                                                          const char* const instance,
-                                                          const char* const event,
-                                                          void (*callable)(const iox_service_description_t, void*),
-                                                          void* const contextData,
-                                                          const ENUM iox_MessagingPattern pattern);
+/// @param[in] pattern messaging pattern of the service
+void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t const self,
+                                                       const char* const service,
+                                                       const char* const instance,
+                                                       const char* const event,
+                                                       void (*callable)(const iox_service_description_t),
+                                                       const ENUM iox_MessagingPattern pattern);
+
+/// @brief Searches all services with the given messaging pattern that match the provided service description and
+/// applies a function to each of them. A second parameter for the function can be provided as contextData.
+/// @param[in] self handle of the service discovery
+/// @param[in] service service string to search for, a nullptr corresponds to a wildcard
+/// @param[in] instance instance string to search for, a nullptr corresponds to a wildcard
+/// @param[in] event event string to search for, a nullptr corresponds to a wildcard
+/// @param[in] callable to apply to all matching services
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @param[in] pattern messaging pattern of the service
+void iox_service_discovery_find_service_apply_callable_with_context_data(
+    iox_service_discovery_t const self,
+    const char* const service,
+    const char* const instance,
+    const char* const event,
+    void (*callable)(const iox_service_description_t, void*),
+    void* const contextData,
+    const ENUM iox_MessagingPattern pattern);
 
 #endif

@@ -53,6 +53,7 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(serviceContainer != nullptr);
+    iox::cxx::Expects(missedServices != nullptr);
 
     cxx::optional<capro::IdString_t> maybeService;
     if (service != nullptr)
@@ -72,7 +73,7 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
 
     uint64_t currentSize = 0U;
     auto filter = [&](const capro::ServiceDescription& s) {
-        if (currentSize + 1U <= serviceContainerCapacity)
+        if (currentSize < serviceContainerCapacity)
         {
             serviceContainer[currentSize] = TranslateServiceDescription(s);
             ++currentSize;
@@ -87,13 +88,44 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
     return currentSize;
 }
 
-void iox_service_discovery_find_service_with_context_data(iox_service_discovery_t const self,
-                                                          const char* const service,
-                                                          const char* const instance,
-                                                          const char* const event,
-                                                          void (*callable)(const iox_service_description_t, void*),
-                                                          void* const contextData,
-                                                          const ENUM iox_MessagingPattern pattern)
+void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t const self,
+                                                       const char* const service,
+                                                       const char* const instance,
+                                                       const char* const event,
+                                                       void (*callable)(const iox_service_description_t),
+                                                       const ENUM iox_MessagingPattern pattern)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(callable != nullptr);
+
+    cxx::optional<capro::IdString_t> maybeService;
+    if (service != nullptr)
+    {
+        maybeService.emplace(cxx::TruncateToCapacity, service);
+    }
+    cxx::optional<capro::IdString_t> maybeInstance;
+    if (instance != nullptr)
+    {
+        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+    }
+    cxx::optional<capro::IdString_t> maybeEvent;
+    if (event != nullptr)
+    {
+        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+    }
+
+    auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s)); };
+    self->findService(maybeService, maybeInstance, maybeEvent, filter, c2cpp::messagingPattern(pattern));
+}
+
+void iox_service_discovery_find_service_apply_callable_with_context_data(
+    iox_service_discovery_t const self,
+    const char* const service,
+    const char* const instance,
+    const char* const event,
+    void (*callable)(const iox_service_description_t, void*),
+    void* const contextData,
+    const ENUM iox_MessagingPattern pattern)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(callable != nullptr);

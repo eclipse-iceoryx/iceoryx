@@ -66,10 +66,11 @@ TEST(iox_service_discovery_DeathTest, InitServiceDiscoveryWithNullptrForStorageT
 
 /// @note We test only if the arguments of iox_service_discovery_find_service are correctly passed to
 /// ServiceDiscovery::findService.
-TEST_F(iox_service_discovery_test, FindServiceWithContextDataWithNullptrsForServiceInstanceEventReturnsAllServices)
+TEST_F(iox_service_discovery_test,
+       FindServiceWithCallableAndContextDataWithNullptrsForServiceInstanceEventReturnsAllServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "09a2cd6c-fba9-4b9d-af96-c5a6cc168d98");
-    iox_service_discovery_find_service_with_context_data(
+    iox_service_discovery_find_service_apply_callable_with_context_data(
         sut, nullptr, nullptr, nullptr, findHandler, &searchResult, MessagingPattern_PUB_SUB);
     for (const auto& service : searchResult)
     {
@@ -77,7 +78,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithContextDataWithNullptrsForServ
     }
 }
 
-TEST_F(iox_service_discovery_test, FindServiceWithContextDataReturnsOfferedService)
+TEST_F(iox_service_discovery_test, FindServiceWithCallableAndContextDataReturnsOfferedService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb12e514-e7af-4946-b098-98b3cd0f43a5");
     iox_pub_options_t options;
@@ -87,17 +88,43 @@ TEST_F(iox_service_discovery_test, FindServiceWithContextDataReturnsOfferedServi
     ASSERT_NE(publisher, nullptr);
     const iox_service_description_t SERVICE_DESCRIPTION = iox_pub_get_service_description(publisher);
 
-    iox_service_discovery_find_service_with_context_data(sut,
-                                                         SERVICE_DESCRIPTION.serviceString,
-                                                         SERVICE_DESCRIPTION.instanceString,
-                                                         SERVICE_DESCRIPTION.eventString,
-                                                         findHandler,
-                                                         &searchResult,
-                                                         MessagingPattern_PUB_SUB);
+    iox_service_discovery_find_service_apply_callable_with_context_data(sut,
+                                                                        SERVICE_DESCRIPTION.serviceString,
+                                                                        SERVICE_DESCRIPTION.instanceString,
+                                                                        SERVICE_DESCRIPTION.eventString,
+                                                                        findHandler,
+                                                                        &searchResult,
+                                                                        MessagingPattern_PUB_SUB);
     ASSERT_THAT(searchResult.size(), Eq(1U));
     EXPECT_THAT(*searchResult.begin()->serviceString, Eq(*SERVICE_DESCRIPTION.serviceString));
     EXPECT_THAT(*searchResult.begin()->instanceString, Eq(*SERVICE_DESCRIPTION.instanceString));
     EXPECT_THAT(*searchResult.begin()->eventString, Eq(*SERVICE_DESCRIPTION.eventString));
+}
+
+TEST_F(iox_service_discovery_test, FindServiceWithCallableWithNullptrsForServiceInstanceEventFindsCorrectServices)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ec565ca3-7494-42d7-9440-2000f1513759");
+    auto findHandler = [](const iox_service_description_t s) { EXPECT_THAT(s.instanceString, StrEq("RouDi_ID")); };
+    iox_service_discovery_find_service_apply_callable(
+        sut, nullptr, nullptr, nullptr, findHandler, MessagingPattern_PUB_SUB);
+}
+
+TEST_F(iox_service_discovery_test, FindServiceWithCallableReturnsFindsCorrectService)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3ac1f029-3c05-4f95-90e9-e848ceb2d4d7");
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    iox_pub_storage_t storage;
+    auto* publisher = iox_pub_init(&storage, "service", "instance", "event", &options);
+    ASSERT_NE(publisher, nullptr);
+
+    auto findHandler = [](const iox_service_description_t s) {
+        EXPECT_THAT(s.serviceString, StrEq("service"));
+        EXPECT_THAT(s.instanceString, StrEq("instance"));
+        EXPECT_THAT(s.eventString, StrEq("event"));
+    };
+    iox_service_discovery_find_service_apply_callable(
+        sut, "service", "instance", "event", findHandler, MessagingPattern_PUB_SUB);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEventReturnsAllServices)
@@ -168,7 +195,7 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhen
                                                                         MessagingPattern_PUB_SUB);
 
     EXPECT_THAT(numberFoundServices, Eq(SERVICE_CONTAINER_CAPACITY));
-    EXPECT_THAT(missedServices, Eq(6U - SERVICE_CONTAINER_CAPACITY));
+    EXPECT_THAT(missedServices, Eq(NUMBER_OF_INTERNAL_PUBLISHERS - SERVICE_CONTAINER_CAPACITY));
 }
 
 } // namespace
