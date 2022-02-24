@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define SEARCH_RESULT_CAPACITY 10
+
 bool keepRunning = true;
 
 const char APP_NAME[] = "iox-c-find-service";
@@ -59,8 +61,7 @@ int main()
     iox_service_discovery_storage_t storage;
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&storage);
 
-    const uint64_t searchResultCapacity = 10U;
-    iox_service_description_t searchResult[searchResultCapacity];
+    iox_service_description_t searchResult[SEARCH_RESULT_CAPACITY];
     uint64_t missedServices = 0U;
     uint64_t numberFoundServices = 0U;
 
@@ -92,7 +93,7 @@ int main()
                                                                  NULL,
                                                                  NULL,
                                                                  searchResult,
-                                                                 searchResultCapacity,
+                                                                 SEARCH_RESULT_CAPACITY,
                                                                  &missedServices,
                                                                  MessagingPattern_PUB_SUB);
         printf("\nSearched for {'Camera', *, *}. Found the following services:\n");

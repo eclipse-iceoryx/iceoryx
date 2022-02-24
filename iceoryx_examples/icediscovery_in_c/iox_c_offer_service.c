@@ -21,6 +21,8 @@
 #include <signal.h>
 #include <stdbool.h>
 
+#define NUMBER_OF_CAMERA_PUBLISHERS 5
+
 bool keepRunning = true;
 
 const char APP_NAME[] = "iox-c-offer-service";
@@ -47,9 +49,8 @@ int main()
     iox_pub_t radarRight = iox_pub_init(&publisherStorage, "Radar", "FrontRight", "Image", &options);
     iox_pub_t lidarLeft = iox_pub_init(&publisherStorage, "Lidar", "FrontLeft", "Counter", &options);
 
-    const int numberCameraPublishers = 5;
-    iox_pub_storage_t cameraPublisherStorage[numberCameraPublishers];
-    iox_pub_t cameraPublishers[numberCameraPublishers];
+    iox_pub_storage_t cameraPublisherStorage[NUMBER_OF_CAMERA_PUBLISHERS];
+    iox_pub_t cameraPublishers[NUMBER_OF_CAMERA_PUBLISHERS];
     cameraPublishers[0] = iox_pub_init(&cameraPublisherStorage[0], "Camera", "FrontLeft", "Counter", &options);
     cameraPublishers[1] = iox_pub_init(&cameraPublisherStorage[1], "Camera", "FrontLeft", "Image", &options);
     cameraPublishers[2] = iox_pub_init(&cameraPublisherStorage[2], "Camera", "FrontRight", "Counter", &options);
@@ -61,14 +62,14 @@ int main()
     {
         if (offer)
         {
-            for (int i = 0; i < numberCameraPublishers; ++i)
+            for (int i = 0; i < NUMBER_OF_CAMERA_PUBLISHERS; ++i)
             {
                 iox_pub_offer(cameraPublishers[i]);
             }
         }
         else
         {
-            for (int i = 0; i < numberCameraPublishers; ++i)
+            for (int i = 0; i < NUMBER_OF_CAMERA_PUBLISHERS; ++i)
             {
                 iox_pub_stop_offer(cameraPublishers[i]);
             }
@@ -80,7 +81,7 @@ int main()
     iox_pub_deinit(radarLeft);
     iox_pub_deinit(radarRight);
     iox_pub_deinit(lidarLeft);
-    for (int i = 0; i < numberCameraPublishers; ++i)
+    for (int i = 0; i < NUMBER_OF_CAMERA_PUBLISHERS; ++i)
     {
         iox_pub_deinit(cameraPublishers[i]);
     }
