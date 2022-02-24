@@ -127,6 +127,13 @@ constexpr const char iox_client_test::SERVICE[];
 constexpr const char iox_client_test::INSTANCE[];
 constexpr const char iox_client_test::EVENT[];
 
+TEST(iox_client_test, StorageSizesFit)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "70aa551d-4220-4389-8cae-cd3c5314b2b0");
+    EXPECT_THAT(sizeof(UntypedClient), Le(sizeof(iox_client_storage_t)));
+    EXPECT_THAT(alignof(UntypedClient), Le(alignof(iox_client_storage_t)));
+}
+
 TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "347f3a6d-8659-4ac3-81be-720e8a444d5e");
