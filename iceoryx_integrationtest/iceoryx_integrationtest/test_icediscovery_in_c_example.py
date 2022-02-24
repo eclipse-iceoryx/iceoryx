@@ -34,38 +34,38 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    # executable_list = ['iox-offer-service', 'iox-find-service']
-    # process_list = []
+    executable_list = ['iox-c-offer-service', 'iox-c-find-service']
+    process_list = []
 
-    # for exec in executable_list:
-        # tmp_exec = os.path.join(
-            # colcon_prefix_path,
-            # 'example_icediscovery/bin/',
-            # exec)
-        # tmp_process = launch.actions.ExecuteProcess(
-            # cmd=[tmp_exec],
-            # env=proc_env, output='screen')
-        # process_list.append(tmp_process)
+    for exec in executable_list:
+        tmp_exec = os.path.join(
+            colcon_prefix_path,
+            'example_icediscovery_in_c/bin/',
+            exec)
+        tmp_process = launch.actions.ExecuteProcess(
+            cmd=[tmp_exec],
+            env=proc_env, output='screen')
+        process_list.append(tmp_process)
 
-    # print("Process list:", process_list)
+    print("Process list:", process_list)
 
-    # roudi_executable = os.path.join(
-        # colcon_prefix_path,
-        # 'iceoryx_posh/bin/',
-        # 'iox-roudi'
-    # )
-    # roudi_process = launch.actions.ExecuteProcess(
-        # cmd=[roudi_executable, '-l', 'debug'],
-        # env=proc_env, output='screen',
-        # sigterm_timeout='20')
+    roudi_executable = os.path.join(
+        colcon_prefix_path,
+        'iceoryx_posh/bin/',
+        'iox-roudi'
+    )
+    roudi_process = launch.actions.ExecuteProcess(
+        cmd=[roudi_executable, '-l', 'debug'],
+        env=proc_env, output='screen',
+        sigterm_timeout='20')
 
-    # return launch.LaunchDescription([
-        # process_list[0],
-        # process_list[1],
-        # roudi_process,
-        # launch_testing.actions.ReadyToTest()
-    # ]), {'iox-offer-service': process_list[0], 'iox-find-service': process_list[1],
-         # 'roudi_process': roudi_process}
+    return launch.LaunchDescription([
+        process_list[0],
+        process_list[1],
+        roudi_process,
+        launch_testing.actions.ReadyToTest()
+    ]), {'iox-c-offer-service': process_list[0], 'iox-c-find-service': process_list[1],
+         'roudi_process': roudi_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
@@ -77,37 +77,43 @@ class TestIcediscoveryExample(unittest.TestCase):
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
     def test_find_service(self, proc_output):
-        # proc_output.assertWaitFor(
-            # 'Searched for {\'Radar\', \'FrontLeft\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {\'Radar\', *, *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Radar, Instance: FrontRight, Event: Image',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {*, \'FrontLeft\', *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Lidar, Instance: FrontLeft, Event: Counter\n- Service: Camera, Instance: FrontLeft, Event: Image\n- Service: Camera, Instance: FrontLeft, Event: Counter',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {*, \'FrontRight\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontRight, Event: Image\n- Service: Camera, Instance: FrontRight, Event: Image',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {\'Camera\', *, *}. Found the following services:\n- Service: Camera, Instance: FrontLeft, Event: Image\n- Service: Camera, Instance: FrontRight, Event: Counter\n- Service: Camera, Instance: FrontRight, Event: Image\n- Service: Camera, Instance: BackLeft, Event: Image\n- Service: Camera, Instance: FrontLeft, Event: Counter',
-            # timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {\'Radar\', \'FrontLeft\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {\'Radar\', *, *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Radar, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {*, \'FrontLeft\', *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Lidar, Instance: FrontLeft, Event: Counter\n- Service: Camera, Instance: FrontLeft, Event: Image\n- Service: Camera, Instance: FrontLeft, Event: Counter',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {*, \'FrontRight\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontRight, Event: Image\n- Service: Camera, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {\'Camera\', *, *}. Found the following services:\n- Service: Camera, Instance: FrontLeft, Event: Image\n- Service: Camera, Instance: FrontRight, Event: Counter\n- Service: Camera, Instance: FrontRight, Event: Image\n- Service: Camera, Instance: BackLeft, Event: Image\n- Service: Camera, Instance: FrontLeft, Event: Counter',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Found 4 front cameras',
+            timeout=45, stream='stdout')
 
-        # proc_output.assertWaitFor(
-            # 'Searched for {\'Radar\', \'FrontLeft\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {\'Radar\', *, *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Radar, Instance: FrontRight, Event: Image',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {*, \'FrontLeft\', *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Lidar, Instance: FrontLeft, Event: Counter',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {*, \'FrontRight\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontRight, Event: Image',
-            # timeout=45, stream='stdout')
-        # proc_output.assertWaitFor(
-            # 'Searched for {\'Camera\', *, *}. Found the following services:',
-            # timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {\'Radar\', \'FrontLeft\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {\'Radar\', *, *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Radar, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {*, \'FrontLeft\', *}. Found the following services:\n- Service: Radar, Instance: FrontLeft, Event: Image\n- Service: Lidar, Instance: FrontLeft, Event: Counter',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {*, \'FrontRight\', \'Image\'}. Found the following services:\n- Service: Radar, Instance: FrontRight, Event: Image',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Searched for {\'Camera\', *, *}. Found the following services:',
+            timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'Found 0 front cameras',
+            timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
