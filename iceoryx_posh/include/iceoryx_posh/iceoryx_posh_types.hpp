@@ -106,13 +106,12 @@ namespace popo
 using WaitSetIsConditionSatisfiedCallback = cxx::ConstMethodCallback<bool>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
-constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 255U;
-constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 255U;
+constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 254;
+constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 254;
 static_assert(MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
 // Listener
-constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 255U;
-constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 255U;
+constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 254U;
 static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The Listener capacity is restricted by the maximum amount of notifiers per condition variable.");
 //--------- Communication Resources End---------------------
