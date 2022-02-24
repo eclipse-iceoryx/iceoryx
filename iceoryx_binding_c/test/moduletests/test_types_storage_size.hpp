@@ -36,38 +36,38 @@ extern "C" {
 
 inline void assertIceoryxBindingCStorageSizes()
 {
-    static_assert(sizeof(iox::popo::WaitSet<>) <= sizeof(iox_ws_storage_t), "iox_ws_storage_t size mismatch");
-    static_assert(alignof(iox::popo::WaitSet<>) <= alignof(iox_ws_storage_t), "iox_ws_storage_t alignment mismatch");
+    static_assert(sizeof(iox::popo::WaitSet<>) == sizeof(iox_ws_storage_t), "iox_ws_storage_t size mismatch");
+    static_assert(alignof(iox::popo::WaitSet<>) == alignof(iox_ws_storage_t), "iox_ws_storage_t alignment mismatch");
 
-    static_assert(sizeof(iox::popo::Listener) <= sizeof(iox_listener_storage_t),
+    static_assert(sizeof(iox::popo::Listener) == sizeof(iox_listener_storage_t),
                   "iox_listener_storage_t storage size mismatch");
-    static_assert(alignof(iox::popo::Listener) <= alignof(iox_listener_storage_t),
+    static_assert(alignof(iox::popo::Listener) == alignof(iox_listener_storage_t),
                   "iox_listener_storage_t alignment mismatch");
 
-    static_assert(sizeof(iox::popo::UserTrigger) <= sizeof(iox_user_trigger_storage_t),
+    static_assert(sizeof(iox::popo::UserTrigger) == sizeof(iox_user_trigger_storage_t),
                   "iox_user_trigger_storage_t storage size mismatch");
-    static_assert(alignof(iox::popo::UserTrigger) <= alignof(iox_user_trigger_storage_t),
+    static_assert(alignof(iox::popo::UserTrigger) == alignof(iox_user_trigger_storage_t),
                   "iox_user_trigger_storage_t alignment mismatch");
 
-    static_assert(sizeof(cpp2c_Subscriber) <= sizeof(iox_sub_storage_t), "iox_sub_storage_t storage size mismatch");
-    static_assert(alignof(cpp2c_Subscriber) <= alignof(iox_sub_storage_t), "iox_sub_storage_t alignment mismatch");
+    static_assert(sizeof(cpp2c_Subscriber) == sizeof(iox_sub_storage_t), "iox_sub_storage_t storage size mismatch");
+    static_assert(alignof(cpp2c_Subscriber) == alignof(iox_sub_storage_t), "iox_sub_storage_t alignment mismatch");
 
-    static_assert(sizeof(cpp2c_Publisher) <= sizeof(iox_pub_storage_t), "iox_pub_storage_t storage size mismatch");
-    static_assert(alignof(cpp2c_Publisher) <= alignof(iox_pub_storage_t), "iox_pub_storage_t alignment mismatch");
+    static_assert(sizeof(cpp2c_Publisher) == sizeof(iox_pub_storage_t), "iox_pub_storage_t storage size mismatch");
+    static_assert(alignof(cpp2c_Publisher) == alignof(iox_pub_storage_t), "iox_pub_storage_t alignment mismatch");
 
-    static_assert(sizeof(iox::popo::UntypedClient) <= sizeof(iox_client_storage_t),
+    static_assert(sizeof(iox::popo::UntypedClient) == sizeof(iox_client_storage_t),
                   "iox_client_storage_t storage size mismatch");
-    static_assert(alignof(iox::popo::UntypedClient) <= alignof(iox_client_storage_t),
+    static_assert(alignof(iox::popo::UntypedClient) == alignof(iox_client_storage_t),
                   "iox_client_storage_t alignment mismatch");
 
-    static_assert(sizeof(iox::popo::UntypedServer) <= sizeof(iox_server_storage_t),
+    static_assert(sizeof(iox::popo::UntypedServer) == sizeof(iox_server_storage_t),
                   "iox_server_storage_t storage size mismatch");
-    static_assert(alignof(iox::popo::UntypedServer) <= alignof(iox_server_storage_t),
+    static_assert(alignof(iox::popo::UntypedServer) == alignof(iox_server_storage_t),
                   "iox_server_storage_t alignment mismatch");
 
-    static_assert(sizeof(iox::runtime::ServiceDiscovery) <= sizeof(iox_service_discovery_storage_t),
+    static_assert(sizeof(iox::runtime::ServiceDiscovery) == sizeof(iox_service_discovery_storage_t),
                   "iox_service_discovery_storage_t storage size mismatch");
-    static_assert(alignof(iox::runtime::ServiceDiscovery) <= alignof(iox_service_discovery_storage_t),
+    static_assert(alignof(iox::runtime::ServiceDiscovery) == alignof(iox_service_discovery_storage_t),
                   "iox_service_discovery_storage_t alignment mismatch");
 }
 
