@@ -48,8 +48,8 @@ struct MemoryInfo
     /// @param[in] memoryType encodes additional information about the memory
     explicit MemoryInfo(uint32_t deviceId = DEFAULT_DEVICE_ID, uint32_t memoryType = DEFAULT_MEMORY_TYPE) noexcept;
 
-    /// @brief comparision operator
-    /// @param[in] rhs the right hand side of the comparision
+    /// @brief comparison operator
+    /// @param[in] rhs the right hand side of the comparison
     bool operator==(const MemoryInfo& rhs) const noexcept;
 };
 } // namespace mepoo

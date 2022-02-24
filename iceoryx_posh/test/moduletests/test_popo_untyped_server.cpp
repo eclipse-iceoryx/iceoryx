@@ -58,7 +58,7 @@ TEST_F(UntypedServer_test, ConstructorForwardsArgumentsToBaseClient)
     EXPECT_THAT(sut.serverOptions, Eq(options));
 }
 
-TEST_F(UntypedServer_test, TakeCallsCallsUnderlyingPortWithSuccessResult)
+TEST_F(UntypedServer_test, TakeCallsUnderlyingPortWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0bcaf64f-66d6-4906-ad6e-9bf3ce168c30");
 
@@ -72,7 +72,7 @@ TEST_F(UntypedServer_test, TakeCallsCallsUnderlyingPortWithSuccessResult)
     EXPECT_THAT(takeResult.value(), Eq(requestMock.sample()));
 }
 
-TEST_F(UntypedServer_test, takeCallsCallsUnderlyingPortWithErrorResult)
+TEST_F(UntypedServer_test, takeCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "224e93e3-47f4-4533-8fac-9cb7bbb87f08");
 
@@ -105,7 +105,7 @@ TEST_F(UntypedServer_test, ReleaseRequestWithNullpointerDoesNotCallsUnderlyingPo
     sut.releaseRequest(nullptr);
 }
 
-TEST_F(UntypedServer_test, LoanCallsCallsUnderlyingPortWithSuccessResult)
+TEST_F(UntypedServer_test, LoanCallsUnderlyingPortWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f39d58f3-b25e-4515-852d-c3afa5519e5a");
 
@@ -122,7 +122,7 @@ TEST_F(UntypedServer_test, LoanCallsCallsUnderlyingPortWithSuccessResult)
     EXPECT_THAT(loanResult.value(), Eq(responseMock.sample()));
 }
 
-TEST_F(UntypedServer_test, LoanCallsCallsUnderlyingPortWithErrorResult)
+TEST_F(UntypedServer_test, LoanCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d813b550-64b2-490f-a9f4-bafc9ddc7696");
 

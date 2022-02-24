@@ -44,7 +44,7 @@ class UntypedClient_test : public Test
     ChunkMock<uint64_t, RequestHeader> requestMock;
     ChunkMock<uint64_t, ResponseHeader> responseMock;
 
-    ServiceDescription sd{"oh", "catain", "my captain"};
+    ServiceDescription sd{"oh", "captain", "my captain"};
     static constexpr uint64_t RESPONSE_QUEUE_CAPACITY{123U};
     ClientOptions options{RESPONSE_QUEUE_CAPACITY};
     TestUntypedClient sut{sd, options};
@@ -58,7 +58,7 @@ TEST_F(UntypedClient_test, ConstructorForwardsArgumentsToBaseClient)
     EXPECT_THAT(sut.clientOptions, Eq(options));
 }
 
-TEST_F(UntypedClient_test, LoanCallsCallsUnderlyingPortWithSuccessResult)
+TEST_F(UntypedClient_test, LoanCallsUnderlyingPortWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "acb900fd-288f-4ef3-96b9-6843cd869893");
 
@@ -74,7 +74,7 @@ TEST_F(UntypedClient_test, LoanCallsCallsUnderlyingPortWithSuccessResult)
     EXPECT_THAT(loanResult.value(), Eq(requestMock.sample()));
 }
 
-TEST_F(UntypedClient_test, LoanCallsCallsUnderlyingPortWithErrorResult)
+TEST_F(UntypedClient_test, LoanCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "905d8a67-1fde-4960-a95d-51c5ca4b6ed9");
 
@@ -127,7 +127,7 @@ TEST_F(UntypedClient_test, SendWithNullpointerDoesNotCallsUnderlyingPort)
     sut.send(nullptr);
 }
 
-TEST_F(UntypedClient_test, TakeCallsCallsUnderlyingPortWithSuccessResult)
+TEST_F(UntypedClient_test, TakeCallsUnderlyingPortWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ca260e9-89bb-48aa-8504-0375e35eef9f");
 
@@ -141,7 +141,7 @@ TEST_F(UntypedClient_test, TakeCallsCallsUnderlyingPortWithSuccessResult)
     EXPECT_THAT(takeResult.value(), Eq(responseMock.sample()));
 }
 
-TEST_F(UntypedClient_test, takeCallsCallsUnderlyingPortWithErrorResult)
+TEST_F(UntypedClient_test, takeCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff524011-3a79-4960-9379-571e2eb87b16");
 

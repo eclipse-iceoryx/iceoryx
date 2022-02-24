@@ -62,8 +62,8 @@ struct PortConfigInfo
     /// @brief creates a serilaization of the PortConfigInfo
     operator cxx::Serialization() const noexcept;
 
-    /// @brief comparision operator
-    /// @param[in] rhs the right hand side of the comparision
+    /// @brief comparison operator
+    /// @param[in] rhs the right hand side of the comparison
     bool operator==(const PortConfigInfo& rhs) const noexcept;
 };
 
