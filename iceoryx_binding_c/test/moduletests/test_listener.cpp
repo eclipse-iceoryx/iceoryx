@@ -574,6 +574,8 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWorks)
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+
+    iox_service_discovery_deinit(serviceDiscovery);
 }
 
 TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
@@ -595,6 +597,8 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+
+    iox_service_discovery_deinit(serviceDiscovery);
 }
 
 void notifyServiceDiscovery(SubscriberPortData& portData)
@@ -618,6 +622,8 @@ TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWorks, Repeat(5),
 
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+
+    iox_service_discovery_deinit(serviceDiscovery);
 });
 
 TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWithContextDataWorks, Repeat(5), [&] {
@@ -640,6 +646,8 @@ TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWithContextDataWo
 
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+
+    iox_service_discovery_deinit(serviceDiscovery);
 });
 
 } // namespace
