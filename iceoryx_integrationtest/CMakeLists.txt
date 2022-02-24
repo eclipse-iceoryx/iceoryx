@@ -1,4 +1,4 @@
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -41,6 +41,7 @@ if(BUILD_TESTING)
   add_ros_test(iceoryx_integrationtest/test_request_response_basic.py)
   add_ros_test(iceoryx_integrationtest/test_request_response_listener.py)
   add_ros_test(iceoryx_integrationtest/test_request_response_untyped.py)
+  add_ros_test(iceoryx_integrationtest/test_icediscovery_in_c_example.py)
 
 endif()
 
