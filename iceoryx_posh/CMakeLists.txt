@@ -39,7 +39,7 @@ include(cmake/iceoryxversions.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
-include(cmake/iceoryx_posh_deployment.cmake)
+include(cmake/IceoryxPoshDeployment.cmake)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
@@ -395,10 +395,20 @@ setup_install_directories_and_export_package(
     INCLUDE_DIRECTORY include/
 )
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
+  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)
+
 install(
     FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
+)
+
+# install deployment file to make posh config accessible by other packages
+install(
+    FILES
+        cmake/IceoryxPoshDeployment.cmake
+    DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
 if(ROUDI_ENVIRONMENT OR BUILD_TEST)

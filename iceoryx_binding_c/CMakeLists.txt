@@ -28,6 +28,7 @@ find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(IceoryxPoshDeployment)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
@@ -88,6 +89,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
@@ -130,3 +132,11 @@ install(
   DESTINATION share/doc/iceoryx_binding_c
   COMPONENT dev)
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_binding_c_deployment.h.in"
+  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c/iceoryx_binding_c_deployment.h" @ONLY)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_binding_c_deployment.h
+    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    COMPONENT dev
+)

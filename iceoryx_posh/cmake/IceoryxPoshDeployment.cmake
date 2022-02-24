@@ -68,5 +68,3 @@ endif()
 message(STATUS "[i] IOX_MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE:" ${IOX_MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE})
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)
