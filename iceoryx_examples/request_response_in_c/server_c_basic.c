@@ -14,6 +14,64 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/request_header.h"
+#include "iceoryx_binding_c/response_header.h"
+#include "iceoryx_binding_c/runtime.h"
+#include "iceoryx_binding_c/server.h"
+#include "request_and_response_c_types.h"
+#include "sleep_for.h"
+
+#include <signal.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+
+bool keepRunning = true;
+const char APP_NAME[] = "iox-c-request-response-server-basic";
+
+void sigHandler(int signalValue)
+{
+    (void)signalValue;
+    keepRunning = false;
+}
+
 int main()
 {
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+
+    iox_runtime_init(APP_NAME);
+
+    iox_server_storage_t serverStorage;
+    iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
+
+    while (keepRunning)
+    {
+        const struct AddRequest* request = NULL;
+        if (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
+        {
+            printf("%s Got Request: %lu + %lu\n", APP_NAME, request->augend, request->addend);
+
+            struct AddResponse* response = NULL;
+            enum iox_AllocationResult loanResult =
+                iox_server_loan_response(server, request, (void**)&response, sizeof(struct AddResponse));
+            if (loanResult == AllocationResult_SUCCESS)
+            {
+                response->sum = request->augend + request->addend;
+                printf("%s Send Response: %lu\n", APP_NAME, response->sum);
+                iox_server_send(server, response);
+            }
+            else
+            {
+                printf("%s Could not allocate Response! Return value = %d\n", APP_NAME, loanResult);
+            }
+
+            iox_server_release_request(server, request);
+        }
+
+        const uint32_t SLEEP_TIME_IN_MS = 100U;
+        sleep_for(SLEEP_TIME_IN_MS);
+    }
+
+    iox_server_deinit(server);
 }

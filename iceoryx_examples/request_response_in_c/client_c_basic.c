@@ -90,9 +90,13 @@ int main()
                        expectedResponseSequenceId,
                        receivedSequenceId);
             }
+
+            iox_client_release_response(client, response);
         }
 
         const uint32_t SLEEP_TIME_IN_MS = 950U;
         sleep_for(SLEEP_TIME_IN_MS);
     }
+
+    iox_client_deinit(client);
 }
