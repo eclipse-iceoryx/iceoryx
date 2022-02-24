@@ -128,6 +128,7 @@ class iox_listener_test : public Test
         g_userTriggerCallbackArgument = nullptr;
         g_subscriberCallbackArgument = nullptr;
         g_clientCallbackArgument = nullptr;
+        g_serviceDiscoveryCallbackArgument = nullptr;
         g_contextData = nullptr;
 
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
