@@ -19,6 +19,7 @@
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
+#include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
@@ -78,5 +79,11 @@ TEST(iox_types_test, ClientStorageSizeFits)
     EXPECT_THAT(alignof(UntypedClient), Le(alignof(iox_client_storage_t)));
 }
 
+TEST(iox_types_test, ServerStorageSizeFits)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ccebf221-8f51-4f55-a94e-9348174a37d0");
+    EXPECT_THAT(sizeof(UntypedServer), Le(sizeof(iox_server_storage_t)));
+    EXPECT_THAT(alignof(UntypedServer), Le(alignof(iox_server_storage_t)));
+}
 
 } // namespace

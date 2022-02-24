@@ -20,6 +20,7 @@
 #include "iceoryx_binding_c/client.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/server.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
@@ -141,4 +142,36 @@ void iox_listener_detach_client_event(iox_listener_t const self,
                                       iox_client_t const client,
                                       const ENUM iox_ClientEvent clientEvent);
 
+/// @brief Attaches a server event to the listener
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] server the server which emits the event
+/// @param[in] serverEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
+                                                         iox_server_t const server,
+                                                         const ENUM iox_ServerEvent serverEvent,
+                                                         void (*callback)(iox_server_t));
+
+/// @brief Attaches a server event to the listener. The callback has an additional contextData argument to provide
+/// access to user defined data.
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] server the server which emits the event
+/// @param[in] serverEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listener_t const self,
+                                                                           iox_server_t const server,
+                                                                           const ENUM iox_ServerEvent serverEvent,
+                                                                           void (*callback)(iox_server_t, void*),
+                                                                           void* const contextData);
+
+/// @brief Detaches a server from the listener
+/// @param[in] self listener from which the event should be detached
+/// @param[in] server the server which emits the event
+/// @param[in] serverEvent the event which should be removed from the listener
+void iox_listener_detach_server_event(iox_listener_t const self,
+                                      iox_server_t const server,
+                                      const ENUM iox_ServerEvent serverEvent);
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +57,13 @@ ServerOptions::deserialize(const cxx::Serialization& serialized) noexcept
     serverOptions.clientTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(clientTooSlowPolicy);
 
     return cxx::success<ServerOptions>(serverOptions);
+}
+
+bool ServerOptions::operator==(const ServerOptions& rhs) const noexcept
+{
+    return requestQueueCapacity == rhs.requestQueueCapacity && nodeName == rhs.nodeName
+           && offerOnCreate == rhs.offerOnCreate && requestQueueFullPolicy == rhs.requestQueueFullPolicy
+           && clientTooSlowPolicy == rhs.clientTooSlowPolicy;
 }
 } // namespace popo
 } // namespace iox

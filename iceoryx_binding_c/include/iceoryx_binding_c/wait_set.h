@@ -262,4 +262,75 @@ void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, 
 /// @param[in] clientState the state which should be detached from the client
 void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState);
 
+/// @brief attaches a server event to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] server the server of the event which should be attached
+/// @param[in] serverEvent the server which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
+                                                  const iox_server_t server,
+                                                  const ENUM iox_ServerEvent serverEvent,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_server_t));
+
+/// @brief attaches a server event to a waitset with additional context data for the callback
+/// @param[in] self handle to the waitset
+/// @param[in] server the server of the event which should be attached
+/// @param[in] serverEvent the server which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_server_event_with_context_data(iox_ws_t const self,
+                                                                    iox_server_t const server,
+                                                                    const ENUM iox_ServerEvent serverEvent,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_server_t, void*),
+                                                                    void* const contextData);
+
+/// @brief attaches a server state to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] server the server of the state which should be attached
+/// @param[in] serverState the state which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the state
+/// @param[in] callback a callback which is attached to the state
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
+                                                  const iox_server_t server,
+                                                  const ENUM iox_ServerState serverState,
+                                                  const uint64_t eventId,
+                                                  void (*callback)(iox_server_t));
+
+/// @brief attaches a server state to a waitset with additional context data for the callback
+/// @param[in] self handle to the waitset
+/// @param[in] server the server of the state which should be attached
+/// @param[in] serverState the state which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the state
+/// @param[in] callback a callback which is attached to the state
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const self,
+                                                                    iox_server_t const server,
+                                                                    const ENUM iox_ServerState serverState,
+                                                                    const uint64_t eventId,
+                                                                    void (*callback)(iox_server_t, void*),
+                                                                    void* const contextData);
+
+/// @brief detaches a server event from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] server the server which should be detached
+/// @param[in] serverEvent the event which should be detached from the server
+void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerEvent serverEvent);
+
+/// @brief detaches a server state from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] server the server which should be detached
+/// @param[in] serverState the state which should be detached from the server
+void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerState serverState);
 #endif

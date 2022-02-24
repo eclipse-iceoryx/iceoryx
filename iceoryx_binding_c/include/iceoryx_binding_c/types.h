@@ -108,4 +108,17 @@ typedef struct
 #endif
 } iox_client_storage_t;
 
+/// @brief has exactly the size required to store the underlying object of iox_server_t
+typedef struct
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(UntypedServer) / 8
+#if defined(__APPLE__)
+    uint64_t do_not_touch_me[22];
+#else
+    uint64_t do_not_touch_me[19];
+#endif
+} iox_server_storage_t;
+
+
 #endif

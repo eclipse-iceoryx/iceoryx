@@ -134,4 +134,13 @@ enum iox_ListenerResult
     ListenerResult_SUCCESS
 };
 
+enum iox_ServerRequestResult
+{
+    ServerRequestResult_TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
+    ServerRequestResult_NO_PENDING_REQUESTS,
+    ServerRequestResult_UNDEFINED_CHUNK_RECEIVE_ERROR,
+    ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER,
+    ServerRequestResult_SUCCESS
+};
+
 #endif

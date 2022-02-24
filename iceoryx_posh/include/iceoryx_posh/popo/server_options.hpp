@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,6 +54,10 @@ struct ServerOptions
     /// @brief deserialization of the ServerOptions
     static cxx::expected<ServerOptions, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
+
+    /// @brief comparision operator
+    /// @param[in] rhs the right hand side of the comparision
+    bool operator==(const ServerOptions& rhs) const noexcept;
 };
 
 } // namespace popo

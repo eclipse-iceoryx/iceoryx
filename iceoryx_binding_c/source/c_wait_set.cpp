@@ -21,6 +21,7 @@
 #include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
+#include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
@@ -315,4 +316,82 @@ void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, 
     iox::cxx::Expects(client != nullptr);
 
     self->detachState(*client, c2cpp::clientState(clientState));
+}
+
+iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
+                                             const iox_server_t server,
+                                             const ENUM iox_ServerEvent serverEvent,
+                                             const uint64_t eventId,
+                                             void (*callback)(iox_server_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    auto result = self->attachEvent(*server, c2cpp::serverEvent(serverEvent), eventId, {callback, nullptr});
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_server_event_with_context_data(iox_ws_t const self,
+                                                               iox_server_t const server,
+                                                               const ENUM iox_ServerEvent serverEvent,
+                                                               const uint64_t eventId,
+                                                               void (*callback)(iox_server_t, void*),
+                                                               void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    NotificationCallback<std::remove_pointer_t<iox_server_t>, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(*server, c2cpp::serverEvent(serverEvent), eventId, notificationCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
+                                             const iox_server_t server,
+                                             const ENUM iox_ServerState serverState,
+                                             const uint64_t eventId,
+                                             void (*callback)(iox_server_t))
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    auto result = self->attachState(*server, c2cpp::serverState(serverState), eventId, {callback, nullptr});
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const self,
+                                                               iox_server_t const server,
+                                                               const ENUM iox_ServerState serverState,
+                                                               const uint64_t eventId,
+                                                               void (*callback)(iox_server_t, void*),
+                                                               void* const contextData)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    NotificationCallback<std::remove_pointer_t<iox_server_t>, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
+
+    auto result = self->attachState(*server, c2cpp::serverState(serverState), eventId, notificationCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerEvent serverEvent)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    self->detachEvent(*server, c2cpp::serverEvent(serverEvent));
+}
+
+void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerState serverState)
+{
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
+
+    self->detachState(*server, c2cpp::serverState(serverState));
 }

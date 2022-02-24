@@ -191,4 +191,20 @@ iox_ConnectionState connectionState(const iox::ConnectionState value) noexcept
     return ConnectionState_NOT_CONNECTED;
 }
 
+iox_ServerRequestResult serverRequestResult(const iox::popo::ServerRequestResult value) noexcept
+{
+    switch (value)
+    {
+    case iox::popo::ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL:
+        return ServerRequestResult_TOO_MANY_REQUESTS_HELD_IN_PARALLEL;
+    case iox::popo::ServerRequestResult::NO_PENDING_REQUESTS:
+        return ServerRequestResult_NO_PENDING_REQUESTS;
+    case iox::popo::ServerRequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR:
+        return ServerRequestResult_UNDEFINED_CHUNK_RECEIVE_ERROR;
+    case iox::popo::ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER:
+        return ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER;
+    }
+
+    return ServerRequestResult_SUCCESS;
+}
 } // namespace cpp2c
