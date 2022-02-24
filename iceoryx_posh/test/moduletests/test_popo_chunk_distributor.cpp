@@ -354,7 +354,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithPreviouslyAddedQueueRemovedRe
     EXPECT_FALSE(maybeIndex.has_value());
 }
 
-TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
+TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOneChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5bc10e0a-d67b-4123-887c-a50dc16cf680");
     auto sutData = this->getChunkDistributorData();
@@ -364,30 +364,16 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
     ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(4451);
-    sut.deliverToAllStoredQueues(chunk);
-
-    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
-    auto maybeSharedChunk = queue.tryPop();
-
-    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(4451u));
-}
-
-TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOneChunk)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "93a1f4af-b2e4-48a3-b4a4-56a98d1bb66e");
-    auto sutData = this->getChunkDistributorData();
-    typename TestFixture::ChunkDistributor_t sut(sutData.get());
-
-    auto queueData = this->getChunkQueueData();
-    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
-
-    auto chunk = this->allocateChunk(4451);
-    sut.deliverToAllStoredQueues(chunk);
+    auto numberOfDeliveries = sut.deliverToAllStoredQueues(chunk);
+    EXPECT_THAT(numberOfDeliveries, Eq(1U));
 
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1u));
     EXPECT_THAT(sut.getHistorySize(), Eq(1u));
+
+    auto maybeSharedChunk = queue.tryPop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(4451u));
 }
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDeliversOneChunk)
@@ -402,7 +388,8 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
     ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(4451);
-    sut.deliverToAllStoredQueues(chunk);
+    auto numberOfDeliveries = sut.deliverToAllStoredQueues(chunk);
+    EXPECT_THAT(numberOfDeliveries, Eq(1U));
 
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1u));
@@ -410,7 +397,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
 }
 
 
-TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleChunks)
+TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMultipleChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a140a2e4-6450-42fe-a8e7-368d0ae795ae");
     auto sutData = this->getChunkDistributorData();
@@ -419,12 +406,18 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     auto queueData = this->getChunkQueueData();
     ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
-    auto limit = 10;
-    for (auto i = 0; i < limit; ++i)
-        sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
+    auto limit = 10U;
+    for (auto i = 0U; i < limit; ++i)
+    {
+        auto numberOfDeliveries = sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
+        EXPECT_THAT(numberOfDeliveries, Eq(1U));
+    }
 
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
-    for (auto i = 0; i < limit; ++i)
+    EXPECT_THAT(queue.size(), Eq(limit));
+    EXPECT_THAT(sut.getHistorySize(), Eq(limit));
+
+    for (auto i = 0U; i < limit; ++i)
     {
         auto maybeSharedChunk = queue.tryPop();
 
@@ -433,42 +426,25 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     }
 }
 
-TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMultipleChunks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "b7472f6e-209d-4243-9f0a-04628a76b385");
-    auto sutData = this->getChunkDistributorData();
-    typename TestFixture::ChunkDistributor_t sut(sutData.get());
-
-    auto queueData = this->getChunkQueueData();
-    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
-
-    auto limit = 10u;
-    for (auto i = 0u; i < limit; ++i)
-        sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
-
-    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
-    EXPECT_THAT(queue.size(), Eq(limit));
-    EXPECT_THAT(sut.getHistorySize(), Eq(limit));
-}
-
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "67669bb8-9413-4419-8bb4-8f362d457744");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    auto limit = 10;
+    constexpr uint64_t NUMBER_OF_QUEUES = 10U;
     std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueData;
-    for (auto i = 0; i < limit; ++i)
+    for (auto i = 0U; i < NUMBER_OF_QUEUES; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
         ASSERT_FALSE(sut.tryAddQueue(queueData.back().get()).has_error());
     }
 
     auto chunk = this->allocateChunk(24451);
-    sut.deliverToAllStoredQueues(chunk);
+    auto numberOfDeliveries = sut.deliverToAllStoredQueues(chunk);
+    EXPECT_THAT(numberOfDeliveries, Eq(NUMBER_OF_QUEUES));
 
-    for (auto i = 0; i < limit; ++i)
+    for (auto i = 0U; i < NUMBER_OF_QUEUES; ++i)
     {
         ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData[i].get());
         auto maybeSharedChunk = queue.tryPop();
@@ -484,20 +460,24 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    auto limit = 10u;
+    constexpr uint64_t NUMBER_OF_QUEUES = 10U;
+    constexpr uint64_t NUMBER_OF_CHUNKS = 13U;
     std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueData;
-    for (auto i = 0u; i < limit; ++i)
+    for (auto i = 0U; i < NUMBER_OF_QUEUES; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
         ASSERT_FALSE(sut.tryAddQueue(queueData.back().get()).has_error());
     }
 
-    for (auto i = 0u; i < limit; ++i)
-        sut.deliverToAllStoredQueues(this->allocateChunk(i * 34));
-
-    for (auto i = 0u; i < limit; ++i)
+    for (auto i = 0U; i < NUMBER_OF_CHUNKS; ++i)
     {
-        for (auto k = 0u; k < limit; ++k)
+        auto numberOfDeliveries = sut.deliverToAllStoredQueues(this->allocateChunk(i * 34));
+        EXPECT_THAT(numberOfDeliveries, Eq(NUMBER_OF_QUEUES));
+    }
+
+    for (auto i = 0U; i < NUMBER_OF_QUEUES; ++i)
+    {
+        for (auto k = 0U; k < NUMBER_OF_CHUNKS; ++k)
         {
             ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData[i].get());
             auto maybeSharedChunk = queue.tryPop();
@@ -505,7 +485,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
             EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(k * 34u));
         }
     }
-    EXPECT_THAT(sut.getHistorySize(), Eq(limit));
+    EXPECT_THAT(sut.getHistorySize(), Eq(NUMBER_OF_CHUNKS));
 }
 
 TYPED_TEST(ChunkDistributor_test, AddToHistoryWithoutQueues)
@@ -513,11 +493,14 @@ TYPED_TEST(ChunkDistributor_test, AddToHistoryWithoutQueues)
     ::testing::Test::RecordProperty("TEST_ID", "1ed709b1-9129-454b-8440-50463ba1c02e");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
-    auto limit = 8u;
-    for (auto i = 0u; i < limit; ++i)
-        sut.deliverToAllStoredQueues(this->allocateChunk(34));
+    constexpr uint64_t NUMBER_OF_CHUNKS = 13U;
+    for (auto i = 0U; i < NUMBER_OF_CHUNKS; ++i)
+    {
+        auto numberOfDeliveries = sut.deliverToAllStoredQueues(this->allocateChunk(34));
+        EXPECT_THAT(numberOfDeliveries, Eq(0U));
+    }
 
-    EXPECT_THAT(sut.getHistorySize(), Eq(limit));
+    EXPECT_THAT(sut.getHistorySize(), Eq(NUMBER_OF_CHUNKS));
 }
 
 TYPED_TEST(ChunkDistributor_test, HistoryEmptyWhenCreated)
@@ -533,12 +516,15 @@ TYPED_TEST(ChunkDistributor_test, HistoryEmptyAfterClear)
     ::testing::Test::RecordProperty("TEST_ID", "87a59dd5-8f85-4166-a296-74eed443290b");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
-    auto limit = 8;
-    for (auto i = 0; i < limit; ++i)
-        sut.deliverToAllStoredQueues(this->allocateChunk(34));
+    constexpr uint64_t NUMBER_OF_CHUNKS = 13U;
+    for (auto i = 0U; i < NUMBER_OF_CHUNKS; ++i)
+    {
+        auto numberOfDeliveries = sut.deliverToAllStoredQueues(this->allocateChunk(34));
+        EXPECT_THAT(numberOfDeliveries, Eq(0U));
+    }
     sut.clearHistory();
 
-    EXPECT_THAT(sut.getHistorySize(), Eq(0u));
+    EXPECT_THAT(sut.getHistorySize(), Eq(0U));
 }
 
 TYPED_TEST(ChunkDistributor_test, addToHistoryWithoutDelivery)
