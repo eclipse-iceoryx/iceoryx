@@ -123,12 +123,18 @@ void iox_client_release_request(iox_client_t const self, void* const payload)
     self->releaseRequest(payload);
 }
 
-void iox_client_send(iox_client_t const self, void* const payload)
+iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payload)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(payload != nullptr);
 
-    self->send(payload);
+    auto result = self->send(payload);
+    if (result.has_error())
+    {
+        return cpp2c::clientSendResult(result.get_error());
+    }
+
+    return ClientSendResult_SUCCESS;
 }
 
 void iox_client_connect(iox_client_t const self)

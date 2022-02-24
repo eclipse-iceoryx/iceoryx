@@ -122,7 +122,9 @@ ENUM iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const se
 /// @brief sends a previously loaned response
 /// @param[in] self handle of the server
 /// @param[in] payload pointer to the user-payload of the response which should be send
-void iox_server_send(iox_server_t const self, void* const payload);
+/// @return on success it returns ServerSendResult_SUCCESS otherwise a value which
+///         describes the error
+ENUM iox_ServerSendResult iox_server_send(iox_server_t const self, void* const payload);
 
 /// @brief releases ownership of a previously allocated loaned response without sending it
 /// @param[in] self handle of the server

@@ -141,12 +141,18 @@ iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
     return AllocationResult_SUCCESS;
 }
 
-void iox_server_send(iox_server_t const self, void* const payload)
+iox_ServerSendResult iox_server_send(iox_server_t const self, void* const payload)
 {
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(payload != nullptr);
 
-    self->send(payload);
+    auto result = self->send(payload);
+    if (result.has_error())
+    {
+        return cpp2c::serverSendResult(result.get_error());
+    }
+
+    return ServerSendResult_SUCCESS;
 }
 
 void iox_server_release_response(iox_server_t const self, void* const payload)
