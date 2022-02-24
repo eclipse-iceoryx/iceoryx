@@ -30,6 +30,7 @@
 #include "test.hpp"
 
 #include <type_traits>
+#include <vector>
 
 namespace
 {
@@ -40,8 +41,10 @@ using namespace iox::popo;
 using namespace iox::capro;
 using iox::capro::IdString_t;
 using iox::capro::ServiceDescription;
+using iox::popo::MessagingPattern;
 using iox::roudi::RouDiEnvironment;
-using iox::runtime::ServiceContainer;
+
+using ServiceContainer = std::vector<ServiceDescription>;
 
 struct Publisher
 {
@@ -59,15 +62,14 @@ struct Server
     static constexpr auto MAX_USER_PRODUCERS{iox::MAX_SERVERS};
 };
 
-
+std::atomic_bool callbackWasCalled{false};
+ServiceContainer serviceContainer;
 class ServiceDiscoveryPubSub_test : public RouDi_GTest
 {
   public:
     void SetUp() override
     {
-        searchResultOfFindServiceWithFindHandler.clear();
         callbackWasCalled = false;
-        serviceContainer.clear();
         m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
@@ -75,15 +77,18 @@ class ServiceDiscoveryPubSub_test : public RouDi_GTest
     {
     }
 
-    iox::runtime::PoshRuntime* runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
-    ServiceDiscovery sut;
-    static std::atomic_bool callbackWasCalled;
-    static ServiceContainer serviceContainer;
-    static ServiceContainer searchResultOfFindServiceWithFindHandler;
+    void findService(const optional<IdString_t>& service,
+                     const optional<IdString_t>& instance,
+                     const optional<IdString_t>& event,
+                     const iox::popo::MessagingPattern pattern) noexcept
+    {
+        serviceContainer.clear();
+        sut.findService(service, instance, event, findHandler, pattern);
+    }
 
     static void findHandler(const ServiceDescription& s)
     {
-        searchResultOfFindServiceWithFindHandler.emplace_back(s);
+        serviceContainer.emplace_back(s);
     };
 
     static void testCallback(ServiceDiscovery* const)
@@ -93,40 +98,35 @@ class ServiceDiscoveryPubSub_test : public RouDi_GTest
 
     static void searchForPublisher(ServiceDiscovery* const serviceDiscovery, ServiceDescription* service)
     {
-        serviceContainer = serviceDiscovery->findService(service->getServiceIDString(),
-                                                         service->getInstanceIDString(),
-                                                         service->getEventIDString(),
-                                                         MessagingPattern::PUB_SUB);
+        serviceContainer.clear();
+        serviceDiscovery->findService(service->getServiceIDString(),
+                                      service->getInstanceIDString(),
+                                      service->getEventIDString(),
+                                      findHandler,
+                                      MessagingPattern::PUB_SUB);
         callbackWasCalled = true;
     }
+
+    iox::runtime::PoshRuntime* runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
+    ServiceDiscovery sut;
 
     const iox::units::Duration m_fatalTimeout = 10_s;
     Watchdog m_watchdog{m_fatalTimeout};
 };
-
-std::atomic_bool ServiceDiscoveryPubSub_test::callbackWasCalled{false};
-ServiceContainer ServiceDiscoveryPubSub_test::serviceContainer;
-ServiceContainer ServiceDiscoveryPubSub_test::searchResultOfFindServiceWithFindHandler;
 
 template <typename T>
 class ServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 {
   public:
     using CommunicationKind = T;
-};
 
-
-void compareAndClearServiceContainers(ServiceContainer& lhs, ServiceContainer& rhs)
-{
-    const auto size = lhs.size();
-    ASSERT_THAT(size, Eq(rhs.size()));
-    for (auto i = 0U; i < size; i++)
+    void findService(const optional<IdString_t>& service,
+                     const optional<IdString_t>& instance,
+                     const optional<IdString_t>& event) noexcept
     {
-        EXPECT_THAT(lhs[i], Eq(rhs[i]));
+        ServiceDiscoveryPubSub_test::findService(service, instance, event, CommunicationKind::KIND);
     }
-    lhs.clear();
-    rhs.clear();
-}
+};
 
 ///
 /// Publish-Subscribe || Request-Response
@@ -142,20 +142,12 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsOfferedService)
 
     typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
 
-    auto serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                                  SERVICE_DESCRIPTION.getInstanceIDString(),
-                                                  SERVICE_DESCRIPTION.getEventIDString(),
-                                                  TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
 
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, ReofferedServiceWithServiceDescriptionCanBeFound)
@@ -164,48 +156,29 @@ TYPED_TEST(ServiceDiscovery_test, ReofferedServiceWithServiceDescriptionCanBeFou
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
 
-    auto serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                                  SERVICE_DESCRIPTION.getInstanceIDString(),
-                                                  SERVICE_DESCRIPTION.getEventIDString(),
-                                                  TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
     producer.stopOffer();
     this->InterOpWait();
-    serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                             SERVICE_DESCRIPTION.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
     EXPECT_TRUE(serviceContainer.empty());
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
     producer.offer();
     this->InterOpWait();
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
 
-    serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                             SERVICE_DESCRIPTION.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, OfferExistingServiceMultipleTimesIsRedundant)
@@ -216,20 +189,12 @@ TYPED_TEST(ServiceDiscovery_test, OfferExistingServiceMultipleTimesIsRedundant)
     producer.offer();
     this->InterOpWait();
 
-    auto serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                                  SERVICE_DESCRIPTION.getInstanceIDString(),
-                                                  SERVICE_DESCRIPTION.getEventIDString(),
-                                                  TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
 
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
@@ -238,31 +203,18 @@ TYPED_TEST(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInsta
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
 
-    auto serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                                  SERVICE_DESCRIPTION.getInstanceIDString(),
-                                                  SERVICE_DESCRIPTION.getEventIDString(),
-                                                  TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                             SERVICE_DESCRIPTION.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-    this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                          SERVICE_DESCRIPTION.getInstanceIDString(),
-                          SERVICE_DESCRIPTION.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
@@ -278,39 +230,17 @@ TYPED_TEST(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
     typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = this->sut.findService(
-        SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION1));
-    this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                          INSTANCE,
-                          EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(
-        SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
 
-    this->sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(),
-                          INSTANCE,
-                          EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
-
-    serviceContainer = this->sut.findService(
-        SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION3));
-    this->sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(),
-                          INSTANCE,
-                          EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
@@ -321,41 +251,21 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenStringsDoNo
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "instance2", "event2");
     typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
 
-    auto serviceContainer = this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                                                  SERVICE_DESCRIPTION1.getInstanceIDString(),
-                                                  SERVICE_DESCRIPTION2.getEventIDString(),
-                                                  TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                      SERVICE_DESCRIPTION1.getInstanceIDString(),
+                      SERVICE_DESCRIPTION2.getEventIDString());
     ASSERT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                          SERVICE_DESCRIPTION1.getInstanceIDString(),
-                          SERVICE_DESCRIPTION2.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer = this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                                             SERVICE_DESCRIPTION2.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION1.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                          SERVICE_DESCRIPTION2.getInstanceIDString(),
-                          SERVICE_DESCRIPTION1.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                      SERVICE_DESCRIPTION2.getInstanceIDString(),
+                      SERVICE_DESCRIPTION1.getEventIDString());
 
-    serviceContainer = this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                                             SERVICE_DESCRIPTION2.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION2.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                          SERVICE_DESCRIPTION2.getInstanceIDString(),
-                          SERVICE_DESCRIPTION2.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
+
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                      SERVICE_DESCRIPTION2.getInstanceIDString(),
+                      SERVICE_DESCRIPTION2.getEventIDString());
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceAndEventWildcardReturnsAllMatchingServices)
@@ -375,14 +285,9 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceAndEventWildcardReturns
     serviceContainerExp.push_back(SERVICE_DESCRIPTION2);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = this->sut.findService(
-        SERVICE, iox::capro::Wildcard, iox::capro::Wildcard, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
     ASSERT_THAT(serviceContainer.size(), Eq(3U));
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
-
-    this->sut.findService(
-        SERVICE, iox::capro::Wildcard, iox::capro::Wildcard, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler == serviceContainerExp);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsCorrectServices)
@@ -403,14 +308,9 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsCorrectSe
     serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer =
-        this->sut.findService(iox::capro::Wildcard, INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(iox::capro::Wildcard, INSTANCE, EVENT);
     ASSERT_THAT(serviceContainer.size(), Eq(2U));
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
-
-    this->sut.findService(
-        iox::capro::Wildcard, INSTANCE, EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler == serviceContainerExp);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices)
@@ -431,14 +331,9 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServ
     serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer =
-        this->sut.findService(SERVICE, INSTANCE, iox::capro::Wildcard, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, INSTANCE, iox::capro::Wildcard);
     ASSERT_THAT(serviceContainer.size(), Eq(2U));
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
-
-    this->sut.findService(
-        SERVICE, INSTANCE, iox::capro::Wildcard, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler == serviceContainerExp);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsCorrectServices)
@@ -459,14 +354,9 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsCorrectS
     serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
     serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer =
-        this->sut.findService(SERVICE, iox::capro::Wildcard, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, iox::capro::Wildcard, EVENT);
     ASSERT_THAT(serviceContainer.size(), Eq(2U));
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
-
-    this->sut.findService(
-        SERVICE, iox::capro::Wildcard, EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler == serviceContainerExp);
 }
 
 TYPED_TEST(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
@@ -481,44 +371,17 @@ TYPED_TEST(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", "event3");
     typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
 
-    auto serviceContainer = this->sut.findService(SERVICE,
-                                                  SERVICE_DESCRIPTION1.getInstanceIDString(),
-                                                  SERVICE_DESCRIPTION1.getEventIDString(),
-                                                  TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, SERVICE_DESCRIPTION1.getInstanceIDString(), SERVICE_DESCRIPTION1.getEventIDString());
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION1));
-    this->sut.findService(SERVICE,
-                          SERVICE_DESCRIPTION1.getInstanceIDString(),
-                          SERVICE_DESCRIPTION1.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE,
-                                             SERVICE_DESCRIPTION2.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION2.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString(), SERVICE_DESCRIPTION2.getEventIDString());
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
-    this->sut.findService(SERVICE,
-                          SERVICE_DESCRIPTION2.getInstanceIDString(),
-                          SERVICE_DESCRIPTION2.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE,
-                                             SERVICE_DESCRIPTION3.getInstanceIDString(),
-                                             SERVICE_DESCRIPTION3.getEventIDString(),
-                                             TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString(), SERVICE_DESCRIPTION3.getEventIDString());
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION3));
-    this->sut.findService(SERVICE,
-                          SERVICE_DESCRIPTION3.getInstanceIDString(),
-                          SERVICE_DESCRIPTION3.getEventIDString(),
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinations)
@@ -544,36 +407,26 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombin
     typename TestFixture::CommunicationKind::Producer producer_sd_1_2_2(SERVICE_DESCRIPTION_1_2_2);
     typename TestFixture::CommunicationKind::Producer producer_sd_1_2_3(SERVICE_DESCRIPTION_1_2_3);
 
-    auto serviceContainer = this->sut.findService(SERVICE1, INSTANCE1, EVENT1, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE1, INSTANCE1, EVENT1);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_1_1));
-    this->sut.findService(SERVICE1, INSTANCE1, EVENT1, this->findHandler, TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE1, INSTANCE1, EVENT2, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE1, INSTANCE1, EVENT2);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
 
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_1_2));
-    this->sut.findService(SERVICE1, INSTANCE1, EVENT2, this->findHandler, TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE1, INSTANCE2, EVENT1, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE1, INSTANCE2, EVENT1);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_1));
-    this->sut.findService(SERVICE1, INSTANCE2, EVENT1, this->findHandler, TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE1, INSTANCE2, EVENT2, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE1, INSTANCE2, EVENT2);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_2));
-    this->sut.findService(SERVICE1, INSTANCE2, EVENT2, this->findHandler, TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(SERVICE1, INSTANCE2, EVENT3, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE1, INSTANCE2, EVENT3);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_3));
-    this->sut.findService(SERVICE1, INSTANCE2, EVENT3, this->findHandler, TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
@@ -593,36 +446,15 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
     producer_sd3.stopOffer();
     this->InterOpWait();
 
-    auto serviceContainer = this->sut.findService(
-        SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                          INSTANCE,
-                          EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer = this->sut.findService(
-        SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
-    this->sut.findService(SERVICE_DESCRIPTION2.getServiceIDString(),
-                          INSTANCE,
-                          EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 
-    serviceContainer = this->sut.findService(
-        SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(SERVICE_DESCRIPTION3.getServiceIDString(),
-                          INSTANCE,
-                          EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 }
 
 TYPED_TEST(ServiceDiscovery_test, NonExistingServicesAreNotFound)
@@ -637,57 +469,26 @@ TYPED_TEST(ServiceDiscovery_test, NonExistingServicesAreNotFound)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION(SERVICE, INSTANCE, EVENT);
     typename TestFixture::CommunicationKind::Producer producer_sd(SERVICE_DESCRIPTION);
 
-    auto serviceContainer = this->sut.findService(
-        NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(NONEXISTENT_SERVICE,
-                          NONEXISTENT_INSTANCE,
-                          NONEXISTENT_EVENT,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer =
-        this->sut.findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(
-        NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer =
-        this->sut.findService(NONEXISTENT_SERVICE, INSTANCE, NONEXISTENT_EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(NONEXISTENT_SERVICE, INSTANCE, NONEXISTENT_EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(
-        NONEXISTENT_SERVICE, INSTANCE, NONEXISTENT_EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer =
-        this->sut.findService(NONEXISTENT_SERVICE, INSTANCE, EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(NONEXISTENT_SERVICE, INSTANCE, EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(
-        NONEXISTENT_SERVICE, INSTANCE, EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer =
-        this->sut.findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(
-        SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer =
-        this->sut.findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(
-        SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 
-    serviceContainer =
-        this->sut.findService(SERVICE, INSTANCE, NONEXISTENT_EVENT, TestFixture::CommunicationKind::KIND);
+    this->findService(SERVICE, INSTANCE, NONEXISTENT_EVENT);
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
-    this->sut.findService(
-        SERVICE, INSTANCE, NONEXISTENT_EVENT, this->findHandler, TestFixture::CommunicationKind::KIND);
-    EXPECT_TRUE(this->searchResultOfFindServiceWithFindHandler.empty());
 }
 
 TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxProducerServices)
@@ -704,8 +505,14 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxProducerServices)
 
     // we want to check whether we find all the services, including internal ones like introspection,
     // so we first search for them without creating other services to obtain the internal ones
-    ServiceContainer serviceContainerExp = this->sut.findService(
-        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, TestFixture::CommunicationKind::KIND);
+
+    ServiceContainer serviceContainerExp;
+    auto findInternalServices = [&](const ServiceDescription& s) { serviceContainerExp.emplace_back(s); };
+    this->sut.findService(iox::capro::Wildcard,
+                          iox::capro::Wildcard,
+                          iox::capro::Wildcard,
+                          findInternalServices,
+                          TestFixture::CommunicationKind::KIND);
 
     for (size_t i = 0; i < NUM_PRODUCERS; i++)
     {
@@ -717,22 +524,15 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxProducerServices)
     }
 
     // now we should find the maximum number of services we can search for,
-    // i.e. internal services and those we just created (iox::MAX_PRODUCERS combined)
-    auto serviceContainer = this->sut.findService(
-        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, TestFixture::CommunicationKind::KIND);
+    // i.e. internal services and those we just created (iox::MAX_PUBLISHERS combined)
+    this->findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
     constexpr auto EXPECTED_NUM_PRODUCERS =
         std::min(TestFixture::CommunicationKind::MAX_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
     EXPECT_EQ(serviceContainer.size(), EXPECTED_NUM_PRODUCERS);
     EXPECT_TRUE(serviceContainer == serviceContainerExp);
-
-    this->sut.findService(iox::capro::Wildcard,
-                          iox::capro::Wildcard,
-                          iox::capro::Wildcard,
-                          this->findHandler,
-                          TestFixture::CommunicationKind::KIND);
-    compareAndClearServiceContainers(serviceContainer, this->searchResultOfFindServiceWithFindHandler);
 }
+
 
 ///
 /// Publisher-Subscriber && Request-Response
@@ -747,15 +547,21 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSame
     iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
     iox::popo::UntypedServer server(SERVICE_DESCRIPTION);
 
-    auto serviceContainerPubSub = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                                        SERVICE_DESCRIPTION.getInstanceIDString(),
-                                                        SERVICE_DESCRIPTION.getEventIDString(),
-                                                        MessagingPattern::PUB_SUB);
+    ServiceContainer serviceContainerPubSub;
+    sut.findService(
+        SERVICE_DESCRIPTION.getServiceIDString(),
+        SERVICE_DESCRIPTION.getInstanceIDString(),
+        SERVICE_DESCRIPTION.getEventIDString(),
+        [&](const ServiceDescription& s) { serviceContainerPubSub.emplace_back(s); },
+        MessagingPattern::PUB_SUB);
 
-    auto serviceContainerReqRes = this->sut.findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                                                        SERVICE_DESCRIPTION.getInstanceIDString(),
-                                                        SERVICE_DESCRIPTION.getEventIDString(),
-                                                        MessagingPattern::REQ_RES);
+    ServiceContainer serviceContainerReqRes;
+    sut.findService(
+        SERVICE_DESCRIPTION.getServiceIDString(),
+        SERVICE_DESCRIPTION.getInstanceIDString(),
+        SERVICE_DESCRIPTION.getEventIDString(),
+        [&](const ServiceDescription& s) { serviceContainerReqRes.emplace_back(s); },
+        MessagingPattern::REQ_RES);
 
     ASSERT_THAT(serviceContainerPubSub.size(), Eq(1U));
     EXPECT_THAT(*serviceContainerPubSub.begin(), Eq(SERVICE_DESCRIPTION));
@@ -771,18 +577,12 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSame
 TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServicesAndServiceRegistry)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
-    auto searchResult = this->sut.findService(
-        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, MessagingPattern::PUB_SUB);
+    findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, MessagingPattern::PUB_SUB);
 
-
-    for (auto& service : searchResult)
+    for (auto& service : serviceContainer)
     {
         EXPECT_THAT(service.getInstanceIDString().c_str(), StrEq("RouDi_ID"));
     }
-
-    this->sut.findService(
-        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, findHandler, MessagingPattern::PUB_SUB);
-    compareAndClearServiceContainers(searchResult, searchResultOfFindServiceWithFindHandler);
 }
 
 TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithEmptyCallableDoesNotDie)

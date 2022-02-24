@@ -21,17 +21,17 @@ namespace iox
 {
 namespace runtime
 {
-ServiceContainer ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
-                                               const cxx::optional<capro::IdString_t>& instance,
-                                               const cxx::optional<capro::IdString_t>& event,
-                                               const popo::MessagingPattern pattern) noexcept
+ServiceDiscovery::ServiceDiscovery() noexcept
 {
-    ServiceContainer searchResult;
+}
 
-    auto lambda = [&](const capro::ServiceDescription& entry) { searchResult.emplace_back(entry); };
-    findService(service, instance, event, lambda, pattern);
-
-    return searchResult;
+void ServiceDiscovery::update()
+{
+    // allows us to use update and hence findService concurrently
+    std::lock_guard<std::mutex> lock(m_serviceRegistryMutex);
+    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
+        *m_serviceRegistry = *serviceRegistrySample;
+    });
 }
 
 void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& service,
@@ -45,15 +45,13 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
         return;
     }
 
-    m_serviceRegistrySubscriber.take().and_then([&](popo::Sample<const roudi::ServiceRegistry>& serviceRegistrySample) {
-        m_serviceRegistry = *serviceRegistrySample;
-    });
+    update();
 
     switch (pattern)
     {
     case popo::MessagingPattern::PUB_SUB:
     {
-        m_serviceRegistry.find(
+        m_serviceRegistry->find(
             service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
                 if (serviceEntry.publisherCount > 0)
                 {
@@ -64,7 +62,7 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
     }
     case popo::MessagingPattern::REQ_RES:
     {
-        m_serviceRegistry.find(
+        m_serviceRegistry->find(
             service, instance, event, [&](const roudi::ServiceRegistry::ServiceDescriptionEntry& serviceEntry) {
                 if (serviceEntry.serverCount > 0)
                 {

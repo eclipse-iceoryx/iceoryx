@@ -56,8 +56,6 @@ class ServiceRegistry
         ReferenceCounter_t serverCount{0U};
     };
 
-    using ServiceDescriptionVector_t = cxx::vector<ServiceDescriptionEntry, CAPACITY>;
-
     /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in cxx::expected
@@ -84,26 +82,19 @@ class ServiceRegistry
     void purge(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Searches for given service description in registry
-    /// @param[in] searchResult, reference to the vector which will be filled with the results
     /// @param[in] service, string or wildcard (= iox::cxx::nullopt) to search for
     /// @param[in] instance, string or wildcard (= iox::cxx::nullopt) to search for
     /// @param[in] event, string or wildcard (= iox::cxx::nullopt) to search for
-    void find(ServiceDescriptionVector_t& searchResult,
-              const cxx::optional<capro::IdString_t>& service,
-              const cxx::optional<capro::IdString_t>& instance,
-              const cxx::optional<capro::IdString_t>& event) const noexcept;
-
-    /// @copydoc ServiceDiscovery::findService
+    /// @param[in] callable, callable to apply to each matching entry
     void find(const cxx::optional<capro::IdString_t>& service,
               const cxx::optional<capro::IdString_t>& instance,
               const cxx::optional<capro::IdString_t>& event,
               cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
-    /// @todo #415 this may not be needed later or we can move applyToAll to the public interface,
-    ///       (we want to avoid large containers on the stack)
-    /// @brief Returns all service descriptions as copy
-    /// @return ServiceDescriptionVector_t, copy of complete service registry
-    const ServiceDescriptionVector_t getServices() const noexcept;
+    /// @brief Applys a callable to all entries
+    /// @param[in] callable, callable to apply to each entry
+    /// @note Can be used to obtain all entries or count them
+    void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
   private:
     using Entry_t = cxx::optional<ServiceDescriptionEntry>;
@@ -121,7 +112,6 @@ class ServiceRegistry
   private:
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
-    void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
     cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription,
                              ReferenceCounter_t ServiceDescriptionEntry::*count);
