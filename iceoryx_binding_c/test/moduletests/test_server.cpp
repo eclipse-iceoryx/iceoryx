@@ -465,7 +465,7 @@ TEST_F(iox_server_test, SendWorks)
     ASSERT_THAT(payload, Ne(nullptr));
     *static_cast<int64_t*>(payload) = 42424242;
 
-    iox_server_send(sut, payload);
+    EXPECT_THAT(iox_server_send(sut, payload), Eq(ServerSendResult_SUCCESS));
     clientResponseQueue.tryPop()
         .and_then(
             [&](auto& sharedChunk) { EXPECT_THAT(*static_cast<int64_t*>(sharedChunk.getUserPayload()), Eq(42424242)); })

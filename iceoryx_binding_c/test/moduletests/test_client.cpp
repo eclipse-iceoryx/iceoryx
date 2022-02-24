@@ -291,7 +291,7 @@ TEST_F(iox_client_test, LoanAndSendWorks)
     EXPECT_THAT(iox_client_loan_request(sut, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
     *static_cast<int64_t*>(payload) = 8912389;
 
-    iox_client_send(sut, payload);
+    EXPECT_THAT(iox_client_send(sut, payload), Eq(ClientSendResult_SUCCESS));
 
     serverRequestQueue.tryPop()
         .and_then([&](auto& sharedChunk) {
