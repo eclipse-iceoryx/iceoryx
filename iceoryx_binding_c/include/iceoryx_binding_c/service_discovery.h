@@ -44,7 +44,7 @@ void iox_service_discovery_deinit(iox_service_discovery_t const self);
 /// @param[in] serviceContainerCapacity the capacity of the preallocated serviceContainer
 /// @param[in] missedServices if the serviceContainer has insufficient size the number of missed services which could
 /// not be written into the serviceContainer are stored here
-/// @param[in] pattern messaging pattern of the service
+/// @param[in] pattern messaging pattern of the service to search
 /// @return the number of services which were written into the serviceContainer
 uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
                                             const char* const service,
@@ -62,7 +62,7 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
 /// @param[in] instance instance string to search for, a nullptr corresponds to a wildcard
 /// @param[in] event event string to search for, a nullptr corresponds to a wildcard
 /// @param[in] callable to apply to all matching services
-/// @param[in] pattern messaging pattern of the service
+/// @param[in] pattern messaging pattern of the service to search
 void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t const self,
                                                        const char* const service,
                                                        const char* const instance,
@@ -78,7 +78,7 @@ void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t c
 /// @param[in] event event string to search for, a nullptr corresponds to a wildcard
 /// @param[in] callable to apply to all matching services
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
-/// @param[in] pattern messaging pattern of the service
+/// @param[in] pattern messaging pattern of the service to search
 void iox_service_discovery_find_service_apply_callable_with_context_data(
     iox_service_discovery_t const self,
     const char* const service,
