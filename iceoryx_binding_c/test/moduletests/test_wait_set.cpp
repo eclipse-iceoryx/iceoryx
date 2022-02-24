@@ -39,7 +39,6 @@ extern "C" {
 }
 
 #include "test.hpp"
-#include "test_types_storage_size.hpp"
 
 #include <atomic>
 #include <thread>
@@ -172,12 +171,6 @@ void serviceDiscoveryCallbackWithContextData(iox_service_discovery_t serviceDisc
 }
 
 } // namespace
-
-TEST_F(iox_ws_test, StorageSizesFit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "aa54d9db-a1ef-40cb-9017-9193b5326e6a");
-    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
-}
 
 /// @todo iox-#1106 will be enabled when worked on this issue
 TEST_F(iox_ws_test, DISABLED_InitWaitSetWithNullptrForStorageReturnsNullptr)

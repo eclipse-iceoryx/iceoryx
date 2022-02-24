@@ -33,7 +33,6 @@ extern "C" {
 }
 
 #include "test.hpp"
-#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -121,12 +120,6 @@ class iox_pub_test : public Test
         capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherOptions};
     cpp2c_Publisher m_sut;
 };
-
-TEST_F(iox_pub_test, StorageSizesFit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "84d01a01-4a22-4d6b-a2ea-45ceda44de49");
-    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
-}
 
 TEST_F(iox_pub_test, initPublisherWithNullptrForStorageReturnsNullptr)
 {

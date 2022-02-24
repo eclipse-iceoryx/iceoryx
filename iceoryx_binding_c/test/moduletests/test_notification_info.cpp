@@ -36,7 +36,6 @@ extern "C" {
 }
 
 #include "test.hpp"
-#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -117,12 +116,6 @@ class iox_notification_info_test : public Test
 };
 
 UserTrigger* iox_notification_info_test::m_lastNotificationCallbackArgument = nullptr;
-
-TEST_F(iox_notification_info_test, StorageSizesFit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "ae610034-3ad1-407e-be8a-2cbf9168d451");
-    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
-}
 
 TEST_F(iox_notification_info_test, notificationInfoHasCorrectId)
 {

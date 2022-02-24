@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ extern "C" {
 }
 
 #include "test.hpp"
-#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -61,12 +60,6 @@ class iox_user_trigger_test : public Test
 };
 
 bool iox_user_trigger_test::wasTriggerCallbackCalled = false;
-
-TEST_F(iox_user_trigger_test, StorageSizesFit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "49d6ab71-288d-4409-8dc1-61cf221b6be9");
-    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
-}
 
 TEST_F(iox_user_trigger_test, initUserTriggerWithNullptrForStorageReturnsNullptr)
 {

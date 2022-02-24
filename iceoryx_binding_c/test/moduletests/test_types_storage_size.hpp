@@ -34,49 +34,41 @@ extern "C" {
 
 #include "test.hpp"
 
-namespace iox_test_binding_c_types_storage_size
+inline void assertIceoryxBindingCStorageSizes()
 {
-using namespace ::testing;
+    static_assert(sizeof(iox::popo::WaitSet<>) <= sizeof(iox_ws_storage_t), "iox_ws_storage_t size mismatch");
+    static_assert(alignof(iox::popo::WaitSet<>) <= alignof(iox_ws_storage_t), "iox_ws_storage_t alignment mismatch");
 
-/* ######################################################
- * Please add a test with this function in all test files
- * ######################################################*/
+    static_assert(sizeof(iox::popo::Listener) <= sizeof(iox_listener_storage_t),
+                  "iox_listener_storage_t storage size mismatch");
+    static_assert(alignof(iox::popo::Listener) <= alignof(iox_listener_storage_t),
+                  "iox_listener_storage_t alignment mismatch");
 
-inline void testBindingCTypesStorageSizes()
-{
-    SCOPED_TRACE("WaitSet storage size");
-    EXPECT_THAT(sizeof(iox::popo::WaitSet<>), Le(sizeof(iox_ws_storage_t)));
-    EXPECT_THAT(alignof(iox::popo::WaitSet<>), Le(alignof(iox_ws_storage_t)));
+    static_assert(sizeof(iox::popo::UserTrigger) <= sizeof(iox_user_trigger_storage_t),
+                  "iox_user_trigger_storage_t storage size mismatch");
+    static_assert(alignof(iox::popo::UserTrigger) <= alignof(iox_user_trigger_storage_t),
+                  "iox_user_trigger_storage_t alignment mismatch");
 
-    SCOPED_TRACE("Listener storage size");
-    EXPECT_THAT(sizeof(iox::popo::Listener), Le(sizeof(iox_listener_storage_t)));
-    EXPECT_THAT(alignof(iox::popo::Listener), Le(alignof(iox_listener_storage_t)));
+    static_assert(sizeof(cpp2c_Subscriber) <= sizeof(iox_sub_storage_t), "iox_sub_storage_t storage size mismatch");
+    static_assert(alignof(cpp2c_Subscriber) <= alignof(iox_sub_storage_t), "iox_sub_storage_t alignment mismatch");
 
-    SCOPED_TRACE("UserTrigger storage size");
-    EXPECT_THAT(sizeof(iox::popo::UserTrigger), Le(sizeof(iox_user_trigger_storage_t)));
-    EXPECT_THAT(alignof(iox::popo::UserTrigger), Le(alignof(iox_user_trigger_storage_t)));
+    static_assert(sizeof(cpp2c_Publisher) <= sizeof(iox_pub_storage_t), "iox_pub_storage_t storage size mismatch");
+    static_assert(alignof(cpp2c_Publisher) <= alignof(iox_pub_storage_t), "iox_pub_storage_t alignment mismatch");
 
-    SCOPED_TRACE("cpp2c_Subscriber storage size");
-    EXPECT_THAT(sizeof(cpp2c_Subscriber), Le(sizeof(iox_sub_storage_t)));
-    EXPECT_THAT(alignof(cpp2c_Subscriber), Le(alignof(iox_sub_storage_t)));
+    static_assert(sizeof(iox::popo::UntypedClient) <= sizeof(iox_client_storage_t),
+                  "iox_client_storage_t storage size mismatch");
+    static_assert(alignof(iox::popo::UntypedClient) <= alignof(iox_client_storage_t),
+                  "iox_client_storage_t alignment mismatch");
 
-    SCOPED_TRACE("cpp2c_Publisher storage size");
-    EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
-    EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
+    static_assert(sizeof(iox::popo::UntypedServer) <= sizeof(iox_server_storage_t),
+                  "iox_server_storage_t storage size mismatch");
+    static_assert(alignof(iox::popo::UntypedServer) <= alignof(iox_server_storage_t),
+                  "iox_server_storage_t alignment mismatch");
 
-    SCOPED_TRACE("UntypedClient storage size");
-    EXPECT_THAT(sizeof(iox::popo::UntypedClient), Le(sizeof(iox_client_storage_t)));
-    EXPECT_THAT(alignof(iox::popo::UntypedClient), Le(alignof(iox_client_storage_t)));
-
-    SCOPED_TRACE("UntypedServer storage size");
-    EXPECT_THAT(sizeof(iox::popo::UntypedServer), Le(sizeof(iox_server_storage_t)));
-    EXPECT_THAT(alignof(iox::popo::UntypedServer), Le(alignof(iox_server_storage_t)));
-
-    SCOPED_TRACE("ServiceDiscovery storage size");
-    EXPECT_THAT(sizeof(iox::runtime::ServiceDiscovery), Le(sizeof(iox_service_discovery_storage_t)));
-    EXPECT_THAT(alignof(iox::runtime::ServiceDiscovery), Le(alignof(iox_service_discovery_storage_t)));
+    static_assert(sizeof(iox::runtime::ServiceDiscovery) <= sizeof(iox_service_discovery_storage_t),
+                  "iox_service_discovery_storage_t storage size mismatch");
+    static_assert(alignof(iox::runtime::ServiceDiscovery) <= alignof(iox_service_discovery_storage_t),
+                  "iox_service_discovery_storage_t alignment mismatch");
 }
 
 #endif // IOX_TEST_TYPES_STORAGE_SIZE_HPP
-
-} // namespace

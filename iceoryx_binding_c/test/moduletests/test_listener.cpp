@@ -41,7 +41,6 @@ extern "C" {
 }
 
 #include "test.hpp"
-#include "test_types_storage_size.hpp"
 
 #include <atomic>
 #include <thread>
@@ -218,12 +217,6 @@ class iox_listener_test : public Test
     static constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(100);
 };
 constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
-
-TEST_F(iox_listener_test, StorageSizesFit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "86d00e81-e786-4281-9846-5f16503ee50c");
-    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
-}
 
 /// @todo iox-#1106 will be enabled when worked on this issue
 TEST_F(iox_listener_test, DISABLED_InitListenerWithNullptrForStorageReturnsNullptr)

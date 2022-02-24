@@ -38,7 +38,6 @@ extern "C" {
 }
 
 #include "test.hpp"
-#include "test_types_storage_size.hpp"
 
 namespace
 {
@@ -121,12 +120,6 @@ class iox_sub_test : public Test
 };
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
-
-TEST_F(iox_sub_test, StorageSizesFit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "17adc747-9db8-416b-85e1-95649f421c3b");
-    iox_test_binding_c_types_storage_size::testBindingCTypesStorageSizes();
-}
 
 TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
 {
