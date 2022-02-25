@@ -26,17 +26,17 @@ ConditionNotifier::ConditionNotifier(ConditionVariableData& condVarDataRef, cons
     : m_condVarDataPtr(&condVarDataRef)
     , m_notificationIndex(index)
 {
-    if (index >= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
+    if (index >= MAX_NUMBER_OF_NOTIFIERS)
     {
         LogFatal() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
-                   << MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE << "[.";
+                   << MAX_NUMBER_OF_NOTIFIERS << "[.";
         errorHandler(Error::kPOPO__CONDITION_NOTIFIER_INDEX_TOO_LARGE, nullptr, ErrorLevel::FATAL);
     }
 }
 
 void ConditionNotifier::notify() noexcept
 {
-    if (m_notificationIndex < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
+    if (m_notificationIndex < MAX_NUMBER_OF_NOTIFIERS)
     {
         getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
     }

@@ -46,11 +46,11 @@ class ConditionVariable_test : public Test
     ConditionVariableData m_condVarData{m_runtimeName};
     ConditionListener m_waiter{m_condVarData};
     ConditionNotifier m_signaler{m_condVarData, 0U};
-    vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE> m_notifiers;
+    vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS> m_notifiers;
 
     void SetUp() override
     {
-        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS; ++i)
         {
             m_notifiers.emplace_back(m_condVarData, i);
         }
@@ -218,15 +218,15 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsAllNotifiedIndices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38ee654b-228a-4462-9614-2901cb5272aa");
     ConditionListener sut(m_condVarData);
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS; ++i)
     {
         ConditionNotifier(m_condVarData, i).notify();
     }
 
     auto indices = sut.timedWait(iox::units::Duration::fromMilliseconds(100));
 
-    ASSERT_THAT(indices.size(), Eq(iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE));
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
+    ASSERT_THAT(indices.size(), Eq(iox::MAX_NUMBER_OF_NOTIFIERS));
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS; ++i)
     {
         EXPECT_THAT(indices[i], Eq(i));
     }

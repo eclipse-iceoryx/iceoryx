@@ -97,7 +97,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
     bool doReturnAfterNotificationCollection = false;
     while (!m_toBeDestroyed.load(std::memory_order_relaxed))
     {
-        for (Type_t i = 0U; i < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; i++)
+        for (Type_t i = 0U; i < MAX_NUMBER_OF_NOTIFIERS; i++)
         {
             if (getMembers()->m_activeNotifications[i].load(std::memory_order_relaxed))
             {
@@ -118,7 +118,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
 
 void ConditionListener::reset(const uint64_t index) noexcept
 {
-    if (index < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
+    if (index < MAX_NUMBER_OF_NOTIFIERS)
     {
         getMembers()->m_activeNotifications[index].store(false, std::memory_order_relaxed);
     }

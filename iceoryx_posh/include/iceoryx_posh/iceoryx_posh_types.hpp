@@ -101,12 +101,11 @@ using WaitSetIsConditionSatisfiedCallback = cxx::ConstMethodCallback<bool>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 
-constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE =
-    build::IOX_MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE;
+constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS = build::IOX_MAX_NUMBER_OF_NOTIFIERS;
 /// @note Waitset and Listener share both the max available notifiers, if one of them is running out of of notifiers
 /// the variable above must be increased
-constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE;
-constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE;
+constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = MAX_NUMBER_OF_NOTIFIERS;
+constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = MAX_NUMBER_OF_NOTIFIERS;
 //--------- Communication Resources End---------------------
 
 // Memory

@@ -62,7 +62,7 @@ uint32_t iox_cfg_max_number_of_condition_variables()
 
 uint32_t iox_cfg_max_number_of_notifiers_per_condition_variable()
 {
-    return iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE;
+    return iox::MAX_NUMBER_OF_NOTIFIERS;
 }
 
 uint32_t iox_cfg_max_number_of_attachments_per_waitset()

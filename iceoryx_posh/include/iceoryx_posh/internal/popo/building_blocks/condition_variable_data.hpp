@@ -49,7 +49,7 @@ struct ConditionVariableData
 
     RuntimeName_t m_runtimeName;
     std::atomic_bool m_toBeDestroyed{false};
-    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE];
+    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
 };
 
 } // namespace popo
