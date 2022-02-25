@@ -113,7 +113,7 @@ int main()
                     {
                         ctx.fibonacciLast = ctx.fibonacciCurrent;
                         ctx.fibonacciCurrent = response->sum;
-                        printf("%s Got Response : %lu\n", APP_NAME, (unsigned long)ctx.fibonacciCurrent);
+                        printf("%s Got Response: %lu\n", APP_NAME, (unsigned long)ctx.fibonacciCurrent);
                     }
                     else
                     {

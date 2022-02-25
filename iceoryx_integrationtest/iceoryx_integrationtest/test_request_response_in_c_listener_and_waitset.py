@@ -1,4 +1,4 @@
-# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+ Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-# @brief Test goal: "Integrationtest for the request response in c basic example of iceoryx"
+# @brief Test goal: "Integrationtest for the request response listener and waitset example of iceoryx"
 # @pre setup ROS2 launch executables for RouDi (debug mode) and the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -34,7 +34,7 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-c-request-response-client-basic', 'iox-c-request-response-server-basic']
+    executable_list = ['iox-c-request-response-server-listener', 'iox-c-request-response-client-waitset']
     process_list = []
 
     for exec in executable_list:
@@ -64,35 +64,31 @@ def generate_test_description():
         process_list[1],
         roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-c-request-response-client-basic': process_list[0], 'iox-c-request-response-server-basic': process_list[1],
+    ]), {'iox-c-request-response-server-listener': process_list[0], 'iox-c-request-response-client-waitset': process_list[1],
          'roudi_process': roudi_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
 
 
-class TestRequestResponseBasicExample(unittest.TestCase):
+class TestRequestResponseListenerExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_basic_server_client_data_exchange(self, proc_output):
+    def test_listener_server_client_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-c-request-response-client-basic Send Request: 55 + 89', timeout=45, stream='stdout')
+            'iox-c-request-response-client-waitset Send Request: 55 + 89', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-c-request-response-server-basic Got Request: 55 + 89', timeout=45, stream='stdout')
+            'iox-c-request-response-server-listener Got Request: 55 + 89', timeout=45, stream='stdout')
 
         proc_output.assertWaitFor(
-            'iox-c-request-response-server-basic Send Response: 144', timeout=45, stream='stdout')
+            'iox-c-request-response-server-listener Send Response: 144', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-c-request-response-client-basic Got Response: 144', timeout=45, stream='stdout')
-
+            'iox-c-request-response-client-waitset Got Response: 144', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
-
-
 @launch_testing.post_shutdown_test()
-class TestRequestResponseBasicExampleExitCodes(unittest.TestCase):
+class TestRequestResponseListenerExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)
-
