@@ -61,7 +61,9 @@ int main()
     iox::popo::Listener listener;
 
     //! [create server]
-    iox::popo::Server<AddRequest, AddResponse> server({"Example", "Request-Response", "Add"});
+    iox::popo::ServerOptions options;
+    options.requestQueueCapacity = 10U;
+    iox::popo::Server<AddRequest, AddResponse> server({"Example", "Request-Response", "Add"}, options);
     //! [create server]
 
     //! [attach listener]

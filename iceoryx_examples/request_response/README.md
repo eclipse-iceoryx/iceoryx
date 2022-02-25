@@ -3,7 +3,9 @@
 ## Introduction
 
 This example demonstrates how to use iceoryx in a client-server architecture
-using the request-response communication pattern.
+using the request-response communication pattern. The client sends a request with
+two consecutive fibonacci numbers and the server responds with the next number in
+the sequence.
 
 ## Expected output basic server-client example
 
@@ -40,6 +42,9 @@ iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-basic");
 ```
 
 After creating the runtime, the client port is created and attached to the Waitset.
+The `options` can be used to alter the behavior of the client, like setting the response
+queue capacity or blocking behavior when the response queue is full or the server is too slow.
+The `ClientOptions` are similar to `PublisherOptions`/`SubscriberOptions`.
 
 <!--[geoffrey][iceoryx_examples/request_response/client_cxx_waitset.cpp][create client]-->
 ```cpp
@@ -139,7 +144,7 @@ At first, the includes for the server port and request-response types and runtim
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
 
-First, a callback is created that shall be called when the server receives a response.
+First, a callback is created that shall be called when the server receives a request.
 In this case the calculation and the sending of the response is done in the listener callback.
 If there are more resource-consuming tasks,
 this could also be outsourced with a thread pool to handle the requests
@@ -167,7 +172,7 @@ void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
 }
 ```
 
-Maybe: The server provides the `take()` method for receiving requests and the `loan()` and `send()` methods
+The server provides the `take()` method for receiving requests and the `loan()` and `send()` methods
 for sending the responses with the sum of the two numbers.
 
 Next, the iceoryx runtime is initialized.
@@ -177,7 +182,9 @@ constexpr char APP_NAME[] = "iox-cpp-request-response-server-basic;
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
-After creating the runtime, the server port is created based on a ServiceDescription.
+After creating the runtime, the server port is created based on a ServiceDescription. Similar to the client,
+the `options` are used to alter the behavior of the server, like setting the request
+queue capacity or blocking behavior when the request queue is full or the client is too slow.
 <!--[geoffrey][iceoryx_examples/request_response/server_cxx_listener.cpp][create server]-->
 ```cpp
 iox::popo::Server<AddRequest, AddResponse> server({"Example", "Request-Response", "Add"});

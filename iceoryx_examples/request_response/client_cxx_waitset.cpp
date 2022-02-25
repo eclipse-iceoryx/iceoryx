@@ -48,7 +48,9 @@ int main()
     iox::popo::WaitSet<> waitset;
 
     //! [create client]
-    iox::popo::Client<AddRequest, AddResponse> client({"Example", "Request-Response", "Add"});
+    iox::popo::ClientOptions options;
+    options.responseQueueCapacity = 2U;
+    iox::popo::Client<AddRequest, AddResponse> client({"Example", "Request-Response", "Add"}, options);
     //! [create client]
 
     // attach client to waitset
@@ -78,7 +80,7 @@ int main()
         //! [send request]
 
 
-        // We block and wait for samples to arrive, when the ime is up we send the request again
+        // We block and wait for samples to arrive, when the time is up we send the request again
         auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
         for (auto& notification : notificationVector)
