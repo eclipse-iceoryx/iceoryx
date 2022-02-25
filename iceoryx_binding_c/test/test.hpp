@@ -20,4 +20,15 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <numeric>
+
+namespace iox_test_binding_c
+{
+template <typename T>
+T maxUnderlyingCEnumValue()
+{
+    return static_cast<T>(std::numeric_limits<std::underlying_type_t<T>>::max());
+};
+}; // namespace iox_test_binding_c
+
 #endif // IOX_BINDING_C_TEST_HPP
