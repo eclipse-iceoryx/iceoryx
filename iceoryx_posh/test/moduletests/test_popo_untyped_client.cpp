@@ -141,7 +141,7 @@ TEST_F(UntypedClient_test, TakeCallsUnderlyingPortWithSuccessResult)
     EXPECT_THAT(takeResult.value(), Eq(responseMock.sample()));
 }
 
-TEST_F(UntypedClient_test, takeCallsUnderlyingPortWithErrorResult)
+TEST_F(UntypedClient_test, TakeCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff524011-3a79-4960-9379-571e2eb87b16");
 
