@@ -112,7 +112,9 @@ void iox_client_release_request(iox_client_t const self, void* const payload);
 /// @brief sends a previously loaned request
 /// @param[in] self handle of the client
 /// @param[in] payload pointer to the user-payload of the request which should be send
-void iox_client_send(iox_client_t const self, void* const payload);
+/// @return on success it returns ClientSendResult_SUCCESS otherwise a value which
+///         describes the error
+ENUM iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payload);
 
 /// @brief connects to the service
 /// @param[in] self handle to the client

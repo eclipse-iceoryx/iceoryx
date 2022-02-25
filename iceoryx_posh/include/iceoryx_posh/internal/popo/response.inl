@@ -25,16 +25,17 @@ namespace popo
 {
 template <typename T>
 template <typename S, typename>
-inline void Response<T>::send() noexcept
+inline cxx::expected<ServerSendError> Response<T>::send() noexcept
 {
     if (BaseType::m_members.smartChunkUniquePtr)
     {
-        BaseType::m_members.producerRef.get().send(std::move(*(this)));
+        return BaseType::m_members.producerRef.get().send(std::move(*(this)));
     }
     else
     {
         LogError() << "Tried to send empty Response! Might be an already sent or moved Response!";
         errorHandler(Error::kPOSH__SENDING_EMPTY_RESPONSE, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 }
 

@@ -51,7 +51,10 @@ class MockClientPortUser : public MockBasePort
                 (const uint32_t, const uint32_t),
                 (noexcept));
     MOCK_METHOD(void, releaseRequest, (const iox::popo::RequestHeader* const), (noexcept));
-    MOCK_METHOD(void, sendRequest, (iox::popo::RequestHeader* const), (noexcept));
+    MOCK_METHOD(iox::cxx::expected<iox::popo::ClientSendError>,
+                sendRequest,
+                (iox::popo::RequestHeader* const),
+                (noexcept));
     MOCK_METHOD(void, connect, (), (noexcept));
     MOCK_METHOD(void, disconnect, (), (noexcept));
     MOCK_METHOD(iox::ConnectionState, getConnectionState, (), (const, noexcept));

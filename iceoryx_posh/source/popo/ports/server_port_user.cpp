@@ -57,7 +57,7 @@ cxx::expected<const RequestHeader*, ServerRequestResult> ServerPortUser::getRequ
 
 void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
 {
-    if (requestHeader)
+    if (requestHeader != nullptr)
     {
         m_chunkReceiver.release(requestHeader->getChunkHeader());
     }
@@ -101,7 +101,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
         return cxx::error<AllocationError>(allocateResult.get_error());
     }
 
-    auto responseHeader =
+    auto* responseHeader =
         new (allocateResult.value()->userHeader()) ResponseHeader(requestHeader->m_uniqueClientQueueId,
                                                                   requestHeader->m_lastKnownClientQueueIndex,
                                                                   requestHeader->getSequenceId());
@@ -111,7 +111,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
 
 void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader) noexcept
 {
-    if (responseHeader)
+    if (responseHeader != nullptr)
     {
         m_chunkSender.release(responseHeader->getChunkHeader());
     }
@@ -122,35 +122,39 @@ void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
 }
 
-void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
+cxx::expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
     if (responseHeader == nullptr)
     {
         LogFatal() << "Provided ResponseHeader is a nullptr";
         errorHandler(Error::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
-        return;
+        return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 
     const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
-
-    if (offerRequested)
-    {
-        m_chunkSender.getQueueIndex(responseHeader->m_uniqueClientQueueId, responseHeader->m_lastKnownClientQueueIndex)
-            .and_then([&](auto queueIndex) {
-                responseHeader->m_lastKnownClientQueueIndex = queueIndex;
-                m_chunkSender.sendToQueue(
-                    responseHeader->getChunkHeader(), responseHeader->m_uniqueClientQueueId, queueIndex);
-            })
-            .or_else([&] {
-                releaseResponse(responseHeader);
-                LogWarn() << "Could not deliver to queue! Queue not available anymore!";
-            });
-    }
-    else
+    if (!offerRequested)
     {
         releaseResponse(responseHeader);
         LogWarn() << "Try to send response without having offered!";
+        return cxx::error<ServerSendError>(ServerSendError::NOT_OFFERED);
     }
+
+    bool responseSent{false};
+    m_chunkSender.getQueueIndex(responseHeader->m_uniqueClientQueueId, responseHeader->m_lastKnownClientQueueIndex)
+        .and_then([&](auto queueIndex) {
+            responseHeader->m_lastKnownClientQueueIndex = queueIndex;
+            responseSent = m_chunkSender.sendToQueue(
+                responseHeader->getChunkHeader(), responseHeader->m_uniqueClientQueueId, queueIndex);
+        })
+        .or_else([&] { releaseResponse(responseHeader); });
+
+    if (!responseSent)
+    {
+        LogWarn() << "Could not deliver to client! Client not available anymore!";
+        return cxx::error<ServerSendError>(ServerSendError::CLIENT_NOT_AVAILABLE);
+    }
+
+    return cxx::success<void>();
 }
 
 void ServerPortUser::offer() noexcept

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,13 @@ namespace iox
 {
 namespace popo
 {
+enum class ClientSendError
+{
+    NO_CONNECT_REQUESTED,
+    SERVER_NOT_AVAILABLE,
+    INVALID_REQUEST,
+};
+
 /// @brief The ClientPortUser provides the API for accessing a client port from the user side. The client port
 /// is divided in the three parts ClientPortData, ClientPortRouDi and ClientPortUser. The ClientPortUser
 /// uses the functionality of a ChunkSender and ChunReceiver for sending requests and receiving responses.
@@ -67,7 +74,8 @@ class ClientPortUser : public BasePort
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] requestHeader, pointer to the RequestHeader to send
-    void sendRequest(RequestHeader* const requestHeader) noexcept;
+    /// @return ClientSendError if sending was not successful
+    cxx::expected<ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
 
     /// @brief try to connect to the server Caution: There can be delays between calling connect and a change
     /// in the connection state

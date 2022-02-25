@@ -120,6 +120,26 @@ enum iox_AllocationResult
     AllocationResult_SUCCESS,
 };
 
+/// @brief client send result
+enum iox_ClientSendResult
+{
+    ClientSendResult_SUCCESS,
+    ClientSendResult_UNDEFINED_ERROR,
+    ClientSendResult_NO_CONNECT_REQUESTED,
+    ClientSendResult_SERVER_NOT_AVAILABLE,
+    ClientSendResult_INVALID_REQUEST,
+};
+
+/// @brief server send result
+enum iox_ServerSendResult
+{
+    ServerSendResult_SUCCESS,
+    ServerSendResult_UNDEFINED_ERROR,
+    ServerSendResult_NOT_OFFERED,
+    ServerSendResult_CLIENT_NOT_AVAILABLE,
+    ServerSendResult_INVALID_RESPONSE,
+};
+
 /// @brief used to describe if attaching an object to a waitset was successful or the kind of attachment error
 enum iox_WaitSetResult
 {

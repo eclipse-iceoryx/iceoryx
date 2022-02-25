@@ -960,21 +960,28 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 
     // block in a separate thread
     std::thread blockingServer([&] {
-        auto sendRequest = [&]() {
+        auto sendRequest = [&](bool expectError) {
             auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
             ASSERT_FALSE(clientLoanResult.has_error());
-            client.send(clientLoanResult.value());
+            auto sendResult = client.send(clientLoanResult.value());
+            ASSERT_THAT(sendResult.has_error(), Eq(expectError));
+            if (expectError)
+            {
+                EXPECT_THAT(sendResult.get_error(), Eq(iox::popo::ClientSendError::SERVER_NOT_AVAILABLE));
+            }
         };
 
         // send request till queue is full
         for (uint64_t i = 0; i < serverOptions.requestQueueCapacity; ++i)
         {
-            sendRequest();
+            constexpr bool EXPECT_ERROR_INDICATOR{false};
+            sendRequest(EXPECT_ERROR_INDICATOR);
         }
 
         // signal that an blocking send is expected
         ASSERT_FALSE(threadSyncSemaphore->post().has_error());
-        sendRequest();
+        constexpr bool EXPECT_ERROR_INDICATOR{true};
+        sendRequest(EXPECT_ERROR_INDICATOR);
         wasRequestSent = true;
     });
 
@@ -1019,7 +1026,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
     {
         auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
         ASSERT_FALSE(clientLoanResult.has_error());
-        client.send(clientLoanResult.value());
+        EXPECT_FALSE(client.send(clientLoanResult.value()).has_error());
     }
 
     auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
@@ -1031,22 +1038,29 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 
     // block in a separate thread
     std::thread blockingServer([&] {
-        auto processRequest = [&]() {
+        auto processRequest = [&](bool expectError) {
             auto takeResult = server.take();
             ASSERT_FALSE(takeResult.has_error());
             auto loanResult = server.loan(
                 iox::popo::RequestHeader::fromPayload(takeResult.value()), sizeof(uint64_t), alignof(uint64_t));
             ASSERT_FALSE(loanResult.has_error());
-            server.send(loanResult.value());
+            auto sendResult = server.send(loanResult.value());
+            ASSERT_THAT(sendResult.has_error(), Eq(expectError));
+            if (expectError)
+            {
+                EXPECT_THAT(sendResult.get_error(), Eq(iox::popo::ServerSendError::CLIENT_NOT_AVAILABLE));
+            }
         };
 
         for (uint64_t i = 0; i < clientOptions.responseQueueCapacity; ++i)
         {
-            processRequest();
+            constexpr bool EXPECT_ERROR_INDICATOR{false};
+            processRequest(EXPECT_ERROR_INDICATOR);
         }
 
         ASSERT_FALSE(threadSyncSemaphore->post().has_error());
-        processRequest();
+        constexpr bool EXPECT_ERROR_INDICATOR{true};
+        processRequest(EXPECT_ERROR_INDICATOR);
         wasResponseSent = true;
     });
 

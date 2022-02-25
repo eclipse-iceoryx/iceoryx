@@ -113,7 +113,8 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @brief Send an allocated chunk to all connected ChunkQueuePopper
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send; the ownership of the pointer is transferred to this
     /// method
-    void send(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    /// @return the number of receiver the chunk was send to
+    uint64_t send(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Send an allocated chunk to a specific ChunkQueuePopper
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send; the ownership of the pointer is transferred to this

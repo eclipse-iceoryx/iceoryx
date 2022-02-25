@@ -289,7 +289,7 @@ TEST_F(ClientPort_test, ReleaseRequestWithValidRequestWorksAndReleasesTheChunkTo
         });
 }
 
-TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
+TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e50da541-7621-46e8-accb-46a6b5d7e69b");
     auto& sut = clientPortWithConnectOnCreate;
@@ -301,12 +301,9 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortTerminates)
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto&) { sut.portUser.sendRequest(nullptr); })
-        .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
-            EXPECT_TRUE(UNREACHABLE);
-        });
+    sut.portUser.sendRequest(nullptr)
+        .and_then([&]() { GTEST_FAIL() << "Expected request not successfully sent"; })
+        .or_else([&](auto error) { EXPECT_THAT(error, Eq(ClientSendError::INVALID_REQUEST)); });
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_EQ(detectedError.value(), iox::Error::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER);
@@ -317,14 +314,14 @@ TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQ
     ::testing::Test::RecordProperty("TEST_ID", "861efd1d-31ae-436d-9a0c-84da5bf99a57");
     constexpr int64_t SEQUENCE_ID{42U};
     auto& sut = clientPortWithConnectOnCreate;
-    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) {
-            requestHeader->setSequenceId(SEQUENCE_ID);
-            sut.portUser.sendRequest(requestHeader);
-        })
-        .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
-            EXPECT_TRUE(UNREACHABLE);
+    auto allocateResult = sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(allocateResult.has_error());
+    auto* requestHeader = allocateResult.value();
+    requestHeader->setSequenceId(SEQUENCE_ID);
+    sut.portUser.sendRequest(requestHeader)
+        .and_then([&]() { GTEST_SUCCEED() << "Request successfully sent"; })
+        .or_else([&](auto error) {
+            GTEST_FAIL() << "Expected response to be sent but got error: " << static_cast<uint64_t>(error);
         });
 
     serverRequestQueue.tryPop()
@@ -343,16 +340,15 @@ TEST_F(ClientPort_test,
 {
     ::testing::Test::RecordProperty("TEST_ID", "46c418a8-4f4f-4393-a190-8f5d41deb05e");
     auto& sut = clientPortWithoutConnectOnCreate;
-    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) {
-            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
-            sut.portUser.sendRequest(requestHeader);
-            EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
-        })
-        .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
-            EXPECT_TRUE(UNREACHABLE);
-        });
+    auto allocateResult = sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(allocateResult.has_error());
+    auto* requestHeader = allocateResult.value();
+
+    EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(1U));
+    sut.portUser.sendRequest(requestHeader)
+        .and_then([&]() { GTEST_FAIL() << "Expected request not successfully sent"; })
+        .or_else([&](auto error) { EXPECT_THAT(error, Eq(ClientSendError::NO_CONNECT_REQUESTED)); });
+    EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
 
     EXPECT_FALSE(serverRequestQueue.tryPop().has_value());
 }
@@ -361,12 +357,13 @@ TEST_F(ClientPort_test, ConnectAfterPreviousSendRequestCallDoesNotEnqueuesReques
 {
     ::testing::Test::RecordProperty("TEST_ID", "3348d22d-d08e-4855-8316-8b2ce77274ee");
     auto& sut = clientPortWithoutConnectOnCreate;
-    sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
-        .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
-            EXPECT_TRUE(UNREACHABLE);
-        });
+    auto allocateResult = sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(allocateResult.has_error());
+    auto* requestHeader = allocateResult.value();
+
+    sut.portUser.sendRequest(requestHeader)
+        .and_then([&]() { GTEST_FAIL() << "Expected request not successfully sent"; })
+        .or_else([&](auto error) { EXPECT_THAT(error, Eq(ClientSendError::NO_CONNECT_REQUESTED)); });
 
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
@@ -693,7 +690,7 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 
     // produce chunks for the chunk sender
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
-        .and_then([&](auto& requestHeader) { sut.portUser.sendRequest(requestHeader); })
+        .and_then([&](auto& requestHeader) { EXPECT_FALSE(sut.portUser.sendRequest(requestHeader).has_error()); })
         .or_else([&](auto&) {
             constexpr bool UNREACHABLE{false};
             EXPECT_TRUE(UNREACHABLE);

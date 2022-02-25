@@ -265,7 +265,8 @@ TEST_F(ChunkSender_test, sendWithoutReceiver)
     if (!maybeChunkHeader.has_error())
     {
         auto sample = *maybeChunkHeader;
-        m_chunkSender.send(sample);
+        auto numberOfDeliveries = m_chunkSender.send(sample);
+        EXPECT_THAT(numberOfDeliveries, Eq(0U));
         // chunk is still used because last chunk is stored
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     }
@@ -293,7 +294,8 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
         }
         auto sample = (*maybeChunkHeader)->userPayload();
         new (sample) DummySample();
-        m_chunkSender.send(*maybeChunkHeader);
+        auto numberOfDeliveries = m_chunkSender.send(*maybeChunkHeader);
+        EXPECT_THAT(numberOfDeliveries, Eq(0U));
     }
 
     // Exactly one chunk is used because last chunk is stored
@@ -322,7 +324,8 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
         }
         auto sample = (*maybeChunkHeader)->userPayload();
         new (sample) DummySample();
-        m_chunkSenderWithHistory.send(*maybeChunkHeader);
+        auto numberOfDeliveries = m_chunkSenderWithHistory.send(*maybeChunkHeader);
+        EXPECT_THAT(numberOfDeliveries, Eq(0U));
     }
 
     // Used chunks == history size
@@ -343,7 +346,8 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
     {
         auto sample = (*maybeChunkHeader)->userPayload();
         new (sample) DummySample();
-        m_chunkSender.send(*maybeChunkHeader);
+        auto numberOfDeliveries = m_chunkSender.send(*maybeChunkHeader);
+        EXPECT_THAT(numberOfDeliveries, Eq(1U));
 
         // consume the sample
         {
@@ -375,7 +379,8 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
             auto sample = (*maybeChunkHeader)->userPayload();
             new (sample) DummySample();
             static_cast<DummySample*>(sample)->dummy = i;
-            m_chunkSender.send(*maybeChunkHeader);
+            auto numberOfDeliveries = m_chunkSender.send(*maybeChunkHeader);
+            EXPECT_THAT(numberOfDeliveries, Eq(1U));
         }
     }
 
@@ -409,7 +414,8 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
             auto sample = (*maybeChunkHeader)->userPayload();
             new (sample) DummySample();
             static_cast<DummySample*>(sample)->dummy = i;
-            m_chunkSender.send(*maybeChunkHeader);
+            auto numberOfDeliveries = m_chunkSender.send(*maybeChunkHeader);
+            EXPECT_THAT(numberOfDeliveries, Eq(1U));
         }
     }
 
@@ -440,7 +446,8 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
         });
 
     ChunkMock<bool> myCrazyChunk;
-    m_chunkSender.send(myCrazyChunk.chunkHeader());
+    auto numberOfDeliveries = m_chunkSender.send(myCrazyChunk.chunkHeader());
+    EXPECT_THAT(numberOfDeliveries, Eq(0U));
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -571,7 +578,8 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
         }
         auto sample = (*maybeChunkHeader)->userPayload();
         new (sample) DummySample();
-        m_chunkSender.send(*maybeChunkHeader);
+        auto numberOfDeliveries = m_chunkSender.send(*maybeChunkHeader);
+        EXPECT_THAT(numberOfDeliveries, Eq(1U));
     }
 
     // All Chunks used now
@@ -602,7 +610,8 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed
         }
         auto sample = (*maybeChunkHeader)->userPayload();
         new (sample) DummySample();
-        m_chunkSender.send(*maybeChunkHeader);
+        auto numberOfDeliveries = m_chunkSender.send(*maybeChunkHeader);
+        EXPECT_THAT(numberOfDeliveries, Eq(1U));
 
         iox::popo::ChunkQueuePopper<ChunkQueueData_t> myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
@@ -623,7 +632,8 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
-    m_chunkSender.send(chunkHeader);
+    auto numberOfDeliveries = m_chunkSender.send(chunkHeader);
+    EXPECT_THAT(numberOfDeliveries, Eq(0U));
 
     auto chunkSmaller = m_chunkSender.tryAllocate(
         UniquePortId(), SMALL_CHUNK, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -649,7 +659,8 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
-    m_chunkSender.send(chunkHeader);
+    auto numberOfDeliveries = m_chunkSender.send(chunkHeader);
+    EXPECT_THAT(numberOfDeliveries, Eq(0U));
 
     auto chunkBigger = m_chunkSender.tryAllocate(
         UniquePortId(), BIG_CHUNK, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -675,7 +686,8 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
-    m_chunkSender.send(chunkHeader);
+    auto numberOfDeliveries = m_chunkSender.send(chunkHeader);
+    EXPECT_THAT(numberOfDeliveries, Eq(0U));
 
     auto chunkBigger = m_chunkSender.tryAllocate(
         UniquePortId(), SMALL_CHUNK, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -702,7 +714,8 @@ TEST_F(ChunkSender_test, Cleanup)
         auto maybeChunkHeader = m_chunkSenderWithHistory.tryAllocate(
             UniquePortId(), SMALL_CHUNK, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
         EXPECT_FALSE(maybeChunkHeader.has_error());
-        m_chunkSenderWithHistory.send(*maybeChunkHeader);
+        auto numberOfDeliveries = m_chunkSenderWithHistory.send(*maybeChunkHeader);
+        EXPECT_THAT(numberOfDeliveries, Eq(0U));
     }
 
     for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)

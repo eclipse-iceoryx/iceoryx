@@ -73,6 +73,34 @@ iox_AllocationResult allocationResult(const iox::popo::AllocationError value) no
     return AllocationResult_UNDEFINED_ERROR;
 }
 
+iox_ClientSendResult clientSendResult(const iox::popo::ClientSendError value) noexcept
+{
+    switch (value)
+    {
+    case ClientSendError::NO_CONNECT_REQUESTED:
+        return ClientSendResult_NO_CONNECT_REQUESTED;
+    case ClientSendError::SERVER_NOT_AVAILABLE:
+        return ClientSendResult_SERVER_NOT_AVAILABLE;
+    case ClientSendError::INVALID_REQUEST:
+        return ClientSendResult_INVALID_REQUEST;
+    }
+    return ClientSendResult_UNDEFINED_ERROR;
+}
+
+iox_ServerSendResult serverSendResult(const iox::popo::ServerSendError value) noexcept
+{
+    switch (value)
+    {
+    case ServerSendError::NOT_OFFERED:
+        return ServerSendResult_NOT_OFFERED;
+    case ServerSendError::CLIENT_NOT_AVAILABLE:
+        return ServerSendResult_CLIENT_NOT_AVAILABLE;
+    case ServerSendError::INVALID_RESPONSE:
+        return ServerSendResult_INVALID_RESPONSE;
+    }
+    return ServerSendResult_UNDEFINED_ERROR;
+}
+
 iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept
 {
     switch (value)

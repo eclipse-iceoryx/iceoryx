@@ -31,6 +31,8 @@ namespace cpp2c
 iox_SubscribeState subscribeState(const iox::SubscribeState value) noexcept;
 iox_ChunkReceiveResult chunkReceiveResult(const iox::popo::ChunkReceiveResult value) noexcept;
 iox_AllocationResult allocationResult(const iox::popo::AllocationError value) noexcept;
+iox_ClientSendResult clientSendResult(const iox::popo::ClientSendError value) noexcept;
+iox_ServerSendResult serverSendResult(const iox::popo::ServerSendError value) noexcept;
 iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept;
 iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept;
 iox_ConsumerTooSlowPolicy consumerTooSlowPolicy(const iox::popo::ConsumerTooSlowPolicy policy) noexcept;

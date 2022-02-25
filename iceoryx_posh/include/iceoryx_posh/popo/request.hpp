@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
@@ -28,15 +29,17 @@ namespace iox
 {
 namespace popo
 {
-template <typename RpcType>
+template <typename RpcType, typename SendErrorEnum>
 class RpcInterface;
 
 /// @brief The Request class is a mutable abstraction over types which are written to loaned shared memory.
 /// These requests are sent to the server via the iceoryx system.
 template <typename T>
-class Request : public SmartChunk<RpcInterface<Request<T>>, T, cxx::add_const_conditionally_t<RequestHeader, T>>
+class Request
+    : public SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, cxx::add_const_conditionally_t<RequestHeader, T>>
 {
-    using BaseType = SmartChunk<RpcInterface<Request<T>>, T, cxx::add_const_conditionally_t<RequestHeader, T>>;
+    using BaseType =
+        SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, cxx::add_const_conditionally_t<RequestHeader, T>>;
 
     template <typename S, typename TT>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
@@ -51,7 +54,7 @@ class Request : public SmartChunk<RpcInterface<Request<T>>, T, cxx::add_const_co
     /// release ownership to it.
     /// @details Only available for client (non-const type T)
     template <typename S = T, typename = ForClientOnly<S, T>>
-    void send() noexcept;
+    cxx::expected<ClientSendError> send() noexcept;
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.

@@ -18,11 +18,14 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 
+#include <numeric>
+
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
+using namespace iox::popo;
 
 template <typename CPP, typename C>
 struct EnumMapping
@@ -65,11 +68,8 @@ TEST(cpp2c_enum_translation_test, SubscribeStateCorrectAndFullTranslation)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::subscribeState(static_cast<iox::SubscribeState>(-1)), SubscribeState_UNDEFINED_ERROR);
-#pragma GCC diagnostic pop
+    EXPECT_EQ(cpp2c::subscribeState(iox_test_binding_c::maxUnderlyingCEnumValue<iox::SubscribeState>()),
+              SubscribeState_UNDEFINED_ERROR);
 }
 
 TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
@@ -95,12 +95,8 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::chunkReceiveResult(static_cast<iox::popo::ChunkReceiveResult>(-1)),
+    EXPECT_EQ(cpp2c::chunkReceiveResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ChunkReceiveResult>()),
               ChunkReceiveResult_UNDEFINED_ERROR);
-#pragma GCC diagnostic pop
 }
 
 TEST(cpp2c_enum_translation_test, AllocationResult)
@@ -144,11 +140,68 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::allocationResult(static_cast<iox::popo::AllocationError>(-1)), AllocationResult_UNDEFINED_ERROR);
-#pragma GCC diagnostic pop
+    EXPECT_EQ(cpp2c::allocationResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::AllocationError>()),
+              AllocationResult_UNDEFINED_ERROR);
+}
+
+TEST(cpp2c_enum_translation_test, ClientSendResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f9ab6c2d-1801-4b8b-9915-2c3c2b4245b2");
+    constexpr EnumMapping<ClientSendError, iox_ClientSendResult> CLIENT_SEND_ERRORR[]{
+        {ClientSendError::NO_CONNECT_REQUESTED, ClientSendResult_NO_CONNECT_REQUESTED},
+        {ClientSendError::SERVER_NOT_AVAILABLE, ClientSendResult_SERVER_NOT_AVAILABLE},
+        {ClientSendError::INVALID_REQUEST, ClientSendResult_INVALID_REQUEST}};
+
+    for (const auto clientSendError : CLIENT_SEND_ERRORR)
+    {
+        switch (clientSendError.cpp)
+        {
+        case ClientSendError::NO_CONNECT_REQUESTED:
+            EXPECT_EQ(cpp2c::clientSendResult(clientSendError.cpp), clientSendError.c);
+            break;
+        case ClientSendError::SERVER_NOT_AVAILABLE:
+            EXPECT_EQ(cpp2c::clientSendResult(clientSendError.cpp), clientSendError.c);
+            break;
+        case ClientSendError::INVALID_REQUEST:
+            EXPECT_EQ(cpp2c::clientSendResult(clientSendError.cpp), clientSendError.c);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
+
+    EXPECT_EQ(cpp2c::clientSendResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ClientSendError>()),
+              ClientSendResult_UNDEFINED_ERROR);
+}
+
+TEST(cpp2c_enum_translation_test, ServerSendResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d1950346-26f0-4a61-9dac-f43f32ea6bd5");
+    constexpr EnumMapping<ServerSendError, iox_ServerSendResult> SERVER_SEND_ERRORR[]{
+        {ServerSendError::NOT_OFFERED, ServerSendResult_NOT_OFFERED},
+        {ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendResult_CLIENT_NOT_AVAILABLE},
+        {ServerSendError::INVALID_RESPONSE, ServerSendResult_INVALID_RESPONSE}};
+
+    for (const auto serverSendError : SERVER_SEND_ERRORR)
+    {
+        switch (serverSendError.cpp)
+        {
+        case ServerSendError::NOT_OFFERED:
+            EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
+            break;
+        case ServerSendError::CLIENT_NOT_AVAILABLE:
+            EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
+            break;
+        case ServerSendError::INVALID_RESPONSE:
+            EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
+
+    EXPECT_EQ(cpp2c::serverSendResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ServerSendError>()),
+              ServerSendResult_UNDEFINED_ERROR);
 }
 
 TEST(cpp2c_enum_translation_test, WaitSetResult)
@@ -173,11 +226,8 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::waitSetResult(static_cast<iox::popo::WaitSetError>(-1)), WaitSetResult_UNDEFINED_ERROR);
-#pragma GCC diagnostic pop
+    EXPECT_EQ(cpp2c::waitSetResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::WaitSetError>()),
+              WaitSetResult_UNDEFINED_ERROR);
 }
 
 TEST(cpp2c_enum_translation_test, ListenerResult)
@@ -210,11 +260,8 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::listenerResult(static_cast<iox::popo::ListenerError>(-1)), ListenerResult_UNDEFINED_ERROR);
-#pragma GCC diagnostic pop
+    EXPECT_EQ(cpp2c::listenerResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ListenerError>()),
+              ListenerResult_UNDEFINED_ERROR);
 }
 
 TEST(cpp2c_enum_translation_test, ConsumerTooSlowPolicy)
@@ -224,12 +271,10 @@ TEST(cpp2c_enum_translation_test, ConsumerTooSlowPolicy)
               ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER);
     EXPECT_EQ(cpp2c::consumerTooSlowPolicy(iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA),
               ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::consumerTooSlowPolicy(static_cast<iox::popo::ConsumerTooSlowPolicy>(-1)),
-              ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(
+        cpp2c::consumerTooSlowPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ConsumerTooSlowPolicy>()),
+        ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA);
 }
 
 TEST(cpp2c_enum_translation_test, QueueFullPolicy)
@@ -238,55 +283,45 @@ TEST(cpp2c_enum_translation_test, QueueFullPolicy)
     EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::BLOCK_PRODUCER), QueueFullPolicy_BLOCK_PRODUCER);
     EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA),
               QueueFullPolicy_DISCARD_OLDEST_DATA);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::queueFullPolicy(static_cast<iox::popo::QueueFullPolicy>(-1)), QueueFullPolicy_DISCARD_OLDEST_DATA);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::queueFullPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::QueueFullPolicy>()),
+              QueueFullPolicy_DISCARD_OLDEST_DATA);
 }
 
 TEST(cpp2c_enum_translation_test, ClientEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab11a6c4-309f-4403-8feb-d65ec8ab7b2d");
     EXPECT_EQ(cpp2c::clientEvent(iox::popo::ClientEvent::RESPONSE_RECEIVED), ClientEvent_RESPONSE_RECEIVED);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::clientEvent(static_cast<iox::popo::ClientEvent>(-1)), ClientEvent_RESPONSE_RECEIVED);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::clientEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ClientEvent>()),
+              ClientEvent_RESPONSE_RECEIVED);
 }
 
 TEST(cpp2c_enum_translation_test, ClientState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7dd9ddce-2316-4a61-ace7-0c83b1b8e4c7");
     EXPECT_EQ(cpp2c::clientState(iox::popo::ClientState::HAS_RESPONSE), ClientState_HAS_RESPONSE);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::clientState(static_cast<iox::popo::ClientState>(-1)), ClientState_HAS_RESPONSE);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::clientState(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ClientState>()),
+              ClientState_HAS_RESPONSE);
 }
 
 TEST(cpp2c_enum_translation_test, ServerEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e6e4511f-1f14-405a-9edc-6100862a3a9f");
     EXPECT_EQ(cpp2c::serverEvent(iox::popo::ServerEvent::REQUEST_RECEIVED), ServerEvent_REQUEST_RECEIVED);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::serverEvent(static_cast<iox::popo::ServerEvent>(-1)), ServerEvent_REQUEST_RECEIVED);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::serverEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ServerEvent>()),
+              ServerEvent_REQUEST_RECEIVED);
 }
 
 TEST(cpp2c_enum_translation_test, ServerState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9750af5-9002-4b08-bde5-16181b50b7d9");
     EXPECT_EQ(cpp2c::serverState(iox::popo::ServerState::HAS_REQUEST), ServerState_HAS_REQUEST);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::serverState(static_cast<iox::popo::ServerState>(-1)), ServerState_HAS_REQUEST);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::serverState(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ServerState>()),
+              ServerState_HAS_REQUEST);
 }
 
 TEST(cpp2c_enum_translation_test, ConnectionState)
@@ -297,11 +332,9 @@ TEST(cpp2c_enum_translation_test, ConnectionState)
     EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::DISCONNECT_REQUESTED), ConnectionState_DISCONNECT_REQUESTED);
     EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::CONNECT_REQUESTED), ConnectionState_CONNECT_REQUESTED);
     EXPECT_EQ(cpp2c::connectionState(iox::ConnectionState::WAIT_FOR_OFFER), ConnectionState_WAIT_FOR_OFFER);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::connectionState(static_cast<iox::ConnectionState>(-1)), ConnectionState_NOT_CONNECTED);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::connectionState(iox_test_binding_c::maxUnderlyingCEnumValue<iox::ConnectionState>()),
+              ConnectionState_NOT_CONNECTED);
 }
 
 TEST(cpp2c_enum_translation_test, ServerRequestResult)
@@ -315,10 +348,8 @@ TEST(cpp2c_enum_translation_test, ServerRequestResult)
               ServerRequestResult_UNDEFINED_CHUNK_RECEIVE_ERROR);
     EXPECT_EQ(cpp2c::serverRequestResult(iox::popo::ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER),
               ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::serverRequestResult(static_cast<iox::popo::ServerRequestResult>(-1)), ServerRequestResult_SUCCESS);
-#pragma GCC diagnostic pop
+
+    EXPECT_EQ(cpp2c::serverRequestResult(iox_test_binding_c::maxUnderlyingCEnumValue<iox::popo::ServerRequestResult>()),
+              ServerRequestResult_SUCCESS);
 }
 } // namespace

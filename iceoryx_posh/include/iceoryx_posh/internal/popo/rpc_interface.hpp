@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_RPC_INTERFACE_HPP
 #define IOX_POSH_RPC_INTERFACE_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
+
 namespace iox
 {
 namespace popo
@@ -26,13 +28,14 @@ namespace popo
 /// by the Request/Response class. It is also needed to avoid circular dependencies between Request/Response
 /// and Client/Sever.
 /// @tparam RpcType is either Request<T> for the client or Response<T> for the server
-template <typename RpcType>
+template <typename RpcType, typename SendErrorEnum>
 class RpcInterface
 {
   public:
     /// @brief Sends the given Request<T> or Response<T> via the type which implements this interface
     /// @param[in] rpcData is the actual Request<T> or Response<T> instance
-    virtual void send(RpcType&& rpcData) noexcept = 0;
+    /// @return Error if sending was not successful
+    virtual cxx::expected<SendErrorEnum> send(RpcType&& rpcData) noexcept = 0;
 
   protected:
     RpcInterface() = default;

@@ -144,9 +144,13 @@ TEST_F(UntypedServer_test, SendWithValidPayloadPointerCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "707cfdd8-05ae-490c-8cbb-9a4253135937");
 
-    EXPECT_CALL(sut.mockPort, sendResponse(responseMock.userHeader())).Times(1);
+    EXPECT_CALL(sut.mockPort, sendResponse(responseMock.userHeader())).WillOnce(Return(iox::cxx::success<void>()));
 
-    sut.send(responseMock.sample());
+    sut.send(responseMock.sample())
+        .and_then([&]() { GTEST_SUCCEED() << "Response successfully sent"; })
+        .or_else([&](auto error) {
+            GTEST_FAIL() << "Expected response to be sent but got error: " << static_cast<uint64_t>(error);
+        });
 }
 
 TEST_F(UntypedServer_test, SendWithNullpointerDoesNotCallsUnderlyingPort)
@@ -155,7 +159,9 @@ TEST_F(UntypedServer_test, SendWithNullpointerDoesNotCallsUnderlyingPort)
 
     EXPECT_CALL(sut.mockPort, sendResponse(_)).Times(0);
 
-    sut.send(nullptr);
+    sut.send(nullptr)
+        .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
+        .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::INVALID_RESPONSE)); });
 }
 
 TEST_F(UntypedServer_test, ReleaseResponseWithValidPayloadPointerCallsUnderlyingPort)

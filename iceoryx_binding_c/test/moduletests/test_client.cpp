@@ -291,7 +291,7 @@ TEST_F(iox_client_test, LoanAndSendWorks)
     EXPECT_THAT(iox_client_loan_request(sut, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
     *static_cast<int64_t*>(payload) = 8912389;
 
-    iox_client_send(sut, payload);
+    EXPECT_THAT(iox_client_send(sut, payload), Eq(ClientSendResult_SUCCESS));
 
     serverRequestQueue.tryPop()
         .and_then([&](auto& sharedChunk) {
@@ -299,6 +299,16 @@ TEST_F(iox_client_test, LoanAndSendWorks)
             EXPECT_THAT(*msg, Eq(8912389));
         })
         .or_else([&] { GTEST_FAIL() << "Expected request but got none"; });
+}
+
+TEST_F(iox_client_test, SendWithNullptrReturnsError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "927583a2-5b26-47ba-b05c-95729b7af8f1");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+
+    EXPECT_THAT(iox_client_send(sut, nullptr), Eq(ClientSendResult_INVALID_REQUEST));
 }
 
 TEST_F(iox_client_test, ConnectWorks)
