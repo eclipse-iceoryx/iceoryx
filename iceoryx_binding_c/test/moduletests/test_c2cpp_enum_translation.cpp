@@ -48,9 +48,6 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -60,10 +57,10 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::subscriberState(static_cast<iox_SubscriberState>(-1)), iox::popo::SubscriberState::HAS_DATA);
+    EXPECT_EQ(c2cpp::subscriberState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberState>()),
+              iox::popo::SubscriberState::HAS_DATA);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, SubscriberEvent)
@@ -84,9 +81,6 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -96,10 +90,10 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::subscriberEvent(static_cast<iox_SubscriberEvent>(-1)), iox::popo::SubscriberEvent::DATA_RECEIVED);
+    EXPECT_EQ(c2cpp::subscriberEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberEvent>()),
+              iox::popo::SubscriberEvent::DATA_RECEIVED);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
@@ -124,9 +118,6 @@ TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -136,11 +127,10 @@ TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::consumerTooSlowPolicy(static_cast<iox_ConsumerTooSlowPolicy>(-1)),
+    EXPECT_EQ(c2cpp::consumerTooSlowPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ConsumerTooSlowPolicy>()),
               iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, QueueFullPolicy)
@@ -165,9 +155,6 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -177,11 +164,10 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::queueFullPolicy(static_cast<iox_QueueFullPolicy>(-1)),
+    EXPECT_EQ(c2cpp::queueFullPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_QueueFullPolicy>()),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, ClientState)
@@ -202,9 +188,6 @@ TEST(c2cpp_enum_translation_test, ClientState)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -214,10 +197,10 @@ TEST(c2cpp_enum_translation_test, ClientState)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::clientState(static_cast<iox_ClientState>(-1)), iox::popo::ClientState::HAS_RESPONSE);
+    EXPECT_EQ(c2cpp::clientState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientState>()),
+              iox::popo::ClientState::HAS_RESPONSE);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_STATE_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, ClientEvent)
@@ -238,9 +221,6 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -250,10 +230,10 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::clientEvent(static_cast<iox_ClientEvent>(-1)), iox::popo::ClientEvent::RESPONSE_RECEIVED);
+    EXPECT_EQ(c2cpp::clientEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientEvent>()),
+              iox::popo::ClientEvent::RESPONSE_RECEIVED);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_EVENT_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, ServerState)
@@ -274,9 +254,6 @@ TEST(c2cpp_enum_translation_test, ServerState)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -286,10 +263,10 @@ TEST(c2cpp_enum_translation_test, ServerState)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::serverState(static_cast<iox_ServerState>(-1)), iox::popo::ServerState::HAS_REQUEST);
+    EXPECT_EQ(c2cpp::serverState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerState>()),
+              iox::popo::ServerState::HAS_REQUEST);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, ServerEvent)
@@ -310,9 +287,6 @@ TEST(c2cpp_enum_translation_test, ServerEvent)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -322,10 +296,10 @@ TEST(c2cpp_enum_translation_test, ServerEvent)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::serverEvent(static_cast<iox_ServerEvent>(-1)), iox::popo::ServerEvent::REQUEST_RECEIVED);
+    EXPECT_EQ(c2cpp::serverEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerEvent>()),
+              iox::popo::ServerEvent::REQUEST_RECEIVED);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_EVENT_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
@@ -347,9 +321,6 @@ TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -359,11 +330,10 @@ TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::serviceDiscoveryEvent(static_cast<iox_ServiceDiscoveryEvent>(-1)),
+    EXPECT_EQ(c2cpp::serviceDiscoveryEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServiceDiscoveryEvent>()),
               iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, MessagingPattern)
@@ -389,9 +359,6 @@ TEST(c2cpp_enum_translation_test, MessagingPattern)
         }
     }
 
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
 // ignored for now since the undefined behavior sanitizer correctly detects the undefined behavior
 // which is tested and handled here
 // explicitly commented out since we are testing undefined behavior here and that we
@@ -401,10 +368,10 @@ TEST(c2cpp_enum_translation_test, MessagingPattern)
     iox::Error errorValue = iox::Error::kNO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
         [&](const iox::Error e, const std::function<void()>, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::messagingPattern(static_cast<iox_MessagingPattern>(-1)), iox::popo::MessagingPattern::PUB_SUB);
+    EXPECT_EQ(c2cpp::messagingPattern(iox_test_binding_c::maxUnderlyingCEnumValue<iox_MessagingPattern>()),
+              iox::popo::MessagingPattern::PUB_SUB);
     EXPECT_THAT(errorValue, Eq(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE));
 #endif
-#pragma GCC diagnostic pop
 }
 
 } // namespace
