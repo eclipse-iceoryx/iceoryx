@@ -94,7 +94,7 @@ class ServiceRegistry
     /// @brief Applys a callable to all entries
     /// @param[in] callable, callable to apply to each entry
     /// @note Can be used to obtain all entries or count them
-    void applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+    void forEach(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
   private:
     using Entry_t = cxx::optional<ServiceDescriptionEntry>;

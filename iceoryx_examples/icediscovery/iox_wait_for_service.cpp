@@ -77,7 +77,7 @@ int main()
     };
     //! [define search query]
 
-    std::cout << APP_NAME << " waiting for service <" << service << ", " << instance << ", " << event << "> ..."
+    std::cout << APP_NAME << " waiting for service <" << service << ", " << instance << ", " << event << "> ...\n"
               << std::endl;
 
     //! [wait until service was available]
@@ -87,12 +87,13 @@ int main()
     // did we wake up due to an unblock or because the service was available?
     if (serviceWasAvailable)
     {
-        std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was available" << std::endl;
+        std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was available\n"
+                  << std::endl;
 
         // service was available, but we can never be sure the service is still available
         // if this is important we need to monitor it (see discovery monitor example)
 
-        std::cout << APP_NAME << " waiting for any discovery change ..." << std::endl;
+        std::cout << APP_NAME << " waiting for any discovery change ...\n" << std::endl;
 
         do
         {
@@ -103,9 +104,17 @@ int main()
                       << "> ..." << std::endl;
 
             //! [check service availability]
-            // loop while the service is available
-        } while (!discovery.findService(service, instance, event).empty());
-        //! [check service availability]
+            if (discovery.findService(service, instance, event).empty())
+            {
+                break;
+            }
+            //! [check service availability]
+
+            std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was available\n"
+                      << std::endl;
+
+            // loop while the service is available (e.g. perform some computation etc.)
+        } while (true);
 
         std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was unavailable"
                   << std::endl;

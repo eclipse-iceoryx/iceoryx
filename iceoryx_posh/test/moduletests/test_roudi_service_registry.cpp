@@ -144,7 +144,7 @@ class ServiceRegistry_test : public Test
     uint64_t countServices()
     {
         uint64_t count = 0;
-        sut->applyToAll([&](const ServiceRegistry::ServiceDescriptionEntry&) { ++count; });
+        sut->forEach([&](const ServiceRegistry::ServiceDescriptionEntry&) { ++count; });
         return count;
     }
 

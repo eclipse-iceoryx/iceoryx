@@ -156,8 +156,10 @@ We then can check any condition we like, but usually it will be most useful to a
 Here we check whether a particular service becomes unavailable (essentially the negation of our query before)
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][check service availability]-->
 ```cpp
-// loop while the service is available
-        } while (!discovery.findService(service, instance, event).empty());
+if (discovery.findService(service, instance, event).empty())
+{
+    break;
+}
 ```
 
 Note that we use a customized `findService` version which returns a result container which can easily be build
@@ -276,7 +278,17 @@ Waiting for any availability change is now as simple as waiting on the waitset
 ```cpp
 void Discovery::waitUntilChange()
 {
-    m_waitset.wait();
+    do
+    {
+        auto notificationVector = m_waitset.wait();
+        for (auto& notification : notificationVector)
+        {
+            if (notification->doesOriginateFrom(m_discovery))
+            {
+                return;
+            }
+        }
+    } while (m_blocking);
 }
 ```
 
@@ -378,7 +390,7 @@ m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVIC
 ```
 
 The callback is stored as a `cxx::function` which does not require dynamic memory (but limits the size of the stored function,
-which is relvant e.g. for capturing lambdas). If dynamic memory s no concern we can also use a `std::function`.
+which is relvant e.g. for capturing lambdas). If dynamic memory is no concern we can also use a `std::function`.
 The callback can be any callable with a `(void)(discovery::Discovery&)` signature.
 Again the callback signature can be generalized somewhat but there are constraints to use it with the listener.
 Since the listener can only call static or free functions, we use an additional indirection to call the actual callback

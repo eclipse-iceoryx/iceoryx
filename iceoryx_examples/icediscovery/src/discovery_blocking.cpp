@@ -43,7 +43,17 @@ Discovery::Discovery()
 //! [wait until change]
 void Discovery::waitUntilChange()
 {
-    m_waitset.wait();
+    do
+    {
+        auto notificationVector = m_waitset.wait();
+        for (auto& notification : notificationVector)
+        {
+            if (notification->doesOriginateFrom(m_discovery))
+            {
+                return;
+            }
+        }
+    } while (m_blocking);
 }
 //! [wait until change]
 
