@@ -82,7 +82,7 @@ int main()
                 {
                     fibonacciLast = fibonacciCurrent;
                     fibonacciCurrent = response->sum;
-                    printf("%s Got Response : %lu\n", APP_NAME, (unsigned long)fibonacciCurrent);
+                    printf("%s Got Response: %lu\n", APP_NAME, (unsigned long)fibonacciCurrent);
                 }
                 else
                 {

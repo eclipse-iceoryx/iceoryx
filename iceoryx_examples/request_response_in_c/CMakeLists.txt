@@ -30,39 +30,39 @@ if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
     list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
 endif()
 
-add_executable(iox-client-c-basic ./client_c_basic.c)
+add_executable(iox-c-request-response-client-basic ./client_c_basic.c)
 set_source_files_properties(./client_c_basic.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-client-c-basic
+target_link_libraries(iox-c-request-response-client-basic
     iceoryx_binding_c::iceoryx_binding_c
 )
-target_compile_options(iox-client-c-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-c-request-response-client-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-client-c-waitset ./client_c_waitset.c)
+add_executable(iox-c-request-response-client-waitset ./client_c_waitset.c)
 set_source_files_properties(./client_c_waitset.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-client-c-waitset
+target_link_libraries(iox-c-request-response-client-waitset
     iceoryx_binding_c::iceoryx_binding_c
 )
-target_compile_options(iox-client-c-waitset PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-c-request-response-client-waitset PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-server-c-basic ./server_c_basic.c)
+add_executable(iox-c-request-response-server-basic ./server_c_basic.c)
 set_source_files_properties(./server_c_basic.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-server-c-basic
+target_link_libraries(iox-c-request-response-server-basic
     iceoryx_binding_c::iceoryx_binding_c
 )
-target_compile_options(iox-server-c-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-c-request-response-server-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-server-c-listener ./server_c_listener.c)
+add_executable(iox-c-request-response-server-listener ./server_c_listener.c)
 set_source_files_properties(./server_c_listener.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-server-c-listener
+target_link_libraries(iox-c-request-response-server-listener
     iceoryx_binding_c::iceoryx_binding_c
 )
-target_compile_options(iox-server-c-listener PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-c-request-response-server-listener PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_target_properties(
-    iox-client-c-basic
-    iox-client-c-waitset
-    iox-server-c-basic
-    iox-server-c-listener
+    iox-c-request-response-client-basic
+    iox-c-request-response-client-waitset
+    iox-c-request-response-server-basic
+    iox-c-request-response-server-listener
   PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -70,6 +70,6 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-client-c-basic iox-client-c-waitset iox-server-c-basic iox-server-c-listener
+    TARGETS iox-c-request-response-client-basic iox-c-request-response-client-waitset iox-c-request-response-server-basic iox-c-request-response-server-listener
     RUNTIME DESTINATION bin
 )
