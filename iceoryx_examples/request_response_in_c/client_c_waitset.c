@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#define NUMBER_OF_NOTIFICATIONS 1
+
 bool keepRunning = true;
 const char APP_NAME[] = "iox-c-request-response-client-waitset";
 
@@ -90,7 +92,6 @@ int main()
             printf("Could not allocate Request! Return value = %d\n", loanResult);
         }
 
-        const uint64_t NUMBER_OF_NOTIFICATIONS = 1;
         iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
         uint64_t missedNotifications = 0U;
         struct timespec timeout;
