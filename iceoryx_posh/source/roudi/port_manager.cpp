@@ -871,7 +871,11 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
-    if (isInternal(service) && runtimeName != RuntimeName_t{IPC_CHANNEL_ROUDI_NAME})
+    if (runtimeName == RuntimeName_t{IPC_CHANNEL_ROUDI_NAME})
+    {
+        m_internalServices.push_back(service);
+    }
+    else if (isInternal(service))
     {
         errorHandler(
             Error::kPOSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN, nullptr, ErrorLevel::MODERATE);
@@ -909,8 +913,6 @@ PortManager::acquireInternalPublisherPortData(const capro::ServiceDescription& s
             // now the port to send registry information exists and can be used to publish service registry changes
             PublisherPortRouDiType port(publisherPortData);
             doDiscoveryForPublisherPort(port);
-
-            m_internalServices.push_back(service);
         })
         .value();
 }
