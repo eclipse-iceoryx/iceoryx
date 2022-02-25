@@ -33,7 +33,7 @@ class UntypedClientImpl : public BaseClientT
   public:
     explicit UntypedClientImpl(const capro::ServiceDescription& service,
                                const ClientOptions& clientOptions = {}) noexcept;
-    ~UntypedClientImpl() = default;
+    ~UntypedClientImpl() noexcept = default;
 
     UntypedClientImpl(const UntypedClientImpl&) = delete;
     UntypedClientImpl(UntypedClientImpl&&) = delete;
