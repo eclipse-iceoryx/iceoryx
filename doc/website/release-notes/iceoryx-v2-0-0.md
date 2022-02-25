@@ -38,7 +38,7 @@
 - Increase limits of `ServiceRegistry` to support the maximum number of publishers and servers that are configured in `iceoryx_posh_types.hpp` [\#1074](https://github.com/eclipse-iceoryx/iceoryx/issues/1074)
 - C binding for service discovery [\#1142](https://github.com/eclipse-iceoryx/iceoryx/issues/1142)
 - Introduce `iox::popo::MessagingPattern` to `findService` to allow separate searches for publishers (`MessagingPattern::PUB_SUB`) and
-Servers (`iox::popo::MessagingPattern::REQ_RES`) [\#27](https://github.com/eclipse-iceoryx/iceoryx/pull/1134)
+servers (`iox::popo::MessagingPattern::REQ_RES`) [\#27](https://github.com/eclipse-iceoryx/iceoryx/pull/1134)
 
 **Bugfixes:**
 

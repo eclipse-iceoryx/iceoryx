@@ -45,7 +45,12 @@ It is included via:
 
 On that object we can call the method `findService` which expects the three
 service [string identifiers](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/website/getting-started/overview.md#creating-service-descriptions-for-topics)
-and a callable which will be applied to all matching services. In this example
+and a callable which will be applied to all matching services.
+In addition we have to specify whether we want to search for publishers (`MessagingPattern::PUB_SUB`)
+used in publish-subscribe communication or servers (`MessagingPattern::REQ_RES`) used in
+request-response communication.
+
+In this example
 we pass a function that prints the found services on the console:
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_find_service.cpp][print function to be applied to search results]-->
@@ -82,16 +87,12 @@ With the above `findService` call we look for every `Camera` service with any
 instance and any event. Since the `cameraPublishers` periodically offer/stop
 their services, you should see sometimes 5 `Camera` services and sometimes none.
 
-<center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery){ .md-button }
-</center>
-
 ### Wait for services
 
 Start the applications `iox-wait-for-service` and `iox-offer-service`. This can be done in any order,
-but for demonstration purposes `iox-offer-service` should be started last).
+but for demonstration purposes `iox-offer-service` should be started last.
 
-`iox-wait-for-service` uses a customized service discovery `Discovery` which supports to wait for services by including
+`iox-wait-for-service` uses a customized service discovery [Discovery](#implementation-of-discovery-with-blocking-wait) which supports to wait for services by including
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][include custom discovery]-->
 ```cpp
@@ -176,10 +177,13 @@ if (discoveryPtr)
 
 ### Monitor service availability
 
-If we want to continously monitor the availability of some service or check some discovery condition we can do so by using e.g. a listener.
-To do so, we start the applications `iox-discovery-monitor` and `iox-offer-service` (again in any order, but for demonstration purposes `iox-offer-service` should be started last).
+If we want to continously monitor the availability of some service or check some discovery condition we can do so by
+using e.g. a listener to conditionally execute [callbacks](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/callbacks).
 
-Again we can use a service discovery `Discovery` customized for this purpose by including
+To do so, we start the applications `iox-discovery-monitor` and `iox-offer-service`
+(again in any order, but for demonstration purposes `iox-offer-service` should be started last).
+
+Again we can use a [Discovery](#implementation-of-discovery-monitoring) customized for this purpose by including
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_discovery_monitor.cpp][include custom discovery]-->
 ```cpp
@@ -323,8 +327,8 @@ It is also possible to unblock any of the waits even if nothing changes or the c
 void Discovery::unblockWait()
 {
     m_blocking = false;
-    // could also unblock with a dedicated condition to break the wait but that requires more code
-    // and is not necessary if it is only supposed to happen once
+    // could also unblock with a dedicated condition to unblock the wait but that requires more code
+    // (additional trigger) and is not necessary if it is only supposed to happen once
     m_waitset.markForDestruction();
 }
 ```
@@ -349,10 +353,12 @@ ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdS
 It is implemenented by using the native `findService` call of the `ServiceDiscovery` with an appropriate filter function.
 The benefit is that this way we can choose containers which do not necessrily reside on the stack.
 
-### Implemtation of Discovery monitoring
+### Implementation of Discovery monitoring
 
-To implement a `Discovery` where we actively monitor availability of services we employ a listener. Contrary to the blocking solution
-this does not block the usr threads and executes any callback in a background thread created by the listener.
+To implement a `Discovery` where we actively monitor availability of services we employ a
+[listener](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/callbacks).
+Contrary to the blocking solution this does not block the user threads and executes any callback
+in a background thread created by the listener.
 The callback will be executed on any change of the available services.
 
 To register the callback we call
@@ -371,8 +377,11 @@ m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVIC
     .or_else(errorHandler);
 ```
 
-The callback is stored as a `cxx::function` which does not require dynamic memory (but limits the size of the stored function, which is relvant e.g. for capturing lambdas).
-If dynamic memory s no concern we can also use a `std::function`. The callback can be any callable with a `(void)(discovery::Discovery&)` signature. Again the callback signature can be generalized somewhat but there are constraints to use it with the listener. Since the listener can only call static or free functions, we use an additional indirection to call the actual callback
+The callback is stored as a `cxx::function` which does not require dynamic memory (but limits the size of the stored function,
+which is relvant e.g. for capturing lambdas). If dynamic memory s no concern we can also use a `std::function`.
+The callback can be any callable with a `(void)(discovery::Discovery&)` signature.
+Again the callback signature can be generalized somewhat but there are constraints to use it with the listener.
+Since the listener can only call static or free functions, we use an additional indirection to call the actual callback
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_monitor.cpp][invokeCallback]-->
 ```cpp
@@ -383,7 +392,13 @@ void Discovery::invokeCallback(ServiceDiscovery*, Discovery* self)
 }
 ```
 
-As soon as the callback is registered, the listener thread will invoke it on any service availability change. There is a small caveat though that while callback is called on any change, we can only access the latest discovery information by e.g. calling `findService`. This means all intermediate changes cannot be detected, in particular we might encounter an ABA problem of service availabilty: the service is availalable, becomes unavailable and available again in quick succession. If the callback issues a `findService`, it will not observe any change in this case. As one is usually mainly interested in the available services this can be considered a minor limitation.
+As soon as the callback is registered, the listener thread will invoke it on any service availability change.
+There is a small caveat though that while callback is called on any change, we can only access
+the latest discovery information by e.g. calling `findService`.
+This means all intermediate changes cannot be detected, in particular we may encounter an ABA problem of service availabilty:
+the service is availalable, becomes unavailable and available again in quick succession.
+If the callback issues a `findService`, it will not observe any change in this case.
+As one is usually mainly interested in the available services this can be considered a minor limitation.
 
 To stop monitoring changes in the availability of services we simply call
 
@@ -402,3 +417,7 @@ void Discovery::deregisterCallback()
 which detaches the callback from the listener.
 
 As before we built on an `iox::runtime::ServiceDiscovery` by composition and define a custom`findService` function which returns a `std::vector`.
+
+<center>
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery){ .md-button }
+</center>

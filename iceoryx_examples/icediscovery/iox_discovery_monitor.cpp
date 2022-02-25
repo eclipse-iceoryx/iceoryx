@@ -33,12 +33,13 @@ iox::capro::IdString_t event{"Image"};
 
 void printSearchResult(const discovery::ServiceContainer& result)
 {
-    std::cout << APP_NAME << " search result:" << (result.empty() ? "empty" : "") << std::endl;
+    std::cout << APP_NAME << " search result:" << (result.empty() ? "empty\n" : "") << std::endl;
 
     for (const auto& entry : result)
     {
         std::cout << APP_NAME << " " << entry.getServiceIDString() << ", " << entry.getInstanceIDString() << ", "
-                  << entry.getEventIDString() << std::endl;
+                  << entry.getEventIDString() << "\n"
+                  << std::endl;
     }
 }
 

@@ -17,7 +17,6 @@
 #pragma once
 
 #include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "iceoryx_hoofs/cxx/function.hpp"

@@ -51,8 +51,8 @@ void Discovery::waitUntilChange()
 void Discovery::unblockWait()
 {
     m_blocking = false;
-    // could also unblock with a dedicated condition to break the wait but that requires more code
-    // and is not necessary if it is only supposed to happen once
+    // could also unblock with a dedicated condition to unblock the wait but that requires more code
+    // (additional trigger) and is not necessary if it is only supposed to happen once
     m_waitset.markForDestruction();
 }
 //! [unblock wait]
