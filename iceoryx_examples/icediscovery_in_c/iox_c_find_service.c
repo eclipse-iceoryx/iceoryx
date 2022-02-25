@@ -43,11 +43,12 @@ void printSearchResult(const iox_service_description_t service)
         "- Service: %s, Instance: %s, Event: %s\n", service.serviceString, service.instanceString, service.eventString);
 }
 
-void searchFrontCameras(const iox_service_description_t service, void* count)
+void searchFrontDevices(const iox_service_description_t service, void* count)
 {
-    if (strcmp(service.instanceString, "FrontLeft") == 0 || strcmp(service.instanceString, "FrontRight") == 0)
+    if (strncmp(service.instanceString, "FrontLeft", IOX_CONFIG_SERVICE_STRING_SIZE - 1U) == 0
+        || strncmp(service.instanceString, "FrontRight", IOX_CONFIG_SERVICE_STRING_SIZE - 1U) == 0)
     {
-        ++*(uint64_t*)count;
+        ++*(uint32_t*)count;
     }
 }
 
@@ -68,7 +69,7 @@ int main()
 
     while (keepRunning)
     {
-        uint64_t numberFrontCameras = 0U;
+        uint32_t numberFrontCameras = 0U;
 
         printf("\n=========================================\n");
 
@@ -102,14 +103,9 @@ int main()
             printSearchResult(searchResult[i]);
         }
 
-        iox_service_discovery_find_service_apply_callable_with_context_data(serviceDiscovery,
-                                                                            "Camera",
-                                                                            NULL,
-                                                                            NULL,
-                                                                            searchFrontCameras,
-                                                                            (void*)&numberFrontCameras,
-                                                                            MessagingPattern_PUB_SUB);
-        printf("\nFound %lu front cameras\n", (unsigned long)numberFrontCameras);
+        iox_service_discovery_find_service_apply_callable_with_context_data(
+            serviceDiscovery, "Camera", NULL, NULL, searchFrontDevices, &numberFrontCameras, MessagingPattern_PUB_SUB);
+        printf("\nFound %u front cameras\n", numberFrontCameras);
 
         sleep_for(1000);
     }
