@@ -173,8 +173,7 @@ add_library(iceoryx_hoofs
     source/posix_wrapper/posix_access_rights.cpp
     source/posix_wrapper/thread.cpp
     source/units/duration.cpp
-    source/relocatable_pointer/base_relative_pointer.cpp
-    source/relocatable_pointer/base_relocatable_pointer.cpp
+    source/relocatable_pointer/base_relative_pointer.cpp    
     source/relocatable_pointer/relative_pointer_data.cpp
 )
 
