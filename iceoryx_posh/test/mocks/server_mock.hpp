@@ -72,7 +72,6 @@ class MockServerPortUser : public MockBasePort
     MOCK_METHOD(bool, isConditionVariableSet, (), (const, noexcept));
 };
 
-template <typename T>
 class MockBaseServer
 {
   public:
