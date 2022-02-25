@@ -67,64 +67,23 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     registryPortOptions.nodeName = iox::NodeName_t("Service Registry");
     registryPortOptions.offerOnCreate = true;
 
-    m_serviceRegistryPublisherPortData =
-        acquirePublisherPortDataWithoutDiscovery(
-            {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
-            registryPortOptions,
-            IPC_CHANNEL_ROUDI_NAME,
-            introspectionMemoryManager,
-            PortConfigInfo())
-            .or_else([](auto&) {
-                LogFatal() << "Could not create PublisherPort for service registry!";
-                errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_SERVICE_REGISTRY, nullptr, ErrorLevel::FATAL);
-            })
-            .value();
-    // now the port to send registry information exists and can be used to publish service registry changes
-    PublisherPortRouDiType serviceRegistryPort(m_serviceRegistryPublisherPortData.value());
-    doDiscoveryForPublisherPort(serviceRegistryPort);
+    m_serviceRegistryPublisherPortData = acquireInternalPublisherPortData(
+        {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
+        registryPortOptions,
+        introspectionMemoryManager);
 
     popo::PublisherOptions options;
     options.historyCapacity = 1U;
     options.nodeName = INTROSPECTION_NODE_NAME;
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
-    auto maybePublisher = acquirePublisherPortData(
-        IntrospectionPortService, options, IPC_CHANNEL_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
-    if (maybePublisher.has_error())
-    {
-        LogError() << "Could not create PublisherPort for IntrospectionPortService";
-        errorHandler(
-            Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
-    }
-    auto portGeneric = maybePublisher.value();
+    auto portGeneric = acquireInternalPublisherPortData(IntrospectionPortService, options, introspectionMemoryManager);
 
-    maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
-                                              options,
-                                              IPC_CHANNEL_ROUDI_NAME,
-                                              introspectionMemoryManager,
-                                              PortConfigInfo());
-    if (maybePublisher.has_error())
-    {
-        LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
-        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTTHROUGHPUTSERVICE,
-                     nullptr,
-                     iox::ErrorLevel::SEVERE);
-    }
-    auto portThroughput = maybePublisher.value();
+    auto portThroughput =
+        acquireInternalPublisherPortData(IntrospectionPortThroughputService, options, introspectionMemoryManager);
 
-    maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
-                                              options,
-                                              IPC_CHANNEL_ROUDI_NAME,
-                                              introspectionMemoryManager,
-                                              PortConfigInfo());
-    if (maybePublisher.has_error())
-    {
-        LogError() << "Could not create PublisherPort for IntrospectionSubscriberPortChangingDataService";
-        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE,
-                     nullptr,
-                     iox::ErrorLevel::SEVERE);
-    }
-    auto subscriberPortsData = maybePublisher.value();
+    auto subscriberPortsData = acquireInternalPublisherPortData(
+        IntrospectionSubscriberPortChangingDataService, options, introspectionMemoryManager);
 
     m_portIntrospection.registerPublisherPort(PublisherPortUserType(std::move(portGeneric)),
                                               PublisherPortUserType(std::move(portThroughput)),
@@ -935,6 +894,27 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
     return maybePublisherPortData;
 }
 
+PublisherPortRouDiType::MemberType_t*
+PortManager::acquireInternalPublisherPortData(const capro::ServiceDescription& service,
+                                              const popo::PublisherOptions& publisherOptions,
+                                              mepoo::MemoryManager* const payloadDataSegmentMemoryManager) noexcept
+{
+    return acquirePublisherPortDataWithoutDiscovery(
+               service, publisherOptions, IPC_CHANNEL_ROUDI_NAME, payloadDataSegmentMemoryManager, PortConfigInfo())
+        .or_else([&service](auto&) {
+            LogFatal() << "Could not create PublisherPort for internal service " << service;
+            errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE, nullptr, ErrorLevel::FATAL);
+        })
+        .and_then([&](auto publisherPortData) {
+            // now the port to send registry information exists and can be used to publish service registry changes
+            PublisherPortRouDiType port(publisherPortData);
+            doDiscoveryForPublisherPort(port);
+
+            m_internalServices.push_back(service);
+        })
+        .value();
+}
+
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
@@ -1102,12 +1082,14 @@ PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noex
 
 bool PortManager::isInternal(const capro::ServiceDescription& service) const noexcept
 {
-    const capro::ServiceDescription serviceRegistry{
-        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
-
-    return service == serviceRegistry || service == IntrospectionPortService || service == IntrospectionMempoolService
-           || service == IntrospectionMempoolService || service == IntrospectionPortThroughputService
-           || service == IntrospectionSubscriberPortChangingDataService;
+    for (auto& internalService : m_internalServices)
+    {
+        if (service == internalService)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 

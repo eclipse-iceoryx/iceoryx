@@ -672,10 +672,15 @@ popo::PublisherPortData*
 ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service) noexcept
 {
     popo::PublisherOptions options;
-    options.historyCapacity = 1;
+    options.historyCapacity = 1U;
     options.nodeName = INTROSPECTION_NODE_NAME;
-    auto maybePublisher = m_portManager.acquirePublisherPortData(
-        service, options, IPC_CHANNEL_ROUDI_NAME, m_introspectionMemoryManager, PortConfigInfo());
+    auto maybePublisher =
+        m_portManager.acquirePublisherPortData( // @todo #1120 use acquireInternalPublisherPortData here
+            service,
+            options,
+            IPC_CHANNEL_ROUDI_NAME,
+            m_introspectionMemoryManager,
+            PortConfigInfo());
 
     if (maybePublisher.has_error())
     {
