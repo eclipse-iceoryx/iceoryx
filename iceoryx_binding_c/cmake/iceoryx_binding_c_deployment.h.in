@@ -16,30 +16,6 @@
 #ifndef IOX_BINDING_C_DEPLOYMENT_H
 #define IOX_BINDING_C_DEPLOYMENT_H
 
-
-// clang-format off
-
-#define NOTIFIER @IOX_MAX_NUMBER_OF_NOTIFIERS@
-
-#if (NOTIFIER < 256)
-#define SIZE_FACTOR 1
-#elif (NOTIFIER >= 256)
-#define SIZE_FACTOR 2
-#endif
-
-#define WAITSET_STORAGE_SIZE ((40 + (NOTIFIER * 184) \
-+ (SIZE_FACTOR * NOTIFIER) + (SIZE_FACTOR * NOTIFIER % 8 ? \
-(8 - (SIZE_FACTOR * NOTIFIER) % 8) : 0)) / 8)
-
-#if defined(__APPLE__)
-#define LISTENER_STORAGE_SIZE ((6296 + (140 * NOTIFIER)) / 8)
-#elif defined(_WIN32)
-#define LISTENER_STORAGE_SIZE ((8368 + (140 * NOTIFIER)) / 8)
-#else
-#define LISTENER_STORAGE_SIZE ((128 + (140 * NOTIFIER)) / 8)
-#endif
-
-// clang-format on
-
+#define IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS @IOX_MAX_NUMBER_OF_NOTIFIERS@
 
 #endif // IOX_BINDING_C_DEPLOYMENT_H

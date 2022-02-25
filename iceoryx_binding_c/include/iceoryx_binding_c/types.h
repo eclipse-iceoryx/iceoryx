@@ -33,9 +33,6 @@
 
 #define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) 552 + numberOfAttachments * 184
 
-/// @todo please get me from the deployment
-#define NOTIFIERS 128
-
 #define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
 #define IOX_C_CHUNK_NO_USER_HEADER_SIZE 0
 #define IOX_C_CHUNK_NO_USER_HEADER_ALIGNMENT 1
@@ -52,7 +49,7 @@ struct iox_ws_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
     /// @note see iceoryx_binding_c_deployment.h.in for calculation of the size
-    uint64_t do_not_touch_me[CALCULATE_STORAGE_SIZE_FOR_WAITSET(NOTIFIERS)];
+    uint64_t do_not_touch_me[CALCULATE_STORAGE_SIZE_FOR_WAITSET(IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS)];
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
@@ -97,7 +94,7 @@ struct iox_listener_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(Listener) / 8
     /// @note see iceoryx_binding_c_deployment.h.in for calculation of the size
-    uint64_t do_not_touch_me[CALCULATE_STORAGE_SIZE_FOR_LISTENER(NOTIFIERS)];
+    uint64_t do_not_touch_me[CALCULATE_STORAGE_SIZE_FOR_LISTENER(IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS)];
 };
 typedef struct iox_listener_storage_t_ iox_listener_storage_t;
 
