@@ -49,7 +49,11 @@ void onRequestReceived(iox_server_t server)
         if (loanResult == AllocationResult_SUCCESS)
         {
             response->sum = request->augend + request->addend;
-            iox_server_send(server, response);
+            enum iox_ServerSendResult sendResult = iox_server_send(server, response);
+            if (sendResult != ServerSendResult_SUCCESS)
+            {
+                printf("Error sending Response! Error code: %d\n", sendResult);
+            }
         }
         else
         {

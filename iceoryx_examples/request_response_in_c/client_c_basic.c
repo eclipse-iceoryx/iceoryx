@@ -81,7 +81,11 @@ int main()
                    APP_NAME,
                    (unsigned long)fibonacciLast,
                    (unsigned long)fibonacciCurrent);
-            iox_client_send(client, request);
+            enum iox_ClientSendResult sendResult = iox_client_send(client, request);
+            if (sendResult != ClientSendResult_SUCCESS)
+            {
+                printf("Error sending Request! Error code: %d\n", sendResult);
+            }
             //! [set and send request]
 
             //! [wait for response]

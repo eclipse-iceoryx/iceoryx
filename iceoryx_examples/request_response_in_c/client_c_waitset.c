@@ -85,7 +85,11 @@ int main()
                    APP_NAME,
                    (unsigned long)ctx.fibonacciLast,
                    (unsigned long)ctx.fibonacciCurrent);
-            iox_client_send(client, request);
+            enum iox_ClientSendResult sendResult = iox_client_send(client, request);
+            if (sendResult != ClientSendResult_SUCCESS)
+            {
+                printf("Error sending Request! Error code: %d\n", sendResult);
+            }
         }
         else
         {
@@ -95,7 +99,7 @@ int main()
         iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
         uint64_t missedNotifications = 0U;
         struct timespec timeout;
-        timeout.tv_sec = 5;
+        timeout.tv_sec = 2;
         timeout.tv_nsec = 0;
 
         uint64_t numberOfNotifications =

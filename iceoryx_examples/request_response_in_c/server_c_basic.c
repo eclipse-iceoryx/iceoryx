@@ -68,7 +68,11 @@ int main()
             {
                 response->sum = request->augend + request->addend;
                 printf("%s Send Response: %lu\n", APP_NAME, (unsigned long)response->sum);
-                iox_server_send(server, response);
+                enum iox_ServerSendResult sendResult = iox_server_send(server, response);
+                if (sendResult != ServerSendResult_SUCCESS)
+                {
+                    printf("Error sending Response! Error code: %d\n", sendResult);
+                }
             }
             else
             {
