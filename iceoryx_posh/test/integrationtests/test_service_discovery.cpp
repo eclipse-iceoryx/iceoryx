@@ -803,44 +803,75 @@ struct ReferenceDiscovery
     }
 };
 
-#include <functional>
-
 // generalize for REQ-RES
+template <typename T>
 class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 {
   public:
-    static constexpr uint32_t CAPACITY = iox::MAX_PUBLISHERS;
+    using Variation = T;
+
+    static constexpr uint32_t MAX_PUBLISHERS = iox::MAX_PUBLISHERS;
+    static constexpr uint32_t MAX_SERVERS = iox::MAX_SERVERS;
+
+    Variation variation;
 
     // std::vector<iox::popo::UntypedPublisher> publishers;
-    iox::cxx::vector<iox::popo::UntypedPublisher, CAPACITY> publishers;
-    ReferenceDiscovery referenceDiscovery;
+    iox::cxx::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
+    iox::cxx::vector<iox::popo::UntypedPublisher, MAX_SERVERS> servers;
+
+    ReferenceDiscovery publisherDiscovery;
+    ReferenceDiscovery serverDiscovery;
+
     ServiceContainer expectedResult;
 
-    // variation point
-    std::function<void(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>& event)>
-        modifySearchArgs =
-            [](optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>&) { instance.reset(); };
-
-    void add(const ServiceDescription& s)
+    void addPublisher(const ServiceDescription& s)
     {
         // does not work with std::vector, but probably with std::array
         // probably because vector grows dynamically and may require copying (though the error is about move)
         publishers.emplace_back(s);
-        referenceDiscovery.add(s);
+        publisherDiscovery.add(s);
     }
 
-    void findService(const optional<IdString_t>& service,
-                     const optional<IdString_t>& instance,
-                     const optional<IdString_t>& event) noexcept
+    void addServer(const ServiceDescription& s)
+    {
+        servers.emplace_back(s);
+        serverDiscovery.add(s);
+    }
+
+    void add(const ServiceDescription& s, MessagingPattern pattern = MessagingPattern::PUB_SUB)
+    {
+        if (pattern == MessagingPattern::PUB_SUB)
+        {
+            addPublisher(s);
+        }
+        else
+        {
+            addServer(s);
+        }
+    }
+
+    void testFindService(const optional<IdString_t>& service,
+                         const optional<IdString_t>& instance,
+                         const optional<IdString_t>& event,
+                         MessagingPattern pattern = MessagingPattern::PUB_SUB) noexcept
     {
         optional<IdString_t> s(service);
         optional<IdString_t> i(instance);
         optional<IdString_t> e(event);
 
-        modifySearchArgs(s, i, e);
+        variation.setSearchArgs(s, i, e);
 
-        ServiceDiscoveryPubSub_test::findService(s, i, e, MessagingPattern::PUB_SUB);
-        expectedResult = referenceDiscovery.findService(s, i, e);
+        ServiceDiscoveryPubSub_test::findService(s, i, e, pattern);
+
+        if (pattern == MessagingPattern::PUB_SUB)
+        {
+            expectedResult = publisherDiscovery.findService(s, i, e);
+        }
+        else
+        {
+            expectedResult = serverDiscovery.findService(s, i, e);
+        }
+
         EXPECT_TRUE(sortAndCompare(serviceContainer, expectedResult));
     }
 
@@ -850,15 +881,89 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
     }
 };
 
-TEST_F(ReferenceServiceDiscovery_test, FindInternalServices)
+// 8 variations (S)ervice, (I)nstance, (E)vent, (W)ildcard
+
+struct SIE
 {
-    findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>&, optional<IdString_t>&)
+    {
+    }
+};
+
+struct WIE
+{
+    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>&, optional<IdString_t>&)
+    {
+        service.reset();
+    }
+};
+
+struct SWE
+{
+    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>&)
+    {
+        instance.reset();
+    }
+};
+
+struct SIW
+{
+    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>&, optional<IdString_t>& event)
+    {
+        event.reset();
+    }
+};
+
+struct WWE
+{
+    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>&)
+    {
+        service.reset();
+        instance.reset();
+    }
+};
+
+struct WIW
+{
+    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>&, optional<IdString_t>& event)
+    {
+        service.reset();
+        event.reset();
+    }
+};
+
+struct SWW
+{
+    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>& event)
+    {
+        instance.reset();
+        event.reset();
+    }
+};
+
+struct WWW
+{
+    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>& event)
+    {
+        service.reset();
+        instance.reset();
+        event.reset();
+    }
+};
+
+
+using TestVariations = Types<SIE, WIE, SWE, SIW, WWE, WIW, SWW, WWW>;
+TYPED_TEST_SUITE(ReferenceServiceDiscovery_test, TestVariations);
+
+TYPED_TEST(ReferenceServiceDiscovery_test, FindInternalServices)
+{
+    this->testFindService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 }
 
-TEST_F(ReferenceServiceDiscovery_test, FindSingleService)
+TYPED_TEST(ReferenceServiceDiscovery_test, FindSingleService)
 {
-    add({"a", "b", "c"});
-    findService({"a"}, {"b"}, {"c"});
+    this->add({"a", "b", "c"});
+    this->testFindService({"a"}, {"b"}, {"c"});
 }
 
 } // namespace
