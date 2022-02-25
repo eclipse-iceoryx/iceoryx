@@ -33,6 +33,12 @@ template <typename T>
 class RelativePointer : public BaseRelativePointer
 {
   public:
+    using const_ptr_t = const T*;
+    using ptr_t = T*;
+
+    /// @brief default constructs a RelativePointer as a logical nullptr
+    RelativePointer() noexcept = default;
+
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
@@ -45,7 +51,7 @@ class RelativePointer : public BaseRelativePointer
 
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    RelativePointer(ptr_t ptr = nullptr) noexcept;
+    RelativePointer(ptr_t ptr) noexcept;
 
     /// @brief creates a RelativePointer from a BaseRelativePointer
     /// @param[in] other is the BaseRelativePointer
