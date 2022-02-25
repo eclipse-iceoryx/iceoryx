@@ -37,16 +37,22 @@ void sigHandler(int signalValue)
 
 int main()
 {
+    //! [register signal handler and init runtime]
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
 
     iox_runtime_init(APP_NAME);
+    //! [register signal handler and init runtime]
 
+    //! [init server]
     iox_server_storage_t serverStorage;
     iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
+    //! [init server]
 
+    //! [main loop]
     while (keepRunning)
     {
+        //! [process request]
         const struct AddRequest* request = NULL;
         if (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
         {
@@ -71,10 +77,14 @@ int main()
 
             iox_server_release_request(server, request);
         }
+        //! [process request]
 
         const uint32_t SLEEP_TIME_IN_MS = 100U;
         sleep_for(SLEEP_TIME_IN_MS);
     }
+    //! [main loop]
 
+    //! [cleanup]
     iox_server_deinit(server);
+    //! [cleanup]
 }

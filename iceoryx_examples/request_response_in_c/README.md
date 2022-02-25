@@ -9,6 +9,9 @@ The behavior and structure is very close to the
 [request response C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
+The rough idea is that the client sends to fibonacci numbers to the server which 
+then sends the sum of those numbers back.
+
 ## Expected Output
 
 ## Code walkthrough
@@ -128,4 +131,74 @@ Please do not forget to call `iox_client_release_response` to release the `respo
 again. If you forget this you won't be able to receive `response`s anymore after a
 certain time since you hold to many responses in parallel.
 
+As final step we cleanup the used resources and deinitialize the client.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][cleanup]-->
+```c
+iox_client_deinit(client);
+```
+
 ### Server Basic
+
+We again start with registering the signal handler and the runtime.
+
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_basic.c][register signal handler and init runtime]-->
+```c
+signal(SIGINT, sigHandler);
+signal(SIGTERM, sigHandler);
+
+iox_runtime_init(APP_NAME);
+```
+
+As next step we initialize the `server`. Like the client the `server` requires
+some memory where it can be stored, the `serverStorage`. The `server` is also
+initialized with the default options which is indicated via the last `NULL`
+argument.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_basic.c][init server]-->
+```c
+iox_server_storage_t serverStorage;
+iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
+```
+
+We enter the main loop and start it by taking a `request`. If it was taken
+successfully we print a info message to the console and loan a `response`.
+We require the `request` for the loan so that the `response` can be delivered
+to the corresponding client.
+When the `iox_server_loan_response` was successful we calculate the sum of the
+two received fibonacci numbers and send it.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_basic.c][main loop][process request]-->
+```c
+const struct AddRequest* request = NULL;
+if (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
+{
+    printf("%s Got Request: %lu + %lu\n",
+           APP_NAME,
+           (unsigned long)request->augend,
+           (unsigned long)request->addend);
+
+    struct AddResponse* response = NULL;
+    enum iox_AllocationResult loanResult =
+        iox_server_loan_response(server, request, (void**)&response, sizeof(struct AddResponse));
+    if (loanResult == AllocationResult_SUCCESS)
+    {
+        response->sum = request->augend + request->addend;
+        printf("%s Send Response: %lu\n", APP_NAME, (unsigned long)response->sum);
+        iox_server_send(server, response);
+    }
+    else
+    {
+        printf("%s Could not allocate Response! Return value = %d\n", APP_NAME, loanResult);
+    }
+
+    iox_server_release_request(server, request);
+}
+```
+
+Again, it is important that one releases the `request` with `iox_server_release_request`
+otherwise `iox_server_take_request` will fail since one holds to many requests in parallel.
+
+The final step is again the resource cleanup where we deinitialize the server.
+
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_basic.c][cleanup]-->
+```c
+iox_server_deinit(server);
+```

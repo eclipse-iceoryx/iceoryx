@@ -122,5 +122,7 @@ int main()
     }
     //! [main loop]
 
+    //! [cleanup]
     iox_client_deinit(client);
+    //! [cleanup]
 }
