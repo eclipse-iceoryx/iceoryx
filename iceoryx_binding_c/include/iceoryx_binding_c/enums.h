@@ -135,7 +135,7 @@ enum iox_ServerSendResult
 {
     ServerSendResult_SUCCESS,
     ServerSendResult_UNDEFINED_ERROR,
-    ServerSendResult_NOT_OFFERING,
+    ServerSendResult_NOT_OFFERED,
     ServerSendResult_CLIENT_NOT_AVAILABLE,
     ServerSendResult_INVALID_RESPONSE,
 };

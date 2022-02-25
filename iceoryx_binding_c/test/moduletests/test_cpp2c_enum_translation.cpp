@@ -189,7 +189,7 @@ TEST(cpp2c_enum_translation_test, ServerSendResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1950346-26f0-4a61-9dac-f43f32ea6bd5");
     constexpr EnumMapping<ServerSendError, iox_ServerSendResult> SERVER_SEND_ERRORR[]{
-        {ServerSendError::NOT_OFFERING, ServerSendResult_NOT_OFFERING},
+        {ServerSendError::NOT_OFFERED, ServerSendResult_NOT_OFFERED},
         {ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendResult_CLIENT_NOT_AVAILABLE},
         {ServerSendError::INVALID_RESPONSE, ServerSendResult_INVALID_RESPONSE}};
 
@@ -197,7 +197,7 @@ TEST(cpp2c_enum_translation_test, ServerSendResult)
     {
         switch (serverSendError.cpp)
         {
-        case ServerSendError::NOT_OFFERING:
+        case ServerSendError::NOT_OFFERED:
             EXPECT_EQ(cpp2c::serverSendResult(serverSendError.cpp), serverSendError.c);
             break;
         case ServerSendError::CLIENT_NOT_AVAILABLE:

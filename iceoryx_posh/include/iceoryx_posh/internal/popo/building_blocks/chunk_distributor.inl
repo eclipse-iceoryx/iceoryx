@@ -135,7 +135,7 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const 
 template <typename ChunkDistributorDataType>
 inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
-    uint64_t numberOfQueuesTheChunkWasDelivered{0U};
+    uint64_t numberOfQueuesTheChunkWasDeliveredTo{0U};
     typename ChunkDistributorDataType::QueueContainer_t remainingQueues;
     {
         typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -148,7 +148,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
 
             if (pushToQueue(queue.get(), chunk))
             {
-                ++numberOfQueuesTheChunkWasDelivered;
+                ++numberOfQueuesTheChunkWasDeliveredTo;
             }
             else
             {
@@ -191,7 +191,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
                 if (pushToQueue(remainingQueues[i].get(), chunk))
                 {
                     remainingQueues.erase(remainingQueues.begin() + i);
-                    ++numberOfQueuesTheChunkWasDelivered;
+                    ++numberOfQueuesTheChunkWasDeliveredTo;
                 }
 
                 // don't move this up since the for loop counts downwards and the algorithm would break
@@ -205,7 +205,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
 
     addToHistoryWithoutDelivery(chunk);
 
-    return numberOfQueuesTheChunkWasDelivered;
+    return numberOfQueuesTheChunkWasDeliveredTo;
 }
 
 template <typename ChunkDistributorDataType>

@@ -91,8 +91,8 @@ iox_ServerSendResult serverSendResult(const iox::popo::ServerSendError value) no
 {
     switch (value)
     {
-    case ServerSendError::NOT_OFFERING:
-        return ServerSendResult_NOT_OFFERING;
+    case ServerSendError::NOT_OFFERED:
+        return ServerSendResult_NOT_OFFERED;
     case ServerSendError::CLIENT_NOT_AVAILABLE:
         return ServerSendResult_CLIENT_NOT_AVAILABLE;
     case ServerSendError::INVALID_RESPONSE:

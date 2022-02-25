@@ -136,7 +136,7 @@ cxx::expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* cons
     {
         releaseResponse(responseHeader);
         LogWarn() << "Try to send response without having offered!";
-        return cxx::error<ServerSendError>(ServerSendError::NOT_OFFERING);
+        return cxx::error<ServerSendError>(ServerSendError::NOT_OFFERED);
     }
 
     bool responseSent{false};

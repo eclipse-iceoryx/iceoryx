@@ -703,7 +703,7 @@ TEST_F(ServerPort_test, SendResponseWithoutOfferReleasesTheChunkToTheMempool)
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
         sut.portUser.sendResponse(res)
             .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
-            .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::NOT_OFFERING)); });
+            .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::NOT_OFFERED)); });
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS));
     });
 }
