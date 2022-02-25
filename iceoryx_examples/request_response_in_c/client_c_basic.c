@@ -37,31 +37,44 @@ void sigHandler(int signalValue)
 
 int main()
 {
+    //! [register signal handler and init runtime]
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
 
     iox_runtime_init(APP_NAME);
+    //! [register signal handler and init runtime]
 
+    //! [create client]
     iox_client_storage_t clientStorage;
     iox_client_t client = iox_client_init(&clientStorage, "Example", "Request-Response", "Add", NULL);
+    //! [create client]
 
+    //! [define variables]
     uint64_t fibonacciLast = 0U;
     uint64_t fibonacciCurrent = 1U;
     int64_t requestSequenceId = 0;
     int64_t expectedResponseSequenceId = requestSequenceId;
+    //! [define variables]
 
+    //! [main loop]
     while (keepRunning)
     {
+        //! [loan request]
         struct AddRequest* request = NULL;
         enum iox_AllocationResult loanResult =
             iox_client_loan_request(client, (void**)&request, sizeof(struct AddRequest));
+        //! [loan request]
 
         if (loanResult == AllocationResult_SUCCESS)
         {
+            //! [set sequence id]
             iox_request_header_t requestHeader = iox_request_header_from_payload(request);
             iox_request_header_set_sequence_id(requestHeader, requestSequenceId);
             expectedResponseSequenceId = requestSequenceId;
             requestSequenceId += 1;
+            //! [set sequence id]
+
+            //! [set and send request]
             request->augend = fibonacciLast;
             request->addend = fibonacciCurrent;
             printf("%s Send Request: %lu + %lu\n",
@@ -69,10 +82,14 @@ int main()
                    (unsigned long)fibonacciLast,
                    (unsigned long)fibonacciCurrent);
             iox_client_send(client, request);
+            //! [set and send request]
 
+            //! [wait for response]
             const uint32_t DELAY_TIME_IN_MS = 150U;
             sleep_for(DELAY_TIME_IN_MS);
+            //! [wait for response]
 
+            //! [process response]
             const struct AddResponse* response = NULL;
             while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)
             {
@@ -93,6 +110,7 @@ int main()
 
                 iox_client_release_response(client, response);
             }
+            //! [process response]
         }
         else
         {
@@ -102,6 +120,7 @@ int main()
         const uint32_t SLEEP_TIME_IN_MS = 950U;
         sleep_for(SLEEP_TIME_IN_MS);
     }
+    //! [main loop]
 
     iox_client_deinit(client);
 }
