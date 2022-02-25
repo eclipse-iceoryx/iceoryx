@@ -674,21 +674,7 @@ ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& s
     popo::PublisherOptions options;
     options.historyCapacity = 1U;
     options.nodeName = INTROSPECTION_NODE_NAME;
-    auto maybePublisher =
-        m_portManager.acquirePublisherPortData( // @todo #1120 use acquireInternalPublisherPortData here
-            service,
-            options,
-            IPC_CHANNEL_ROUDI_NAME,
-            m_introspectionMemoryManager,
-            PortConfigInfo());
-
-    if (maybePublisher.has_error())
-    {
-        LogError() << "Could not create PublisherPort for " << IPC_CHANNEL_ROUDI_NAME;
-        errorHandler(
-            Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTION_SENDER_PORT, nullptr, iox::ErrorLevel::SEVERE);
-    }
-    return maybePublisher.value();
+    return m_portManager.acquireInternalPublisherPortData(service, options, m_introspectionMemoryManager);
 }
 
 cxx::optional<Process*> ProcessManager::findProcess(const RuntimeName_t& name) noexcept

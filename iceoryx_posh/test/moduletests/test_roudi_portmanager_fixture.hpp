@@ -111,8 +111,6 @@ class PortManager_test : public Test
     {
         internalServices.push_back(serviceRegistry);
         internalServices.push_back(IntrospectionPortService);
-        internalServices.push_back(IntrospectionMempoolService);
-        internalServices.push_back(IntrospectionMempoolService);
         internalServices.push_back(IntrospectionPortThroughputService);
         internalServices.push_back(IntrospectionSubscriberPortChangingDataService);
     }
