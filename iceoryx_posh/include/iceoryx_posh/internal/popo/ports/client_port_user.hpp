@@ -38,6 +38,23 @@ enum class ClientSendError
     INVALID_REQUEST,
 };
 
+/// @brief Converts the ClientSendError to a string literal
+/// @param[in] value to convert to a string literal
+/// @return pointer to a string literal
+inline constexpr const char* asStringLiteral(const ClientSendError value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline std::ostream& operator<<(std::ostream& stream, ClientSendError value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline log::LogStream& operator<<(log::LogStream& stream, ClientSendError value) noexcept;
+
 /// @brief The ClientPortUser provides the API for accessing a client port from the user side. The client port
 /// is divided in the three parts ClientPortData, ClientPortRouDi and ClientPortUser. The ClientPortUser
 /// uses the functionality of a ChunkSender and ChunReceiver for sending requests and receiving responses.
@@ -136,5 +153,7 @@ class ClientPortUser : public BasePort
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/ports/client_port_user.inl"
 
 #endif // IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP

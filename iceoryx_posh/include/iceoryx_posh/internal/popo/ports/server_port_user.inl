@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_USER_INL
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_USER_INL
 
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -62,6 +64,33 @@ inline std::ostream& operator<<(std::ostream& stream, ServerRequestResult value)
 }
 
 inline log::LogStream& operator<<(log::LogStream& stream, ServerRequestResult value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
+inline constexpr const char* asStringLiteral(const ServerSendError value) noexcept
+{
+    switch (value)
+    {
+    case ServerSendError::NOT_OFFERED:
+        return "ServerSendError::NOT_OFFERED";
+    case ServerSendError::CLIENT_NOT_AVAILABLE:
+        return "ServerSendError::CLIENT_NOT_AVAILABLE";
+    case ServerSendError::INVALID_RESPONSE:
+        return "ServerSendError::INVALID_RESPONSE";
+    }
+
+    return "[Undefined ServerSendError]";
+}
+
+inline std::ostream& operator<<(std::ostream& stream, ServerSendError value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
+
+inline log::LogStream& operator<<(log::LogStream& stream, ServerSendError value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
