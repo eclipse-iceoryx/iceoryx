@@ -109,7 +109,7 @@ int main()
                                                                             searchFrontCameras,
                                                                             (void*)&numberFrontCameras,
                                                                             MessagingPattern_PUB_SUB);
-        printf("\nFound %lu front cameras\n", numberFrontCameras);
+        printf("\nFound %lu front cameras\n", (unsigned long)numberFrontCameras);
 
         sleep_for(1000);
     }
