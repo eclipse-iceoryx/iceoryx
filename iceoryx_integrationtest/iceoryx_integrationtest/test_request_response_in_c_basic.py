@@ -71,7 +71,7 @@ def generate_test_description():
 # the launch system will shut down RouDi
 
 
-class TestRequestResponseBasicExample(unittest.TestCase):
+class TestRequestResponseInCBasicExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')

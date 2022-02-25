@@ -70,6 +70,10 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-c-request-response-client-basic iox-c-request-response-client-waitset iox-c-request-response-server-basic iox-c-request-response-server-listener
+    TARGETS 
+      iox-c-request-response-client-basic
+      iox-c-request-response-client-waitset
+      iox-c-request-response-server-basic
+      iox-c-request-response-server-listener
     RUNTIME DESTINATION bin
 )

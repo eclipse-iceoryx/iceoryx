@@ -1,4 +1,4 @@
- Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ def generate_test_description():
 # the launch system will shut down RouDi
 
 
-class TestRequestResponseListenerExample(unittest.TestCase):
+class TestRequestResponseInCListenerAndWaitsetExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
