@@ -51,10 +51,10 @@ int main()
                 request->augend = fibonacciLast;
                 request->addend = fibonacciCurrent;
                 std::cout << APP_NAME << " Send Request: " << fibonacciLast << " + " << fibonacciCurrent << std::endl;
-                request.send();
+                request.send().or_else(
+                    [&](auto& error) { std::cout << "Could not send Request! Error: " << error << std::endl; });
             })
-            .or_else(
-                [](auto& error) { std::cout << "Could not allocate Request! Return value = " << error << std::endl; });
+            .or_else([](auto& error) { std::cout << "Could not allocate Request! Error: " << error << std::endl; });
         //! [send request]
 
         // the client polls with an interval of 150ms

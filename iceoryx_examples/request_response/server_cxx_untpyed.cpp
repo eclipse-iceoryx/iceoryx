@@ -50,11 +50,11 @@ int main()
                     auto response = static_cast<AddResponse*>(responsePayload);
                     response->sum = request->augend + request->addend;
                     std::cout << APP_NAME << " Send Response: " << response->sum << std::endl;
-                    server.send(response);
+                    server.send(response).or_else(
+                        [&](auto& error) { std::cout << "Could not send Response! Error: " << error << std::endl; });
                 })
-                .or_else([&](auto& error) {
-                    std::cout << "Could not allocate Response! Return value = " << error << std::endl;
-                });
+                .or_else(
+                    [&](auto& error) { std::cout << "Could not allocate Response! Error: " << error << std::endl; });
             //! [send response]
 
             server.releaseRequest(request);
