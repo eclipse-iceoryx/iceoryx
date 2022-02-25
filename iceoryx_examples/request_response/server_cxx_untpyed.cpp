@@ -53,8 +53,7 @@ int main()
                     server.send(response);
                 })
                 .or_else([&](auto& error) {
-                    std::cout << "Could not allocate Response! Return value = " << static_cast<uint64_t>(error)
-                              << std::endl;
+                    std::cout << "Could not allocate Response! Return value = " << error << std::endl;
                 });
             //! [send response]
 

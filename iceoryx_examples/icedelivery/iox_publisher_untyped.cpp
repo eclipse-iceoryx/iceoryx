@@ -62,7 +62,7 @@ int main()
             })
             .or_else([&](auto& error) {
                 //! [print error]
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+                std::cerr << "Unable to loan sample, error code: " << error << std::endl;
                 //! [print error]
             });
         //! [Loan chunk and provide logic to populate it via a lambda]

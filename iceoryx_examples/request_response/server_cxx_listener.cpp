@@ -42,10 +42,7 @@ void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
                 std::cout << APP_NAME << " Send Response: " << response->sum << std::endl;
                 response.send();
             })
-            .or_else([](auto& error) {
-                std::cout << "Could not allocate Response! Return value = " << static_cast<uint64_t>(error)
-                          << std::endl;
-            });
+            .or_else([](auto& error) { std::cout << "Could not allocate Response! Error: " << error << std::endl; });
         //! [send response]
     }))
     {

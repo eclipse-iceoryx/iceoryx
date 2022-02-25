@@ -68,7 +68,7 @@ int main()
         {
             auto error = loanResult.get_error();
             // Do something with error
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+            std::cerr << "Unable to loan sample, error code: " << error << std::endl;
         }
         //! [error]
 

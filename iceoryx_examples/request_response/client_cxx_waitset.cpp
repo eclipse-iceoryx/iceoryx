@@ -73,9 +73,8 @@ int main()
                           << std::endl;
                 request.send();
             })
-            .or_else([](auto& error) {
-                std::cout << "Could not allocate Request! Return value = " << static_cast<uint64_t>(error) << std::endl;
-            });
+            .or_else(
+                [](auto& error) { std::cout << "Could not allocate Request! Return value = " << error << std::endl; });
         //! [send request]
 
 

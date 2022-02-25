@@ -62,7 +62,7 @@ int main()
             })
             .or_else([](auto& error) {
                 // Do something with error
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+                std::cerr << "Unable to loan sample, error: " << error << std::endl;
             });
         //! [API Usage #1]
 
@@ -75,7 +75,7 @@ int main()
             .and_then([](auto& sample) { sample.publish(); })
             .or_else([](auto& error) {
                 // Do something with error
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+                std::cerr << "Unable to loan sample, error: " << error << std::endl;
             });
         //! [API Usage #2]
 
@@ -85,7 +85,7 @@ int main()
         auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
         publisher.publishCopyOf(object).or_else([](auto& error) {
             // Do something with error.
-            std::cerr << "Unable to publishCopyOf, error code: " << static_cast<uint64_t>(error) << std::endl;
+            std::cerr << "Unable to publishCopyOf, error: " << error << std::endl;
         });
         //! [API Usage #3]
 
@@ -96,7 +96,7 @@ int main()
         //
         publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {
             // Do something with error.
-            std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
+            std::cerr << "Unable to publishResultOf, error: " << error << std::endl;
         });
         publisher
             .publishResultOf([&sampleValue4](RadarObject* object) {
@@ -104,7 +104,7 @@ int main()
             })
             .or_else([](auto& error) {
                 // Do something with error.
-                std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
+                std::cerr << "Unable to publishResultOf, error: " << error << std::endl;
             });
         //! [API Usage #4]
 

@@ -50,9 +50,7 @@ int main()
                     response.send();
                 })
                 .or_else([&](auto& error) {
-                    std::cout << APP_NAME
-                              << "Could not allocate Response! Return value = " << static_cast<uint64_t>(error)
-                              << std::endl;
+                    std::cout << APP_NAME << "Could not allocate Response! Return value = " << error << std::endl;
                 });
             //! [send response]
         });

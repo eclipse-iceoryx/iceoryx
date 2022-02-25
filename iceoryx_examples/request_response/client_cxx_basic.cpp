@@ -53,9 +53,8 @@ int main()
                 std::cout << APP_NAME << " Send Request: " << fibonacciLast << " + " << fibonacciCurrent << std::endl;
                 request.send();
             })
-            .or_else([](auto& error) {
-                std::cout << "Could not allocate Request! Return value = " << static_cast<uint64_t>(error) << std::endl;
-            });
+            .or_else(
+                [](auto& error) { std::cout << "Could not allocate Request! Return value = " << error << std::endl; });
         //! [send request]
 
         // the client polls with an interval of 150ms
