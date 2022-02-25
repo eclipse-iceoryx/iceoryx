@@ -70,9 +70,10 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>, Server
     /// @return Error if sending was not successful
     cxx::expected<ServerSendError> send(Response<Res>&& response) noexcept override;
 
-  private:
+  protected:
     using BaseServerT::port;
 
+  private:
     cxx::expected<Response<Res>, AllocationError> loanUninitialized(const Request<const Req>& request) noexcept;
 
     using RequestSampleDeleter = RequestDeleter<typename BaseServerT::PortType>;
