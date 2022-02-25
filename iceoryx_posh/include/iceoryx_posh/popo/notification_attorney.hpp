@@ -33,7 +33,8 @@ class NotificationAttorney
 {
     template <uint64_t>
     friend class WaitSet;
-    friend class Listener;
+    template <uint64_t>
+    friend class ListenerImpl;
 
   private:
     template <typename T, typename... Targs>
