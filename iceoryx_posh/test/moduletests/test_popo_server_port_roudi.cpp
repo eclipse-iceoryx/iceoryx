@@ -57,9 +57,9 @@ TEST_F(ServerPort_test, ReleaseAllChunksWorks)
     // produce chunks for the chunk sender
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto) {
         constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
-        EXPECT_THAT(getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
+        EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
         sut.portRouDi.releaseAllChunks();
-        EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
+        EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
     });
 }
 
