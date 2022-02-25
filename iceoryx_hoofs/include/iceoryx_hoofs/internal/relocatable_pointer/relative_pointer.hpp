@@ -53,15 +53,6 @@ class RelativePointer : public BaseRelativePointer
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     RelativePointer(ptr_t ptr) noexcept;
 
-    /// @brief creates a RelativePointer from a BaseRelativePointer
-    /// @param[in] other is the BaseRelativePointer
-    RelativePointer(const BaseRelativePointer& other) noexcept;
-
-    /// @brief assign this to point to the same pointee as the BaseRelativePointer other
-    /// @param[in] other the pointer whose pointee shall be the same for this
-    /// @return reference to self
-    RelativePointer& operator=(const BaseRelativePointer& other) noexcept;
-
     /// @brief assigns the RelativePointer to point to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @return reference to self

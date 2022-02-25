@@ -42,21 +42,6 @@ inline RelativePointer<T>::RelativePointer(ptr_t ptr) noexcept
 {
 }
 
-
-template <typename T>
-inline RelativePointer<T>::RelativePointer(const BaseRelativePointer& other) noexcept
-    : BaseRelativePointer(other)
-{
-}
-
-template <typename T>
-inline RelativePointer<T>& RelativePointer<T>::operator=(const BaseRelativePointer& other) noexcept
-{
-    BaseRelativePointer::operator=(other);
-
-    return *this;
-}
-
 template <typename T>
 inline RelativePointer<T>& RelativePointer<T>::operator=(ptr_t ptr) noexcept
 {
