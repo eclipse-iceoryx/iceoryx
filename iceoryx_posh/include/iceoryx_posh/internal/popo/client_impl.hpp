@@ -70,9 +70,10 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>, ClientS
     /// always the whole Response.
     cxx::expected<Response<const Res>, ChunkReceiveResult> take() noexcept;
 
-  private:
+  protected:
     using BaseClientT::port;
 
+  private:
     cxx::expected<Request<Req>, AllocationError> loanUninitialized() noexcept;
 
     using RequestSampleDeleter = RequestDeleter<typename BaseClientT::PortType>;
