@@ -668,18 +668,18 @@ void ProcessManager::run() noexcept
     discoveryUpdate();
 }
 
-popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
-                                                                       const RuntimeName_t& process_name) noexcept
+popo::PublisherPortData*
+ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service) noexcept
 {
     popo::PublisherOptions options;
     options.historyCapacity = 1;
     options.nodeName = INTROSPECTION_NODE_NAME;
     auto maybePublisher = m_portManager.acquirePublisherPortData(
-        service, options, process_name, m_introspectionMemoryManager, PortConfigInfo());
+        service, options, IPC_CHANNEL_ROUDI_NAME, m_introspectionMemoryManager, PortConfigInfo());
 
     if (maybePublisher.has_error())
     {
-        LogError() << "Could not create PublisherPort for application " << process_name;
+        LogError() << "Could not create PublisherPort for " << IPC_CHANNEL_ROUDI_NAME;
         errorHandler(
             Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTION_SENDER_PORT, nullptr, iox::ErrorLevel::SEVERE);
     }

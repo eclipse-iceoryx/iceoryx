@@ -68,7 +68,7 @@ constexpr const char* INTERFACE_NAMES[] = {"INTERNAL", "ESOC", "SOMEIP", "AMQP",
 enum class Scope : uint16_t
 {
     WORLDWIDE,
-    INTERNAL,
+    INTERNAL, /// @todo rename this to SINGLE_MACHINE?
     INVALID
 };
 
