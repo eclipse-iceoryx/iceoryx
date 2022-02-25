@@ -737,9 +737,7 @@ TEST_F(ServerPort_test, SendResponseWithValidClientQueueIdReleasesDeliversToTheC
         new (ChunkHeader::fromUserHeader(res)->userPayload()) int64_t(RESPONSE_DATA);
         sut.portUser.sendResponse(res)
             .and_then([&]() { GTEST_SUCCEED() << "Response successfully sent"; })
-            .or_else([&](auto error) {
-                GTEST_FAIL() << "Expected response to be sent but got error: " << static_cast<uint64_t>(error);
-            });
+            .or_else([&](auto error) { GTEST_FAIL() << "Expected response to be sent but got error: " << error; });
     });
 
     auto maybeChunk IOX_MAYBE_UNUSED = clientResponseQueue.tryPop()
@@ -860,5 +858,59 @@ TEST_F(ServerPort_test, LogStreamConvertsAllocationErrorValueToString)
 }
 
 // END ServerRequestResult string tests
+
+// BEGIN ServerSendError string tests
+
+TEST_F(ServerPort_test, asStringLiteralConvertsServerSendErrorValuesToStrings)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0932177c-5aa9-4f7f-8522-1febaf377bf0");
+    using ServerSendError = iox::popo::ServerSendError;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut :
+         {ServerSendError::NOT_OFFERED, ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendError::INVALID_RESPONSE})
+    {
+        auto enumString = iox::popo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case ServerSendError::NOT_OFFERED:
+            EXPECT_THAT(enumString, StrEq("ServerSendError::NOT_OFFERED"));
+            break;
+        case ServerSendError::CLIENT_NOT_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("ServerSendError::CLIENT_NOT_AVAILABLE"));
+            break;
+        case ServerSendError::INVALID_RESPONSE:
+            EXPECT_THAT(enumString, StrEq("ServerSendError::INVALID_RESPONSE"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST_F(ServerPort_test, LogStreamConvertsServerSendErrorValueToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7a06b21d-ccab-457d-80b6-dc37843a0575");
+    Logger_Mock loggerMock;
+
+    auto sut = iox::popo::ServerSendError::CLIENT_NOT_AVAILABLE;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
+}
+
+// END ServerSendError string tests
 
 } // namespace iox_test_popo_server_port

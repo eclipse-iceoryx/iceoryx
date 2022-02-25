@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -320,9 +321,7 @@ TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQ
     requestHeader->setSequenceId(SEQUENCE_ID);
     sut.portUser.sendRequest(requestHeader)
         .and_then([&]() { GTEST_SUCCEED() << "Request successfully sent"; })
-        .or_else([&](auto error) {
-            GTEST_FAIL() << "Expected response to be sent but got error: " << static_cast<uint64_t>(error);
-        });
+        .or_else([&](auto error) { GTEST_FAIL() << "Expected response to be sent but got error: " << error; });
 
     serverRequestQueue.tryPop()
         .and_then([&](auto& sharedChunk) {
@@ -626,6 +625,57 @@ TEST_F(ClientPort_test, DisconnectOnNotConnectedClientPortResultsInNoStateChange
     sut.portUser.disconnect();
 
     EXPECT_FALSE(sut.portRouDi.tryGetCaProMessage().has_value());
+}
+
+TEST_F(ClientPort_test, asStringLiteralConvertsClientSendErrorValuesToStrings)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9faca6d8-ea10-4577-b37a-73f346ae4adc");
+    using ClientSendError = iox::popo::ClientSendError;
+
+    // each bit corresponds to an enum value and must be set to true on test
+    uint64_t testedEnumValues{0U};
+    uint64_t loopCounter{0U};
+    for (const auto& sut : {ClientSendError::NO_CONNECT_REQUESTED,
+                            ClientSendError::SERVER_NOT_AVAILABLE,
+                            ClientSendError::INVALID_REQUEST})
+    {
+        auto enumString = iox::popo::asStringLiteral(sut);
+
+        switch (sut)
+        {
+        case ClientSendError::NO_CONNECT_REQUESTED:
+            EXPECT_THAT(enumString, StrEq("ClientSendError::NO_CONNECT_REQUESTED"));
+            break;
+        case ClientSendError::SERVER_NOT_AVAILABLE:
+            EXPECT_THAT(enumString, StrEq("ClientSendError::SERVER_NOT_AVAILABLE"));
+            break;
+        case ClientSendError::INVALID_REQUEST:
+            EXPECT_THAT(enumString, StrEq("ClientSendError::INVALID_REQUEST"));
+            break;
+        }
+
+        testedEnumValues |= 1U << static_cast<uint64_t>(sut);
+        ++loopCounter;
+    }
+
+    uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
+    EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
+}
+
+TEST_F(ClientPort_test, LogStreamConvertsClientSendErrorValueToString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b5b4421c-6b05-44ea-b7a6-823b3714fabd");
+    Logger_Mock loggerMock;
+
+    auto sut = iox::popo::ClientSendError::SERVER_NOT_AVAILABLE;
+
+    {
+        auto logstream = iox::log::LogStream(loggerMock);
+        logstream << sut;
+    }
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
 }
 
 // END ClientPortUser tests

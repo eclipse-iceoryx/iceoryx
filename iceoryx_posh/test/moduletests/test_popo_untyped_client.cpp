@@ -117,9 +117,7 @@ TEST_F(UntypedClient_test, SendWithValidPayloadPointerCallsUnderlyingPort)
 
     sut.send(requestMock.sample())
         .and_then([&]() { GTEST_SUCCEED() << "Request successfully sent"; })
-        .or_else([&](auto error) {
-            GTEST_FAIL() << "Expected request to be sent but got error: " << static_cast<uint64_t>(error);
-        });
+        .or_else([&](auto error) { GTEST_FAIL() << "Expected request to be sent but got error: " << error; });
 }
 
 TEST_F(UntypedClient_test, SendWithNullpointerDoesNotCallsUnderlyingPort)
