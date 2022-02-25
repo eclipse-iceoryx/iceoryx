@@ -32,6 +32,16 @@ TEST(SanityCheck, CheckStorageSizeAndAlingment)
     checkIceoryxBindingCStorageSizes();
 }
 
+TEST(SanityCheck, VerifyStorageSizeCalculationForListener)
+{
+    verifyStorageSizeCalculationForListener();
+}
+
+TEST(SanityCheck, VerifyStorageSizeCalculationForWaitSet)
+{
+    verifyStorageSizeCalculationForWaitSet();
+}
+
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
