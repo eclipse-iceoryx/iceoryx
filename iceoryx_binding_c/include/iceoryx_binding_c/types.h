@@ -18,6 +18,7 @@
 #ifndef IOX_BINDING_C_TYPES_H
 #define IOX_BINDING_C_TYPES_H
 
+#include "iceoryx_binding_c/iceoryx_binding_c_deployment.h"
 #include "internal/c2cpp_binding.h"
 
 #define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
@@ -35,11 +36,8 @@ struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
-#if defined(_WIN32)
-    uint64_t do_not_touch_me[2709];
-#else
-    uint64_t do_not_touch_me[2965];
-#endif
+    /// @note see iceoryx_binding_c_deployment.h.in for calculation of the size
+    uint64_t do_not_touch_me[WAITSET_STORAGE_SIZE];
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
@@ -83,13 +81,8 @@ struct iox_listener_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(Listener) / 8
-#if defined(__APPLE__)
-    uint64_t do_not_touch_me[2643];
-#elif defined(_WIN32)
-    uint64_t do_not_touch_me[2774];
-#else
-    uint64_t do_not_touch_me[2256];
-#endif
+    /// @note see iceoryx_binding_c_deployment.h.in for calculation of the size
+    uint64_t do_not_touch_me[LISTENER_STORAGE_SIZE];
 };
 typedef struct iox_listener_storage_t_ iox_listener_storage_t;
 

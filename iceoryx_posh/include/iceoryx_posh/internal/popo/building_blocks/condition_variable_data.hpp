@@ -30,7 +30,7 @@ namespace popo
 struct ConditionVariableData
 {
     ConditionVariableData() noexcept;
-    ConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
+    explicit ConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
@@ -39,7 +39,7 @@ struct ConditionVariableData
     ~ConditionVariableData() noexcept = default;
 
     posix::Semaphore m_semaphore =
-        std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0u)
+        std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U)
                       .or_else([](posix::SemaphoreError&) {
                           errorHandler(Error::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE,
                                        nullptr,
