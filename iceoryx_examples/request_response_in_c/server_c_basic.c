@@ -50,7 +50,10 @@ int main()
         const struct AddRequest* request = NULL;
         if (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
         {
-            printf("%s Got Request: %lu + %lu\n", APP_NAME, request->augend, request->addend);
+            printf("%s Got Request: %lu + %lu\n",
+                   APP_NAME,
+                   (unsigned long)request->augend,
+                   (unsigned long)request->addend);
 
             struct AddResponse* response = NULL;
             enum iox_AllocationResult loanResult =
@@ -58,7 +61,7 @@ int main()
             if (loanResult == AllocationResult_SUCCESS)
             {
                 response->sum = request->augend + request->addend;
-                printf("%s Send Response: %lu\n", APP_NAME, response->sum);
+                printf("%s Send Response: %lu\n", APP_NAME, (unsigned long)response->sum);
                 iox_server_send(server, response);
             }
             else

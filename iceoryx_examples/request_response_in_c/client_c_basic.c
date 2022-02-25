@@ -64,7 +64,10 @@ int main()
             requestSequenceId += 1;
             request->augend = fibonacciLast;
             request->addend = fibonacciCurrent;
-            printf("%s Send Request: %lu + %lu\n", APP_NAME, fibonacciLast, fibonacciCurrent);
+            printf("%s Send Request: %lu + %lu\n",
+                   APP_NAME,
+                   (unsigned long)fibonacciLast,
+                   (unsigned long)fibonacciCurrent);
             iox_client_send(client, request);
 
             const uint32_t DELAY_TIME_IN_MS = 150U;
@@ -79,13 +82,13 @@ int main()
                 {
                     fibonacciLast = fibonacciCurrent;
                     fibonacciCurrent = response->sum;
-                    printf("%s Got Response : %lu\n", APP_NAME, fibonacciCurrent);
+                    printf("%s Got Response : %lu\n", APP_NAME, (unsigned long)fibonacciCurrent);
                 }
                 else
                 {
                     printf("Got Response with outdated sequence ID! Expected = %lu; Actual = %lu! -> skip\n",
-                           expectedResponseSequenceId,
-                           receivedSequenceId);
+                           (unsigned long)expectedResponseSequenceId,
+                           (unsigned long)receivedSequenceId);
                 }
 
                 iox_client_release_response(client, response);

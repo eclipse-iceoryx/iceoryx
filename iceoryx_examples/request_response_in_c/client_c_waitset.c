@@ -79,7 +79,10 @@ int main()
             ctx.requestSequenceId += 1;
             request->augend = ctx.fibonacciLast;
             request->addend = ctx.fibonacciCurrent;
-            printf("%s Send Request: %lu %lu\n", APP_NAME, ctx.fibonacciLast, ctx.fibonacciCurrent);
+            printf("%s Send Request: %lu %lu\n",
+                   APP_NAME,
+                   (unsigned long)ctx.fibonacciLast,
+                   (unsigned long)ctx.fibonacciCurrent);
             iox_client_send(client, request);
         }
         else
@@ -110,13 +113,13 @@ int main()
                     {
                         ctx.fibonacciLast = ctx.fibonacciCurrent;
                         ctx.fibonacciCurrent = response->sum;
-                        printf("%s Got Response : %lu\n", APP_NAME, ctx.fibonacciCurrent);
+                        printf("%s Got Response : %lu\n", APP_NAME, (unsigned long)ctx.fibonacciCurrent);
                     }
                     else
                     {
                         printf("Got Response with outdated sequence ID! Expected = %lu; Actual = %lu! -> skip\n",
-                               ctx.expectedResponseSequenceId,
-                               receivedSequenceId);
+                               (unsigned long)ctx.expectedResponseSequenceId,
+                               (unsigned long)receivedSequenceId);
                     }
                     iox_client_release_response(client, response);
                 }

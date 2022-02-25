@@ -41,7 +41,7 @@ void onRequestReceived(iox_server_t server)
     const struct AddRequest* request = NULL;
     while (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
     {
-        printf("%s Got Request: %lu + %lu\n", APP_NAME, request->augend, request->addend);
+        printf("%s Got Request: %lu + %lu\n", APP_NAME, (unsigned long)request->augend, (unsigned long)request->addend);
 
         struct AddResponse* response = NULL;
         enum iox_AllocationResult loanResult =
