@@ -107,7 +107,7 @@ class PortManager_test : public Test
         iox::rp::BaseRelativePointer::unregisterAll();
     }
 
-    void addAllInternalPublisherToVector()
+    void addInternalPublisherOfPortManagerToVector()
     {
         internalServices.push_back(serviceRegistry);
         internalServices.push_back(IntrospectionPortService);

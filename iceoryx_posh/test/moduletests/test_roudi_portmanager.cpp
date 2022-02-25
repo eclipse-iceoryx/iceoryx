@@ -262,7 +262,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescripti
     ::testing::Test::RecordProperty("TEST_ID", "c902d189-de40-4ecd-9596-bdd8f03e2837");
 
     const iox::RuntimeName_t runtimeName = "foobar";
-    addAllInternalPublisherToVector();
+    addInternalPublisherOfPortManagerToVector();
 
     for (auto& service : internalServices)
     {
@@ -277,7 +277,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescript
 {
     ::testing::Test::RecordProperty("TEST_ID", "500ba79a-a026-4e67-b6c0-550e3b585521");
 
-    addAllInternalPublisherToVector();
+    addInternalPublisherOfPortManagerToVector();
 
     for (auto& service : internalServices)
     {
