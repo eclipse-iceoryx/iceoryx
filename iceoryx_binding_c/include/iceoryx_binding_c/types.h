@@ -23,15 +23,15 @@
 
 #if defined(__APPLE__)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
-    144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1)
+    (144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #elif defined(_WIN32)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
-    168 + numberOfAttachments * 176 - 8 * (((numberOfAttachments + 1) / 2) - 1)
+    (168 + numberOfAttachments * 176 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #else
-#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) ((128 + numberOfAttachments * 140) / 8) * 8
+#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) (((128 + numberOfAttachments * 140) / 8) * 8)
 #endif
 
-#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) 552 + numberOfAttachments * 184
+#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 184)
 
 #define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
 #define IOX_C_CHUNK_NO_USER_HEADER_SIZE 0
