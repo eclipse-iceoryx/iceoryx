@@ -301,6 +301,16 @@ TEST_F(iox_client_test, LoanAndSendWorks)
         .or_else([&] { GTEST_FAIL() << "Expected request but got none"; });
 }
 
+TEST_F(iox_client_test, SendWithNullptrReturnsError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "927583a2-5b26-47ba-b05c-95729b7af8f1");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+
+    EXPECT_THAT(iox_client_send(sut, nullptr), Eq(ClientSendResult_INVALID_REQUEST));
+}
+
 TEST_F(iox_client_test, ConnectWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4809d1ce-3a53-4981-bded-4709599f62b5");

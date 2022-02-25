@@ -471,4 +471,14 @@ TEST_F(iox_server_test, SendWorks)
             [&](auto& sharedChunk) { EXPECT_THAT(*static_cast<int64_t*>(sharedChunk.getUserPayload()), Eq(42424242)); })
         .or_else([&] { GTEST_FAIL() << "Expected response but got nothing"; });
 }
+
+TEST_F(iox_server_test, SendWithNullptrReturnsError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "af538f0b-ce37-48d2-8940-28d39d7a411e");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+
+    EXPECT_THAT(iox_server_send(sut, nullptr), Eq(ServerSendResult_INVALID_RESPONSE));
+}
 } // namespace
