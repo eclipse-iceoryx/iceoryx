@@ -51,20 +51,16 @@ TEST_F(ServerPort_test, ReleaseAllChunksWorks)
     auto& sut = serverPortWithOfferOnCreate;
 
     // produce chunks for the chunk receiver
-    pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY);
+    constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{QUEUE_CAPACITY};
+    pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUEST_CHUNKS);
 
     // produce chunks for the chunk sender
-    allocateResponseWithRequestHeaderAndThen(
-        sut, [&](const auto, auto res) { EXPECT_FALSE(sut.portUser.sendResponse(res).has_error()); });
-
-    EXPECT_THAT(getNumberOfUsedChunks(), Ne(0U));
-
-    sut.portRouDi.releaseAllChunks();
-
-    // this is not part of the server port but holds the chunk from `sendResponse`
-    clientResponseQueue.clear();
-
-    EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
+    allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto) {
+        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
+        EXPECT_THAT(getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
+        sut.portRouDi.releaseAllChunks();
+        EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));
+    });
 }
 
 // BEGIN tryGetCaProMessage tests
