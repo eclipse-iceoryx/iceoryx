@@ -21,6 +21,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::popo;
 
 TEST(ServerOptions_test, SerializationRoundTripIsSuccessful)
 {
@@ -114,6 +115,77 @@ TEST(ServerOptions_test, DeserializingInvalidClientTooSlowPolicyFails)
     iox::popo::ServerOptions::deserialize(serialized)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
         .or_else([&](auto&) { GTEST_SUCCEED(); });
+}
+
+TEST(ServerOptions_test, ComparisonOperatorReturnsTrueWhenEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "98e68269-94d0-41bb-b8a8-5b06ac0b7bc0");
+    ServerOptions options1;
+    ServerOptions options2;
+
+    EXPECT_TRUE(options1 == options1);
+    EXPECT_TRUE(options1 == options2);
+    EXPECT_TRUE(options2 == options1);
+}
+
+TEST(ServerOptions_test, ComparisonOperatorReturnsFalseWhenRequestQueueCapacityDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5fede46a-ddfd-426b-a237-25b3088ee011");
+    ServerOptions options1;
+    options1.requestQueueCapacity = 42;
+    ServerOptions options2;
+    options2.requestQueueCapacity = 73;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ServerOptions_test, ComparisonOperatorReturnsFalseWhenNodeNameDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fed82e4a-5037-4a77-9b28-e0ca8ec7ad5d");
+    ServerOptions options1;
+    options1.nodeName = "kirk";
+    ServerOptions options2;
+    options2.nodeName = "picard";
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ServerOptions_test, ComparisonOperatorReturnsFalseWhenOfferOnCreateDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7831b7c7-72b1-4acf-8a95-fd7ee2348835");
+    ServerOptions options1;
+    options1.offerOnCreate = false;
+    ServerOptions options2;
+    options2.offerOnCreate = true;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ServerOptions_test, ComparisonOperatorReturnsFalseRequestQueueFullPolicyDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cc97e01c-94f7-41a9-8fac-19db1fd2d20e");
+    ServerOptions options1;
+    options1.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
+    ServerOptions options2;
+    options2.requestQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ServerOptions_test, ComparisonOperatorReturnsFalseClientTooSlowPolicyDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "80c7e7a3-084c-48e1-aa3c-d51688c41682");
+    ServerOptions options1;
+    options1.clientTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    ServerOptions options2;
+    options2.clientTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
 }
 
 } // namespace

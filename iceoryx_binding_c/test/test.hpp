@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DDS_GATEWAY_TEST_TEST_HPP
-#define IOX_DDS_GATEWAY_TEST_TEST_HPP
+#ifndef IOX_BINDING_C_TEST_HPP
+#define IOX_BINDING_C_TEST_HPP
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#endif // IOX_DDS_GATEWAY_TEST_TEST_HPP
+#endif // IOX_BINDING_C_TEST_HPP

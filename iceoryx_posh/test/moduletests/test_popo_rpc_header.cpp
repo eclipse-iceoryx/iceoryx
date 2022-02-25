@@ -181,6 +181,42 @@ TEST_F(RequestHeader_test, SetSequenceIdWorks)
     EXPECT_THAT(sut->getSequenceId(), Eq(SEQUENCE_ID));
 }
 
+TEST_F(RequestHeader_test, GetRequestHeaderFromPayloadWithNullptrReturnsNullptr)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7b67e56a-7245-48f3-8de6-f4a9e8f30b8e");
+    void* payloadPointer{nullptr};
+    auto requestHeader = RequestHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(nullptr));
+}
+
+TEST_F(RequestHeader_test, GetRequestHeaderFromConstPayloadWithNullptrReturnsNullptr)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f6ce3b3b-226f-4286-a8db-63feed5ef882");
+    const void* payloadPointer{nullptr};
+    auto requestHeader = RequestHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(nullptr));
+}
+
+TEST_F(RequestHeader_test, GetRequestHeaderFromPayloadWithNonNullptrReturnsRequestHeaderPointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e7ddff21-4f6f-4688-a35d-d43296876e82");
+    void* payloadPointer{sut->getUserPayload()};
+    auto requestHeader = RequestHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(sut));
+}
+
+TEST_F(RequestHeader_test, GetRequestHeaderFromConstPayloadNonNullptrReturnsRequestHeaderPointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5cf198ca-d345-446b-8c3e-3deec5799573");
+    const void* payloadPointer{sut->getUserPayload()};
+    auto requestHeader = RequestHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(sut));
+}
+
 class ResponseHeader_test : public Test
 {
   public:
@@ -226,6 +262,42 @@ TEST_F(ResponseHeader_test, SetServerErrorWorks)
     sut->setServerError();
 
     EXPECT_THAT(sut->hasServerError(), Eq(true));
+}
+
+TEST_F(ResponseHeader_test, GetResponseHeaderFromPayloadWithNullptrReturnsNullptr)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "564a2240-1bc9-4d94-b1ba-0b75d6db3df6");
+    void* payloadPointer{nullptr};
+    auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(nullptr));
+}
+
+TEST_F(ResponseHeader_test, GetResponseHeaderFromConstPayloadWithNullptrReturnsNullptr)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "656d7937-6276-4de4-ba82-2db90524951e");
+    const void* payloadPointer{nullptr};
+    auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(nullptr));
+}
+
+TEST_F(ResponseHeader_test, GetResponseHeaderFromPayloadWithNonNullptrReturnsRequestHeaderPointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4170f552-a90a-412d-8cbd-217d9ca989ce");
+    void* payloadPointer{sut->getUserPayload()};
+    auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(sut));
+}
+
+TEST_F(ResponseHeader_test, GetResponseHeaderFromConstPayloadNonNullptrReturnsRequestHeaderPointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "81de8904-6aaa-4390-a132-881f963a0ede");
+    const void* payloadPointer{sut->getUserPayload()};
+    auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
+
+    EXPECT_THAT(requestHeader, Eq(sut));
 }
 
 } // namespace

@@ -55,8 +55,8 @@ struct ClientOptions
     static cxx::expected<ClientOptions, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
 
-    /// @brief comparision operator
-    /// @param[in] rhs the right hand side of the comparision
+    /// @brief comparison operator
+    /// @param[in] rhs the right hand side of the comparison
     bool operator==(const ClientOptions& rhs) const noexcept;
 };
 

@@ -92,7 +92,7 @@ class BaseClient
     friend class NotificationAttorney;
 
   protected:
-    using SelfType = BaseClient<PortT>;
+    using SelfType = BaseClient<PortT, TriggerHandleT>;
     using PortType = PortT;
 
     BaseClient(const capro::ServiceDescription& service, const ClientOptions& clientOptions) noexcept;

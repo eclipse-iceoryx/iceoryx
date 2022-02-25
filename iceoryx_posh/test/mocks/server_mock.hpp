@@ -52,7 +52,7 @@ class MockServerPortUser : public MockBasePort
                 (noexcept));
     MOCK_METHOD(void, releaseRequest, (const iox::popo::RequestHeader* const), (noexcept));
     MOCK_METHOD(void, releaseQueuedRequests, (), (noexcept));
-    MOCK_METHOD(bool, hasNewRequests, (), (const noexcept));
+    MOCK_METHOD(bool, hasNewRequests, (), (const, noexcept));
     MOCK_METHOD(bool, hasLostRequestsSinceLastCall, (), (noexcept));
     MOCK_METHOD((iox::cxx::expected<iox::popo::ResponseHeader*, iox::popo::AllocationError>),
                 allocateResponse,
@@ -62,11 +62,11 @@ class MockServerPortUser : public MockBasePort
     MOCK_METHOD(void, sendResponse, (iox::popo::ResponseHeader* const), (noexcept));
     MOCK_METHOD(void, offer, (), (noexcept));
     MOCK_METHOD(void, stopOffer, (), (noexcept));
-    MOCK_METHOD(bool, isOffered, (), (const noexcept));
-    MOCK_METHOD(bool, hasClients, (), (const noexcept));
+    MOCK_METHOD(bool, isOffered, (), (const, noexcept));
+    MOCK_METHOD(bool, hasClients, (), (const, noexcept));
     MOCK_METHOD(void, setConditionVariable, (iox::popo::ConditionVariableData&, const uint64_t), (noexcept));
     MOCK_METHOD(void, unsetConditionVariable, (), (noexcept));
-    MOCK_METHOD(bool, isConditionVariableSet, (), (const noexcept));
+    MOCK_METHOD(bool, isConditionVariableSet, (), (const, noexcept));
 };
 
 template <typename T>
@@ -75,17 +75,19 @@ class MockBaseServer
   public:
     using PortType = MockServerPortUser;
 
-    MockBaseServer(const iox::capro::ServiceDescription&, const iox::popo::ServerOptions&) noexcept
+    MockBaseServer(const iox::capro::ServiceDescription& sd, const iox::popo::ServerOptions& options) noexcept
+        : serviceDescription(sd)
+        , serverOptions(options)
     {
     }
 
-    MOCK_METHOD(iox::popo::uid_t, getUid, (), (const noexcept));
-    MOCK_METHOD(const iox::capro::ServiceDescription&, getServiceDescription, (), (const noexcept));
+    MOCK_METHOD(iox::popo::uid_t, getUid, (), (const, noexcept));
+    MOCK_METHOD(const iox::capro::ServiceDescription&, getServiceDescription, (), (const, noexcept));
     MOCK_METHOD(void, offer, (), (noexcept));
     MOCK_METHOD(void, stopOffer, (), (noexcept));
-    MOCK_METHOD(bool, isOffered, (), (const noexcept));
-    MOCK_METHOD(bool, hasClients, (), (const noexcept));
-    MOCK_METHOD(bool, hasRequests, (), (const noexcept));
+    MOCK_METHOD(bool, isOffered, (), (const, noexcept));
+    MOCK_METHOD(bool, hasClients, (), (const, noexcept));
+    MOCK_METHOD(bool, hasRequests, (), (const, noexcept));
     MOCK_METHOD(bool, hasMissedRequests, (), (noexcept));
     MOCK_METHOD(void, releaseQueuedRequests, (), (noexcept));
 
@@ -94,7 +96,7 @@ class MockBaseServer
     MOCK_METHOD(iox::popo::WaitSetIsConditionSatisfiedCallback,
                 getCallbackForIsStateConditionSatisfied,
                 (const iox::popo::ServerState),
-                (const noexcept));
+                (const, noexcept));
     MOCK_METHOD(void, disableState, (const iox::popo::ServerState), (noexcept));
     MOCK_METHOD(void, enableEvent, (iox::popo::TriggerHandle&&, const iox::popo::ServerEvent), (noexcept));
     MOCK_METHOD(void, disableEvent, (const iox::popo::ServerEvent), (noexcept));
@@ -102,21 +104,17 @@ class MockBaseServer
 
     const PortType& port() const noexcept
     {
-        return m_port;
+        return mockPort;
     }
 
     PortType& port() noexcept
     {
-        return m_port;
+        return mockPort;
     }
 
-    // for testing
-    PortType& mockPort() noexcept
-    {
-        return port();
-    }
-
-    PortType m_port;
+    PortType mockPort;
+    iox::capro::ServiceDescription serviceDescription;
+    iox::popo::ServerOptions serverOptions;
 };
 
 #endif // IOX_POSH_MOCKS_SERVER_MOCK_HPP

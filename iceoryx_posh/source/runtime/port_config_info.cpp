@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,6 +35,11 @@ PortConfigInfo::PortConfigInfo(const cxx::Serialization& serialization) noexcept
 PortConfigInfo::operator cxx::Serialization() const noexcept
 {
     return cxx::Serialization::create(portType, memoryInfo.deviceId, memoryInfo.memoryType);
+}
+
+bool PortConfigInfo::operator==(const PortConfigInfo& rhs) const noexcept
+{
+    return portType == rhs.portType && memoryInfo == rhs.memoryInfo;
 }
 } // namespace runtime
 } // namespace iox

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::popo;
 
 TEST(ClientOptions_test, SerializationRoundTripIsSuccessful)
 {
@@ -141,6 +142,77 @@ TEST(ClientOptions_test, DeserializingInvalidServerTooSlowPolicyFails)
             constexpr bool DESERIALZATION_ERROR_OCCURED{true};
             EXPECT_TRUE(DESERIALZATION_ERROR_OCCURED);
         });
+}
+
+TEST(ClientOptions_test, ComparisonOperatorReturnsTrueWhenEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ba0554b8-6b25-45c2-8a4c-66b6663de586");
+    ClientOptions options1;
+    ClientOptions options2;
+
+    EXPECT_TRUE(options1 == options1);
+    EXPECT_TRUE(options1 == options2);
+    EXPECT_TRUE(options2 == options1);
+}
+
+TEST(ClientOptions_test, ComparisonOperatorReturnsFalseWhenRessponseQueueCapacityDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "39ffdd52-e068-49f8-aca2-9638162f6b7d");
+    ClientOptions options1;
+    options1.responseQueueCapacity = 42;
+    ClientOptions options2;
+    options2.responseQueueCapacity = 73;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ClientOptions_test, ComparisonOperatorReturnsFalseWhenNodeNameDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e5b5bdeb-e173-4dcd-b9b3-080466e70c4d");
+    ClientOptions options1;
+    options1.nodeName = "kirk";
+    ClientOptions options2;
+    options2.nodeName = "picard";
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ClientOptions_test, ComparisonOperatorReturnsFalseWhenConnectOnCreateDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "829d8f19-ebc6-401e-a10d-05dfe5062380");
+    ClientOptions options1;
+    options1.connectOnCreate = false;
+    ClientOptions options2;
+    options2.connectOnCreate = true;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ClientOptions_test, ComparisonOperatorReturnsFalseResponseQueueFullPolicyDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9ab2afdd-f75f-4340-8ac0-2288fec030fa");
+    ClientOptions options1;
+    options1.responseQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
+    ClientOptions options2;
+    options2.responseQueueFullPolicy = QueueFullPolicy::DISCARD_OLDEST_DATA;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
+}
+
+TEST(ClientOptions_test, ComparisonOperatorReturnsFalseServerTooSlowPolicyDoesNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "05f8aeff-8b64-42be-9640-b8bdf129e48c");
+    ClientOptions options1;
+    options1.serverTooSlowPolicy = ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    ClientOptions options2;
+    options2.serverTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
+
+    EXPECT_FALSE(options1 == options2);
+    EXPECT_FALSE(options2 == options1);
 }
 
 } // namespace

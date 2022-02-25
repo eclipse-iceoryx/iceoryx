@@ -992,7 +992,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
+    ::testing::Test::RecordProperty("TEST_ID", "82128975-04e4-4a12-9a47-b884ad6ca97f");
     // get client and server
     iox::capro::ServiceDescription serviceDescription{"stop", "name", "love"};
 

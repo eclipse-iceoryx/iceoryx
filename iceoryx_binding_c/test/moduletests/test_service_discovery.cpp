@@ -26,6 +26,8 @@ extern "C" {
 #include "iceoryx_binding_c/service_discovery.h"
 }
 
+#include "test.hpp"
+
 namespace
 {
 using namespace ::testing;

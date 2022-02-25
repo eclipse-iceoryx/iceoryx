@@ -124,22 +124,22 @@ class optional
     optional& operator=(optional&& rhs) noexcept;
 
     /// @brief If the optionals have values it compares these values by using
-    ///         their comparision operator.
+    ///         their comparison operator.
     /// @param[in] rhs value to which this optional should be compared to
     /// @return true if the contained values are equal, otherwise false
     constexpr bool operator==(const optional<T>& rhs) const noexcept;
 
-    /// @brief Comparision with nullopt_t for easier unset optional comparision
+    /// @brief Comparison with nullopt_t for easier unset optional comparison
     /// @return true if the optional is unset, otherwise false
     constexpr bool operator==(const nullopt_t&) const noexcept;
 
     /// @brief If the optionals have values it compares these values by using
-    ///         their comparision operator.
+    ///         their comparison operator.
     /// @param[in] rhs value to which this optional should be compared to
     /// @return true if the contained values are not equal, otherwise false
     constexpr bool operator!=(const optional<T>& rhs) const noexcept;
 
-    /// @brief Comparision with nullopt_t for easier unset optional comparision
+    /// @brief Comparision with nullopt_t for easier unset optional comparison
     /// @return true if the optional is set, otherwise false
     constexpr bool operator!=(const nullopt_t&) const noexcept;
 

@@ -35,7 +35,11 @@ struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
+#if defined(_WIN32)
+    uint64_t do_not_touch_me[2709];
+#else
     uint64_t do_not_touch_me[2965];
+#endif
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
@@ -44,11 +48,11 @@ struct iox_user_trigger_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(UserTrigger) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[17];
+    uint64_t do_not_touch_me[15];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[16];
 #else
-    uint64_t do_not_touch_me[14];
+    uint64_t do_not_touch_me[12];
 #endif
 };
 typedef struct iox_user_trigger_storage_t_ iox_user_trigger_storage_t;
@@ -58,11 +62,11 @@ struct iox_sub_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Subscriber) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[17];
+    uint64_t do_not_touch_me[16];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[17];
 #else
-    uint64_t do_not_touch_me[14];
+    uint64_t do_not_touch_me[13];
 #endif
 };
 typedef struct iox_sub_storage_t_ iox_sub_storage_t;
@@ -71,7 +75,7 @@ struct iox_pub_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Publisher) / 8
-    uint64_t do_not_touch_me[2];
+    uint64_t do_not_touch_me[1];
 };
 typedef struct iox_pub_storage_t_ iox_pub_storage_t;
 
@@ -84,7 +88,7 @@ struct iox_listener_storage_t_
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[2774];
 #else
-    uint64_t do_not_touch_me[2567];
+    uint64_t do_not_touch_me[2256];
 #endif
 };
 typedef struct iox_listener_storage_t_ iox_listener_storage_t;
@@ -103,6 +107,8 @@ typedef struct
     // sizeof(UntypedClient) / 8
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
+#elif defined(_WIN32)
+    uint64_t do_not_touch_me[23];
 #else
     uint64_t do_not_touch_me[19];
 #endif
@@ -115,6 +121,8 @@ typedef struct
     // sizeof(UntypedServer) / 8
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
+#elif defined(_WIN32)
+    uint64_t do_not_touch_me[23];
 #else
     uint64_t do_not_touch_me[19];
 #endif
@@ -126,9 +134,11 @@ struct iox_service_discovery_storage_t
     // the value of the array size is the result of the following formula:
     // sizeof(ServiceDiscovery) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[49175];
+    uint64_t do_not_touch_me[30];
+#elif defined(_WIN32)
+    uint64_t do_not_touch_me[33];
 #else
-    uint64_t do_not_touch_me[49172];
+    uint64_t do_not_touch_me[24];
 #endif
 };
 typedef struct iox_service_discovery_storage_t iox_service_discovery_storage_t;

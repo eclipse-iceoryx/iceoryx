@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,9 +31,9 @@ namespace runtime
 /// if e.g. different types of shared memory are used (e.g. on GPU).
 struct PortConfigInfo
 {
-    static constexpr uint32_t DEFAULT_PORT_TYPE{0u};
-    static constexpr uint32_t DEFAULT_DEVICE_ID{0u};
-    static constexpr uint32_t DEFAULT_MEMORY_TYPE{0u};
+    static constexpr uint32_t DEFAULT_PORT_TYPE{0U};
+    static constexpr uint32_t DEFAULT_DEVICE_ID{0U};
+    static constexpr uint32_t DEFAULT_MEMORY_TYPE{0U};
 
     // these are intentionally not defined as enum classes for flexibility and extendibility
     // with specific user defined codes used by custom ports
@@ -60,6 +61,10 @@ struct PortConfigInfo
 
     /// @brief creates a serilaization of the PortConfigInfo
     operator cxx::Serialization() const noexcept;
+
+    /// @brief comparison operator
+    /// @param[in] rhs the right hand side of the comparison
+    bool operator==(const PortConfigInfo& rhs) const noexcept;
 };
 
 } // namespace runtime
