@@ -281,13 +281,9 @@ TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescript
 
     for (auto& service : internalServices)
     {
-        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(service,
-                                                                               iox::popo::PublisherOptions(),
-                                                                               IPC_CHANNEL_ROUDI_NAME,
-                                                                               m_payloadDataSegmentMemoryManager,
-                                                                               PortConfigInfo());
-        ASSERT_FALSE(publisherPortDataResult.has_error());
-        EXPECT_THAT(publisherPortDataResult.value(), Ne(nullptr));
+        auto publisherPortDataResult = m_portManager->acquireInternalPublisherPortData(
+            service, iox::popo::PublisherOptions(), m_payloadDataSegmentMemoryManager);
+        EXPECT_THAT(publisherPortDataResult, Ne(nullptr));
     }
 }
 
