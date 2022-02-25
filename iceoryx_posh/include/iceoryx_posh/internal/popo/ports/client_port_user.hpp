@@ -33,7 +33,7 @@ namespace popo
 {
 enum class ClientSendError
 {
-    NO_CONNECT_REQUESTED = 2, // start at 2 to make the C binding match
+    NO_CONNECT_REQUESTED,
     SERVER_NOT_AVAILABLE,
     INVALID_REQUEST,
 };

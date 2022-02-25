@@ -69,7 +69,7 @@ namespace popo
 {
 enum class ServerSendError
 {
-    NOT_OFFERED = 2, // start at 2 to make the C binding match
+    NOT_OFFERED,
     CLIENT_NOT_AVAILABLE,
     INVALID_RESPONSE,
 };
