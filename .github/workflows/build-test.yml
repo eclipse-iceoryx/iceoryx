@@ -45,6 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./tools/ci/build-test-windows.ps1
+        shell: powershell
 
   run-integration-test:
     runs-on: ubuntu-20.04
