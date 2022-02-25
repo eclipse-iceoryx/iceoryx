@@ -912,7 +912,7 @@ PortManager::acquireInternalPublisherPortData(const capro::ServiceDescription& s
         .and_then([&](auto publisherPortData) {
             // now the port to send registry information exists and can be used to publish service registry changes
             PublisherPortRouDiType port(publisherPortData);
-            doDiscoveryForPublisherPort(port);
+            this->doDiscoveryForPublisherPort(port);
         })
         .value();
 }
