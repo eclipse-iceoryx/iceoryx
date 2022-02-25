@@ -54,7 +54,8 @@ TEST_F(ServerPort_test, ReleaseAllChunksWorks)
     pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY);
 
     // produce chunks for the chunk sender
-    allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) { sut.portUser.sendResponse(res); });
+    allocateResponseWithRequestHeaderAndThen(
+        sut, [&](const auto, auto res) { EXPECT_FALSE(sut.portUser.sendResponse(res).has_error()); });
 
     EXPECT_THAT(getNumberOfUsedChunks(), Ne(0U));
 

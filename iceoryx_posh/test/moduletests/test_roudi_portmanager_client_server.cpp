@@ -646,7 +646,7 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
     ASSERT_FALSE(allocateRequestResult.has_error());
     auto requestHeader = allocateRequestResult.value();
     requestHeader->setSequenceId(SEQUENCE_ID);
-    clientPortUser.sendRequest(requestHeader);
+    EXPECT_FALSE(clientPortUser.sendRequest(requestHeader).has_error());
 
     auto getRequestResult = serverPortUser.getRequest();
     ASSERT_FALSE(getRequestResult.has_error());
@@ -657,7 +657,7 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
         serverPortUser.allocateResponse(receivedRequestHeader, sizeof(DataType), alignof(DataType));
     ASSERT_FALSE(allocateResponseResult.has_error());
     auto responseHeader = allocateResponseResult.value();
-    serverPortUser.sendResponse(responseHeader);
+    EXPECT_FALSE(serverPortUser.sendResponse(responseHeader).has_error());
 
     auto getResponseResult = clientPortUser.getResponse();
     ASSERT_FALSE(getResponseResult.has_error());

@@ -963,7 +963,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
         auto sendRequest = [&]() {
             auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
             ASSERT_FALSE(clientLoanResult.has_error());
-            client.send(clientLoanResult.value());
+            EXPECT_FALSE(client.send(clientLoanResult.value()).has_error());
         };
 
         // send request till queue is full
@@ -1019,7 +1019,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
     {
         auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
         ASSERT_FALSE(clientLoanResult.has_error());
-        client.send(clientLoanResult.value());
+        EXPECT_FALSE(client.send(clientLoanResult.value()).has_error());
     }
 
     auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
@@ -1037,7 +1037,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
             auto loanResult = server.loan(
                 iox::popo::RequestHeader::fromPayload(takeResult.value()), sizeof(uint64_t), alignof(uint64_t));
             ASSERT_FALSE(loanResult.has_error());
-            server.send(loanResult.value());
+            EXPECT_FALSE(server.send(loanResult.value()).has_error());
         };
 
         for (uint64_t i = 0; i < clientOptions.responseQueueCapacity; ++i)
