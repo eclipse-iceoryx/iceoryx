@@ -22,6 +22,10 @@ namespace iox
 {
 namespace popo
 {
+Listener::Listener() noexcept
+{
+}
+
 Listener::Listener(ConditionVariableData& conditionVariableData) noexcept
     : Parent(conditionVariableData)
 {

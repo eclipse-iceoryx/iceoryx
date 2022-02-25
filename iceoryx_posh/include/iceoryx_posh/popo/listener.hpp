@@ -222,7 +222,7 @@ class Listener : public ListenerImpl<MAX_NUMBER_OF_EVENTS_PER_LISTENER>
 {
   public:
     using Parent = ListenerImpl<MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
-    using Parent::Parent;
+    Listener() noexcept;
 
   protected:
     Listener(ConditionVariableData& conditionVariableData) noexcept;
