@@ -24,6 +24,6 @@ Write-Host "running tests (excluding timing_tests)"
 # we have to exclude the tests explicitly until everyone is running
 build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:UnixDomainSocket*"
 build\hoofs\test\Debug\hoofs_integrationtests.exe
-build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime*:*TimingTest*"
+build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime*:*TimingTest*:iox_types_test*"
 build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-PoshRuntime*:IceoryxRoudiApp*:IceoryxRoudiMemoryManager*:ProcessIntrospection*:ParseAllMalformedInput*:*TimingTest*"
 build\posh\test\Debug\posh_integrationtests.exe --gtest_filter="-*ChunkBuildingBlocks*:PortUser*:RoudiFindService*:*TimingTest*"
