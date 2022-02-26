@@ -23,7 +23,7 @@
 #include "iceoryx_posh/popo/response.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 
-namespace iox_test_popo_smart_chunk
+namespace test_smart_chunk_common
 {
 using namespace iox::popo;
 
@@ -153,6 +153,6 @@ class ResponseTestCase
         iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
-} // namespace iox_test_popo_smart_chunk
+} // namespace test_smart_chunk_common
 
 #endif // IOX_TEST_POPO_SERVER_PORT_COMMON_HPP

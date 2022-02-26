@@ -24,7 +24,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::popo;
-using namespace iox_test_popo_smart_chunk;
+using namespace test_smart_chunk_common;
 using ::testing::_;
 
 class Request_test : public RequestTestCase, public Test

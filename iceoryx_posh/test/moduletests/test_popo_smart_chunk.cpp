@@ -30,7 +30,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox_test_popo_smart_chunk;
+using namespace test_smart_chunk_common;
 using ::testing::_;
 
 template <typename T>
