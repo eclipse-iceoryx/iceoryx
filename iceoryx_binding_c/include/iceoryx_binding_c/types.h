@@ -21,6 +21,13 @@
 #include "iceoryx_binding_c/iceoryx_binding_c_deployment.h"
 #include "internal/c2cpp_binding.h"
 
+/// @brief if the function parameters change due to an update of the listener or
+///        waitset recalculate them with the following approach.
+///        1. Run SanityCheck.SanityCheck.VerifyStorageSizeCalculationForListener
+///            or SanityCheck.VerifyStorageSizeCalculationForWaitSet
+///        2. Take a look at the expected numbers of size 1 (A1) and 2 (A2).
+///        3. Find the parameters m, n for the function StorageSize(x) = m + n * x
+///        4. Re-run the the tests to verify if the parameters are correct.
 #if defined(__APPLE__)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
     (144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1))
