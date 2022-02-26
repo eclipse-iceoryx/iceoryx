@@ -213,6 +213,15 @@ for (uint64_t i = 0; i < numberOfNotifications; ++i)
 }
 ```
 
+The cleanup is done when we exit our mainloop. We detach the client state from
+the waitset first and then deinitialize the waitset and the client.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][process responses]-->
+```c
+iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
+iox_ws_deinit(waitset);
+iox_client_deinit(client);
+```
+
 ### Server Basic
 
 We again start with registering the signal handler and the runtime.
@@ -279,6 +288,92 @@ The final step is again the resource cleanup where we deinitialize the server.
 iox_server_deinit(server);
 ```
 
+### Server Listener
+
+The server and client or both attachable to either a listener or a waitset. In
+this example we demonstrate how one can implement the server basic example with
+a listener.
+For deeper insights into the WaitSet take a look at the
+[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset)
+or when you would like to know more about the listener, see the
+[Callbacks C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+
+The listener example starts like the basic example by registering the signal handler,
+initializing the runtime and creating a server.
+
+In the next step we create a listener and attach the server event `ServerEvent_REQUEST_RECEIVED`
+with `iox_listener_attach_server_event`. One parameter of that call is `onRequestReceived` a
+pointer to a function which handles the logic whenever we receive a request.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_listener.c][create and attach to listener]-->
+```c
+iox_server_storage_t serverStorage;
+iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
+
+iox_listener_storage_t listenerStorage;
+iox_listener_t listener = iox_listener_init(&listenerStorage);
+
+if (iox_listener_attach_server_event(listener, server, ServerEvent_REQUEST_RECEIVED, onRequestReceived)
+    != ListenerResult_SUCCESS)
+{
+    printf("unable to attach server\n");
+    _exit(-1);
+}
+```
+
+In the next step we run into our main loop which waits until the user terminates the process.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_listener.c][mainloop]-->
+```c
+while (keepRunning)
+{
+    const uint32_t SLEEP_TIME_IN_MS = 500U;
+    sleep_for(SLEEP_TIME_IN_MS);
+}
+```
+
+The actual logic behind processing a request is handled in the function `onRequestReceived`
+which is called in a thread inside the listener whenever our server receives a request.
+The code again looks identical to the server basic example. We take the request with
+`iox_server_take_request`, print a message to the console and then loan a response
+with `iox_server_loan_response` which is populated and send to the client with
+`iox_server_send`.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_listener.c][process request]-->
+```c
+void onRequestReceived(iox_server_t server)
+{
+    const struct AddRequest* request = NULL;
+    while (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
+    {
+        printf("%s Got Request: %lu + %lu\n", APP_NAME, (unsigned long)request->augend, (unsigned long)request->addend);
+
+        struct AddResponse* response = NULL;
+        enum iox_AllocationResult loanResult =
+            iox_server_loan_response(server, request, (void**)&response, sizeof(struct AddResponse));
+        if (loanResult == AllocationResult_SUCCESS)
+        {
+            response->sum = request->augend + request->addend;
+            enum iox_ServerSendResult sendResult = iox_server_send(server, response);
+            if (sendResult != ServerSendResult_SUCCESS)
+            {
+                printf("Error sending Response! Error code: %d\n", sendResult);
+            }
+        }
+        else
+        {
+            printf("Could not allocate Response! Return value = %d\n", loanResult);
+        }
+        iox_server_release_request(server, request);
+    }
+}
+```
+
+The resource cleanup is done after our mainloop has ended. We detach the server event from
+the listener first and then deinitialize the listener and server.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_listener.c][cleanup]-->
+```c
+iox_listener_detach_server_event(listener, server, ServerEvent_REQUEST_RECEIVED);
+iox_listener_deinit(listener);
+iox_server_deinit(server);
+```
 
 <center>
 [Check out request response in c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response_in_c){ .md-button }

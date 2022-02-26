@@ -36,6 +36,7 @@ void sigHandler(int signalValue)
     keepRunning = false;
 }
 
+//! [process request]
 void onRequestReceived(iox_server_t server)
 {
     const struct AddRequest* request = NULL;
@@ -62,6 +63,7 @@ void onRequestReceived(iox_server_t server)
         iox_server_release_request(server, request);
     }
 }
+//! [process request]
 
 int main()
 {
@@ -70,6 +72,7 @@ int main()
 
     iox_runtime_init(APP_NAME);
 
+    //! [create and attach to listener]
     iox_server_storage_t serverStorage;
     iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
 
@@ -82,14 +85,19 @@ int main()
         printf("unable to attach server\n");
         _exit(-1);
     }
+    //! [create and attach to listener]
 
+    //! [mainloop]
     while (keepRunning)
     {
         const uint32_t SLEEP_TIME_IN_MS = 500U;
         sleep_for(SLEEP_TIME_IN_MS);
     }
+    //! [mainloop]
 
+    //! [cleanup]
     iox_listener_detach_server_event(listener, server, ServerEvent_REQUEST_RECEIVED);
     iox_listener_deinit(listener);
     iox_server_deinit(server);
+    //! [cleanup]
 }

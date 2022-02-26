@@ -137,7 +137,9 @@ int main()
         sleep_for(SLEEP_TIME_IN_MS);
     }
 
+    //! [cleanup]
     iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
     iox_ws_deinit(waitset);
     iox_client_deinit(client);
+    //! [cleanup]
 }
