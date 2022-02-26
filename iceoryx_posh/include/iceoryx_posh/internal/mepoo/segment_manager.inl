@@ -112,7 +112,7 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const p
 {
     auto groupContainer = user.getGroups();
 
-    SegmentUserInformation segmentInfo{cxx::nullopt_t(), 0U};
+    SegmentUserInformation segmentInfo{cxx::nullopt, 0U};
 
     // with the groups we can search for the writable segment of this user
     for (const auto& groupID : groupContainer)
