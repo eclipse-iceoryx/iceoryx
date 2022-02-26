@@ -1,0 +1,150 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iceoryx_posh/internal/popo/rpc_interface.hpp"
+#include "iceoryx_posh/internal/popo/smart_chunk.hpp"
+#include "iceoryx_posh/popo/response.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+
+#include "test.hpp"
+
+namespace
+{
+using namespace ::testing;
+using namespace iox::popo;
+using ::testing::_;
+
+struct DummyData
+{
+    DummyData() = default;
+    uint64_t val{42};
+};
+
+using SutProducerType = Response<DummyData>;
+using SutConsumerType = Response<const DummyData>;
+
+class MockResponseInterface : public RpcInterface<SutProducerType, ServerSendError>
+{
+  public:
+    iox::cxx::expected<ServerSendError> send(SutProducerType&& response) noexcept override
+    {
+        auto res = std::move(response); // this step is necessary since the mock method doesn't execute the move
+        return mockSend(std::move(res));
+    }
+
+    MOCK_METHOD(iox::cxx::expected<ServerSendError>, mockSend, (SutProducerType &&), (noexcept));
+};
+
+class Response_test : public Test
+{
+  public:
+    MockResponseInterface mockInterface;
+    ChunkMock<DummyData, ResponseHeader> responseMock;
+    SutProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(responseMock.sample(), [](DummyData*) {}),
+                                mockInterface};
+    SutConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(responseMock.sample(), [](const DummyData*) {})};
+};
+
+TEST_F(Response_test, SendCallsInterfaceMockWithSuccessResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "70361e1e-78ea-48a2-bd5c-679d604e5da4");
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
+
+    auto sendResult = sutProducer.send();
+
+    EXPECT_FALSE(sendResult.has_error());
+    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+}
+
+TEST_F(Response_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b86b5884-0319-4819-8bfa-186ac629cd27");
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
+
+    auto movedSut = std::move(sutProducer);
+    auto sendResult = movedSut.send();
+
+    EXPECT_FALSE(sendResult.has_error());
+    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+}
+
+TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5038ae30-2f09-4f7b-81e4-a7f5bc1b3db4");
+    constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::CLIENT_NOT_AVAILABLE};
+    const iox::cxx::expected<ServerSendError> mockSendResult = iox::cxx::error<ServerSendError>{SERVER_SEND_ERROR};
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(mockSendResult));
+
+    auto sendResult = sutProducer.send();
+
+    ASSERT_TRUE(sendResult.has_error());
+    EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
+    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+}
+
+TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "45e592d2-69d9-47cf-8cdf-b1bdf8592947");
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
+
+    EXPECT_FALSE(sutProducer.send().has_error());
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+        });
+
+    sutProducer.send().has_error();
+
+    ASSERT_TRUE(detectedError.has_value());
+    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_RESPONSE));
+}
+
+TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4e8d7aa2-58d6-421f-9df8-f0fff3f1b9ee");
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+        });
+
+    auto movedSut = std::move(sutProducer);
+    sutProducer.send().has_error();
+
+    ASSERT_TRUE(detectedError.has_value());
+    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_RESPONSE));
+}
+
+TEST_F(Response_test, GetResponseHeaderWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c05ccd09-fbff-4d93-90e3-8f1509b8abd8");
+
+    const auto& constSutProducer = sutProducer;
+    const auto& constSutConsumer = sutConsumer;
+
+    EXPECT_THAT(&sutProducer.getResponseHeader(), Eq(responseMock.userHeader()));
+    EXPECT_THAT(&constSutProducer.getResponseHeader(), Eq(responseMock.userHeader()));
+    EXPECT_THAT(&sutConsumer.getResponseHeader(), Eq(responseMock.userHeader()));
+    EXPECT_THAT(&constSutConsumer.getResponseHeader(), Eq(responseMock.userHeader()));
+}
+
+} // namespace
