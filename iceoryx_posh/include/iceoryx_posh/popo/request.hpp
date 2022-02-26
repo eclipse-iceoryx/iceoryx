@@ -58,7 +58,7 @@ class Request
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.
-    RequestHeader& getRequestHeader() noexcept;
+    cxx::add_const_conditionally_t<RequestHeader, T>& getRequestHeader() noexcept;
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.

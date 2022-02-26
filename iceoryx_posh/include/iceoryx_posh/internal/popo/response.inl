@@ -40,9 +40,9 @@ inline cxx::expected<ServerSendError> Response<T>::send() noexcept
 }
 
 template <typename T>
-inline ResponseHeader& Response<T>::getResponseHeader() noexcept
+inline cxx::add_const_conditionally_t<ResponseHeader, T>& Response<T>::getResponseHeader() noexcept
 {
-    return BaseType::template getUserHeader<ResponseHeader>();
+    return BaseType::getUserHeader();
 }
 
 template <typename T>

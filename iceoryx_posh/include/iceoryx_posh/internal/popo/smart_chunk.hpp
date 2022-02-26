@@ -151,14 +151,11 @@ class SmartChunk
     ///
     const T* get() const noexcept;
 
-    /// @brief Helper type to ensure the access to the ChunkHeader has the same const qualifier as the access to the
-    /// smartChunk data
-    using ConditionalConstChunkHeader_t = cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>;
     ///
     /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the smartChunk.
     /// @return The ChunkHeader of the underlying memory chunk.
     ///
-    ConditionalConstChunkHeader_t* getChunkHeader() noexcept;
+    cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>* getChunkHeader() noexcept;
 
     ///
     /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the smartChunk.
@@ -171,7 +168,7 @@ class SmartChunk
     /// @return The user-header of the underlying memory chunk.
     ///
     template <typename R = H, typename = HasUserHeader<R, H>>
-    R& getUserHeader() noexcept;
+    cxx::add_const_conditionally_t<R, T>& getUserHeader() noexcept;
 
     ///
     /// @brief Retrieve the user-header of the underlying memory chunk loaned to the SmartChunk.
