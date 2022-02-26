@@ -197,14 +197,14 @@ const IdString_t& ServiceDescription::getEventIDString() const noexcept
     return m_eventString;
 }
 
-bool ServiceDescription::isInternal() const noexcept
+bool ServiceDescription::isLocal() const noexcept
 {
-    return m_scope == Scope::INTERNAL;
+    return m_scope == Scope::LOCAL;
 }
 
-void ServiceDescription::setInternal() noexcept
+void ServiceDescription::setLocal() noexcept
 {
-    m_scope = Scope::INTERNAL;
+    m_scope = Scope::LOCAL;
 }
 
 Scope ServiceDescription::getScope() const noexcept

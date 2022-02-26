@@ -146,7 +146,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
-    Scope testScope = Scope::INTERNAL;
+    Scope testScope = Scope::LOCAL;
     Interfaces testInterfaceSource = Interfaces::INTERNAL;
     auto serialObj = iox::cxx::Serialization::create(testService.c_str(),
                                                      testInstance.c_str(),
@@ -168,7 +168,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
             EXPECT_THAT((service.getClassHash())[1], Eq(testHash[1]));
             EXPECT_THAT((service.getClassHash())[2], Eq(testHash[2]));
             EXPECT_THAT((service.getClassHash())[3], Eq(testHash[3]));
-            EXPECT_THAT(service.getScope(), Eq(Scope::INTERNAL));
+            EXPECT_THAT(service.getScope(), Eq(Scope::LOCAL));
             EXPECT_THAT(service.getSourceInterface(), Eq(Interfaces::INTERNAL));
         })
         .or_else([](const auto& error) {
@@ -262,7 +262,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScope
     EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::WORLDWIDE));
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheInterfaceToInternal)
+TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheInterfaceToLocal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "87c50b2a-d771-4985-8fdd-497a5f97dc35");
     ServiceDescription serviceDescription1 = ServiceDescription();
@@ -376,7 +376,7 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
 
-TEST_F(ServiceDescription_test, IsInternalMethodReturnsTrueWhenTheScopeIsSetToInternal)
+TEST_F(ServiceDescription_test, IsLocalMethodReturnsTrueWhenTheScopeIsSetToLocal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fc611c5d-484f-43c7-899e-12085d3e6018");
     IdString_t testService = "1";
@@ -384,9 +384,9 @@ TEST_F(ServiceDescription_test, IsInternalMethodReturnsTrueWhenTheScopeIsSetToIn
     IdString_t testInstance = "3";
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testEvent, testInstance);
 
-    serviceDescription1.setInternal();
+    serviceDescription1.setLocal();
 
-    EXPECT_TRUE(serviceDescription1.isInternal());
+    EXPECT_TRUE(serviceDescription1.isLocal());
 }
 
 TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScope)
@@ -397,9 +397,9 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     IdString_t testInstance = "3";
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testEvent, testInstance);
 
-    serviceDescription1.setInternal();
+    serviceDescription1.setLocal();
 
-    EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
+    EXPECT_EQ(serviceDescription1.getScope(), Scope::LOCAL);
 }
 
 TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfServiceStringOfFirstServiceDescriptionIsLessThanSecond)

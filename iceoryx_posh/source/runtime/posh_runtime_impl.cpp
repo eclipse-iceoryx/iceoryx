@@ -114,6 +114,10 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
             LogWarn() << "Service '" << service << "' already in use by another process.";
             errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::SEVERE);
             break;
+        case IpcMessageErrorType::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN:
+            LogWarn() << "Usage of internal service '" << service << "' is forbidden.";
+            errorHandler(Error::kPOSH__RUNTIME_SERVICE_DESCRIPTION_FORBIDDEN, nullptr, iox::ErrorLevel::SEVERE);
+            break;
         case IpcMessageErrorType::PUBLISHER_LIST_FULL:
             LogWarn() << "Service '" << service << "' could not be created since we are out of memory for publishers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_PUBLISHER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);

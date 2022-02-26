@@ -370,6 +370,42 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     }
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithForbiddenServiceDescriptionsFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "130541c9-94de-4bc4-9471-0a65de310232");
+    uint16_t forbiddenServiceDescriptionDetected{0U};
+    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
+        [&forbiddenServiceDescriptionDetected](
+            const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPOSH__RUNTIME_SERVICE_DESCRIPTION_FORBIDDEN)
+            {
+                forbiddenServiceDescriptionDetected++;
+            }
+        });
+
+    iox::cxx::vector<iox::capro::ServiceDescription, iox::NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
+    const iox::capro::ServiceDescription serviceRegistry{
+        iox::SERVICE_DISCOVERY_SERVICE_NAME, iox::SERVICE_DISCOVERY_INSTANCE_NAME, iox::SERVICE_DISCOVERY_EVENT_NAME};
+
+    // Added by PortManager
+    internalServices.push_back(serviceRegistry);
+    internalServices.push_back(iox::roudi::IntrospectionPortService);
+    internalServices.push_back(iox::roudi::IntrospectionPortThroughputService);
+    internalServices.push_back(iox::roudi::IntrospectionSubscriberPortChangingDataService);
+
+    // Added by ProcessManager
+    internalServices.push_back(iox::roudi::IntrospectionMempoolService);
+    internalServices.push_back(iox::roudi::IntrospectionProcessService);
+
+    for (auto& service : internalServices)
+    {
+        const auto publisherPort = m_runtime->getMiddlewarePublisher(
+            service, iox::popo::PublisherOptions(), iox::runtime::PortConfigInfo(23U, 23U, 16U));
+        ASSERT_EQ(nullptr, publisherPort);
+    }
+    EXPECT_THAT(forbiddenServiceDescriptionDetected, Eq(iox::NUMBER_OF_INTERNAL_PUBLISHERS));
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreateLeadsToNotOfferedPublisherBeingCreated)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5002dc8c-1f6e-4593-a2b3-4de04685c919");

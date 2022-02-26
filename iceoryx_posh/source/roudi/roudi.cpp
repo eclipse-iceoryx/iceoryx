@@ -43,11 +43,11 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
                *m_roudiMemoryInterface,
                portManager,
                roudiStartupParameters.m_compatibilityCheckLevel)
-    , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
-                                  .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
-                             *m_roudiMemoryInterface->segmentManager().value(),
-                             PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService,
-                                                                                           IPC_CHANNEL_ROUDI_NAME)))
+    , m_mempoolIntrospection(
+          *m_roudiMemoryInterface->introspectionMemoryManager()
+               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+          *m_roudiMemoryInterface->segmentManager().value(),
+          PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
@@ -55,8 +55,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     {
         LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
     }
-    m_processIntrospection.registerPublisherPort(PublisherPortUserType(
-        m_prcMgr->addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
+    m_processIntrospection.registerPublisherPort(
+        PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionProcessService)));
     m_prcMgr->initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.run();

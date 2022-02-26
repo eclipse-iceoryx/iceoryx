@@ -68,7 +68,7 @@ constexpr const char* INTERFACE_NAMES[] = {"INTERNAL", "ESOC", "SOMEIP", "AMQP",
 enum class Scope : uint16_t
 {
     WORLDWIDE,
-    INTERNAL,
+    LOCAL,
     INVALID
 };
 
@@ -129,9 +129,9 @@ class ServiceDescription
     deserialize(const cxx::Serialization& serialized) noexcept;
 
     // @brief Returns if this service description is used for an RouDi-internal channel
-    bool isInternal() const noexcept;
+    bool isLocal() const noexcept;
     // @brief Set this service description to be is used for an RouDi-internal channel
-    void setInternal() noexcept;
+    void setLocal() noexcept;
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() const noexcept;
 

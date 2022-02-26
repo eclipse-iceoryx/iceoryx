@@ -257,6 +257,36 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     }
 }
 
+TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescriptionFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c902d189-de40-4ecd-9596-bdd8f03e2837");
+
+    const iox::RuntimeName_t runtimeName = "foobar";
+    addInternalPublisherOfPortManagerToVector();
+
+    for (auto& service : internalServices)
+    {
+        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
+            service, iox::popo::PublisherOptions(), runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
+        ASSERT_TRUE(publisherPortDataResult.has_error());
+        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
+    }
+}
+
+TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescriptionIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "500ba79a-a026-4e67-b6c0-550e3b585521");
+
+    addInternalPublisherOfPortManagerToVector();
+
+    for (auto& service : internalServices)
+    {
+        auto publisherPortDataResult = m_portManager->acquireInternalPublisherPortData(
+            service, iox::popo::PublisherOptions(), m_payloadDataSegmentMemoryManager);
+        EXPECT_THAT(publisherPortDataResult, Ne(nullptr));
+    }
+}
+
 constexpr bool IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY{
     std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value};
 
