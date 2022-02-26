@@ -27,10 +27,12 @@ namespace iox_test_popo_smart_chunk
 {
 using namespace iox::popo;
 
+constexpr uint64_t EXPECTED_DATA_VALUE{42U};
+
 struct DummyData
 {
     DummyData() = default;
-    uint64_t val{42};
+    uint64_t val{0U};
 };
 struct DummyHeader
 {
@@ -55,11 +57,24 @@ class MockPublisherInterface : public PublisherInterface<DummyData, DummyHeader>
 
 struct SampleTestCase
 {
+    using ProducerType = SampleProducerType;
+    using ConsumerType = SampleConsumerType;
+
+    SampleTestCase()
+    {
+        chunkMock.sample()->val = EXPECTED_DATA_VALUE;
+        chunkMockForMove.sample()->val = 0U;
+    }
+
     MockPublisherInterface mockInterface;
     ChunkMock<DummyData, DummyHeader> chunkMock;
-    SampleProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}),
-                                   mockInterface};
-    SampleConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ChunkMock<DummyData, DummyHeader> chunkMockForMove;
+    ProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
+    ProducerType sutProducerForMove{iox::cxx::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
+                                    mockInterface};
+    ConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumerForMove{
+        iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
 using RequestProducerType = Request<DummyData>;
@@ -80,11 +95,24 @@ class MockRequestInterface : public RpcInterface<RequestProducerType, ClientSend
 class RequestTestCase
 {
   public:
+    using ProducerType = RequestProducerType;
+    using ConsumerType = RequestConsumerType;
+
+    RequestTestCase()
+    {
+        chunkMock.sample()->val = EXPECTED_DATA_VALUE;
+        chunkMockForMove.sample()->val = 0U;
+    }
+
     MockRequestInterface mockInterface;
     ChunkMock<DummyData, RequestHeader> chunkMock;
-    RequestProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}),
+    ChunkMock<DummyData, RequestHeader> chunkMockForMove;
+    ProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
+    ProducerType sutProducerForMove{iox::cxx::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
                                     mockInterface};
-    RequestConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumerForMove{
+        iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
 using ResponseProducerType = Response<DummyData>;
@@ -105,12 +133,24 @@ class MockResponseInterface : public RpcInterface<ResponseProducerType, ServerSe
 class ResponseTestCase
 {
   public:
+    using ProducerType = ResponseProducerType;
+    using ConsumerType = ResponseConsumerType;
+
+    ResponseTestCase()
+    {
+        chunkMock.sample()->val = EXPECTED_DATA_VALUE;
+        chunkMockForMove.sample()->val = 0U;
+    }
+
     MockResponseInterface mockInterface;
     ChunkMock<DummyData, ResponseHeader> chunkMock;
-    ResponseProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}),
-                                     mockInterface};
-    ResponseConsumerType sutConsumer{
-        iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ChunkMock<DummyData, ResponseHeader> chunkMockForMove;
+    ProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
+    ProducerType sutProducerForMove{iox::cxx::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
+                                    mockInterface};
+    ConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumerForMove{
+        iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
 } // namespace iox_test_popo_smart_chunk
