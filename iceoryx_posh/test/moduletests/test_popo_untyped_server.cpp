@@ -27,7 +27,7 @@ using namespace iox::capro;
 using namespace iox::popo;
 using ::testing::_;
 
-using TestUntypedServer = iox::popo::UntypedServerImpl<MockBaseServer<void>>;
+using TestUntypedServer = iox::popo::UntypedServerImpl<MockBaseServer>;
 
 class UntypedServer_test : public Test
 {

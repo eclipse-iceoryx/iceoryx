@@ -20,9 +20,13 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "test.hpp"
@@ -39,12 +43,15 @@ const iox::capro::ServiceDescription DEFAULT_SERVICE_DESCRIPTION;
 const iox::RuntimeName_t RUNTIME_NAME_EMPTY = {""};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
+const iox::RuntimeName_t RUNTIME_NAME_FOR_CLIENT_PORTS = {"ClientPort"};
+const iox::RuntimeName_t RUNTIME_NAME_FOR_SERVER_PORTS = {"ServerPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
 
 iox::mepoo::MemoryManager m_memoryManager;
 std::vector<UniquePortId> uniquePortIds;
 
-using PortDataTypes = Types<BasePortData, PublisherPortData, SubscriberPortData, InterfacePortData>;
+using PortDataTypes =
+    Types<BasePortData, PublisherPortData, SubscriberPortData, ClientPortData, ServerPortData, InterfacePortData>;
 
 TYPED_TEST_SUITE(BasePort_test, PortDataTypes);
 
@@ -76,6 +83,20 @@ SubscriberPortData* createPortData()
                                   SubscriberOptions());
 }
 template <>
+ClientPortData* createPortData()
+{
+    ClientOptions options;
+    options.responseQueueCapacity = 1U;
+    return new ClientPortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_CLIENT_PORTS, options, &m_memoryManager);
+}
+template <>
+ServerPortData* createPortData()
+{
+    ServerOptions options;
+    options.requestQueueCapacity = 13U;
+    return new ServerPortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_SERVER_PORTS, options, &m_memoryManager);
+}
+template <>
 InterfacePortData* createPortData()
 {
     return new InterfacePortData(RUNTIME_NAME_FOR_INTERFACE_PORTS, iox::capro::Interfaces::INTERNAL);
@@ -98,6 +119,16 @@ const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
 {
     return SERVICE_DESCRIPTION;
 }
+template <>
+const ServiceDescription& expectedServiceDescription<ClientPortData>()
+{
+    return SERVICE_DESCRIPTION;
+}
+template <>
+const ServiceDescription& expectedServiceDescription<ServerPortData>()
+{
+    return SERVICE_DESCRIPTION;
+}
 
 // expected ProcessName factories
 
@@ -115,6 +146,16 @@ template <>
 const iox::RuntimeName_t& expectedProcessName<SubscriberPortData>()
 {
     return RUNTIME_NAME_FOR_SUBSCRIBER_PORTS;
+}
+template <>
+const iox::RuntimeName_t& expectedProcessName<ClientPortData>()
+{
+    return RUNTIME_NAME_FOR_CLIENT_PORTS;
+}
+template <>
+const iox::RuntimeName_t& expectedProcessName<ServerPortData>()
+{
+    return RUNTIME_NAME_FOR_SERVER_PORTS;
 }
 template <>
 const iox::RuntimeName_t& expectedProcessName<InterfacePortData>()
