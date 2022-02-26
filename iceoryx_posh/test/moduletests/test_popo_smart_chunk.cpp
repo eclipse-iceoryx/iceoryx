@@ -25,17 +25,14 @@
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 #include "test.hpp"
+#include "test_popo_smart_chunk_common.hpp"
 
 namespace
 {
 using namespace ::testing;
+using namespace iox_test_popo_smart_chunk;
 using ::testing::_;
 
-struct DummyData
-{
-    DummyData() = default;
-    uint32_t val = 42;
-};
 struct DummyHeader
 {
     DummyHeader() = default;
@@ -133,7 +130,7 @@ class SmartChunkTest : public Test
     template <typename T1>
     void setUnderlyingData(const T1& sut, const uint32_t dataValue, const uint64_t headerValue) const
     {
-        const_cast<uint32_t&>(sut.chunk.sample()->val) = dataValue;
+        const_cast<uint64_t&>(sut.chunk.sample()->val) = dataValue;
         const_cast<uint64_t&>(sut.chunk.userHeader()->counter) = headerValue;
     }
 

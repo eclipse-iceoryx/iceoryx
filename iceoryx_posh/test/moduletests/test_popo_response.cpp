@@ -15,48 +15,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
-#include "iceoryx_posh/internal/popo/rpc_interface.hpp"
-#include "iceoryx_posh/internal/popo/smart_chunk.hpp"
-#include "iceoryx_posh/popo/response.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 #include "test.hpp"
+#include "test_popo_smart_chunk_common.hpp"
 
 namespace
 {
 using namespace ::testing;
 using namespace iox::popo;
+using namespace iox_test_popo_smart_chunk;
 using ::testing::_;
 
-struct DummyData
+class Response_test : public ResponseTestCase, public Test
 {
-    DummyData() = default;
-    uint64_t val{42};
-};
-
-using SutProducerType = Response<DummyData>;
-using SutConsumerType = Response<const DummyData>;
-
-class MockResponseInterface : public RpcInterface<SutProducerType, ServerSendError>
-{
-  public:
-    iox::cxx::expected<ServerSendError> send(SutProducerType&& response) noexcept override
-    {
-        auto res = std::move(response); // this step is necessary since the mock method doesn't execute the move
-        return mockSend(std::move(res));
-    }
-
-    MOCK_METHOD(iox::cxx::expected<ServerSendError>, mockSend, (SutProducerType &&), (noexcept));
-};
-
-class Response_test : public Test
-{
-  public:
-    MockResponseInterface mockInterface;
-    ChunkMock<DummyData, ResponseHeader> responseMock;
-    SutProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(responseMock.sample(), [](DummyData*) {}),
-                                mockInterface};
-    SutConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(responseMock.sample(), [](const DummyData*) {})};
 };
 
 TEST_F(Response_test, SendCallsInterfaceMockWithSuccessResult)
@@ -141,10 +113,10 @@ TEST_F(Response_test, GetResponseHeaderWorks)
     const auto& constSutProducer = sutProducer;
     const auto& constSutConsumer = sutConsumer;
 
-    EXPECT_THAT(&sutProducer.getResponseHeader(), Eq(responseMock.userHeader()));
-    EXPECT_THAT(&constSutProducer.getResponseHeader(), Eq(responseMock.userHeader()));
-    EXPECT_THAT(&sutConsumer.getResponseHeader(), Eq(responseMock.userHeader()));
-    EXPECT_THAT(&constSutConsumer.getResponseHeader(), Eq(responseMock.userHeader()));
+    EXPECT_THAT(&sutProducer.getResponseHeader(), Eq(chunkMock.userHeader()));
+    EXPECT_THAT(&constSutProducer.getResponseHeader(), Eq(chunkMock.userHeader()));
+    EXPECT_THAT(&sutConsumer.getResponseHeader(), Eq(chunkMock.userHeader()));
+    EXPECT_THAT(&constSutConsumer.getResponseHeader(), Eq(chunkMock.userHeader()));
 }
 
 } // namespace

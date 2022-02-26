@@ -15,51 +15,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 #include "test.hpp"
+#include "test_popo_smart_chunk_common.hpp"
 
 namespace
 {
 using namespace ::testing;
 using namespace iox::popo;
+using namespace iox_test_popo_smart_chunk;
 using ::testing::_;
 
-struct DummyData
+class Sample_test : public SampleTestCase, public Test
 {
-    DummyData() = default;
-    uint64_t val{42};
-};
-struct DummyHeader
-{
-    DummyHeader() = default;
-    uint64_t counter = 0;
-};
-
-using SutProducerType = Sample<DummyData, DummyHeader>;
-using SutConsumerType = Sample<const DummyData, const DummyHeader>;
-
-class MockPublisherInterface : public PublisherInterface<DummyData, DummyHeader>
-{
-  public:
-    void publish(SutProducerType&& sample) noexcept override
-    {
-        auto s = std::move(sample); // this step is necessary since the mock method doesn't execute the move
-        return mockSend(std::move(s));
-    }
-
-    MOCK_METHOD(void, mockSend, (SutProducerType &&), (noexcept));
-};
-
-class Sample_test : public Test
-{
-  public:
-    MockPublisherInterface mockInterface;
-    ChunkMock<DummyData, DummyHeader> sampleMock;
-    SutProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(sampleMock.sample(), [](DummyData*) {}), mockInterface};
-    SutConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(sampleMock.sample(), [](const DummyData*) {})};
 };
 
 TEST_F(Sample_test, SendCallsInterfaceMockWithSuccessResult)
