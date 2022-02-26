@@ -31,7 +31,11 @@
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) (((128 + numberOfAttachments * 140) / 8) * 8)
 #endif
 
+#if defined(_WIN32)
+#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 168)
+#else
 #define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 184)
+#endif
 
 #define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
 #define IOX_C_CHUNK_NO_USER_HEADER_SIZE 0
