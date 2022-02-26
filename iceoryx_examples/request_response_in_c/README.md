@@ -9,7 +9,7 @@ The behavior and structure is very close to the
 [request response C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
-The rough idea is that the client sends to fibonacci numbers to the server which 
+The rough idea is that the client sends two fibonacci numbers to the server which 
 then sends the sum of those numbers back.
 
 ## Expected Output
@@ -32,7 +32,7 @@ iox_runtime_init(APP_NAME);
 ```
 
 We continue with initializing our `client` to send requests to the server. First
-of all, the client needs some memory in which the client can be stored called `clientStorage`.
+of all, we need some memory in which the client can be stored called `clientStorage`.
 `iox_client_init` will create an object in this memory location, sets the service
 description and uses the default client options which is indicated by the `NULL` argument
 at the end.
@@ -47,7 +47,7 @@ Like in the C++ version of our example we implement a client/server based fibona
 algorithm and store the first two fibonacci numbers in `fibonacciLast` and `fibonacciCurrent`.
 `requestSequenceId` and `expectedResponseSequenceId` are helping us to keep track of
 the sequence number which we increase with every sent request and then verify it again 
-in the servers response.
+in the server's response.
 
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][define variables]-->
 ```c
@@ -137,6 +137,82 @@ As final step we cleanup the used resources and deinitialize the client.
 iox_client_deinit(client);
 ```
 
+### Client WaitSet
+
+The server and client or both attachable to either a listener or a waitset. In
+this example we demonstrate how one can implement the client basic example with
+a waitset.
+For deeper insights into the WaitSet take a look at the
+[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset)
+or when you would like to know more about the listener, see the
+[Callbacks C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+
+The startup phase is identical to the client basic version, we register the signal
+handlers, initialize the runtime, create a client and initialize our variables.
+Afterwards we create our waitset and attach the client state `ClientState_HAS_RESPONSE`
+to it.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][create waitset and attach client]-->
+```c
+iox_ws_storage_t waitsetStorage;
+iox_ws_t waitset = iox_ws_init(&waitsetStorage);
+
+if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
+{
+    printf("failed to attach client\n");
+    _exit(-1);
+}
+```
+
+Again we come perform the same task like in the client basic example. We enter our
+main loop, loan a request and set it up.
+But after we sent the request to our server we do not sleep for some time, we wait
+on the waitset until the request was received.
+We use `iox_ws_timed_wait` to wait for at most 2 seconds. 
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][wait for response]-->
+```c
+iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
+uint64_t missedNotifications = 0U;
+struct timespec timeout;
+timeout.tv_sec = 2;
+timeout.tv_nsec = 0;
+
+uint64_t numberOfNotifications =
+    iox_ws_timed_wait(waitset, timeout, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedNotifications);
+```
+
+When this blocking call
+returns we iterate over the `notificationArray` and when one triggered originated
+from our `client` we acquire all responses in a while loop and print them to
+the console.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][process responses]-->
+```c
+for (uint64_t i = 0; i < numberOfNotifications; ++i)
+{
+    if (iox_notification_info_does_originate_from_client(notificationArray[0], client))
+    {
+        const struct AddResponse* response = NULL;
+        while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)
+        {
+            iox_const_response_header_t responseHeader = iox_response_header_from_payload_const(response);
+            int64_t receivedSequenceId = iox_response_header_get_sequence_id_const(responseHeader);
+            if (receivedSequenceId == expectedResponseSequenceId)
+            {
+                fibonacciLast = fibonacciCurrent;
+                fibonacciCurrent = response->sum;
+                printf("%s Got Response: %lu\n", APP_NAME, (unsigned long)fibonacciCurrent);
+            }
+            else
+            {
+                printf("Got Response with outdated sequence ID! Expected = %lu; Actual = %lu! -> skip\n",
+                       (unsigned long)expectedResponseSequenceId,
+                       (unsigned long)receivedSequenceId);
+            }
+            iox_client_release_response(client, response);
+        }
+    }
+}
+```
+
 ### Server Basic
 
 We again start with registering the signal handler and the runtime.
@@ -160,7 +236,7 @@ iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Respon
 ```
 
 We enter the main loop and start it by taking a `request`. If it was taken
-successfully we print a info message to the console and loan a `response`.
+successfully, we print an info message to the console and loan a `response`.
 We require the `request` for the loan so that the `response` can be delivered
 to the corresponding client.
 When the `iox_server_loan_response` was successful we calculate the sum of the
@@ -202,3 +278,8 @@ The final step is again the resource cleanup where we deinitialize the server.
 ```c
 iox_server_deinit(server);
 ```
+
+
+<center>
+[Check out request response in c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response_in_c){ .md-button }
+</center>

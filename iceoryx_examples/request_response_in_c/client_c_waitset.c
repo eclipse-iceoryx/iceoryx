@@ -39,14 +39,6 @@ void sigHandler(int signalValue)
     keepRunning = false;
 }
 
-struct ContextData
-{
-    uint64_t fibonacciLast;
-    uint64_t fibonacciCurrent;
-    int64_t requestSequenceId;
-    int64_t expectedResponseSequenceId;
-};
-
 int main()
 {
     signal(SIGINT, sigHandler);
@@ -54,19 +46,24 @@ int main()
 
     iox_runtime_init(APP_NAME);
 
-    struct ContextData ctx = {0U, 1U, 0U, 0U};
-
-    iox_ws_storage_t waitsetStorage;
-    iox_ws_t waitset = iox_ws_init(&waitsetStorage);
-
     iox_client_storage_t clientStorage;
     iox_client_t client = iox_client_init(&clientStorage, "Example", "Request-Response", "Add", NULL);
+
+    uint64_t fibonacciLast = 0U;
+    uint64_t fibonacciCurrent = 1U;
+    int64_t requestSequenceId = 0;
+    int64_t expectedResponseSequenceId = requestSequenceId;
+
+    //! [create waitset and attach client]
+    iox_ws_storage_t waitsetStorage;
+    iox_ws_t waitset = iox_ws_init(&waitsetStorage);
 
     if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
     {
         printf("failed to attach client\n");
         _exit(-1);
     }
+    //! [create waitset and attach client]
 
     while (keepRunning)
     {
@@ -76,15 +73,15 @@ int main()
         if (loanResult == AllocationResult_SUCCESS)
         {
             iox_request_header_t requestHeader = iox_request_header_from_payload(request);
-            iox_request_header_set_sequence_id(requestHeader, ctx.requestSequenceId);
-            ctx.expectedResponseSequenceId = ctx.requestSequenceId;
-            ctx.requestSequenceId += 1;
-            request->augend = ctx.fibonacciLast;
-            request->addend = ctx.fibonacciCurrent;
-            printf("%s Send Request: %lu %lu\n",
+            iox_request_header_set_sequence_id(requestHeader, requestSequenceId);
+            expectedResponseSequenceId = requestSequenceId;
+            requestSequenceId += 1;
+            request->augend = fibonacciLast;
+            request->addend = fibonacciCurrent;
+            printf("%s Send Request: %lu + %lu\n",
                    APP_NAME,
-                   (unsigned long)ctx.fibonacciLast,
-                   (unsigned long)ctx.fibonacciCurrent);
+                   (unsigned long)fibonacciLast,
+                   (unsigned long)fibonacciCurrent);
             enum iox_ClientSendResult sendResult = iox_client_send(client, request);
             if (sendResult != ClientSendResult_SUCCESS)
             {
@@ -96,6 +93,8 @@ int main()
             printf("Could not allocate Request! Return value = %d\n", loanResult);
         }
 
+
+        //! [wait for response]
         iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
         uint64_t missedNotifications = 0U;
         struct timespec timeout;
@@ -104,7 +103,9 @@ int main()
 
         uint64_t numberOfNotifications =
             iox_ws_timed_wait(waitset, timeout, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedNotifications);
+        //! [wait for response]
 
+        //! [process responses]
         for (uint64_t i = 0; i < numberOfNotifications; ++i)
         {
             if (iox_notification_info_does_originate_from_client(notificationArray[0], client))
@@ -114,27 +115,29 @@ int main()
                 {
                     iox_const_response_header_t responseHeader = iox_response_header_from_payload_const(response);
                     int64_t receivedSequenceId = iox_response_header_get_sequence_id_const(responseHeader);
-                    if (receivedSequenceId == ctx.expectedResponseSequenceId)
+                    if (receivedSequenceId == expectedResponseSequenceId)
                     {
-                        ctx.fibonacciLast = ctx.fibonacciCurrent;
-                        ctx.fibonacciCurrent = response->sum;
-                        printf("%s Got Response: %lu\n", APP_NAME, (unsigned long)ctx.fibonacciCurrent);
+                        fibonacciLast = fibonacciCurrent;
+                        fibonacciCurrent = response->sum;
+                        printf("%s Got Response: %lu\n", APP_NAME, (unsigned long)fibonacciCurrent);
                     }
                     else
                     {
                         printf("Got Response with outdated sequence ID! Expected = %lu; Actual = %lu! -> skip\n",
-                               (unsigned long)ctx.expectedResponseSequenceId,
+                               (unsigned long)expectedResponseSequenceId,
                                (unsigned long)receivedSequenceId);
                     }
                     iox_client_release_response(client, response);
                 }
             }
         }
+        //! [process responses]
 
         const uint32_t SLEEP_TIME_IN_MS = 950U;
         sleep_for(SLEEP_TIME_IN_MS);
     }
 
+    iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
     iox_ws_deinit(waitset);
     iox_client_deinit(client);
 }

@@ -70,11 +70,11 @@ int main()
 
     iox_runtime_init(APP_NAME);
 
-    iox_listener_storage_t listenerStorage;
-    iox_listener_t listener = iox_listener_init(&listenerStorage);
-
     iox_server_storage_t serverStorage;
     iox_server_t server = iox_server_init(&serverStorage, "Example", "Request-Response", "Add", NULL);
+
+    iox_listener_storage_t listenerStorage;
+    iox_listener_t listener = iox_listener_init(&listenerStorage);
 
     if (iox_listener_attach_server_event(listener, server, ServerEvent_REQUEST_RECEIVED, onRequestReceived)
         != ListenerResult_SUCCESS)
@@ -89,6 +89,7 @@ int main()
         sleep_for(SLEEP_TIME_IN_MS);
     }
 
-    iox_server_deinit(server);
+    iox_listener_detach_server_event(listener, server, ServerEvent_REQUEST_RECEIVED);
     iox_listener_deinit(listener);
+    iox_server_deinit(server);
 }
