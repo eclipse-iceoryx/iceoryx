@@ -29,9 +29,11 @@
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "test.hpp"
 
+#include <random>
 #include <set>
 #include <type_traits>
 #include <vector>
+
 
 namespace
 {
@@ -777,6 +779,11 @@ struct ReferenceDiscovery
         }
     }
 
+    bool contains(const ServiceDescription& s)
+    {
+        return services.find(s) != services.end();
+    }
+
     void add(const ServiceDescription& s)
     {
         services.emplace(s);
@@ -808,7 +815,6 @@ struct ReferenceDiscovery
     }
 };
 
-// generalize for REQ-RES
 template <typename T>
 class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 {
@@ -837,8 +843,12 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 
     void addServer(const ServiceDescription& s)
     {
-        servers.emplace_back(s);
-        serverDiscovery.add(s);
+        // servers are unique (contrary to publishers)
+        if (!serverDiscovery.contains(s))
+        {
+            servers.emplace_back(s);
+            serverDiscovery.add(s);
+        }
     }
 
     void add(const ServiceDescription& s)
@@ -861,7 +871,7 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
         optional<IdString_t> i(instance);
         optional<IdString_t> e(event);
 
-        Variation::setSearchArgs(s, i, e);
+        Variation::setSearchArgs(s, i, e); // modify inputs with (partial) wildcards
 
         ServiceDiscoveryPubSub_test::findService(s, i, e, Variation::PATTERN);
 
@@ -874,16 +884,70 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
             expectedResult = serverDiscovery.findService(s, i, e);
         }
 
-        // redundant but more information in case of error
-        EXPECT_EQ(serviceContainer.size(), expectedResult.size());
+        // size check is redundant but provides more information in case of error
+        // EXPECT_EQ(serviceContainer.size(), expectedResult.size());
         EXPECT_TRUE(sortAndCompare(serviceContainer, expectedResult));
     }
 
-    void clear()
+    void testFindService(const ServiceDescription& s)
     {
-        expectedResult.clear();
+        testFindService(s.getServiceIDString(), s.getInstanceIDString(), s.getEventIDString());
     }
 };
+
+template <typename T>
+T uniform(T n)
+{
+    static auto seed = std::random_device()();
+    static std::mt19937 mt(seed);
+    std::uniform_int_distribution<T> dist(0, n);
+    return dist(mt);
+}
+
+using string_t = iox::capro::IdString_t;
+
+string_t randomString(uint64_t size = string_t::capacity())
+{
+    // deliberately contains no `0` (need to exclude some char)
+    static const char chars[] = "123456789"
+                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                "abcdefghijklmnopqrstuvwxyz";
+
+    constexpr auto N = string_t::capacity();
+    size = std::min(N, size);
+
+    char a[N + 1U];
+    for (uint64_t i = 0U; i < size; ++i)
+    {
+        // -2 is needed to avoid generating the '\0' terminator of chars
+        a[i] = chars[uniform(sizeof(chars) - 2U)];
+    }
+    a[size] = '\0';
+
+    return string_t(a);
+}
+
+ServiceDescription randomService()
+{
+    auto service = randomString();
+    auto instance = randomString();
+    auto event = randomString();
+    return {service, instance, event};
+}
+
+ServiceDescription randomService(const string_t& service)
+{
+    auto instance = randomString();
+    auto event = randomString();
+    return {service, instance, event};
+}
+
+ServiceDescription randomService(const string_t& service, const string_t& instance)
+{
+    auto event = randomString();
+    return {service, instance, event};
+}
+
 
 // 8 variations (S)ervice, (I)nstance, (E)vent, (W)ildcard
 
@@ -956,22 +1020,16 @@ struct WWW
     }
 };
 
-// struct Publisher
-// {
-//     using Producer = iox::popo::UntypedPublisher;
-//     static constexpr MessagingPattern KIND{MessagingPattern::PUB_SUB};
-//     static constexpr auto MAX_PRODUCERS{iox::MAX_PUBLISHERS};
-//     static constexpr auto MAX_USER_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
-// };
-
 struct PubSub
 {
     static constexpr MessagingPattern PATTERN{MessagingPattern::PUB_SUB};
+    static constexpr uint32_t MAX_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
 };
 
 struct ReqRes
 {
     static constexpr MessagingPattern PATTERN{MessagingPattern::REQ_RES};
+    static constexpr auto MAX_PRODUCERS{iox::MAX_SERVERS};
 };
 
 
@@ -979,6 +1037,11 @@ template <typename S, typename T>
 struct Variation : public S, public T
 {
 };
+
+
+// we could also have the variation pf search directly in testFindService method,
+// but this would add test interference and make it impossible to compare
+// subsequent test results with each other
 
 using PS_SIE = Variation<SIE, PubSub>;
 using PS_WIE = Variation<WIE, PubSub>;
@@ -997,7 +1060,6 @@ using RR_WWE = Variation<WWE, ReqRes>;
 using RR_WIW = Variation<WIW, ReqRes>;
 using RR_SWW = Variation<SWW, ReqRes>;
 using RR_WWW = Variation<WWW, ReqRes>;
-
 using TestVariations = Types<PS_SIE,
                              PS_WIE,
                              PS_SWE,
@@ -1015,18 +1077,127 @@ using TestVariations = Types<PS_SIE,
                              RR_SWW,
                              RR_WWW>;
 
-// using TestVariations = Types<PS_WWW>;
+// using TestVariations = Types < Variation<SIE, PubSub>, Variation<WIE, PubSub>, Variation<SWE, PubSub>,
+//       Variation<SIW, PubSub>, Variation<WWE, PubSub>, Variation<WIW, PubSub>, Variation<SWW, PubSub>,
+//       Variation<WWW, PubSub>, Variation<SIE, ReqRes>, Variation<WIE, ReqRes>, Variation<SWE, ReqRes>,
+//       Variation<SIW, ReqRes>, Variation<WWE, ReqRes>, Variation<WIW, ReqRes>, Variation<SWW, ReqRes>,
+//       Variation<WWW, ReqRes>;
+
 TYPED_TEST_SUITE(ReferenceServiceDiscovery_test, TestVariations);
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindIfEmpty)
+// All tests run for publishers and servers as well as all 8 search variations.
+// Each test sets up the discovery state and, runs a search and compares the result
+// with a (trivial, brute force) reference implementation.
+// There is some overlap/redundancy in the tests due to the generative scheme
+// (the price for elegance and structure).
+
+#if 1
+TYPED_TEST(ReferenceServiceDiscovery_test, FindIfNothingOffered)
 {
     this->testFindService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 }
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindSingleService)
+TYPED_TEST(ReferenceServiceDiscovery_test, FindIfSingleServiceOffered)
 {
     this->add({"a", "b", "c"});
+
     this->testFindService({"a"}, {"b"}, {"c"});
 }
+
+TYPED_TEST(ReferenceServiceDiscovery_test, FindIfSingleServiceOfferedMultipleTimes)
+{
+    this->add({"a", "b", "c"});
+    this->add({"a", "b", "c"});
+
+    this->testFindService({"a"}, {"b"}, {"c"});
+}
+
+TYPED_TEST(ReferenceServiceDiscovery_test, FindIfMultipleServicesOffered)
+{
+    this->add({"a", "b", "c"});
+    this->add({"a", "b", "aa"});
+    this->add({"aa", "a", "c"});
+    this->add({"a", "ab", "a"});
+
+    this->testFindService({"aa"}, {"a"}, {"c"});
+}
+
+TYPED_TEST(ReferenceServiceDiscovery_test, RepeatedSearchYieldsSameResult)
+{
+    this->add({"a", "b", "c"});
+    this->add({"a", "b", "aa"});
+    this->add({"aa", "a", "c"});
+    this->add({"a", "ab", "a"});
+
+    this->testFindService({"a"}, {"b"}, {"aa"});
+    auto previousResult = serviceContainer;
+
+    this->testFindService({"a"}, {"b"}, {"aa"});
+    sortAndCompare(previousResult, serviceContainer);
+}
+
+TYPED_TEST(ReferenceServiceDiscovery_test, FindNonExistingService)
+{
+    this->add({"a", "b", "c"});
+    this->add({"a", "b", "aa"});
+    this->add({"aa", "a", "c"});
+    this->add({"a", "ab", "a"});
+
+    this->testFindService({"x"}, {"y"}, {"z"});
+
+    this->testFindService({"x"}, {"y"}, {"aa"});
+    this->testFindService({"x"}, {"b"}, {"z"});
+    this->testFindService({"a"}, {"y"}, {"z"});
+
+    this->testFindService({"a"}, {"b"}, {"z"});
+    this->testFindService({"a"}, {"y"}, {"aa"});
+    this->testFindService({"x"}, {"b"}, {"aa"});
+}
+#endif
+
+TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumServices)
+{
+    auto constexpr MAX = TestFixture::Variation::MAX_PRODUCERS;
+    auto constexpr N1 = MAX / 3;
+    auto constexpr N2 = 2 * N1;
+
+    // completely random
+    auto s1 = randomService();
+    this->add(s1);
+    uint32_t created = 1;
+
+    for (; created < N1; ++created)
+    {
+        this->add(randomService());
+    }
+
+    // presented by Umlaut (and hence unique)
+    ServiceDescription s2{"Ferdinand", "Spitz", "Schnüffler"};
+    ++created;
+
+    // partially random
+    for (; created < N2; ++created)
+    {
+        this->add(randomService("Ferdinand"));
+    }
+
+    for (; created < MAX - 1; ++created)
+    {
+        this->add(randomService("Ferdinand", "Spitz"));
+    }
+
+    auto s3 = randomService("Ferdinand", "Spitz");
+    this->add(s3);
+    ++created;
+
+    EXPECT_EQ(created, MAX);
+
+    this->testFindService(s1);
+    this->testFindService(s2);
+    this->testFindService(s3);
+};
+
+// TODO: mixed setup
+
 
 } // namespace
