@@ -580,6 +580,8 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithWildcardsReturnsOnlyIntrospec
     ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
     findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, MessagingPattern::PUB_SUB);
 
+    constexpr uint32_t NUM_INTERNAL_SERVICES = 6U;
+    EXPECT_EQ(serviceContainer.size(), NUM_INTERNAL_SERVICES);
     for (auto& service : serviceContainer)
     {
         EXPECT_THAT(service.getInstanceIDString().c_str(), StrEq("RouDi_ID"));
@@ -760,16 +762,19 @@ struct ReferenceDiscovery
 {
     std::set<ServiceDescription> services;
 
-    ReferenceDiscovery()
+    ReferenceDiscovery(const MessagingPattern pattern = MessagingPattern::PUB_SUB)
     {
-        services.emplace(iox::roudi::IntrospectionMempoolService);
-        services.emplace(iox::roudi::IntrospectionPortService);
-        services.emplace(iox::roudi::IntrospectionPortThroughputService);
-        services.emplace(iox::roudi::IntrospectionSubscriberPortChangingDataService);
-        services.emplace(iox::roudi::IntrospectionProcessService);
-        services.emplace(iox::SERVICE_DISCOVERY_SERVICE_NAME,
-                         iox::SERVICE_DISCOVERY_INSTANCE_NAME,
-                         iox::SERVICE_DISCOVERY_EVENT_NAME);
+        if (pattern == MessagingPattern::PUB_SUB)
+        {
+            services.emplace(iox::roudi::IntrospectionMempoolService);
+            services.emplace(iox::roudi::IntrospectionPortService);
+            services.emplace(iox::roudi::IntrospectionPortThroughputService);
+            services.emplace(iox::roudi::IntrospectionSubscriberPortChangingDataService);
+            services.emplace(iox::roudi::IntrospectionProcessService);
+            services.emplace(iox::SERVICE_DISCOVERY_SERVICE_NAME,
+                             iox::SERVICE_DISCOVERY_INSTANCE_NAME,
+                             iox::SERVICE_DISCOVERY_EVENT_NAME);
+        }
     }
 
     void add(const ServiceDescription& s)
@@ -813,14 +818,12 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
     static constexpr uint32_t MAX_PUBLISHERS = iox::MAX_PUBLISHERS;
     static constexpr uint32_t MAX_SERVERS = iox::MAX_SERVERS;
 
-    Variation variation;
-
     // std::vector<iox::popo::UntypedPublisher> publishers;
     iox::cxx::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
-    iox::cxx::vector<iox::popo::UntypedPublisher, MAX_SERVERS> servers;
+    iox::cxx::vector<iox::popo::UntypedServer, MAX_SERVERS> servers;
 
-    ReferenceDiscovery publisherDiscovery;
-    ReferenceDiscovery serverDiscovery;
+    ReferenceDiscovery publisherDiscovery{MessagingPattern::PUB_SUB};
+    ReferenceDiscovery serverDiscovery{MessagingPattern::REQ_RES};
 
     ServiceContainer expectedResult;
 
@@ -838,9 +841,9 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
         serverDiscovery.add(s);
     }
 
-    void add(const ServiceDescription& s, MessagingPattern pattern = MessagingPattern::PUB_SUB)
+    void add(const ServiceDescription& s)
     {
-        if (pattern == MessagingPattern::PUB_SUB)
+        if (Variation::PATTERN == MessagingPattern::PUB_SUB)
         {
             addPublisher(s);
         }
@@ -852,18 +855,17 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 
     void testFindService(const optional<IdString_t>& service,
                          const optional<IdString_t>& instance,
-                         const optional<IdString_t>& event,
-                         MessagingPattern pattern = MessagingPattern::PUB_SUB) noexcept
+                         const optional<IdString_t>& event) noexcept
     {
         optional<IdString_t> s(service);
         optional<IdString_t> i(instance);
         optional<IdString_t> e(event);
 
-        variation.setSearchArgs(s, i, e);
+        Variation::setSearchArgs(s, i, e);
 
-        ServiceDiscoveryPubSub_test::findService(s, i, e, pattern);
+        ServiceDiscoveryPubSub_test::findService(s, i, e, Variation::PATTERN);
 
-        if (pattern == MessagingPattern::PUB_SUB)
+        if (Variation::PATTERN == MessagingPattern::PUB_SUB)
         {
             expectedResult = publisherDiscovery.findService(s, i, e);
         }
@@ -872,6 +874,8 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
             expectedResult = serverDiscovery.findService(s, i, e);
         }
 
+        // redundant but more information in case of error
+        EXPECT_EQ(serviceContainer.size(), expectedResult.size());
         EXPECT_TRUE(sortAndCompare(serviceContainer, expectedResult));
     }
 
@@ -885,14 +889,14 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 
 struct SIE
 {
-    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>&, optional<IdString_t>&)
+    static void setSearchArgs(optional<IdString_t>&, optional<IdString_t>&, optional<IdString_t>&)
     {
     }
 };
 
 struct WIE
 {
-    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>&, optional<IdString_t>&)
+    static void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>&, optional<IdString_t>&)
     {
         service.reset();
     }
@@ -900,7 +904,7 @@ struct WIE
 
 struct SWE
 {
-    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>&)
+    static void setSearchArgs(optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>&)
     {
         instance.reset();
     }
@@ -908,7 +912,7 @@ struct SWE
 
 struct SIW
 {
-    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>&, optional<IdString_t>& event)
+    static void setSearchArgs(optional<IdString_t>&, optional<IdString_t>&, optional<IdString_t>& event)
     {
         event.reset();
     }
@@ -916,7 +920,7 @@ struct SIW
 
 struct WWE
 {
-    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>&)
+    static void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>&)
     {
         service.reset();
         instance.reset();
@@ -925,7 +929,7 @@ struct WWE
 
 struct WIW
 {
-    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>&, optional<IdString_t>& event)
+    static void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>&, optional<IdString_t>& event)
     {
         service.reset();
         event.reset();
@@ -934,7 +938,7 @@ struct WIW
 
 struct SWW
 {
-    void setSearchArgs(optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>& event)
+    static void setSearchArgs(optional<IdString_t>&, optional<IdString_t>& instance, optional<IdString_t>& event)
     {
         instance.reset();
         event.reset();
@@ -943,7 +947,8 @@ struct SWW
 
 struct WWW
 {
-    void setSearchArgs(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>& event)
+    static void
+    setSearchArgs(optional<IdString_t>& service, optional<IdString_t>& instance, optional<IdString_t>& event)
     {
         service.reset();
         instance.reset();
@@ -951,11 +956,69 @@ struct WWW
     }
 };
 
+// struct Publisher
+// {
+//     using Producer = iox::popo::UntypedPublisher;
+//     static constexpr MessagingPattern KIND{MessagingPattern::PUB_SUB};
+//     static constexpr auto MAX_PRODUCERS{iox::MAX_PUBLISHERS};
+//     static constexpr auto MAX_USER_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
+// };
 
-using TestVariations = Types<SIE, WIE, SWE, SIW, WWE, WIW, SWW, WWW>;
+struct PubSub
+{
+    static constexpr MessagingPattern PATTERN{MessagingPattern::PUB_SUB};
+};
+
+struct ReqRes
+{
+    static constexpr MessagingPattern PATTERN{MessagingPattern::REQ_RES};
+};
+
+
+template <typename S, typename T>
+struct Variation : public S, public T
+{
+};
+
+using PS_SIE = Variation<SIE, PubSub>;
+using PS_WIE = Variation<WIE, PubSub>;
+using PS_SWE = Variation<SWE, PubSub>;
+using PS_SIW = Variation<SIW, PubSub>;
+using PS_WWE = Variation<WWE, PubSub>;
+using PS_WIW = Variation<WIW, PubSub>;
+using PS_SWW = Variation<SWW, PubSub>;
+using PS_WWW = Variation<WWW, PubSub>;
+
+using RR_SIE = Variation<SIE, ReqRes>;
+using RR_WIE = Variation<WIE, ReqRes>;
+using RR_SWE = Variation<SWE, ReqRes>;
+using RR_SIW = Variation<SIW, ReqRes>;
+using RR_WWE = Variation<WWE, ReqRes>;
+using RR_WIW = Variation<WIW, ReqRes>;
+using RR_SWW = Variation<SWW, ReqRes>;
+using RR_WWW = Variation<WWW, ReqRes>;
+
+using TestVariations = Types<PS_SIE,
+                             PS_WIE,
+                             PS_SWE,
+                             PS_SIW,
+                             PS_WWE,
+                             PS_WIW,
+                             PS_SWW,
+                             PS_WWW,
+                             RR_SIE,
+                             RR_WIE,
+                             RR_SWE,
+                             RR_SIW,
+                             RR_WWE,
+                             RR_WIW,
+                             RR_SWW,
+                             RR_WWW>;
+
+// using TestVariations = Types<PS_WWW>;
 TYPED_TEST_SUITE(ReferenceServiceDiscovery_test, TestVariations);
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindInternalServices)
+TYPED_TEST(ReferenceServiceDiscovery_test, FindIfEmpty)
 {
     this->testFindService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 }
