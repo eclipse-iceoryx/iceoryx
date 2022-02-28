@@ -87,9 +87,9 @@ TEST_F(ClientServer_test, TypedApiWithMatchingOptionsWorks)
 
     // send request
     {
-        auto loanResutl = client.loan();
-        ASSERT_FALSE(loanResutl.has_error());
-        auto& request = loanResutl.value();
+        auto loanResult = client.loan();
+        ASSERT_FALSE(loanResult.has_error());
+        auto& request = loanResult.value();
         request.getRequestHeader().setSequenceId(SEQUENCE_ID);
         request->augend = AUGEND;
         request->addend = ADDEND;
@@ -132,9 +132,9 @@ TEST_F(ClientServer_test, UnypedApiWithMatchingOptionsWorks)
 
     // send request
     {
-        auto loanResutl = client.loan(sizeof(DummyRequest), alignof(DummyRequest));
-        ASSERT_FALSE(loanResutl.has_error());
-        auto request = static_cast<DummyRequest*>(loanResutl.value());
+        auto loanResult = client.loan(sizeof(DummyRequest), alignof(DummyRequest));
+        ASSERT_FALSE(loanResult.has_error());
+        auto request = static_cast<DummyRequest*>(loanResult.value());
         RequestHeader::fromPayload(request)->setSequenceId(SEQUENCE_ID);
         request->augend = AUGEND;
         request->addend = ADDEND;
@@ -186,9 +186,9 @@ TEST_F(ClientServer_test, MultipleClientsWithMatchingOptionsWorks)
     // send requests
     for (auto i = 0U; i < NUMBER_OF_REQUESTS; ++i)
     {
-        auto loanResutl = client[i]->loan(AUGEND[i], ADDEND[i]);
-        ASSERT_FALSE(loanResutl.has_error());
-        auto& request = loanResutl.value();
+        auto loanResult = client[i]->loan(AUGEND[i], ADDEND[i]);
+        ASSERT_FALSE(loanResult.has_error());
+        auto& request = loanResult.value();
         request.getRequestHeader().setSequenceId(SEQUENCE_ID[i]);
         ASSERT_FALSE(request.send().has_error());
     }
