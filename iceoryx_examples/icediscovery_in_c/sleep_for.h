@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_BINDING_C_SERVICE_DESCRIPTION_H
-#define IOX_BINDING_C_SERVICE_DESCRIPTION_H
+#ifndef IOX_BINDING_C_SLEEP_FOR_H
+#define IOX_BINDING_C_SLEEP_FOR_H
 
-#include "iceoryx_binding_c/config.h"
+#ifdef _WIN32
+#include <windows.h>
 
-#include <stdint.h>
-
-typedef struct
+void sleep_for(uint32_t milliseconds)
 {
-    char serviceString[IOX_CONFIG_SERVICE_STRING_SIZE];
-    char instanceString[IOX_CONFIG_SERVICE_STRING_SIZE];
-    char eventString[IOX_CONFIG_SERVICE_STRING_SIZE];
-} iox_service_description_t;
+    Sleep((uint64_t)milliseconds);
+}
+
+#else
+#include <unistd.h>
+
+void sleep_for(uint32_t milliseconds)
+{
+    usleep(milliseconds * 1000U);
+}
+#endif
 
 #endif

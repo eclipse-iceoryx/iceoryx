@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,13 +32,14 @@ using namespace iox::capro;
 
 TEST(iox_service_description_test, StringSizesAreCorrect)
 {
+    constexpr uint64_t ZERO_TERMINATOR_SIZE = 1U;
     ::testing::Test::RecordProperty("TEST_ID", "f32a6d19-9ff7-4913-a1d8-39d46267b114");
     EXPECT_THAT(sizeof(decltype(std::declval<iox_service_description_t>().serviceString)),
-                Eq(iox::capro::IdString_t().capacity()));
+                Eq(iox::capro::IdString_t().capacity() + ZERO_TERMINATOR_SIZE));
     EXPECT_THAT(sizeof(decltype(std::declval<iox_service_description_t>().instanceString)),
-                Eq(iox::capro::IdString_t().capacity()));
+                Eq(iox::capro::IdString_t().capacity() + ZERO_TERMINATOR_SIZE));
     EXPECT_THAT(sizeof(decltype(std::declval<iox_service_description_t>().eventString)),
-                Eq(iox::capro::IdString_t().capacity()));
+                Eq(iox::capro::IdString_t().capacity() + ZERO_TERMINATOR_SIZE));
 }
 
 } // namespace
