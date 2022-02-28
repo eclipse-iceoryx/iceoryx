@@ -21,6 +21,7 @@
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 
 #include "test.hpp"
@@ -53,6 +54,11 @@ constexpr const char EVENT[] = "boom boom boomerang";
 ///
 /// It suffices to call all tests on the listener since the listener and the waitset
 /// are using the same trigger concept
+///
+/// Strategy:
+///   We attach every attachable to the listener and call the destructor while it is attached.
+///   When those classes use inheritance and the underlying trigger is called in the base
+///   class the address sanitizer will encounter undefined behavior.
 class ListenerWaitsetAttachments_test : public Test
 {
   public:
@@ -76,7 +82,7 @@ class ListenerWaitsetAttachments_test : public Test
 };
 
 
-TEST_F(ListenerWaitsetAttachments_test, SubscriberAttachesToListener)
+TEST_F(ListenerWaitsetAttachments_test, SubscriberDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1d163e0-4479-47b4-b4e8-01b0ee6a71b0");
     SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
@@ -100,7 +106,7 @@ TEST_F(ListenerWaitsetAttachments_test, SubscriberAttachesToListener)
     EXPECT_THAT(listener->size(), Eq(0));
 }
 
-TEST_F(ListenerWaitsetAttachments_test, UntypedSubscriberAttachesToListener)
+TEST_F(ListenerWaitsetAttachments_test, UntypedSubscriberDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a78a7016-46b6-4223-b7b1-e30344bb208f");
     SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
@@ -124,7 +130,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedSubscriberAttachesToListener)
     EXPECT_THAT(listener->size(), Eq(0));
 }
 
-TEST_F(ListenerWaitsetAttachments_test, ClientAttachesToListener)
+TEST_F(ListenerWaitsetAttachments_test, ClientDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e21d98b9-9d24-4c85-90b9-0e7acd24a242");
     ClientPortData clientData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ClientOptions(), &memoryManager);
@@ -145,7 +151,7 @@ TEST_F(ListenerWaitsetAttachments_test, ClientAttachesToListener)
     EXPECT_THAT(listener->size(), Eq(0));
 }
 
-TEST_F(ListenerWaitsetAttachments_test, UntypedClientAttachesToListener)
+TEST_F(ListenerWaitsetAttachments_test, UntypedClientDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "07934dd2-93aa-4aab-a216-eb86e842088b");
     ClientPortData clientData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ClientOptions(), &memoryManager);
@@ -166,7 +172,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedClientAttachesToListener)
     EXPECT_THAT(listener->size(), Eq(0));
 }
 
-TEST_F(ListenerWaitsetAttachments_test, ServerAttachesToListener)
+TEST_F(ListenerWaitsetAttachments_test, ServerDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "306d7ef9-1fb1-4ce8-8b58-e5a7cb5fff69");
     ServerPortData serverData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ServerOptions(), &memoryManager);
@@ -187,7 +193,7 @@ TEST_F(ListenerWaitsetAttachments_test, ServerAttachesToListener)
     EXPECT_THAT(listener->size(), Eq(0));
 }
 
-TEST_F(ListenerWaitsetAttachments_test, UntypedServerAttachesToListener)
+TEST_F(ListenerWaitsetAttachments_test, UntypedServerDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3d074e8f-eab6-475d-a884-de8b4d2596ea");
     ServerPortData serverData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ServerOptions(), &memoryManager);
@@ -207,4 +213,30 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedServerAttachesToListener)
     server.reset();
     EXPECT_THAT(listener->size(), Eq(0));
 }
+
+TEST_F(ListenerWaitsetAttachments_test, ServiceDiscoveryDestructorCallsTriggerResetDirectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b266bb98-f31a-43b8-a0c4-75aea6f40efb");
+    SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
+                                      RUNTIME_NAME,
+                                      VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
+                                      SubscriberOptions());
+    EXPECT_CALL(*this->runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&subscriberData));
+
+    optional<iox::runtime::ServiceDiscovery> serviceDiscovery;
+    serviceDiscovery.emplace();
+
+    ASSERT_FALSE(
+        listener
+            ->attachEvent(*serviceDiscovery,
+                          iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED,
+                          createNotificationCallback(
+                              ListenerWaitsetAttachments_test::genericTriggerCallback<iox::runtime::ServiceDiscovery>))
+            .has_error());
+
+    EXPECT_THAT(listener->size(), Eq(1));
+    serviceDiscovery.reset();
+    EXPECT_THAT(listener->size(), Eq(0));
+}
+
 } // namespace
