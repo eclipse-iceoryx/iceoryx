@@ -215,8 +215,8 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             LogWarn() << "Application " << name << " crashed. Re-registering application";
 
             // remove the existing process and add the new process afterwards, we do not send ack to new process
-            constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
-            if (!this->searchForProcessAndRemoveIt(name, terminationFeedback))
+            constexpr TerminationFeedback TERMINATION_FEEDBACK{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+            if (!this->searchForProcessAndRemoveIt(name, TERMINATION_FEEDBACK))
             {
                 LogWarn() << "Application " << name << " could not be removed";
                 return;
@@ -282,8 +282,8 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
 
 bool ProcessManager::unregisterProcess(const RuntimeName_t& name) noexcept
 {
-    constexpr TerminationFeedback feedback{TerminationFeedback::SEND_ACK_TO_PROCESS};
-    if (!searchForProcessAndRemoveIt(name, feedback))
+    constexpr TerminationFeedback FEEDBACK{TerminationFeedback::SEND_ACK_TO_PROCESS};
+    if (!searchForProcessAndRemoveIt(name, FEEDBACK))
     {
         LogError() << "Application " << name << " could not be unregistered!";
         return false;
