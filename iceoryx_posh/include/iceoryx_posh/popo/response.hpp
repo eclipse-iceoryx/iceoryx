@@ -60,7 +60,7 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
 
     /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
     /// @return The response-header of the underlying memory chunk.
-    ResponseHeader& getResponseHeader() noexcept;
+    cxx::add_const_conditionally_t<ResponseHeader, T>& getResponseHeader() noexcept;
 
     /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
     /// @return The response-header of the underlying memory chunk.

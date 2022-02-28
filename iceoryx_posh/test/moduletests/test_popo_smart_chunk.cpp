@@ -25,318 +25,117 @@
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 #include "test.hpp"
+#include "test_popo_smart_chunk_common.hpp"
 
 namespace
 {
 using namespace ::testing;
+using namespace test_smart_chunk_common;
 using ::testing::_;
-
-struct DummyData
-{
-    DummyData() = default;
-    uint32_t val = 42;
-};
-struct DummyHeader
-{
-    DummyHeader() = default;
-    uint64_t counter = 0;
-};
-
-template <typename BaseType, typename T, typename H = iox::mepoo::NoUserHeader>
-class MockInterface : public BaseType
-{
-  public:
-    using SampleType = iox::popo::Sample<T, H>;
-
-    void publish(iox::popo::Sample<T, H>&& sample) noexcept override
-    {
-        auto s = std::move(sample); // this step is necessary since the mock method doesn't execute the move
-        return publishMock(std::move(s));
-    }
-    MOCK_METHOD(void, publishMock, ((iox::popo::Sample<T, H> &&)), (noexcept));
-};
 
 template <typename T>
 class SmartChunkTest : public Test
 {
   public:
-    using DataType = typename T::DataType;
-    using HeaderType = typename T::HeaderType;
-    template <typename Data, typename Header>
-    using SutType = typename T::template SutType<Data, Header>;
-    using InterfaceType = typename T::InterfaceType;
+    using SutProducerType = typename T::ProducerType;
+    using SutConsumerType = typename T::ConsumerType;
 
-    template <typename SutType>
-    void send(SutType& sut) const
-    {
-        T::send(sut);
-    }
-
-    template <typename SutType>
-    auto& getHeader(SutType& sut) const
-    {
-        return T::getHeader(sut);
-    }
-
-    template <typename SutType>
-    auto& getConstHeader(const SutType& sut) const
-    {
-        return T::getHeader(sut);
-    }
-
-    template <typename T1>
-    const T1& makeConst(T1& t) const
-    {
-        return const_cast<const T1&>(t);
-    }
-
-    template <typename T1>
-    void verifyNotEmpty(T1& helper) const
-    {
-        ASSERT_TRUE(helper.sut);
-        ASSERT_THAT(helper.sut.get(), Ne(nullptr));
-        ASSERT_THAT(helper.sut.operator->(), Ne(nullptr));
-        ASSERT_THAT(makeConst(helper.sut).get(), Ne(nullptr));
-        ASSERT_THAT(makeConst(helper.sut).operator->(), Ne(nullptr));
-        ASSERT_THAT(helper.sut.getChunkHeader(), Ne(nullptr));
-        ASSERT_THAT(makeConst(helper.sut).getChunkHeader(), Ne(nullptr));
-    }
-
-    template <typename T1>
-    void verifyContent(T1& helper, const uint32_t dataValue, const uint64_t headerValue) const
-    {
-        verifyNotEmpty(helper);
-
-        EXPECT_THAT(helper.sut.get()->val, Eq(dataValue));
-        EXPECT_THAT(makeConst(helper.sut).get()->val, Eq(dataValue));
-        EXPECT_THAT(helper.sut->val, Eq(dataValue));
-        EXPECT_THAT(makeConst(helper.sut)->val, Eq(dataValue));
-        EXPECT_THAT((*helper.sut).val, Eq(dataValue));
-        EXPECT_THAT((*makeConst(helper.sut)).val, Eq(dataValue));
-
-        EXPECT_THAT(getHeader(helper.sut).counter, Eq(headerValue));
-        EXPECT_THAT(getConstHeader(helper.sut).counter, Eq(headerValue));
-    }
-
-    template <typename T1>
-    void verifyEmpty(T1& helper) const
-    {
-        EXPECT_FALSE(helper.sut);
-        EXPECT_THAT(helper.sut.get(), Eq(nullptr));
-        EXPECT_THAT(helper.sut.operator->(), Eq(nullptr));
-        EXPECT_THAT(makeConst(helper.sut).get(), Eq(nullptr));
-        EXPECT_THAT(makeConst(helper.sut).operator->(), Eq(nullptr));
-        EXPECT_THAT(helper.sut.getChunkHeader(), Eq(nullptr));
-        EXPECT_THAT(makeConst(helper.sut).getChunkHeader(), Eq(nullptr));
-    }
-
-    template <typename T1>
-    void setUnderlyingData(const T1& sut, const uint32_t dataValue, const uint64_t headerValue) const
-    {
-        const_cast<uint32_t&>(sut.chunk.sample()->val) = dataValue;
-        const_cast<uint64_t&>(sut.chunk.userHeader()->counter) = headerValue;
-    }
-
-  protected:
-    InterfaceType mockInterface{};
-
-    template <typename Data, typename Header>
-    struct SutHelper
-    {
-        SutHelper()
-            : sut{iox::cxx::unique_ptr<Data>(this->chunk.sample(), [](Data*) {})}
-        {
-        }
-
-        SutHelper(InterfaceType& interface)
-            : sut{iox::cxx::unique_ptr<Data>(this->chunk.sample(), [](Data*) {}), interface}
-        {
-        }
-
-        SutHelper(SutType<Data, Header>&& origin)
-            : sut{std::move(origin)}
-        {
-        }
-
-        ChunkMock<Data, Header> chunk;
-        SutType<Data, Header> sut;
-    };
-
-    using ProducerHelper = SutHelper<DataType, HeaderType>;
-    using ConsumerHelper = SutHelper<const DataType, const HeaderType>;
-
-    ProducerHelper producer{this->mockInterface};
-    ConsumerHelper consumer;
+    T variation;
 };
 
-struct SampleTestCase
-{
-    using DataType = DummyData;
-    using HeaderType = DummyHeader;
-    using InterfaceType = MockInterface<iox::popo::PublisherInterface<DataType, HeaderType>, DataType, HeaderType>;
-
-    template <typename Data, typename Header>
-    using SutType = iox::popo::Sample<Data, Header>;
-
-    template <typename SutType>
-    static void send(SutType& sut)
-    {
-        sut.publish();
-    }
-
-    template <typename SutType>
-    static auto& getHeader(SutType& sut)
-    {
-        return sut.getUserHeader();
-    }
-
-    template <typename SutType>
-    static auto& getHeader(const SutType& sut)
-    {
-        return sut.getUserHeader();
-    }
-};
-
-
-using Implementations = Types<SampleTestCase>;
+using Implementations = Types<SampleTestCase, RequestTestCase, ResponseTestCase>;
 
 TYPED_TEST_SUITE(SmartChunkTest, Implementations);
 
-TYPED_TEST(SmartChunkTest, ProducerConstructedSmartChunkIsValid)
+TYPED_TEST(SmartChunkTest, ConstructedSmartChunkIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9bfa7e75-b1bb-4811-8a79-df15d5375975");
-    constexpr uint32_t DATA_VALUE = 123;
-    constexpr uint64_t HEADER_VALUE = 456;
 
-    this->setUnderlyingData(this->producer, DATA_VALUE, HEADER_VALUE);
-    this->verifyContent(this->producer, DATA_VALUE, HEADER_VALUE);
+    EXPECT_THAT(this->variation.sutProducer.get(), Eq(this->variation.chunkMock.sample()));
+
+    EXPECT_THAT(this->variation.sutConsumer.get(), Eq(this->variation.chunkMock.sample()));
 }
 
-TYPED_TEST(SmartChunkTest, ConsumerConstructedSmartChunkIsValid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "eb4f0177-a18a-4d7c-895c-cb7c7a25be86");
-    constexpr uint32_t DATA_VALUE = 789;
-    constexpr uint64_t HEADER_VALUE = 1337;
-
-    this->setUnderlyingData(this->consumer, DATA_VALUE, HEADER_VALUE);
-    this->verifyContent(this->consumer, DATA_VALUE, HEADER_VALUE);
-}
-
-TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveConstruction)
+TYPED_TEST(SmartChunkTest, SmartChunkIsInvalidatedAfterMoveConstruction)
 {
     ::testing::Test::RecordProperty("TEST_ID", "90c8db15-6cf2-4dfc-a9ca-cb1333081fe3");
-    constexpr uint32_t DATA_VALUE = 12301;
-    constexpr uint64_t HEADER_VALUE = 9817238;
 
-    this->setUnderlyingData(this->producer, DATA_VALUE, HEADER_VALUE);
+    typename TestFixture::SutProducerType producer(std::move(this->variation.sutProducer));
+    EXPECT_THAT(this->variation.sutProducer.get(), Eq(nullptr));
+    EXPECT_THAT(producer.get(), Eq(this->variation.chunkMock.sample()));
 
-    typename TestFixture::ProducerHelper destination(std::move(this->producer.sut));
-
-    this->verifyEmpty(this->producer);
-    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
+    typename TestFixture::SutConsumerType consumer(std::move(this->variation.sutConsumer));
+    EXPECT_THAT(this->variation.sutConsumer.get(), Eq(nullptr));
+    EXPECT_THAT(consumer.get(), Eq(this->variation.chunkMock.sample()));
 }
 
-TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveConstruction)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d0e940ee-a3c6-4cf9-b072-4fed07a1030e");
-    constexpr uint32_t DATA_VALUE = 88121;
-    constexpr uint64_t HEADER_VALUE = 55123;
-
-    this->setUnderlyingData(this->consumer, DATA_VALUE, HEADER_VALUE);
-
-    typename TestFixture::ConsumerHelper destination(std::move(this->consumer.sut));
-
-    this->verifyEmpty(this->consumer);
-    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
-}
-
-TYPED_TEST(SmartChunkTest, ProducerSmartChunkIsInvalidatedAfterMoveAssignment)
+TYPED_TEST(SmartChunkTest, SmartChunkIsInvalidatedAfterMoveAssignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f14523c6-c7ad-44b9-9a42-b1be652b28d0");
-    constexpr uint32_t DATA_VALUE = 8812165;
-    constexpr uint64_t HEADER_VALUE = 55123123;
 
-    this->setUnderlyingData(this->producer, DATA_VALUE, HEADER_VALUE);
+    this->variation.sutProducerForMove = std::move(this->variation.sutProducer);
+    EXPECT_FALSE(this->variation.sutProducer);
+    EXPECT_TRUE(this->variation.sutProducerForMove);
+    EXPECT_THAT(this->variation.sutProducer.get(), Eq(nullptr));
+    EXPECT_THAT(this->variation.sutProducerForMove.get(), Eq(this->variation.chunkMock.sample()));
 
-    typename TestFixture::ProducerHelper destination(this->mockInterface);
-
-    destination.sut = std::move(this->producer.sut);
-
-    this->verifyEmpty(this->producer);
-    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
+    this->variation.sutConsumerForMove = std::move(this->variation.sutConsumer);
+    EXPECT_FALSE(this->variation.sutConsumer);
+    EXPECT_TRUE(this->variation.sutConsumerForMove);
+    EXPECT_THAT(this->variation.sutConsumer.get(), Eq(nullptr));
+    EXPECT_THAT(this->variation.sutConsumerForMove.get(), Eq(this->variation.chunkMock.sample()));
 }
 
-TYPED_TEST(SmartChunkTest, ConsumerSmartChunkIsInvalidatedAfterMoveAssignment)
+TYPED_TEST(SmartChunkTest, GetChunkHeaderWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "e43ad471-1d36-4372-827e-a2be06f2865d");
-    constexpr uint32_t DATA_VALUE = 8165;
-    constexpr uint64_t HEADER_VALUE = 1123;
+    ::testing::Test::RecordProperty("TEST_ID", "3364ddcd-5d38-4eec-9a26-335b1ce1a4b0");
 
-    this->setUnderlyingData(this->consumer, DATA_VALUE, HEADER_VALUE);
+    EXPECT_THAT(this->variation.sutProducer.getChunkHeader(), Eq(this->variation.chunkMock.chunkHeader()));
+    const auto& constSutProducer = this->variation.sutProducer;
+    EXPECT_THAT(constSutProducer.getChunkHeader(), Eq(this->variation.chunkMock.chunkHeader()));
 
-    typename TestFixture::ConsumerHelper destination;
-
-    destination.sut = std::move(this->consumer.sut);
-
-    this->verifyEmpty(this->consumer);
-    this->verifyContent(destination, DATA_VALUE, HEADER_VALUE);
+    EXPECT_THAT(this->variation.sutConsumer.getChunkHeader(), Eq(this->variation.chunkMock.chunkHeader()));
+    const auto& constSutConsumer = this->variation.sutConsumer;
+    EXPECT_THAT(constSutConsumer.getChunkHeader(), Eq(this->variation.chunkMock.chunkHeader()));
 }
 
-TYPED_TEST(SmartChunkTest, SendingSmartChunkSucceeds)
+TYPED_TEST(SmartChunkTest, PayloadAccessWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "567fb9c7-3dd0-44db-a6a9-a897ad6041af");
-    EXPECT_CALL(this->mockInterface, publishMock).Times(1);
+    ::testing::Test::RecordProperty("TEST_ID", "d2ac7e40-6240-4f24-a3fc-be9c5ce51c8f");
 
-    this->send(this->producer.sut);
-    this->verifyEmpty(this->producer);
+    EXPECT_THAT(this->variation.sutProducer.get(), Eq(this->variation.chunkMock.sample()));
+    const auto& constSutProducer = this->variation.sutProducer;
+    EXPECT_THAT(constSutProducer.get(), Eq(this->variation.chunkMock.sample()));
+
+    EXPECT_THAT(this->variation.sutConsumer.get(), Eq(this->variation.chunkMock.sample()));
+    const auto& constSutConsumer = this->variation.sutConsumer;
+    EXPECT_THAT(constSutConsumer.get(), Eq(this->variation.chunkMock.sample()));
 }
 
-TYPED_TEST(SmartChunkTest, SendingSmartChunkMultipleTimesFails)
+TYPED_TEST(SmartChunkTest, MemberAccessWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "a6d15e83-eab8-4592-bc02-15d612f0d892");
-    EXPECT_CALL(this->mockInterface, publishMock).Times(1);
+    ::testing::Test::RecordProperty("TEST_ID", "23fb13cd-1d3d-4e11-901f-68cf6a9d83d1");
 
-    this->send(this->producer.sut);
+    EXPECT_THAT(this->variation.sutProducer->val, Eq(EXPECTED_DATA_VALUE));
+    const auto& constSutProducer = this->variation.sutProducer;
+    EXPECT_THAT(constSutProducer->val, Eq(EXPECTED_DATA_VALUE));
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-    this->send(this->producer.sut);
-
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__PUBLISHING_EMPTY_SAMPLE));
+    EXPECT_THAT(this->variation.sutConsumer->val, Eq(EXPECTED_DATA_VALUE));
+    const auto& constSutConsumer = this->variation.sutConsumer;
+    EXPECT_THAT(constSutConsumer->val, Eq(EXPECTED_DATA_VALUE));
 }
 
-TYPED_TEST(SmartChunkTest, SendingMovedSmartChunkFails)
+TYPED_TEST(SmartChunkTest, DereferencingWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "95e406c1-641d-4456-8b7c-99d384369d9f");
-    typename TestFixture::ProducerHelper destination(this->mockInterface);
+    ::testing::Test::RecordProperty("TEST_ID", "5d43a5fe-3d42-4810-8730-e88c37c51f50");
 
-    destination.sut = std::move(this->producer.sut);
+    EXPECT_THAT((*this->variation.sutProducer).val, Eq(EXPECTED_DATA_VALUE));
+    const auto& constSutProducer = this->variation.sutProducer;
+    EXPECT_THAT((*constSutProducer).val, Eq(EXPECTED_DATA_VALUE));
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>&, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-    this->send(this->producer.sut);
-
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__PUBLISHING_EMPTY_SAMPLE));
+    EXPECT_THAT((*this->variation.sutConsumer).val, Eq(EXPECTED_DATA_VALUE));
+    const auto& constSutConsumer = this->variation.sutConsumer;
+    EXPECT_THAT((*constSutConsumer).val, Eq(EXPECTED_DATA_VALUE));
 }
 
-TYPED_TEST(SmartChunkTest, SendingDestinationOfValidMoveOriginSucceeds)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8016794f-c25e-4e84-8cef-3901a767d236");
-    typename TestFixture::ProducerHelper destination(this->mockInterface);
-
-    destination.sut = std::move(this->producer.sut);
-
-    EXPECT_CALL(this->mockInterface, publishMock).Times(1);
-    this->send(destination.sut);
-}
 } // namespace
