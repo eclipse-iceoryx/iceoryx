@@ -78,7 +78,7 @@ class ListenerWaitsetAttachments_test : public Test
 
 TEST_F(ListenerWaitsetAttachments_test, SubscriberAttachesToListener)
 {
-  ::testing::Test::RecordProperty("TEST_ID","f1d163e0-4479-47b4-b4e8-01b0ee6a71b0");
+    ::testing::Test::RecordProperty("TEST_ID", "f1d163e0-4479-47b4-b4e8-01b0ee6a71b0");
     SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
                                       RUNTIME_NAME,
                                       VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
@@ -102,7 +102,7 @@ TEST_F(ListenerWaitsetAttachments_test, SubscriberAttachesToListener)
 
 TEST_F(ListenerWaitsetAttachments_test, UntypedSubscriberAttachesToListener)
 {
-  ::testing::Test::RecordProperty("TEST_ID","a78a7016-46b6-4223-b7b1-e30344bb208f");
+    ::testing::Test::RecordProperty("TEST_ID", "a78a7016-46b6-4223-b7b1-e30344bb208f");
     SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
                                       RUNTIME_NAME,
                                       VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
@@ -126,7 +126,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedSubscriberAttachesToListener)
 
 TEST_F(ListenerWaitsetAttachments_test, ClientAttachesToListener)
 {
-  ::testing::Test::RecordProperty("TEST_ID","e21d98b9-9d24-4c85-90b9-0e7acd24a242");
+    ::testing::Test::RecordProperty("TEST_ID", "e21d98b9-9d24-4c85-90b9-0e7acd24a242");
     ClientPortData clientData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ClientOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientData));
 
@@ -147,7 +147,7 @@ TEST_F(ListenerWaitsetAttachments_test, ClientAttachesToListener)
 
 TEST_F(ListenerWaitsetAttachments_test, UntypedClientAttachesToListener)
 {
-  ::testing::Test::RecordProperty("TEST_ID","07934dd2-93aa-4aab-a216-eb86e842088b");
+    ::testing::Test::RecordProperty("TEST_ID", "07934dd2-93aa-4aab-a216-eb86e842088b");
     ClientPortData clientData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ClientOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientData));
 
@@ -168,7 +168,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedClientAttachesToListener)
 
 TEST_F(ListenerWaitsetAttachments_test, ServerAttachesToListener)
 {
-  ::testing::Test::RecordProperty("TEST_ID","306d7ef9-1fb1-4ce8-8b58-e5a7cb5fff69");
+    ::testing::Test::RecordProperty("TEST_ID", "306d7ef9-1fb1-4ce8-8b58-e5a7cb5fff69");
     ServerPortData serverData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ServerOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverData));
 
@@ -189,7 +189,7 @@ TEST_F(ListenerWaitsetAttachments_test, ServerAttachesToListener)
 
 TEST_F(ListenerWaitsetAttachments_test, UntypedServerAttachesToListener)
 {
-  ::testing::Test::RecordProperty("TEST_ID","3d074e8f-eab6-475d-a884-de8b4d2596ea");
+    ::testing::Test::RecordProperty("TEST_ID", "3d074e8f-eab6-475d-a884-de8b4d2596ea");
     ServerPortData serverData({SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, ServerOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverData));
 
