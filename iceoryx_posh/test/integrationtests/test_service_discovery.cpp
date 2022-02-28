@@ -138,22 +138,9 @@ class ServiceDiscovery_test : public ServiceDiscoveryPubSub_test
 using CommunicationKind = Types<Publisher, Server>;
 TYPED_TEST_SUITE(ServiceDiscovery_test, CommunicationKind);
 
-TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsOfferedService)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "30f0e255-3584-4ab2-b7a6-85c16026852d");
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
+// tests with multiple offer stages, we should not vary the search kind here (exact search suffices)
 
-    typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
-
-    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                      SERVICE_DESCRIPTION.getInstanceIDString(),
-                      SERVICE_DESCRIPTION.getEventIDString());
-
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-}
-
-TYPED_TEST(ServiceDiscovery_test, ReofferedServiceWithServiceDescriptionCanBeFound)
+TYPED_TEST(ServiceDiscovery_test, ReofferedServiceCanBeFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b67b4990-e2fd-4efa-ab5d-e53c4ee55972");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
@@ -184,7 +171,7 @@ TYPED_TEST(ServiceDiscovery_test, ReofferedServiceWithServiceDescriptionCanBeFou
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
 }
 
-TYPED_TEST(ServiceDiscovery_test, OfferExistingServiceMultipleTimesIsRedundant)
+TYPED_TEST(ServiceDiscovery_test, ServiceOfferedMultipleTimesCanBeFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ae0790ed-4e1b-4f12-94b3-c9e56433c935");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
@@ -200,239 +187,8 @@ TYPED_TEST(ServiceDiscovery_test, OfferExistingServiceMultipleTimesIsRedundant)
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
 }
 
-TYPED_TEST(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "21948bcf-fe7e-44b4-b93b-f46303e3e050");
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
-    typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
 
-    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                      SERVICE_DESCRIPTION.getInstanceIDString(),
-                      SERVICE_DESCRIPTION.getEventIDString());
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-
-    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
-                      SERVICE_DESCRIPTION.getInstanceIDString(),
-                      SERVICE_DESCRIPTION.getEventIDString());
-
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
-}
-
-TYPED_TEST(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "25bf794d-450e-47ce-a920-ab2ea479af39");
-
-    const IdString_t INSTANCE = "instance";
-    const IdString_t EVENT = "event";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-
-    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION1));
-
-    this->findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
-
-    this->findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION3));
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1984e907-e990-48b2-8cbd-eab3f67cd162");
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", "instance1", "event1");
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "instance2", "event2");
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-
-    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                      SERVICE_DESCRIPTION1.getInstanceIDString(),
-                      SERVICE_DESCRIPTION2.getEventIDString());
-    ASSERT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                      SERVICE_DESCRIPTION2.getInstanceIDString(),
-                      SERVICE_DESCRIPTION1.getEventIDString());
-
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
-                      SERVICE_DESCRIPTION2.getInstanceIDString(),
-                      SERVICE_DESCRIPTION2.getEventIDString());
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceAndEventWildcardReturnsAllMatchingServices)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6e0b1a12-6995-45f4-8fd8-59acbca9bfa8");
-
-    const IdString_t SERVICE = "service";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", "event1");
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2(SERVICE, "instance2", "event2");
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", "event3");
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-
-    ServiceContainer serviceContainerExp;
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION2);
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
-
-    this->findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
-    ASSERT_THAT(serviceContainer.size(), Eq(3U));
-    EXPECT_TRUE(serviceContainer == serviceContainerExp);
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsCorrectServices)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f4731a52-39d8-4d49-b247-008a2e9181f9");
-    const IdString_t INSTANCE = "instance";
-    const IdString_t EVENT = "event";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "another_instance", EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4("service4", INSTANCE, "another_event");
-    typename TestFixture::CommunicationKind::Producer producer_sd4(SERVICE_DESCRIPTION4);
-
-    ServiceContainer serviceContainerExp;
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
-
-    this->findService(iox::capro::Wildcard, INSTANCE, EVENT);
-    ASSERT_THAT(serviceContainer.size(), Eq(2U));
-    EXPECT_TRUE(serviceContainer == serviceContainerExp);
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e78b35f4-b3c3-4c39-b10a-67712c72e28a");
-    const IdString_t SERVICE = "service";
-    const IdString_t INSTANCE = "instance";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, INSTANCE, "event1");
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("another_service", INSTANCE, "event2");
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, INSTANCE, "event3");
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4(SERVICE, "another_instance", "event4");
-    typename TestFixture::CommunicationKind::Producer producer_sd4(SERVICE_DESCRIPTION4);
-
-    ServiceContainer serviceContainerExp;
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
-
-    this->findService(SERVICE, INSTANCE, iox::capro::Wildcard);
-    ASSERT_THAT(serviceContainer.size(), Eq(2U));
-    EXPECT_TRUE(serviceContainer == serviceContainerExp);
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsCorrectServices)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2ec4b422-3ded-4af3-9e72-3b870c55031c");
-    const IdString_t SERVICE = "service";
-    const IdString_t EVENT = "event";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("another_service", "instance2", EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4(SERVICE, "instance4", "another_event");
-    typename TestFixture::CommunicationKind::Producer producer_sd4(SERVICE_DESCRIPTION4);
-
-    ServiceContainer serviceContainerExp;
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
-    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
-
-    this->findService(SERVICE, iox::capro::Wildcard, EVENT);
-    ASSERT_THAT(serviceContainer.size(), Eq(2U));
-    EXPECT_TRUE(serviceContainer == serviceContainerExp);
-}
-
-TYPED_TEST(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "538bec69-ea02-400e-8643-c833d6e84972");
-
-    const IdString_t SERVICE = "service";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", "event1");
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2(SERVICE, "instance2", "event2");
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", "event3");
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-
-    this->findService(SERVICE, SERVICE_DESCRIPTION1.getInstanceIDString(), SERVICE_DESCRIPTION1.getEventIDString());
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION1));
-
-    this->findService(SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString(), SERVICE_DESCRIPTION2.getEventIDString());
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
-
-    this->findService(SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString(), SERVICE_DESCRIPTION3.getEventIDString());
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION3));
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinations)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "360839a7-9309-4e7e-8e89-892097a87f7a");
-
-    const IdString_t SERVICE1 = "service1";
-    const IdString_t INSTANCE1 = "instance1";
-    const IdString_t INSTANCE2 = "instance2";
-    const IdString_t EVENT1 = "event1";
-    const IdString_t EVENT2 = "event2";
-    const IdString_t EVENT3 = "event3";
-
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1_1(SERVICE1, INSTANCE1, EVENT1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1_2(SERVICE1, INSTANCE1, EVENT2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_1(SERVICE1, INSTANCE2, EVENT1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_2(SERVICE1, INSTANCE2, EVENT2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_3(SERVICE1, INSTANCE2, EVENT3);
-
-    typename TestFixture::CommunicationKind::Producer producer_sd_1_1_1(SERVICE_DESCRIPTION_1_1_1);
-    typename TestFixture::CommunicationKind::Producer producer_sd_1_1_2(SERVICE_DESCRIPTION_1_1_2);
-    typename TestFixture::CommunicationKind::Producer producer_sd_1_2_1(SERVICE_DESCRIPTION_1_2_1);
-    typename TestFixture::CommunicationKind::Producer producer_sd_1_2_2(SERVICE_DESCRIPTION_1_2_2);
-    typename TestFixture::CommunicationKind::Producer producer_sd_1_2_3(SERVICE_DESCRIPTION_1_2_3);
-
-    this->findService(SERVICE1, INSTANCE1, EVENT1);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_1_1));
-
-    this->findService(SERVICE1, INSTANCE1, EVENT2);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_1_2));
-
-    this->findService(SERVICE1, INSTANCE2, EVENT1);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_1));
-
-    this->findService(SERVICE1, INSTANCE2, EVENT2);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_2));
-
-    this->findService(SERVICE1, INSTANCE2, EVENT3);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_3));
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
+TYPED_TEST(ServiceDiscovery_test, ServicesWhichStoppedOfferingCannotBeFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e4f99eb1-7496-4a1e-bbd1-ebdb07e1ec9b");
 
@@ -460,118 +216,9 @@ TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnNotOfferedServices)
     EXPECT_THAT(serviceContainer.size(), Eq(0U));
 }
 
-TYPED_TEST(ServiceDiscovery_test, NonExistingServicesAreNotFound)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "86b87264-4df4-4d20-9357-06391ca1d57f");
-    const IdString_t SERVICE = "service";
-    const IdString_t NONEXISTENT_SERVICE = "ignatz";
-    const IdString_t INSTANCE = "instance";
-    const IdString_t NONEXISTENT_INSTANCE = "schlomo";
-    const IdString_t EVENT = "event";
-    const IdString_t NONEXISTENT_EVENT = "hypnotoad";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION(SERVICE, INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd(SERVICE_DESCRIPTION);
-
-    this->findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(NONEXISTENT_SERVICE, INSTANCE, NONEXISTENT_EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(NONEXISTENT_SERVICE, INSTANCE, EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(SERVICE, INSTANCE, NONEXISTENT_EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-}
-
-TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxProducerServices)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "68628cc2-df6d-46e4-8586-7563f43bf10c");
-    const IdString_t SERVICE = "s";
-
-
-    // if the result size is limited to be lower than the number of producers in the registry,
-    // there is no way to retrieve them all
-    constexpr auto NUM_PRODUCERS =
-        std::min(TestFixture::CommunicationKind::MAX_USER_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
-    iox::cxx::vector<typename TestFixture::CommunicationKind::Producer, NUM_PRODUCERS> producers;
-
-    // we want to check whether we find all the services, including internal ones like introspection,
-    // so we first search for them without creating other services to obtain the internal ones
-
-    ServiceContainer serviceContainerExp;
-    auto findInternalServices = [&](const ServiceDescription& s) { serviceContainerExp.emplace_back(s); };
-    this->sut.findService(iox::capro::Wildcard,
-                          iox::capro::Wildcard,
-                          iox::capro::Wildcard,
-                          findInternalServices,
-                          TestFixture::CommunicationKind::KIND);
-
-    for (size_t i = 0; i < NUM_PRODUCERS; i++)
-    {
-        std::string instance = "i" + iox::cxx::convert::toString(i);
-        iox::capro::ServiceDescription SERVICE_DESCRIPTION(
-            SERVICE, IdString_t(iox::cxx::TruncateToCapacity, instance), "foo");
-        producers.emplace_back(SERVICE_DESCRIPTION);
-        serviceContainerExp.push_back(SERVICE_DESCRIPTION);
-    }
-
-    // now we should find the maximum number of services we can search for,
-    // i.e. internal services and those we just created (iox::MAX_PUBLISHERS combined)
-    this->findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
-
-    constexpr auto EXPECTED_NUM_PRODUCERS =
-        std::min(TestFixture::CommunicationKind::MAX_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
-    EXPECT_EQ(serviceContainer.size(), EXPECTED_NUM_PRODUCERS);
-    EXPECT_TRUE(serviceContainer == serviceContainerExp);
-}
-
-
 ///
 /// Publisher-Subscriber && Request-Response
 ///
-
-TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSameServiceDescriptionAreBothFound)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1ea59629-2fc7-4ef4-9acb-9892a9ec640c");
-
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Curry", "Chicken tikka", "Ginger");
-
-    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
-    iox::popo::UntypedServer server(SERVICE_DESCRIPTION);
-
-    ServiceContainer serviceContainerPubSub;
-    sut.findService(
-        SERVICE_DESCRIPTION.getServiceIDString(),
-        SERVICE_DESCRIPTION.getInstanceIDString(),
-        SERVICE_DESCRIPTION.getEventIDString(),
-        [&](const ServiceDescription& s) { serviceContainerPubSub.emplace_back(s); },
-        MessagingPattern::PUB_SUB);
-
-    ServiceContainer serviceContainerReqRes;
-    sut.findService(
-        SERVICE_DESCRIPTION.getServiceIDString(),
-        SERVICE_DESCRIPTION.getInstanceIDString(),
-        SERVICE_DESCRIPTION.getEventIDString(),
-        [&](const ServiceDescription& s) { serviceContainerReqRes.emplace_back(s); },
-        MessagingPattern::REQ_RES);
-
-    ASSERT_THAT(serviceContainerPubSub.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainerPubSub.begin(), Eq(SERVICE_DESCRIPTION));
-
-    ASSERT_THAT(serviceContainerReqRes.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainerReqRes.begin(), Eq(SERVICE_DESCRIPTION));
-}
 
 ///
 /// Publisher-Subscriber
@@ -851,9 +498,9 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
         }
     }
 
-    void add(const ServiceDescription& s)
+    void add(const ServiceDescription& s, MessagingPattern pattern)
     {
-        if (Variation::PATTERN == MessagingPattern::PUB_SUB)
+        if (pattern == MessagingPattern::PUB_SUB)
         {
             addPublisher(s);
         }
@@ -861,6 +508,16 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
         {
             addServer(s);
         }
+    }
+
+    void add(const ServiceDescription& s)
+    {
+        add(s, Variation::PATTERN);
+    }
+
+    void addOther(const ServiceDescription& s)
+    {
+        add(s, otherPattern());
     }
 
     void testFindService(const optional<IdString_t>& service,
@@ -893,7 +550,35 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
     {
         testFindService(s.getServiceIDString(), s.getInstanceIDString(), s.getEventIDString());
     }
-};
+
+    // assumes we have only two pattern which holds for now
+    static constexpr MessagingPattern otherPattern()
+    {
+        if (Variation::PATTERN == MessagingPattern::PUB_SUB)
+        {
+            return MessagingPattern::REQ_RES;
+        }
+        else
+        {
+            return MessagingPattern::PUB_SUB;
+        }
+    }
+
+    static constexpr uint32_t maxProducers(MessagingPattern pattern)
+    {
+        if (pattern == MessagingPattern::PUB_SUB)
+        {
+            return iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS;
+        }
+        else
+        {
+            return iox::MAX_SERVERS;
+        }
+    }
+}; // for (; created < OTHER_MAX; ++created)
+   // {
+   //     this->addOther(randomService("Ferdinand", "Spitz"));
+   // }
 
 template <typename T>
 T uniform(T n)
@@ -1039,7 +724,7 @@ struct Variation : public S, public T
 };
 
 
-// we could also have the variation pf search directly in testFindService method,
+// We could also have the variation of search directly in (a) testFindService method,
 // but this would add test interference and make it impossible to compare
 // subsequent test results with each other
 
@@ -1091,10 +776,12 @@ TYPED_TEST_SUITE(ReferenceServiceDiscovery_test, TestVariations);
 // There is some overlap/redundancy in the tests due to the generative scheme
 // (the price for elegance and structure).
 
+// TODO: test ids
+
 #if 1
 TYPED_TEST(ReferenceServiceDiscovery_test, FindIfNothingOffered)
 {
-    this->testFindService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+    this->testFindService({"a"}, {"b"}, {"c"});
 }
 
 TYPED_TEST(ReferenceServiceDiscovery_test, FindIfSingleServiceOffered)
@@ -1155,9 +842,10 @@ TYPED_TEST(ReferenceServiceDiscovery_test, FindNonExistingService)
 }
 #endif
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumServices)
+// only one kind (MessagingPattern) of service
+TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumProducers)
 {
-    auto constexpr MAX = TestFixture::Variation::MAX_PRODUCERS;
+    auto constexpr MAX = TestFixture::maxProducers(TestFixture::Variation::PATTERN);
     auto constexpr N1 = MAX / 3;
     auto constexpr N2 = 2 * N1;
 
@@ -1173,6 +861,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumServices)
 
     // presented by Umlaut (and hence unique)
     ServiceDescription s2{"Ferdinand", "Spitz", "Schnüffler"};
+    this->add(s2);
     ++created;
 
     // partially random
@@ -1192,12 +881,463 @@ TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumServices)
 
     EXPECT_EQ(created, MAX);
 
+
+    // find first offered, last offered and some inbetween
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
 };
 
-// TODO: mixed setup
+// mixed tests
+
+TYPED_TEST(ReferenceServiceDiscovery_test, SameServerAndPublisherCanBeFound)
+{
+    this->add({"Ferdinand", "Schnüffel", "Spitz"});
+    this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
+
+    this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
+}
+
+TYPED_TEST(ReferenceServiceDiscovery_test, OtherServiceKindWithMatchingNameIsNotFound)
+{
+    this->add({"Schnüffel", "Ferdinand", "Spitz"});
+    this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
+
+    this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
+}
+
+// both kinds (MessagingPattern) of service
+TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumServices)
+{
+    auto constexpr MAX = TestFixture::maxProducers(TestFixture::Variation::PATTERN);
+    auto constexpr N1 = MAX / 3;
+    auto constexpr N2 = 2 * N1;
+
+    // completely random
+    auto s1 = randomService();
+    this->add(s1);
+
+    uint32_t created = 1;
+
+    for (; created < N1; ++created)
+    {
+        this->add(randomService());
+    }
+
+    // presented by Umlaut (and hence unique)
+    ServiceDescription s2{"Ferdinand", "Spitz", "Schnüffler"};
+    this->add(s2);
+    ++created;
+
+    // partially random
+    for (; created < N2; ++created)
+    {
+        this->add(randomService("Ferdinand"));
+    }
+
+    for (; created < MAX - 1; ++created)
+    {
+        this->add(randomService("Ferdinand", "Spitz"));
+    }
+
+    auto s3 = randomService("Ferdinand", "Spitz");
+    this->add(s3);
+    ++created;
+
+    EXPECT_EQ(created, MAX);
+
+    // create some services of the other kind
+    created = 0;
+
+    auto constexpr OTHER_MAX = TestFixture::maxProducers(TestFixture::otherPattern());
+
+    // thresholds N1, N2 are chosen in a way that we can reuse them
+    for (; created < N1; ++created)
+    {
+        this->addOther(randomService());
+    }
+
+    for (; created < N2; ++created)
+    {
+        this->addOther(randomService("Spitz"));
+    }
+
+    for (; created < OTHER_MAX; ++created)
+    {
+        this->addOther(randomService("Ferdinand", "Spitz"));
+    }
+
+    EXPECT_EQ(created, OTHER_MAX);
+
+    // now we have the maximum of services of both kinds
+    // with semi-random services
+
+    this->testFindService(s1);
+    this->testFindService(s2);
+    this->testFindService(s3);
+};
 
 
 } // namespace
+
+
+#if 0
+
+// redundant
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsOfferedService)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "30f0e255-3584-4ab2-b7a6-85c16026852d");
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
+
+    typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
+
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindSameServiceMultipleTimesReturnsSingleInstance)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "21948bcf-fe7e-44b4-b93b-f46303e3e050");
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
+    typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
+
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
+
+    this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
+}
+
+TYPED_TEST(ServiceDiscovery_test, OfferDifferentServicesWithSameInstanceAndEvent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "25bf794d-450e-47ce-a920-ab2ea479af39");
+
+    const IdString_t INSTANCE = "instance";
+    const IdString_t EVENT = "event";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION1));
+
+    this->findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
+
+    this->findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION3));
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceDoesNotReturnServiceWhenStringsDoNotMatch)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1984e907-e990-48b2-8cbd-eab3f67cd162");
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", "instance1", "event1");
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "instance2", "event2");
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                      SERVICE_DESCRIPTION1.getInstanceIDString(),
+                      SERVICE_DESCRIPTION2.getEventIDString());
+    ASSERT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                      SERVICE_DESCRIPTION2.getInstanceIDString(),
+                      SERVICE_DESCRIPTION1.getEventIDString());
+
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(),
+                      SERVICE_DESCRIPTION2.getInstanceIDString(),
+                      SERVICE_DESCRIPTION2.getEventIDString());
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceAndEventWildcardReturnsAllMatchingServices)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6e0b1a12-6995-45f4-8fd8-59acbca9bfa8");
+
+    const IdString_t SERVICE = "service";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", "event1");
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2(SERVICE, "instance2", "event2");
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", "event3");
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+
+    ServiceContainer serviceContainerExp;
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION2);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
+
+    this->findService(SERVICE, iox::capro::Wildcard, iox::capro::Wildcard);
+    ASSERT_THAT(serviceContainer.size(), Eq(3U));
+    EXPECT_TRUE(serviceContainer == serviceContainerExp);
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceWithServiceWildcardReturnsCorrectServices)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f4731a52-39d8-4d49-b247-008a2e9181f9");
+    const IdString_t INSTANCE = "instance";
+    const IdString_t EVENT = "event";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", "another_instance", EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4("service4", INSTANCE, "another_event");
+    typename TestFixture::CommunicationKind::Producer producer_sd4(SERVICE_DESCRIPTION4);
+
+    ServiceContainer serviceContainerExp;
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
+
+    this->findService(iox::capro::Wildcard, INSTANCE, EVENT);
+    ASSERT_THAT(serviceContainer.size(), Eq(2U));
+    EXPECT_TRUE(serviceContainer == serviceContainerExp);
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceWithEventWildcardReturnsCorrectServices)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e78b35f4-b3c3-4c39-b10a-67712c72e28a");
+    const IdString_t SERVICE = "service";
+    const IdString_t INSTANCE = "instance";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, INSTANCE, "event1");
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("another_service", INSTANCE, "event2");
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, INSTANCE, "event3");
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4(SERVICE, "another_instance", "event4");
+    typename TestFixture::CommunicationKind::Producer producer_sd4(SERVICE_DESCRIPTION4);
+
+    ServiceContainer serviceContainerExp;
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
+
+    this->findService(SERVICE, INSTANCE, iox::capro::Wildcard);
+    ASSERT_THAT(serviceContainer.size(), Eq(2U));
+    EXPECT_TRUE(serviceContainer == serviceContainerExp);
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceWithInstanceWildcardReturnsCorrectServices)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2ec4b422-3ded-4af3-9e72-3b870c55031c");
+    const IdString_t SERVICE = "service";
+    const IdString_t EVENT = "event";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("another_service", "instance2", EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION4(SERVICE, "instance4", "another_event");
+    typename TestFixture::CommunicationKind::Producer producer_sd4(SERVICE_DESCRIPTION4);
+
+    ServiceContainer serviceContainerExp;
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION1);
+    serviceContainerExp.push_back(SERVICE_DESCRIPTION3);
+
+    this->findService(SERVICE, iox::capro::Wildcard, EVENT);
+    ASSERT_THAT(serviceContainer.size(), Eq(2U));
+    EXPECT_TRUE(serviceContainer == serviceContainerExp);
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsCorrectServiceInstanceCombinations)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "360839a7-9309-4e7e-8e89-892097a87f7a");
+
+    const IdString_t SERVICE1 = "service1";
+    const IdString_t INSTANCE1 = "instance1";
+    const IdString_t INSTANCE2 = "instance2";
+    const IdString_t EVENT1 = "event1";
+    const IdString_t EVENT2 = "event2";
+    const IdString_t EVENT3 = "event3";
+
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1_1(SERVICE1, INSTANCE1, EVENT1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_1_2(SERVICE1, INSTANCE1, EVENT2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_1(SERVICE1, INSTANCE2, EVENT1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_2(SERVICE1, INSTANCE2, EVENT2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION_1_2_3(SERVICE1, INSTANCE2, EVENT3);
+
+    typename TestFixture::CommunicationKind::Producer producer_sd_1_1_1(SERVICE_DESCRIPTION_1_1_1);
+    typename TestFixture::CommunicationKind::Producer producer_sd_1_1_2(SERVICE_DESCRIPTION_1_1_2);
+    typename TestFixture::CommunicationKind::Producer producer_sd_1_2_1(SERVICE_DESCRIPTION_1_2_1);
+    typename TestFixture::CommunicationKind::Producer producer_sd_1_2_2(SERVICE_DESCRIPTION_1_2_2);
+    typename TestFixture::CommunicationKind::Producer producer_sd_1_2_3(SERVICE_DESCRIPTION_1_2_3);
+
+    this->findService(SERVICE1, INSTANCE1, EVENT1);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_1_1));
+
+    this->findService(SERVICE1, INSTANCE1, EVENT2);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_1_2));
+
+    this->findService(SERVICE1, INSTANCE2, EVENT1);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_1));
+
+    this->findService(SERVICE1, INSTANCE2, EVENT2);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_2));
+
+    this->findService(SERVICE1, INSTANCE2, EVENT3);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION_1_2_3));
+}
+
+TYPED_TEST(ServiceDiscovery_test, NonExistingServicesAreNotFound)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "86b87264-4df4-4d20-9357-06391ca1d57f");
+    const IdString_t SERVICE = "service";
+    const IdString_t NONEXISTENT_SERVICE = "ignatz";
+    const IdString_t INSTANCE = "instance";
+    const IdString_t NONEXISTENT_INSTANCE = "schlomo";
+    const IdString_t EVENT = "event";
+    const IdString_t NONEXISTENT_EVENT = "hypnotoad";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION(SERVICE, INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd(SERVICE_DESCRIPTION);
+
+    this->findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(NONEXISTENT_SERVICE, NONEXISTENT_INSTANCE, EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(NONEXISTENT_SERVICE, INSTANCE, NONEXISTENT_EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(NONEXISTENT_SERVICE, INSTANCE, EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(SERVICE, NONEXISTENT_INSTANCE, NONEXISTENT_EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(SERVICE, INSTANCE, NONEXISTENT_EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+}
+
+TYPED_TEST(ServiceDiscovery_test, FindServiceReturnsMaxProducerServices)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "68628cc2-df6d-46e4-8586-7563f43bf10c");
+    const IdString_t SERVICE = "s";
+
+
+    // if the result size is limited to be lower than the number of producers in the registry,
+    // there is no way to retrieve them all
+    constexpr auto NUM_PRODUCERS =
+        std::min(TestFixture::CommunicationKind::MAX_USER_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    iox::cxx::vector<typename TestFixture::CommunicationKind::Producer, NUM_PRODUCERS> producers;
+
+    // we want to check whether we find all the services, including internal ones like introspection,
+    // so we first search for them without creating other services to obtain the internal ones
+
+    ServiceContainer serviceContainerExp;
+    auto findInternalServices = [&](const ServiceDescription& s) { serviceContainerExp.emplace_back(s); };
+    this->sut.findService(iox::capro::Wildcard,
+                          iox::capro::Wildcard,
+                          iox::capro::Wildcard,
+                          findInternalServices,
+                          TestFixture::CommunicationKind::KIND);
+
+    for (size_t i = 0; i < NUM_PRODUCERS; i++)
+    {
+        std::string instance = "i" + iox::cxx::convert::toString(i);
+        iox::capro::ServiceDescription SERVICE_DESCRIPTION(
+            SERVICE, IdString_t(iox::cxx::TruncateToCapacity, instance), "foo");
+        producers.emplace_back(SERVICE_DESCRIPTION);
+        serviceContainerExp.push_back(SERVICE_DESCRIPTION);
+    }
+
+    // now we should find the maximum number of services we can search for,
+    // i.e. internal services and those we just created (iox::MAX_PUBLISHERS combined)
+    this->findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
+
+    constexpr auto EXPECTED_NUM_PRODUCERS =
+        std::min(TestFixture::CommunicationKind::MAX_PRODUCERS, iox::MAX_FINDSERVICE_RESULT_SIZE);
+    EXPECT_EQ(serviceContainer.size(), EXPECTED_NUM_PRODUCERS);
+    EXPECT_TRUE(serviceContainer == serviceContainerExp);
+}
+
+TYPED_TEST(ServiceDiscovery_test, OfferSingleServiceMultiInstance)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "538bec69-ea02-400e-8643-c833d6e84972");
+
+    const IdString_t SERVICE = "service";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1(SERVICE, "instance1", "event1");
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2(SERVICE, "instance2", "event2");
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3(SERVICE, "instance3", "event3");
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+
+    this->findService(SERVICE, SERVICE_DESCRIPTION1.getInstanceIDString(), SERVICE_DESCRIPTION1.getEventIDString());
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION1));
+
+    this->findService(SERVICE, SERVICE_DESCRIPTION2.getInstanceIDString(), SERVICE_DESCRIPTION2.getEventIDString());
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
+
+    this->findService(SERVICE, SERVICE_DESCRIPTION3.getInstanceIDString(), SERVICE_DESCRIPTION3.getEventIDString());
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION3));
+}
+
+TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSameServiceDescriptionAreBothFound)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1ea59629-2fc7-4ef4-9acb-9892a9ec640c");
+
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Curry", "Chicken tikka", "Ginger");
+
+    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
+    iox::popo::UntypedServer server(SERVICE_DESCRIPTION);
+
+    ServiceContainer serviceContainerPubSub;
+    sut.findService(
+        SERVICE_DESCRIPTION.getServiceIDString(),
+        SERVICE_DESCRIPTION.getInstanceIDString(),
+        SERVICE_DESCRIPTION.getEventIDString(),
+        [&](const ServiceDescription& s) { serviceContainerPubSub.emplace_back(s); },
+        MessagingPattern::PUB_SUB);
+
+    ServiceContainer serviceContainerReqRes;
+    sut.findService(
+        SERVICE_DESCRIPTION.getServiceIDString(),
+        SERVICE_DESCRIPTION.getInstanceIDString(),
+        SERVICE_DESCRIPTION.getEventIDString(),
+        [&](const ServiceDescription& s) { serviceContainerReqRes.emplace_back(s); },
+        MessagingPattern::REQ_RES);
+
+    ASSERT_THAT(serviceContainerPubSub.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainerPubSub.begin(), Eq(SERVICE_DESCRIPTION));
+
+    ASSERT_THAT(serviceContainerReqRes.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainerReqRes.begin(), Eq(SERVICE_DESCRIPTION));
+}
+
+#endif
