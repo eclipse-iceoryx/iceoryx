@@ -18,12 +18,12 @@
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "building sources"
-cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP"
+if ($?) { Write-Host "building sources" }
+if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" }
 
 if ($?) { cmake --build build }
 
-Write-Host "running tests (excluding timing_tests)"
+if ($?) { Write-Host "running tests (excluding timing_tests)" }
 # until the windows support is fully implemented and we can use the windows cmake targets
 # we have to exclude the tests explicitly until everyone is running
 
