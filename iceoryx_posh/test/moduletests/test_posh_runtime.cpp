@@ -982,8 +982,6 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     iox::popo::UntypedClient client{serviceDescription, clientOptions};
     iox::popo::UntypedServer server{serviceDescription, serverOptions};
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
-
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
@@ -995,7 +993,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
-    std::thread blockingServer([&] {
+    std::thread blockingClient([&] {
         auto sendRequest = [&](bool expectError) {
             auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
             ASSERT_FALSE(clientLoanResult.has_error());
@@ -1029,7 +1027,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 
     m_runtime->shutdown();
 
-    blockingServer.join(); // ensure the wasRequestSent store happens before the read
+    blockingClient.join(); // ensure the wasRequestSent store happens before the read
     EXPECT_THAT(wasRequestSent.load(), Eq(true));
 }
 
@@ -1051,8 +1049,6 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 
     iox::popo::UntypedClient client{serviceDescription, clientOptions};
     iox::popo::UntypedServer server{serviceDescription, serverOptions};
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
