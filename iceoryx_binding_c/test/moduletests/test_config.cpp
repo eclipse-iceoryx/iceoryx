@@ -39,8 +39,7 @@ TEST(iox_cfg, valuesAreCorrectlyConnected)
               iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY);
     EXPECT_EQ(iox_cfg_max_subscriber_queue_capacity(), iox::MAX_SUBSCRIBER_QUEUE_CAPACITY);
     EXPECT_EQ(iox_cfg_max_number_of_condition_variables(), iox::MAX_NUMBER_OF_CONDITION_VARIABLES);
-    EXPECT_EQ(iox_cfg_max_number_of_notifiers_per_condition_variable(),
-              iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE);
+    EXPECT_EQ(iox_cfg_max_number_of_notifiers_per_condition_variable(), iox::MAX_NUMBER_OF_NOTIFIERS);
     EXPECT_EQ(iox_cfg_max_number_of_attachments_per_waitset(), iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
     EXPECT_EQ(iox_cfg_max_number_of_events_per_listener(), iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     EXPECT_EQ(iox_cfg_max_number_of_mempools(), iox::MAX_NUMBER_OF_MEMPOOLS);

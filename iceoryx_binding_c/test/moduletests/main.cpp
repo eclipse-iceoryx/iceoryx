@@ -29,7 +29,20 @@ using ::testing::_;
 // 'checkIceoryxBindingCStorageSizes' directly in main
 TEST(SanityCheck, CheckStorageSizeAndAlingment)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "879abe49-6cfb-43f8-a9a1-b6c20b99293f");
     checkIceoryxBindingCStorageSizes();
+}
+
+TEST(SanityCheck, VerifyStorageSizeCalculationForListener)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1ba98886-c5dc-4d08-ab95-d1155c24afa6");
+    verifyStorageSizeCalculationForListener();
+}
+
+TEST(SanityCheck, VerifyStorageSizeCalculationForWaitSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a873d4f4-6800-4c26-ab9f-b1bb687ece88");
+    verifyStorageSizeCalculationForWaitSet();
 }
 
 int main(int argc, char* argv[])

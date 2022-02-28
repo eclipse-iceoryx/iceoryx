@@ -100,14 +100,12 @@ namespace popo
 using WaitSetIsConditionSatisfiedCallback = cxx::ConstMethodCallback<bool>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
-constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 128U;
-constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 128U;
-static_assert(MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
-              "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
-// Listener
-constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 128U;
-static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
-              "The Listener capacity is restricted by the maximum amount of notifiers per condition variable.");
+
+constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS = build::IOX_MAX_NUMBER_OF_NOTIFIERS;
+/// @note Waitset and Listener share both the max available notifiers, if one of them is running out of of notifiers
+/// the variable above must be increased
+constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = MAX_NUMBER_OF_NOTIFIERS;
+constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = MAX_NUMBER_OF_NOTIFIERS;
 //--------- Communication Resources End---------------------
 
 // Memory
@@ -203,23 +201,27 @@ struct DefaultChunkQueueConfig
 
 // alias for cxx::string
 using RuntimeName_t = cxx::string<MAX_RUNTIME_NAME_LENGTH>;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using NodeName_t = cxx::string<100>;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using ShmName_t = cxx::string<128>;
 
 namespace capro
 {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using IdString_t = cxx::string<100>;
-}
+} // namespace capro
 
 /// @todo Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake target
 namespace roudi
 {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using ConfigFilePathString_t = cxx::string<1024>;
 
 constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
 constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
-/// shared memmory segment for the iceoryx managment data
+/// shared memory segment for the iceoryx management data
 constexpr const char SHM_NAME[] = "iceoryx_mgmt";
 
 // this is used by the UniquePortId
@@ -252,7 +254,7 @@ using SequenceNumber_t = std::uint64_t;
 using BaseClock_t = std::chrono::steady_clock;
 
 // use signed integer for duration;
-// there is a bug in gcc 4.8 which leads to a wrong calcutated time
+// there is a bug in gcc 4.8 which leads to a wrong calculated time
 // when sleep_until() is used with a timepoint in the past
 using DurationNs_t = std::chrono::duration<std::int64_t, std::nano>;
 using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
@@ -268,9 +270,9 @@ constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_IN
 
 namespace version
 {
-static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
+static const uint64_t COMMIT_ID_STRING_SIZE = 12U;
 using CommitIdString_t = cxx::string<COMMIT_ID_STRING_SIZE>;
-static const uint64_t BUILD_DATE_STRING_SIZE = 36u;
+static const uint64_t BUILD_DATE_STRING_SIZE = 36U;
 using BuildDateString_t = cxx::string<BUILD_DATE_STRING_SIZE>;
 } // namespace version
 

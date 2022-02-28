@@ -29,8 +29,7 @@ namespace popo
 class ConditionListener
 {
   public:
-    using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>,
-                                             MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>;
+    using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_NOTIFIERS>, MAX_NUMBER_OF_NOTIFIERS>;
 
     explicit ConditionListener(ConditionVariableData& condVarData) noexcept;
     ~ConditionListener() noexcept = default;

@@ -61,7 +61,12 @@ if(NOT IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY)
     set(IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY 256)
 endif()
 message(STATUS "[i] IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY:" ${IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY})
+
+# note: don't change IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS value because it could break the C-Binding
+#if(NOT IOX_MAX_NUMBER_OF_NOTIFIERS)
+set(IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS 256)
+#endif()
+#message(STATUS "[i] IOX_MAX_NUMBER_OF_NOTIFIERS:" ${IOX_MAX_NUMBER_OF_NOTIFIERS})
+
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)

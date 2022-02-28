@@ -18,7 +18,31 @@
 #ifndef IOX_BINDING_C_TYPES_H
 #define IOX_BINDING_C_TYPES_H
 
+#include "iceoryx_binding_c/iceoryx_binding_c_deployment.h"
 #include "internal/c2cpp_binding.h"
+
+/// @brief if the function parameters change due to an update of the listener or
+///        waitset recalculate them with the following approach.
+///        1. Run SanityCheck.VerifyStorageSizeCalculationForListener
+///            or SanityCheck.VerifyStorageSizeCalculationForWaitSet
+///        2. Take a look at the expected numbers of size 1 (A1) and 2 (A2).
+///        3. Find the parameters m, n for the function StorageSize(x) = m + n * x
+///        4. Re-run the the tests to verify if the parameters are correct.
+#if defined(__APPLE__)
+#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
+    (144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1))
+#elif defined(_WIN32)
+#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
+    (168 + numberOfAttachments * 176 - 8 * (((numberOfAttachments + 1) / 2) - 1))
+#else
+#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) (((128 + numberOfAttachments * 140) / 8) * 8)
+#endif
+
+#if defined(_WIN32)
+#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 168)
+#else
+#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 184)
+#endif
 
 #define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
 #define IOX_C_CHUNK_NO_USER_HEADER_SIZE 0
@@ -35,11 +59,8 @@ struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
-#if defined(_WIN32)
-    uint64_t do_not_touch_me[2709];
-#else
-    uint64_t do_not_touch_me[2965];
-#endif
+    /// @note see iceoryx_binding_c_deployment.h.in for calculation of the size
+    uint64_t do_not_touch_me[CALCULATE_STORAGE_SIZE_FOR_WAITSET(IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS) / 8];
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
@@ -83,13 +104,8 @@ struct iox_listener_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(Listener) / 8
-#if defined(__APPLE__)
-    uint64_t do_not_touch_me[2643];
-#elif defined(_WIN32)
-    uint64_t do_not_touch_me[2774];
-#else
-    uint64_t do_not_touch_me[2256];
-#endif
+    /// @note see iceoryx_binding_c_deployment.h.in for calculation of the size
+    uint64_t do_not_touch_me[CALCULATE_STORAGE_SIZE_FOR_LISTENER(IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS) / 8];
 };
 typedef struct iox_listener_storage_t_ iox_listener_storage_t;
 

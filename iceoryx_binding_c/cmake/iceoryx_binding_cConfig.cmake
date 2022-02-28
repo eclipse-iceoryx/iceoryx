@@ -1,4 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,3 +23,4 @@ if(NOT ${CMAKE_FIND_PACKAGE_NAME}_FOUND_PRINTED)
     message(STATUS "The package '${CMAKE_FIND_PACKAGE_NAME}' is used in source code version.")
     set(${CMAKE_FIND_PACKAGE_NAME}_FOUND_PRINTED true CACHE INTERNAL "")
 endif()
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})

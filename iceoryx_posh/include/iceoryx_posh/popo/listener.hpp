@@ -27,6 +27,7 @@
 #include "iceoryx_posh/popo/notification_attorney.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <thread>
 
@@ -34,6 +35,42 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
+class Event_t
+{
+  public:
+    ~Event_t() noexcept;
+
+    bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
+    bool reset() noexcept;
+    bool init(const uint64_t eventId,
+              void* const origin,
+              void* const userType,
+              const uint64_t eventType,
+              const uint64_t eventTypeHash,
+              internal::GenericCallbackRef_t callback,
+              internal::TranslationCallbackRef_t translationCallback,
+              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
+    void executeCallback() noexcept;
+    bool isInitialized() const noexcept;
+
+  private:
+    static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
+
+    void* m_origin = nullptr;
+    uint64_t m_eventType = INVALID_ID;
+    uint64_t m_eventTypeHash = INVALID_ID;
+
+    internal::GenericCallbackPtr_t m_callback = nullptr;
+    internal::TranslationCallbackPtr_t m_translationCallback = nullptr;
+    void* m_userType = nullptr;
+
+    uint64_t m_eventId = INVALID_ID;
+    cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
+};
+} // namespace internal
+
 enum class ListenerError
 {
     LISTENER_FULL,
@@ -63,16 +100,17 @@ enum class ListenerError
 ///
 ///            Best practice: Detach a specific event only from one specific thread and not
 ///                           from multiple contexts.
-class Listener
+template <uint64_t Capacity>
+class ListenerImpl
 {
   public:
-    Listener() noexcept;
-    Listener(const Listener&) = delete;
-    Listener(Listener&&) = delete;
-    ~Listener() noexcept;
+    ListenerImpl() noexcept;
+    ListenerImpl(const ListenerImpl&) = delete;
+    ListenerImpl(ListenerImpl&&) = delete;
+    ~ListenerImpl() noexcept;
 
-    Listener& operator=(const Listener&) = delete;
-    Listener& operator=(Listener&&) = delete;
+    ListenerImpl& operator=(const ListenerImpl&) = delete;
+    ListenerImpl& operator=(ListenerImpl&&) = delete;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
     ///        defines the event inside the class and the corresponding callback which will be called when the event
@@ -132,7 +170,7 @@ class Listener
     uint64_t size() const noexcept;
 
   protected:
-    Listener(ConditionVariableData& conditionVariableData) noexcept;
+    ListenerImpl(ConditionVariableData& conditionVariableData) noexcept;
 
   private:
     class Event_t;
@@ -155,38 +193,6 @@ class Listener
         PLACEHOLDER = 0
     };
 
-    class Event_t
-    {
-      public:
-        ~Event_t() noexcept;
-
-        bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
-        bool reset() noexcept;
-        bool init(const uint64_t eventId,
-                  void* const origin,
-                  void* const userType,
-                  const uint64_t eventType,
-                  const uint64_t eventTypeHash,
-                  internal::GenericCallbackRef_t callback,
-                  internal::TranslationCallbackRef_t translationCallback,
-                  const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
-        void executeCallback() noexcept;
-        bool isInitialized() const noexcept;
-
-      private:
-        static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
-
-        void* m_origin = nullptr;
-        uint64_t m_eventType = INVALID_ID;
-        uint64_t m_eventTypeHash = INVALID_ID;
-
-        internal::GenericCallbackPtr_t m_callback = nullptr;
-        internal::TranslationCallbackPtr_t m_translationCallback = nullptr;
-        void* m_userType = nullptr;
-
-        uint64_t m_eventId = INVALID_ID;
-        cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
-    };
 
     class IndexManager_t
     {
@@ -197,21 +203,31 @@ class Listener
         uint64_t indicesInUse() const noexcept;
 
         using LoFFLi = concurrent::LoFFLi;
-        LoFFLi::Index_t
-            m_loffliStorage[LoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS_PER_LISTENER) / sizeof(uint32_t)];
+        LoFFLi::Index_t m_loffliStorage[LoFFLi::requiredIndexMemorySize(Capacity) / sizeof(uint32_t)];
         LoFFLi m_loffli;
         std::atomic<uint64_t> m_indicesInUse{0U};
     } m_indexManager;
 
 
     std::thread m_thread;
-    concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_LISTENER];
+    concurrent::smart_lock<internal::Event_t, std::recursive_mutex> m_events[Capacity];
     std::mutex m_addEventMutex;
 
     std::atomic_bool m_wasDtorCalled{false};
     ConditionVariableData* m_conditionVariableData = nullptr;
     ConditionListener m_conditionListener;
 };
+
+class Listener : public ListenerImpl<MAX_NUMBER_OF_EVENTS_PER_LISTENER>
+{
+  public:
+    using Parent = ListenerImpl<MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
+    Listener() noexcept;
+
+  protected:
+    Listener(ConditionVariableData& conditionVariableData) noexcept;
+};
+
 } // namespace popo
 } // namespace iox
 
