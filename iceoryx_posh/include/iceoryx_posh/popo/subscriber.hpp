@@ -30,8 +30,15 @@ namespace popo
 template <typename T, typename H = mepoo::NoUserHeader>
 class Subscriber : public SubscriberImpl<T, H>
 {
+    using Impl = SubscriberImpl<T, H>;
+
   public:
     using SubscriberImpl<T, H>::SubscriberImpl;
+
+    virtual ~Subscriber() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
 
 } // namespace popo

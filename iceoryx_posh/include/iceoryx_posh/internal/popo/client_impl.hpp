@@ -44,7 +44,7 @@ class ClientImpl : public BaseClientT, public RpcInterface<Request<Req>, ClientS
     /// @param[in] service is the ServiceDescription for the new client
     /// @param[in] clientOptions like the queue capacity and queue full policy by a client
     explicit ClientImpl(const capro::ServiceDescription& service, const ClientOptions& clientOptions = {}) noexcept;
-    ~ClientImpl() noexcept = default;
+    virtual ~ClientImpl() noexcept;
 
     ClientImpl(const ClientImpl&) = delete;
     ClientImpl(ClientImpl&&) = delete;

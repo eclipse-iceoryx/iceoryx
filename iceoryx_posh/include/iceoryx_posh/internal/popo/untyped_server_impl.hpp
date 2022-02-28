@@ -31,7 +31,8 @@ class UntypedServerImpl : public BaseServerT
   public:
     explicit UntypedServerImpl(const capro::ServiceDescription& service,
                                const ServerOptions& serverOptions = {}) noexcept;
-    ~UntypedServerImpl() noexcept = default;
+    virtual ~UntypedServerImpl() noexcept;
+
     UntypedServerImpl(const UntypedServerImpl&) = delete;
     UntypedServerImpl(UntypedServerImpl&&) = delete;
     UntypedServerImpl& operator=(const UntypedServerImpl&) = delete;

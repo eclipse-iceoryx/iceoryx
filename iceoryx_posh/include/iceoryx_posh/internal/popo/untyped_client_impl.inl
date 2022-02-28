@@ -31,6 +31,12 @@ UntypedClientImpl<BaseClientT>::UntypedClientImpl(const capro::ServiceDescriptio
 }
 
 template <typename BaseClientT>
+UntypedClientImpl<BaseClientT>::~UntypedClientImpl() noexcept
+{
+    BaseClientT::m_trigger.reset();
+}
+
+template <typename BaseClientT>
 cxx::expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const uint32_t payloadSize,
                                                                            const uint32_t payloadAlignment) noexcept
 {

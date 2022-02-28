@@ -44,7 +44,8 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>, Server
     /// @param[in] service is the ServiceDescription for the new server
     /// @param[in] serverOptions like the queue capacity and queue full policy by a server
     explicit ServerImpl(const capro::ServiceDescription& service, const ServerOptions& serverOptions = {}) noexcept;
-    ~ServerImpl() noexcept = default;
+    virtual ~ServerImpl() noexcept;
+
     ServerImpl(const ServerImpl&) = delete;
     ServerImpl(ServerImpl&&) = delete;
     ServerImpl& operator=(const ServerImpl&) = delete;

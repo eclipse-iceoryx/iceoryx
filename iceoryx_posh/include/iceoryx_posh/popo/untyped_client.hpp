@@ -25,11 +25,15 @@ namespace popo
 {
 class UntypedClient : public UntypedClientImpl<>
 {
-  private:
     using Impl = UntypedClientImpl<>;
 
   public:
-    using Impl::UntypedClientImpl;
+    using UntypedClientImpl<>::UntypedClientImpl;
+
+    virtual ~UntypedClient() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
 
 } // namespace popo

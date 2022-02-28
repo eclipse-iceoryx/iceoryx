@@ -29,7 +29,7 @@ namespace popo
 template <typename T, typename H = iox::mepoo::NoUserHeader, typename BaseSubscriberType = BaseSubscriber<>>
 class SubscriberImpl : public BaseSubscriberType
 {
-    using SelfType = SubscriberImpl<T, BaseSubscriberType>;
+    using SelfType = SubscriberImpl<T, H, BaseSubscriberType>;
 
     using DataTypeAssert = typename TypedPortApiTrait<T>::Assert;
     using HeaderTypeAssert = typename TypedPortApiTrait<H>::Assert;

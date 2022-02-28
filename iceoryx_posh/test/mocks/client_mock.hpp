@@ -115,6 +115,14 @@ class MockBaseClient
     PortType mockPort;
     iox::capro::ServiceDescription serviceDescription;
     iox::popo::ClientOptions clientOptions;
+
+    struct TriggerResetMock
+    {
+        void reset()
+        {
+        }
+    };
+    TriggerResetMock m_trigger;
 };
 
 #endif // IOX_POSH_MOCKS_CLIENT_MOCK_HPP

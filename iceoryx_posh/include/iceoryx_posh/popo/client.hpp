@@ -29,8 +29,15 @@ namespace popo
 template <typename Req, typename Res>
 class Client : public ClientImpl<Req, Res>
 {
+    using Impl = ClientImpl<Req, Res>;
+
   public:
     using ClientImpl<Req, Res>::ClientImpl;
+
+    virtual ~Client() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
 } // namespace popo
 } // namespace iox

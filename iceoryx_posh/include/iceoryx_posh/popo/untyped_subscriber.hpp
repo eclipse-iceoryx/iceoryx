@@ -27,8 +27,15 @@ namespace popo
 /// @brief The UntypedSubscriber class for the publish-subscribe messaging pattern in iceoryx.
 class UntypedSubscriber : public UntypedSubscriberImpl<>
 {
+    using Impl = UntypedSubscriberImpl<>;
+
   public:
     using UntypedSubscriberImpl<>::UntypedSubscriberImpl;
+
+    virtual ~UntypedSubscriber() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
 
 } // namespace popo

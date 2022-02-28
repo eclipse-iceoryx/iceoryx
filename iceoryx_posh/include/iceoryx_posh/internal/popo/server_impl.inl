@@ -31,6 +31,12 @@ inline ServerImpl<Req, Res, BaseServerT>::ServerImpl(const capro::ServiceDescrip
 }
 
 template <typename Req, typename Res, typename BaseServerT>
+inline ServerImpl<Req, Res, BaseServerT>::~ServerImpl() noexcept
+{
+    BaseServerT::m_trigger.reset();
+}
+
+template <typename Req, typename Res, typename BaseServerT>
 cxx::expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServerT>::take() noexcept
 {
     auto result = port().getRequest();
