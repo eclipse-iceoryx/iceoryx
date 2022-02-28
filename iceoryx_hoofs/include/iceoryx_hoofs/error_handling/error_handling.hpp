@@ -20,17 +20,12 @@
 /// @todo #1099 rename this file to error_handler.hpp
 
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logmanager.hpp"
 
-#include <cassert>
 #include <functional>
 #include <iostream>
-#include <mutex>
-#include <sstream>
-
 
 namespace iox
 {
