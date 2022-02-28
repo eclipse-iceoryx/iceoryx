@@ -29,15 +29,15 @@ namespace config
 cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::parse(
     int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
-    constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
-                                      {"config-file", required_argument, nullptr, 'c'},
-                                      {nullptr, 0, nullptr, 0}};
+    constexpr option LONG_OPTIONS[] = {{"help", no_argument, nullptr, 'h'},
+                                       {"config-file", required_argument, nullptr, 'c'},
+                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = ":hc:";
+    constexpr const char* SHORT_OPTIONS = ":hc:";
     int32_t index;
     int32_t opt{-1};
-    while (opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1)
+    while (opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1)
     {
         switch (opt)
         {
