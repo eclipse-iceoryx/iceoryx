@@ -491,6 +491,84 @@ TEST_F(PortManager_test, ServerStateIsForwardedToInterfacePortWhenAlreadyOfferAn
 
 // END forwarding to InterfacePort tests
 
+// BEGIN service registry tests
+
+TEST_F(PortManager_test, CreateServerWithNotOfferOnCreateDoesNotAddServerToServiceRegistry)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "df05ce4d-a1f2-46f2-8224-34b0dbc237ad");
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = false;
+
+    auto serverPortUser = createServer(serverOptions);
+    m_portManager->doDiscovery();
+
+    uint64_t serverCount{0U};
+    m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
+        EXPECT_THAT(entry.serverCount, Eq(1U));
+        serverCount += entry.serverCount;
+    });
+    EXPECT_THAT(serverCount, Eq(0U));
+}
+
+TEST_F(PortManager_test, CreateServerWithOfferOnCreateAddsServerToServiceRegistry)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8ac876e9-f460-4d1c-97c9-995f3a603317");
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    m_portManager->doDiscovery();
+
+    uint64_t serverCount{0U};
+    m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
+        EXPECT_THAT(entry.serverCount, Eq(1U));
+        serverCount += entry.serverCount;
+    });
+    EXPECT_THAT(serverCount, Eq(1U));
+}
+
+TEST_F(PortManager_test, StopOfferRemovesServerFromServiceRegistry)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5cb255ec-446c-4c68-99b4-c99d0f8abdc5");
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = true;
+
+    auto serverPortUser = createServer(serverOptions);
+    m_portManager->doDiscovery();
+
+    serverPortUser.stopOffer();
+    m_portManager->doDiscovery();
+
+    uint64_t serverCount{0U};
+    m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
+        EXPECT_THAT(entry.serverCount, Eq(1U));
+        serverCount += entry.serverCount;
+    });
+    EXPECT_THAT(serverCount, Eq(0U));
+}
+
+TEST_F(PortManager_test, OfferAddsServerToServiceRegistry)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "60beb1df-a806-4b3a-9e2f-6f6bf352ea1b");
+    auto serverOptions = createTestServerOptions();
+    serverOptions.offerOnCreate = false;
+
+    auto serverPortUser = createServer(serverOptions);
+    m_portManager->doDiscovery();
+
+    serverPortUser.offer();
+    m_portManager->doDiscovery();
+
+    uint64_t serverCount{0U};
+    m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
+        EXPECT_THAT(entry.serverCount, Eq(1U));
+        serverCount += entry.serverCount;
+    });
+    EXPECT_THAT(serverCount, Eq(1U));
+}
+
+// END service registry tests
+
 // BEGIN policy based connection tests
 
 // NOTE: there is a client/server sandwich to test both code paths where the client and
@@ -666,7 +744,5 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
 }
 
 // END communication tests
-
-/// @todo iox-#27 add service registry tests once it is possible to query the service registry for server
 
 } // namespace iox_test_roudi_portmanager

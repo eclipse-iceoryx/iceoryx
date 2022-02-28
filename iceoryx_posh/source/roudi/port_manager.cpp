@@ -1045,6 +1045,10 @@ void PortManager::publishServiceRegistry() const noexcept
         .or_else([](auto&) { LogWarn() << "Could not allocate a chunk for the service registry!"; });
 }
 
+const ServiceRegistry& PortManager::serviceRegistry() const noexcept
+{
+    return m_serviceRegistry;
+}
 
 void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
@@ -1063,6 +1067,7 @@ void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescrip
 
 void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
+    std::cout << "#### " << service << std::endl;
     m_serviceRegistry.addServer(service).or_else([&](auto&) {
         LogWarn() << "Could not add server with service description '" << service << "' to service registry!";
         errorHandler(Error::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
