@@ -50,6 +50,7 @@ void onRequestReceived(iox_server_t server)
         if (loanResult == AllocationResult_SUCCESS)
         {
             response->sum = request->augend + request->addend;
+            printf("%s Send Response: %lu\n", APP_NAME, (unsigned long)response->sum);
             enum iox_ServerSendResult sendResult = iox_server_send(server, response);
             if (sendResult != ServerSendResult_SUCCESS)
             {
