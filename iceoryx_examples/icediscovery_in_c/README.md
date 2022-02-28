@@ -28,7 +28,7 @@ To be able to search for services, we need to include:
 #include "iceoryx_binding_c/service_discovery.h"
 ```
 
-We create some stack storage for the service discovery and initialize it.
+We create some storage for the service discovery and initialize it.
 
 <!--[geoffrey][iceoryx_examples/icediscovery_in_c/iox_c_find_service.c][create service discovery handle]-->
 ```c

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 
 typedef struct
 {
-    char serviceString[IOX_CONFIG_SERVICE_STRING_SIZE + 1U]; // +1U for \0 terminator
-    char instanceString[IOX_CONFIG_SERVICE_STRING_SIZE + 1U];
-    char eventString[IOX_CONFIG_SERVICE_STRING_SIZE + 1U];
+    char serviceString[IOX_CONFIG_SERVICE_STRING_SIZE];
+    char instanceString[IOX_CONFIG_SERVICE_STRING_SIZE];
+    char eventString[IOX_CONFIG_SERVICE_STRING_SIZE];
 } iox_service_description_t;
 
 #endif

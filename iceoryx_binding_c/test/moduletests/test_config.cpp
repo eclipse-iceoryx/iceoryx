@@ -59,6 +59,6 @@ TEST(iox_cfg, valuesAreCorrectlyConnected)
     constexpr uint64_t ZERO_TERMINATOR_SIZE = 1U;
     EXPECT_EQ(IOX_CONFIG_NODE_NAME_SIZE, iox::NodeName_t::capacity() + ZERO_TERMINATOR_SIZE);
 
-    EXPECT_EQ(IOX_CONFIG_SERVICE_STRING_SIZE, iox::capro::IdString_t::capacity());
+    EXPECT_EQ(IOX_CONFIG_SERVICE_STRING_SIZE, iox::capro::IdString_t::capacity() + ZERO_TERMINATOR_SIZE);
 }
 } // namespace

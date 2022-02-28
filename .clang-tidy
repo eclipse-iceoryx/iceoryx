@@ -22,6 +22,7 @@ hicpp-*,
 -bugprone-easily-swappable-parameters,
 -bugprone-branch-clone,
 -bugprone-implicit-widening-of-multiplication-result,
+-bugprone-not-null-terminated-result,
 -concurrency-mt-unsafe,
 -readability-named-parameter,
 -readability-avoid-const-params-in-decls,
@@ -86,7 +87,7 @@ hicpp-*,
 # -readability-function-cognitive-complexity
 #
 ## is it working correctly? produces hard to understand warning
-# -clang-analyzer-core.uninitialized.UndefReturn 
+# -clang-analyzer-core.uninitialized.UndefReturn
 # -clang-analyzer-optin.cplusplus.VirtualCall
 #
 ###########################################

@@ -97,7 +97,7 @@ uint32_t iox_cfg_max_runtime_name_length();
 /// @brief the maximum size of a node name string + \0 terminator
 #define IOX_CONFIG_NODE_NAME_SIZE 101
 
-/// @brief the maximum size of a service description string identifier
-#define IOX_CONFIG_SERVICE_STRING_SIZE 100
+/// @brief the maximum size of a service description string identifier + \0 terminator
+#define IOX_CONFIG_SERVICE_STRING_SIZE 101
 
 #endif // IOX_BINDING_C_CONFIG_H

@@ -57,7 +57,7 @@ int main()
     cameraPublishers[3] = iox_pub_init(&cameraPublisherStorage[3], "Camera", "FrontRight", "Image", &options);
     cameraPublishers[4] = iox_pub_init(&cameraPublisherStorage[4], "Camera", "BackLeft", "Image", &options);
 
-    const uint32_t WAIT_TIME_IN_MS = 1000;
+    const uint32_t WAIT_TIME_IN_MS = 1000U;
     bool offer = false;
     while (keepRunning)
     {
