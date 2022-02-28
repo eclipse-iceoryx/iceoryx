@@ -14,3 +14,4 @@ nav:
   - ice_access_control.md
   - iceperf.md
   - icecrystal.md
+  - request_response_in_c.md
