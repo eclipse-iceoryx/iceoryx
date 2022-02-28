@@ -74,6 +74,23 @@ enum class ServerSendError
     INVALID_RESPONSE,
 };
 
+/// @brief Converts the ServerSendError to a string literal
+/// @param[in] value to convert to a string literal
+/// @return pointer to a string literal
+inline constexpr const char* asStringLiteral(const ServerSendError value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline std::ostream& operator<<(std::ostream& stream, ServerSendError value) noexcept;
+
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @param[in] stream sink to write the message to
+/// @param[in] value to convert to a string literal
+/// @return the reference to `stream` which was provided as input parameter
+inline log::LogStream& operator<<(log::LogStream& stream, ServerSendError value) noexcept;
+
 /// @brief The ServerPortUser provides the API for accessing a server port from the user side. The server port
 /// is divided in the three parts ServerPortData, ServerPortRouDi and ServerPortUser. The ServerPortUser
 /// uses the functionality of a ChunkSender and ChunReceiver for receiving requests and sending responses.

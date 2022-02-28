@@ -58,7 +58,7 @@ and the iceoryx includes for publisher and runtime.
 ```cpp
 #include "user_header_and_payload_types.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
@@ -124,8 +124,7 @@ std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp 
 If the loaning fails, the `or_else` branch is executed, which prints an error message
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [loan failed] -->
 ```cpp
-std::cout << APP_NAME << " could not loan sample! Error code: " << static_cast<uint64_t>(error)
-          << std::endl;
+std::cout << APP_NAME << " could not loan sample! Error code: " << error << std::endl;
 ```
 
 ### Publisher Untyped C++ API

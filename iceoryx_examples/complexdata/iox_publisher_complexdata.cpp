@@ -93,7 +93,7 @@ int main()
             })
             .or_else([](auto& error) {
                 // do something with error
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+                std::cerr << "Unable to loan sample, error code: " << error << std::endl;
             });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));

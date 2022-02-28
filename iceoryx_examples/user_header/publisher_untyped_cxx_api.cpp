@@ -66,8 +66,7 @@ int main()
             })
             .or_else([&](auto& error) {
                 //! [loan failed]
-                std::cout << APP_NAME << " could not loan chunk! Error code: " << static_cast<uint64_t>(error)
-                          << std::endl;
+                std::cout << APP_NAME << " could not loan chunk! Error code: " << error << std::endl;
                 //! [loan failed]
             });
         //! [loan chunk]

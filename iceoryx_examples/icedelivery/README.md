@@ -23,7 +23,7 @@ First off, let's include the publisher, the runtime and the signal handler:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][includes]-->
 ```cpp
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
@@ -130,7 +130,7 @@ Similar to the publisher, we include the topic data, the subscriber, the runtime
 ```cpp
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
@@ -158,7 +158,7 @@ Again in a while-loop we do the following:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][[loop] [chunk happy path]]-->
 ```cpp
-while (!killswitch)
+while (!iox::posix::hasTerminationRequested())
 {
     subscriber
         .take()
@@ -245,7 +245,7 @@ publisher.loan()
     })
     .or_else([](auto& error) {
         // Do something with error
-        std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+        std::cerr << "Unable to loan sample, error: " << error << std::endl;
     });
 ```
 
@@ -262,7 +262,7 @@ publisher.loan(sampleValue2, sampleValue2, sampleValue2)
     .and_then([](auto& sample) { sample.publish(); })
     .or_else([](auto& error) {
         // Do something with error
-        std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+        std::cerr << "Unable to loan sample, error: " << error << std::endl;
     });
 ```
 
@@ -282,7 +282,7 @@ lead to a larger runtime.
 auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
 publisher.publishCopyOf(object).or_else([](auto& error) {
     // Do something with error.
-    std::cerr << "Unable to publishCopyOf, error code: " << static_cast<uint64_t>(error) << std::endl;
+    std::cerr << "Unable to publishCopyOf, error: " << error << std::endl;
 });
 ```
 
@@ -302,7 +302,7 @@ argument. If loaning was unsuccessful, the callable is not called, but instead t
 //
 publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {
     // Do something with error.
-    std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
+    std::cerr << "Unable to publishResultOf, error: " << error << std::endl;
 });
 publisher
     .publishResultOf([&sampleValue4](RadarObject* object) {
@@ -310,7 +310,7 @@ publisher
     })
     .or_else([](auto& error) {
         // Do something with error.
-        std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
+        std::cerr << "Unable to publishResultOf, error: " << error << std::endl;
     });
 ```
 
