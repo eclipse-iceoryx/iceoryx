@@ -20,6 +20,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/internal/popo/base_publisher.hpp"
+#include "iceoryx_posh/internal/popo/publisher_interface.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 
@@ -27,22 +28,6 @@ namespace iox
 {
 namespace popo
 {
-///
-/// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
-/// This allows any publisher specialization to be stored as a reference by the Sample class.
-/// It is also needed to avoid circular dependencies between Sample and Publisher.
-///
-template <typename T, typename H>
-class PublisherInterface
-{
-  public:
-    using SampleType = Sample<T, H>;
-
-    virtual void publish(SampleType&& sample) noexcept = 0;
-
-  protected:
-    PublisherInterface() = default;
-};
 template <typename T, typename H = mepoo::NoUserHeader, typename BasePublisherType = BasePublisher<>>
 class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
 {
