@@ -14,7 +14,7 @@ The three most important settings are:
 | `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored before they are passed to the user                                                          |
 | `SubscriberOptions::historyRequest` | The number of samples a late-joining subscriber will request from a publisher, should be equal or smaller than `historyCapacity` otherwise capped |
 
-For more information about the options see the corresponding example [`iceoptions`](../getting-started/examples/iceoptions.md).
+For more information about the options see the corresponding example [`iceoptions`](iceoptions.md).
 
 ## Publisher subscriber matching criteria
 
