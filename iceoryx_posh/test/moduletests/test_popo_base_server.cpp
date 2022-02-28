@@ -39,6 +39,20 @@ using BaseServerWithMocks = BaseServer<MockServerPortUser, MockTriggeHandle>;
 using UntypedServerWithMocks = iox::popo::UntypedServerImpl<BaseServerWithMocks>;
 using TypedServerWithMocks = iox::popo::ServerImpl<uint64_t, uint64_t, BaseServerWithMocks>;
 
+template <typename T>
+uint64_t resetCallsFromDtors()
+{
+    // from derived and base class
+    return 2U;
+}
+
+template <>
+uint64_t resetCallsFromDtors<BaseServerWithMocks>()
+{
+    // from base only
+    return 1U;
+};
+
 template <typename Base>
 class TestBaseServer : public Base
 {
@@ -63,10 +77,12 @@ using BaseServerTypes = Types<BaseServerWithMocks, UntypedServerWithMocks, Typed
 
 TYPED_TEST_SUITE(BaseServer_test, BaseServerTypes);
 
-template <typename SUT>
+template <typename SutType>
 class BaseServer_test : public Test
 {
   public:
+    using Sut = SutType;
+
     void SetUp() override
     {
         // we only need one non default option to check whether they are correctly passed to the underlying port
@@ -95,7 +111,7 @@ class BaseServer_test : public Test
 
     ServiceDescription sd{"make", "it", "so"};
     iox::popo::ServerOptions options;
-    optional<TestBaseServer<SUT>> sut;
+    optional<TestBaseServer<Sut>> sut;
 };
 
 TYPED_TEST(BaseServer_test, DestructorCallsDestroyOnUnderlyingPort)
@@ -278,7 +294,7 @@ TYPED_TEST(BaseServer_test, DisableStateCallsUnderlyingPortAndTriggerHandle)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ce85051e-f18c-4c0f-a5c9-4c2701c4bb30");
 
-    EXPECT_CALL(this->sut->m_trigger, reset).Times(1);
+    EXPECT_CALL(this->sut->m_trigger, reset).Times(resetCallsFromDtors<typename TestFixture::Sut>());
     EXPECT_CALL(this->sut->port(), unsetConditionVariable).Times(1);
 
     this->sut->disableState(ServerState::HAS_REQUEST);
@@ -329,7 +345,7 @@ TYPED_TEST(BaseServer_test, DisableEventCallsUnderlyingPortAndTriggerHandle)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5d7bee13-e654-4048-a57a-f7ba94b614b1");
 
-    EXPECT_CALL(this->sut->m_trigger, reset).Times(1);
+    EXPECT_CALL(this->sut->m_trigger, reset).Times(resetCallsFromDtors<typename TestFixture::Sut>());
     EXPECT_CALL(this->sut->port(), unsetConditionVariable).Times(1);
 
     this->sut->disableEvent(ServerEvent::REQUEST_RECEIVED);
