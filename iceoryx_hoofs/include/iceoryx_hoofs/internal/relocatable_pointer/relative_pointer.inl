@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,21 +40,6 @@ template <typename T>
 inline RelativePointer<T>::RelativePointer(ptr_t ptr) noexcept
     : BaseRelativePointer(ptr)
 {
-}
-
-
-template <typename T>
-inline RelativePointer<T>::RelativePointer(const BaseRelativePointer& other) noexcept
-    : BaseRelativePointer(other)
-{
-}
-
-template <typename T>
-inline RelativePointer<T>& RelativePointer<T>::operator=(const BaseRelativePointer& other) noexcept
-{
-    BaseRelativePointer::operator=(other);
-
-    return *this;
 }
 
 template <typename T>

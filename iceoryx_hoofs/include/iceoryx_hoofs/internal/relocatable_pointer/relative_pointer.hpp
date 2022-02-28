@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,12 @@ template <typename T>
 class RelativePointer : public BaseRelativePointer
 {
   public:
+    using const_ptr_t = const T*;
+    using ptr_t = T*;
+
+    /// @brief default constructs a RelativePointer as a logical nullptr
+    RelativePointer() noexcept = default;
+
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
@@ -45,16 +51,7 @@ class RelativePointer : public BaseRelativePointer
 
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    RelativePointer(ptr_t ptr = nullptr) noexcept;
-
-    /// @brief creates a RelativePointer from a BaseRelativePointer
-    /// @param[in] other is the BaseRelativePointer
-    RelativePointer(const BaseRelativePointer& other) noexcept;
-
-    /// @brief assign this to point to the same pointee as the BaseRelativePointer other
-    /// @param[in] other the pointer whose pointee shall be the same for this
-    /// @return reference to self
-    RelativePointer& operator=(const BaseRelativePointer& other) noexcept;
+    RelativePointer(ptr_t ptr) noexcept;
 
     /// @brief assigns the RelativePointer to point to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
