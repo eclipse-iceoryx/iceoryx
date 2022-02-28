@@ -33,13 +33,13 @@
     (144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #elif defined(_WIN32)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
-    (168 + numberOfAttachments * 176 - 8 * (((numberOfAttachments + 1) / 2) - 1))
+    (168 + numberOfAttachments * 192 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #else
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) (((128 + numberOfAttachments * 140) / 8) * 8)
 #endif
 
 #if defined(_WIN32)
-#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 168)
+#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 200)
 #else
 #define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 184)
 #endif
@@ -71,7 +71,7 @@ struct iox_user_trigger_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[15];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[16];
+    uint64_t do_not_touch_me[18];
 #else
     uint64_t do_not_touch_me[12];
 #endif
@@ -85,7 +85,7 @@ struct iox_sub_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[16];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[17];
+    uint64_t do_not_touch_me[19];
 #else
     uint64_t do_not_touch_me[13];
 #endif
@@ -124,7 +124,7 @@ typedef struct
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[23];
+    uint64_t do_not_touch_me[25];
 #else
     uint64_t do_not_touch_me[19];
 #endif
@@ -138,7 +138,7 @@ typedef struct
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[23];
+    uint64_t do_not_touch_me[25];
 #else
     uint64_t do_not_touch_me[19];
 #endif
@@ -152,7 +152,7 @@ struct iox_service_discovery_storage_t
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[30];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[33];
+    uint64_t do_not_touch_me[35];
 #else
     uint64_t do_not_touch_me[24];
 #endif
