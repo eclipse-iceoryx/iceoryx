@@ -15,3 +15,4 @@ nav:
   - iceperf.md
   - icecrystal.md
   - request_response_in_c.md
+  - request_response.md

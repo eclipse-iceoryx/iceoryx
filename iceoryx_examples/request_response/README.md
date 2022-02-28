@@ -7,6 +7,11 @@ using the request-response communication pattern. The client sends a request wit
 two consecutive fibonacci numbers and the server responds with the next number in
 the sequence.
 
+We provide three examples, the very basic typed and untyped examples
+and the most natural setup combining a Server with a Listener and a Client using a Waitset.
+Since you can find the general setup and functionality of the client and the server
+also in the Listener/Waitset example, we will focus now on this.
+
 ## Expected output basic server-client example
 
 [![asciicast](https://asciinema.org/a/469913.svg)](https://asciinema.org/a/469913)
@@ -42,16 +47,9 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
 After creating the runtime, the client port is created and attached to the Waitset.
-The `options` can be used to alter the behavior of the client, like setting the response
+The [options](https://iceoryx.io/latest/getting-started/examples/iceoptions/) can be used to alter the behavior of the client, like setting the response
 queue capacity or blocking behavior when the response queue is full or the server is too slow.
 The `ClientOptions` are similar to `PublisherOptions`/`SubscriberOptions`.
-
-<!--[geoffrey][iceoryx_examples/request_response/client_cxx_waitset.cpp][create client]-->
-```cpp
-iox::popo::ClientOptions options;
-options.responseQueueCapacity = 2U;
-iox::popo::Client<AddRequest, AddResponse> client({"Example", "Request-Response", "Add"}, options);
-```
 
 <!--[geoffrey][iceoryx_examples/request_response/client_cxx_waitset.cpp][create waitset]-->
 ```cpp
@@ -69,30 +67,11 @@ waitset.attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](aut
 ```
 
 The main goal of the client is to request from the server the sum of two numbers that the
-client sends. When to sum is received from the server, the received sum is re-used to insert
+client sends. When the sum is received from the server, the received sum is re-used to insert
 it to the `addend` of the next request to send.
 This calculates a Fibonacci sequence.
-<!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [[mainloop]] -->
-```cpp
-while (!iox::posix::hasTerminationRequested())
-{
-    // ...
-    // We block and wait for samples to arrive, when the time is up we send the request again
-    auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
-    for (auto& notification : notificationVector)
-    {
-        if (notification->doesOriginateFrom(&client))
-        {
-    // ...
-        }
-    }
-    constexpr std::chrono::milliseconds SLEEP_TIME{950U};
-    std::this_thread::sleep_for(SLEEP_TIME);
-}
-```
-
-In the main loop, the client prepares a request using the `loan()` API.
+In the main loop, the client prepares first a request using the `loan()` API.
 The request is a sample consisting of two numbers `augend` and `addend` that the server shall sum up.
 Additionally, the sample is marked with a sequence id that is incremented before
 every send cycle to ensure a correct ordering of the messages
@@ -115,7 +94,12 @@ client.loan()
     .or_else([](auto& error) { std::cout << "Could not allocate Request! Error: " << error << std::endl; });
 ```
 
-In the same while loop the client receives the responses from the server using `take()`
+Once the request is send, the client do the following:
+
+- wait for samples to arrive via timedWait
+- iterate over the notification vector to check if we were triggered from our client
+
+The client receives the responses from the server using `take()`
 and extract the sequence id with `response.getResponseHeader().getSequenceId()`.
 When the server response comes in the correct order, the received sum is re-used to
 insert it to the `addend` of the next request to send.
@@ -221,9 +205,9 @@ iox::posix::waitForTerminationRequest();
 ```
 
 Once the user wants to shutdown the server, the server event is detached from the listener:
-<!-- [geoffrey] [iceoryx_examples/request_response/server_cxx_listener.cpp][wait for termination] -->
+<!-- [geoffrey] [iceoryx_examples/request_response/server_cxx_listener.cpp][cleanup] -->
 ```cpp
-iox::posix::waitForTerminationRequest();
+listener.detachEvent(server, iox::popo::ServerEvent::REQUEST_RECEIVED);
 ```
 
 <center>

@@ -44,7 +44,7 @@ target_compile_options(
     ${ICEORYX_SANITIZER_FLAGS}
 )
 
-## C++ typed API server
+## C++ untyped API server
 add_executable(
     iox-cpp-request-response-untyped-server
     server_cxx_untpyed.cpp

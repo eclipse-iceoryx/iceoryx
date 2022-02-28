@@ -43,7 +43,7 @@ int main()
     while (!iox::posix::hasTerminationRequested())
     {
         //! [send request]
-        client.loan(sizeof(AddRequest), alignof(AddResponse))
+        client.loan(sizeof(AddRequest), alignof(AddRequest))
             .and_then([&](auto& requestPayload) {
                 auto requestHeader = iox::popo::RequestHeader::fromPayload(requestPayload);
                 requestHeader->setSequenceId(requestSequenceId);
