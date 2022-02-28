@@ -50,8 +50,8 @@ void printSearchResult(const iox_service_description_t service)
 //! [search function for all front devices]
 void searchFrontDevices(const iox_service_description_t service, void* count)
 {
-    if (strncmp(service.instanceString, "FrontLeft", IOX_CONFIG_SERVICE_STRING_SIZE - 1U) == 0
-        || strncmp(service.instanceString, "FrontRight", IOX_CONFIG_SERVICE_STRING_SIZE - 1U) == 0)
+    if (strncmp("FrontLeft", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0
+        || strncmp("FrontRight", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
     {
         ++*(uint32_t*)count;
     }
@@ -74,6 +74,7 @@ int main()
     uint64_t missedServices = 0U;
     uint64_t numberFoundServices = 0U;
 
+    const uint32_t WAIT_TIME_IN_MS = 1000;
 
     while (keepRunning)
     {
@@ -125,7 +126,7 @@ int main()
         //! [search for all front camera services]
         printf("\nFound %u front cameras\n", numberFrontCameras);
 
-        sleep_for(1000);
+        sleep_for(WAIT_TIME_IN_MS);
     }
 
     iox_service_discovery_deinit(serviceDiscovery);

@@ -23,9 +23,9 @@
 
 typedef struct
 {
-    char serviceString[IOX_CONFIG_SERVICE_STRING_SIZE];
-    char instanceString[IOX_CONFIG_SERVICE_STRING_SIZE];
-    char eventString[IOX_CONFIG_SERVICE_STRING_SIZE];
+    char serviceString[IOX_CONFIG_SERVICE_STRING_SIZE + 1U]; // +1U for \0 terminator
+    char instanceString[IOX_CONFIG_SERVICE_STRING_SIZE + 1U];
+    char eventString[IOX_CONFIG_SERVICE_STRING_SIZE + 1U];
 } iox_service_description_t;
 
 #endif
