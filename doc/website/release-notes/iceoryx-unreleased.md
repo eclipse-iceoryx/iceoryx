@@ -13,6 +13,7 @@
 **Refactoring:**
 
 - Separate test specific code from `ErrorHandler` and templatize `setTemporaryErrorHandler()` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)
+- Separate error enum for each module` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)
 
 **New API features:**
 
