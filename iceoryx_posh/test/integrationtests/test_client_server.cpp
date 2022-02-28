@@ -61,14 +61,14 @@ class ClientServer_test : public RouDi_GTest
   public:
     void SetUp() override
     {
-        PoshRuntime::initRuntime("ua");
+        PoshRuntime::initRuntime("together");
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
     ServiceDescription sd{"blue", "and", "yellow"};
-    ServiceDescription sdUnmatch{"yellow", "and", "blue"};
+    ServiceDescription sdUnmatch{"white", "blue", "red"};
     iox::popo::ClientOptions clientOptions;
     iox::popo::ServerOptions serverOptions;
 };
