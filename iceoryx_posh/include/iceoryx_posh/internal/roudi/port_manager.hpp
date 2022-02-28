@@ -202,6 +202,8 @@ class PortManager
 
     void publishServiceRegistry() const noexcept;
 
+    const ServiceRegistry& serviceRegistry() const noexcept;
+
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     PortPool* m_portPool{nullptr};

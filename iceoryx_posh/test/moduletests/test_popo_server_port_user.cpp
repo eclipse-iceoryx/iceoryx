@@ -19,6 +19,8 @@
 
 namespace iox_test_popo_server_port
 {
+// NOTE tests related to QueueFullPolicy are done in test_client_server.cpp integration test
+
 // BEGIN isOffered, offer and stopOffer tests
 
 TEST_F(ServerPort_test, InitialIsOfferedOnPortWithOfferOnCreateIsTrue)

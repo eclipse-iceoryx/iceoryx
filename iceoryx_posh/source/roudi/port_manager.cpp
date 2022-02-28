@@ -1045,6 +1045,10 @@ void PortManager::publishServiceRegistry() const noexcept
         .or_else([](auto&) { LogWarn() << "Could not allocate a chunk for the service registry!"; });
 }
 
+const ServiceRegistry& PortManager::serviceRegistry() const noexcept
+{
+    return m_serviceRegistry;
+}
 
 void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {

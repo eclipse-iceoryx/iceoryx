@@ -223,9 +223,7 @@ class ClientPort_test : public Test
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
-
-/// @todo iox-#27 do tests related to QueueFullPolicy in integration test with a real ServerPort and add a note in this
-/// file that those tests are part of the integration test
+// NOTE tests related to QueueFullPolicy are done in test_client_server.cpp integration test
 
 // BEGIN ClientPortUser tests
 

@@ -58,6 +58,10 @@ class PortManagerTester : public PortManager
   private:
     FRIEND_TEST(PortManager_test, CheckDeleteOfPortsFromProcess1);
     FRIEND_TEST(PortManager_test, CheckDeleteOfPortsFromProcess2);
+    FRIEND_TEST(PortManager_test, CreateServerWithNotOfferOnCreateDoesNotAddServerToServiceRegistry);
+    FRIEND_TEST(PortManager_test, CreateServerWithOfferOnCreateAddsServerToServiceRegistry);
+    FRIEND_TEST(PortManager_test, StopOfferRemovesServerFromServiceRegistry);
+    FRIEND_TEST(PortManager_test, OfferAddsServerToServiceRegistry);
 };
 
 class PortManager_test : public Test
