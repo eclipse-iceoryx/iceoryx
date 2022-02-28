@@ -22,7 +22,7 @@
 namespace iox
 {
 // clang-format off
-#define ICEORYX_ERRORS(error) \
+#define HOOFS_ERRORS(error) \
     error(EXPECTS_ENSURES_FAILED)
 
     // EXPECTS_ENSURES_FAILED is used as a temporary solution to make Expects/Ensures testable
@@ -32,7 +32,7 @@ namespace iox
 enum class HoofsError : uint32_t
 {
     kNO_ERROR = 1000,
-    ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
+    HOOFS_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
 const char* toString(const HoofsError error) noexcept;

@@ -80,7 +80,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         {
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
-            LogFatal() << "publisher options may not have been initialized with iox_pub_init";
+            LogFatal() << "publisher options may not have been initialized with iox_pub_options_init";
             errorHandler(CBindingError::kBINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
         }
         publisherOptions.historyCapacity = options->historyCapacity;

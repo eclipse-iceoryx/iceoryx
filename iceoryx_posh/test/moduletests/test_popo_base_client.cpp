@@ -251,9 +251,8 @@ TYPED_TEST(BaseClient_test, EnableStateCallsUnderlyingPortAndTriggerHandle)
         EXPECT_CALL(this->sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
 
         bool errorDetected{false};
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error,
-                                                                                                 const iox::ErrorLevel
-                                                                                                     errorLevel) {
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<
+            iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             EXPECT_THAT(
                 error,
                 Eq(iox::PoshError::
@@ -313,9 +312,8 @@ TYPED_TEST(BaseClient_test, EnableEventCallsUnderlyingPortAndTriggerHandle)
         EXPECT_CALL(this->sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
 
         bool errorDetected{false};
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error,
-                                                                                                 const iox::ErrorLevel
-                                                                                                     errorLevel) {
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<
+            iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             EXPECT_THAT(
                 error,
                 Eq(iox::PoshError::

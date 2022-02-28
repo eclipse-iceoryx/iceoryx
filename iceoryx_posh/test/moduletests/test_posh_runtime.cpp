@@ -705,8 +705,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f2de2bf-5e7e-47b1-be42-92cf3fa71ba6");
     auto clientOverflowDetected{false};
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel) {
             if (error == iox::PoshError::kPORT_POOL__CLIENTLIST_OVERFLOW)
             {
                 clientOverflowDetected = true;
@@ -816,8 +816,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f679838-3332-440c-aa95-d5c82d53a7cd");
     auto serverOverflowDetected{false};
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const iox::PoshError error, const iox::ErrorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel) {
             if (error == iox::PoshError::kPORT_POOL__SERVERLIST_OVERFLOW)
             {
                 serverOverflowDetected = true;
@@ -926,7 +926,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
     m_runtime->createNode(nodeProperty);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_ROUDI_CREATE_NODE_INVALID_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)

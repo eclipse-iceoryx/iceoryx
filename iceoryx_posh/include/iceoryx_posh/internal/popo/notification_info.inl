@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_NOTIFICATION_INFO_INL
 #define IOX_POSH_POPO_NOTIFICATION_INFO_INL
 
+#include "iceoryx_posh/popo/notification_info.hpp"
+
 namespace iox
 {
 namespace popo

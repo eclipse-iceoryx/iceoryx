@@ -333,7 +333,8 @@ TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
         [&](const iox::CBindingError e, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::serviceDiscoveryEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServiceDiscoveryEvent>()),
               iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE));
+    EXPECT_THAT(errorValue,
+                Eq(iox::CBindingError::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE));
 #endif
 }
 

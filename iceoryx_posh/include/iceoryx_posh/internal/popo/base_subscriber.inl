@@ -18,6 +18,8 @@
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
+#include "iceoryx_posh/popo/base_subscriber.hpp"
+
 namespace iox
 {
 namespace popo

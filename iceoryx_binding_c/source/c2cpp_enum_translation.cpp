@@ -30,7 +30,7 @@ iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const ENUM iox_ConsumerTo
         return iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
     }
 
-    errorHandler(iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_SUBSCRIBER_TOO_SLOW_POLICY,
+    errorHandler(iox::CBindingError::kBINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY,
                  nullptr,
                  iox::ErrorLevel::MODERATE);
     return iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
