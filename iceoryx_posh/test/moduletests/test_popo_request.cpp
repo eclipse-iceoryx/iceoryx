@@ -71,6 +71,7 @@ TEST_F(Request_test, SendCallsInterfaceMockWithErrorResult)
 TEST_F(Request_test, SendingAlreadySentRequestCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e010085d-3674-4a7e-8704-73405ab49afa");
+    constexpr ClientSendError CLIENT_SEND_ERROR{ClientSendError::INVALID_REQUEST};
     EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
 
     EXPECT_FALSE(sutProducer.send().has_error());
@@ -82,15 +83,19 @@ TEST_F(Request_test, SendingAlreadySentRequestCallsErrorHandler)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
 
-    sutProducer.send().has_error();
+    auto sendResult = sutProducer.send();
+
+    ASSERT_TRUE(sendResult.has_error());
+    EXPECT_THAT(sendResult.get_error(), Eq(CLIENT_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_REQUEST));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_REQUEST));
 }
 
 TEST_F(Request_test, SendingMovedRequestCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c49cf937-c831-45e6-8d1b-bba37e786979");
+    constexpr ClientSendError CLIENT_SEND_ERROR{ClientSendError::INVALID_REQUEST};
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
@@ -100,10 +105,13 @@ TEST_F(Request_test, SendingMovedRequestCallsErrorHandler)
         });
 
     auto movedSut = std::move(sutProducer);
-    sutProducer.send().has_error();
+    auto sendResult = sutProducer.send();
+
+    ASSERT_TRUE(sendResult.has_error());
+    EXPECT_THAT(sendResult.get_error(), Eq(CLIENT_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_REQUEST));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__SENDING_EMPTY_REQUEST));
 }
 
 TEST_F(Request_test, GetRequestHeaderWorks)

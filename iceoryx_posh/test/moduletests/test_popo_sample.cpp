@@ -41,23 +41,13 @@ TEST_F(Sample_test, SendCallsInterfaceMockWithSuccessResult)
     EXPECT_THAT(sutProducer.get(), Eq(nullptr));
 }
 
-TEST_F(Sample_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
+TEST_F(Sample_test, SendOnMoveDestinationCallsInterfaceMock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74a62eae-d36f-47bf-9df9-695e50fcdd88");
     EXPECT_CALL(mockInterface, mockSend(_)).Times(1);
 
     auto movedSut = std::move(sutProducer);
     movedSut.publish();
-
-    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
-}
-
-TEST_F(Sample_test, SendCallsInterfaceMockWithErrorResult)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1e0e7b2b-c417-4f77-b999-22c7bd4342ea");
-    EXPECT_CALL(mockInterface, mockSend(_)).Times(1);
-
-    sutProducer.publish();
 
     EXPECT_THAT(sutProducer.get(), Eq(nullptr));
 }
