@@ -58,7 +58,7 @@ void onRequestReceived(iox_server_t server)
         }
         else
         {
-            printf("Could not allocate Response! Return value = %d\n", loanResult);
+            printf("Could not allocate Response! Error code: %d\n", loanResult);
         }
         iox_server_release_request(server, request);
     }

@@ -83,9 +83,9 @@ class TestRequestResponseInCBasicExample(unittest.TestCase):
             'iox-c-request-response-server-basic Got Request: 55 + 89', timeout=45, stream='stdout')
 
         proc_output.assertWaitFor(
-            'iox-c-request-response-server-basic Send Response: 144', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
             'iox-c-request-response-client-basic Got Response: 144', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-c-request-response-server-basic Send Response: 144', timeout=45, stream='stdout')
 
 
 # These tests run after shutdown and examine the stdout log

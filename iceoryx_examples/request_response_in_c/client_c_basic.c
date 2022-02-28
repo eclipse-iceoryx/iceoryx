@@ -118,7 +118,7 @@ int main()
         }
         else
         {
-            printf("Could not allocate Request! Return value = %d\n", loanResult);
+            printf("Could not allocate Request! Error code: %d\n", loanResult);
         }
 
         const uint32_t SLEEP_TIME_IN_MS = 950U;

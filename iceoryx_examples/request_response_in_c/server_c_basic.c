@@ -76,7 +76,7 @@ int main()
             }
             else
             {
-                printf("%s Could not allocate Response! Return value = %d\n", APP_NAME, loanResult);
+                printf("%s Could not allocate Response! Error code: %d\n", APP_NAME, loanResult);
             }
 
             iox_server_release_request(server, request);

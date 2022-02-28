@@ -90,7 +90,7 @@ int main()
         }
         else
         {
-            printf("Could not allocate Request! Return value = %d\n", loanResult);
+            printf("Could not allocate Request! Error code: %d\n", loanResult);
         }
 
 

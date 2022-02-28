@@ -163,11 +163,12 @@ if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NU
 }
 ```
 
-Again we come perform the same task like in the client basic example. We enter our
+Again we perform the same task like in the client basic example. We enter our
 main loop, loan a request and set it up.
 But after we sent the request to our server we do not sleep for some time, we wait
 on the waitset until the request was received.
 We use `iox_ws_timed_wait` to wait for at most 2 seconds. 
+
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][wait for response]-->
 ```c
 iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
@@ -184,6 +185,7 @@ When this blocking call
 returns we iterate over the `notificationArray` and when one triggered originated
 from our `client` we acquire all responses in a while loop and print them to
 the console.
+
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][process responses]-->
 ```c
 for (uint64_t i = 0; i < numberOfNotifications; ++i)
@@ -215,6 +217,7 @@ for (uint64_t i = 0; i < numberOfNotifications; ++i)
 
 The cleanup is done when we exit our mainloop. We detach the client state from
 the waitset first and then deinitialize the waitset and the client.
+
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][process responses]-->
 ```c
 iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
