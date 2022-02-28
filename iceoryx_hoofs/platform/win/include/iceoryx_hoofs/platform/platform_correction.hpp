@@ -28,6 +28,8 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
+#pragma pointers_to_members(full_generality)
+
 #undef CreateMutex
 #undef max
 #undef min
