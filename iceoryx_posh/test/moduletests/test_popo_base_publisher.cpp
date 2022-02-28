@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/base_publisher.hpp"
+#include "iceoryx_posh/internal/popo/base_publisher.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"

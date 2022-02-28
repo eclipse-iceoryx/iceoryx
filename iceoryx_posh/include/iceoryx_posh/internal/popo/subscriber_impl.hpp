@@ -18,9 +18,9 @@
 #ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_IMPL_HPP
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_IMPL_HPP
 
+#include "iceoryx_posh/internal/popo/base_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
-#include "iceoryx_posh/popo/base_subscriber.hpp"
 
 namespace iox
 {
