@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
-
 #include "test_cxx_functional_interface_types.hpp"
 
 namespace
@@ -36,7 +36,7 @@ void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
     bool wasErrorHandlerCalled = false;
     SutType sut = FactoryType::createValidObject();
     {
-        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
             [&](auto, auto) { wasErrorHandlerCalled = true; });
         callExpect(sut);
     }
@@ -75,7 +75,7 @@ void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
     bool wasErrorHandlerCalled = true;
     SutType sut = FactoryType::createInvalidObject();
     {
-        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
             [&](auto, auto) { wasErrorHandlerCalled = true; });
         callExpect(sut);
     }

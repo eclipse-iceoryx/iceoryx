@@ -166,6 +166,7 @@ add_library(iceoryx_hoofs
     source/cxx/generic_raii.cpp
     source/cxx/unique_id.cpp
     source/error_handling/error_handler.cpp
+    source/error_handling/error_handling.cpp
     source/file_reader/file_reader.cpp
     source/log/logcommon.cpp
     source/log/logger.cpp

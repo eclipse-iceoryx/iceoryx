@@ -19,15 +19,8 @@
 
 namespace iox
 {
-const char* ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
-
 // NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
 iox::HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};
-
-const char* toString(const Error error) noexcept
-{
-    return ERROR_NAMES[static_cast<typename std::underlying_type<Error>::type>(error)];
-}
 
 void ErrorHandler::defaultHandler(const uint32_t, const char* errorName, const ErrorLevel level) noexcept
 {

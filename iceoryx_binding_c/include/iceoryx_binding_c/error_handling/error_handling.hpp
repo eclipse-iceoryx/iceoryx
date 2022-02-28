@@ -41,7 +41,7 @@ namespace iox
 
 enum class CBindingError : uint32_t
 {
-    kNO_ERROR = 2000,
+    kNO_ERROR = 3000,
     C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 

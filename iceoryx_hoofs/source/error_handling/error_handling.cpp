@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,27 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
-#include <iostream>
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 namespace iox
 {
-namespace cxx
+const char* HOOFS_ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+
+const char* toString(const HoofsError error) noexcept
 {
-namespace internal
-{
-void Require(
-    const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
-{
-    if (!condition)
-    {
-        std::cerr << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
-                  << ")" << std::endl;
-        errorHandler(HoofsError::kEXPECTS_ENSURES_FAILED, std::function<void()>(), ErrorLevel::FATAL);
-    }
+    return HOOFS_ERROR_NAMES[static_cast<typename std::underlying_type<HoofsError>::type>(error)];
 }
-} // namespace internal
-} // namespace cxx
 } // namespace iox

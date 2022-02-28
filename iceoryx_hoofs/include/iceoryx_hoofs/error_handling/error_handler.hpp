@@ -27,23 +27,9 @@
 
 namespace iox
 {
-// clang-format off
-#define ICEORYX_ERRORS(error) \
-    error(NO_ERROR)\
-    error(EXPECTS_ENSURES_FAILED)
-
-    // EXPECTS_ENSURES_FAILED is used as a temporary solution to make Expects/Ensures testable
-
-// clang-format on
-
 // DO NOT TOUCH START, you can doodle around with the lines above!!!
 #define CREATE_ICEORYX_ERROR_ENUM(name) k##name,
 #define CREATE_ICEORYX_ERROR_STRING(name) #name,
-
-enum class Error : uint32_t
-{
-    ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
-};
 
 /// @brief the available error levels
 /// FATAL
@@ -136,8 +122,6 @@ class ErrorHandler
 
     static iox::HandlerFunction handler;
 };
-
-const char* toString(const Error error) noexcept;
 
 } // namespace iox
 
