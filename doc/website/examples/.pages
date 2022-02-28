@@ -16,3 +16,7 @@ nav:
   - icecrystal.md
   - request_response_in_c.md
   - request_response.md
+  - complexdata.md
+  - user_header.md
+  - icediscovery.md
+  - icediscovery_in_c.md
