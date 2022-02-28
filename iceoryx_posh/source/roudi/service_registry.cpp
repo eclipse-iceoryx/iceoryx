@@ -177,7 +177,7 @@ uint32_t ServiceRegistry::findIndex(const capro::ServiceDescription& serviceDesc
     return NO_INDEX;
 }
 
-void ServiceRegistry::applyToAll(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
+void ServiceRegistry::forEach(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
     if (!callable)
     {
