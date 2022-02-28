@@ -158,6 +158,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
                 }
                 else
                 {
+                    ++numberOfQueuesTheChunkWasDeliveredTo;
                     ChunkQueuePusher_t(queue.get()).lostAChunk();
                 }
             }
