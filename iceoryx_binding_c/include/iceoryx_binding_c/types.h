@@ -23,7 +23,7 @@
 
 /// @brief if the function parameters change due to an update of the listener or
 ///        waitset recalculate them with the following approach.
-///        1. Run SanityCheck.SanityCheck.VerifyStorageSizeCalculationForListener
+///        1. Run SanityCheck.VerifyStorageSizeCalculationForListener
 ///            or SanityCheck.VerifyStorageSizeCalculationForWaitSet
 ///        2. Take a look at the expected numbers of size 1 (A1) and 2 (A2).
 ///        3. Find the parameters m, n for the function StorageSize(x) = m + n * x

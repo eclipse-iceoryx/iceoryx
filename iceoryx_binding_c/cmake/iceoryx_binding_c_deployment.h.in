@@ -16,6 +16,11 @@
 #ifndef IOX_BINDING_C_DEPLOYMENT_H
 #define IOX_BINDING_C_DEPLOYMENT_H
 
-#define IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS @IOX_MAX_NUMBER_OF_NOTIFIERS@
+/// @note must be equal to MAX_NUMBER_OF_NOTIFIERS in iceoryx_posh_types.hpp
+/// @todo The following files need to be touched when activating the CMake configuration of IOX_MAX_NUMBER_OF_NOTIFIERS
+/// enable constexpr IOX_MAX_NUMBER_OF_NOTIFIERS in iceoryx_posh/cmake/iceoryx_posh_deployment.hpp.in
+/// enable IOX_MAX_NUMBER_OF_NOTIFIERS parameter in iceoryx_posh/cmake/IceoryxPoshDeployment.cmake
+/// use build::IOX_MAX_NUMBER_OF_NOTIFIERS parameter in iceoryx_posh/include/iceoryx_posh/iceoryx_posh_types.hpp
+#define IOX_BUILD_GENERATED_MAX_NUMBER_OF_NOTIFIERS @IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS@
 
 #endif // IOX_BINDING_C_DEPLOYMENT_H
