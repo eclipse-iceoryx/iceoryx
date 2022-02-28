@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ typedef testing::Types<uint8_t, int8_t, double> Types;
 TYPED_TEST_SUITE(RelativePointer_test, Types);
 
 
-/// @todo the tests should be reworked in a reworked in a refactoring of relative pointers
+/// @todo #605 the tests should be reworked in a refactoring of relative pointers
 TYPED_TEST(RelativePointer_test, ConstrTests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cae7b4d4-86eb-42f6-b938-90a76f01bea5");
