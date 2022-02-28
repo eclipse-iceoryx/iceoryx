@@ -15,25 +15,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
-#define IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
+#ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_IMPL_INL
+#define IOX_POSH_POPO_TYPED_SUBSCRIBER_IMPL_INL
+
+#include "iceoryx_posh/internal/popo/subscriber_impl.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T, typename H, typename BaseSubscriber_t>
-inline SubscriberImpl<T, H, BaseSubscriber_t>::SubscriberImpl(const capro::ServiceDescription& service,
-                                                              const SubscriberOptions& subscriberOptions) noexcept
-    : BaseSubscriber_t(service, subscriberOptions)
+template <typename T, typename H, typename BaseSubscriberType>
+inline SubscriberImpl<T, H, BaseSubscriberType>::SubscriberImpl(const capro::ServiceDescription& service,
+                                                                const SubscriberOptions& subscriberOptions) noexcept
+    : BaseSubscriberType(service, subscriberOptions)
 {
 }
 
-template <typename T, typename H, typename BaseSubscriber_t>
+template <typename T, typename H, typename BaseSubscriberType>
 inline cxx::expected<Sample<const T, const H>, ChunkReceiveResult>
-SubscriberImpl<T, H, BaseSubscriber_t>::take() noexcept
+SubscriberImpl<T, H, BaseSubscriberType>::take() noexcept
 {
-    auto result = BaseSubscriber_t::takeChunk();
+    auto result = BaseSubscriberType::takeChunk();
     if (result.has_error())
     {
         return cxx::error<ChunkReceiveResult>(result.get_error());
@@ -43,13 +45,13 @@ SubscriberImpl<T, H, BaseSubscriber_t>::take() noexcept
     return cxx::success<Sample<const T, const H>>(std::move(samplePtr));
 }
 
-template <typename T, typename H, typename BaseSubscriber_t>
-inline SubscriberImpl<T, H, BaseSubscriber_t>::~SubscriberImpl() noexcept
+template <typename T, typename H, typename BaseSubscriberType>
+inline SubscriberImpl<T, H, BaseSubscriberType>::~SubscriberImpl() noexcept
 {
-    BaseSubscriber_t::m_trigger.reset();
+    BaseSubscriberType::m_trigger.reset();
 }
 
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
+#endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_IMPL_INL
