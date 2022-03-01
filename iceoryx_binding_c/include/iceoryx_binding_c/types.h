@@ -28,6 +28,22 @@
 ///        2. Take a look at the expected numbers of size 1 (A1) and 2 (A2).
 ///        3. Find the parameters m, n for the function StorageSize(x) = m + n * x
 ///        4. Re-run the the tests to verify if the parameters are correct.
+///
+/// Howto calculate those numbers:
+/// 1. ./build/binding_c/test/binding_c_moduletests --gtest_filter="SanityCheck.VerifyStorageSizeCalculationForWaitSet"
+/// 2. Analyse the output of the failing test:
+///    /home/elchris/Development/iceoryx/iceoryx_binding_c/test/moduletests/test_types_storage_size.hpp:77: Failure
+///    Value of: sizeof(WaitSet<1>)
+///    Expected: is equal to 734
+///      Actual: 736 (of type unsigned long)
+///    /home/elchris/Development/iceoryx/iceoryx_binding_c/test/moduletests/test_types_storage_size.hpp:78: Failure
+///    Value of: sizeof(WaitSet<2>)
+///    Expected: is equal to 916
+///      Actual: 920 (of type unsigned long)
+///    The actual size is for `sizeof(WaitSet<1>)` == 736 and for `sizeof(WaitSet<2>)` == 920
+/// 3. With those two values we know StorageSize(1) = m + n * 1 = 736 and StorageSize(2) = m + n * 2 = 920
+/// 4. We gain the value of m = 552 and n = 184
+///
 #if defined(__APPLE__)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
     (144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1))
