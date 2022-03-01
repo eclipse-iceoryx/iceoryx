@@ -47,12 +47,12 @@ class ChunkHeader
     uint8_t chunkHeaderVersion;
     uint8_t reserved{0};
     uint16_t userHeaderId;
-    uint64_t originId;
+    popo::UniquePortId originId; // underlying type = uint64_t
     uint64_t sequenceNumber;
     uint32_t userHeaderSize{0U};
     uint32_t userPayloadSize{0U};
     uint32_t userPayloadAlignment{1U};
-    uint32_t userPayloadOffset;
+    UserPayloadOffset_t userPayloadOffset; // alias to uint32_t
 };
 ```
 
