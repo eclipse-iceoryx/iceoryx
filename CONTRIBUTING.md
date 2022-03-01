@@ -158,7 +158,7 @@ A good example for code formatting and doxygen structure can be found in [swe_do
 The folder structure boils down to:
 
 * iceoryx_COMPONENT
-  * cmake: all cmake files go here, needed for `find_pkg()`
+  * cmake: all CMake files go here, needed for `find_pkg()`
   * doc: manuals and documentation
   * include: public headers with stable API
     * internal: public headers with unstable API, which might change quite frequently
@@ -221,7 +221,7 @@ You will need to install the following packages:
 sudo apt install lcov
 ```
 
-In iceoryx we have multiple test levels for test coverage: 'unit', 'integration', 'component' and ’all’ for all test levels together. You can create reports for these different test levels or for all tests. Coverage is done with gcc.
+In iceoryx we have multiple test levels for test coverage: `unit`, `integration`, `component` and `all` for all test levels together. You can create reports for these different test levels or for all tests. Coverage is done with gcc.
 The coverage scan applies to Quality [level 3](#quality-level-3) and partly [level 2](#quality-level-2) with branch coverage.
 
 For generating a coverage report, iceoryx needs to be compiled with coverage flags and the tests need to be executed.
@@ -232,11 +232,10 @@ You can do this with one command in the iceoryx folder like this:
 ```
 
 Optionally, you can use the build-all option to get the coverage for extensions like DDS or the C-Binding.
-The -c flag indicates that you want to have a coverage report, and you can pass there the needed test level. Per default the test level is set to 'all'.
-example:
+The -c flag indicates that you want to have a coverage report, and you can pass there the needed test level. Per default the test level is set to `all`.
 
 ```bash
-./tools/iceoryx_build_test.sh debug build-all -c unit
+./tools/iceoryx_build_test.sh clean debug build-all -c unit
 ```
 
 **NOTE**
@@ -247,11 +246,7 @@ filtering and report generation is done automatically.
 
 All reports are stored locally in build/lcov as html report (index.html). In GitHub, we are using [Codecov](https://about.codecov.io) for a general reporting of the code coverage.
 Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
-If you want to download the detailed html reports from the Pull-Requests or master build you can do it in the following way:
-
-1. Open the "Checks" view in the PR
-2. Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`
-3. On the right side you find a menu button `Artifacts` which shows `lcov-report` as download link
+If you want to see detailed html reports for specific Pull-Requests or branches, you can check [here](https://app.codecov.io/gh/eclipse-iceoryx/iceoryx/).
 
 ## Legal & Compliance
 
@@ -351,11 +346,11 @@ Example:
 // SPDX-License-Identifier: Apache-2.0
 ```
 
-**_NOTE:_**  For scripts or cmake files you can use the respective comment syntax `#` for the header.
+**_NOTE:_**  For scripts or CMake files you can use the respective comment syntax `#` for the header.
 
 ## Quality levels
 
-The cmake targets are developed according to the
+The CMake targets are developed according to the
 [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
 Despite developing some targets according to automotive standards like ISO26262, the code base standalone
 does NOT legitimize the usage in a safety-critical system. All requirements of a lower quality level are included in
