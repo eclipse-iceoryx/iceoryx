@@ -31,6 +31,12 @@ ClientImpl<Req, Res, BaseClientT>::ClientImpl(const capro::ServiceDescription& s
 }
 
 template <typename Req, typename Res, typename BaseClientT>
+ClientImpl<Req, Res, BaseClientT>::~ClientImpl() noexcept
+{
+    BaseClientT::m_trigger.reset();
+}
+
+template <typename Req, typename Res, typename BaseClientT>
 cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanUninitialized() noexcept
 {
     auto result = port().allocateRequest(sizeof(Req), alignof(Req));

@@ -29,8 +29,15 @@ namespace popo
 template <typename Req, typename Res>
 class Server : public ServerImpl<Req, Res>
 {
+    using Impl = ServerImpl<Req, Res>;
+
   public:
     using ServerImpl<Req, Res>::ServerImpl;
+
+    virtual ~Server() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
 } // namespace popo
 } // namespace iox

@@ -3,20 +3,14 @@ name: Nightly iceoryx run
 on:
   schedule:
   - cron: "0 6 * * 1-5"
+  push:
+    branches: [ master ]
 
 jobs:
-  # uses macos to run freebsd in a virtualbox
-  build-test-unix-with-freebsd:
+  build-test-macos:
     runs-on: macos-10.15
+    # prevent stuck jobs consuming macos runners for 6 hours
+    timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: 'master'
-    - name: Unix (FreeBSD) test
-      id: Test
-      uses: vmactions/freebsd-vm@v0.1.6
-      with:
-        usesh: true
-        mem: 2048
-        prepare: pkg install -y cmake git ncurses bash wget bison
-        run: ./tools/ci/build-test-freebsd.sh
+      - uses: actions/checkout@v2
+      - run: ./tools/ci/build-test-macos.sh

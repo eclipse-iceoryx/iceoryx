@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,55 +18,30 @@
 #ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/internal/popo/sample_deleter.hpp"
-#include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
-#include "iceoryx_posh/popo/base_subscriber.hpp"
+#include "iceoryx_posh/internal/popo/subscriber_impl.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T, typename H = iox::mepoo::NoUserHeader, typename BaseSubscriber_t = BaseSubscriber<>>
-class SubscriberImpl : public BaseSubscriber_t
+/// @brief The Subscriber class for the publish-subscribe messaging pattern in iceoryx.
+/// @param[in] T user payload type
+/// @param[in] H user header type
+template <typename T, typename H = mepoo::NoUserHeader>
+class Subscriber : public SubscriberImpl<T, H>
 {
-    using SelfType = SubscriberImpl<T, BaseSubscriber_t>;
-
-    using DataTypeAssert = typename TypedPortApiTrait<T>::Assert;
-    using HeaderTypeAssert = typename TypedPortApiTrait<H>::Assert;
+    using Impl = SubscriberImpl<T, H>;
 
   public:
-    SubscriberImpl(const capro::ServiceDescription& service,
-                   const SubscriberOptions& subscriberOptions = SubscriberOptions()) noexcept;
-    SubscriberImpl(const SubscriberImpl& other) = delete;
-    SubscriberImpl& operator=(const SubscriberImpl&) = delete;
-    SubscriberImpl(SubscriberImpl&& rhs) = delete;
-    SubscriberImpl& operator=(SubscriberImpl&& rhs) = delete;
-    virtual ~SubscriberImpl() noexcept;
+    using SubscriberImpl<T, H>::SubscriberImpl;
 
-    ///
-    /// @brief Take the samples from the top of the receive queue.
-    /// @return Either a sample or a ChunkReceiveResult.
-    /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but
-    /// always the whole sample.
-    ///
-    cxx::expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
-
-    using PortType = typename BaseSubscriber_t::PortType;
-    using SubscriberSampleDeleter = SampleDeleter<PortType>;
-
-  protected:
-    using BaseSubscriber_t::port;
-
-  private:
-    SubscriberSampleDeleter m_sampleDeleter{port()};
+    virtual ~Subscriber() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
-
-template <typename T, typename H = mepoo::NoUserHeader>
-using Subscriber = SubscriberImpl<T, H>;
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/subscriber.inl"
 
 #endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP

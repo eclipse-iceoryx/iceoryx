@@ -34,7 +34,7 @@ namespace iox
 namespace popo
 {
 template <typename Req, typename Res, typename BaseServerT = BaseServer<>>
-class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>, ServerSendError>
+class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, ServerSendError>
 {
     using RequestTypeAssert = typename TypedPortApiTrait<Req>::Assert;
     using ResponseTypeAssert = typename TypedPortApiTrait<Res>::Assert;
@@ -44,7 +44,8 @@ class ServerImpl : public BaseServerT, public RpcInterface<Response<Res>, Server
     /// @param[in] service is the ServiceDescription for the new server
     /// @param[in] serverOptions like the queue capacity and queue full policy by a server
     explicit ServerImpl(const capro::ServiceDescription& service, const ServerOptions& serverOptions = {}) noexcept;
-    ~ServerImpl() noexcept = default;
+    virtual ~ServerImpl() noexcept;
+
     ServerImpl(const ServerImpl&) = delete;
     ServerImpl(ServerImpl&&) = delete;
     ServerImpl& operator=(const ServerImpl&) = delete;

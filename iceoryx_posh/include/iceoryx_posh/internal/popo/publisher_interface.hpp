@@ -15,26 +15,34 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_TYPED_PUBLISHER_HPP
-#define IOX_POSH_POPO_TYPED_PUBLISHER_HPP
+#ifndef IOX_POSH_POPO_PUBLISHER_INTERFACE_HPP
+#define IOX_POSH_POPO_PUBLISHER_INTERFACE_HPP
 
-#include "iceoryx_posh/internal/popo/publisher_impl.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 
 namespace iox
 {
 namespace popo
 {
-/// @brief The Publisher class for the publish-subscribe messaging pattern in iceoryx.
-/// @param[in] T user payload type
-/// @param[in] H user header type
-template <typename T, typename H = mepoo::NoUserHeader>
-class Publisher : public PublisherImpl<T, H>
+///
+/// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
+/// This allows any publisher specialization to be stored as a reference by the Sample class.
+/// It is also needed to avoid circular dependencies between Sample and Publisher.
+///
+template <typename T, typename H>
+class PublisherInterface
 {
   public:
-    using PublisherImpl<T, H>::PublisherImpl;
-};
+    using SampleType = Sample<T, H>;
 
+    /// @brief Publishes the given sample and then releases its loan.
+    /// @param sample The sample to publish.
+    virtual void publish(SampleType&& sample) noexcept = 0;
+
+  protected:
+    PublisherInterface() = default;
+};
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_TYPED_PUBLISHER_HPP
+#endif // IOX_POSH_POPO_PUBLISHER_INTERFACE_HPP

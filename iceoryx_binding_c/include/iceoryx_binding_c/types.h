@@ -28,18 +28,37 @@
 ///        2. Take a look at the expected numbers of size 1 (A1) and 2 (A2).
 ///        3. Find the parameters m, n for the function StorageSize(x) = m + n * x
 ///        4. Re-run the the tests to verify if the parameters are correct.
+///
+/// Howto calculate those numbers:
+/// 1. ./build/binding_c/test/binding_c_moduletests --gtest_filter="SanityCheck.VerifyStorageSizeCalculationForWaitSet"
+/// 2. Analyse the output of the failing test:
+///    /home/elchris/Development/iceoryx/iceoryx_binding_c/test/moduletests/test_types_storage_size.hpp:77: Failure
+///    Value of: sizeof(WaitSet<1>)
+///    Expected: is equal to 734
+///      Actual: 736 (of type unsigned long)
+///    /home/elchris/Development/iceoryx/iceoryx_binding_c/test/moduletests/test_types_storage_size.hpp:78: Failure
+///    Value of: sizeof(WaitSet<2>)
+///    Expected: is equal to 916
+///      Actual: 920 (of type unsigned long)
+///    The actual size is for `sizeof(WaitSet<1>)` == 736 and for `sizeof(WaitSet<2>)` == 920
+/// 3. With those two values we know StorageSize(1) = m + n * 1 = 736 and StorageSize(2) = m + n * 2 = 920
+/// 4. We gain the value of m = 552 and n = 184
+///
 #if defined(__APPLE__)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
     (144 + numberOfAttachments * 168 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #elif defined(_WIN32)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
-    (168 + numberOfAttachments * 176 - 8 * (((numberOfAttachments + 1) / 2) - 1))
-#else
+    (168 + numberOfAttachments * 192 - 8 * (((numberOfAttachments + 1) / 2) - 1))
+#elif defined(__linux__)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) (((128 + numberOfAttachments * 140) / 8) * 8)
+#elif defined(__FreeBSD__)
+#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
+    (88 + numberOfAttachments * 112 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #endif
 
 #if defined(_WIN32)
-#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 168)
+#define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 200)
 #else
 #define CALCULATE_STORAGE_SIZE_FOR_WAITSET(numberOfAttachments) (552 + numberOfAttachments * 184)
 #endif
@@ -71,8 +90,10 @@ struct iox_user_trigger_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[15];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[16];
-#else
+    uint64_t do_not_touch_me[18];
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[8];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[12];
 #endif
 };
@@ -85,8 +106,10 @@ struct iox_sub_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[16];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[17];
-#else
+    uint64_t do_not_touch_me[19];
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[9];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[13];
 #endif
 };
@@ -124,8 +147,10 @@ typedef struct
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[23];
-#else
+    uint64_t do_not_touch_me[25];
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[15];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[19];
 #endif
 } iox_client_storage_t;
@@ -138,8 +163,10 @@ typedef struct
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[22];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[23];
-#else
+    uint64_t do_not_touch_me[25];
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[15];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[19];
 #endif
 } iox_server_storage_t;
@@ -152,8 +179,10 @@ struct iox_service_discovery_storage_t
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[30];
 #elif defined(_WIN32)
-    uint64_t do_not_touch_me[33];
-#else
+    uint64_t do_not_touch_me[35];
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[16];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[24];
 #endif
 };

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,62 +18,27 @@
 #ifndef IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
-#include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/popo/base_subscriber.hpp"
+#include "iceoryx_posh/internal/popo/untyped_subscriber_impl.hpp"
 
 namespace iox
 {
 namespace popo
 {
-class Void
+/// @brief The UntypedSubscriber class for the publish-subscribe messaging pattern in iceoryx.
+class UntypedSubscriber : public UntypedSubscriberImpl<>
 {
-};
+    using Impl = UntypedSubscriberImpl<>;
 
-template <typename BaseSubscriber_t = BaseSubscriber<>>
-class UntypedSubscriberImpl : public BaseSubscriber_t
-{
   public:
-    using BaseSubscriber = BaseSubscriber_t;
-    using SelfType = UntypedSubscriberImpl<BaseSubscriber_t>;
+    using UntypedSubscriberImpl<>::UntypedSubscriberImpl;
 
-    UntypedSubscriberImpl(const capro::ServiceDescription& service,
-                          const SubscriberOptions& subscriberOptions = SubscriberOptions());
-    UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
-    UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
-    UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
-    UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
-    virtual ~UntypedSubscriberImpl() noexcept;
-
-    ///
-    /// @brief Take the chunk from the top of the receive queue.
-    /// @return The user-payload pointer of the chunk taken.
-    /// @details No automatic cleanup of the associated chunk is performed
-    ///          and must be manually done by calling `release`
-    ///
-    cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
-
-    ///
-    /// @brief Releases the ownership of the chunk provided by the user-payload pointer.
-    /// @param userPayload pointer to the user-payload of the chunk to be released
-    /// @details The userPayload pointer must have been previously provided by take and
-    ///          not have been already released.
-    ///          The chunk must not be accessed afterwards as its memory may have
-    ///          been reclaimed.
-    ///
-    void release(const void* const userPayload) noexcept;
-
-  protected:
-    using BaseSubscriber::port;
+    virtual ~UntypedSubscriber() noexcept
+    {
+        Impl::m_trigger.reset();
+    }
 };
-
-using UntypedSubscriber = UntypedSubscriberImpl<>;
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/untyped_subscriber.inl"
 
 #endif // IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP

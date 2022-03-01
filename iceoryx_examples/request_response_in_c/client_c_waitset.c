@@ -26,7 +26,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #define NUMBER_OF_NOTIFICATIONS 1
 

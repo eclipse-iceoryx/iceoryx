@@ -117,6 +117,14 @@ class MockBaseServer
     PortType mockPort;
     iox::capro::ServiceDescription serviceDescription;
     iox::popo::ServerOptions serverOptions;
+
+    struct TriggerResetMock
+    {
+        void reset()
+        {
+        }
+    };
+    TriggerResetMock m_trigger;
 };
 
 #endif // IOX_POSH_MOCKS_SERVER_MOCK_HPP

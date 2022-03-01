@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,33 +15,35 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
-#define IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
+#ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_IMPL_INL
+#define IOX_POSH_POPO_UNTYPED_PUBLISHER_IMPL_INL
+
+#include "iceoryx_posh/internal/popo/untyped_publisher_impl.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename BasePublisher_t>
-inline UntypedPublisherImpl<BasePublisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service,
-                                                                   const PublisherOptions& publisherOptions)
-    : BasePublisher_t(service, publisherOptions)
+template <typename BasePublisherType>
+inline UntypedPublisherImpl<BasePublisherType>::UntypedPublisherImpl(const capro::ServiceDescription& service,
+                                                                     const PublisherOptions& publisherOptions)
+    : BasePublisherType(service, publisherOptions)
 {
 }
 
-template <typename BasePublisher_t>
-inline void UntypedPublisherImpl<BasePublisher_t>::publish(void* const userPayload) noexcept
+template <typename BasePublisherType>
+inline void UntypedPublisherImpl<BasePublisherType>::publish(void* const userPayload) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
     port().sendChunk(chunkHeader);
 }
 
-template <typename BasePublisher_t>
+template <typename BasePublisherType>
 inline cxx::expected<void*, AllocationError>
-UntypedPublisherImpl<BasePublisher_t>::loan(const uint32_t userPayloadSize,
-                                            const uint32_t userPayloadAlignment,
-                                            const uint32_t userHeaderSize,
-                                            const uint32_t userHeaderAlignment) noexcept
+UntypedPublisherImpl<BasePublisherType>::loan(const uint32_t userPayloadSize,
+                                              const uint32_t userPayloadAlignment,
+                                              const uint32_t userHeaderSize,
+                                              const uint32_t userHeaderAlignment) noexcept
 {
     auto result = port().tryAllocateChunk(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (result.has_error())
@@ -54,8 +56,8 @@ UntypedPublisherImpl<BasePublisher_t>::loan(const uint32_t userPayloadSize,
     }
 }
 
-template <typename BasePublisher_t>
-inline void UntypedPublisherImpl<BasePublisher_t>::release(void* const userPayload) noexcept
+template <typename BasePublisherType>
+inline void UntypedPublisherImpl<BasePublisherType>::release(void* const userPayload) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
     port().releaseChunk(chunkHeader);
@@ -64,4 +66,4 @@ inline void UntypedPublisherImpl<BasePublisher_t>::release(void* const userPaylo
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
+#endif // IOX_POSH_POPO_UNTYPED_PUBLISHER_IMPL_INL

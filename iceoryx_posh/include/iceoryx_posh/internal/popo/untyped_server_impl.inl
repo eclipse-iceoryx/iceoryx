@@ -31,6 +31,12 @@ UntypedServerImpl<BaseServerT>::UntypedServerImpl(const capro::ServiceDescriptio
 }
 
 template <typename BaseServerT>
+UntypedServerImpl<BaseServerT>::~UntypedServerImpl() noexcept
+{
+    BaseServerT::m_trigger.reset();
+}
+
+template <typename BaseServerT>
 cxx::expected<const void*, ServerRequestResult> UntypedServerImpl<BaseServerT>::take() noexcept
 {
     auto requestResult = port().getRequest();
