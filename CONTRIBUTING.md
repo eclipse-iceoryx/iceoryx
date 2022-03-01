@@ -161,7 +161,7 @@ The folder structure boils down to:
   * cmake: all CMake files go here, needed for `find_pkg()`
   * doc: manuals and documentation
   * include: public headers with stable API
-    * internal: public headers with unstable API, which might change quite frequently
+    * internal: public headers with internal API, which might change quite frequently
   * source: implementation files
   * test: unit and integration tests
   * CMakeLists.txt: build the component separately
@@ -224,7 +224,7 @@ sudo apt install lcov
 In iceoryx we have multiple test levels for test coverage: `unit`, `integration`, `component` and `all` for all test levels together. You can create reports for these different test levels or for all tests. Coverage is done with gcc.
 The coverage scan applies to Quality [level 3](#quality-level-3) and partly [level 2](#quality-level-2) with branch coverage.
 
-For generating a coverage report, iceoryx needs to be compiled with coverage flags and the tests need to be executed.
+To generate a coverage report, iceoryx needs to be compiled with coverage flags and the tests need to be executed.
 You can do this with one command in the iceoryx folder like this:
 
 ```bash
@@ -232,21 +232,23 @@ You can do this with one command in the iceoryx folder like this:
 ```
 
 Optionally, you can use the build-all option to get the coverage for extensions like DDS or the C-Binding.
-The -c flag indicates that you want to have a coverage report, and you can pass there the needed test level. Per default the test level is set to `all`.
+The -c flag indicates that you want to generate a coverage report and requires you to pass the test level.
+By default the test level is set to `all`.
 
 ```bash
 ./tools/iceoryx_build_test.sh clean debug build-all -c unit
 ```
 
 **NOTE**
-iceoryx needs to be built as static library for working with gcov flags. The script does it automatically.
+iceoryx needs to be built as static library to work with gcov flags. The script does this automatically.
 
 The flag `-c unit` is for generating only reports for unit tests. In the script `tools/scripts/lcov_generate.sh`, the initial scan,
 filtering and report generation is done automatically.
 
-All reports are stored locally in build/lcov as html report (index.html). In GitHub, we are using [Codecov](https://about.codecov.io) for a general reporting of the code coverage.
-Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
-If you want to see detailed html reports for specific Pull-Requests or branches, you can check [here](https://app.codecov.io/gh/eclipse-iceoryx/iceoryx/).
+All reports are stored locally in build/lcov as html report (index.html). In GitHub, we are using [Codecov](https://about.codecov.io)
+for general reporting of the code coverage. Codecov gives a brief overview of the code coverage and
+also indicates in Pull-Requests if newly added code is not covered by tests. If you want to see
+detailed html reports for specific Pull-Requests or branches, you can check [here](https://app.codecov.io/gh/eclipse-iceoryx/iceoryx/).
 
 ## Legal & Compliance
 
