@@ -50,8 +50,11 @@
 #elif defined(_WIN32)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
     (168 + numberOfAttachments * 192 - 8 * (((numberOfAttachments + 1) / 2) - 1))
-#else
+#elif defined(__linux__)
 #define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments) (((128 + numberOfAttachments * 140) / 8) * 8)
+#elif defined(__FreeBSD__)
+#define CALCULATE_STORAGE_SIZE_FOR_LISTENER(numberOfAttachments)                                                       \
+    (88 + numberOfAttachments * 112 - 8 * (((numberOfAttachments + 1) / 2) - 1))
 #endif
 
 #if defined(_WIN32)
@@ -88,7 +91,9 @@ struct iox_user_trigger_storage_t_
     uint64_t do_not_touch_me[15];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[18];
-#else
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[8];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[12];
 #endif
 };
@@ -102,7 +107,9 @@ struct iox_sub_storage_t_
     uint64_t do_not_touch_me[16];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[19];
-#else
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[9];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[13];
 #endif
 };
@@ -141,7 +148,9 @@ typedef struct
     uint64_t do_not_touch_me[22];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[25];
-#else
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[15];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[19];
 #endif
 } iox_client_storage_t;
@@ -155,7 +164,9 @@ typedef struct
     uint64_t do_not_touch_me[22];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[25];
-#else
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[15];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[19];
 #endif
 } iox_server_storage_t;
@@ -169,7 +180,9 @@ struct iox_service_discovery_storage_t
     uint64_t do_not_touch_me[30];
 #elif defined(_WIN32)
     uint64_t do_not_touch_me[35];
-#else
+#elif defined(__FreeBSD__)
+    uint64_t do_not_touch_me[16];
+#elif defined(__linux__)
     uint64_t do_not_touch_me[24];
 #endif
 };
