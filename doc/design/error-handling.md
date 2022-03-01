@@ -2,7 +2,7 @@
 
 ## Logging
 
-Logging is performed by the Iceoryx internal logger. The logger API implements a subset of the Autosar log and trace interface ``ara::log``.
+Logging is performed by the Iceoryx internal logger.
 The logger is used internally to record errors and general system runtime information. It can also be used by the user in application code for the same purpose.
 
 ### Logger
