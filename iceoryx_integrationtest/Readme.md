@@ -3,7 +3,7 @@
 ## Introduction
 
 To ensure quality standards in iceoryx, we are using automated testing to ensure ISO26262 on unit test and integration
-test level in the respective components. Additionally, we need to make sure that the customer-facing API is functional
+test level of the respective components. Additionally, we need to make sure that the customer-facing API is functional
 and software integration specifications are fulfilled. Test focus is here on SWE.5 according to ASPICE.
 
 For that purpose we bring in tests which simulate customer behavior to have automatic testing of (Mis)Use-cases.
@@ -24,7 +24,7 @@ Limitations:
 
 ## Setup
 
-For building and executing the tests you need to have ROS 2 installed. Please follow the instructions on <https://docs.ros.org/en/foxy/Installation.html>.
+To build and execute the tests you need to have ROS 2 installed. Please follow the instructions on <https://docs.ros.org/en/foxy/Installation.html>.
 The system tests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
 
 Please remove beforehand the `COLCON_IGNORE` files from `iceoryx_integrationtest` and `iceoryx_examples`.
@@ -71,7 +71,7 @@ Go into your iceoryx_workspace folder and do the colcon build:
 colcon build
 ```
 
-Expected output should be like this: `Summary: 21 packages finished [31.7s]`
+The expected output should be like this: `Summary: 21 packages finished [31.7s]`
 Colcon automatically creates the folders `build`, `install` and `log`.
 
 **_NOTE:_** Please make sure that the build folder in src/iceoryx is not present to avoid conflicts with the
@@ -97,14 +97,14 @@ Summary: 1 package finished [4min 50s]
   1 package had test failures: iceoryx_integrationtest
 ```
 
-For observing test logs in an error case you can use `colcon test-result`:
+You can use `colcon test-result` to obtain test logs in an error case:
 
 ```bash
 colcon test-result --all --verbose
 ```
 
-With colcon all tests in the iceoryx_integrationtest package are executed. In particular cases you want to execute only
-one test file. This can be done in the following way:
+With colcon all tests in the iceoryx_integrationtest package are executed. In particular cases you may
+want to execute only one test file. This can be done in the following way:
 
 ```bash
 launch_test src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py
