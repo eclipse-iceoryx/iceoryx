@@ -86,15 +86,7 @@ By default this is set to `false` and best-effort behavior is used.
 
 !!! warning
     In case of n:m communication, the history feature will **not** provide the overall last n samples based on delivery point in time!
-
-    The following two scenarios are examples of issues when using n:m together with the history feature:
-
-    1. Multiple publishers
-    The last n samples of every publisher are received. This means for m publishers in the worst
-    case m * n samples in random order, not in the order they were published on the topic.
-
-    2. Multiple publishers after the publisher called `stopOffer()` or is removed
-    The last n samples will never be received since they vanished. An arbitrary number of samples or nothing is received.
+    For more information about this limitation see the [QoS article](https://iceoryx.io/v2.0.0/concepts/qos-policies/).
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][history]-->
 ```cpp
