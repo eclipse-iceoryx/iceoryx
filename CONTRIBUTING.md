@@ -93,7 +93,7 @@ o---o---o---o---o  master
 We love the [C++ core guidelines](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines). If in doubt please try
 to follow them as well as our unwritten conventions in the existing parts of the code base.
 Please format your code with the provided [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and
-[clang-tidy](https://clang.llvm.org/extra/clang-tidy/) before raising a pull request. Nowadays many IDEs read the
+[clang-tidy](https://clang.llvm.org/extra/clang-tidy/) before raising a pull request. Nowadays, many IDEs read the
 clang-format file.
 
 We created some handy rules to highlight some specifics that you might not be used to in other FOSS projects. They are
@@ -111,8 +111,8 @@ codebase follows these rules, things are work in progress.
     our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
-8) **Always use `iox::ErrorHandler`**, when an error occurs that cannot or shall not be propagated via an
-    `iox::cxx::expected`, the `iox::ErrorHandler` shall be used; exceptions are not allowed
+8) **Always use `iox::ErrorHandler` or `iox::cxx::Expects`/`iox::cxx::Ensures`**, when an error occurs that cannot or
+    shall not be propagated via an `iox::cxx::expected`
 9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 
 See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional
