@@ -49,37 +49,11 @@ using iox::roudi::RouDiEnvironment;
 
 using ServiceContainer = std::vector<ServiceDescription>;
 
-struct Publisher
-{
-    using Producer = iox::popo::UntypedPublisher;
-    static constexpr MessagingPattern KIND{MessagingPattern::PUB_SUB};
-    static constexpr auto MAX_PRODUCERS{iox::MAX_PUBLISHERS};
-    static constexpr auto MAX_USER_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
-};
-
-struct Server
-{
-    using Producer = iox::popo::UntypedServer;
-    static constexpr MessagingPattern KIND{MessagingPattern::REQ_RES};
-    static constexpr auto MAX_PRODUCERS{iox::MAX_SERVERS};
-    static constexpr auto MAX_USER_PRODUCERS{iox::MAX_SERVERS};
-};
-
 std::atomic_bool callbackWasCalled{false};
 ServiceContainer serviceContainer;
 class ServiceDiscoveryPubSub_test : public RouDi_GTest
 {
   public:
-    void SetUp() override
-    {
-        callbackWasCalled = false;
-        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
-    }
-
-    void TearDown() override
-    {
-    }
-
     void findService(const optional<IdString_t>& service,
                      const optional<IdString_t>& instance,
                      const optional<IdString_t>& event,
@@ -93,6 +67,83 @@ class ServiceDiscoveryPubSub_test : public RouDi_GTest
     {
         serviceContainer.emplace_back(s);
     };
+
+
+    iox::runtime::PoshRuntime* runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
+    ServiceDiscovery sut;
+};
+
+template <typename T>
+class ServiceDiscovery_test : public ServiceDiscoveryPubSub_test
+{
+  public:
+    using CommunicationKind = T;
+
+    void SetUp() override
+    {
+        callbackWasCalled = false;
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+        m_waitset.attachEvent(sut, ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, 0U).or_else([](auto) {
+            GTEST_FAIL();
+        });
+    }
+
+    void findService(const optional<IdString_t>& service,
+                     const optional<IdString_t>& instance,
+                     const optional<IdString_t>& event) noexcept
+    {
+        ServiceDiscoveryPubSub_test::findService(service, instance, event, CommunicationKind::PATTERN);
+    }
+
+    void findService(const ServiceDescription& s) noexcept
+    {
+        findService(s.getServiceIDString(), s.getInstanceIDString(), s.getEventIDString());
+    }
+
+    void waitUntilServiceChange()
+    {
+        m_waitset.wait();
+    }
+
+    void waitUntilEventuallyFound(const ServiceDescription& s)
+    {
+        do
+        {
+            waitUntilServiceChange();
+            findService(s);
+
+            if (serviceContainer.size() == 1)
+            {
+                if (serviceContainer[0] == s)
+                {
+                    break;
+                }
+            }
+        } while (true);
+    }
+
+    void waitUntilEventuallyNotFound(const ServiceDescription& s)
+    {
+        do
+        {
+            waitUntilServiceChange();
+            findService(s);
+        } while (!serviceContainer.empty());
+    }
+
+    iox::popo::WaitSet<1U> m_waitset;
+    const iox::units::Duration m_fatalTimeout = 10_s;
+    Watchdog m_watchdog{m_fatalTimeout};
+};
+
+class ServiceDiscoveryNotification_test : public ServiceDiscoveryPubSub_test
+{
+  public:
+    void SetUp() override
+    {
+        callbackWasCalled = false;
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+    }
 
     static void testCallback(ServiceDiscovery* const)
     {
@@ -110,35 +161,33 @@ class ServiceDiscoveryPubSub_test : public RouDi_GTest
         callbackWasCalled = true;
     }
 
-    iox::runtime::PoshRuntime* runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
-    ServiceDiscovery sut;
-
     const iox::units::Duration m_fatalTimeout = 10_s;
     Watchdog m_watchdog{m_fatalTimeout};
 };
 
-template <typename T>
-class ServiceDiscovery_test : public ServiceDiscoveryPubSub_test
+struct PubSub
 {
-  public:
-    using CommunicationKind = T;
-
-    void findService(const optional<IdString_t>& service,
-                     const optional<IdString_t>& instance,
-                     const optional<IdString_t>& event) noexcept
-    {
-        ServiceDiscoveryPubSub_test::findService(service, instance, event, CommunicationKind::KIND);
-    }
+    using Producer = iox::popo::UntypedPublisher;
+    static constexpr MessagingPattern PATTERN{MessagingPattern::PUB_SUB};
+    static constexpr uint32_t MAX_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
 };
 
-///
-/// Publish-Subscribe || Request-Response
-///
+struct ReqRes
+{
+    using Producer = iox::popo::UntypedServer;
+    static constexpr MessagingPattern PATTERN{MessagingPattern::REQ_RES};
+    static constexpr auto MAX_PRODUCERS{iox::MAX_SERVERS};
+};
 
-using CommunicationKind = Types<Publisher, Server>;
+using CommunicationKind = Types<PubSub, ReqRes>;
 TYPED_TEST_SUITE(ServiceDiscovery_test, CommunicationKind);
 
-// tests with multiple offer stages, we should not vary the search kind here (exact search suffices)
+//
+// Offer, StopOffer, Reoffer
+//
+
+// tests with multiple offer stages, we do not vary the search kind here
+// but check whether we find the service exactly
 
 TYPED_TEST(ServiceDiscovery_test, ReofferedServiceCanBeFound)
 {
@@ -154,77 +203,54 @@ TYPED_TEST(ServiceDiscovery_test, ReofferedServiceCanBeFound)
     EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
 
     producer.stopOffer();
-    this->InterOpWait();
+    this->waitUntilEventuallyNotFound(SERVICE_DESCRIPTION);
+
     this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
                       SERVICE_DESCRIPTION.getInstanceIDString(),
                       SERVICE_DESCRIPTION.getEventIDString());
-
     EXPECT_TRUE(serviceContainer.empty());
 
     producer.offer();
-    this->InterOpWait();
+    this->waitUntilEventuallyFound(SERVICE_DESCRIPTION);
+
     this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
                       SERVICE_DESCRIPTION.getInstanceIDString(),
                       SERVICE_DESCRIPTION.getEventIDString());
-
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
+    EXPECT_THAT(serviceContainer[0], Eq(SERVICE_DESCRIPTION));
 }
+
 
 TYPED_TEST(ServiceDiscovery_test, ServiceOfferedMultipleTimesCanBeFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ae0790ed-4e1b-4f12-94b3-c9e56433c935");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
+
+     this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
+                      SERVICE_DESCRIPTION.getInstanceIDString(),
+                      SERVICE_DESCRIPTION.getEventIDString());
+
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(serviceContainer[0], Eq(SERVICE_DESCRIPTION));
+
     producer.offer();
-    this->InterOpWait();
+    this->waitUntilServiceChange();
 
     this->findService(SERVICE_DESCRIPTION.getServiceIDString(),
                       SERVICE_DESCRIPTION.getInstanceIDString(),
                       SERVICE_DESCRIPTION.getEventIDString());
 
     ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION));
+    EXPECT_THAT(serviceContainer[0], Eq(SERVICE_DESCRIPTION));
 }
 
 
-TYPED_TEST(ServiceDiscovery_test, ServicesWhichStoppedOfferingCannotBeFound)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e4f99eb1-7496-4a1e-bbd1-ebdb07e1ec9b");
+//
+// Notification
+//
 
-    const IdString_t INSTANCE = "instance";
-    const IdString_t EVENT = "event";
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
-    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
-
-    producer_sd1.stopOffer();
-    producer_sd3.stopOffer();
-    this->InterOpWait();
-
-    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-
-    this->findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
-    ASSERT_THAT(serviceContainer.size(), Eq(1U));
-    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
-
-    this->findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
-    EXPECT_THAT(serviceContainer.size(), Eq(0U));
-}
-
-///
-/// Publisher-Subscriber && Request-Response
-///
-
-///
-/// Publisher-Subscriber
-///
-
-TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServicesAndServiceRegistry)
+TEST_F(ServiceDiscoveryNotification_test, FindServiceWithWildcardsReturnsOnlyIntrospectionServicesAndServiceRegistry)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d944f32c-edef-44f5-a6eb-c19ee73c98eb");
     findService(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, MessagingPattern::PUB_SUB);
@@ -237,7 +263,7 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithWildcardsReturnsOnlyIntrospec
     }
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithEmptyCallableDoesNotDie)
+TEST_F(ServiceDiscoveryNotification_test, FindServiceWithEmptyCallableDoesNotDie)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7e1bf253-ce81-47cc-9b4a-605de7e49b64");
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("ninjababy", "pow", "pow");
@@ -247,7 +273,7 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithEmptyCallableDoesNotDie)
         iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction, MessagingPattern::PUB_SUB);
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsAttachableToWaitSet)
+TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryIsAttachableToWaitSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fc0eeb7a-6f2a-481f-ae8a-1e17460e261f");
     iox::popo::WaitSet<10U> waitSet;
@@ -261,7 +287,7 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsAttachableToWaitSet)
         .or_else([](auto) { GTEST_FAIL() << "Could not attach to wait set"; });
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsNotifiedbyWaitSetAboutSingleService)
+TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryIsNotifiedbyWaitSetAboutSingleService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1cf36b5-3db2-4e6f-8e05-e7e449530ec0");
     iox::popo::WaitSet<1U> waitSet;
@@ -286,7 +312,7 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsNotifiedbyWaitSetAboutSing
     EXPECT_TRUE(callbackWasCalled);
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryNotifiedbyWaitSetFindsSingleService)
+TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryNotifiedbyWaitSetFindsSingleService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1ecde7e0-f5b2-4721-b309-66f32f40a7bf");
     iox::popo::WaitSet<1U> waitSet;
@@ -312,7 +338,7 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryNotifiedbyWaitSetFindsSingle
     EXPECT_THAT(serviceContainer.front(), Eq(serviceDescriptionToSearchFor));
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsAttachableToListener)
+TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryIsAttachableToListener)
 {
     ::testing::Test::RecordProperty("TEST_ID", "def201f7-d1bf-4031-8e50-a2ad22ee303c");
     iox::popo::Listener listener;
@@ -325,7 +351,7 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsAttachableToListener)
         .or_else([](auto) { GTEST_FAIL() << "Could not attach to listener"; });
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsNotifiedByListenerAboutSingleService)
+TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryIsNotifiedByListenerAboutSingleService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "305107fc-41dd-431c-8032-ed5e82f93038");
     iox::popo::Listener listener;
@@ -347,7 +373,7 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryIsNotifiedByListenerAboutSin
     EXPECT_TRUE(callbackWasCalled.load());
 }
 
-TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryNotifiedbyListenerFindsSingleService)
+TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryNotifiedbyListenerFindsSingleService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b38ba8a4-ff27-437a-b376-13125cb419cb");
     iox::popo::Listener listener;
@@ -369,6 +395,10 @@ TEST_F(ServiceDiscoveryPubSub_test, ServiceDiscoveryNotifiedbyListenerFindsSingl
     ASSERT_FALSE(serviceContainer.empty());
     EXPECT_THAT(serviceContainer.front(), Eq(serviceDescriptionToSearchFor));
 }
+
+//
+// FindService Variations
+//
 
 struct Comparator
 {
@@ -463,7 +493,7 @@ struct ReferenceDiscovery
 };
 
 template <typename T>
-class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
+class ServiceDiscoveryFindService_test : public ServiceDiscoveryPubSub_test
 {
   public:
     using Variation = T;
@@ -575,10 +605,7 @@ class ReferenceServiceDiscovery_test : public ServiceDiscoveryPubSub_test
             return iox::MAX_SERVERS;
         }
     }
-}; // for (; created < OTHER_MAX; ++created)
-   // {
-   //     this->addOther(randomService("Ferdinand", "Spitz"));
-   // }
+};
 
 template <typename T>
 T uniform(T n)
@@ -705,19 +732,6 @@ struct WWW
     }
 };
 
-struct PubSub
-{
-    static constexpr MessagingPattern PATTERN{MessagingPattern::PUB_SUB};
-    static constexpr uint32_t MAX_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
-};
-
-struct ReqRes
-{
-    static constexpr MessagingPattern PATTERN{MessagingPattern::REQ_RES};
-    static constexpr auto MAX_PRODUCERS{iox::MAX_SERVERS};
-};
-
-
 template <typename S, typename T>
 struct Variation : public S, public T
 {
@@ -768,7 +782,7 @@ using TestVariations = Types<PS_SIE,
 //       Variation<SIW, ReqRes>, Variation<WWE, ReqRes>, Variation<WIW, ReqRes>, Variation<SWW, ReqRes>,
 //       Variation<WWW, ReqRes>;
 
-TYPED_TEST_SUITE(ReferenceServiceDiscovery_test, TestVariations);
+TYPED_TEST_SUITE(ServiceDiscoveryFindService_test, TestVariations);
 
 // All tests run for publishers and servers as well as all 8 search variations.
 // Each test sets up the discovery state and, runs a search and compares the result
@@ -779,27 +793,27 @@ TYPED_TEST_SUITE(ReferenceServiceDiscovery_test, TestVariations);
 // TODO: test ids
 
 #if 1
-TYPED_TEST(ReferenceServiceDiscovery_test, FindIfNothingOffered)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindIfNothingOffered)
 {
     this->testFindService({"a"}, {"b"}, {"c"});
 }
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindIfSingleServiceOffered)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindIfSingleServiceOffered)
 {
-    this->add({"a", "b", "c"});
-
-    this->testFindService({"a"}, {"b"}, {"c"});
-}
-
-TYPED_TEST(ReferenceServiceDiscovery_test, FindIfSingleServiceOfferedMultipleTimes)
-{
-    this->add({"a", "b", "c"});
     this->add({"a", "b", "c"});
 
     this->testFindService({"a"}, {"b"}, {"c"});
 }
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindIfMultipleServicesOffered)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindIfSingleServiceOfferedMultipleTimes)
+{
+    this->add({"a", "b", "c"});
+    this->add({"a", "b", "c"});
+
+    this->testFindService({"a"}, {"b"}, {"c"});
+}
+
+TYPED_TEST(ServiceDiscoveryFindService_test, FindIfMultipleServicesOffered)
 {
     this->add({"a", "b", "c"});
     this->add({"a", "b", "aa"});
@@ -809,7 +823,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, FindIfMultipleServicesOffered)
     this->testFindService({"aa"}, {"a"}, {"c"});
 }
 
-TYPED_TEST(ReferenceServiceDiscovery_test, RepeatedSearchYieldsSameResult)
+TYPED_TEST(ServiceDiscoveryFindService_test, RepeatedSearchYieldsSameResult)
 {
     this->add({"a", "b", "c"});
     this->add({"a", "b", "aa"});
@@ -823,7 +837,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, RepeatedSearchYieldsSameResult)
     sortAndCompare(previousResult, serviceContainer);
 }
 
-TYPED_TEST(ReferenceServiceDiscovery_test, FindNonExistingService)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingService)
 {
     this->add({"a", "b", "c"});
     this->add({"a", "b", "aa"});
@@ -843,7 +857,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, FindNonExistingService)
 #endif
 
 // only one kind (MessagingPattern) of service
-TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumProducers)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumProducers)
 {
     auto constexpr MAX = TestFixture::maxProducers(TestFixture::Variation::PATTERN);
     auto constexpr N1 = MAX / 3;
@@ -890,7 +904,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumProducers)
 
 // mixed tests
 
-TYPED_TEST(ReferenceServiceDiscovery_test, SameServerAndPublisherCanBeFound)
+TYPED_TEST(ServiceDiscoveryFindService_test, SameServerAndPublisherCanBeFound)
 {
     this->add({"Ferdinand", "Schnüffel", "Spitz"});
     this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
@@ -898,7 +912,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, SameServerAndPublisherCanBeFound)
     this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
 }
 
-TYPED_TEST(ReferenceServiceDiscovery_test, OtherServiceKindWithMatchingNameIsNotFound)
+TYPED_TEST(ServiceDiscoveryFindService_test, OtherServiceKindWithMatchingNameIsNotFound)
 {
     this->add({"Schnüffel", "Ferdinand", "Spitz"});
     this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
@@ -907,7 +921,7 @@ TYPED_TEST(ReferenceServiceDiscovery_test, OtherServiceKindWithMatchingNameIsNot
 }
 
 // both kinds (MessagingPattern) of service
-TYPED_TEST(ReferenceServiceDiscovery_test, FindInMaximumServices)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
 {
     auto constexpr MAX = TestFixture::maxProducers(TestFixture::Variation::PATTERN);
     auto constexpr N1 = MAX / 3;
@@ -1338,6 +1352,35 @@ TEST_F(ServiceDiscoveryPubSub_test, FindServiceWithPublisherAndServerWithTheSame
 
     ASSERT_THAT(serviceContainerReqRes.size(), Eq(1U));
     EXPECT_THAT(*serviceContainerReqRes.begin(), Eq(SERVICE_DESCRIPTION));
+}
+
+// redundant due to b67b4990-e2fd-4efa-ab5d-e53c4ee55972
+TYPED_TEST(ServiceDiscovery_test, ServicesWhichStoppedOfferingCannotBeFound)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e4f99eb1-7496-4a1e-bbd1-ebdb07e1ec9b");
+
+    const IdString_t INSTANCE = "instance";
+    const IdString_t EVENT = "event";
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION1("service1", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd1(SERVICE_DESCRIPTION1);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION2("service2", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd2(SERVICE_DESCRIPTION2);
+    const iox::capro::ServiceDescription SERVICE_DESCRIPTION3("service3", INSTANCE, EVENT);
+    typename TestFixture::CommunicationKind::Producer producer_sd3(SERVICE_DESCRIPTION3);
+
+    producer_sd1.stopOffer();
+    producer_sd3.stopOffer();
+    this->InterOpWait();
+
+    this->findService(SERVICE_DESCRIPTION1.getServiceIDString(), INSTANCE, EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
+
+    this->findService(SERVICE_DESCRIPTION2.getServiceIDString(), INSTANCE, EVENT);
+    ASSERT_THAT(serviceContainer.size(), Eq(1U));
+    EXPECT_THAT(*serviceContainer.begin(), Eq(SERVICE_DESCRIPTION2));
+
+    this->findService(SERVICE_DESCRIPTION3.getServiceIDString(), INSTANCE, EVENT);
+    EXPECT_THAT(serviceContainer.size(), Eq(0U));
 }
 
 #endif
