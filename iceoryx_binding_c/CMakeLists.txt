@@ -34,6 +34,20 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
+option(APPEND_PROJECT_NAME_TO_INCLUDEDIR
+  "When ON headers are installed to a path ending with a folder called \
+  ${PROJECT_NAME}. This avoids include directory search order issues when \
+  overriding this package from a merged catkin, ament, or colcon workspace."
+  ON)
+
+if(APPEND_PROJECT_NAME_TO_INCLUDEDIR)
+  if(PREFIX STREQUAL "")
+    set(PREFIX "${PROJECT_NAME}")
+  else()
+    set(PREFIX "${PREFIX}/${PROJECT_NAME}")
+  endif()
+endif()
+
 #
 ########## set variables for export ##########
 #
