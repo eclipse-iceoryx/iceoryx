@@ -8,19 +8,15 @@ settings are called options and can be used to optimize and tailor the communica
 
 The two most important settings are:
 
-| Option                                 | Explanation                                                                  |
-|----------------------------------------|------------------------------------------------------------------------------|
-| `ServerOptions::requestQueueCapacity`  | This enables servers to store n requests before they are passed to the users |
-| `ClientOptions::responseQueueCapacity` | This enables clients to store n respones before they are passed to the users |
-
-## Server and client matching criteria
-
-Two criteria have to be fulfilled in order for a server and a client to be connected.
-
-1. Same `capro::ServiceDescription`
-2. Matching `ConsumerTooSlowPolicy` and `QueueFullPolicy` in `ServerOptions`/`ClientOptions`
+| Option                                 | Explanation                                                  |
+|----------------------------------------|--------------------------------------------------------------|
+| `ServerOptions::requestQueueCapacity`  | This enables servers to store n requests at the users side   |
+| `ClientOptions::responseQueueCapacity` | This enables clients to store n responses at the users side  |
 
 ### Compatible policies
+
+The `ConsumerTooSlowPolicy` and `QueueFullPolicy` are used to control the behavior for full queues. Since some
+combinations would be contradicting, not all of them match to connect producer and consumer.
 
 | `ConsumerTooSlowPolicy`   | `QueueFullPolicy`     | Behavior                                   | Connection          |
 |---------------------------|-----------------------|--------------------------------------------|---------------------|
@@ -29,6 +25,13 @@ Two criteria have to be fulfilled in order for a server and a client to be conne
 | `DISCARD_OLDEST_DATA`     | `DISCARD_OLDEST_DATA` | Non-blocking producer                      | :white_check_mark:  |
 | `DISCARD_OLDEST_DATA`     | `BLOCK_PRODUCER`      | Not compatible, no connection established  | :x:                 |
 
+## Server and client matching criteria
+
+Two criteria have to be fulfilled in order for a server and a client to be connected.
+
+1. Same `capro::ServiceDescription`
+2. Matching `ConsumerTooSlowPolicy` and `QueueFullPolicy` in `ServerOptions`/`ClientOptions`
+
 ## `PublisherOptions` and `SubscriberOptions`
 
 The three most important settings are:
@@ -36,7 +39,7 @@ The three most important settings are:
 | Option                              | Explanation                                                                                                                                       |
 |-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | `PublisherOptions::historyCapacity` | This enables late-joining subscribers to request the n last samples                                                                               |
-| `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored before they are passed to the user                                                          |
+| `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored at the user side                                                                            |
 | `SubscriberOptions::historyRequest` | The number of samples a late-joining subscriber will request from a publisher, should be equal or smaller than `historyCapacity` otherwise capped |
 
 !!! warning
@@ -59,7 +62,7 @@ The three most important settings are:
 
 ## Publisher and subscriber matching criteria
 
-If `requiresPublisherHistorySupport` is set, additionally to the matching criteria of server and client, there is there is a third one for publishers and subscribers:
+If `requiresPublisherHistorySupport` is set, additionally to the matching criteria of server and client, there is a third one for publishers and subscribers:
 
 1. Same `capro::ServiceDescription`
 2. Matching `ConsumerTooSlowPolicy` and `QueueFullPolicy` in `PublisherOptions`/`SubscriberOptions`
