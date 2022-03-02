@@ -36,11 +36,11 @@ Two criteria have to be fulfilled in order for a server and a client to be conne
 
 The three most important settings are:
 
-| Option                              | Explanation                                                                                                                                       |
-|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `PublisherOptions::historyCapacity` | This enables late-joining subscribers to request the n last samples                                                                               |
-| `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored at the user side                                                                            |
-| `SubscriberOptions::historyRequest` | The number of samples a late-joining subscriber will request from a publisher, should be equal or smaller than `historyCapacity` otherwise capped |
+| Option                              | Explanation                                                                                                                                                   |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PublisherOptions::historyCapacity` | This enables late-joining subscribers to request the n last samples                                                                                           |
+| `SubscriberOptions::queueCapacity`  | Size of the subscriber queue where samples are stored at the user side                                                                                        |
+| `SubscriberOptions::historyRequest` | The number of samples a late-joining subscriber will request from every offered publisher, should be equal or smaller than `historyCapacity` otherwise capped |
 
 !!! warning
     In case of n:m communication, the history feature will **not** provide the overall last n samples based on delivery point in time!
