@@ -82,6 +82,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Application can't create publisher repeatedly with previous one already destroyed [\#938](https://github.com/eclipse-iceoryx/iceoryx/issues/938)
 - Prevent creation of `popo::Publisher`'s with internal `ServiceDescription` [\#1120](https://github.com/eclipse-iceoryx/iceoryx/issues/1120)
 - RelativePointer is now type safe, i.e. can only be constructed from pointers with a valid convertion to the raw pointer [\#1121](https://github.com/eclipse-iceoryx/iceoryx/issues/1121)
+- Clamping `historyRequest` to `queueCapacity` [\#1192](https://github.com/eclipse-iceoryx/iceoryx/issues/1192)
 
 **Refactoring:**
 
