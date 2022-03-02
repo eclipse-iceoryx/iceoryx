@@ -3,7 +3,7 @@
 ## Introduction
 
 This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
+It provides publisher and subscriber applications. They come in two C++ API flavors (untyped and typed).
 
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->
@@ -12,7 +12,7 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 ## Code walkthrough
 
 This example makes use of two kinds of API flavors. With the untyped API, you have the most flexibility. It enables you
-to put APIs on a higher level with a different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or
+to put APIs on a higher level with a different look and feel on top of iceoryx, e.g. the ara::com API of AUTOSAR Adaptive or
 the ROS 2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
 abstraction. A simple example how such an abstraction could look like is given in the second step with the typed
 example. The typed API provides type safety combined with [RAII](https://en.cppreference.com/w/cpp/language/raii).
@@ -110,14 +110,14 @@ data->y = ct;
 data->z = ct;
 ```
 
-And finally, in both ways, the value is made available to other subscribers with
+And finally, the value is made available to other subscribers with
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][publish]-->
 ```cpp
 publisher.publish(userPayload);
 ```
 
-The incrementation and sending of the data is done in a loop every second till the user pressed `Ctrl-C`. It is
+The incrementation and sending of the data is done in a loop every second until the user presses `Ctrl-C`. It is
 captured with the signal handler and stops the loop.
 
 ### Subscriber application (untyped)
@@ -151,9 +151,6 @@ offered:
 iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
-When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.
-However, when restricting iceoryx to the 1:n communication philosophy before being in the state `SUBSCRIBED`, the state is changed to `SUBSCRIBE_REQUESTED`.
-
 Again in a while-loop we do the following:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_subscriber_untyped.cpp][[loop] [chunk happy path]]-->
@@ -176,10 +173,10 @@ while (!iox::posix::hasTerminationRequested())
 }
 ```
 
-The `killswitch` will be used to stop the program execution.
+The program execution is stopped when the user presses `Ctrl-C`.
 
 Let's translate it into a story again: "Take the data and then if this succeeds, work with the sample, or else if an
-error other than `NO_CHUNK_AVAILABLE` occurred, print the string 'Error receiving chunk.'" Of course, you don't need to
+error other than `NO_CHUNK_AVAILABLE` occurred, print the string 'Error receiving chunk.'". Of course, you don't need to
 take care of all cases, but we advise doing so.
 
 In the `and_then` case the content of the sample is printed to the command line:
@@ -278,7 +275,6 @@ lead to a larger runtime.
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher.cpp][API Usage #3]-->
 ```cpp
 //  * Basic copy-and-publish. Useful for smaller data types.
-//
 auto object = RadarObject(sampleValue3, sampleValue3, sampleValue3);
 publisher.publishCopyOf(object).or_else([](auto& error) {
     // Do something with error.
@@ -288,9 +284,9 @@ publisher.publishCopyOf(object).or_else([](auto& error) {
 
 #### #4 Publish the result of a computation
 
-Usage #4 can be useful if you have a callable e.g. a function or
+Usage #4 can be useful if you have a callable, e.g. a function or
 [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) should be always called. The callable needs
-to have the signature `void(SampleType*)`.  What then happens, is the following: The publisher loans a sample from
+to have the signature `void(SampleType*, ...)`.  What then happens, is the following: The publisher loans a sample from
 shared memory and if loaning was successful the callable is called with a pointer to the `SampleType` as first
 argument. If loaning was unsuccessful, the callable is not called, but instead the `or_else` branch is taken.
 
@@ -299,7 +295,6 @@ argument. If loaning was unsuccessful, the callable is not called, but instead t
 //  * Provide a callable that will be used to populate the loaned sample.
 //  * The first argument of the callable must be T* and is the location that the callable should
 //      write its result to.
-//
 publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {
     // Do something with error.
     std::cerr << "Unable to publishResultOf, error: " << error << std::endl;
@@ -350,7 +345,8 @@ with
 })
 ```
 
-In case of the typed `Subscriber`, `auto` is deduced to `iox::popo::Sample<const RadarObject>`. With the `UntypedSubscriber` the parameter is `const void*` as no type information is available.
+In case of the typed `Subscriber`, `auto` is deduced to `iox::popo::Sample<const RadarObject>`. With the
+`UntypedSubscriber` the parameter is `const void*` as no type information is available.
 
 <center>
 [Check out icedelivery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery){ .md-button }
