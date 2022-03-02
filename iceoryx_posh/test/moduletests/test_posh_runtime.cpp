@@ -517,6 +517,22 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueCapacityZeroClampsQueue
     EXPECT_EQ(1U, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithHistoryRequestLargerThanQueueCapacityClampsToQueueCapacity)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "77ca8d29-ffcb-4860-bf07-0af30b352e5c");
+    iox::popo::SubscriberOptions subscriberOptions;
+    constexpr uint64_t EXPECTED_HISTORY_REQUEST = 1U;
+    subscriberOptions.queueCapacity = EXPECTED_HISTORY_REQUEST;
+    subscriberOptions.historyRequest = 42U;
+
+    auto subscriberPort =
+        m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription("Harder", "Better", "Faster"),
+                                           subscriberOptions,
+                                           iox::runtime::PortConfigInfo(33U, 11U, 22U));
+
+    EXPECT_EQ(EXPECTED_HISTORY_REQUEST, subscriberPort->m_options.historyRequest);
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e06b999c-e237-4e32-b826-a5ffdb6bb737");
