@@ -3,11 +3,13 @@
 together Group1 {
 class Client<Req, Res> {
   Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription
   connect(): void
   disconnect(): void
   getConnectionState(): ConnectionState
-  loan(): expected<Request<Req>, Error>
-  send(request: Request<Req>): void
+  loan(Args...): expected<Request<Req>, Error>
+  send(request: Request<Req>): expected<ClientSendError>
   hasResponses(): bool
   take(): expected<Response<Res>, Error>
   releaseQueuedResponses(): void
@@ -16,6 +18,8 @@ class Client<Req, Res> {
 
 class Server<Req, Res> {
   Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription
   offer(): void
   stopOffer(): void
   isOffered(): bool
@@ -24,8 +28,8 @@ class Server<Req, Res> {
   take(): expected<Request<Req>, Error>
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
-  loan(request: Request<Req>&): expected<Response<Res>, Error>
-  send(response: Response<Res>): void
+  loan(request: Request<Req>&, Args...): expected<Response<Res>, Error>
+  send(response: Response<Res>): expected<ServerSendError>
 }
 
 class Publisher {
@@ -70,7 +74,7 @@ class Request<Req> {
   Request(requestUniquePtr: unique_ptr<const Req>&&)
   getRequestHeader(): RequestHeader*
   getRequestHeader() const: const RequestHeader*
-  send(): void
+  send(): expected<ClientSendError>
 }
 
 class Response<Res> {
@@ -78,7 +82,7 @@ class Response<Res> {
   Response(responseUniquePtr: unique_ptr<const Res>&&)
   getResponseHeader(): ResponseHeader*
   getResponseHeader() const: const ResponseHeader*
-  send(): void
+  send(): expected<ServerSendError>
 }
 }
 

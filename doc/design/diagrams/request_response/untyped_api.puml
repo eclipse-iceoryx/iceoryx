@@ -2,11 +2,13 @@
 
 class UntypedClient {
   Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription
   connect(): void
   disconnect(): void
   getConnectionState(): ConnectionState
-  loan(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
-  send(requestPayload: void*): void
+  loan(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, AllocationError>
+  send(requestPayload: void*): expected<ClientSendError>
   releaseRequest(requestPayload: const void*): void
   hasResponses(): bool
   take(): expected<void*, Error>
@@ -17,6 +19,8 @@ class UntypedClient {
 
 class UntypedServer {
   Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription
   offer(): void
   stopOffer():void
   isOffered(): bool
@@ -26,8 +30,8 @@ class UntypedServer {
   releaseRequest(requestPayload: void*): void
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
-  loan(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
-  send(responsePayload: void*): void
+  loan(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, AllocationError>
+  send(responsePayload: void*): expected<ServerSendError>
   releaseResponse(responsePayload: const void*): void
 }
 

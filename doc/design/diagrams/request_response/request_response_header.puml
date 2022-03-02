@@ -15,12 +15,14 @@ class RpcBaseHeader {
 class RequestHeader {
   + RequestHeader(uniqueClientQueueId: cxx::UniqueId, lastKnownQueueIndex: uint32_t)
   + setSequenceId(sequenceId: int64_t): void
+  {static} fromPayload(payload: void*): RequestHeader*
 }
 
 class ResponseHeader {
   + ResponseHeader(uniqueClientQueueId: cxx::UniqueId, lastKnownQueueIndex: uint32_t, sequenceId: uint64_t)
   + setServerError(): void
   + hasServerError(): bool
+  {static} fromPayload(payload: void*): RequestHeader*
   - m_hasServerError: bool
 }
 

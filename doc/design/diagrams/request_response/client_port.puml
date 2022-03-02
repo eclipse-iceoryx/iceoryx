@@ -1,5 +1,11 @@
 @startuml
 
+enum ClientSendError {
+  NO_CONNECT_REQUESTED,
+  SERVER_NOT_AVAILABLE,
+  INVALID_REQUEST,
+}
+
 class ClientPortData {
   chunkSenderData: ChunkSenderData
   chunkReceiverData: ChunkReceiverData
@@ -12,11 +18,11 @@ class ClientPortUser {
   disconnect(): void
   getConnectionState(): ConnectionState
   allocateRequest(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<RequestHeader*, AllocationError>
-  sendRequest(requestHeader: RequestHeader*): void
+  sendRequest(requestHeader: RequestHeader*): expected<ClientSendError>
   releaseRequest(requestHeader: const RequestHeader*): void
   getResponse(): expected<const ResponseHeader*, ChunkReceiveResult>
   releaseResponse(responseHeader: const ResponseHeader*): void
-  hasNewResponses(): void
+  hasNewResponses(): bool
   hasLostResponsesSinceLastCall(): bool
   setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
   unsetConditionVariable(): void
@@ -24,7 +30,8 @@ class ClientPortUser {
 }
 
 class ClientPortRouDi {
-  getResponseQueueFullPolicy: QueueFullPolicy
+  getResponseQueueFullPolicy(): QueueFullPolicy
+  getServerTooSlowPolicy(): ConsumerTooSlowPolicy
   tryGetCaProMessage(): optional<CaProMessage>
   dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage): optional<CaProMessage>
   releaseAllChunks(): void
