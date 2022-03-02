@@ -19,7 +19,7 @@ our requirements.
 
 ### Publisher application sending a `iox::cxx::vector`
 
-In this example we want our publisher to send a vector containing double. Since we cannot use dynamic memory, we use the 
+In this example we want our publisher to send a vector containing double. Since we cannot use dynamic memory, we use the
 `iox::cxx::vector` with a capacity of 5.
 
 <!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_vector.cpp][create publisher]-->
@@ -27,7 +27,7 @@ In this example we want our publisher to send a vector containing double. Since 
 iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
 ```
 
-We use a while-loop similar to the one described in the 
+We use a while-loop similar to the one described in the
 [icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery) to send the
 vector to the subscriber. After successfully loaning memory we append elements to the vector until it's full.
 
@@ -97,7 +97,7 @@ void handleInsertionReturnVal(const bool success)
 }
 ```
 
-Now let's add some data to our containers. For the lists we use the `push_front` methods which can be used similar to the 
+Now let's add some data to our containers. For the lists we use the `push_front` methods which can be used similar to the
 corresponding STL methods.
 
 <!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][fill lists]-->
@@ -116,7 +116,7 @@ handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
 
 !!! note
     If you're not familiar with `optional`, please have a look at
-    [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md#optional).
+    [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/concepts/how-optional-and-error-values-are-returned-in-iceoryx.md/#optional).
 
 Now we fill the stack
 
@@ -135,7 +135,7 @@ and assign a greeting to the string.
 sample->someString = "hello iceoryx";
 ```
 
-For the vectors we use the `emplace_back` method, which can be used similar to corresponding `std::vector` method.
+For the vectors we use the `emplace_back` method, which can be used similar to the corresponding `std::vector` method.
 
 <!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][fill vectors]-->
 ```cpp
