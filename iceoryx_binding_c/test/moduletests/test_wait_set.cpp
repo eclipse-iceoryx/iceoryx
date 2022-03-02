@@ -70,9 +70,9 @@ class iox_ws_test : public Test
     {
         delete m_sut;
 
-        for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        for (auto trigger: m_userTrigger)
         {
-            iox_user_trigger_deinit(m_userTrigger[i]);
+            iox_user_trigger_deinit(trigger);
         }
     }
 

@@ -150,7 +150,9 @@ TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
     iox_sub_options_init(&options);
     iox_sub_storage_t storage;
 
-    EXPECT_NE(iox_sub_init(&storage, "a", "b", "c", &options), nullptr);
+    auto ptr = iox_sub_init(&storage, "a", "b", "c", &options);
+    EXPECT_NE(ptr, nullptr);
+    iox_sub_deinit(ptr);
 }
 
 TEST_F(iox_sub_test, initialStateNotSubscribed)
@@ -376,7 +378,7 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     // malloc is used since iox_sub_deinit calls the d'tor of cpp2c_Subscriber
-    auto subscriber = new (malloc(sizeof(cpp2c_Subscriber))) cpp2c_Subscriber();
+    auto subscriber = new cpp2c_Subscriber();
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_state(
@@ -386,7 +388,7 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 
     EXPECT_EQ(m_waitSet->size(), 0U);
 
-    free(subscriber);
+//     free(subscriber);
 }
 
 TEST_F(iox_sub_test, correctServiceDescriptionReturned)
