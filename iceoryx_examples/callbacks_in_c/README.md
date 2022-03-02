@@ -61,7 +61,7 @@ iox_user_trigger_storage_t heartbeatStorage;
 heartbeat = iox_user_trigger_init(&heartbeatStorage);
 ```
 
-Both subscribers are having the same options which we set up with:
+Both subscribers use the same options which we set up with:
 
 <!--[geoffrey][iceoryx_examples/callbacks_in_c/ice_c_callbacks_subscriber.c][set subscriber options]-->
 ```c
@@ -109,8 +109,8 @@ iox_listener_attach_subscriber_event(
 A user trigger can emit only one event therefore we do not provide the event type as
 an argument in the user trigger attach call.
 
-Since we are following a push-based approach - without an event loop that is pulling
-the events and processing them, we require a blocker that waits until the process is
+Since we are following a push-based approach, i.e. without an event loop that is pulling
+the events and processing them, we require a blocking call that waits until the process is
 signaled to terminate.
 
 <!--[geoffrey][iceoryx_examples/callbacks_in_c/ice_c_callbacks_subscriber.c][wait until someone presses CTRL+c]-->
@@ -213,9 +213,9 @@ void onSampleReceivedCallback(iox_sub_t subscriber)
 
 ### Additional context data for callbacks (ice_c_callbacks_with_context_data.c)
 
-Sometimes you would like to modify data structures within the callback which
-are not globally available. To facilitate this we implemented functions called
-`iox_listener_attach_***_event_with_context_data` which allow you to provide an
+Sometimes we would like to modify data structures which are not globally available
+within the callback. To facilitate this we provide the functions called
+`iox_listener_attach_***_event_with_context_data` which allow to provide an
 additional void pointer for the callback as second argument.
 
 The following example is a simplified version of the
@@ -231,7 +231,7 @@ counterService.leftCache.isSet = false;
 counterService.rightCache.isSet = false;
 ```
 
-The callback gets an additional void pointer argument which we cast then to
+The callback takes an additional void pointer argument which we cast then to
 our CounterService to perform the same tasks as in the previous example but now
 on `CounterService * self`.
 
