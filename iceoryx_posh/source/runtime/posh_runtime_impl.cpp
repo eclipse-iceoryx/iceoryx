@@ -212,6 +212,13 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
         options.queueCapacity = 1U;
     }
 
+    if (subscriberOptions.historyRequest > subscriberOptions.queueCapacity)
+    {
+        LogWarn() << "Requested historyRequest for " << service
+                  << " is larger than queueCapacity. Clamping historyRequest to queueCapacity!";
+        options.historyRequest = subscriberOptions.queueCapacity;
+    }
+
     if (options.nodeName.empty())
     {
         options.nodeName = m_appName;
