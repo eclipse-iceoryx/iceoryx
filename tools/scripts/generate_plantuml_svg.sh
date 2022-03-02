@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@
 
 set -e
 
-declare -a REQUIRED_PROGRAMS=("plantuml" "git")
-
+declare -a REQUIRED_PROGRAMS=("java" "wget" "git" "unzip")
 STARTUP_CHECK_SUCCESS=true
 verifyProgram() {
     if ! command -v $1 &>/dev/null
@@ -31,29 +30,44 @@ verifyProgram() {
         STARTUP_CHECK_SUCCESS=false
     fi
 }
-
 checkRequiredPrograms() {
     for p in "${REQUIRED_PROGRAMS[@]}"
     do
         verifyProgram $p
     done
-
     if ! $STARTUP_CHECK_SUCCESS
     then
         echo Please install missing applications
         exit
     fi
 }
-
 checkRequiredPrograms
 
 WORKSPACE="$(git rev-parse --show-toplevel)"
 PUML_DIR="$WORKSPACE/doc/design/diagrams"
 IMPORT_DIR=${1:-$PUML_DIR}
 EXPORT_DIR="$WORKSPACE/doc/website/images/"
+TEMP_DIR="/var/tmp/iceoryx" # this is persistent across reboots
+PLANTUML_DIR="$TEMP_DIR/plantuml-jar-mit-1.2021.5"
 NUM_THREADS=1
 
 cd "$WORKSPACE"
+
+if [ ! -f $PLANTUML_DIR/plantuml.jar ]; then
+    echo "Downloading Plantuml..."
+    wget -P $TEMP_DIR https://downloads.sourceforge.net/project/plantuml/1.2021.5/plantuml-jar-mit-1.2021.5.zip
+    cd $TEMP_DIR
+    unzip plantuml-jar-mit-1.2021.5.zip -d plantuml-jar-mit-1.2021.5
+    cd "$WORKSPACE"
+fi
+
+
+if ! java -jar $PLANTUML_DIR/plantuml.jar -v &> /dev/null
+then
+    echo "plantuml could not be found"
+    exit 1
+fi
+
 
 # set number of cores for building
 if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
@@ -63,7 +77,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 echo " [i] Generating with $NUM_THREADS threads"
 
-plantuml \
+java -jar $PLANTUML_DIR/plantuml.jar \
      -config "$WORKSPACE/doc/iceoryx-plantuml-config.puml" \
      -nometadata \
      -nbthread "$NUM_THREADS" \
