@@ -35,7 +35,7 @@ received a sample from each service we calculate the sum of it.
 
 The publisher contains only already known iceoryx features. If some of them
 are not known to you please take a look at the
-[icedelivery in c example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
+[icedelivery in C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### ice_c_callbacks_subscriber.c
 
@@ -138,10 +138,6 @@ In a last step we have to release all acquired resources
 
 <!--[geoffrey][iceoryx_examples/callbacks_in_c/ice_c_callbacks_subscriber.c][cleanup]-->
 ```c
-#if !defined(_WIN32)
-pthread_join(heartbeatTriggerThread, NULL);
-#endif
-
 iox_user_trigger_deinit(heartbeat);
 iox_sub_deinit(subscriberLeft);
 iox_sub_deinit(subscriberRight);

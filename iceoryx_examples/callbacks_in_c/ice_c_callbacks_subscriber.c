@@ -177,11 +177,11 @@ int main()
     iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_DATA_RECEIVED);
     //! [optional detachEvent, but not required]
 
-    //! [cleanup]
 #if !defined(_WIN32)
     pthread_join(heartbeatTriggerThread, NULL);
 #endif
 
+    //! [cleanup]
     iox_user_trigger_deinit(heartbeat);
     iox_sub_deinit(subscriberLeft);
     iox_sub_deinit(subscriberRight);
