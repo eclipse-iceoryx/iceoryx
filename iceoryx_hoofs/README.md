@@ -10,7 +10,7 @@ grouped together in categories or namespace, depending on where or how they are 
 | Namespace       | Short Description |
 |:---------------:|:------------------|
 | [cxx](#cxx) | Since we are not allowed to use C++17 as well as the heap or exceptions we implemented constructs like `optional`, `expected` or `variant` so that we can be as modern as possible. Furthermore, you can find here constructs which are mentioned in the [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines) as well as STL re-implementations of container like `vector` which are relocatable an can be placed into the shared memory. |
-| [concurrent](#concurrent) | You should never use concurrent constructs like `mutex`, `semaphores`, `atomic`, etc directly in our codebase. At the moment we still have some exceptions to this guideline but the idea is that all classes which are using them are stored under concurrent and have to undergo more tests then the usual non concurrent class. For instance we try to provide stress tests for them. This module provides classes like `fifo`, `smart_lock`, `sofi`, `trigger_queue` and much more. |
+| [concurrent](#concurrent) | You should never use concurrent constructs like `mutex`, `semaphores`, `atomic`, etc. directly in our codebase. At the moment we still have some exceptions to this guideline but the idea is that all classes which are using them are stored under concurrent and have to undergo more tests then the usual non concurrent class. For instance we try to provide stress tests for them. This module provides classes like `fifo`, `smart_lock`, `sofi`, `trigger_queue` and much more. |
 | [design_pattern](#design-pattern) | Certain code patterns which are repeating themselves all over the code are abstracted and stored in here. At the moment we only have the creation pattern which will be removed in a future release. |
 | [error-handling](#error-handling) | The central error handler in iceoryx for cases when no sane further execution is possible, e.g. `nullptr` access. |
 | [log](#log) | The logger used by iceoryx. |
@@ -78,7 +78,7 @@ class should be used.
 
 ### Concurrent
 
-If you have to write concurrent code, never use concurrency constructs like `mutex`, `atomic`, `thread`, `semaphore` etc. directly. Most of the use cases can be solved by using an `ActiveObject` which uses as building block our `FiFo` or a
+If you have to write concurrent code, never use concurrency constructs like `mutex`, `atomic`, `thread`, `semaphore`, etc. directly. Most of the use cases can be solved by using an `ActiveObject` which uses as building block our `FiFo` or a
 queue which is thread-safe when combined with `smart_lock`. To learn more about active objects see [Prefer Using Active Objects Instead Of Naked Threads](https://www.drdobbs.com/parallel/prefer-using-active-objects-instead-of-n/225700095).
 
 | class               | internal | maybe obsolete | description |
@@ -115,11 +115,11 @@ attribute overview of the available Queues:
 
 ### Error handling
 
-The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error-levels, for more information see [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md)
+The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md)
 
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
-|`errorHandler`           |   |   | Free function to call the error handler with a defined error and an error-level, see header file for practical example.|
+|`errorHandler`           |   |   | Free function to call the error handler with a defined error and an error level, see header file for practical example.|
 |`ErrorHandler`           | i |   | error handler class only for testing purposes, should not be used directly |
 
 ### Log
