@@ -38,6 +38,12 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
+struct SubscriberExtension
+{
+    void* subscriberStorage{nullptr};
+    cpp2c_Subscriber subscriber;
+};
+
 constexpr uint64_t SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT = 543212345;
 
 void iox_sub_options_init(iox_sub_options_t* options)
@@ -75,7 +81,11 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         return nullptr;
     }
 
-    auto me = new cpp2c_Subscriber();
+    auto meExtended = new SubscriberExtension();
+    meExtended->subscriberStorage = self;
+    auto me = &meExtended->subscriber;
+    assert(reinterpret_cast<uint64_t>(me) - reinterpret_cast<uint64_t>(meExtended) == sizeof(void*)
+           && "Size mismatch for SubscriberExtension!");
 
     SubscriberOptions subscriberOptions;
 
@@ -110,7 +120,15 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
 
 void iox_sub_deinit(iox_sub_t const self)
 {
-    delete self;
+    if (self == nullptr)
+    {
+        LogWarn() << "subscriber deinitialization skipped - null pointer provided for iox_sub_t";
+        return;
+    }
+    auto addressOfSelf = reinterpret_cast<uint64_t>(self);
+    SubscriberExtension* subscriberExtension = reinterpret_cast<SubscriberExtension*>(addressOfSelf - sizeof(void*));
+
+    delete subscriberExtension;
 }
 
 void iox_sub_subscribe(iox_sub_t const self)

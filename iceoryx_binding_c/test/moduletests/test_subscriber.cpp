@@ -377,8 +377,12 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
-    // malloc is used since iox_sub_deinit calls the d'tor of cpp2c_Subscriber
-    auto subscriber = new cpp2c_Subscriber();
+    iox::roudi::RouDiEnvironment roudiEnv;
+    iox_runtime_init("hypnotoad");
+
+    iox_sub_storage_t storage;
+    auto subscriber = iox_sub_init(&storage, "foo", "bar", "baz", nullptr);
+
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_state(
@@ -387,8 +391,6 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     iox_sub_deinit(subscriber);
 
     EXPECT_EQ(m_waitSet->size(), 0U);
-
-//     free(subscriber);
 }
 
 TEST_F(iox_sub_test, correctServiceDescriptionReturned)
