@@ -1,40 +1,9 @@
 <!-- @todo Move the content of this file to website/getting-started/overview.md or website/for-developers/* -->
 
-# Structure of an iceoryx system
+# Shared memory management
 
-An iceoryx system consists of:
+## The basics
 
-* One RouDi Daemon
-* N processes that have a "Posh Runtime"
-
-## The RouDi Daemon
-RouDi (''Rou''ting and ''Di''scovery) is the core of the system and is responsible for:
-
-* **Service discovery:**
-RouDi is the central resolution point for publishers and subscribers
-* **Shared memory management:**
-RouDi initializes shared memory segments used by the system and arbitrates memory allocation
-* **System introspection:**
-RouDi has full knowledge of the existing ports in the system, their connections and their memory usage.
-It provides facilities for applications to query this information.
-
-It can be thought of as the "management server" of the iceoryx system. An instance of RouDi must be running in any
-iceoryx system.
-
-RouDi uses the modules of the Posh library to fulfill its function.
-
-## The Posh Runtime
-A Posh runtime is a running entity with its own isolated memory space that participates in the iceoryx system.
-In a POSIX system, a Posh runtime and a POSIX process have a one-to-one mapping.
-
-A Posh runtime may offer services to the iceoryx system or discover services offered by other runtimes to interface with.
-
-The services offered by Posh runtimes communicate via events and the event flow is reasoned about using
-publish-subscribe semantics.
-A service must be explicitly registered with RouDi to participate in communication.
-
-# Shared Memory Management
-## The Basics
 When a process in a POSIX system starts it is given its own virtual address space.
 
 The range that a virtual address space spans may be the same for different processes, however the data that is
