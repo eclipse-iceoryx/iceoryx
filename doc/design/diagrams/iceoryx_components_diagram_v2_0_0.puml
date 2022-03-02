@@ -20,8 +20,6 @@ skinparam frame {
 ' PlantUML package: CMake package
 ' PlantUML frame: CMake library
 
-header Eclipse iceoryx component overview
-
 ' HOOFS: Helpful Objects Optimised For Safety
 ' Library containing modern C++ STL constructs
 package iceoryx_hoofs  {
@@ -33,7 +31,6 @@ package iceoryx_hoofs  {
          component algorithm <<namespace>>
       }
       component DesignPattern <<namespace>>
-      component errors <<namespace>>
       component log <<namespace>> {
          component ffbb <<namespace>>
       }
@@ -42,6 +39,7 @@ package iceoryx_hoofs  {
 
       }
       component posix <<namespace>>
+      component rp <<namespace>>
    }
 }
 
@@ -54,24 +52,20 @@ package iceoryx_posh {
       component mepoo <<namespace>>
       component version <<namespace>>
       component build <<namespace>>
-   }
-
-   frame "runtime library" {
       component runtime <<namespace>>
+      component helper <<namespace>>
    }
 
    frame "gateway library" {
       component gw <<namespace>>
    }
 
-   frame "config library" {
-      component config <<namespace>>
-   }
-
-   component errors <<namespace>>
-
    frame "RouDi library" {
       component roudi <<namespace>>
+   }
+
+   frame "config library" {
+      component config <<namespace>>
    }
 }
 

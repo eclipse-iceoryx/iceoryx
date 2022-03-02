@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="414px" preserveAspectRatio="none" style="width:841px;height:414px;background:#00000000;" version="1.1" viewBox="0 0 841 414" width="841px" zoomAndPan="magnify"><defs/><g><rect height="26.2969" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="328" x="249.5" y="5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="318" x="254.5" y="22.9951">Eclipse iceoryx software layers (v2.0.0)</text><!--MD5=[69661e9daaeafc3e7a24c4130266bf51]
+entity iceoryx_hoofs--><g id="elem_iceoryx_hoofs"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="139" x="315" y="362.2969"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="434" y="367.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="432" y="369.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="432" y="373.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="99" x="330" y="395.292">iceoryx_hoofs</text></g><!--MD5=[74ad152ab75a8d0e3a325b0b8906eb46]
+entity iceoryx_posh--><g id="elem_iceoryx_posh"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="134" x="317.5" y="256.2969"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="431.5" y="261.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="429.5" y="263.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="429.5" y="267.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="94" x="332.5" y="289.292">iceoryx_posh</text></g><!--MD5=[ec8cc9883d7ef7823ae7e8bd7cb942ac]
+entity iceoryx_binding_c--><g id="elem_iceoryx_binding_c"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="168" x="206.5" y="150.2969"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="354.5" y="155.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="352.5" y="157.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="352.5" y="161.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="221.5" y="183.292">iceoryx_binding_c</text></g><!--MD5=[9d947bea0ef7c87047352fe99a9cdbe8]
+entity C user app--><g id="elem_C user app"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="116" x="232.5" y="44.2969"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="328.5" y="49.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="326.5" y="51.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="326.5" y="55.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="76" x="247.5" y="77.292">C user app</text></g><!--MD5=[dce0206633e57a49e22c6fb2f97be890]
+entity C++ user app--><g id="elem_C++ user app"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="138" x="409.5" y="150.2969"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="527.5" y="155.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="525.5" y="157.2969"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="525.5" y="161.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98" x="424.5" y="183.292">C++ user app</text></g><g id="elem_GMN502599"><path d="M489.5,372.7969 L489.5,381.2969 L454.072,385.2969 L489.5,389.2969 L489.5,397.9297 A0,0 0 0 0 489.5,397.9297 L677.5,397.9297 A0,0 0 0 0 677.5,397.9297 L677.5,382.7969 L667.5,372.7969 L489.5,372.7969 A0,0 0 0 0 489.5,372.7969 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M667.5,372.7969 L667.5,382.7969 L677.5,382.7969 L667.5,372.7969 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="167" x="495.5" y="389.8638">Basic building block library</text></g><g id="elem_GMN502602"><path d="M487,266.7969 L487,275.2969 L451.613,279.2969 L487,283.2969 L487,291.9297 A0,0 0 0 0 487,291.9297 L834,291.9297 A0,0 0 0 0 834,291.9297 L834,276.7969 L824,266.7969 L487,266.7969 A0,0 0 0 0 487,266.7969 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M824,266.7969 L824,276.7969 L834,276.7969 L824,266.7969 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="326" x="493" y="283.8638">Shared memory transport (POsix SHared memory)</text></g><g id="elem_GMN502605"><path d="M6,160.7969 L6,185.9297 A0,0 0 0 0 6,185.9297 L171,185.9297 A0,0 0 0 0 171,185.9297 L171,178.7969 L206.258,173.2969 L171,170.7969 L171,170.7969 L161,160.7969 L6,160.7969 A0,0 0 0 0 6,160.7969 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M161,160.7969 L161,170.7969 L171,170.7969 L161,160.7969 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="144" x="12" y="177.8638">C API for iceoryx_posh</text></g><!--MD5=[c6bc123b88581d7893511edbb3afda00]
+link iceoryx_posh to iceoryx_hoofs--><g id="link_iceoryx_posh_iceoryx_hoofs"><path d="M384.5,302.3529 C384.5,318.3472 384.5,340.0754 384.5,357.1387 " fill="none" id="iceoryx_posh-to-iceoryx_hoofs" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="384.5,362.273,388.5,353.273,384.5,357.273,380.5,353.273,384.5,362.273" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[ef085833380be4e9d63cc0e4596daa95]
+link iceoryx_binding_c to iceoryx_posh--><g id="link_iceoryx_binding_c_iceoryx_posh"><path d="M310.435,196.3529 C325.265,212.7609 345.55,235.2029 361.141,252.4529 " fill="none" id="iceoryx_binding_c-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="364.594,256.2729,361.5254,246.9143,361.2408,252.5639,355.5911,252.2793,364.594,256.2729" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[5734a6b3a3f946bad1ac4369bc2e3fa5]
+link C user app to iceoryx_binding_c--><g id="link_C user app_iceoryx_binding_c"><path d="M290.5,90.3529 C290.5,106.3469 290.5,128.0749 290.5,145.1389 " fill="none" id="C user app-to-iceoryx_binding_c" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="290.5,150.2729,294.5,141.2729,290.5,145.2729,286.5,141.2729,290.5,150.2729" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[495abe35aab841eaeb614e3facd5fb18]
+link C++ user app to iceoryx_posh--><g id="link_C++ user app_iceoryx_posh"><path d="M458.565,196.3529 C443.735,212.7609 423.45,235.2029 407.859,252.4529 " fill="none" id="C++ user app-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="404.406,256.2729,413.4089,252.2793,407.7592,252.5639,407.4746,246.9143,404.406,256.2729" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[806d072a3e2eb3b4ddec07e3f29b6779]
+@startuml
+title Eclipse iceoryx software layers (v2.0.0)
+
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+
+skinparam component {
+   backgroundColor<<namespace>> yellow
+}
+
+skinparam package {
+   backgroundColor green
+}
+
+skinparam frame {
+   backgroundColor chocolate
+}
+
+[iceoryx_hoofs]
+[iceoryx_posh]
+[iceoryx_binding_c]
+[C user app]
+[C++ user app]
+
+note right of iceoryx_hoofs : Basic building block library
+note right of iceoryx_posh : Shared memory transport (POsix SHared memory)
+note left of iceoryx_binding_c : C API for iceoryx_posh
+
+[iceoryx_posh]  ..>  [iceoryx_hoofs]
+[iceoryx_binding_c]  ..>  [iceoryx_posh]
+[C user app]  ..>  [iceoryx_binding_c]
+[C++ user app]  ..>  [iceoryx_posh]
+@enduml
+
+PlantUML version 1.2022.2beta11(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
