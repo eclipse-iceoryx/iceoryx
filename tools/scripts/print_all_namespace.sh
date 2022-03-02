@@ -19,7 +19,7 @@
 
 # Print all namespaces used in iceoryx
 
-COMPONENTS=(iceoryx_posh iceoryx_utils iceoryx_binding_c iceoryx_dds)
+COMPONENTS=(iceoryx_posh iceoryx_hoofs iceoryx_binding_c iceoryx_dds)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
 
