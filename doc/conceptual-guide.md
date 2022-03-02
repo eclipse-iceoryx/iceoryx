@@ -34,6 +34,7 @@ The POSIX API provides the [utilities](http://man7.org/linux/man-pages/man7/shm_
 shared memory segments.
 
 ## Organization
+
 An iceoryx system utilizes one "management" segment for administration purposes and any number of "user" segments for
 event communication between services.
 
@@ -50,10 +51,12 @@ The configuration can be provided at compile time (as a header) or at runtime (a
 See the [configuration guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/configuration-guide.md#configuring-mempools-for-roudi) for more details.
 
 # Communication Mechanisms
+
 In this section we will have a look at the concepts employed to structure the communication between
 services in an iceoryx system.
 
 ## Ports
+
 A port is an entity that represents data flow. There are different types implemented in iceoryx which differ based on
 the information that they carry and how they are used by iceoryx.
 
@@ -70,6 +73,7 @@ A `Publisher` in an iceoryx system publishes data via a `PublisherPort`, and lik
 via a `SubscriberPort`.
 
 ## Service Discovery / Port Wiring
+
 Matching `Publisher`s with `Subscriber`s in iceoryx is achieved by connecting their underlying `PublisherPort`s and
 `SubscriberPort`s.
 
@@ -90,6 +94,7 @@ for the entities using these ports (i.e. Gateways) to hook into the data streams
 bridge to foreign iceoryx systems.
 
 ## Zero-copy Interservice Communication
+
 `PublisherPort`s and `SubscriberPort`s which are wired together can communicate via shared memory resulting in zero-copy
 communication.
 
@@ -109,6 +114,7 @@ A `SubscriberPort` must explicitly indicate when it has finished processing a pa
 Memory chunks are returned to the pool once all attached `SubscriberPort`s indicate they have finished.
 
 ### A Note on Pointers
+
 As already discussed, shared memory segments may be mapped to different memory areas in the virtual address space of a
 process.
 To deal with this, iceoryx utilizes specialized pointer types: the `iox::rp::RelativePointer` and
@@ -120,10 +126,7 @@ A more detailed discussion about how these types work can be found
 [here](design/relocatable_pointer.md).
 
 ## Internode Communication
+
 Separate iceoryx systems residing on different hosts can be networked together via "Gateways". Gateways are responsible
 for synchronizing data published on `PublisherPort`s between iceoryx systems residing on different hosts that are networked
 together.
-
-## Logging and Error Handling
-Iceoryx uses its own logger which is based on the Autosar **ara::log** API. For safety reasons it defines its own error handler to deal with errors (instead of using e.g. exceptions).
-Details of the error handling concept can be found in [error-handling.md](./design/error-handling.md).
