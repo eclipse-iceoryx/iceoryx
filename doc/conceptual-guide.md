@@ -28,7 +28,7 @@ the file system) that is made accessible via a mapping to a memory area in their
 A single segment may be mapped to multiple processes, however the addresses to which it is mapped to may be
 (and probably will be) different between processes.
 
-![](fig/shared-memory-mapping.svg)
+![](website/images/shared-memory-mapping.svg)
 
 The POSIX API provides the [utilities](http://man7.org/linux/man-pages/man7/shm_overview.7.html) for working with
 shared memory segments.
@@ -41,7 +41,7 @@ These segments are logically partitioned into "mempools". Mempools contain a num
 
 Memory chunks are the basic unit used for shared memory access in an iceoryx system.
 
-![](fig/memory-segment-visualization.svg)
+![](website/images//memory-segment-visualization.svg)
 
 The number of segments used by an iceoryx system, along with the configuration of the mempools they contain, are
 provided to the system via configuration.
