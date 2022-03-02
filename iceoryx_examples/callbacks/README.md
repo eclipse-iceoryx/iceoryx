@@ -82,7 +82,7 @@ std::thread heartbeatThread([&] {
 });
 ```
 
-Now that everything is setup we can attach the subscribers to the listener so that
+Now that everything is set up, we can attach the subscribers to the listener so that
 every time a new sample (`iox::popo::SubscriberEvent::DATA_RECEIVED`) is received our callback
 (`onSampleReceivedCallback`) will be called. We also attach
 our `heartbeat` user trigger to print the heartbeat message to the console via another
@@ -220,12 +220,12 @@ You just have to provide a reference to a value as additional argument in the `a
 which is then provided as argument in your callback. One of the use cases is to get access
 to members and methods of an object inside a static method which we demonstrate here.
 
-This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscriber.cpp)
+This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscribercpp)
 one, except that we left out the cyclic heartbeat trigger. The key difference is that
 the listener is now a class member and in every callback we would like to change
-some member variables. To do this we require an additional pointer to the object
+some member variables. For this we require an additional pointer to the object
 since the listener requires c function references which do not allow the usage
-of lambdas with capturing. Here we can use the userType feature which allows us
+of lambda expressions with capturing. Here we can use the userType feature which allows us
 to provide the this pointer as additional argument to the callback.
 
 The main function is now pretty short, we instantiate our object of type `CounterService`
