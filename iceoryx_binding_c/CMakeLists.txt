@@ -52,6 +52,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
+make_directory("${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c")
 set(IOX_BINDING_C_STORAGE_SIZE_FILE_PATH "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c/iceoryx_binding_c_storage_sizes.h")
 
 add_executable(iox-binding-c-storage-size-generator source/storage_size_generator.cpp)
@@ -164,11 +165,8 @@ install(
   DESTINATION share/doc/iceoryx_binding_c
   COMPONENT dev)
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_binding_c_deployment.h.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c/iceoryx_binding_c_deployment.h" @ONLY)
-
 install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_binding_c_deployment.h ${IOX_BINDING_C_STORAGE_SIZE_FILE_PATH}
+    FILES ${IOX_BINDING_C_STORAGE_SIZE_FILE_PATH}
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
 )
