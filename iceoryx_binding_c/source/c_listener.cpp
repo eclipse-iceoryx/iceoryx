@@ -34,13 +34,12 @@ iox_listener_t iox_listener_init(iox_listener_storage_t* self)
         LogWarn() << "listener initialization skipped - null pointer provided for iox_listener_storage_t";
         return nullptr;
     }
-    auto me = new (self) Listener();
-    return reinterpret_cast<iox_listener_t>(me);
+    return new Listener();
 }
 
 void iox_listener_deinit(iox_listener_t const self)
 {
-    self->~Listener();
+    delete self;
 }
 
 ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t const self,

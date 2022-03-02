@@ -75,8 +75,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         return nullptr;
     }
 
-    new (self) cpp2c_Subscriber();
-    iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+    auto me = new cpp2c_Subscriber();
 
     SubscriberOptions subscriberOptions;
 
@@ -111,7 +110,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
 
 void iox_sub_deinit(iox_sub_t const self)
 {
-    self->~cpp2c_Subscriber();
+    delete self;
 }
 
 void iox_sub_subscribe(iox_sub_t const self)

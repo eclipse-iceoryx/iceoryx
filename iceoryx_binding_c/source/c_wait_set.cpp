@@ -63,13 +63,12 @@ iox_ws_t iox_ws_init(iox_ws_storage_t* self)
         LogWarn() << "wait set initialization skipped - null pointer provided for iox_ws_storage_t";
         return nullptr;
     }
-    new (self) cpp2c_WaitSet();
-    return reinterpret_cast<iox_ws_t>(self);
+    return new cpp2c_WaitSet();
 }
 
 void iox_ws_deinit(iox_ws_t const self)
 {
-    self->~cpp2c_WaitSet();
+    delete self;
 }
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
