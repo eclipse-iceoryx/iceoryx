@@ -3,7 +3,7 @@
 In here you can find design documents to all constructs of iceoryx. At the
 moment those design documents are neither complete nor final.
 
-Under [draft](./draft/) are design drafts of features stored which are currently under
+Under [draft](./draft/README.md) are design drafts of features stored which are currently under
 development. The goal is to provide fellow developers a first idea on how
 the feature can be used and how it will be implemented.
 
