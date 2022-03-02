@@ -20,7 +20,7 @@ combinations would be contradicting, not all of them match to connect producer a
 
 | `ConsumerTooSlowPolicy`   | `QueueFullPolicy`     | Behavior                                   | Connection          |
 |---------------------------|-----------------------|--------------------------------------------|---------------------|
-| `WAIT_FOR_CONSUMER`       | `BLOCK_PRODUCER`      | Producer blocks and waits for subscriber   | :white_check_mark:  |
+| `WAIT_FOR_CONSUMER`       | `BLOCK_PRODUCER`      | Producer blocks and waits for consumers    | :white_check_mark:  |
 | `WAIT_FOR_CONSUMER`       | `DISCARD_OLDEST_DATA` | Non-blocking producer                      | :white_check_mark:  |
 | `DISCARD_OLDEST_DATA`     | `DISCARD_OLDEST_DATA` | Non-blocking producer                      | :white_check_mark:  |
 | `DISCARD_OLDEST_DATA`     | `BLOCK_PRODUCER`      | Not compatible, no connection established  | :x:                 |
