@@ -61,7 +61,7 @@ Similar to the the typed API, `loan` takes a pointer to a `RequestHeader` to pop
 
 ![client port](../website/images/client_port.svg)
 
-The `ClientPortData` is located in the shared memory and contain only the data but no methods to access them.
+The `ClientPortData` is located in the shared memory and contains only the data but no methods to access them.
 `ClientPortUser` is the class providing the methods for the user access and `ClientPortRouDi` provides the
 interface RouDi needs to connect the client to the server and to cleanup the port resources.
 
@@ -69,7 +69,7 @@ interface RouDi needs to connect the client to the server and to cleanup the por
 
 ![server port](../website/images/server_port.svg)
 
-Similar to the Client Port, the Server Port has `ServerPortData` which is located in the shared memory and contain only the data but no methods to access them.
+Similar to the Client Port, the Server Port has `ServerPortData` which is located in the shared memory and contains only the data but no methods to access them.
 `ServerPortUser` is the class providing the methods for the user access and `ServerPortRouDi` provides the
 interface RouDi needs to connect the client to the server once the server offers its service and to cleanup the port resources.
 
@@ -79,7 +79,7 @@ It must be ensured that only one server with a given `ServiceDescription` can ru
 
 ![rpc header](../website/images/request_response_header.svg)
 
-Since request and response need to encode different meta-information, we also need different header for the messages.
+Since request and response need to encode different meta-information, we also need different headers for the messages.
 The common data is aggregated in `RpcBaseHeader` which contains a `cxx::UniqueId` to the `ClientChunkQueueData_t` and a sequence ID.
 The `cxx::UniqueId` is used to identify the queue which receives the response and used as identifier for `ChunkDistributor::deliverToQueue`.
 This method will iterate over all stored queues and matches the `ChunkQueueData::m_uniqueIdOfOwner`.
@@ -120,8 +120,6 @@ The server will pass its request queue with the `ACK` CaPro message to the clien
 Following is a sequence diagram which shows all this cases
 
 ![client and server service discovery](../website/images/client_and_server_service_discovery.svg)
-
-### Code example
 
 ## Open issues
 
