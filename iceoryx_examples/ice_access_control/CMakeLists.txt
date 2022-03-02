@@ -49,7 +49,7 @@ target_link_libraries(iox-cpp-cheeky
 target_compile_options(iox-cpp-cheeky PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-cpp-roudi-static-segments
-    roudi_main_static_segements.cpp
+    roudi_main_static_segments.cpp
 )
 
 target_link_libraries(iox-cpp-roudi-static-segments

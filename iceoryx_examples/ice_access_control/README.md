@@ -36,7 +36,7 @@ RouDi is built with two shared memory segments _infotainment_ and _privileged_. 
 memory segments in the operating system. The _privileged_ segment requires the app to be started with the group
 _privileged_ if it publishes data or with the _unprivileged_ group when data should only be received.
 The _infotainment_ segment on the other hand requires only one group for reading and writing called _infotainment_.
-See the [next chapter](#working-setup) for a detailed description on how to configure the shared memory segements.
+See the [next chapter](#working-setup) for a detailed description on how to configure the shared memory segments.
 
 ```
                                  +-----------------------+
@@ -78,7 +78,7 @@ See the [next chapter](#working-setup) for a detailed description on how to conf
 
 Do the following to configure shared memory segments when building a custom RouDi:
 
-<!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segements.cpp][config]-->
+<!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segments.cpp][config]-->
 ```cpp
 iox::RouDiConfig_t roudiConfig;
 
@@ -94,9 +94,10 @@ roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepo
 roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
 ```
 
-The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segement is created, one needs to
+The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segment is created, one needs to
 specify the reader group (first string), writer group (second string) as well as the `mepooConfig` (last parameter).
-The access rights are solely based on user groups and not on users itself. All users in the reader group are allowed to read, but don't have write access. Users in the writer group have both read and write access.
+The access rights are solely based on user groups and not on users itself. All users in the reader group are allowed
+to read, but don't have write access. Users in the writer group have both read and write access.
 
 !!! tip
     Shared memory segment can also be configured via a
@@ -112,7 +113,7 @@ the user _infotainment_ is only in the _infotainment_ and _unprivileged_ group, 
 infotainment segment. Hence, the data is written to this segment.
 
 !!! hint
-    It's advised to create only one shared memory segment per writer group (e.g. not two segements with `w: infotainment`).
+    It's advised to create only one shared memory segment per writer group (e.g. not two segments with `w: infotainment`).
     In this case it wouldn't be possible to control which segment will be used.
 
 The shared memory segments can be found under `/dev/shm`
