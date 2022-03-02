@@ -33,18 +33,6 @@ TEST(SanityCheck, CheckStorageSizeAndAlingment)
     checkIceoryxBindingCStorageSizes();
 }
 
-TEST(SanityCheck, VerifyStorageSizeCalculationForListener)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1ba98886-c5dc-4d08-ab95-d1155c24afa6");
-    verifyStorageSizeCalculationForListener();
-}
-
-TEST(SanityCheck, VerifyStorageSizeCalculationForWaitSet)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "a873d4f4-6800-4c26-ab9f-b1bb687ece88");
-    verifyStorageSizeCalculationForWaitSet();
-}
-
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

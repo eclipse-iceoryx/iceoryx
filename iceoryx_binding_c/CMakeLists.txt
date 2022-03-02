@@ -52,6 +52,36 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
+set(IOX_BINDING_C_STORAGE_SIZE_FILE_PATH "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c/iceoryx_binding_c_storage_sizes.h")
+
+add_executable(iox-binding-c-storage-size-generator source/storage_size_generator.cpp)
+
+target_compile_definitions(iox-binding-c-storage-size-generator
+    PRIVATE
+    IOX_BINDING_C_STORAGE_SIZE_FILE_PATH="${IOX_BINDING_C_STORAGE_SIZE_FILE_PATH}"
+)
+
+set_target_properties(iox-binding-c-storage-size-generator PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+target_link_libraries(iox-binding-c-storage-size-generator iceoryx_posh::iceoryx_posh)
+
+# run generator
+add_custom_target(
+    iox-binding-c-storage-size-generator-exec ALL
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/iox-binding-c-storage-size-generator
+    BYPRODUCTS
+    ${IOX_BINDING_C_STORAGE_SIZE_FILE_PATH}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    VERBATIM
+    USES_TERMINAL
+)
+
+add_dependencies(iox-binding-c-storage-size-generator-exec iox-binding-c-storage-size-generator)
+
 #
 ########## build building-block library ##########
 #
@@ -79,6 +109,8 @@ add_library(${PROJECT_NAME}
     source/c_service_discovery.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+add_dependencies(${PROJECT_NAME} iox-binding-c-storage-size-generator-exec)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD_REQUIRED ON
@@ -136,7 +168,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_binding_c_deployment.h
   "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c/iceoryx_binding_c_deployment.h" @ONLY)
 
 install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_binding_c_deployment.h
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_binding_c_deployment.h ${IOX_BINDING_C_STORAGE_SIZE_FILE_PATH}
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
 )
