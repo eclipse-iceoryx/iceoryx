@@ -1,6 +1,6 @@
 <!-- @todo Move the content of this file to website/getting-started/overview.md or website/for-developers/* -->
 
-# Shared memory management
+# Shared memory communication
 
 ## The basics
 
@@ -20,7 +20,7 @@ Some examples of what may be in a memory area are:
 * The execution instructions of a shared library used by the running program (the libraries `.text` segment)
 * The process's stack
 * The process's heap
-* **Shared memory segments**
+* Shared memory segments
 
 A shared memory segment is physical memory that lies somewhere foreign to a process (i.e. in some section of RAM or on
 the file system) that is made accessible via a mapping to a memory area in their virtual address space.
@@ -42,7 +42,7 @@ These segments are logically partitioned into "mempools". Mempools contain a num
 
 Memory chunks are the basic unit used for shared memory access in an iceoryx system.
 
-![](website/images//memory-segment-visualization.svg)
+![](website/images/memory-segment-visualization.svg)
 
 The number of segments used by an iceoryx system, along with the configuration of the mempools they contain, are
 provided to the system via configuration.
@@ -50,70 +50,29 @@ provided to the system via configuration.
 The configuration can be provided at compile time (as a header) or at runtime (as a toml-formatted text file).
 See the [configuration guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/configuration-guide.md#configuring-mempools-for-roudi) for more details.
 
-# Communication Mechanisms
+## Zero-copy communication
 
-In this section we will have a look at the concepts employed to structure the communication between
-services in an iceoryx system.
+`popo::Publisher`s / `popo::Subscriber`s and `popo::Server`s / `popo::Client`s which are wired together can communicate
+via shared memory resulting in zero-copy communication. In this section `popo::Publisher` and `popo::Server` will be
+referred to as producers and `popo::Subscriber` and `popo::Client` as consumers.
 
-## Ports
+A producer has an assigned shared memory segment to which it may write its data to.
+In a POSIX system, this is decided purely based on file access permissions as memory segments are represented as
+virtual files.
 
-A port is an entity that represents data flow. There are different types implemented in iceoryx which differ based on
-the information that they carry and how they are used by iceoryx.
-
-Existing ports include:
-* `PublisherPort` - used by services to output arbitrary data required for their function
-* `SubscriberPort` - used by services to receive arbitrary data from other services
-* `InterfacePort` - used by gateways to receive information about a local iceoryx system  that is required to interface
-with remote iceoryx systems (see below for more on gateways)
-
-Data flow between services in a local iceoryx system is described  using connections between publisher and subscriber
-ports.
-
-A `Publisher` in an iceoryx system publishes data via a `PublisherPort`, and likewise, a `Subscriber` receives data
-via a `SubscriberPort`.
-
-## Service Discovery / Port Wiring
-
-Matching `Publisher`s with `Subscriber`s in iceoryx is achieved by connecting their underlying `PublisherPort`s and
-`SubscriberPort`s.
-
-Connections between `PublisherPort`s and `SubscriberPort`s are established using service descriptions which are composed of:
-* A service id - identifies the type of service
-* A service instance id - identifies an instance of a service
-* An event id - identifies an output from a service
-
-All `PublisherPort`s and `SubscriberPort`s are created with a service description.
-The system will automatically connect ports with matching service descriptions.
-
-The order that ports appear in is not a factor.
-Existing `SubscriberPort`s will automatically connect to `PublisherPort`s that appear at a later time if their service
-descriptions match (and vice versa).
-
-Additionally, information about the existing `PublisherPort`s in the system are relayed on `InterfacePort`s. This allows
-for the entities using these ports (i.e. Gateways) to hook into the data streams of a local iceoryx system and create a
-bridge to foreign iceoryx systems.
-
-## Zero-copy Interservice Communication
-
-`PublisherPort`s and `SubscriberPort`s which are wired together can communicate via shared memory resulting in zero-copy
-communication.
-
-A `PublisherPort` has an assigned shared memory segment to which it may write its data to. In a POSIX system,
-this is decided purely based on file access permissions as memory segments are represented as virtual files.
-
-To output data, a `PublisherPort` reserves a memory chunk in its assigned memory segment.
+To output data, a producer reserves a memory chunk in its assigned memory segment.
 The iceoryx system will intelligently choose the smallest chunk size that can fit the output data structure.
 Note that an entire chunk is reserved even if the data type it contains is smaller than its size.
 
-A `PublisherPort` chooses explicitly when to deliver data written in a memory chunk to all of its attached `SubscriberPort`s
+A producer chooses explicitly when to deliver data written in a memory chunk to all of its attached consumers
 (established via discovery). When this occurs, a pointer to the memory chunk is placed on a receive queue at the
-`SubscriberPort`.
-The `SubscriberPort` can then access the data at its own convenience by following the pointer.
+consumer.
+The consumer can then access the data at its own convenience by following the pointer.
 
-A `SubscriberPort` must explicitly indicate when it has finished processing a particular memory chunk it has received.
-Memory chunks are returned to the pool once all attached `SubscriberPort`s indicate they have finished.
+A consumer must explicitly indicate when it has finished processing a particular memory chunk it has received.
+Memory chunks are returned to the pool once all attached consumers indicate they have finished.
 
-### A Note on Pointers
+### A Note on pointers
 
 As already discussed, shared memory segments may be mapped to different memory areas in the virtual address space of a
 process.
@@ -124,9 +83,3 @@ Using these types, the difference in memory mapping is not a factor when it come
 
 A more detailed discussion about how these types work can be found
 [here](design/relocatable_pointer.md).
-
-## Internode Communication
-
-Separate iceoryx systems residing on different hosts can be networked together via "Gateways". Gateways are responsible
-for synchronizing data published on `PublisherPort`s between iceoryx systems residing on different hosts that are networked
-together.
