@@ -8,12 +8,12 @@
 |[icedocker](./icedocker/)                         | Sending and receiving data across multiple docker instances               | :star:             |
 |[iceoptions](./iceoptions/)                       | Configuring pub/sub settings like history cache size or startup behaviour | :star:             |
 |[complexdata](./complexdata/)                     | Sending/receiving some of the iceoryx STL container surrogates            | :star:             |
-|[request_response_in_c](./request_response_in_c/) | Request response communication using C                                    | :star:             |
+|[request_response](./request_response/)           | Delivering data on demand (Client/Server) using C++                       | :star:             |
+|[request_response_in_c](./request_response_in_c/) | Delivering data on demand (Client/Server) using C                         | :star:             |
 |[callbacks](./callbacks/)                         | Implementing event triggered callbacks using C++                          | :star::star:       |
 |[callbacks_in_c](./callbacks_in_c/)               | Implementing event triggered callbacks using C                            | :star::star:       |
 |[waitset](./waitset/)                             | Waiting for events like arrival of data using C++                         | :star::star:       |
 |[waitset_in_c](./waitset_in_c/)                   | Waiting for events like arrival of data using C                           | :star::star:       |
-|[request_response](./request_response/)           | Communication pattern which delivers data on demand (Client/Server)       | :star::star:       |
 |[iceensemble](./iceensemble/)                     | Using multiple publishers for one topic                                   | :star::star:       |
 |[singleprocess](./singleprocess/)                 | Communicating in a single process between threads                         | :star::star:       |
 |[user_header](./user_header/)                     | Using a user-header for additional meta-information like timestamps       | :star::star:       |

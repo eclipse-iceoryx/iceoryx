@@ -1,4 +1,4 @@
-# request response in C
+# Request response in C
 
 You can find a more detailed description of the C API in the
 [iceoryx_binding_c README.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_binding_c/README.md).
@@ -9,7 +9,7 @@ The behavior and structure is very close to the
 [request response C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
-The rough idea is that the client sends two fibonacci numbers to the server which 
+The rough idea is that the client sends two fibonacci numbers to the server which
 then sends the sum of those numbers back.
 
 ## Expected Output
@@ -46,7 +46,7 @@ iox_client_t client = iox_client_init(&clientStorage, "Example", "Request-Respon
 Like in the C++ version of our example we implement a client/server based fibonacci
 algorithm and store the first two fibonacci numbers in `fibonacciLast` and `fibonacciCurrent`.
 `requestSequenceId` and `expectedResponseSequenceId` are helping us to keep track of
-the sequence number which we increase with every sent request and then verify it again 
+the sequence number which we increase with every sent request and then verify it again
 in the server's response.
 
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][define variables]-->
@@ -58,7 +58,7 @@ int64_t expectedResponseSequenceId = requestSequenceId;
 ```
 
 We enter our main loop and continue sending requests as long as `keepRunning` is `true`.
-When the users presses Control+C the term signal is emitted and `keepRunning` is set to 
+When the users presses Control+C the term signal is emitted and `keepRunning` is set to
 `false` via the signal handler callback.
 
 We start by loaning memory to send out our `request`.
@@ -70,7 +70,7 @@ enum iox_AllocationResult loanResult =
 ```
 
 To set the sequence id we have to acquire the request header first from the payload. Additionally,
-we set `expectedResponseSequenceId` so that we can verify the response later and increment the 
+we set `expectedResponseSequenceId` so that we can verify the response later and increment the
 `requestSequenceId` for the next run.
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][main loop][set sequence id]-->
 ```c
@@ -167,7 +167,7 @@ Again we perform the same task like in the client basic example. We enter our
 main loop, loan a request and set it up.
 But after we sent the request to our server we do not sleep for some time, we wait
 on the waitset until the request was received.
-We use `iox_ws_timed_wait` to wait for at most 2 seconds. 
+We use `iox_ws_timed_wait` to wait for at most 2 seconds.
 
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][wait for response]-->
 ```c
