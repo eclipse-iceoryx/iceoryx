@@ -4,7 +4,7 @@
     <name>iceoryx_hoofs</name>
     <version>2.0.0</version>
     <description>Eclipse iceoryx inter-process-communication (IPC) middleware basic building blocks</description>
-    <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
+    <maintainer email="iceoryx-oss-support@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
     <url type="website">https://iceoryx.io</url>
     <url type="bugtracker">https://github.com/eclipse-iceoryx/iceoryx/issues</url>
