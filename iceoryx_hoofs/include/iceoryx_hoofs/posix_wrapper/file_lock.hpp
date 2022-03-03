@@ -79,11 +79,14 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
 
   private:
     int32_t m_fd{INVALID_FD};
-    FileName_t m_name{""};
+    FileName_t m_name;
+    PathName_t m_fileLockPath;
 
     /// @brief c'tor
     /// @param[in] name of the created file lock in PATH_PREFIX
     FileLock(const FileName_t& name) noexcept;
+
+    void invalidate() noexcept;
 
     cxx::expected<FileLockError> initializeFileLock() noexcept;
     FileLockError convertErrnoToFileLockError(const int32_t errnum) const noexcept;
