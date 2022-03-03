@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/file.hpp"
-#include "iceoryx_hoofs/platform/handle_translator.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_hoofs/platform/file.hpp"                // NOLINT
+#include "iceoryx_hoofs/platform/handle_translator.hpp"   // NOLINT
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp" // NOLINT
+#include "iceoryx_hoofs/platform/windows.hpp"             // NOLINT
 
 int iox_flock(int fd, int op)
 {
