@@ -3,29 +3,33 @@
 together Group1 {
 class Client<Req, Res> {
   Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription&
   connect(): void
   disconnect(): void
   getConnectionState(): ConnectionState
-  loan(): expected<Request<Req>, Error>
-  send(request: Request<Req>): void
+  loan(Args...): expected<Request<Req>, AllocationError>
+  send(request: Request<Req>): expected<ClientSendError>
   hasResponses(): bool
-  take(): expected<Response<Res>, Error>
+  take(): expected<Response<Res>, ChunkReceiveResult>
   releaseQueuedResponses(): void
   hasMissedResponses(): bool
 }
 
 class Server<Req, Res> {
   Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription&
   offer(): void
   stopOffer(): void
   isOffered(): bool
   hasClients(): bool
   hasRequests(): bool
-  take(): expected<Request<Req>, Error>
+  take(): expected<Request<Req>, ServerRequestResult>
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
-  loan(request: Request<Req>&): expected<Response<Res>, Error>
-  send(response: Response<Res>): void
+  loan(request: Request<Req>&, Args...): expected<Response<Res>, AllocationError>
+  send(response: Response<Res>): expected<ServerSendError>
 }
 
 class Publisher {
@@ -68,17 +72,17 @@ class Sample<T, H> {
 class Request<Req> {
   Request(requestUniquePtr: unique_ptr<Req>&&, client: RpcInterface<Request<Req>>&)
   Request(requestUniquePtr: unique_ptr<const Req>&&)
-  getRequestHeader(): RequestHeader*
-  getRequestHeader() const: const RequestHeader*
-  send(): void
+  getRequestHeader(): RequestHeader&
+  getRequestHeader() const: const RequestHeader&
+  send(): expected<ClientSendError>
 }
 
 class Response<Res> {
   Response(responseUniquePtr: unique_ptr<Res>&&, server: RpcInterface<Response<Res>>&)
   Response(responseUniquePtr: unique_ptr<const Res>&&)
-  getResponseHeader(): ResponseHeader*
-  getResponseHeader() const: const ResponseHeader*
-  send(): void
+  getResponseHeader(): ResponseHeader&
+  getResponseHeader() const: const ResponseHeader&
+  send(): expected<ServerSendError>
 }
 }
 

@@ -1,8 +1,8 @@
 @startuml
 
 class ServerPortData {
-  chunkSenderData: ChunkSenderData
-  chunkReceiverData: ChunkReceiverData
+  chunkSenderData: ServerChunkSenderData_t
+  chunkReceiverData: ServerChunkReceiverData_t
   offeringRequested: atomic<bool>
   offered: atomic<bool>
 }
@@ -15,6 +15,12 @@ enum ServerRequestResult {
     NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER,
 }
 
+enum ServerSendError {
+    NOT_OFFERED,
+    CLIENT_NOT_AVAILABLE,
+    INVALID_RESPONSE,
+}
+
 class ServerPortUser {
   offer(): void
   stopOffer(): void
@@ -22,20 +28,23 @@ class ServerPortUser {
   hasClients(): bool
   getRequest(): expected<const RequestHeader*, ServerRequestResult>
   releaseRequest(requestHeader: const RequestHeader*): void
-  hasNewRequests(): void
+  releaseQueuedRequests(): void
+  hasNewRequests(): bool
   hasLostRequestsSinceLastCall(): bool
   allocateResponse(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
-  sendResponse(responseHeader: ResponseHeader*): void
+  sendResponse(responseHeader: ResponseHeader*): expected<ServerSendError>
   releaseResponse(responseHeader: const ResponseHeader*): void
-  setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
+  setConditionVariable(conditionVariableData: ConditionVariableData&, notificationIndex: uint64_t): void
   unsetConditionVariable: void
   isConditionVariableSet(): bool
 }
 
 class ServerPortRouDi {
   tryGetCaProMessage(): optional<CaProMessage>
-  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage): optional<CaProMessage>
+  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage &): optional<CaProMessage>
   releaseAllChunks(): void
+  getRequestQueueFullPolicy(): QueueFullPolicy
+  getClientTooSlowPolicy(): ConsumerTooSlowPolicy
 }
 
 ServerPortUser o-- ServerPortData

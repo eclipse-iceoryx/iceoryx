@@ -1,34 +1,38 @@
 @startuml
 
 class UntypedClient {
-  Client(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  UntypedClient(serviceDescription: ServiceDescription&, clientOptions: ClientOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription&
   connect(): void
   disconnect(): void
   getConnectionState(): ConnectionState
-  loan(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
-  send(requestPayload: void*): void
-  releaseRequest(requestPayload: const void*): void
+  loan(payloadSize: uint32_t, payloadAlignment: uint32_t): expected<void*, AllocationError>
+  send(requestPayload: void*): expected<ClientSendError>
+  releaseRequest(requestPayload: void*): void
   hasResponses(): bool
-  take(): expected<void*, Error>
+  take(): expected<void*, AllocationError>
   releaseResponse(responsePayload: void*): void
   releaseQueuedResponses(): void
   hasMissedResponses(): bool
 }
 
 class UntypedServer {
-  Server(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  UntypedServer(serviceDescription: ServiceDescription&, serverOptions: ServerOptions&)
+  getUid(): UniquePortId
+  getServiceDescription(): ServiceDescription&
   offer(): void
   stopOffer():void
   isOffered(): bool
   hasClients(): bool
   hasRequests(): bool
-  take(): expected<void*, Error>
+  take(): expected<void*, ServerRequestResult>
   releaseRequest(requestPayload: void*): void
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
-  loan(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<void*, Error>
-  send(responsePayload: void*): void
-  releaseResponse(responsePayload: const void*): void
+  loan(requestHeader: RequestHeader*, payloadSize: uint32_t, payloadAlignment: uint32_t): expected<void*, AllocationError>
+  send(responsePayload: void*): expected<ServerSendError>
+  releaseResponse(responsePayload: void*): void
 }
 
 @enduml
