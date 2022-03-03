@@ -21,7 +21,7 @@ The different libraries and their namespaces are depicted below.
 Handy Objects Optimized For Safety (hoofs) is a library and contains various building blocks like fixed size containers,
 concurrency classes and modern, next-gen C++ constructs from upcoming C++ standard releases.
 
-For more information about the components, refer to its [detailed description](iceoryx_hoofs.md).
+For more information about the components, refer to its [detailed description](../advanced/iceoryx_hoofs.md).
 
 ### iceoryx posh
 
@@ -61,4 +61,4 @@ For more information, refer to the [Readme](https://github.com/eclipse-iceoryx/i
 
 The introspection client can be used for live debugging and provides information of the current system like memory usage.
 
-For more information, refer to the [icecrystal example](icecrystal.md).
+For more information, refer to the [icecrystal example](../examples/icecrystal.md).
