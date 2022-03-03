@@ -32,7 +32,7 @@ The package `iceoryx_posh` (**PO**SIX **SH**ared memory) contains everything rel
 This section describes the namespaces of the core library.
 
 * `popo`: The namespace posh ports contains the user-API classes which are used to transfer data.
-* `capro`: The namespace canonical protocol implements the [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture)
+* `capro`: The namespace canonical protocol implements parts of the [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture)
 protocol, which is used by `iceoryx_posh` to connect and discover `popo::Publisher` and `popo::Server`.
 * `mepoo`: The namespace memory pool contains all memory-related classes. For example the `MemoryManager` or `SharedPointer`.
 * `version`: The namespace version contains ABI compatibilities checks.
@@ -44,7 +44,7 @@ protocol, which is used by `iceoryx_posh` to connect and discover `popo::Publish
 
 #### RouDi library
 
-* The library RouDi and its namespace `roudi` contain classes which compose the RouDi daemon.
+* The library RouDi and its namespace `roudi` contains classes which are used by the RouDi middleware daemon.
 
 ### iceoryx C binding
 
@@ -59,6 +59,7 @@ For more information, refer to the [Readme](https://github.com/eclipse-iceoryx/i
 
 ### iceoryx introspection
 
-The introspection client can be used for live debugging and provides information of the current system like memory usage.
+The introspection client can be used for live debugging and provides information of the current system like memory
+usage and established connections.
 
 For more information, refer to the [icecrystal example](../examples/icecrystal.md).
