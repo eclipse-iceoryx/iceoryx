@@ -85,6 +85,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Clamping `historyRequest` to `queueCapacity` [\#1192](https://github.com/eclipse-iceoryx/iceoryx/issues/1192)
 - C binding storage sizes do not match for multiple OS's and architectures [\#1218](https://github.com/eclipse-iceoryx/iceoryx/issues/1218)
 - Update cyclone dds version used by gateway to support aarch64 [\#1223](https://github.com/eclipse-iceoryx/iceoryx/issues/1223)
+- The file lock posix wrapper unlocks and removes a file correctly [\#1216](https://github.com/eclipse-iceoryx/iceoryx/issues/1216)
 
 **Refactoring:**
 
