@@ -151,7 +151,9 @@ TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
     iox_sub_options_init(&options);
     iox_sub_storage_t storage;
 
-    EXPECT_NE(iox_sub_init(&storage, "a", "b", "c", &options), nullptr);
+    auto sut = iox_sub_init(&storage, "a", "b", "c", &options);
+    EXPECT_THAT(sut, Ne(nullptr));
+    iox_sub_deinit(sut);
 }
 
 TEST_F(iox_sub_test, initialStateNotSubscribed)
@@ -398,9 +400,11 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "93e350fb-5430-43ff-982b-b43c6ae9b890");
-    // malloc is used since iox_sub_deinit calls the d'tor of cpp2c_Subscriber
-    cpp2c_Subscriber* subscriber = static_cast<cpp2c_Subscriber*>(malloc(sizeof(cpp2c_Subscriber)));
-    new (subscriber) cpp2c_Subscriber();
+    iox::roudi::RouDiEnvironment roudiEnv;
+    iox_runtime_init("hypnotoad");
+
+    iox_sub_storage_t storage;
+    auto subscriber = iox_sub_init(&storage, "foo", "bar", "baz", nullptr);
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_state(
@@ -409,8 +413,6 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     iox_sub_deinit(subscriber);
 
     EXPECT_EQ(m_waitSet->size(), 0U);
-
-    free(subscriber);
 }
 
 TEST_F(iox_sub_test, correctServiceDescriptionReturned)

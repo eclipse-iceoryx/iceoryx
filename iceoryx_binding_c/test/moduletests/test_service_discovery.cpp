@@ -101,6 +101,8 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableAndContextDataReturnsO
     EXPECT_THAT(*searchResult.begin()->serviceString, Eq(*SERVICE_DESCRIPTION.serviceString));
     EXPECT_THAT(*searchResult.begin()->instanceString, Eq(*SERVICE_DESCRIPTION.instanceString));
     EXPECT_THAT(*searchResult.begin()->eventString, Eq(*SERVICE_DESCRIPTION.eventString));
+
+    iox_pub_deinit(publisher);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceWithCallableWithNullptrsForServiceInstanceEventFindsCorrectServices)
@@ -127,6 +129,8 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableReturnsFindsCorrectSer
     };
     iox_service_discovery_find_service_apply_callable(
         sut, "service", "instance", "event", findHandler, MessagingPattern_PUB_SUB);
+
+    iox_pub_deinit(publisher);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEventReturnsAllServices)
@@ -179,6 +183,8 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
     EXPECT_THAT(serviceContainer[0U].serviceString, StrEq(SERVICE_DESCRIPTION.serviceString));
     EXPECT_THAT(serviceContainer[0U].instanceString, StrEq(SERVICE_DESCRIPTION.instanceString));
     EXPECT_THAT(serviceContainer[0U].eventString, StrEq(SERVICE_DESCRIPTION.eventString));
+
+    iox_pub_deinit(publisher);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhenServiceContainerTooSmall)

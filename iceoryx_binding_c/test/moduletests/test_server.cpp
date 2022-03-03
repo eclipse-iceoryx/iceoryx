@@ -165,6 +165,7 @@ TEST_F(iox_server_test, InitializingServerWithNullptrOptionsGetsMiddlewareServer
 
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     ASSERT_THAT(sut, Ne(nullptr));
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, InitializingServerWithCustomOptionsWorks)
@@ -189,6 +190,7 @@ TEST_F(iox_server_test, InitializingServerWithCustomOptionsWorks)
 
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
     ASSERT_THAT(sut, Ne(nullptr));
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, DeinitReleasesServer)
@@ -210,6 +212,8 @@ TEST_F(iox_server_test, WhenNotOfferedTakeRequestFails)
     const void* payload;
     EXPECT_THAT(iox_server_take_request(sut, &payload),
                 Eq(ServerRequestResult_NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, WhenOfferedAndNoRequestsPresentTakeFails)
@@ -221,6 +225,8 @@ TEST_F(iox_server_test, WhenOfferedAndNoRequestsPresentTakeFails)
 
     const void* payload;
     EXPECT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_NO_PENDING_REQUESTS));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, WhenOfferedAndRequestsPresentTakeSucceeds)
@@ -236,6 +242,8 @@ TEST_F(iox_server_test, WhenOfferedAndRequestsPresentTakeSucceeds)
     ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_SUCCESS));
     ASSERT_THAT(payload, Ne(nullptr));
     EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(REQUEST_VALUE));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, TakingToMuchRequestsInParallelLeadsToError)
@@ -261,6 +269,8 @@ TEST_F(iox_server_test, TakingToMuchRequestsInParallelLeadsToError)
     payload = nullptr;
     ASSERT_THAT(iox_server_take_request(sut, &payload), Eq(ServerRequestResult_TOO_MANY_REQUESTS_HELD_IN_PARALLEL));
     ASSERT_THAT(payload, Eq(nullptr));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, ReleaseRequestWorks)
@@ -277,6 +287,8 @@ TEST_F(iox_server_test, ReleaseRequestWorks)
 
     iox_server_release_request(sut, payload);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, ReleaseQueuedRequestsWorks)
@@ -292,6 +304,8 @@ TEST_F(iox_server_test, ReleaseQueuedRequestsWorks)
 
     iox_server_release_queued_requests(sut);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, HasClientsWorks)
@@ -304,6 +318,8 @@ TEST_F(iox_server_test, HasClientsWorks)
     EXPECT_FALSE(iox_server_has_clients(sut));
     connectClient();
     EXPECT_TRUE(iox_server_has_clients(sut));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, HasRequestWorks)
@@ -315,6 +331,8 @@ TEST_F(iox_server_test, HasRequestWorks)
     EXPECT_FALSE(iox_server_has_requests(sut));
     receiveRequest();
     EXPECT_TRUE(iox_server_has_requests(sut));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, HasMissedRequestWorks)
@@ -335,6 +353,8 @@ TEST_F(iox_server_test, HasMissedRequestWorks)
     receiveRequest();
     EXPECT_TRUE(iox_server_has_missed_requests(sut));
     EXPECT_FALSE(iox_server_has_missed_requests(sut));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, OfferReturnsCorrectOfferState)
@@ -346,6 +366,8 @@ TEST_F(iox_server_test, OfferReturnsCorrectOfferState)
     EXPECT_TRUE(iox_server_is_offered(sut));
     iox_server_stop_offer(sut);
     EXPECT_FALSE(iox_server_is_offered(sut));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, GetServiceDescriptionWorks)
@@ -358,6 +380,8 @@ TEST_F(iox_server_test, GetServiceDescriptionWorks)
     EXPECT_THAT(serviceDescription.serviceString, StrEq(SERVICE));
     EXPECT_THAT(serviceDescription.instanceString, StrEq(INSTANCE));
     EXPECT_THAT(serviceDescription.eventString, StrEq(EVENT));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, LoanWorks)
@@ -374,6 +398,8 @@ TEST_F(iox_server_test, LoanWorks)
     void* payload = nullptr;
     EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
     EXPECT_THAT(payload, Ne(nullptr));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, LoanFailsWhenNoMoreChunksAreAvailable)
@@ -391,6 +417,8 @@ TEST_F(iox_server_test, LoanFailsWhenNoMoreChunksAreAvailable)
     EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
     EXPECT_THAT(iox_server_loan_response(sut, requestPayload, &payload, sizeof(int64_t)),
                 Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, LoanAlignedWorks)
@@ -408,7 +436,9 @@ TEST_F(iox_server_test, LoanAlignedWorks)
     EXPECT_THAT(iox_server_loan_aligned_response(sut, requestPayload, &payload, sizeof(int64_t), 16),
                 Eq(AllocationResult_SUCCESS));
     EXPECT_THAT(payload, Ne(nullptr));
-    EXPECT_THAT(reinterpret_cast<uint64_t>(payload) % 16, Eq(0));
+    EXPECT_THAT(reinterpret_cast<uint64_t>(payload) % 16, Eq(0U));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, LoanAlignedFailsWhenNoChunksAreAvailable)
@@ -427,6 +457,8 @@ TEST_F(iox_server_test, LoanAlignedFailsWhenNoChunksAreAvailable)
                 Eq(AllocationResult_SUCCESS));
     EXPECT_THAT(iox_server_loan_aligned_response(sut, requestPayload, &payload, sizeof(int64_t), 16),
                 Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, ReleaseResponseWorks)
@@ -447,6 +479,8 @@ TEST_F(iox_server_test, ReleaseResponseWorks)
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     iox_server_release_request(sut, requestPayload);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, SendWorks)
@@ -470,6 +504,8 @@ TEST_F(iox_server_test, SendWorks)
         .and_then(
             [&](auto& sharedChunk) { EXPECT_THAT(*static_cast<int64_t*>(sharedChunk.getUserPayload()), Eq(42424242)); })
         .or_else([&] { GTEST_FAIL() << "Expected response but got nothing"; });
+
+    iox_server_deinit(sut);
 }
 
 TEST_F(iox_server_test, SendWithNullptrReturnsError)
@@ -480,5 +516,7 @@ TEST_F(iox_server_test, SendWithNullptrReturnsError)
     connectClient();
 
     EXPECT_THAT(iox_server_send(sut, nullptr), Eq(ServerSendResult_INVALID_RESPONSE));
+
+    iox_server_deinit(sut);
 }
 } // namespace

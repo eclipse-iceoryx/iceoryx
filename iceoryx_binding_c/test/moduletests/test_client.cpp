@@ -173,6 +173,7 @@ TEST_F(iox_client_test, InitializingClientWithNullptrOptionsGetMiddlewareClientW
 
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     ASSERT_THAT(sut, Ne(nullptr));
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, InitializingClientWithCustomOptionsWork)
@@ -196,6 +197,7 @@ TEST_F(iox_client_test, InitializingClientWithCustomOptionsWork)
 
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
     ASSERT_THAT(sut, Ne(nullptr));
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, DeinitReleasesClient)
@@ -219,6 +221,8 @@ TEST_F(iox_client_test, LoanWithValidArgumentsWorks)
     EXPECT_THAT(iox_client_loan_request(sut, &payload, 32), Eq(AllocationResult_SUCCESS));
     EXPECT_TRUE(isPayloadInDataSegment(payload));
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, LoanAlignedChunkWithValidArgumentsWorks)
@@ -232,6 +236,8 @@ TEST_F(iox_client_test, LoanAlignedChunkWithValidArgumentsWorks)
     EXPECT_TRUE(isPayloadInDataSegment(payload));
     EXPECT_THAT(reinterpret_cast<uint64_t>(payload) % ALIGNMENT, Eq(0U));
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, LoanFailsWhenNoMoreChunksAreAvailable)
@@ -248,6 +254,8 @@ TEST_F(iox_client_test, LoanFailsWhenNoMoreChunksAreAvailable)
     EXPECT_THAT(iox_client_loan_request(sut, &payload, 322), Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
     EXPECT_THAT(payload, Eq(nullptr));
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, LoanAlignedFailsWhenNoMoreChunksAreAvailable)
@@ -264,6 +272,8 @@ TEST_F(iox_client_test, LoanAlignedFailsWhenNoMoreChunksAreAvailable)
     EXPECT_THAT(iox_client_loan_request(sut, &payload, 322), Eq(AllocationResult_RUNNING_OUT_OF_CHUNKS));
     EXPECT_THAT(payload, Eq(nullptr));
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
@@ -278,6 +288,8 @@ TEST_F(iox_client_test, ReleaseWorksOnValidPayload)
     iox_client_release_request(sut, payload);
 
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, LoanAndSendWorks)
@@ -299,6 +311,8 @@ TEST_F(iox_client_test, LoanAndSendWorks)
             EXPECT_THAT(*msg, Eq(8912389));
         })
         .or_else([&] { GTEST_FAIL() << "Expected request but got none"; });
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, SendWithNullptrReturnsError)
@@ -309,6 +323,8 @@ TEST_F(iox_client_test, SendWithNullptrReturnsError)
     connect();
 
     EXPECT_THAT(iox_client_send(sut, nullptr), Eq(ClientSendResult_INVALID_REQUEST));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, ConnectWorks)
@@ -325,6 +341,8 @@ TEST_F(iox_client_test, ConnectWorks)
     iox_client_connect(sut);
 
     EXPECT_THAT(sutPort->m_connectRequested.load(), Eq(true));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, DisconnectWorks)
@@ -335,6 +353,8 @@ TEST_F(iox_client_test, DisconnectWorks)
     iox_client_disconnect(sut);
 
     EXPECT_THAT(sutPort->m_connectRequested.load(), Eq(false));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, GetConnectionIsNotConnectedWhenCreatedWithoutAutoConnect)
@@ -350,6 +370,8 @@ TEST_F(iox_client_test, GetConnectionIsNotConnectedWhenCreatedWithoutAutoConnect
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options);
 
     EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_NOT_CONNECTED));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, GetConnectionReturnsConnectRequested)
@@ -368,6 +390,8 @@ TEST_F(iox_client_test, GetConnectionReturnsConnectRequested)
     sutPort->m_connectRequested = false;
     sutPort->m_connectionState = iox::ConnectionState::DISCONNECT_REQUESTED;
     EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_DISCONNECT_REQUESTED));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, GetConnectionReturnsWaitForOffer)
@@ -379,6 +403,8 @@ TEST_F(iox_client_test, GetConnectionReturnsWaitForOffer)
     sutPort->m_connectionState = iox::ConnectionState::WAIT_FOR_OFFER;
 
     EXPECT_THAT(iox_client_get_connection_state(sut), Eq(ConnectionState_WAIT_FOR_OFFER));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, TakeReturnsNoChunkAvailableWhenNothingWasReceived)
@@ -390,6 +416,8 @@ TEST_F(iox_client_test, TakeReturnsNoChunkAvailableWhenNothingWasReceived)
     const void* payload = nullptr;
 
     EXPECT_THAT(iox_client_take_response(sut, &payload), Eq(ChunkReceiveResult_NO_CHUNK_AVAILABLE));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
@@ -404,6 +432,8 @@ TEST_F(iox_client_test, TakeAcquiresChunkWhenOneIsAvailable)
     EXPECT_THAT(iox_client_take_response(sut, &payload), Eq(ChunkReceiveResult_SUCCESS));
     ASSERT_THAT(payload, Ne(nullptr));
     EXPECT_THAT(*static_cast<const int64_t*>(payload), Eq(800131));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, ReleasingResponseReleasesChunk)
@@ -419,6 +449,8 @@ TEST_F(iox_client_test, ReleasingResponseReleasesChunk)
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     iox_client_release_response(sut, payload);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, ReleasingQueuedResponsesReleasesEverything)
@@ -433,6 +465,8 @@ TEST_F(iox_client_test, ReleasingQueuedResponsesReleasesEverything)
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
     iox_client_release_queued_responses(sut);
     EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, HasResponsesIsFalseWhenThereIsNoResponse)
@@ -442,6 +476,8 @@ TEST_F(iox_client_test, HasResponsesIsFalseWhenThereIsNoResponse)
     iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connect();
     EXPECT_FALSE(iox_client_has_responses(sut));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, HasResponsesIsTrueWhenThereIsAreResponses)
@@ -453,6 +489,8 @@ TEST_F(iox_client_test, HasResponsesIsTrueWhenThereIsAreResponses)
     receiveChunk();
 
     EXPECT_TRUE(iox_client_has_responses(sut));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, HasMissedResponsesOnOverflow)
@@ -464,6 +502,8 @@ TEST_F(iox_client_test, HasMissedResponsesOnOverflow)
 
     sutPort->m_chunkReceiverData.m_queueHasLostChunks = true;
     EXPECT_TRUE(iox_client_has_missed_responses(sut));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, HasNoMissedResponses)
@@ -475,6 +515,8 @@ TEST_F(iox_client_test, HasNoMissedResponses)
 
     sutPort->m_chunkReceiverData.m_queueHasLostChunks = false;
     EXPECT_FALSE(iox_client_has_missed_responses(sut));
+
+    iox_client_deinit(sut);
 }
 
 TEST_F(iox_client_test, GetServiceDescriptionWorks)
@@ -488,5 +530,7 @@ TEST_F(iox_client_test, GetServiceDescriptionWorks)
     EXPECT_THAT(serviceDescription.serviceString, StrEq(SERVICE));
     EXPECT_THAT(serviceDescription.instanceString, StrEq(INSTANCE));
     EXPECT_THAT(serviceDescription.eventString, StrEq(EVENT));
+
+    iox_client_deinit(sut);
 }
 } // namespace

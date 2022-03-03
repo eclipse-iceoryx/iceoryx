@@ -138,7 +138,7 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+        iox_sub_deinit(subscriber[i]);
     }
 
     iox_ws_deinit(waitSet);

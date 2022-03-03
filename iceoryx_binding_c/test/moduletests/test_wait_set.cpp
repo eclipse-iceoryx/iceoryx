@@ -77,9 +77,9 @@ class iox_ws_test : public Test
     {
         delete m_sut;
 
-        for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        for (auto trigger : m_userTrigger)
         {
-            iox_user_trigger_deinit(m_userTrigger[i]);
+            iox_user_trigger_deinit(trigger);
         }
     }
 
@@ -780,12 +780,14 @@ TEST_F(iox_ws_test, AttachingClientEventWorks)
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
 
-    EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(0U));
     iox_ws_attach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED, 0, nullptr);
-    EXPECT_THAT(iox_ws_size(m_sut), Eq(1));
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(1U));
 
     iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
-    EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+    EXPECT_THAT(iox_ws_size(m_sut), Eq(0U));
+
+    iox_client_deinit(client);
 }
 
 void notifyClient(ClientPortData& portData)
@@ -808,7 +810,7 @@ TEST_F(iox_ws_test, NotifyingClientEventWorks)
     notifyClient(clientPortData);
 
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
-                Eq(1));
+                Eq(1U));
     EXPECT_THAT(iox_notification_info_get_notification_id(m_eventInfoStorage[0]), Eq(13137));
     EXPECT_THAT(iox_notification_info_get_client_origin(m_eventInfoStorage[0]), Eq(client));
     EXPECT_TRUE(iox_notification_info_does_originate_from_client(m_eventInfoStorage[0], client));
@@ -818,6 +820,8 @@ TEST_F(iox_ws_test, NotifyingClientEventWorks)
     EXPECT_THAT(m_contextData, Eq(nullptr));
 
     iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+
+    iox_client_deinit(client);
 }
 
 TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
@@ -842,6 +846,8 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
     EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&clientStorage)));
 
     iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+
+    iox_client_deinit(client);
 }
 
 TEST_F(iox_ws_test, AttachingClientStateWorks)
@@ -857,6 +863,8 @@ TEST_F(iox_ws_test, AttachingClientStateWorks)
 
     iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
     EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+
+    iox_client_deinit(client);
 }
 
 TEST_F(iox_ws_test, NotifyingClientStateWorks)
@@ -881,6 +889,8 @@ TEST_F(iox_ws_test, NotifyingClientStateWorks)
     EXPECT_THAT(m_contextData, Eq(nullptr));
 
     iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
+
+    iox_client_deinit(client);
 }
 
 TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
@@ -904,6 +914,8 @@ TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
     EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&clientStorage)));
 
     iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
+
+    iox_client_deinit(client);
 }
 
 //////////////////////
@@ -931,6 +943,8 @@ TEST_F(iox_ws_test, AttachingServerEventWorks)
 
     iox_ws_detach_server_event(m_sut, server, ServerEvent_REQUEST_RECEIVED);
     EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_ws_test, AttachingServerEventWithContextDataWorks)
@@ -948,6 +962,8 @@ TEST_F(iox_ws_test, AttachingServerEventWithContextDataWorks)
 
     iox_ws_detach_server_event(m_sut, server, ServerEvent_REQUEST_RECEIVED);
     EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_ws_test, NotifyingServerEventWorks)
@@ -972,6 +988,8 @@ TEST_F(iox_ws_test, NotifyingServerEventWorks)
     EXPECT_THAT(m_contextData, Eq(nullptr));
 
     iox_ws_detach_server_event(m_sut, server, ServerEvent_REQUEST_RECEIVED);
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_ws_test, NotifyingServerEventWithContextDataWorks)
@@ -997,6 +1015,8 @@ TEST_F(iox_ws_test, NotifyingServerEventWithContextDataWorks)
     EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&serverStorage)));
 
     iox_ws_detach_server_event(m_sut, server, ServerEvent_REQUEST_RECEIVED);
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_ws_test, AttachingServerStateWorks)
@@ -1012,6 +1032,8 @@ TEST_F(iox_ws_test, AttachingServerStateWorks)
 
     iox_ws_detach_server_state(m_sut, server, ServerState_HAS_REQUEST);
     EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_ws_test, NotifyingServerStateWorks)
@@ -1036,6 +1058,8 @@ TEST_F(iox_ws_test, NotifyingServerStateWorks)
     EXPECT_THAT(m_contextData, Eq(nullptr));
 
     iox_ws_detach_server_state(m_sut, server, ServerState_HAS_REQUEST);
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_ws_test, NotifyingServerStateWithContextDataWorks)
@@ -1061,6 +1085,8 @@ TEST_F(iox_ws_test, NotifyingServerStateWithContextDataWorks)
     EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&serverStorage)));
 
     iox_ws_detach_server_state(m_sut, server, ServerState_HAS_REQUEST);
+
+    iox_server_deinit(server);
 }
 
 ////////////////////

@@ -38,6 +38,13 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
+/// @todo iox-#1221 remove this workaround needed for CycloneDDS due to our change to use the head for storage
+struct SubscriberWithStoragePointer
+{
+    void* subscriberStorage{nullptr};
+    cpp2c_Subscriber subscriber;
+};
+
 constexpr uint64_t SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT = 543212345;
 
 void iox_sub_options_init(iox_sub_options_t* options)
@@ -76,9 +83,6 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         return nullptr;
     }
 
-    new (self) cpp2c_Subscriber();
-    iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
-
     SubscriberOptions subscriberOptions;
 
     // use default options otherwise
@@ -102,18 +106,32 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         subscriberOptions.requiresPublisherHistorySupport = options->requirePublisherHistorySupport;
     }
 
+    // this is required for CycloneDDS to limit the fallout of our change to use the heap for storage
+    // it should be removed with #1221
+    auto meWithStoragePointer = new SubscriberWithStoragePointer();
+    meWithStoragePointer->subscriberStorage = self;
+    auto me = &meWithStoragePointer->subscriber;
+    assert(reinterpret_cast<uint64_t>(me) - reinterpret_cast<uint64_t>(meWithStoragePointer) == sizeof(void*)
+           && "Size mismatch for SubscriberWithStoragePointer!");
+
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
                                                                               IdString_t(TruncateToCapacity, instance),
                                                                               IdString_t(TruncateToCapacity, event)},
                                                            subscriberOptions);
 
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
     return me;
 }
 
 void iox_sub_deinit(iox_sub_t const self)
 {
-    self->~cpp2c_Subscriber();
+    iox::cxx::Expects(self != nullptr);
+
+    auto addressOfSelf = reinterpret_cast<uint64_t>(self);
+    auto* selfWithStoragePointer = reinterpret_cast<SubscriberWithStoragePointer*>(addressOfSelf - sizeof(void*));
+
+    delete selfWithStoragePointer;
 }
 
 void iox_sub_subscribe(iox_sub_t const self)
