@@ -28,13 +28,13 @@ To demonstrate the setup we use the
 
 ### Shared Access to Unix Domain Sockets
 
-Every iceoryx application is registering itself at our central broker RouDi
+Every iceoryx application registers itself at our central broker RouDi
 by sending a message to the unix domain socket located at
 `IOX_UDS_SOCKET_PATH_PREFIX/roudi` which is defined in the corresponding
 platform settings file `platform_settings.hpp`. In linux the socket file handle
-can be found at `/tmp/roudi`. While registering it announces its unix
-domain socket to roudi for the responses of application requests which were
-sent to roudi.
+can be found at `/tmp/roudi`. When the application registers at RouDi it 
+announces its unix domain socket as well to receive responses of requests which
+will be sent during runtime to RouDi.
 This socket is stored as well in `/tmp/IOX_RUNTIME_NAME`. The `iox-cpp-publisher`
 runtime has the same name as the binary which leads to the socket
 `/tmp/iox-cpp-publisher`.
