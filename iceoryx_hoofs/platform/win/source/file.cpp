@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/file.hpp"                // NOLINT
-#include "iceoryx_hoofs/platform/handle_translator.hpp"   // NOLINT
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp" // NOLINT
-#include "iceoryx_hoofs/platform/windows.hpp"             // NOLINT
+#include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_hoofs/platform/handle_translator.hpp"
+#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_hoofs/platform/windows.hpp"
 
 int iox_flock(int fd, int op)
 {
     HANDLE handle = HandleTranslator::getInstance().get(fd);
     if (op & LOCK_EX)
+    {
+        if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+        {
+            return -1;
+        }
+    }
+    else if (op & LOCK_SH)
     {
         OVERLAPPED overlapped;
         if (Win32Call(LockFileEx, handle, 0, 0, 0, 0, &overlapped).value == FALSE)
@@ -30,22 +37,11 @@ int iox_flock(int fd, int op)
             return -1;
         }
     }
-    else if (op & LOCK_SH)
-    {
-        if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
-        {
-            return -1;
-        }
-    }
     else if (op & LOCK_UN)
     {
-        OVERLAPPED overlapped;
-        if (Win32Call(UnlockFileEx, handle, 0, 0, 0, &overlapped).value == FALSE)
+        if (Win32Call(UnlockFile, handle, 0, 0, 0, 0).value == FALSE)
         {
-            if (Win32Call(UnlockFile, handle, 0, 0, 0, 0).value == FALSE)
-            {
-                return -1;
-            }
+            return -1;
         }
     }
     return 0;
