@@ -83,6 +83,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Prevent creation of `popo::Publisher`'s with internal `ServiceDescription` [\#1120](https://github.com/eclipse-iceoryx/iceoryx/issues/1120)
 - RelativePointer is now type safe, i.e. can only be constructed from pointers with a valid convertion to the raw pointer [\#1121](https://github.com/eclipse-iceoryx/iceoryx/issues/1121)
 - Clamping `historyRequest` to `queueCapacity` [\#1192](https://github.com/eclipse-iceoryx/iceoryx/issues/1192)
+- C binding storage sizes do not match for multiple OS's and architectures [\#1218](https://github.com/eclipse-iceoryx/iceoryx/issues/1218)
 
 **Refactoring:**
 
