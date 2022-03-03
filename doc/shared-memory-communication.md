@@ -11,7 +11,7 @@ accessible at a particular address may be different for each process.
 
 A pointer in an application uses the virtual address space of the process it is running in.
 
-Within the virtual address space of a process there are a number of "memory areas" to where data is loaded or mapped.
+Within the virtual address space of a process there are a number of "memory areas" where data is loaded or mapped to.
 These memory areas are typically disjointed ranges in the process's virtual address space.
 Some examples of what may be in a memory area are:
 
@@ -52,7 +52,7 @@ See the [configuration guide](https://github.com/eclipse-iceoryx/iceoryx/blob/ma
 
 ## Zero-copy communication
 
-`popo::Publisher`s / `popo::Subscriber`s and `popo::Server`s / `popo::Client`s which are wired together can communicate
+`popo::Publisher`s / `popo::Subscriber`s and `popo::Server`s / `popo::Client`s which are connected can communicate
 via shared memory resulting in zero-copy communication. In this section `popo::Publisher` and `popo::Server` will be
 referred to as producers and `popo::Subscriber` and `popo::Client` as consumers.
 
@@ -61,7 +61,7 @@ In a POSIX system, this is decided purely based on file access permissions as me
 virtual files.
 
 To output data, a producer reserves a memory chunk in its assigned memory segment.
-The iceoryx system will intelligently choose the smallest chunk size that can fit the output data structure.
+The iceoryx system will choose the smallest chunk size that can fit the output data structure.
 Note that an entire chunk is reserved even if the data type it contains is smaller than its size.
 
 A producer chooses explicitly when to deliver data written in a memory chunk to all of its attached consumers
