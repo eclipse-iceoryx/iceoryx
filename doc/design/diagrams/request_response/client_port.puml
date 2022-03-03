@@ -22,9 +22,10 @@ class ClientPortUser {
   releaseRequest(requestHeader: const RequestHeader*): void
   getResponse(): expected<const ResponseHeader*, ChunkReceiveResult>
   releaseResponse(responseHeader: const ResponseHeader*): void
+  releaseQueuedResponses(): void
   hasNewResponses(): bool
   hasLostResponsesSinceLastCall(): bool
-  setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
+  setConditionVariable(conditionVariableData: ConditionVariableData&, notificationIndex: uint64_t): void
   unsetConditionVariable(): void
   isConditionVariableSet(): bool
 }
@@ -33,7 +34,7 @@ class ClientPortRouDi {
   getResponseQueueFullPolicy(): QueueFullPolicy
   getServerTooSlowPolicy(): ConsumerTooSlowPolicy
   tryGetCaProMessage(): optional<CaProMessage>
-  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage): optional<CaProMessage>
+  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage&): optional<CaProMessage>
   releaseAllChunks(): void
 }
 

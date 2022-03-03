@@ -34,15 +34,17 @@ class ServerPortUser {
   allocateResponse(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
   sendResponse(responseHeader: ResponseHeader*): expected<ServerSendError>
   releaseResponse(responseHeader: const ResponseHeader*): void
-  setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void
+  setConditionVariable(conditionVariableData: ConditionVariableData&, notificationIndex: uint64_t): void
   unsetConditionVariable: void
   isConditionVariableSet(): bool
 }
 
 class ServerPortRouDi {
   tryGetCaProMessage(): optional<CaProMessage>
-  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage): optional<CaProMessage>
+  dispatchCaProMessageAndGetPossibleResponse(caProMessage: const CaProMessage &): optional<CaProMessage>
   releaseAllChunks(): void
+  getRequestQueueFullPolicy(): QueueFullPolicy
+  getClientTooSlowPolicy(): ConsumerTooSlowPolicy
 }
 
 ServerPortUser o-- ServerPortData
