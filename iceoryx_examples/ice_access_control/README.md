@@ -14,7 +14,9 @@ It provides a custom RouDi, a radar and a display application.
 
 ## Code walkthrough
 
-RouDi needs to be able to send a _SIGKILL_ signal to the apps in case RouDi is shutdown. Hence, RouDi needs _CAP\_KILL_ capability or similar rights on other POSIX operating system. However, the user _roudi_ does not need root access rights.
+RouDi needs to be able to send a _SIGKILL_ signal to the apps in case RouDi shuts down. Hence, RouDi needs
+_CAP\_KILL_ capability or similar rights on other POSIX operating systems. However, the user _roudi_ does
+not need root access rights.
 
 The system user can be member of multiple system groups. This examples uses the following users and groups:
 
@@ -26,7 +28,7 @@ The system user can be member of multiple system groups. This examples uses the 
 | notallowed   |                  |                    |                    |         X          |
 
 !!! hint
-    To be able to use iceoryx communication all apps have to be in the group _iceoryx_.
+    In order to be able to use iceoryx communication, all apps have to be in the group _iceoryx_.
 
 ### Overview over the Apps and Shared Memory Segments
 
@@ -34,7 +36,7 @@ RouDi is built with two shared memory segments _infotainment_ and _privileged_. 
 memory segments in the operating system. The _privileged_ segment requires the app to be started with the group
 _privileged_ if it publishes data or with the _unprivileged_ group when data should only be received.
 The _infotainment_ segment on the other hand requires only one group for reading and writing called _infotainment_.
-See the [next chapter](#working-setup) for a detailed description on how to configure the shared memory segements.
+See the [next chapter](#working-setup) for a detailed description on how to configure the shared memory segments.
 
 ```
                                  +-----------------------+
@@ -76,7 +78,7 @@ See the [next chapter](#working-setup) for a detailed description on how to conf
 
 Do the following to configure shared memory segments when building a custom RouDi:
 
-<!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segements.cpp][config]-->
+<!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segments.cpp][config]-->
 ```cpp
 iox::RouDiConfig_t roudiConfig;
 
@@ -92,9 +94,10 @@ roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepo
 roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
 ```
 
-The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segement is created, one needs to
-specific the reader group (first string), writer group (second string) as well as the `mepooConfig` (last parameter).
-The access rights are solely based on user groups and not on users itself. All users in the reader group are allowed to read, but don't have write access. Users in the writer group have both read and write access.
+The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segment is created, one needs to
+specify the reader group (first string), writer group (second string) as well as the `mepooConfig` (last parameter).
+The access rights are solely based on user groups and not on users itself. All users in the reader group are allowed
+to read, but don't have write access. Users in the writer group have both read and write access.
 
 !!! tip
     Shared memory segment can also be configured via a
@@ -110,7 +113,7 @@ the user _infotainment_ is only in the _infotainment_ and _unprivileged_ group, 
 infotainment segment. Hence, the data is written to this segment.
 
 !!! hint
-    It's advised to create per writer group only one shared memory segement (e.g. not two segements with `w: infotainment`).
+    It's advised to create only one shared memory segment per writer group (e.g. not two segments with `w: infotainment`).
     In this case it wouldn't be possible to control which segment will be used.
 
 The shared memory segments can be found under `/dev/shm`
@@ -150,8 +153,8 @@ other::--
 
 #### Not-working setup
 
-The cheeky app is started with the user _notallowed_. This user is not in any group that would allow him either read
-or write access to one of the shared memory segments. Hence, RouDi will print a warning in this case.
+The cheeky app is started with the user _notallowed_. This user is not in any group that allow either read
+or write access to any of the shared memory segments. Hence, RouDi will print a warning in this case.
 
 Despite having no read access, subscribers can still be created. <!-- @todo In this case no data will ever arrive.-->
 
@@ -160,7 +163,8 @@ Despite having no read access, subscribers can still be created. <!-- @todo In t
 iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
-When creating and requesting a publisher RouDi will answer with an error, as there is no write access. Hence, an error will be printed and the cheeky app will stop.
+When creating and requesting a publisher, RouDi will answer with an error, as there is no write access. Hence,
+an error will be printed and the cheeky app will stop.
 
 <!--[geoffrey][iceoryx_examples/ice_access_control/iox_cheeky_app.cpp][publisher]-->
 ```cpp
