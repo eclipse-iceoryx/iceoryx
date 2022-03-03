@@ -29,6 +29,8 @@ namespace iox
 {
 namespace posix
 {
+constexpr const char FileLock::LOCK_FILE_SUFFIX[];
+
 FileLock::FileLock(const FileName_t& name) noexcept
     : m_name(name)
     , m_fileLockPath(platform::IOX_LOCK_FILE_PATH_PREFIX + m_name + LOCK_FILE_SUFFIX)

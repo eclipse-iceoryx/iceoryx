@@ -84,7 +84,7 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
 
     /// @brief c'tor
     /// @param[in] name of the created file lock in PATH_PREFIX
-    FileLock(const FileName_t& name) noexcept;
+    explicit FileLock(const FileName_t& name) noexcept;
 
     void invalidate() noexcept;
 
