@@ -123,19 +123,19 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
             .evaluate()
             .or_else([&](auto& result) {
                 cleanupFailed = true;
-                IOX_DISCARD_RESULT(convertErrnoToFileLockError(result.errnum));
+                IOX_DISCARD_RESULT(this->convertErrnoToFileLockError(result.errnum));
                 std::cerr << "Unable to unlock the file lock \"" << m_fileLockPath << "\"" << std::endl;
             });
 
         posixCall(iox_close)(m_fd).failureReturnValue(ERROR_CODE).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
-            IOX_DISCARD_RESULT(convertErrnoToFileLockError(result.errnum));
+            IOX_DISCARD_RESULT(this->convertErrnoToFileLockError(result.errnum));
             std::cerr << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"" << std::endl;
         });
 
         posixCall(remove)(m_fileLockPath.c_str()).failureReturnValue(ERROR_CODE).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
-            IOX_DISCARD_RESULT(convertErrnoToFileLockError(result.errnum));
+            IOX_DISCARD_RESULT(this->convertErrnoToFileLockError(result.errnum));
             std::cerr << "Unable to remove the file lock \"" << m_fileLockPath << "\"" << std::endl;
         });
 
