@@ -62,8 +62,8 @@ void receiving()
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
             const void* userPayload = NULL;
-            // we will receive more then one sample here since the publisher is sending a
-            // new sample every 400ms and we check for new samples only every second
+            // we will receive more than one sample here since the publisher is sending a
+            // new sample every 400 ms and we check for new samples only every second
             while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
             {
                 const struct RadarObject* sample = (const struct RadarObject*)(userPayload);
