@@ -62,7 +62,7 @@ void receiving()
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
             const void* userPayload = NULL;
-            // we will receive here more then one sample since the publisher is sending a
+            // we will receive more then one sample here since the publisher is sending a
             // new sample every 400ms and we check for new samples only every second
             while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
             {

@@ -19,7 +19,7 @@ so that we explain here only the C API differences and not the underlying mechan
 
 As in the
 [icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery),
-we perform the following steps again:
+we perform the following steps:
 
  1. Create a runtime instance.
  2. Create a subscriber port and subscribe to the offered service.
@@ -44,7 +44,7 @@ iox_runtime_init(APP_NAME);
     should receive right after the connection has been established and the
     `queueCapacity` how many samples the subscriber can hold. These are samples
     which the publisher has sent before the subscriber was connected. The
-    `nodeName` is the name of the node, where the subscriber belongs.
+    `nodeName` is the name of the node the subscriber is associated with.
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
 
@@ -60,7 +60,7 @@ iox_sub_storage_t subscriberStorage;
 iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
 ```
 
- 3. In a loop we receive samples and print the received data on the console as
+ 3. We receive samples in a loop and print the received data on the console as
     long as the `killswitch` is not set to `true` by an external signal.
 
 <!--[geoffrey][iceoryx_examples/icedelivery_in_c/ice_c_subscriber.c][receive and print data]-->
@@ -70,7 +70,7 @@ while (!killswitch)
     if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
     {
         const void* userPayload = NULL;
-        // we will receive here more then one sample since the publisher is sending a
+        // we will receive more then one sample here since the publisher is sending a
         // new sample every 400ms and we check for new samples only every second
         while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
         {
