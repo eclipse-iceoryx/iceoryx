@@ -86,8 +86,8 @@ notifies us just once when data was received we have to gather and process all c
 One will never miss chunks since the event notification is reset after a call to
 `iox_ws_wait` or `iox_ws_timed_wait` which we introduce below.
 
-After we registered our runtime we create some stack storage for our WaitSet,
-initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
+After we registered our runtime we set up some `waitSetStorage`, initialize the _WaitSet_
+and attach a `shutdownTrigger` to handle `CTRL-c`.
 
 ```c
 iox_runtime_init("iox-c-waitset-gateway");
