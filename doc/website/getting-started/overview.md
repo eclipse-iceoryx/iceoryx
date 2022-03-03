@@ -148,7 +148,7 @@ Shared memory is physical memory that is made accessible to multiple processes v
 virtual address spaces.
 
 For further information have a look at our
-[conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md).
+[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/shared-memory-communication.md).
 
 ### Runtime
 
