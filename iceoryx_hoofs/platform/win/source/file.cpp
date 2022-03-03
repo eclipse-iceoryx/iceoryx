@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,9 +22,27 @@
 int iox_flock(int fd, int op)
 {
     HANDLE handle = HandleTranslator::getInstance().get(fd);
-    if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+    if (op & LOCK_EX)
     {
-        return -1;
+        if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+        {
+            return -1;
+        }
+    }
+    else if (op & LOCK_SH)
+    {
+        OVERLAPPED overlapped;
+        if (Win32Call(LockFileEx, handle, 0, 0, 0, 0, &overlapped).value == FALSE)
+        {
+            return -1;
+        }
+    }
+    else if (op & LOCK_UN)
+    {
+        if (Win32Call(UnlockFile, handle, 0, 0, 0, 0).value == FALSE)
+        {
+            return -1;
+        }
     }
     return 0;
 }
