@@ -28,7 +28,7 @@ To demonstrate the setup we use the
 
 ### Shared Access to Unix Domain Sockets
 
-Every iceoryx application is registering itself at our central broker RouDi
+Every iceoryx application registers itself at our central broker RouDi
 by sending a message to the unix domain socket located at
 `IOX_UDS_SOCKET_PATH_PREFIX/roudi` which is defined in the corresponding
 platform settings file `platform_settings.hpp`. In linux the socket file handle
