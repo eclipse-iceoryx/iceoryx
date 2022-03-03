@@ -105,7 +105,7 @@ and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
 the `subscriberCallback`, an event id `1U` and a pointer to our user defined
 context data `sumOfAllSamples` which is then provided as argument for the callback.
 
-!!! attention 
+!!! attention
     The user has to ensure that the contextData (`sumOfAllSamples`) in
     `iox_ws_attach_subscriber_event_with_context_data` lives as long as the
     attachment, with its callback, is attached otherwise the callback context
@@ -115,6 +115,7 @@ context data `sumOfAllSamples` which is then provided as argument for the callba
 uint64_t sumOfAllSamples = 0U;
 
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
+iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
 iox_sub_options_t options;
 iox_sub_options_init(&options);
@@ -123,10 +124,10 @@ options.queueCapacity = 256U;
 options.nodeName = "iox-c-waitSet-gateway-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
+    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
     iox_ws_attach_subscriber_event_with_context_data(
-        waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback, &sumOfAllSamples);
+        waitSet, subscriber[i], SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback, &sumOfAllSamples);
 }
 ```
 
@@ -175,8 +176,8 @@ Before we can close the program, we cleanup all resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_ws_detach_subscriber_event(waitSet, (iox_sub_t) & (subscriberStorage[i]), SubscriberEvent_DATA_RECEIVED);
-    iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+    iox_ws_detach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_DATA_RECEIVED);
+    iox_sub_deinit(subscriber[i]);
 }
 
 iox_ws_deinit(waitSet);
@@ -253,7 +254,7 @@ while (keepRunning)
 ```
 
 When we iterate through the array we handle the `shutdownTrigger` first.
-We check if an event is from the first group by calling 
+We check if an event is from the first group by calling
 `iox_notification_info_get_event_id` and compare the result with `FIRST_GROUP_ID`.
 If that is the case we acquire the subscriber handle with
 `iox_notification_info_get_subscriber_origin`. This allows us to receive the new
@@ -299,7 +300,7 @@ The last thing we have to do is to cleanup all the acquired resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+    iox_sub_deinit(subscriber[i]);
 }
 
 iox_ws_deinit(waitSet);
@@ -335,7 +336,7 @@ iox_sub_options_init(&options);
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
 options.nodeName = "iox-c-waitset-individual-node1";
-    
+
 subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
 options.nodeName = "iox-c-waitset-individual-node2";
 subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
@@ -393,7 +394,7 @@ We conclude the example as always, by cleaning up the resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+    iox_sub_deinit(subscriber[i]);
 }
 
 iox_ws_deinit(waitSet);

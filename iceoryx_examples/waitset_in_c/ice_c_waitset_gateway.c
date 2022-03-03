@@ -91,6 +91,7 @@ int main()
 
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
+    iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
     // create subscriber and subscribe them to our service
     iox_sub_options_t options;
@@ -100,10 +101,10 @@ int main()
     options.nodeName = "iox-c-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
+        subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
         iox_ws_attach_subscriber_event_with_context_data(
-            waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback, &sumOfAllSamples);
+            waitSet, subscriber[i], SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback, &sumOfAllSamples);
     }
 
 
@@ -144,8 +145,8 @@ int main()
     {
         // not mandatory since iox_sub_deinit will detach the subscriber automatically
         // only added to present the full API
-        iox_ws_detach_subscriber_event(waitSet, (iox_sub_t) & (subscriberStorage[i]), SubscriberEvent_DATA_RECEIVED);
-        iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+        iox_ws_detach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_DATA_RECEIVED);
+        iox_sub_deinit(subscriber[i]);
     }
 
     iox_ws_deinit(waitSet);
