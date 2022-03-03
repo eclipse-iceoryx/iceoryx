@@ -33,8 +33,6 @@ int main()
     //! [initialize runtime]
 
     //! [create subscriber]
-    // for the 1.0 release, the Subscriber alias for the SubscriberImpl does not have the second parameter for the
-    // Header, therefore the SubscriberImpl must be used directly
     iox::popo::Subscriber<Data, Header> subscriber({"Example", "User-Header", "Timestamp"});
     //! [create subscriber]
 

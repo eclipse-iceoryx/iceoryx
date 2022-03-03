@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This example shows how to leverage the user-header to send custom meta-information with each sample.
+This example demonstrates how to leverage the user-header to send custom meta-information with each sample.
 Specifically, we want to send a timestamp alongside the sample.
 The example contains code for the typed and untyped C++ API as well as for the C language binding.
 
@@ -75,8 +75,6 @@ Now, we create the publisher. Unlike the other examples, this uses the second te
 This is the only change compared to the other examples with the typed C++ API.
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [create publisher] -->
 ```cpp
-// for the 1.0 release, the Publisher alias for the PublisherImpl does not have the second parameter for the Header,
-// therefore the PublisherImpl must be used directly
 iox::popo::Publisher<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
 ```
 
@@ -129,8 +127,8 @@ std::cout << APP_NAME << " could not loan sample! Error code: " << error << std:
 
 ### Publisher Untyped C++ API
 
-The example with the untyped C++ publisher is quite similar to the one with the typed publisher
-so only the differences will be discussed in this section.
+The example with the untyped C++ publisher is quite similar to the one with the typed publisher.
+The few differences will be discussed in this section.
 
 At first there is a different include
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_untyped_cxx_api.cpp] [include differs from typed C++ API] -->
@@ -222,16 +220,15 @@ fflush(stdout);
 The boilerplate code for the subscriber is the same like for the publisher, therefore only the specific subscriber code is discussed in this section.
 
 To use the subscriber, `subscriber.hpp` needs to be included.
-Similar to the publisher, the subscriber has the same additional template parameter compared to use case without the user-header.
+Similar to the publisher, the subscriber requires the same additional template parameter when
+it is used with a user header.
 <!-- [geoffrey] [iceoryx_examples/user_header/subscriber_cxx_api.cpp] [create subscriber] -->
 ```cpp
-// for the 1.0 release, the Subscriber alias for the SubscriberImpl does not have the second parameter for the
-// Header, therefore the SubscriberImpl must be used directly
 iox::popo::Subscriber<Data, Header> subscriber({"Example", "User-Header", "Timestamp"});
 ```
 
 The main loop is quite simple. The publisher is periodically polled and the data of the received sample is printed.
-Again, the user-header is accessed by the dedicated method of the sample.
+Again, the user-header is accessed by the `getUserHeader` method of the sample.
 <!-- [geoffrey] [iceoryx_examples/user_header/subscriber_cxx_api.cpp] [poll subscriber for samples in a loop] -->
 ```cpp
 while (!iox::posix::hasTerminationRequested())
