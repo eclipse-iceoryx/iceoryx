@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@
 
 bool killswitch = false;
 
-const char APP_NAME[] = "iox-c-subscriber";
-
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
@@ -39,11 +37,15 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
+    //! [create runtime instance]
+    const char APP_NAME[] = "iox-c-subscriber";
     iox_runtime_init(APP_NAME);
+    //! [create runtime instance]
 
     // When starting the subscriber late it will miss the first samples which the
     // publisher has send. The history ensures that we at least get the last 10
-    // samples send by the publisher when we subscribe.
+    // samples sent by the publisher when we subscribe.
+    //! [create subscriber port]
     iox_sub_options_t options;
     iox_sub_options_init(&options);
     options.historyRequest = 10U;
@@ -52,14 +54,16 @@ void receiving()
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
+    //! [create subscriber port]
 
+    //! [receive and print data]
     while (!killswitch)
     {
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
             const void* userPayload = NULL;
-            // we will receive here more then one sample since the publisher is sending a
-            // new sample every 400ms and we check for new samples only every second
+            // we will receive more than one sample here since the publisher is sending a
+            // new sample every 400 ms and we check for new samples only every second
             while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
             {
                 const struct RadarObject* sample = (const struct RadarObject*)(userPayload);
@@ -76,8 +80,11 @@ void receiving()
 
         sleep_for(1000);
     }
+    //! [receive and print data]
 
+    //! [cleanup]
     iox_sub_deinit(subscriber);
+    //! [cleanup]
 }
 
 int main()

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@
 
 bool killswitch = false;
 
-const char APP_NAME[] = "iox-c-publisher";
-
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
@@ -38,15 +36,21 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
+    //! [create runtime instance]
+    const char APP_NAME[] = "iox-c-publisher";
     iox_runtime_init(APP_NAME);
+    //! [create runtime instance]
 
+    //! [create publisher port]
     iox_pub_options_t options;
     iox_pub_options_init(&options);
     options.historyCapacity = 10U;
     options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
+    //! [create publisher port]
 
+    //! [send and print number]
     double ct = 0.0;
 
     while (!killswitch)
@@ -74,8 +78,11 @@ void sending()
             printf("Failed to allocate chunk!");
         }
     }
+    //! [send and print number]
 
+    //! [cleanup]
     iox_pub_deinit(publisher);
+    //! [cleanup]
 }
 
 int main()
