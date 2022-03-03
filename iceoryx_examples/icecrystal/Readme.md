@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
+This example shows you how to use the introspection for debugging purposes. With the introspection you can
 look into the machine room of RouDi. It shows live information about the memory usage and all
 registered processes. Additionally, it shows the publisher and subscriber ports that are created inside the shared
 memory.
@@ -12,7 +12,9 @@ memory.
 We re-use the binaries from
 [icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
-[![asciicast](https://asciinema.org/a/407442.svg)](https://asciinema.org/a/407442)
+<!-- @todo Add expected output with asciinema recording before v2.0-->
+<!-- The current one is outdated, e.g. the the ServiceDiscovery publisher is missing -->
+<!-- [![asciicast](https://asciinema.org/a/407442.svg)](https://asciinema.org/a/407442) -->
 
 ## Feature walkthrough
 
