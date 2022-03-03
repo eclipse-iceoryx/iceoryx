@@ -21,7 +21,7 @@ The different libraries and their namespaces are depicted below.
 Handy Objects Optimized For Safety (hoofs) is a library and contains various building blocks like fixed size containers,
 concurrency classes and modern, next-gen C++ constructs from upcoming C++ standard releases.
 
-For more information about the components, refer to its [detailed description](../advanced/iceoryx_hoofs.md).
+For more information about the components, refer to its [detailed description](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/README.md).
 
 ### iceoryx posh
 
@@ -32,7 +32,7 @@ The package `iceoryx_posh` (**PO**SIX **SH**ared memory) contains everything rel
 This section describes the namespaces of the core library.
 
 * `popo`: The namespace posh ports contains the user-API classes which are used to transfer data.
-* `capro`: The namespace canonical protocol implements parts of the [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture)
+* `capro`: The namespace canonical protocol implements the [canonical protocol pattern](https://en.wikipedia.org/wiki/Canonical_protocol_pattern)
 protocol, which is used by `iceoryx_posh` to connect and discover `popo::Publisher` and `popo::Server`.
 * `mepoo`: The namespace memory pool contains all memory-related classes. For example the `MemoryManager` or `SharedPointer`.
 * `version`: The namespace version contains ABI compatibilities checks.
