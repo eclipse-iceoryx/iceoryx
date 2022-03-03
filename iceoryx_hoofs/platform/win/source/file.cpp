@@ -22,9 +22,31 @@
 int iox_flock(int fd, int op)
 {
     HANDLE handle = HandleTranslator::getInstance().get(fd);
-    if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+    if (op & LOCK_EX)
     {
-        return -1;
+        OVERLAPPED overlapped;
+        if (Win32Call(LockFileEx, handle, 0, 0, 0, 0, &overlapped).value == FALSE)
+        {
+            return -1;
+        }
+    }
+    else if (op & LOCK_SH)
+    {
+        if (Win32Call(LockFile, handle, 0, 0, 0, 0).value == FALSE)
+        {
+            return -1;
+        }
+    }
+    else if (op & LOCK_UN)
+    {
+        OVERLAPPED overlapped;
+        if (Win32Call(UnlockFileEx, handle, 0, 0, 0, &overlapped).value == FALSE)
+        {
+            if (Win32Call(UnlockFile, handle, 0, 0, 0, 0).value == FALSE)
+            {
+                return -1;
+            }
+        }
     }
     return 0;
 }
