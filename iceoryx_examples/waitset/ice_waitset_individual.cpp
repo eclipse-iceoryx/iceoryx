@@ -78,12 +78,12 @@ int main()
                 keepRunning = false;
             }
             //! [shutdown path]
-            // process sample received by subscriber1
             //! [data path]
+            // process sample received by subscriber1
             else if (notification->doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then(
-                    [&](auto& sample) { std::cout << " subscriber 1 received: " << sample->counter << std::endl; });
+                    [&](auto& sample) { std::cout << "subscriber 1 received: " << sample->counter << std::endl; });
             }
             // dismiss sample received by subscriber2
             if (notification->doesOriginateFrom(&subscriber2))

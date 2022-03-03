@@ -35,7 +35,7 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 //! [shutdown callback]
 void shutdownCallback(iox::popo::UserTrigger*)
 {
-    std::cout << "CTRL+c pressed - exiting now" << std::endl;
+    std::cout << "CTRL+C pressed - exiting now" << std::endl;
 }
 //! [shutdown callback]
 
@@ -85,7 +85,7 @@ int main()
     //! [configure]
     uint64_t sumOfAllSamples = 0U;
 
-    // create subscriber and subscribe them to our service
+    // create subscribers and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {

@@ -64,8 +64,8 @@ int main()
     constexpr uint64_t FIRST_GROUP_ID = 123U;
     constexpr uint64_t SECOND_GROUP_ID = 456U;
 
-    // attach the first two subscribers to waitset with a id of FIRST_GROUP_ID
     //! [configure subscribers]
+    // attach the first two subscribers to waitset with a id of FIRST_GROUP_ID
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
         waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
@@ -99,8 +99,9 @@ int main()
                 keepRunning = false;
             }
             //! [shutdown path]
-            // we print the received data for the first group
+
             //! [data path]
+            // we print the received data for the first group
             else if (notification->getNotificationId() == FIRST_GROUP_ID)
             {
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
