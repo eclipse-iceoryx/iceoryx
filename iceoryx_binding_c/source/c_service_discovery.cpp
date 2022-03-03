@@ -31,15 +31,16 @@ iox_service_discovery_t iox_service_discovery_init(iox_service_discovery_storage
 {
     iox::cxx::Expects(self != nullptr);
 
-    auto* me = new (self) ServiceDiscovery();
-    return reinterpret_cast<iox_service_discovery_t>(me);
+    auto* me = new ServiceDiscovery();
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
+    return me;
 }
 
 void iox_service_discovery_deinit(iox_service_discovery_t const self)
 {
     iox::cxx::Expects(self != nullptr);
 
-    self->~ServiceDiscovery();
+    delete self;
 }
 
 uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,

@@ -65,14 +65,16 @@ iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
     iox::cxx::Expects(self != nullptr);
 
-    new (self) cpp2c_WaitSet();
-    return reinterpret_cast<iox_ws_t>(self);
+    auto* me = new cpp2c_WaitSet();
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
+    return me;
 }
 
 void iox_ws_deinit(iox_ws_t const self)
 {
     iox::cxx::Expects(self != nullptr);
-    self->~cpp2c_WaitSet();
+
+    delete self;
 }
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,

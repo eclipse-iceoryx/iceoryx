@@ -36,15 +36,16 @@ iox_listener_t iox_listener_init(iox_listener_storage_t* self)
 {
     iox::cxx::Expects(self != nullptr);
 
-    auto me = new (self) Listener();
-    return reinterpret_cast<iox_listener_t>(me);
+    auto* me = new Listener();
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
+    return me;
 }
 
 void iox_listener_deinit(iox_listener_t const self)
 {
     iox::cxx::Expects(self != nullptr);
 
-    self->~Listener();
+    delete self;
 }
 
 ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t const self,

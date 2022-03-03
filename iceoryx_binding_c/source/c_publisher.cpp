@@ -69,9 +69,6 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         return nullptr;
     }
 
-    new (self) cpp2c_Publisher();
-    iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
-
     PublisherOptions publisherOptions;
 
     // use default options otherwise
@@ -93,6 +90,9 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         publisherOptions.subscriberTooSlowPolicy = c2cpp::consumerTooSlowPolicy(options->subscriberTooSlowPolicy);
     }
 
+    auto* me = new cpp2c_Publisher();
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
+
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
             IdString_t(TruncateToCapacity, service),
@@ -105,8 +105,10 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 
 void iox_pub_deinit(iox_pub_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
+
     self->m_portData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    self->~cpp2c_Publisher();
+    delete self;
 }
 
 iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const userPayload, const uint32_t userPayloadSize)

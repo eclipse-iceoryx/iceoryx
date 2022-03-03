@@ -40,6 +40,7 @@ class Chunk_test : public RouDi_GTest
 
     void TearDown() override
     {
+        iox_pub_deinit(publisher);
     }
 
     iox_pub_storage_t publisherStorage;

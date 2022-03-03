@@ -425,12 +425,14 @@ TEST_F(iox_listener_test, AttachingClientWorks)
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
 
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
     iox_listener_attach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallback);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
 
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+
+    iox_client_deinit(client);
 }
 
 void notifyClient(ClientPortData& portData)
@@ -456,6 +458,8 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(g_clientCallbackArgument == client);
 
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+
+    iox_client_deinit(client);
 });
 
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repeat(5), [&] {
@@ -474,6 +478,8 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repea
     TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&clientStorage));
 
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+
+    iox_client_deinit(client);
 });
 
 //////////////////////
@@ -495,12 +501,14 @@ TEST_F(iox_listener_test, AttachingServerWorks)
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
 
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
     iox_listener_attach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallback);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
 
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+
+    iox_server_deinit(server);
 }
 
 TEST_F(iox_listener_test, AttachingServerWithContextDataWorks)
@@ -518,6 +526,8 @@ TEST_F(iox_listener_test, AttachingServerWithContextDataWorks)
 
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+
+    iox_server_deinit(server);
 }
 
 TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
@@ -534,6 +544,8 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(g_serverCallbackArgument == server);
 
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
+
+    iox_server_deinit(server);
 });
 
 TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repeat(5), [&] {
@@ -552,6 +564,8 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repea
     TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&serverStorage));
 
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
+
+    iox_server_deinit(server);
 });
 
 //////////////////////

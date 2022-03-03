@@ -76,9 +76,6 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         return nullptr;
     }
 
-    new (self) cpp2c_Subscriber();
-    iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
-
     SubscriberOptions subscriberOptions;
 
     // use default options otherwise
@@ -102,18 +99,22 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         subscriberOptions.requiresPublisherHistorySupport = options->requirePublisherHistorySupport;
     }
 
+    auto* me = new cpp2c_Subscriber();
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
                                                                               IdString_t(TruncateToCapacity, instance),
                                                                               IdString_t(TruncateToCapacity, event)},
                                                            subscriberOptions);
 
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
     return me;
 }
 
 void iox_sub_deinit(iox_sub_t const self)
 {
-    self->~cpp2c_Subscriber();
+    iox::cxx::Expects(self != nullptr);
+
+    delete self;
 }
 
 void iox_sub_subscribe(iox_sub_t const self)

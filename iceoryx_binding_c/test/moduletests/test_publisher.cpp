@@ -151,7 +151,9 @@ TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
     iox_pub_options_init(&options);
     iox_pub_storage_t storage;
 
-    EXPECT_NE(iox_pub_init(&storage, "a", "b", "c", &options), nullptr);
+    auto sut = iox_pub_init(&storage, "a", "b", "c", &options);
+    EXPECT_THAT(sut, Ne(nullptr));
+    iox_pub_deinit(sut);
 }
 
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)

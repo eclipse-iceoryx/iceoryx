@@ -34,13 +34,16 @@ iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
         LogWarn() << "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t";
         return nullptr;
     }
-    new (self) UserTrigger();
-    return reinterpret_cast<iox_user_trigger_t>(self);
+    auto* me = new UserTrigger();
+    self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
+    return me;
 }
 
 void iox_user_trigger_deinit(iox_user_trigger_t const self)
 {
-    self->~UserTrigger();
+    iox::cxx::Expects(self != nullptr);
+
+    delete self;
 }
 
 void iox_user_trigger_trigger(iox_user_trigger_t const self)
