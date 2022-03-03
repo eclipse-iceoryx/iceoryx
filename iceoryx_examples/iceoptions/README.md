@@ -11,6 +11,9 @@ side. The options can be used for the typed and untyped C++ API flavors as well 
 
 ## Code walkthrough
 
+!!! info
+    This example describes a single publisher scenario.
+
 ### Publisher
 
 In order to configure a publisher, we have to supply a struct of the type `iox::popo::PublisherOptions` as a second parameter.
@@ -80,6 +83,10 @@ the publisher has available, i.e. best-effort.
 If we want to enforce the contract that the publisher needs to support a `historyCapacity` of at least `historyRequest`, we can do so by setting
 `requirePublisherHistorySupport` to `true`. In this case the subscriber will only connect if the publisher history support is at least as large as is request.
 By default this is set to `false` and best-effort behavior is used.
+
+!!! warning
+    In case of n:m communication, the history feature will **not** provide the overall last n samples based on delivery point in time!
+    For more information about this limitation see the [QoS article](https://iceoryx.io/latest/concepts/qos-policies/).
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][history]-->
 ```cpp
