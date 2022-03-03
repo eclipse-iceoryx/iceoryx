@@ -12,7 +12,7 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 ## Code walkthrough
 
 This example makes use of two kinds of API flavors. With the untyped API, you have the most flexibility. It enables you
-to put APIs on a higher level with a different look and feel on top of iceoryx, e.g. the ara::com API of AUTOSAR Adaptive or
+to define higher level APIs with a different look and feel on top of iceoryx, e.g. the ara::com API of AUTOSAR Adaptive or
 the ROS 2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
 abstraction. A simple example how such an abstraction could look like is given in the second step with the typed
 example. The typed API provides type safety combined with [RAII](https://en.cppreference.com/w/cpp/language/raii).
@@ -110,14 +110,14 @@ data->y = ct;
 data->z = ct;
 ```
 
-And finally, the value is made available to other subscribers with
+Finally, the value is made available to any subscriber with
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][publish]-->
 ```cpp
 publisher.publish(userPayload);
 ```
 
-The incrementation and sending of the data is done in a loop every second until the user presses `Ctrl-C`. It is
+Incrementing the counter and sending the data happens in a loop every second until the user presses `Ctrl-C`. It is
 captured with the signal handler and stops the loop.
 
 ### Subscriber application (untyped)
@@ -285,8 +285,8 @@ publisher.publishCopyOf(object).or_else([](auto& error) {
 #### #4 Publish the result of a computation
 
 Usage #4 can be useful if you have a callable, e.g. a function or
-[functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) should be always called. The callable needs
-to have the signature `void(SampleType*, ...)`.  What then happens, is the following: The publisher loans a sample from
+[functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) that should always be called. The callable needs
+to have the signature `void(SampleType*, ...)`.  The semantics are as follows: The publisher loans a sample from
 shared memory and if loaning was successful the callable is called with a pointer to the `SampleType` as first
 argument. If loaning was unsuccessful, the callable is not called, but instead the `or_else` branch is taken.
 
