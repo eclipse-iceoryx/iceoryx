@@ -122,7 +122,7 @@ TEST_F(UntypedClient_test, SendWithValidPayloadPointerCallsUnderlyingPort)
 
 TEST_F(UntypedClient_test, SendWithNullpointerDoesNotCallsUnderlyingPort)
 {
-    testing::Test::RecordProperty("TEST_ID", "d3b13638-a32d-48fd-a099-fa8516511ef8");
+    ::testing::Test::RecordProperty("TEST_ID", "d3b13638-a32d-48fd-a099-fa8516511ef8");
 
     EXPECT_CALL(sut.mockPort, sendRequest(_)).Times(0);
 

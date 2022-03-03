@@ -102,7 +102,7 @@ TEST_F(Client_test, LoanCallsUnderlyingPortWithErrorResult)
 
 TEST_F(Client_test, SendCallsUnderlyingPort)
 {
-    testing::Test::RecordProperty("TEST_ID", "92d23ecc-5c37-4254-bb09-ccc0e0e7e0fa");
+    ::testing::Test::RecordProperty("TEST_ID", "92d23ecc-5c37-4254-bb09-ccc0e0e7e0fa");
 
     const iox::cxx::expected<RequestHeader*, AllocationError> allocateRequestResult =
         iox::cxx::success<RequestHeader*>{requestMock.userHeader()};
