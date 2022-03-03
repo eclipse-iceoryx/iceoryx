@@ -131,12 +131,3 @@ install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
   DESTINATION share/doc/iceoryx_binding_c
   COMPONENT dev)
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_binding_c_deployment.h.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_binding_c/iceoryx_binding_c_deployment.h" @ONLY)
-
-install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_binding_c_deployment.h
-    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
-    COMPONENT dev
-)

@@ -18,7 +18,6 @@
 #ifndef IOX_BINDING_C_TYPES_H
 #define IOX_BINDING_C_TYPES_H
 
-#include "iceoryx_binding_c/iceoryx_binding_c_deployment.h"
 #include "internal/c2cpp_binding.h"
 
 #define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
