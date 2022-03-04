@@ -27,6 +27,21 @@ find_package(iceoryx_posh REQUIRED)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
+option(MAKE_UNIQUE_INCLUDEDIR
+  "When ON headers are installed to a path ending with folders called \
+  iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
+  overriding this package from a merged catkin, ament, or colcon workspace."
+  ON)
+
+if(MAKE_UNIQUE_INCLUDEDIR)
+  set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
+  if(PREFIX STREQUAL "")
+    set(PREFIX "${_unique_dir}")
+  else()
+    set(PREFIX "${PREFIX}/${_unique_dir}")
+  endif()
+endif()
+
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
 if(NOT QNX)
     SET(CURSES_USE_NCURSES TRUE)
