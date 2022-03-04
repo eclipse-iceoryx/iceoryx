@@ -33,19 +33,36 @@ for COMPONENT in ${COMPONENTS[@]}; do
 done
 
 echo
-echo usage of std components by file
-grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \ \1  \2/p" | sort | uniq
+echo "usage of system header includes (excluding comments)"
+gcc -w -fpreprocessed -dD -E $(find $GREP_PATH -type f -iname *.cpp -o -iname *.hpp -o -iname *.inl) 2> /dev/null\
+ | grep -e "#include <" \
+ | sort \
+ | uniq
+
+# todo: Check against header whitelist here
 
 echo
-echo files with stl dependency
+echo "usage of std components (excluding comments)"
+gcc -w -fpreprocessed -dD -E $(find $GREP_PATH -type f -iname *.cpp -o -iname *.hpp -o -iname *.inl) 2> /dev/null\
+ | grep -HIne "std::" \
+ | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \ \1  \2/p" \
+ | sort \
+ | uniq
+
+
+
+exit 1
+
+echo
+echo "files with stl dependency (including comments)"
 grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::[a-zA-Z_]*.*/\1/p" | xargs -I{} basename {} | sort | uniq
 
 echo
-echo using namespace with std component
+echo "using namespace with std component (including comments)"
 grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH | sed -n "s/\(.*\)/\ \ \1/p"
 
 echo
-echo usage of std components
+echo "usage of std components (including comments)""
 grep -RIne "std::" $GREP_PATH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/\ \ \1/p" | sort | uniq
 
 
