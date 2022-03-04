@@ -21,12 +21,12 @@ Therefore, we have the following coding conventions exclusively in the C API.
 - Pre iceoryx v2, constructor requiring preallocated memory had the suffix `_init` and required a pointer
   to a storage which was usually placed on the stack. Due to non-trivial issues with different sizes for
   different platforms and architectures the storage is ignored and the object is allocated on the heap.
-  This might be reverted in future release depending on a proper solution for the problem.
-  The API remains the same, so a `_storage_t` object like like `iox_sub_storage_t` must be created and
+  This might be reverted in a future release depending on a proper solution for the problem.
+  The API remains the same, so a `_storage_t` object like `iox_sub_storage_t` must be created and
   a pointer to this object must be passed to `_init`, e.g. `iox_sub_init`. This function returns a handle
-  which does not point to the storage. Using the address of the storage to in `_deinit` is undefined and
-  most probably will result in a segmentation fault.
-  The usage according the following example
+  which does not point to the storage. Using the address of the storage in `_deinit` is undefined and
+  most likely will result in a segmentation fault.
+  The usage is according the following example
 
   ```c
   iox_sub_storage_t subStorage;
