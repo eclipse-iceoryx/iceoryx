@@ -2,6 +2,11 @@
 
 ## Introduction
 
+!!! hint
+    Since not all IPC mechanisms are supported on all platforms this benchmark
+    runs fully on QNX and Linux.
+    The iceoryx C or C++ API related benchmark is supported on all platforms.
+
 This example measures the latency of IPC transmissions between two applications.
 We compare the latency of iceoryx with message queues and unix domain sockets.
 
