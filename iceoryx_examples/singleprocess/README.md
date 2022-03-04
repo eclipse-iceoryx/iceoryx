@@ -41,16 +41,19 @@ iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
 iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 ```
 
- 3. We are starting RouDi and provide him with the required components. Furthermore, we
-    disable monitoring. The last bool parameter `false` states that RouDi does not
-    terminate all registered processes when he goes out of scope. If we would set it
-    to `true`, our application would self terminate when the destructor is called.
+ 3. We are starting RouDi, provide him the required components and
+    disable monitoring. The last bool parameter `DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR` 
+    states that RouDi does not
+    terminate all registered processes when RouDi goes out of scope. If we would set it
+    to `true`, our application would self terminate in the destructor of `roudi`.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi]-->
 ```cpp
-iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager,
-                        roudiComponents.portManager,
-                        iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
+constexpr bool DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR = false;
+iox::roudi::RouDi roudi(
+    roudiComponents.rouDiMemoryManager,
+    roudiComponents.portManager,
+    iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR});
 ```
 
  4. Here comes a key difference to an inter-process application. If you would like
@@ -63,7 +66,7 @@ iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
 ```
 
  5. Now that everything is up and running, we can start the publisher and subscriber
-    thread, wait two seconds and stop the example.
+    thread and wait until the users terminates the application.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][run]-->
 ```cpp
@@ -79,14 +82,15 @@ std::cout << "Finished" << std::endl;
 
 ### Implementation of Publisher and Subscriber
 
-Since there are no differences to inter-process ports you can take a look at the
+Since there are no differences to the inter-process ports you can take a look at the
 [icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
-for detailed documentation. We only provide you here with a short overview.
+for a detailed documentation. We only provide here a short overview.
 
 #### Publisher
 
 We create a typed publisher with the following service description
-(Service = `Single`, Instance = `Process`, Event = `Demo`)
+(Service = `Single`, Instance = `Process`, Event = `Demo`) and a `historyCapacity`
+of 10.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][publisher]-->
 ```cpp
@@ -115,8 +119,8 @@ while (!iox::posix::hasTerminationRequested())
 
 #### Subscriber
 
-Like with the publisher, we are creating a corresponding subscriber port with the
-same service description.
+We create a subscriber port with the same service description, a `queueCapacity`
+of 10 and request to get the last 5 samples when we connect (`historyRequest`).
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][subscriber]-->
 ```cpp
@@ -126,8 +130,8 @@ options.historyRequest = 5U;
 iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 ```
 
-Now we can receive the data in a while loop till `keepRunning` is false. But we
-only try to acquire data if our `SubscribeState` is `SUBSCRIBED`.
+Now we can receive the data in a while loop when our `SubscribeState` is `SUBSCRIBED` 
+until someone terminates the application.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][receive]-->
 ```cpp
