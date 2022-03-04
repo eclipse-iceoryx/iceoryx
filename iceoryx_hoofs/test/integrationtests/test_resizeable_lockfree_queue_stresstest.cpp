@@ -22,9 +22,10 @@
 
 using namespace ::testing;
 
+#include "iceoryx_hoofs/testing/barrier.hpp"
+
 #include <array>
 #include <atomic>
-#include <condition_variable>
 #include <list>
 #include <numeric>
 #include <random>
@@ -46,49 +47,8 @@ struct Data
     uint64_t count{0};
 };
 
-class Barrier
-{
-  public:
-    Barrier(uint32_t requiredCount = 0)
-        : m_requiredCount(requiredCount)
-    {
-    }
-
-    void notify()
-    {
-        uint32_t count;
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            count = m_count.fetch_add(1) + 1;
-        }
-        if (count >= m_requiredCount)
-        {
-            m_condVar.notify_all();
-        }
-    }
-
-    void wait()
-    {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        auto cond = [&]() { return m_count >= m_requiredCount; };
-        m_condVar.wait(lock, cond);
-    }
-
-    void reset(uint32_t requiredCount)
-    {
-        m_requiredCount = requiredCount;
-        m_count = 0;
-    }
-
-  private:
-    std::atomic<uint32_t> m_count{0};
-    std::mutex m_mutex;
-    std::condition_variable m_condVar;
-    uint32_t m_requiredCount;
-};
-
 // global barrier is not ideal and should be changed later to a barrier per test
-// (requires lambdas/functional modification)
+// (requires lambdas and/or modification of the functions run by the threads)
 Barrier g_barrier;
 
 using CountArray = std::vector<std::atomic<uint64_t>>;
