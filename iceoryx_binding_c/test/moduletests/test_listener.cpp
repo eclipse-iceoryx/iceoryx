@@ -468,14 +468,15 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repea
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
 
     iox_listener_attach_client_event_with_context_data(
-        &m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, &clientStorage);
+        &m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, &someContextData);
 
     notifyClient(clientPortData);
     std::this_thread::sleep_for(TIMEOUT);
     TIMING_TEST_EXPECT_TRUE(g_clientCallbackArgument == client);
-    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&clientStorage));
+    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&someContextData));
 
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
 
@@ -518,14 +519,15 @@ TEST_F(iox_listener_test, AttachingServerWithContextDataWorks)
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
 
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
     iox_listener_attach_server_event_with_context_data(
-        &m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &serverStorage);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+        &m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &someContextData);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
 
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
 
     iox_server_deinit(server);
 }
@@ -554,14 +556,15 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repea
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
 
     iox_listener_attach_server_event_with_context_data(
-        &m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &serverStorage);
+        &m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &someContextData);
 
     notifyServer(serverPortData);
     std::this_thread::sleep_for(TIMEOUT);
     TIMING_TEST_EXPECT_TRUE(g_serverCallbackArgument == server);
-    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&serverStorage));
+    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&someContextData));
 
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
 
@@ -580,14 +583,14 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWorks)
 
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
 
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
     iox_listener_attach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, &serviceDiscoveryCallback);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
 
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
 
     iox_service_discovery_deinit(serviceDiscovery);
 }
@@ -599,18 +602,19 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
     EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
 
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    uint64_t someContextData = 0U;
 
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
     iox_listener_attach_service_discovery_event_with_context_data(&m_sut,
                                                                   serviceDiscovery,
                                                                   ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
                                                                   &serviceDiscoveryCallbackWithContextData,
-                                                                  &serviceDiscoveryStorage);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+                                                                  &someContextData);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
 
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
 
     iox_service_discovery_deinit(serviceDiscovery);
 }
@@ -646,17 +650,18 @@ TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWithContextDataWo
     EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
 
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    uint64_t someContextData = 0U;
 
     iox_listener_attach_service_discovery_event_with_context_data(&m_sut,
                                                                   serviceDiscovery,
                                                                   ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
                                                                   &serviceDiscoveryCallbackWithContextData,
-                                                                  &serviceDiscoveryStorage);
+                                                                  &someContextData);
 
     notifyServiceDiscovery(m_subscriberPortData[0]);
     std::this_thread::sleep_for(TIMEOUT);
     TIMING_TEST_EXPECT_TRUE(g_serviceDiscoveryCallbackArgument == serviceDiscovery);
-    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&serviceDiscoveryStorage));
+    TIMING_TEST_EXPECT_TRUE(g_contextData == static_cast<void*>(&someContextData));
 
     iox_listener_detach_service_discovery_event(
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
