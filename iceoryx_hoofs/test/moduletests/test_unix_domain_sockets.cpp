@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 
 #include "test.hpp"
 
@@ -416,20 +417,18 @@ TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithTimedReceive)
 
 // is not supported on mac os and behaves there like receive
 #if !defined(__APPLE__)
-TEST_F(UnixDomainSocket_test, TimedReceiveBlocks)
-{
+TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "5c43ae51-35ca-4e3e-b5bc-4261c80b7a4d");
     auto start = std::chrono::steady_clock::now();
     auto msg = server.timedReceive(units::Duration::fromMilliseconds(WAIT_IN_MS.count()));
     auto end = std::chrono::steady_clock::now();
-    EXPECT_THAT(end - start, Gt(WAIT_IN_MS));
+    TIMING_TEST_EXPECT_TRUE(end - start >= WAIT_IN_MS);
 
-    ASSERT_TRUE(msg.has_error());
-    EXPECT_EQ(msg.get_error(), IpcChannelError::TIMEOUT);
-}
+    TIMING_TEST_ASSERT_TRUE(msg.has_error());
+    TIMING_TEST_EXPECT_TRUE(msg.get_error() == IpcChannelError::TIMEOUT);
+});
 
-TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived)
-{
+TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "76df3d40-d420-4c5f-b82a-3bf8b684a21b");
     std::string message = "asdasda";
     std::thread waitThread([&] {
@@ -437,17 +436,17 @@ TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived)
         auto start = std::chrono::steady_clock::now();
         auto msg = server.timedReceive(units::Duration::fromMilliseconds(WAIT_IN_MS.count() * 2));
         auto end = std::chrono::steady_clock::now();
-        EXPECT_THAT(end - start, Gt(WAIT_IN_MS));
+        TIMING_TEST_EXPECT_TRUE(end - start >= WAIT_IN_MS);
 
-        ASSERT_FALSE(msg.has_error());
-        EXPECT_EQ(*msg, message);
+        TIMING_TEST_ASSERT_FALSE(msg.has_error());
+        TIMING_TEST_EXPECT_TRUE(*msg == message);
     });
 
     this->waitForThread();
     std::this_thread::sleep_for(WAIT_IN_MS);
-    ASSERT_FALSE(client.send(message).has_error());
+    TIMING_TEST_ASSERT_FALSE(client.send(message).has_error());
     waitThread.join();
-}
+});
 #endif
 } // namespace
 #endif
