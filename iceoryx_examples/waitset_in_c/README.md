@@ -2,7 +2,7 @@
 
 ## Thread Safety
 
-The WaitSet is **not** thread-safe!
+The _WaitSet_ is **not** thread-safe!
 
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `iox_ws_attach_**` or `iox_ws_detach_**` when another thread is currently
@@ -15,9 +15,9 @@ trigger the _TriggerHandle_.
 
 ## Introduction
 
-A detailed introduction into the WaitSet nomenclature and topic can be found in the
+A detailed introduction into the _WaitSet_ nomenclature and topic can be found in the
 [waitset C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
-Here we will only introduce the C API and not the WaitSet in general. For this, we will
+Here we will only introduce the C API and not the _WaitSet_ in general. For this, we will
 take a look at the same use case as the
 [waitset C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
 The examples are structured in the same way as the C++ ones.
@@ -41,7 +41,7 @@ To run an example you need a running `iox-roudi` and the waitset publisher
 Let's say we would like to write a gateway and would like to forward every
 incoming message from a subscriber with the same callback. For instance we could perform
 a memcopy of the received data into a specific struct. Additionally, we would
-like to count all processed samples therefor we provide an extra void pointer
+like to count all processed samples. Therefore we provide an extra void pointer
 argument called `contextData` which is a pointer to an `uint64_t`.
 
 This could be performed by a function that we attach to an event as a
@@ -89,7 +89,7 @@ One will never miss chunks since the event notification is reset after a call to
 `iox_ws_wait` or `iox_ws_timed_wait` which we introduce below.
 
 After we registered our runtime we set up some `waitSetStorage`, initialize the _WaitSet_
-and attach a `shutdownTrigger` to handle `CTRL-c`.
+and attach a `shutdownTrigger` to handle `CTRL+C`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_gateway.c][initialization and shutdown handling]-->
 ```c
@@ -433,7 +433,7 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 
     if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
     {
-        // CTRL+c was pressed -> exit
+        // CTRL+C was pressed -> exit
         keepRunning = false;
     }
     // process sample received by subscriber1

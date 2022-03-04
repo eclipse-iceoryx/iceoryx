@@ -130,7 +130,7 @@ int main()
         });
     //! [attach everything]
 
-    // wait until someone presses CTRL+c
+    // wait until someone presses CTRL+C
     //! [wait for sigterm]
     iox::posix::waitForTerminationRequest();
     //! [wait for sigterm]

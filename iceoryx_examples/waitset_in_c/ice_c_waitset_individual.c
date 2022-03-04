@@ -99,7 +99,7 @@ int main()
 
             if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
+                // CTRL+C was pressed -> exit
                 keepRunning = false;
             }
             // process sample received by subscriber1

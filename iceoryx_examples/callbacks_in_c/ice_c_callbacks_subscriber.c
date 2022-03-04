@@ -162,12 +162,12 @@ int main()
         listener, subscriberRight, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback);
     //! [attach everything to the listener]
 
-    //! [wait until someone presses CTRL+c]
+    //! [wait until someone presses CTRL+C]
     while (keepRunning)
     {
         sleep_for(100);
     }
-    //! [wait until someone presses CTRL+c]
+    //! [wait until someone presses CTRL+C]
 
     // when the listener goes out of scope it will detach all events and when a
     // subscriber goes out of scope it will detach itself from the listener
