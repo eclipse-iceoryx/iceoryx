@@ -8,9 +8,9 @@ two consecutive fibonacci numbers and the server responds with the next number i
 the sequence.
 
 We provide three examples, the very basic typed and untyped examples
-and the most natural setup combining a Server with a Listener and a Client using a Waitset.
-Since you can find the general setup and functionality of the client and the server
-also in the Listener/Waitset example, we will focus now on this.
+and the most natural setup combining a server with a Listener and a client using
+a WaitSet. Since you can find the general setup and functionality of the client
+and the server also in the Listener/WaitSet example, we will focus now on this.
 
 ## Expected output basic server-client example
 
@@ -18,15 +18,16 @@ also in the Listener/Waitset example, we will focus now on this.
 
 ## Code walkthrough
 
-In the following scenario the client (client_cxx_waitset.cpp) is using the `Waitset` to wait for a response from the server
-(server_cxx_listener.cpp) that uses the `Listener` API for taking and processing the requests.
+In the following scenario the client (client_cxx_waitset.cpp) uses the WaitSet to wait for a response from the server
+(server_cxx_listener.cpp). The server uses the Listener API to take and process the requests from the client.
 
-The client is inspired by the `iox-cpp-waitset-basic` example from the `waitset` folder and the server from the
-`iox-cpp-callbacks-subscriber` example in the `callbacks` folder.
+The client is inspired by the `iox-cpp-waitset-basic` example from the [WaitSet](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset)
+example and the server from the `iox-cpp-callbacks-subscriber` in the [Listener](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks)
+example.
 
-This is the most recommended way to create an efficient server-client combination with iceoryx.
+This is the most recommended way to create an efficient client-server combination with iceoryx.
 
-### Client using Waitset
+### Client using WaitSet
 
 At first, the includes for the client port, request-response types, WaitSet, and runtime are needed.
 <!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [iceoryx includes] -->
@@ -46,7 +47,7 @@ the application will be registered at `RouDi`, the routing and discovery daemon.
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
-After creating the runtime, the client port is created and attached to the Waitset.
+After creating the runtime, the client is created and attached to the WaitSet.
 The [options](https://iceoryx.io/latest/getting-started/examples/iceoptions/) can be used to alter the behavior of the client, like setting the response
 queue capacity or blocking behavior when the response queue is full or the server is too slow.
 The `ClientOptions` are similar to `PublisherOptions`/`SubscriberOptions`.
@@ -66,17 +67,31 @@ waitset.attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](aut
 });
 ```
 
-The main goal of the client is to request from the server the sum of two numbers that the
-client sends. When the sum is received from the server, the received sum is re-used to insert
-it to the `addend` of the next request to send.
-This calculates a Fibonacci sequence.
+The client requests the sum of two numbers from the server. When the sum is received,
+it is re-used as the `addend` of the next request to send. This calculates a Fibonacci sequence.
+
+<!--[geoffrey][iceoryx_examples/request_response/request_and_response_types.hpp][request]-->
+```cpp
+struct AddRequest
+{
+    uint64_t augend{0};
+    uint64_t addend{0};
+};
+```
+
+<!--[geoffrey][iceoryx_examples/request_response/request_and_response_types.hpp][response]-->
+```cpp
+struct AddResponse
+{
+    uint64_t sum{0};
+};
+```
 
 In the main loop, the client prepares first a request using the `loan()` API.
-The request is a sample consisting of two numbers `augend` and `addend` that the server shall sum up.
-Additionally, the sample is marked with a sequence id that is incremented before
-every send cycle to ensure a correct ordering of the messages
-(`request.getRequestHeader().setSequenceId()`).
-The request is transmitted to the server via the `send()` API.
+The request is a sample consisting of the two numbers `augend` and `addend` that
+the server shall sum up. Additionally, the sample is marked with a sequence id
+that is incremented before every send cycle to ensure a correct ordering of the
+messages. The request is transmitted to the server via the `send()` API.
 <!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [[send request]] -->
 ```cpp
 client.loan()
@@ -94,15 +109,25 @@ client.loan()
     .or_else([](auto& error) { std::cout << "Could not allocate Request! Error: " << error << std::endl; });
 ```
 
-Once the request is send, the client do the following:
+Once the request has been sent, we block and wait for samples to arrive. Then we
+iterate over the notification vector to check if we were triggered from our client:
+<!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [[wait and check if the client triggered]] -->
+```cpp
+auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
-- wait for samples to arrive via timedWait
-- iterate over the notification vector to check if we were triggered from our client
+for (auto& notification : notificationVector)
+{
+    if (notification->doesOriginateFrom(&client))
+    {
+        // ...
+    }
+}
+```
 
 The client receives the responses from the server using `take()`
-and extract the sequence id with `response.getResponseHeader().getSequenceId()`.
-When the server response comes in the correct order, the received sum is re-used to
-insert it to the `addend` of the next request to send.
+and extracts the sequence id with `response.getResponseHeader().getSequenceId()`.
+When the server response comes in the correct order, the received sum is stored
+in the `addend` so it can be used for the next request.
 
 <!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [[take response]] -->
 ```cpp
@@ -127,22 +152,21 @@ while (client.take().and_then([&](const auto& response) {
 
 ### Server using Listener
 
-At first, the includes for the server port and request-response types and runtime are needed.
+At first, the includes for the server port, Listener, request-response types and runtime are needed.
 <!-- [geoffrey] [iceoryx_examples/request_response/server_cxx_listener.cpp] [iceoryx includes] -->
 ```cpp
 #include "request_and_response_types.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
 
-First, a callback is created that shall be called when the server receives a request.
-In this case the calculation and the sending of the response is done in the listener callback.
+Then a callback is created that shall be called when the server receives a request.
+In this case the calculation and the sending of the response is done in the Listener callback.
 If there are more resource-consuming tasks,
-this could also be outsourced with a thread pool to handle the requests
+this could also be outsourced with a thread pool to handle the requests.
 
 <!--[geoffrey][iceoryx_examples/request_response/server_cxx_listener.cpp][request callback]-->
 ```cpp
@@ -174,7 +198,7 @@ Next, the iceoryx runtime is initialized.
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
-After creating the runtime, the server port is created based on a ServiceDescription. Similar to the client,
+After creating the runtime, the server port is created based on a `ServiceDescription`. Similar to the client,
 the `options` are used to alter the behavior of the server, like setting the request
 queue capacity or blocking behavior when the request queue is full or the client is too slow.
 <!--[geoffrey][iceoryx_examples/request_response/server_cxx_listener.cpp][create server]-->
@@ -184,7 +208,8 @@ options.requestQueueCapacity = 10U;
 iox::popo::Server<AddRequest, AddResponse> server({"Example", "Request-Response", "Add"}, options);
 ```
 
-Now we want to listen to an incoming server event and want to fire the previously created callback.
+Now we want to listen to an incoming server event and call the previously created callback
+whenever a request has been received.
 This is done with the following call:
 <!-- [geoffrey] [iceoryx_examples/request_response/server_cxx_listener.cpp][attach listener] -->
 ```cpp
