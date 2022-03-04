@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 using namespace ::testing;
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 
 #include <array>
 #include <atomic>
@@ -326,6 +327,8 @@ class ResizeableLockFreeQueueStressTest : public ::testing::Test
         {
             sut.setCapacity(Config::DynamicCapacity);
         }
+
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown()
@@ -336,6 +339,10 @@ class ResizeableLockFreeQueueStressTest : public ::testing::Test
     Queue sut;
 
     std::chrono::seconds runtime{3};
+
+  private:
+    const iox::units::Duration m_fatalTimeout = 60_s + iox::units::Duration::fromSeconds(runtime.count());
+    Watchdog m_watchdog{m_fatalTimeout};
 };
 
 template <typename ElementType, uint64_t Capacity_, uint64_t DynamicCapacity_ = Capacity_>
