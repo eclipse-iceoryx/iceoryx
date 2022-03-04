@@ -51,7 +51,9 @@ int main()
     publisherOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
     //! [too slow policy]
 
+    //! [create publisher with options]
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    //! [create publisher with options]
 
     // we have to explicitely offer the publisher for making it visible to subscribers
     //! [offer]
@@ -59,16 +61,23 @@ int main()
     //! [offer]
 
     double ct = 0.0;
+
+    std::thread publishData([&]() {
+        while (!iox::posix::hasTerminationRequested())
+        {
+            ++ct;
+
+            // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
+            publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
+
+            std::cout << APP_NAME << " sent value: " << ct << std::endl;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(400));
+        }
+    });
+
     while (!iox::posix::hasTerminationRequested())
     {
-        ++ct;
-
-        // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
-        publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
-
-        std::cout << APP_NAME << " sent value: " << ct << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }
 
     // this is optional, but since the iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER option is used,
@@ -76,6 +85,8 @@ int main()
     //! [shutdown]
     iox::runtime::PoshRuntime::getInstance().shutdown();
     //! [shutdown]
+
+    publishData.join();
 
     return 0;
 }
