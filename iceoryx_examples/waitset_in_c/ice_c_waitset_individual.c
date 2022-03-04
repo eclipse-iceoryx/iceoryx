@@ -54,7 +54,7 @@ int main()
     // attach shutdownTrigger with no callback to handle CTRL+C
     iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
-    //// register signal after shutdownTrigger since we are using it in the handler
+    // register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
     //! [initialization and shutdown handling]

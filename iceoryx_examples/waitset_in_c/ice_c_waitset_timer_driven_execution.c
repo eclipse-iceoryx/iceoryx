@@ -75,7 +75,7 @@ int main()
 #endif
 
     //! [initialization and shutdown handling]
-    iox_runtime_init("iox-c-waitset-sync");
+    iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -84,7 +84,7 @@ int main()
     // attach shutdownTrigger with no callback to handle CTRL+C
     iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
 
-    //// register signal after shutdownTrigger since we are using it in the handler
+    // register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
     //! [initialization and shutdown handling]

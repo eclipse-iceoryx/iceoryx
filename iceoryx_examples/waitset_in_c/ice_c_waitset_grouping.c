@@ -60,7 +60,7 @@ int main()
     //! [initialization and shutdown handling]
 
     //! [create subscriber]
-    // array where the subscriber are stored
+    // array where the subscribers are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
@@ -80,13 +80,13 @@ int main()
     const uint64_t FIRST_GROUP_ID = 123U;
     const uint64_t SECOND_GROUP_ID = 456U;
 
-    // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
+    // attach the first two subscribers to the waitset with a triggerid of FIRST_GROUP_ID
     for (uint64_t i = 0U; i < 2U; ++i)
     {
         iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, FIRST_GROUP_ID, NULL);
     }
 
-    // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
+    // attach the remaining subscribers to the waitset with a triggerid of SECOND_GROUP_ID
     for (uint64_t i = 2U; i < 4U; ++i)
     {
         iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, SECOND_GROUP_ID, NULL);

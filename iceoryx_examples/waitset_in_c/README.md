@@ -109,7 +109,7 @@ signal(SIGTERM, sigHandler);
 
 In the next steps, we define `sumOfAllSamples`, create two subscribers with `iox_sub_init`,
 subscribe them to our topic
-and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
+and attach the event `SubscriberEvent_DATA_RECEIVED` to the _WaitSet_ with
 the `subscriberCallback`, an event id `1U` and a pointer to our user defined
 context data `sumOfAllSamples` which is then provided as argument for the callback.
 
@@ -210,7 +210,7 @@ In this scenario, we have two groups of subscribers. We are interested in the
 data of the first group and would like to print them onto the console and the
 data of the second group should be discarded.
 
-We start like in every example with creating the WaitSet and attaching the
+We start like in every example with creating the _WaitSet_ and attaching the
 `shutdownTrigger`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_grouping.c][initialization and shutdown handling]-->
@@ -233,7 +233,7 @@ After that we can create a list of subscribers and subscribe them to our topic.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_grouping.c][create subscriber]-->
 ```c
-// array where the subscriber are stored
+// array where the subscribers are stored
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
@@ -260,13 +260,13 @@ waitset under the second group id.
 const uint64_t FIRST_GROUP_ID = 123U;
 const uint64_t SECOND_GROUP_ID = 456U;
 
-// attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
+// attach the first two subscribers to the waitset with a triggerid of FIRST_GROUP_ID
 for (uint64_t i = 0U; i < 2U; ++i)
 {
     iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, FIRST_GROUP_ID, NULL);
 }
 
-// attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
+// attach the remaining subscribers to the waitset with a triggerid of SECOND_GROUP_ID
 for (uint64_t i = 2U; i < 4U; ++i)
 {
     iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, SECOND_GROUP_ID, NULL);
@@ -357,7 +357,7 @@ One way would be to assign every subscriber a different callback, here we look
 at a different approach. We check if the event originated from a specific
 subscriber and then perform the calls on that subscriber directly.
 
-We start as usual by creating a WaitSet and attach the `shutdownTrigger` to it.
+We start as usual by creating a _WaitSet_ and attach the `shutdownTrigger` to it.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_individual.c][initialization and shutdown handling]-->
 ```c
@@ -370,7 +370,7 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 // attach shutdownTrigger with no callback to handle CTRL+C
 iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
-//// register signal after shutdownTrigger since we are using it in the handler
+// register signal after shutdownTrigger since we are using it in the handler
 signal(SIGINT, sigHandler);
 signal(SIGTERM, sigHandler);
 ```
@@ -475,17 +475,17 @@ iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Timer Driven Execution
-In this example, we demonstrate how you can use the WaitSet to trigger a cyclic
+In this example, we demonstrate how you can use the _WaitSet_ to trigger a cyclic
 call every second. We use a user trigger which will be triggered in a separate
-thread every second to signal the WaitSet that it's time for the next run.
+thread every second to signal the _WaitSet_ that it's time for the next run.
 Additionally, we attach a callback (`cyclicRun`) to this user trigger
 so that the event can directly call the cyclic call.
 
-We begin by creating the waitset and attach the `shutdownTrigger`.
+We begin by creating the _WaitSet_ and attach the `shutdownTrigger`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_timer_driven_execution.c][initialization and shutdown handling]-->
 ```c
-iox_runtime_init("iox-c-waitset-sync");
+iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -494,7 +494,7 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 // attach shutdownTrigger with no callback to handle CTRL+C
 iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
 
-//// register signal after shutdownTrigger since we are using it in the handler
+// register signal after shutdownTrigger since we are using it in the handler
 signal(SIGINT, sigHandler);
 signal(SIGTERM, sigHandler);
 ```
