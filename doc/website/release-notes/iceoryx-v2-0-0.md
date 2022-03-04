@@ -46,6 +46,7 @@ servers (`iox::popo::MessagingPattern::REQ_RES`) [\#27](https://github.com/eclip
         - The DDS gateway is not aware of the new `Server` [\#1145](https://github.com/eclipse-iceoryx/iceoryx/issues/1145)
 - Set `MAX_NUMBER_OF_NOTIFIERS` to 256 and prepare configuration via CMake[\#1144](https://github.com/eclipse-iceoryx/iceoryx/issues/1144)
 - Reorganize code in publisher.hpp/.inl and subscriber.hpp/inl [\#1173](https://github.com/eclipse-iceoryx/iceoryx/issues/1173)
+- Install headers to `include/iceoryx/vX.Y.Z` by default and add CMake option `MAKE_UNIQUE_INCLUDEDIR` to control the behavior [\#1194](https://github.com/eclipse-iceoryx/iceoryx/issues/1194)
 
 **Bugfixes:**
 
