@@ -220,6 +220,11 @@ class PortManager
                                              const RuntimeName_t& runtimeName,
                                              mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                                              const PortConfigInfo& portConfigInfo) noexcept;
+
+    PublisherPortRouDiType::MemberType_t* acquireInternalPublisherPortDataWithoutDiscovery(
+        const capro::ServiceDescription& service,
+        const popo::PublisherOptions& publisherOptions,
+        mepoo::MemoryManager* const payloadDataSegmentMemoryManager) noexcept;
 };
 } // namespace roudi
 } // namespace iox

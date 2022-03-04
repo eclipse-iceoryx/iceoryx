@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,8 @@
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 using namespace ::testing;
+
+#include "iceoryx_hoofs/testing/barrier.hpp"
 
 #include <atomic>
 #include <list>
@@ -47,9 +50,13 @@ struct Data
     }
 };
 
+Barrier g_barrier;
+
 template <typename Queue>
 void produce(Queue& queue, int id, int iterations)
 {
+    g_barrier.notify();
+
     Data d(id, 0);
     for (int i = 0; i < iterations; ++i)
     {
@@ -63,6 +70,8 @@ void produce(Queue& queue, int id, int iterations)
 template <typename Queue>
 void consume(Queue& queue, std::atomic<bool>& run, size_t expectedFinalCount, int maxId, bool& testResult)
 {
+    g_barrier.notify();
+
     bool error = false;
 
     std::vector<size_t> lastCount(maxId + 1, 0);
@@ -100,6 +109,8 @@ void consume(Queue& queue, std::atomic<bool>& run, size_t expectedFinalCount, in
 template <typename Queue>
 void consumeAndStore(Queue& queue, std::atomic<bool>& run, std::list<Data>& consumed)
 {
+    g_barrier.notify();
+
     while (run || !queue.empty())
     {
         auto popped = queue.pop();
@@ -206,6 +217,8 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 template <typename Queue>
 void work(Queue& queue, int id, std::atomic<bool>& run)
 {
+    g_barrier.notify();
+
     // technically one element suffices if we alternate,
     // but if we want to test other push/pop patterns a list is useful
     std::list<Data> poppedValues;
@@ -255,6 +268,8 @@ void randomWork(Queue& queue,
                 std::list<Data>& items,
                 double popProbability = 0.5)
 {
+    g_barrier.notify();
+
     Data value;
     value.id = id;
 
@@ -473,6 +488,8 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
 
     auto capacity = q.capacity();
 
+    g_barrier.reset(numThreads);
+
     // fill the queue
     Data d;
     for (size_t i = 0; i < capacity; ++i)
@@ -491,6 +508,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
         threads.emplace_back(work<Queue>, std::ref(q), id, std::ref(run));
     }
 
+    g_barrier.wait();
     std::this_thread::sleep_for(std::chrono::seconds(runtime));
 
     run = false;
@@ -551,6 +569,8 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0ver
     std::vector<int> overflowCount(numThreads);
     std::vector<std::list<Data>> itemVec(numThreads);
 
+    g_barrier.reset(numThreads);
+
     // fill the queue
     Data d;
     for (size_t i = 0; i < capacity; ++i)
@@ -572,6 +592,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0ver
                              popProbability);
     }
 
+    g_barrier.wait();
     std::this_thread::sleep_for(std::chrono::seconds(runtime));
 
     run = false;

@@ -67,10 +67,15 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     registryPortOptions.nodeName = iox::NodeName_t("Service Registry");
     registryPortOptions.offerOnCreate = true;
 
-    m_serviceRegistryPublisherPortData = acquireInternalPublisherPortData(
+    // we cannot (fully) perform discovery without this port
+    m_serviceRegistryPublisherPortData = acquireInternalPublisherPortDataWithoutDiscovery(
         {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
         registryPortOptions,
         introspectionMemoryManager);
+
+    // if we arrive here, the port for service discovery exists and we perform the discovery
+    PublisherPortRouDiType serviceRegistryPort(*m_serviceRegistryPublisherPortData);
+    doDiscoveryForPublisherPort(serviceRegistryPort);
 
     popo::PublisherOptions options;
     options.historyCapacity = 1U;
@@ -923,6 +928,20 @@ PortManager::acquireInternalPublisherPortData(const capro::ServiceDescription& s
         .value();
 }
 
+PublisherPortRouDiType::MemberType_t* PortManager::acquireInternalPublisherPortDataWithoutDiscovery(
+    const capro::ServiceDescription& service,
+    const popo::PublisherOptions& publisherOptions,
+    mepoo::MemoryManager* const payloadDataSegmentMemoryManager) noexcept
+{
+    return acquirePublisherPortDataWithoutDiscovery(
+               service, publisherOptions, IPC_CHANNEL_ROUDI_NAME, payloadDataSegmentMemoryManager, PortConfigInfo())
+        .or_else([&service](auto&) {
+            LogFatal() << "Could not create PublisherPort for internal service " << service;
+            errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE, nullptr, ErrorLevel::FATAL);
+        })
+        .value();
+}
+
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
@@ -1025,6 +1044,8 @@ void PortManager::publishServiceRegistry() const noexcept
 {
     if (!m_serviceRegistryPublisherPortData.has_value())
     {
+        // should not happen (except during RouDi shutdown)
+        // the port always exists, otherwise we would terminate during startup
         LogWarn() << "Could not publish service registry!";
         return;
     }
