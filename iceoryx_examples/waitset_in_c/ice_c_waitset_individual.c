@@ -44,6 +44,7 @@ static void sigHandler(int signalValue)
 
 int main()
 {
+    //! [initialization and shutdown handling]
     iox_runtime_init("iox-c-waitset-individual");
 
     iox_ws_storage_t waitSetStorage;
@@ -56,7 +57,9 @@ int main()
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
+    //! [initialization and shutdown handling]
 
+    //! [create and attach subscriber]
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
@@ -75,20 +78,21 @@ int main()
 
     iox_ws_attach_subscriber_state(waitSet, subscriber[0U], SubscriberState_HAS_DATA, 0U, NULL);
     iox_ws_attach_subscriber_state(waitSet, subscriber[1U], SubscriberState_HAS_DATA, 0U, NULL);
+    //! [create and attach subscriber]
 
-
+    //! [event loop]
     uint64_t missedElements = 0U;
     uint64_t numberOfNotifications = 0U;
 
     // array where all notification infos from iox_ws_wait will be stored
     iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-    // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
         numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 
+        //! [handle events]
         for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         {
             iox_notification_info_t notification = notificationArray[i];
@@ -121,9 +125,11 @@ int main()
                 fflush(stdout);
             }
         }
+        //! [handle events]
     }
+    //! [event loop]
 
-    // cleanup all resources
+    //! [cleanup all resources]
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_deinit(subscriber[i]);
@@ -131,7 +137,7 @@ int main()
 
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
-
+    //! [cleanup all resources]
 
     return 0;
 }

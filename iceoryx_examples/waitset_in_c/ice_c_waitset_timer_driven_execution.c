@@ -74,6 +74,7 @@ int main()
            "which triggers the cyclicTrigger every second.\n");
 #endif
 
+    //! [initialization and shutdown handling]
     iox_runtime_init("iox-c-waitset-sync");
 
     iox_ws_storage_t waitSetStorage;
@@ -86,41 +87,46 @@ int main()
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
-
+    //! [initialization and shutdown handling]
 
     // create and attach the cyclicTrigger with a callback to
     // myCyclicRun
+    //! [cyclic trigger]
     cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
     iox_ws_attach_user_trigger_event(waitSet, cyclicTrigger, 0, cyclicRun);
+    //! [cyclic trigger]
 
     // start a thread which triggers cyclicTrigger every second
 #if !defined(_WIN32)
+    //! [cyclic trigger thread]
     pthread_t cyclicTriggerThread;
     if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
     {
         printf("failed to create thread\n");
         return -1;
     }
+    //! [cyclic trigger thread]
 #endif
 
+    //! [event loop]
     uint64_t missedElements = 0U;
     uint64_t numberOfNotifications = 0U;
 
     // array where all notifications from iox_ws_wait will be stored
     iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-    // event loop
     while (keepRunning)
     {
         numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 
+        //! [handle events]
         for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         {
             iox_notification_info_t notification = notificationArray[i];
 
             if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
+                // CTRL+C was pressed -> exit
                 keepRunning = false;
             }
             else
@@ -129,15 +135,17 @@ int main()
                 iox_notification_info_call(notification);
             }
         }
+        //! [handle events]
     }
+    //! [event loop]
 
-    // cleanup all resources
+    //! [cleanup all resources]
 #if !defined(_WIN32)
     pthread_join(cyclicTriggerThread, NULL);
 #endif
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
-
+    //! [cleanup all resources]
 
     return 0;
 }

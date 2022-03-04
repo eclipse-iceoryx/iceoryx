@@ -44,6 +44,7 @@ static void sigHandler(int signalValue)
 
 int main()
 {
+    //! [initialization and shutdown handling]
     iox_runtime_init("iox-c-waitset-grouping");
 
     iox_ws_storage_t waitSetStorage;
@@ -53,10 +54,12 @@ int main()
     // attach shutdownTrigger with no callback to handle CTRL+C
     iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
-    //// register signal after shutdownTrigger since we are using it in the handler
+    // register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
+    //! [initialization and shutdown handling]
 
+    //! [create subscriber]
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
@@ -71,7 +74,9 @@ int main()
     {
         subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
     }
+    //! [create subscriber]
 
+    //! [attach subscriber]
     const uint64_t FIRST_GROUP_ID = 123U;
     const uint64_t SECOND_GROUP_ID = 456U;
 
@@ -86,7 +91,7 @@ int main()
     {
         iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, SECOND_GROUP_ID, NULL);
     }
-
+    //! [attach subscriber]
 
     uint64_t missedElements = 0U;
     uint64_t numberOfNotifications = 0U;
@@ -94,19 +99,20 @@ int main()
     // array where all notification infos from iox_ws_wait will be stored
     iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-    // event loop
+    //! [event loop]
     bool keepRunning = true;
     while (keepRunning)
     {
         numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 
+        //! [handle events]
         for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         {
             iox_notification_info_t notification = notificationArray[i];
 
             if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
+                // CTRL+C was pressed -> exit
                 keepRunning = false;
             }
             // we print the received data for the first group
@@ -133,9 +139,11 @@ int main()
                 iox_sub_release_queued_chunks(subscriber);
             }
         }
+        //! [handle events]
     }
+    //! [event loop]
 
-    // cleanup all resources
+    //! [cleanup all resources]
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_deinit(subscriber[i]);
@@ -143,7 +151,7 @@ int main()
 
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
-
+    //! [cleanup all resources]
 
     return 0;
 }
