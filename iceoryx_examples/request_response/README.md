@@ -134,7 +134,6 @@ At first, the includes for the server port and request-response types and runtim
 
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
