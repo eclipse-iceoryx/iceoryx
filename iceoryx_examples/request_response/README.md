@@ -10,7 +10,8 @@ the sequence.
 We provide three examples, the very basic typed and untyped examples
 and the most natural setup combining a server with a Listener and a client using
 a WaitSet. Since you can find the general setup and functionality of the client
-and the server also in the Listener/WaitSet example, we will focus now on this.
+and the server also in the Listener/WaitSet example, we will describe only this
+one.
 
 ## Expected output basic server-client example
 
@@ -40,6 +41,20 @@ At first, the includes for the client port, request-response types, WaitSet, and
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
 
+Afterwards we prepare some `ContextData` where we can store the Fibonacci numbers
+and the sequence ids that we use to ensure the correct ordering of the responses.
+
+<!--[geoffrey][iceoryx_examples/request_response/client_cxx_waitset.cpp][context data to store Fibonacci numbers and sequence ids]-->
+```cpp
+struct ContextData
+{
+    uint64_t fibonacciLast = 0;
+    uint64_t fibonacciCurrent = 1;
+    int64_t requestSequenceId = 0;
+    int64_t expectedResponseSequenceId = requestSequenceId;
+};
+```
+
 Next, the iceoryx runtime is initialized. With this call,
 the application will be registered at `RouDi`, the routing and discovery daemon.
 <!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [initialize runtime] -->
@@ -67,8 +82,10 @@ waitset.attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](aut
 });
 ```
 
-The client requests the sum of two numbers from the server. When the sum is received,
-it is re-used as the `addend` of the next request to send. This calculates a Fibonacci sequence.
+Since the client requests the sum of two numbers from the server, we provide the
+structs `AddRequest` and `AddResponse` as template parameters. When the sum is
+received, it is re-used as the `addend` of the next request to send. This
+calculates a Fibonacci sequence.
 
 <!--[geoffrey][iceoryx_examples/request_response/request_and_response_types.hpp][request]-->
 ```cpp
@@ -127,7 +144,7 @@ for (auto& notification : notificationVector)
 The client receives the responses from the server using `take()`
 and extracts the sequence id with `response.getResponseHeader().getSequenceId()`.
 When the server response comes in the correct order, the received sum is stored
-in the `addend` so it can be used for the next request.
+in the `ContextData` struct `ctx` for usage in the next request.
 
 <!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [[take response]] -->
 ```cpp

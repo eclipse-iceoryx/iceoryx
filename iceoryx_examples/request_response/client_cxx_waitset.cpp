@@ -28,6 +28,7 @@
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";
 
 
+//! [context data to store Fibonacci numbers and sequence ids]
 struct ContextData
 {
     uint64_t fibonacciLast = 0;
@@ -35,6 +36,7 @@ struct ContextData
     int64_t requestSequenceId = 0;
     int64_t expectedResponseSequenceId = requestSequenceId;
 };
+//! [context data to store Fibonacci numbers and sequence ids]
 
 int main()
 {
