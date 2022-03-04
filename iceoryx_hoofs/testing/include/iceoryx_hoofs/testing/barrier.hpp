@@ -18,8 +18,9 @@
 #define IOX_HOOFS_TESTUTILS_BARRIER_HPP
 
 #include <condition_variable>
-#include <mutex>
 #include <cstdint>
+#include <mutex>
+
 
 class Barrier
 {
@@ -50,8 +51,14 @@ class Barrier
 
     void reset(uint32_t requiredCount)
     {
-        m_requiredCount = requiredCount;
-        m_count = 0;
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_requiredCount = requiredCount;
+            m_count = 0;
+        }
+
+        // notify regardless of count, the threads woken up need to check the condition
+        m_condVar.notify_all();
     }
 
   private:
