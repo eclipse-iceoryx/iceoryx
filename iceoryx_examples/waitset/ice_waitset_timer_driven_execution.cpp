@@ -62,7 +62,7 @@ int main()
     //! [create waitset]
 
     // create and attach the cyclicTrigger with a callback to
-    // SomeClass::myCyclicRun
+    // SomeClass::cyclicRun
     //! [create trigger]
     iox::popo::UserTrigger cyclicTrigger;
     waitset.attachEvent(cyclicTrigger, 0U, createNotificationCallback(SomeClass::cyclicRun)).or_else([](auto) {
@@ -92,14 +92,14 @@ int main()
             //! [shutdown path]
             if (notification->doesOriginateFrom(&shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
+                // CTRL+C was pressed -> exit
                 keepRunning.store(false);
             }
             //! [shutdown path]
             //! [data path]
             else
             {
-                // call SomeClass::myCyclicRun
+                // call SomeClass::cyclicRun
                 (*notification)();
             }
             //! [data path]

@@ -24,7 +24,7 @@
 
 std::atomic_bool keepRunning{true};
 
-// The two events the MyTriggerClass offers
+// The two states and events the MyTriggerClass offers
 //! [state enum]
 enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
 {
@@ -41,7 +41,7 @@ enum class MyTriggerClassEvents : iox::popo::EventEnumIdentifier
 };
 //! [event enum]
 
-// Triggerable class which has two events an both events can be
+// Triggerable class which has two states and events which can be
 // attached to a WaitSet.
 class MyTriggerClass
 {
@@ -53,7 +53,7 @@ class MyTriggerClass
     //            or copied. To support that we have to inform the waitset about
     //            our new origin, otherwise the WaitSet would end up in the wrong
     //            memory location when it calls the `hasTriggerCallback` with the
-    //            old origin (already moved) origin pointer. The same goes for
+    //            old origin (already moved) pointer. The same applies to
     //            the resetCallback which is used when the WaitSet goes out of scope
     //            and is pointing also to the old origin.
     //! [no move and copy]
@@ -128,7 +128,7 @@ class MyTriggerClass
     /// @brief Only usable by the WaitSet, not for public use
     // This method attaches a state of the class to a waitset.
     // The state is choosen by the state parameter. Additionally, you can
-    // set a eventId to group multiple instances and a custom callback.
+    // set an eventId to group multiple instances and a custom callback.
     //! [enableState]
     void enableState(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassStates state) noexcept
     {
@@ -147,7 +147,7 @@ class MyTriggerClass
     /// @brief Only usable by the WaitSet, not for public use
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
-    // set a eventId to group multiple instances and a custom callback.
+    // set an eventId to group multiple instances and a custom callback.
     //! [enableEvent]
     void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassEvents event) noexcept
     {
@@ -164,7 +164,7 @@ class MyTriggerClass
     //! [enableEvent]
 
     /// @brief Only usable by the WaitSet, not for public use
-    // we offer the waitset a method to invalidate trigger if it goes
+    // we offer the waitset a method to invalidate a trigger if it goes
     // out of scope
     //! [invalidateTrigger]
     void invalidateTrigger(const uint64_t uniqueTriggerId)
@@ -284,8 +284,8 @@ int main()
     triggerClass.emplace();
     //! [create]
 
-    // attach the IS_ACTIVATED state to the waitset and assign a callback
     //! [attach]
+    // attach the IS_ACTIVATED state to the waitset and assign a callback
     waitset
         ->attachState(*triggerClass,
                       MyTriggerClassStates::IS_ACTIVATED,
