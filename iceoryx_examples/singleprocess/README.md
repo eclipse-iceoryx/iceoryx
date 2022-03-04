@@ -41,7 +41,7 @@ iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
 iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 ```
 
- 3. We are starting RouDi, provide him the required components and
+ 3. We are starting RouDi, provide the required components and
     disable monitoring. The last bool parameter `DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR` 
     states that RouDi does not
     terminate all registered processes when RouDi goes out of scope. If we would set it
@@ -66,7 +66,7 @@ iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
 ```
 
  5. Now that everything is up and running, we can start the publisher and subscriber
-    thread and wait until the users terminates the application.
+    thread and wait until the user terminates the application.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][run]-->
 ```cpp
