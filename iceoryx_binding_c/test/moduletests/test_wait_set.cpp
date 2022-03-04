@@ -830,8 +830,9 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
     iox_ws_attach_client_event_with_context_data(
-        m_sut, client, ClientEvent_RESPONSE_RECEIVED, 89123, &clientCallbackWithContextData, &clientStorage);
+        m_sut, client, ClientEvent_RESPONSE_RECEIVED, 89123, &clientCallbackWithContextData, &someContextData);
 
     notifyClient(clientPortData);
 
@@ -843,7 +844,7 @@ TEST_F(iox_ws_test, NotifyingClientEventWithContextDataWorks)
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
-    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&clientStorage)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&someContextData)));
 
     iox_ws_detach_client_event(m_sut, client, ClientEvent_RESPONSE_RECEIVED);
 
@@ -899,8 +900,9 @@ TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
     EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
 
     iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
     iox_ws_attach_client_state_with_context_data(
-        m_sut, client, ClientState_HAS_RESPONSE, 0, &clientCallbackWithContextData, &clientStorage);
+        m_sut, client, ClientState_HAS_RESPONSE, 0, &clientCallbackWithContextData, &someContextData);
 
     notifyClient(clientPortData);
 
@@ -911,7 +913,7 @@ TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(client)));
-    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&clientStorage)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&someContextData)));
 
     iox_ws_detach_client_state(m_sut, client, ClientState_HAS_RESPONSE);
 
@@ -954,10 +956,11 @@ TEST_F(iox_ws_test, AttachingServerEventWithContextDataWorks)
     EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
 
     EXPECT_THAT(iox_ws_size(m_sut), Eq(0));
     iox_ws_attach_server_event_with_context_data(
-        m_sut, server, ServerEvent_REQUEST_RECEIVED, 0, serverCallbackWithContextData, &clientStorage);
+        m_sut, server, ServerEvent_REQUEST_RECEIVED, 0, serverCallbackWithContextData, &someContextData);
     EXPECT_THAT(iox_ws_size(m_sut), Eq(1));
 
     iox_ws_detach_server_event(m_sut, server, ServerEvent_REQUEST_RECEIVED);
@@ -999,8 +1002,9 @@ TEST_F(iox_ws_test, NotifyingServerEventWithContextDataWorks)
 
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
     constexpr uint64_t SOME_EVENT_ID = 5123901293;
+    uint64_t someContextData = 0U;
     iox_ws_attach_server_event_with_context_data(
-        m_sut, server, ServerEvent_REQUEST_RECEIVED, SOME_EVENT_ID, &serverCallbackWithContextData, &serverStorage);
+        m_sut, server, ServerEvent_REQUEST_RECEIVED, SOME_EVENT_ID, &serverCallbackWithContextData, &someContextData);
 
     notifyServer(serverPortData);
 
@@ -1012,7 +1016,7 @@ TEST_F(iox_ws_test, NotifyingServerEventWithContextDataWorks)
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(server)));
-    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&serverStorage)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&someContextData)));
 
     iox_ws_detach_server_event(m_sut, server, ServerEvent_REQUEST_RECEIVED);
 
@@ -1069,8 +1073,9 @@ TEST_F(iox_ws_test, NotifyingServerStateWithContextDataWorks)
 
     constexpr uint64_t SOME_EVENT_ID = 912371012314;
     iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
     iox_ws_attach_server_state_with_context_data(
-        m_sut, server, ServerState_HAS_REQUEST, SOME_EVENT_ID, &serverCallbackWithContextData, &serverStorage);
+        m_sut, server, ServerState_HAS_REQUEST, SOME_EVENT_ID, &serverCallbackWithContextData, &someContextData);
 
     notifyServer(serverPortData);
 
@@ -1082,7 +1087,7 @@ TEST_F(iox_ws_test, NotifyingServerStateWithContextDataWorks)
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(server)));
-    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&serverStorage)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&someContextData)));
 
     iox_ws_detach_server_state(m_sut, server, ServerState_HAS_REQUEST);
 
@@ -1175,13 +1180,14 @@ TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWithContextDataWorks)
     EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_portDataVector[0]));
 
     iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    uint64_t someContextData = 0U;
 
     iox_ws_attach_service_discovery_event_with_context_data(m_sut,
                                                             serviceDiscovery,
                                                             ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
                                                             EVENT_ID,
                                                             &serviceDiscoveryCallbackWithContextData,
-                                                            &serviceDiscoveryStorage);
+                                                            &someContextData);
 
     notifyServiceDiscovery(m_portDataVector[0]);
 
@@ -1193,7 +1199,7 @@ TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWithContextDataWorks)
     iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(static_cast<void*>(serviceDiscovery)));
-    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&serviceDiscoveryStorage)));
+    EXPECT_THAT(m_contextData, Eq(static_cast<void*>(&someContextData)));
 
     iox_ws_detach_service_discovery_event(m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
 
