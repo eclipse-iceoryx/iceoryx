@@ -130,7 +130,8 @@ actually participate in the communication between the publisher and the subscrib
 switchboard operator of iceoryx. One of its other major tasks is the setup of the shared memory, which the
 applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages the shared memory and is
 responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps
-track of all applications which have initialized a runtime and are hence able to use publishers or subscribers.
+track of all applications which have initialized a runtime and are hence able to create publishers, subscribers,
+servers or clients. It provides facilities for applications to query this information.
 
 When an application crashes, RouDi cleans up all resources. Due to our mostly lock-free inter-process mechanisms
 (only one last lock; we are working to remove it), iceoryx-based communication is much more reliable compared to
@@ -147,7 +148,7 @@ Shared memory is physical memory that is made accessible to multiple processes v
 virtual address spaces.
 
 For further information have a look at our
-[conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md).
+[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/shared-memory-communication.md).
 
 ### Runtime
 

@@ -31,7 +31,6 @@ With that change, the footprint of the management segment is reduced to ~52.7 MB
 ## :material-memory: Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to limit the read and write access between different applications. Inside of these segments reside mempools where the user payload data for transfer is stored.
-Based on the [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) the end-user may want to configure the mempools with the number of chunks and their size.
 
 !!! note
     Actually only the chunk-payload size is configured and the size of the `ChunkHeader` will be added to the configured size. If a user-header or a user-payload alignment larger than 8 is used, the available size for the user-payload will be smaller than the configured chunk-payload since some space is needed for the other functionality.

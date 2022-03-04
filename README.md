@@ -88,8 +88,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 * [Getting Started](doc/website/getting-started/overview.md)
 * [Installation Guide](doc/website/getting-started/installation.md)
-* [Concepts](doc/conceptual-guide.md)
-* [Iceoryx Hoofs Hacker Guide](iceoryx_hoofs/README.md)
+* [iceoryx Hoofs Hacker Guide](iceoryx_hoofs/README.md)
 
 ### Quality levels & platforms
 
