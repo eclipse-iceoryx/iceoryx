@@ -21,7 +21,37 @@ e.g. at startup the IPC channel can become a bottleneck.
 
 ## Requirements
 
-* Polling and event notification approach shall both be possible for service discovery
+* The user interface shall have a poll and a push notification interface.
+* Request/Response and Publish/Subscribe topics shall be discoverable and distinguishable
+    by the user.
+* It must be guaranteed that the user cannot compromise the service discovery
+  * By acquiring memory chunks which are required for the service discovery communication
+  * By sending false service discovery information on a user created service
+* A C interface shall be available
+* The memory overhead should be minimal to enable this feature in a wide range of
+    environments
+* The performance shall be optimised for a default use case where most services
+    are created on startup and changes in the service discovery are minimal during
+    runtime.
+* It shall be possible that every application uses service discovery concurrently
+    without compromising the system.
+
+### Extended optional requirements for the future
+
+* The discovery shall inform the user if a given topic is usable for them. E.g.
+    provide information about
+    * The history size
+    * The communication strategy, blocking vs. non blocking.
+    * Number of publishers
+    * Access rights of the shared memory segment on which the topic is offered
+    * Number of subscribers, are to much already subscribed
+    * The type of memory segment used by the topic. Interesting when devices
+        like GPUs come into play.
+* Connect the service discovery via gateways so that a user can lookup
+    * Services of a remote iceoryx instance connected via the dds gateway
+    * Services of a different protocol like SomeIP or DDS
+    * The user requires the ability to distinguish between local and remote
+        iceoryx instance or protocol type
 
 ### Static discovery Design Draft
 
