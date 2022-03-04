@@ -76,9 +76,7 @@ int main()
         }
     });
 
-    while (!iox::posix::hasTerminationRequested())
-    {
-    }
+    iox::posix::waitForTerminationRequest();
 
     // this is optional, but since the iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER option is used,
     // a slow subscriber might block the shutdown and this call unblocks the publisher
