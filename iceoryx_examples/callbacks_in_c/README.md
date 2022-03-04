@@ -42,9 +42,8 @@ are not known to you please take a look at the
 #### int main()
 
 The subscriber starts as usual by registering the process at the runtime.
-In the next step, we set up some `listenerStorage` on the stack where the listener
-will be constructed and initialize the listener that will start a background
-thread for the upcoming event-triggered callbacks.
+In the next step, we set up some `listenerStorage` and initialize the listener which will
+start a background thread for the upcoming event-triggered callbacks.
 
 <!--[geoffrey][iceoryx_examples/callbacks_in_c/ice_c_callbacks_subscriber.c][create listener]-->
 ```c
