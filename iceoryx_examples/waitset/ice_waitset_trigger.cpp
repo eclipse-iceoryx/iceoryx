@@ -53,7 +53,7 @@ class MyTriggerClass
     //            or copied. To support that we have to inform the waitset about
     //            our new origin, otherwise the WaitSet would end up in the wrong
     //            memory location when it calls the `hasTriggerCallback` with the
-    //            old origin (already moved) pointer. The same goes for
+    //            old origin (already moved) pointer. The same applies to
     //            the resetCallback which is used when the WaitSet goes out of scope
     //            and is pointing also to the old origin.
     //! [no move and copy]

@@ -719,7 +719,7 @@ the two states `HAS_PERFORMED_ACTION` and `IS_ACTIVATED`. Furthermore, we can al
 two corresponding events `PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`. The
 `PERFORM_ACTION_CALLED` event is triggered whenever the method `performAction` is called and
 the state `HAS_PERFORMED_ACTION` persists until someone resets the state with the method
-`reset()`. The same goes for the event `ACTIVATE_CALLED` which is triggered by an `activate()`
+`reset()`. The same applies to the event `ACTIVATE_CALLED` which is triggered by an `activate()`
 call and the corresponding state `IS_ACTIVATED` which stays until someone resets it with
 `reset()`.
 
