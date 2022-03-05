@@ -28,6 +28,7 @@
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";
 
 
+//! [context data to store Fibonacci numbers and sequence ids]
 struct ContextData
 {
     uint64_t fibonacciLast = 0;
@@ -35,6 +36,7 @@ struct ContextData
     int64_t requestSequenceId = 0;
     int64_t expectedResponseSequenceId = requestSequenceId;
 };
+//! [context data to store Fibonacci numbers and sequence ids]
 
 int main()
 {
@@ -81,6 +83,7 @@ int main()
 
 
         // We block and wait for samples to arrive, when the time is up we send the request again
+        //! [wait and check if the client triggered]
         auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
         for (auto& notification : notificationVector)
@@ -108,6 +111,7 @@ int main()
                 //! [take response]
             }
         }
+        //! [wait and check if the client triggered]
         constexpr std::chrono::milliseconds SLEEP_TIME{950U};
         std::this_thread::sleep_for(SLEEP_TIME);
     }
