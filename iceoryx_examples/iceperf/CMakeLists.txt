@@ -69,6 +69,6 @@ set_target_properties(iceperf-bench-leader iceperf-bench-follower iceperf-roudi 
 )
 
 install(
-    TARGETS iceperf-bench-leader iceperf-bench-leader iceperf-roudi
+    TARGETS iceperf-bench-follower iceperf-bench-leader iceperf-roudi
     RUNTIME DESTINATION bin
 )
