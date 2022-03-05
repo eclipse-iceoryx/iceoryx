@@ -138,7 +138,7 @@ template <uint64_t Capacity>
 template <uint64_t N>
 inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexcept
 {
-    static_assert((N - 1U) <= Capacity,
+    static_assert(N <= Capacity + 1U,
                   "Assignment failed. The given char array is larger than the capacity of the fixed string.");
 
     if (c_str() == rhs)
@@ -146,8 +146,9 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
         return *this;
     }
 
+    std::memcpy(&(m_rawstring[0]), rhs, N);
+
     m_rawstringSize = std::min(Capacity, static_cast<uint64_t>(strnlen(rhs, N)));
-    std::memcpy(&(m_rawstring[0]), rhs, m_rawstringSize);
     m_rawstring[m_rawstringSize] = '\0';
 
     if (rhs[m_rawstringSize] != '\0')
