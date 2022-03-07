@@ -121,9 +121,11 @@ int main()
     //! [roudi config]
 
     //! [roudi]
-    iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager,
-                            roudiComponents.portManager,
-                            iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
+    constexpr bool TERMINATE_APP_IN_ROUDI_DTOR_FLAG = false;
+    iox::roudi::RouDi roudi(
+        roudiComponents.rouDiMemoryManager,
+        roudiComponents.portManager,
+        iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, TERMINATE_APP_IN_ROUDI_DTOR_FLAG});
     //! [roudi]
 
     // create a single process runtime for inter thread communication
