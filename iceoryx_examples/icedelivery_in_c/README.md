@@ -22,7 +22,7 @@ As in the
 we perform the following steps:
 
  1. Create a runtime instance.
- 2. Create a subscriber port and subscribe to the offered service.
+ 2. Create a subscriber with some options.
  3. Receive data.
  4. **C API: Additionally, we have to remove the previously allocated subscriber
         port!**
@@ -38,12 +38,11 @@ const char APP_NAME[] = "iox-c-subscriber";
 iox_runtime_init(APP_NAME);
 ```
 
- 2. We create a subscriber port and subscribe to the service
+ 2. We create a subscriber with the service description
     {"Radar", "FrontLeft", "Object" }. We also set subscriber options. The
     `historyRequest` tells the subscriber how many previously sent samples it
-    should receive right after the connection has been established and the
-    `queueCapacity` how many samples the subscriber can hold. These are samples
-    which the publisher has sent before the subscriber was connected. The
+    shall request from all offered and matching publishers and the
+    `queueCapacity` how many unread samples the subscriber can queue. The
     `nodeName` is the name of the node the subscriber is associated with.
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
@@ -53,7 +52,7 @@ iox_runtime_init(APP_NAME);
 iox_sub_options_t options;
 iox_sub_options_init(&options);
 options.historyRequest = 10U;
-options.queueCapacity = 5U;
+options.queueCapacity = 50U;
 options.nodeName = "iox-c-subscriber-node";
 iox_sub_storage_t subscriberStorage;
 
@@ -104,7 +103,7 @@ The publisher is implemented in a similar way like in the
 [icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery):
 
  1. Create a runtime instance.
- 2. Create a publisher port and offer the service.
+ 2. Create a publisher with some options.
  3. Send data.
  4. **C API: Additionally, we have to remove the previously allocated publisher
         port!**
@@ -120,7 +119,7 @@ const char APP_NAME[] = "iox-c-publisher";
 iox_runtime_init(APP_NAME);
 ```
 
- 2. We create a publisher with the service
+ 2. We create a publisher with the service description
     {"Radar", "FrontLeft", "Object"}
 
 <!--[geoffrey][iceoryx_examples/icedelivery_in_c/ice_c_publisher.c][create publisher port]-->

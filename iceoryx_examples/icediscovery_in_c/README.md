@@ -14,9 +14,9 @@ behavior and structure is quite similar to the [icediscovery C++ example](https:
 
 ### Offer services
 
-We create several publisher ports which offer their services on construction by
+We create several publishers which offer their services on construction by
 default. For more dynamism the `cameraPublishers` offer/stop their services
-periodically. If you want more information on how to create publisher ports,
+periodically. If you want more information on how to create publishers,
 have a look at the [icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery_in_c).
 
 ### Find services

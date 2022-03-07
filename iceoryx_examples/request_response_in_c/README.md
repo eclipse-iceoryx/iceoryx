@@ -18,7 +18,7 @@ then sends the sum of those numbers back.
 
 ### Client Basic
 
-Like with most iceoryx C application we start with:
+Like with most iceoryx C applications we start with:
 
  * Registering a signal handler
  * Initialize the runtime
@@ -190,7 +190,7 @@ the console.
 ```c
 for (uint64_t i = 0; i < numberOfNotifications; ++i)
 {
-    if (iox_notification_info_does_originate_from_client(notificationArray[0], client))
+    if (iox_notification_info_does_originate_from_client(notificationArray[i], client))
     {
         const struct AddResponse* response = NULL;
         while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)
