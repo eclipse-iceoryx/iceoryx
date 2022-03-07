@@ -16,7 +16,8 @@ These two [blog](https://defragdev.com/blog/2014/08/07/the-fundamentals-of-unit-
 [posts](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) explain the **AAA** pattern in more detail.
 
 While the AAA pattern provides a sensible structure, [ZOMBIES](http://blog.wingman-sw.com/tdd-guided-by-zombies) help you to find sensible test cases.
-```
+
+```txt
 Z = Zero
 O = One
 M = Many (or More complex)
@@ -32,10 +33,11 @@ The **BIE** part takes care of edge cases like _adding one to Number::max satura
 The latter overlaps with a case from the **ZOM** part, which illustrates that these are not always clearly separated.
 
 **Exercise Exceptional Behavior** means to not only test the happy path, but also the negative one.
-Basically to test with silly inputs and check for a graceful behavior like the previous example with division by 0.
+Basically, you should test silly inputs and check for a graceful behavior like the previous example with division by 0.
 The linked blog post explains [negative testing](https://www.softwaretestinghelp.com/what-is-negative-testing/) in a more thorough way.
 
 The catchwords can be used to draw simple scenarios which nicely fits to the AAA pattern. A non-exhaustive list of these scenarios are
+
 - overflow
 - underflow
 - wrap around
@@ -44,20 +46,20 @@ The catchwords can be used to draw simple scenarios which nicely fits to the AAA
 - out of bounds
 - timeouts
 - copy
-    - are the objects equal
-    - is the copy origin unchanged
-    - etc.
+  - are the objects equal
+  - is the copy origin unchanged
+  - etc.
 - move
-    - is the move destination object cleaning up its resources
-    - is the move origin object in a defined but unspecified state
-    - etc.
+  - is the move destination object cleaning up its resources
+  - is the move origin object in a defined but unspecified state
+  - etc.
 - etc.
 
 Following [Hyrum's Law](https://www.hyrumslaw.com/) loosely, given enough users, one will find ways to use the software in a way it was never imagined.
 Therefore, never underestimate the creativity of brilliancy/stupidity.
 
 In some cases it might be necessary to instantiate an object on the heap. While that's not allowed in production code, it is fine in test code.
-To avoid manual memory management with new/delete, smart pointer shall be used if possible.
+To avoid manual memory management with new/delete, smart pointers shall be used if possible.
 As a reminder, if a method takes a pointer to an object, this object can be instantiated on the stack and the address of this object can be passed to the method.
 A good reason to use the heap are large objects which might cause a stack overflow.
 Some operating systems have a rather small stack of only a few kB, so this limit might be closer one might think.
@@ -66,11 +68,11 @@ In general, the tests should be written in a fashion to not crash the applicatio
 It must be assumed that the implementation is broken and only a successful test run can prove otherwise.
 The `sut` (system under test) might return a `nullptr` instead of the expected valid pointer, so `nullptr` check has to be done with an `ASSERT_*` to gracefully abort the current test.
 Just using an `EXPECT_*` for the check is not sufficient since the potential `nullptr` will be dereferenced later on and will crash the application.
-The same applies to other potential dangerous operations, like accessing the value of an `cxx::optional` or `cxx::expected` or an out of bounds access of an `cxx::vector`.
+The same applies to other potential dangerous operations, like accessing the value of a `cxx::optional` or `cxx::expected` or an out of bounds access of a `cxx::vector`.
 
 Last but not least, apply the **DRY** principle (don't repeat yourself) and use typed and parameterized tests to check multiple implementations and variations without repeating much code.
 
-# Practical Example
+## Practical Example
 
 Let's test the following class
 
@@ -116,7 +118,7 @@ class SingleDigitNumber_test : public Test
 };
 ```
 
-## First Attempt
+### First Attempt
 
 Well, this is quite a simple class, so the tests must also be simple, right?
 
@@ -139,12 +141,13 @@ Done and we reached 100% coverage. We can clap ourselves on the shoulders and mo
 
 The test above has several major and minor flaws. The first thing that leaps to the eye, it doesn't follow the **AAA** pattern. When the test fails, we don't know why and have to look in the code to figure out what went wrong. But even if only one aspect of the class would have been tested, there would still be essentially just a `[  FAILED  ] SingleDigitNumber_test.TestClass` output and we would need to look at the code to know what exactly is broken. This test case checks too many state transitions and doesn't have a sensible name.
 
-Furthermore, the default constructor is called in the test, but it is never checked to do the right thing. If there were a check, it would have revealed that `m_number` is not correctly initialized.
+Furthermore, the default constructor is called in the test, but it is never checked to do the right thing. If there was a check, it would have revealed that `m_number` is not correctly initialized.
 
 Then, `EXPECT_TRUE` is used to compare the values. While this works, when the test fails we just get the information of the failure, but not which values were compared.
 To get this information `EXPECT_EQ` or `EXPECT_THAT` should be used. Furthermore, it's important to easily distinguish between the actual and the expected value, therefore the ordering of the values should be the same as if `EXPECT_THAT` would be used. The first value should be the actual value and the second one the expected.
 
 While the coverage might be 100%, there are no tests for:
+
 - invalid parameters, e.g. passing `10` to the constructor
 - overflow with `operator+`, e.g. adding `7` and `8`
 - underflow with `operator-`, e.g. subtracting `8` from `7`
@@ -153,7 +156,7 @@ Here, ZOMBIES comes into play and gives us some guide to identify this cases.
 
 Some of this test might made it necessary to define the behavior of the class in the first place, e.g. defining that an `operator+` will saturate to the max value instead of overflowing.
 
-## How To Do It Better
+### How To Do It Better
 
 At first, the test is split into multiple test cases according to the AAA pattern
 
@@ -223,31 +226,32 @@ TEST_F(SingleDigitNumber_test, AddingOneIncreasesTheNumberByOne)
 These are some examples showing how to apply the ZOMBIES principle to find good test cases.
 They also exert all the good practices mentioned previously, like clear and distinct names or avoiding magic numbers.
 
-# Slightly More Advanced Topics
+## Slightly More Advanced Topics
 
-## Typed Tests
+### Typed Tests
 
 There are situations when test cases only vary in the type applied to the `sut`. In this case typed tests can be used to reduce repetition.
 The there is a section for [typed tests](https://github.com/google/googletest/blob/master/docs/advanced.md#typed-tests) in the advanced gtest documentation.
 
 A more thorough [example](https://github.com/google/googletest/blob/release-1.10.0/googletest/samples/sample6_unittest.cc) is in the gtest github repository.
 
-## Parameterized Tests
+### Parameterized Tests
 
 Similar to typed tests, there are cases where the same test case should run with multiple parameters.
-One example is the conversion of `enum` values to strings. While this can be done in a loop, a better approach are parameterized test.
+One example is the conversion of `enum` values to strings. While this can be done in a loop, parameterized testing is a better approach.
 
 [This](https://www.sandordargo.com/blog/2019/04/24/parameterized-testing-with-gtest) is quite a good blog post to get into parameterized tests. Additionally, there is a section in the advanced [documentation](https://github.com/google/googletest/blob/master/docs/advanced.md#value-parameterized-tests) for gtest.
 
 The block post mentions tuples to pass multiple parameters at once. Since tuples can become cumbersome to use, especially if parameters are rearranged, it is recommended to create a `struct` to wrap the parameters instead.
 
-## Mocks
+### Mocks
 
 Some classes are hard to test or to reach a full coverage. This might be due to external access or interaction with the operating system.
 Mocks can help to have full control over the `sut` and reliably cause error conditions to test the negative code path.
 There is an [extensive gmock documentation](https://github.com/google/googletest/tree/release-1.10.0/googlemock/docs) in the gtest github repository.
 
-## Pitfalls
+### Pitfalls
+
 Some tests require creating dummy classes and it might be that the same name is chosen multiple times, e.g. “class DummyData {...};”.
 Usually, at some time the compiler would complain about double definitions.
 But since the definitions are not in header but source files and therefore confined in a translation unit, this is not the case and the test binary gets created.
@@ -273,16 +277,16 @@ TEST_F(MyTest, TestName)
     EXPECT_EQ(ANSWER, 42)
 }
 
-}
+} // namespace
 ```
 
-# Conclusion
+## Conclusion
 
 - apply the AAA pattern to structure the test and check only one state transition per test case (all side effects of that transition must be checked, though)
 - don't test previously tested behavior
 - use the ZOMBIES principle to find sensible test cases
-- meaningful names for the tests to indicate what the test is supposed to do and the expected outcome, like `...IsSuccessful`, `...Fails`, `...ResultsIn...`, `...LeadsTo...`, etc.
-- name the test object `sut` to make it clear what object is tested
+- use meaningful names for the tests to indicate what the test is supposed to do and the expected outcome, like `...IsSuccessful`, `...Fails`, `...ResultsIn...`, `...LeadsTo...`, etc.
+- name the test object `sut` to make clear which object is tested
 - don't use magic numbers
 - instantiate objects on the stack or use smart pointers for large objects and avoid manual memory management with new/delete
 - use `ASSERT_*` before doing a potential dangerous action which might crash the test application, like accessing a `nullptr` or a `cxx::optional` with a `nullopt`
