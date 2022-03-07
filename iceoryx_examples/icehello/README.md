@@ -32,7 +32,7 @@ It is included via:
 #include "topic_data.hpp"
 ```
 
-Next up, we include the publisher and the runtime:
+Next, we include the publisher and the runtime:
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include]-->
 ```cpp
@@ -48,7 +48,7 @@ constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
-Up next, we create a publisher instance for our charming struct. Notice that the topic type is passed as a template
+Now we create a publisher instance for our charming struct. Notice that the topic type is passed as a template
 parameter:
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][create publisher]-->
@@ -60,14 +60,15 @@ The three strings which are passed as parameter to the constructor of `iox::popo
 `capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
 [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture) protocols. `Radar` is the service name, `FrontLeft`
 an instance of the service `Radar` and the third string the specific event `Object` of the instance.
-In iceoryx a publisher and a subscriber are connected only if all the three IDs match.
+In iceoryx, a publisher and a subscriber are connected only if all three IDs match.
 
-For exiting on Ctrl-C, we use the `SignalWatcher`
+For exiting on Ctrl+C, we use the `SignalWatcher`
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include sig watcher]-->
 ```cpp
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 ```
-and loop in our `while` loop until it states that `SIGINT` or `SIGTERM` was send via
+
+and loop in our `while` loop until it states that `SIGINT` or `SIGTERM` was sent via
 the function `hasTerminationRequested`.
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][wait for term]-->
 ```cpp
@@ -129,7 +130,7 @@ The subscriber needs to have similar includes, but unlike the publisher `subscri
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
 
-As well as the publisher, also the subscriber needs to register with the daemon RouDi:
+As well as the publisher, the subscriber needs to register with the daemon RouDi:
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][initialize runtime]-->
 ```cpp
@@ -171,7 +172,9 @@ else
 }
 ```
 
-The subscriber application polls for the sample ten times faster than the publisher is sending it. Therefore no samples should be missed.
+The subscriber application polls for the sample ten times faster than the publisher is sending it.
+Therefore no samples should be missed, but not every time the subscriber tries
+to take a sample, it will get some. In this case, we print "No chunk available.".
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][wait]-->
 ```cpp
@@ -181,7 +184,7 @@ std::this_thread::sleep_for(std::chrono::milliseconds(100));
 Increasing the polling rate is just one approach for reliable communication.
 [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions) explains how to
 configure the history size of a subscriber. In the
-[waitset](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset) example you learn how to
+[WaitSet](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset) example you learn how to
 avoid polling altogether.
 
 <center>
