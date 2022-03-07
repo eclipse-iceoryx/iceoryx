@@ -49,23 +49,24 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 {
     ::testing::Test::RecordProperty("TEST_ID", "9faf7053-86af-4d26-b3a7-fb3c6319ab86");
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-    IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+    std::unique_ptr<IceOryxRouDiComponents> roudiComponents{new IceOryxRouDiComponents(defaultRouDiConfig)};
 
-    RouDi roudi(roudiComponents.rouDiMemoryManager,
-                roudiComponents.portManager,
-                RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
+    std::unique_ptr<RouDi> roudi{new RouDi(roudiComponents->rouDiMemoryManager,
+                                           roudiComponents->portManager,
+                                           RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false})};
 
-    const RuntimeName_t m_runtimeName{"App"};
+    const RuntimeName_t runtimeName{"App"};
 
-    EXPECT_NO_FATAL_FAILURE({ PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName); });
+    EXPECT_NO_FATAL_FAILURE(
+        { std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)}; });
 }
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cc7ad5d-5878-454a-94ba-5cf412c22682");
-    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+    RouDiEnvironment roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
-    const RuntimeName_t m_runtimeName{"App"};
+    const RuntimeName_t runtimeName{"App"};
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
@@ -74,7 +75,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
 
-    PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
+    std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)};
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
