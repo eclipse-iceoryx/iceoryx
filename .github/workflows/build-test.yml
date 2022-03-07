@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./tools/scripts/clang_format.sh check
+      - run: tools/scripts/list_stl_dependencies.sh check
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-20.04

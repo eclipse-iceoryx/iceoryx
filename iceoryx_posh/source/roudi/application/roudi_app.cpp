@@ -25,6 +25,7 @@
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/platform/resource.hpp"
 #include "iceoryx_hoofs/platform/semaphore.hpp"
+#include "iceoryx_hoofs/platform/signal.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
@@ -34,8 +35,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 
-#include "stdio.h"
-#include <signal.h>
+#include <stdio.h>
 
 namespace iox
 {
