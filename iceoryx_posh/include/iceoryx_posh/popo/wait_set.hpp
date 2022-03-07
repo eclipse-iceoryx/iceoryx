@@ -35,8 +35,6 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <typeinfo>
-
 namespace iox
 {
 namespace popo
