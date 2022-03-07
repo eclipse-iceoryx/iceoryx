@@ -107,7 +107,7 @@ int main()
         //! [process responses]
         for (uint64_t i = 0; i < numberOfNotifications; ++i)
         {
-            if (iox_notification_info_does_originate_from_client(notificationArray[0], client))
+            if (iox_notification_info_does_originate_from_client(notificationArray[i], client))
             {
                 const struct AddResponse* response = NULL;
                 while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)

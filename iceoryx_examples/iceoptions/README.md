@@ -86,7 +86,7 @@ would encounter an overflow, the oldest sample is released to create space for t
 subscriberOptions.queueCapacity = 10U;
 ```
 
-`historyRequest` will enable a subscriber to receive the last n samples on subscription e.g. in case it was started later than the publisher.
+`historyRequest` will enable a subscriber to receive the last n samples of matching publishers on subscription e.g. in case it was started later than the publisher.
 If the publisher does not have a sufficient `historyCapacity` (smaller than `historyRequest`), it will still be connected but we will not be able to
 receive the requested amount of historical data (if it was available). Instead we will receive the largest amount of historical sample
 the publisher has available, i.e. best-effort.

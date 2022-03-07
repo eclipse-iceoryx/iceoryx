@@ -67,7 +67,7 @@ Both subscribers use the same options which we set up with:
 iox_sub_options_t options;
 iox_sub_options_init(&options);
 options.historyRequest = 10U;
-options.queueCapacity = 5U;
+options.queueCapacity = 50U;
 options.nodeName = "iox-c-callback-subscriber-node";
 ```
 
