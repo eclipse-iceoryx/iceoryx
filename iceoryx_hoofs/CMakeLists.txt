@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(IOX_VERSION_STRING "1.90.0")
+set(IOX_VERSION_STRING "1.91.0")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
@@ -188,7 +188,7 @@ add_library(iceoryx_hoofs
     source/posix_wrapper/posix_access_rights.cpp
     source/posix_wrapper/thread.cpp
     source/units/duration.cpp
-    source/relocatable_pointer/base_relative_pointer.cpp    
+    source/relocatable_pointer/base_relative_pointer.cpp
     source/relocatable_pointer/relative_pointer_data.cpp
 )
 

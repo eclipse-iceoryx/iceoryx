@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(IOX_VERSION_STRING "1.90.0")
+set(IOX_VERSION_STRING "1.91.0")
 
 project(iceoryx_doc VERSION ${IOX_VERSION_STRING})
 
