@@ -42,18 +42,18 @@ iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 ```
 
  3. We are starting RouDi, provide the required components and
-    disable monitoring. The last bool parameter `DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR` 
+    disable monitoring. The last bool parameter `TERMINATE_APP_IN_ROUDI_DTOR_FLAG` 
     states that RouDi does not
     terminate all registered processes when RouDi goes out of scope. If we would set it
     to `true`, our application would self terminate in the destructor of `roudi`.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi]-->
 ```cpp
-constexpr bool DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR = false;
+constexpr bool TERMINATE_APP_IN_ROUDI_DTOR_FLAG = false;
 iox::roudi::RouDi roudi(
     roudiComponents.rouDiMemoryManager,
     roudiComponents.portManager,
-    iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, DO_NOT_TERMINATE_APP_IN_ROUDI_DTOR});
+    iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, TERMINATE_APP_IN_ROUDI_DTOR_FLAG});
 ```
 
  4. Here comes a key difference to an inter-process application. If you would like
