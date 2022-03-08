@@ -27,6 +27,8 @@ COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
 QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_hoofs/platform/qnx/
+WHITELIST=$WORKSPACE/tools/scripts/stl-header-whitelist.txt
+TEMP_FILE=$(mktemp)
 
 for COMPONENT in ${COMPONENTS[@]}; do
     for DIR in ${SOURCE_DIR[@]}; do
@@ -36,50 +38,55 @@ done
 
 
 echo
-echo "# available system headers for QNX (excluding comments)"
+echo "# available system headers for QNX"
 gcc -w -fpreprocessed -dD -E $(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -iname *.hpp) \
  | grep -e "#include <" \
  | grep -oP "\<\K[^<>]+(?=>)" \
  | sort \
- | uniq
+ | uniq \
+ | tee -a $TEMP_FILE \
+ | cat
 
 # GCC can't preprocess .inl so we grep them in plain text
-
 echo
-echo "# usage of system header includes (excluding comments)"
+echo "# usage of system header includes"
 { gcc -w -fpreprocessed -dD -E $(find $GREP_PATH -type f -iname *.cpp -o -iname *.hpp); cat $(find $GREP_PATH -type f -iname *.inl); } \
  | grep -e "#include <" \
  | grep -oP "\<\K[^<>]+(?=>)" \
  | sort \
- | uniq
+ | uniq \
+ | tee -a $TEMP_FILE \
+ | cat
 
-
-# if [[ "$SCOPE" == "check" ]]; then
-# # todo: extract <foo> and check against header whitelist here
-# fi
+if [[ "$SCOPE" == "check" ]]; then
+    echo
+    echo "Comparing system headers against whitelist.."
+    diff $TEMP_FILE $WHITELIST
+    if [ $? -eq 1 ]; then
+        echo "One or more system header is not on the whitelist, please remove the header usage or extend the whitelist!"
+        exit 1
+    fi
+    echo "No system header divergence found!"
+fi
 
 echo
-echo "# usage of std components (excluding comments)"
+echo "# usage of std components"
 { gcc -w -fpreprocessed -dD -E $(find $GREP_PATH -type f -iname *.cpp -o -iname *.hpp); cat $(find $GREP_PATH -type f -iname *.inl); } \
  | grep -HIne "std::" \
  | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \  \2/p" \
  | sort \
  | uniq
 
-exit 1
-
-
-
 echo
-echo "# files with stl dependency (including comments)"
+echo "# files with stl dependency"
 grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::[a-zA-Z_]*.*/\1/p" | xargs -I{} basename {} | sort | uniq
 
 echo
-echo "# using namespace with std component (including comments)"
+echo "# using namespace with std component"
 grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH | sed -n "s/\(.*\)/\ \ \1/p"
 
 echo
-echo "# usage of std components (including comments)""
+echo "# usage of std components"
 grep -RIne "std::" $GREP_PATH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/\ \ \1/p" | sort | uniq
 
-
+exit 0
