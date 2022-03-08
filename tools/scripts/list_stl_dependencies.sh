@@ -36,8 +36,8 @@ for COMPONENT in ${COMPONENTS[@]}; do
     done
 done
 
+echo "# QNX platform system headers" >> $TEMP_FILE
 
-echo
 echo "# available system headers for QNX"
 gcc -w -fpreprocessed -dD -E $(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -iname *.hpp) \
  | grep -e "#include <" \
@@ -47,6 +47,8 @@ gcc -w -fpreprocessed -dD -E $(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -i
  | tee -a $TEMP_FILE \
  | cat
 
+
+echo "# iceoryx_posh / iceoryx_hoofs system headers" >> $TEMP_FILE
 # GCC can't preprocess .inl so we grep them in plain text
 echo
 echo "# usage of system header includes"
