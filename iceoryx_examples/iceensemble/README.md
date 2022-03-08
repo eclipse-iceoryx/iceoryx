@@ -43,5 +43,5 @@ Alternatively, you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmu
 [![asciicast](https://asciinema.org/a/407432.svg)](https://asciinema.org/a/407432)
 
 <center>
-[Check out iceensemble on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceensemble){ .md-button }
+[Check out iceensemble on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/iceensemble){ .md-button }
 </center>
