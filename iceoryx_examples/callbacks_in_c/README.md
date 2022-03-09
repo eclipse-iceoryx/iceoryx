@@ -112,7 +112,7 @@ Since we are following a push-based approach, i.e. without an event loop that is
 the events and processing them, we require a blocking call that waits until the process is
 signaled to terminate.
 
-<!--[geoffrey][iceoryx_examples/callbacks_in_c/ice_c_callbacks_subscriber.c][wait until someone presses CTRL+c]-->
+<!--[geoffrey][iceoryx_examples/callbacks_in_c/ice_c_callbacks_subscriber.c][wait until someone presses CTRL+C]-->
 ```c
 while (keepRunning)
 {

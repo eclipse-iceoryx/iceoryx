@@ -119,8 +119,8 @@ all found services:
 ```c
 void searchFrontDevices(const iox_service_description_t service, void* count)
 {
-    if (strncmp("FrontLeft", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0
-        || strncmp("FrontRight", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
+    if (strncmp(service.instanceString, "FrontLeft", IOX_CONFIG_SERVICE_STRING_SIZE) == 0
+        || strncmp(service.instanceString, "FrontRight", IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
     {
         ++*(uint32_t*)count;
     }

@@ -136,7 +136,7 @@ int main()
         listener, subscriberRight, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback, &counterService);
     //! [attach everything to the listener]
 
-    // wait until someone presses CTRL+c
+    // wait until someone presses CTRL+C
     while (keepRunning)
     {
         sleep_for(100);

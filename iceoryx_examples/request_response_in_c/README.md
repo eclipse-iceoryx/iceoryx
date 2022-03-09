@@ -62,7 +62,7 @@ When the users presses Control+C the term signal is emitted and `keepRunning` is
 `false` via the signal handler callback.
 
 We start by loaning memory to send out our `request`.
-<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][main loop][loan request]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][loan request]-->
 ```c
 struct AddRequest* request = NULL;
 enum iox_AllocationResult loanResult =
@@ -72,7 +72,7 @@ enum iox_AllocationResult loanResult =
 To set the sequence id we have to acquire the request header first from the payload. Additionally,
 we set `expectedResponseSequenceId` so that we can verify the response later and increment the
 `requestSequenceId` for the next run.
-<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][main loop][set sequence id]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][set sequence id]-->
 ```c
 iox_request_header_t requestHeader = iox_request_header_from_payload(request);
 iox_request_header_set_sequence_id(requestHeader, requestSequenceId);
@@ -81,7 +81,7 @@ requestSequenceId += 1;
 ```
 
 Before we can send out the `request` we have to set the two fibonacci numbers.
-<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][main loop][set and send request]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][set and send request]-->
 ```c
 request->augend = fibonacciLast;
 request->addend = fibonacciCurrent;
@@ -89,11 +89,15 @@ printf("%s Send Request: %lu + %lu\n",
        APP_NAME,
        (unsigned long)fibonacciLast,
        (unsigned long)fibonacciCurrent);
-iox_client_send(client, request);
+enum iox_ClientSendResult sendResult = iox_client_send(client, request);
+if (sendResult != ClientSendResult_SUCCESS)
+{
+    printf("Error sending Request! Error code: %d\n", sendResult);
+}
 ```
 
 Now we give the server a little time to process the `request`.
-<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][main loop][wait for response]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][wait for response]-->
 ```c
 const uint32_t DELAY_TIME_IN_MS = 150U;
 sleep_for(DELAY_TIME_IN_MS);
@@ -103,7 +107,7 @@ We process the `response` by acquiring it first with `iox_client_take_response`.
 If this is successful we verify the sequence number, adjust our fibonacci numbers
 and print our response to the console.
 When the sequence number does not fulfill our expectation we print an error message.
-<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][main loop][process response]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][process response]-->
 ```c
 const struct AddResponse* response = NULL;
 while (iox_client_take_response(client, (const void**)&response) == ChunkReceiveResult_SUCCESS)
@@ -218,7 +222,7 @@ for (uint64_t i = 0; i < numberOfNotifications; ++i)
 The cleanup is done when we exit our mainloop. We detach the client state from
 the waitset first and then deinitialize the waitset and the client.
 
-<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][process responses]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][cleanup]-->
 ```c
 iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
 iox_ws_deinit(waitset);
@@ -253,7 +257,7 @@ We require the `request` for the loan so that the `response` can be delivered
 to the corresponding client.
 When the `iox_server_loan_response` was successful we calculate the sum of the
 two received fibonacci numbers and send it.
-<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_basic.c][main loop][process request]-->
+<!--[geoffrey][iceoryx_examples/request_response_in_c/server_c_basic.c][process request]-->
 ```c
 const struct AddRequest* request = NULL;
 if (iox_server_take_request(server, (const void**)&request) == ServerRequestResult_SUCCESS)
@@ -270,11 +274,15 @@ if (iox_server_take_request(server, (const void**)&request) == ServerRequestResu
     {
         response->sum = request->augend + request->addend;
         printf("%s Send Response: %lu\n", APP_NAME, (unsigned long)response->sum);
-        iox_server_send(server, response);
+        enum iox_ServerSendResult sendResult = iox_server_send(server, response);
+        if (sendResult != ServerSendResult_SUCCESS)
+        {
+            printf("Error sending Response! Error code: %d\n", sendResult);
+        }
     }
     else
     {
-        printf("%s Could not allocate Response! Return value = %d\n", APP_NAME, loanResult);
+        printf("%s Could not allocate Response! Error code: %d\n", APP_NAME, loanResult);
     }
 
     iox_server_release_request(server, request);
@@ -354,6 +362,7 @@ void onRequestReceived(iox_server_t server)
         if (loanResult == AllocationResult_SUCCESS)
         {
             response->sum = request->augend + request->addend;
+            printf("%s Send Response: %lu\n", APP_NAME, (unsigned long)response->sum);
             enum iox_ServerSendResult sendResult = iox_server_send(server, response);
             if (sendResult != ServerSendResult_SUCCESS)
             {
@@ -362,7 +371,7 @@ void onRequestReceived(iox_server_t server)
         }
         else
         {
-            printf("Could not allocate Response! Return value = %d\n", loanResult);
+            printf("Could not allocate Response! Error code: %d\n", loanResult);
         }
         iox_server_release_request(server, request);
     }
