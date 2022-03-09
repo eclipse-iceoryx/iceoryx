@@ -18,7 +18,7 @@ For a calendar event, you can subscribe to the [ROS calendar](https://calendar.g
 ### Topics
 
 * Propose features
-  * E.g. present and discuss a design document
+  * E.g. present and discuss design documents
 * Discuss pull requests without going into details
   * E.g. a small demo
 * Steer direction of Eclipse iceoryx
