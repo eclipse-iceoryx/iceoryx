@@ -3,7 +3,7 @@
 Many parts of the iceoryx C++ API follow a functional programming approach and allow the user to specify functions
 which handle the possible cases, e.g. what should happen when data is received.
 
-This is very flexible but requires using the monadic types `cxx::expected` and `cxx::optional`, which we
+This is very flexible but requires using the monadic types `iox::cxx::expected` and `iox::cxx::optional`, which we
 introduce in the following sections.
 
 ## Optional
@@ -47,7 +47,7 @@ result.and_then([](int& value) { /*do something with the value*/ })
 ```
 
 Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the
-[lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) or function we pass.
+[lambda expression](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) or function we pass.
 
 The optional can be initialized from a value directly
 
@@ -120,6 +120,6 @@ user. These can be found in
 [`expected.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp).
 
 Note that when we move an `expected`, the origin contains a moved `T` or `E`, depending on the content before the move.
-This mirrors the behavior of moving the content out of the `iox::cxx::expected` like with
+This reflects the behavior of moving the content out of the `iox::cxx::expected` as in
 `auto foo = std::move(bar.value());` with `bar` being an `iox::cxx::expected`.
 Like all objects, `T` and `E` must therefore be in a well defined state after the move.
