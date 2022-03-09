@@ -261,7 +261,7 @@ if [ "$PACKAGE" == "ON" ]; then
 fi
 
 # clean build folders
-if [ $CLEAN_BUILD == true ] && [ -d "$BUILD_DIR" ]; then
+if [ "$CLEAN_BUILD" == true ] && [ -d "$BUILD_DIR" ]; then
     echo " [i] Cleaning build directory"
     cd "$WORKSPACE"
     rm -rf "${BUILD_DIR:?}/"*
