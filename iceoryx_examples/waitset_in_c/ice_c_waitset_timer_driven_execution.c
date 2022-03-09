@@ -23,7 +23,9 @@
 #include "sleep_for.h"
 #include "topic_data.h"
 
-#if !defined(_WIN32)
+#if defined(_WIN32)
+typedef long unsigned int pthread_t;
+#else
 #include <pthread.h>
 #endif
 #include <signal.h>
@@ -67,11 +69,30 @@ void* cyclicTriggerCallback(void* dontCare)
     return NULL;
 }
 
+bool createThread(pthread_t* threadHandle, void* (*callback)(void*))
+{
+#if defined(_WIN32)
+    return -1;
+#else
+    return pthread_create(threadHandle, NULL, callback, NULL);
+#endif
+}
+
+int joinThread(pthread_t threadHandle)
+{
+#if defined(_WIN32)
+    return -1;
+#else
+    return pthread_join(threadHandle, NULL);
+#endif
+}
+
 int main()
 {
 #if defined(_WIN32)
     printf("This example does not work on Windows. But you can easily adapt it for now by starting a windows thread "
            "which triggers the cyclicTrigger every second.\n");
+    return -1;
 #endif
 
     //! [initialization and shutdown handling]
@@ -97,16 +118,14 @@ int main()
     //! [cyclic trigger]
 
     // start a thread which triggers cyclicTrigger every second
-#if !defined(_WIN32)
     //! [cyclic trigger thread]
     pthread_t cyclicTriggerThread;
-    if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
+    if (createThread(&cyclicTriggerThread, cyclicTriggerCallback))
     {
         printf("failed to create thread\n");
         return -1;
     }
     //! [cyclic trigger thread]
-#endif
 
     //! [event loop]
     uint64_t missedElements = 0U;
@@ -140,9 +159,7 @@ int main()
     //! [event loop]
 
     //! [cleanup all resources]
-#if !defined(_WIN32)
-    pthread_join(cyclicTriggerThread, NULL);
-#endif
+    joinThread(cyclicTriggerThread);
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
     //! [cleanup all resources]
