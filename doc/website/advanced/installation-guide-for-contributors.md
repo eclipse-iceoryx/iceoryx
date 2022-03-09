@@ -94,13 +94,13 @@ This should be used only rarely and only in coordination with an iceoryx maintai
 
 !!! note
     iceoryx needs to be built as a static library to work with sanitizer flags, which is automatically achieved when using
-    the script. If you want to use the ${ICEORYX_WARNINGS} then you have to call `findpackage(iceoryx_hoofs)` and `include(IceoryxPlatform)`
+    the script. If you want to use the ${ICEORYX_WARNINGS} then you have to call `find_package(iceoryx_hoofs)` and `include(IceoryxPlatform)`
     to make use of the ${ICEORYX_SANITIZER_FLAGS}.
 
 ## :material-library: iceoryx library build
 
 The iceoryx build consists of several libraries which have dependencies on each other. The goal is to have encapsulated
-library packages available so that the end-user can easily find them with the CMake command `find-package(...)`.
+library packages available so that the end-user can easily find them with the CMake command `find_package(...)`.
 In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access.
 As an alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path`
 as build flag for the CMake file in iceoryx_meta.
@@ -110,7 +110,11 @@ the CMake build. The provided build script `tools/iceoryx_build_test.sh` uses ic
 
 Per default, iceoryx is built as static lib for better usability.
 Additionally, we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time.
-This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as a flag in the build script.
+This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default in iceoryx_meta. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as a flag in the build script.
+
+!!! note
+    When building with `colcon` in ROS 2, the packages `iceoryx_hoofs`, `iceoryx_posh` and `iceoryx_binding_c` are built
+    automatically as shared libraries.
 
 If iceoryx builds shared libraries you have to copy them into a custom path and set the LD_LIBRARY_PATH to the custom path (e.g. build/install/prefix).
 
@@ -127,9 +131,9 @@ LD_LIBRARY_PATH=/your/path/to/lib iox-roudi
 If you want to share iceoryx to other users, you can create a debian package. This can be done by using: `./tools/iceoryx_build_test.sh package` where it will be deployed into the `build_package` folder.
 
 !!! note
-    The CMake libraries export their dependencies for easier integration. This means that you do not need to do a `findpackage()`
-    for all the dependencies. For example, you don't need to call `findpackage(iceoryx_hoofs)` when you already called
-    `findpackage(iceoryx_posh)` since iceoryx_posh includes iceoryx_hoofs.
+    The CMake libraries export their dependencies for easier integration. This means that you do not need to do a `find_package()`
+    for all the dependencies. For example, you don't need to call `find_package(iceoryx_hoofs)` when you already called
+    `find_package(iceoryx_posh)` since iceoryx_posh includes iceoryx_hoofs.
 
 ## Tips & Tricks
 
