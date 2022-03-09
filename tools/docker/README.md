@@ -94,7 +94,7 @@ root@b10b3630f6d3:/# screen
 and press `[Enter]`.
 
 Inside the virtual screen shell, you can then launch the example applications.
-Again, all iceoryx applications are directly available via `$PATH`.
+Again, all iceoryx applications are directly available in `/usr/bin/`.
 
 To launch an example sender application simply run the corresponding binary:
 
@@ -139,7 +139,7 @@ There are several suitable screens on:
 Type "screen [-d] -r [pid.]tty.host" to resume one of them.
 ```
 
-To attach a screen session use to PID listed as first number in the output above.
+To attach a screen session use the PID listed as first number in the output above.
 In our case we would like to attach to
 `35.pts-0.b10b3630f6d3>  (12/18/20 09:28:17)>(Detached)` our sender application.
 
