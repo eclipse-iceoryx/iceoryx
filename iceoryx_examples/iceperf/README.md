@@ -2,9 +2,9 @@
 
 ## Introduction
 
-!!! hint
-    Since not all IPC mechanisms are supported on all platforms this benchmark
-    runs fully on QNX and Linux.
+!!! note
+    Since not all IPC mechanisms are supported on all platforms the IPC benchmark
+    only runs fully on QNX and Linux.
     The iceoryx C or C++ API related benchmark is supported on all platforms.
 
 This example measures the latency of IPC transmissions between two applications.
@@ -13,8 +13,8 @@ We compare the latency of iceoryx with message queues and unix domain sockets.
 The measurement is carried out with several payload sizes. Round trips are performed
 for each payload size, using either the default setting or the provided command line parameter
 for the number of round trips to do.
-The measured time is just allocating/releasing memory and the time to send the data.
-The construction and writing of the payload is not part of the measurement.
+The time measurement only considers the time to allocate/release memory and the time to send the data.
+The construction and initialization of the payload is not part of the measurement.
 
 At the end of the benchmark, the average latency for each payload size is printed.
 
@@ -25,6 +25,7 @@ In this setup the leader is doing the ping pong measurements with the follower.
 You can set the number of measurement iterations (number of round trips) with a command line parameter
 of iceperf-bench-leader (e.g. `./iceperf-bench-leader -n 100000`).
 There are further options which can be printed by calling `./iceperf-bench-leader -h`.
+
 ```sh
     # If installed and available in PATH environment variable
     iox-roudi
@@ -38,6 +39,7 @@ There are further options which can be printed by calling `./iceperf-bench-leade
 
 If you would like to test only the C++ API or the C API you can start `iceperf-bench-leader`
 with the parameter `-t iceoryx-cpp-api` or `-t iceoryx-c-api`.
+
 ```sh
     build/iceoryx_examples/iceperf/iceperf-bench-follower
 
@@ -46,11 +48,10 @@ with the parameter `-t iceoryx-cpp-api` or `-t iceoryx-c-api`.
 
 ## Expected Output
 
-The numbers will differ depending on parameters and the performance of the hardware.
-Which technologies are measured depends on the operating system (e.g. no message queue on MacOS).
-Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2.80GHz.
+The measured transmission modes depend on the operating system (e.g. no message queue on MacOS).
+The measurements depend on the benchmark parameters and the hardware.
 
-<!-- @todo Replace this with asciinema recording before v1.0 -->
+The following shows an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2.80GHz.
 
 ### iceperf-bench-leader Application
 
@@ -180,12 +181,12 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 
 ## Code Walkthrough
 
-Here we roughly describe the setup for performing the measurements in `iceperf_bench_leader.hpp/cpp` and `iceperf_bench_follower.hpp/cpp`. Things like initialization, sending and receiving of data are technology specific and can be found in the respective files (e.g. uds.cpp for
-unix domain socket). Our focus here is on the abstraction layer on top which allows us or you to add new IPC technologies to extend and compare them.
+Here we briefly describe the setup for performing the measurements in `iceperf_bench_leader.hpp/cpp` and `iceperf_bench_follower.hpp/cpp`. Things like initialization, sending and receiving of data are technology specific and can be found in the respective files (e.g. uds.cpp for
+unix domain socket). Our focus here is on the top-most abstraction layer which allows us to add new IPC technologies to extend and compare them.
 
-### iceperf-bench-leader Application
+### iceperf-bench-leader Application Code
 
-Besides includes for the different IPC technologies, the `topic_data.hpp` file is included which contains the `PerSettings` and `PerTopic` structs, which are used to transfer some information between the applications. Independent of the real payload size, the `PerTopic` struct is used as some kind of header in each transferred sample.
+Apart from headers for the different IPC technologies, the `topic_data.hpp` file is included which contains the `PerSettings` and `PerTopic` structs. These are used to transfer some information between the applications. The `PerTopic` struct is used as some kind of header in each transferred sample and is independent of the payload size.
 
 <!-- [geoffrey] [iceoryx_examples/iceperf/topic_data.hpp] [topic data definitions] -->
 ```cpp
@@ -206,8 +207,11 @@ struct PerfTopic
 
 The `PerfSettings` struct is used to synchronize the settings between the leader and the follower application.
 
-The `PerfTopic` struct is used to share some information during the measurement.
-With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided into several sub-packets. This is indicated with `subPackets`. The `runFlag` is used to shutdown the iceperf-bench follower at the end of the benchmark.
+The `PerfTopic` struct is used to share some information during the measurement. It contains `payloadSize`
+to specify the payload size used for the current measurement. If it is not possible to transmit the `payloadSize`
+with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided
+into several sub-packets. This is indicated with `subPackets`. The `runFlag` is used to shut down the
+iceperf-bench follower at the end of the benchmark.
 
 Let's use some constants to prevent magic values and set and names for the communication resources that are used.
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [use constants instead of magic values] -->
@@ -227,8 +231,8 @@ MQ::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
 UDS::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
 ```
 
-The `doMeasurement()` method executes a measurement for the provided IPC technology the and number of round trips.
-For being able to always perform the same steps and avoiding code duplications,
+The `doMeasurement()` method executes a measurement for the provided IPC technology and number of round trips.
+To be able to always perform the same steps and avoiding code duplications,
 we use a base class with technology independent functionality and the technology has to implement the technology dependent part.
 
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [do the measurement for a single technology] -->
@@ -281,16 +285,17 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 ```
 
 Initialization is different for each IPC technology. Here we have to create sockets, message queues or iceoryx publisher and subscriber.
-With `ipcTechnology.initLeader()` we are setting up these resources on the leader side.
+With `ipcTechnology.initLeader()` we set up these resources on the leader side.
 After the definition of the different payload sizes to use, we execute a single round trip measurement for each individual payload size.
-The leader has to orchestrate the whole process and has a pre- and post-step for each ping pong round trip measurement.
+The leader has to orchestrate the whole process and has a pre- and post-step for each round trip measurement.
 `ipcTechnology.preLatencyPerfTestLeader(...)` sets the payload size for the upcoming measurement.
-`ipcTechnology.latencyPerfTestLeader(m_settings.numberOfSamples)` performs the ping pong between leader and follower and returns
-the time it took to transmit the number of samples in a ping pong round trip.  After the measurements were done for all the different payload sizes,
-`ipcTechnology.releaseFollower()` releases the follower since it is not aware of things like how many payload sizes are considered.
-After cleaning up the communication resources with `ipcTechnology.shutdown()` the results are printed.
+`ipcTechnology.latencyPerfTestLeader(m_settings.numberOfSamples)` performs the data exchange between leader and follower and returns
+the time it took to transmit the number of samples in a round trip. After the measurements are taken for each payload size,
+`ipcTechnology.releaseFollower()` releases the follower. This is required since the follower is not aware of the benchmark settings,
+e.g. how many payload sizes are considered and hence we need to issue a shutdown.
+We clean up the communication resources with `ipcTechnology.shutdown()` before we print the results.
 
-In the `run()` method we create instances for the different IPC technologies we want to compare. Each technology is implemented in an own class and implements the pure virtual functions provided with the `IcePerfBase` class. But before this is done, we send the `PerfSettings` to the follower application.
+In the `run()` method we create instances for the different IPC technologies we want to compare. Each technology is implemented in its own class and implements the pure virtual functions provided with the `IcePerfBase` class. Before this is done, we send the `PerfSettings` to the follower application.
 
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [[run all technologies] [send setting to follower application]] -->
 ```cpp
@@ -361,7 +366,7 @@ int IcePerfLeader::run() noexcept
 
 ### iceperf_bench_follower Application
 
-The `iceperf-bench-follower` application is similar to `iceperf-bench-leader`. The first change is the `SUBSCRIBER` and `PUBLISHER` switched their names.
+The `iceperf-bench-follower` application is similar to `iceperf-bench-leader`. The first change is that the `SUBSCRIBER` and `PUBLISHER` switch their names.
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [use constants instead of magic values] -->
 ```c++
 constexpr const char APP_NAME[]{"iceperf-bench-follower"};
@@ -370,7 +375,7 @@ constexpr const char SUBSCRIBER[]{"Leader"};
 ```
 
 While the `run()` method of the leader publishes the `PerfSettings`, the follower is subscribed to those settings
-and waits for them before the technologies are created, which is again equal to the leader.
+and waits for them before the technologies are created, which is done similarly as for the leader.
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [[run all technologies] [get settings from leader]] -->
 ```cpp
 int IcePerfFollower::run() noexcept
@@ -388,8 +393,8 @@ int IcePerfFollower::run() noexcept
 }
 ```
 
-The `doMeasurement()` method is much simpler than the one from the leader, it reacts only and does not have the control.
-Besides `ipcTechnology.initFollower()` and `ipcTechnology.shutdown()` all the functionality to do the ping pong for different payload sizes is done in `ipcTechnology.latencyPerfTestFollower()`
+The `doMeasurement()` method is much simpler than the one from the leader, since it only has to react on incoming data.
+Apart from `ipcTechnology.initFollower()` and `ipcTechnology.shutdown()` all the functionality to perform the round trip for different payload sizes is contained in `ipcTechnology.latencyPerfTestFollower()`
 
 <!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [do the measurement for a single technology] -->
 ```cpp
@@ -402,6 +407,7 @@ void IcePerfFollower::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     ipcTechnology.shutdown();
 }
 ```
+
 <center>
 [Check out iceperf on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceperf){ .md-button }
 </center>
