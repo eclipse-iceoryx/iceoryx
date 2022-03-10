@@ -88,6 +88,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Update cyclone dds version used by gateway to support aarch64 [\#1223](https://github.com/eclipse-iceoryx/iceoryx/issues/1223)
 - The file lock posix wrapper unlocks and removes a file correctly [\#1216](https://github.com/eclipse-iceoryx/iceoryx/issues/1216)
 - Minor fixes for the examples [\#743](https://github.com/eclipse-iceoryx/iceoryx/issues/743)
+- Fix race condition in Windows platform HandleTranslator [\#1264](https://github.com/eclipse-iceoryx/iceoryx/issues/1264)
 - Fix race condition in Windows platform shared memory implementation [\#1269](https://github.com/eclipse-iceoryx/iceoryx/issues/1269)
 
 **Refactoring:**
