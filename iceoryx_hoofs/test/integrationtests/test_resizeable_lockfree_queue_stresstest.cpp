@@ -399,7 +399,7 @@ TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
 
 ///@brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to completeness of the data, i.e. nothing is lost.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerCompleteness)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsumerCompleteness)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9640d068-5c9f-4bc4-b4a0-c0a2225c15ed");
     using Queue = typename TestFixture::Queue;
@@ -471,7 +471,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
 /// @brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to order of the data (monotonic, FIFO).
 /// @note this cannot be done easily together with completeness and limited memory
-TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerOrder)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsumerOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a6e3e6b-7cd9-4079-a9e8-7a849ea3dfe9");
     using Queue = typename TestFixture::Queue;
@@ -695,7 +695,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 /// again it is checked that nothing is lost or created by accident.
 /// @note the tests are getting quite complicated but the complex setup is unavoidable
 /// in order to test the general case under load.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0verflowWithCapacityChange)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer0verflowWithCapacityChange)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6421f32a-a1f7-4fe2-978f-6ef2005e0cc9");
     using Queue = typename TestFixture::Queue;
