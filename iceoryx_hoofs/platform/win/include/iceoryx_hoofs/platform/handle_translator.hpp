@@ -30,6 +30,8 @@
 class HandleTranslator
 {
   public:
+    static constexpr int INVALID_LINUX_FD = -1;
+
     HandleTranslator(const HandleTranslator&) = delete;
     HandleTranslator(HandleTranslator&&) = delete;
     HandleTranslator& operator=(const HandleTranslator&) = delete;
@@ -44,7 +46,6 @@ class HandleTranslator
   private:
     HandleTranslator() noexcept = default;
 
-    static constexpr int INVALID_LINUX_FD = -1;
     int m_currentLinuxFileHandle = 0;
     mutable std::mutex m_mtx;
     std::map<int, HANDLE> m_linuxToWindows;
