@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,33 +16,78 @@
 
 #include "iceoryx_hoofs/platform/handle_translator.hpp"
 
+#include <iostream>
+
+constexpr int HandleTranslator::INVALID_LINUX_FD;
+
 HandleTranslator& HandleTranslator::getInstance() noexcept
 {
     static HandleTranslator globalHandleTranslator;
     return globalHandleTranslator;
 }
 
-HANDLE HandleTranslator::get(const int handle) const noexcept
+HANDLE HandleTranslator::get(const int linuxFd) const noexcept
 {
-    return m_handleList[static_cast<size_t>(handle)];
-}
-
-int HandleTranslator::add(HANDLE handle) noexcept
-{
-    for (int64_t limit = m_handleList.size(), k = 0; k < limit; ++k)
+    if (linuxFd == INVALID_LINUX_FD)
     {
-        if (m_handleList[k] == nullptr)
-        {
-            m_handleList[k] = handle;
-            return k;
-        }
+        return INVALID_HANDLE_VALUE;
     }
 
-    m_handleList.emplace_back(handle);
-    return m_handleList.size() - 1;
+    std::lock_guard<std::mutex> lock(m_mtx);
+
+    auto iter = m_linuxToWindows.find(linuxFd);
+    if (iter == m_linuxToWindows.end())
+    {
+        std::cerr << "Cannot acquire windows file handle for not registered linux file descriptor " << linuxFd
+                  << std::endl;
+        return INVALID_HANDLE_VALUE;
+    }
+
+    return iter->second;
 }
 
-void HandleTranslator::remove(const int handle) noexcept
+int HandleTranslator::add(HANDLE windowsHandle) noexcept
 {
-    m_handleList[static_cast<uint64_t>(handle)] = nullptr;
+    if (windowsHandle == INVALID_HANDLE_VALUE)
+    {
+        return INVALID_LINUX_FD;
+    }
+
+    std::lock_guard<std::mutex> lock(m_mtx);
+
+    int linuxFd = INVALID_LINUX_FD;
+    if (!m_freeFileDescriptors.empty())
+    {
+        linuxFd = m_freeFileDescriptors.front();
+        m_freeFileDescriptors.pop();
+    }
+    else
+    {
+        linuxFd = m_currentLinuxFileHandle;
+        ++m_currentLinuxFileHandle;
+    }
+
+    m_linuxToWindows[linuxFd] = windowsHandle;
+    return linuxFd;
+}
+
+void HandleTranslator::remove(const int linuxFd) noexcept
+{
+    if (linuxFd == INVALID_LINUX_FD)
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(m_mtx);
+
+    auto iter = m_linuxToWindows.find(linuxFd);
+    if (iter == m_linuxToWindows.end())
+    {
+        std::cerr << "Unable to release not registered file handle " << linuxFd << " since it was not acquired"
+                  << std::endl;
+        return;
+    }
+
+    m_linuxToWindows.erase(iter);
+    m_freeFileDescriptors.emplace(linuxFd);
 }
