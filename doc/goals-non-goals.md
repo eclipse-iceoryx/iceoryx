@@ -10,17 +10,18 @@
 ## Goals
 
 * High-performance inter-process-communication for various operating systems
+* Safe and flexible API
 * Service discovery functionality with dynamic connections
-* Data agnostic, there are no restrictions on payload data
+* Data agnostic without restrictions on payload data
 * Compatibility with AUTOSAR Adaptive and ROS 2 communication patterns
-* Providing the building blocks for being able to build gateways to network protocols 
+* Providing the building blocks for being able to build gateways to network protocols
 * Automotive-grade SW quality
 * Modern C++
 
 ## Non-Goals
 
 * Providing a data model and things like IDL or code generators
-* Shrinking it down for being able to run on µControllers (e.g. with < 1MB of memory)
+* Shrinking it down for being able to run on µ-Controllers (e.g. with < 1MB of memory)
 * Full compliance with the DDS standard
 
 ## User personas
