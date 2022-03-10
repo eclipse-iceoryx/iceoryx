@@ -13,12 +13,13 @@
 
 ## Introduction
 
-Great that you've made it to this little Eclipse project! Let's get you started by providing a quick background
+Great that you've made it to this neat Eclipse project! Let's get you started by providing a quick background
 tour, introducing the project scope and all you need for installation and a first running example.
 
 So first off: What is iceoryx?
 
-iceoryx is an inter-process-communication (IPC) middleware for various operating systems (currently we support Linux, MacOS, QNX and Windows 10).
+iceoryx is an inter-process-communication (IPC) middleware for various operating systems (currently we support Linux,
+macOS, QNX, FreeBSD and Windows 10).
 It has its origins in the automotive industry, where large amounts of data have to be transferred between different processes
 when it comes to driver assistance or automated driving systems. However, the efficient communication mechanisms can also be applied
 to a wider range of use cases, e.g. in the field of robotics or game development.
@@ -35,11 +36,10 @@ This ensures data transmissions with constant latency, regardless of the size of
 <img src="https://user-images.githubusercontent.com/55156294/91751530-35af7f80-ebc5-11ea-9aed-eed590b229df.png" width="80%">
 </p>
 
-You're right, middleware is a cluttered term and can somehow be all or nothing, so let's talk about the [goals and non-goals](doc/goals-non-goals.md) of iceoryx.
+You're right, middleware is a cluttered term and can somehow be all or nothing. To get a better impression what
+this means for iceoryx, please have a loot at our [goals and non-goals](doc/goals-non-goals.md).
 
-It's all about the API?!
-
-Don't get too frightened of the API when strolling through the codebase. Think of the untyped C++ and the C API as a
+Don't get too frightened of the API when strolling through the examples. Think of the untyped C++ and the C API as a
 "plumbing" one ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" APIs ourselves, but
 instead the typed C++ API. The normal use case is that iceoryx is integrated as high-performance IPC transport layer in
 a bigger framework with additional API layers.
@@ -65,7 +65,7 @@ In general unix platforms should work with iceoryx but we only test FreeBSD on o
 |---|---|
 | [ROS 2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [Robot Operating System](https://www.ros.org/) with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git) |
 | [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
-| [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
+| [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [AUTOSAR Adaptive Platform](https://www.autosar.org/standards/adaptive-platform/) software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 | [Apex.Middleware](https://www.apex.ai/apex-middleware) | Safe and certified middleware for autonomous mobility systems from [Apex.AI](https://www.apex.ai/) |
 | [AVIN AP](https://www.avinsystems.com/products/autosar_ap_solutions/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
