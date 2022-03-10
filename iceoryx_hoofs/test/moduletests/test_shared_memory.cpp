@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_hoofs/platform/mman.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <fcntl.h>
@@ -63,13 +64,23 @@ class SharedMemory_Test : public Test
             .create();
     }
 
-    bool createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    std::unique_ptr<int, std::function<void(int*)>> createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
     {
-        return !iox::posix::posixCall(iox_shm_open)(
-                    (std::string("/") + name.c_str()).c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-                    .failureReturnValue(SharedMemory::INVALID_HANDLE)
-                    .evaluate()
-                    .has_error();
+        auto result = iox::posix::posixCall(iox_shm_open)((std::string("/") + name.c_str()).c_str(),
+                                                          O_RDWR | O_CREAT,
+                                                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+                          .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                          .evaluate();
+        if (result.has_error())
+        {
+            return std::unique_ptr<int, std::function<void(int*)>>();
+        }
+
+        return std::unique_ptr<int, std::function<void(int*)>>(new int(result->value), [=](int* fd) {
+            this->cleanupSharedMemory(name);
+            iox_close(*fd);
+            delete fd;
+        });
     }
 
     bool cleanupSharedMemory(const iox::posix::SharedMemory::Name_t& name)
@@ -141,57 +152,55 @@ TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11f0b2f2-b891-41e4-bb82-648a9541582f");
     constexpr const char SHM_NAME[] = "its_a_mee_monukulius";
-    ASSERT_TRUE(createRawSharedMemory(SHM_NAME));
+    auto rawSharedMemory = createRawSharedMemory(SHM_NAME);
+    ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
     auto result = iox::posix::SharedMemory::unlinkIfExist(SHM_NAME);
     ASSERT_FALSE(result.has_error());
     EXPECT_TRUE(*result);
+
+    // delete the underyling fd pointer but do not cleanup raw shared memory since
+    // is is already deleted with unlinkIfExist in the test
+    delete rawSharedMemory.release();
 }
 
 TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bfc44656-ef23-49ef-be96-0d4bfb592030");
-    IOX_DISCARD_RESULT(iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME));
-    {
-        auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
-        ASSERT_FALSE(sut.has_error());
-        EXPECT_TRUE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
-    }
-    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
+    ASSERT_FALSE(sut.has_error());
+    EXPECT_TRUE(sut->hasOwnership());
+    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "19eca662-4f01-453b-9ae3-5cb2090e46ce");
-    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
+    auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
+    ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
+
     auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_TRUE(sut.has_error());
-    IOX_DISCARD_RESULT(iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "611694b6-d877-43a1-a6e3-dfef3f8a174b");
-    {
-        auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
-        ASSERT_FALSE(sut.has_error());
-        EXPECT_TRUE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
-    }
-    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
+    ASSERT_FALSE(sut.has_error());
+    EXPECT_TRUE(sut->hasOwnership());
+    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21d620f0-af45-46ad-a5b7-1c18026fb9a8");
-    {
-        ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
-        auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
-        ASSERT_FALSE(sut.has_error());
-        EXPECT_TRUE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
-    }
-    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
+    auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
+    ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
+
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
+    ASSERT_FALSE(sut.has_error());
+    EXPECT_TRUE(sut->hasOwnership());
+    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
@@ -203,33 +212,32 @@ TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
         EXPECT_TRUE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-    EXPECT_FALSE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2413ddda-9d2e-4429-adba-81fe848a6a06");
-    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
+    auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
+    ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
     {
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-    EXPECT_TRUE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "59ba1e1c-ec1c-45fb-bc85-c6256f9176fd");
-    ASSERT_TRUE(createRawSharedMemory(SUT_SHM_NAME));
+    auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
+    ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
     {
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
     }
-    EXPECT_TRUE(cleanupSharedMemory(SUT_SHM_NAME));
 }
 
 TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
