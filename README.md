@@ -30,10 +30,10 @@ to a wider range of use cases, e.g. in the field of robotics or game development
 
 iceoryx uses a true zero-copy, shared memory approach that allows to transfer data from publishers to subscribers without a single copy.
 This ensures data transmissions with constant latency, regardless of the size of the payload. For more information have a look at the
-[1000 words iceoryx introduction](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php)
+[1000 words iceoryx introduction](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php).
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/55156294/91751530-35af7f80-ebc5-11ea-9aed-eed590b229df.png" width="80%">
+<img src="https://user-images.githubusercontent.com/56729607/157733625-e3e61617-2f72-46ba-b4f2-5a3973f9ad6f.png" width="80%">
 </p>
 
 You're right, middleware is a cluttered term and can somehow be all or nothing. To get a better impression what
