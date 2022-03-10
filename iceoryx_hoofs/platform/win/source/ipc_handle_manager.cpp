@@ -16,6 +16,12 @@
 
 #include "iceoryx_hoofs/platform/ipc_handle_manager.hpp"
 
+IpcHandleManager& IpcHandleManager::getInstance() noexcept
+{
+    static IpcHandleManager instance;
+    return instance;
+}
+
 IpcHandleManager::~IpcHandleManager() noexcept
 {
     for (auto& handle : ipcHandles)
@@ -27,8 +33,10 @@ IpcHandleManager::~IpcHandleManager() noexcept
     }
 }
 
-bool IpcHandleManager::getHandle(const UniqueSystemId& id, HANDLE& handle) noexcept
+bool IpcHandleManager::getHandle(const UniqueSystemId& id, HANDLE& handle) const noexcept
 {
+    std::lock_guard<std::mutex> lock(mtx);
+
     auto iter = ipcHandles.find(id);
     if (iter != ipcHandles.end())
     {
@@ -40,11 +48,15 @@ bool IpcHandleManager::getHandle(const UniqueSystemId& id, HANDLE& handle) noexc
 
 void IpcHandleManager::addHandle(const UniqueSystemId& id, const OwnerShip ownerShip, HANDLE handle) noexcept
 {
+    std::lock_guard<std::mutex> lock(mtx);
+
     ipcHandles[id] = IpcHandle_t{ownerShip, handle};
 }
 
 void IpcHandleManager::removeHandle(const UniqueSystemId& id) noexcept
 {
+    std::lock_guard<std::mutex> lock(mtx);
+
     auto iter = ipcHandles.find(id);
     if (iter != ipcHandles.end())
     {
