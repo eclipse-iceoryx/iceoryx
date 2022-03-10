@@ -6,9 +6,10 @@ provide a quick introduction to setting up iceoryx applications.
 ## General
 
 To set up a collection of applications using iceoryx (an _iceoryx system_), the applications need to initialize a
-runtime and create senders (_publishers_, _servers_ or _clients_) and receivers (_subscribers_, _servers_ or
-_clients_). The senders send data of a specific _topic_ which can be received by receivers of the same topic. To
-enable senders and receivers to communicate, the middleware daemon, called `RouDi`, must be running.
+runtime and create communication participants like _publishers_ and _subscribers_ or _clients_ and _servers_.
+Publishers send data of a specific _topic_ which can be received by subscribers of the same topic. Servers wait
+on a topic for requests from clients and respond to these requests. To enable the operation of these participants,
+the middleware daemon, called `RouDi`, must be running.
 
 But before we get into more details, let's start with a simple publish-subscribe example.
 
@@ -54,10 +55,10 @@ else
 
 Here `result` is an `expected` and hence we may get an error. This can happen if we try to loan too many samples
 and exhaust memory. We have to handle this potential error since the expected class has the `nodiscard` keyword
-attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also
-explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about `expected`,
-take a look at
-[How optional and error values are returned in iceoryx](https://iceoryx.io./latest/advanced/how-optional-and-error-values-are-returned-in-iceoryx/).
+attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could
+also explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about
+`expected`, take a look at
+[How optional and error values are returned in iceoryx](how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 Let's create a corresponding subscriber.
 
@@ -142,8 +143,8 @@ To view the available command line options for RouDi call `$ICEORYX_ROOT/build/i
 
 ### Shared memory
 
-To enable zero-copy inter-process communication, iceoryx uses the shared memory approach, i.e. senders and
-receivers can communicate via shared memory resulting in zero-copy communication.
+To enable zero-copy inter-process communication, iceoryx uses the shared memory approach, i.e. publishers and
+subscribers or clients and servers can communicate via shared memory resulting in zero-copy communication.
 
 Shared memory is physical memory that is made accessible to multiple processes via a mapping to a memory area in their
 virtual address spaces.
@@ -170,8 +171,8 @@ application's address space.
 
 ### Creating service descriptions for topics
 
-A `ServiceDescription` in iceoryx represents a topic under which senders and receivers can exchange data and is
-uniquely identified by three string identifiers.
+A `ServiceDescription` in iceoryx represents a topic under which publishers and subscribers or clients and servers
+can exchange data and is uniquely identified by three string identifiers.
 
 1. `Group` name
 2. `Instance` name
