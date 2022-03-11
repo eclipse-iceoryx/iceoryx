@@ -19,7 +19,7 @@ We re-use the binaries from
 ## Feature walkthrough
 
 This example does not contain any additional code. The code of the `iceoryx_introspection_client` can be found under
-[tools/introspection/](../../tools/introspection/).
+[tools/introspection/](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/tools/introspection).
 
 The introspection can be started with several command line arguments.
 

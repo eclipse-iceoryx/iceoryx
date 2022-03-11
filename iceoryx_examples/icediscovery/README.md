@@ -24,7 +24,7 @@ default. For more dynamism the `cameraPublishers` offer/stop their services
 periodically. If you want more information on how to create a publisher, have a
 look at the [icehello](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icehello),
 [icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery),
-and [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery)
+and [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/iceoptions)
 examples.
 
 ### Find services
