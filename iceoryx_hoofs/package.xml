@@ -15,6 +15,9 @@
     <depend>acl</depend>
     <depend>libatomic</depend>
 
+    <conflict>iceoryx_utils</conflict>
+    <replace>iceoryx_utils</replace>
+
     <doc_depend>doxygen</doc_depend>
 
     <export>
