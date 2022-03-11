@@ -24,7 +24,8 @@
 #include "topic_data.h"
 
 #if defined(_WIN32)
-typedef long unsigned int pthread_t;
+#include <windows.h>
+typedef HANDLE pthread_t;
 #else
 #include <pthread.h>
 #endif
@@ -72,7 +73,8 @@ void* cyclicTriggerCallback(void* dontCare)
 bool createThread(pthread_t* threadHandle, void* (*callback)(void*))
 {
 #if defined(_WIN32)
-    return -1;
+    threadHandle = CreateThread(NULL, 8192, callback, NULL, 0, NULL);
+    return threadHandle == NULL;
 #else
     return pthread_create(threadHandle, NULL, callback, NULL);
 #endif
@@ -81,7 +83,8 @@ bool createThread(pthread_t* threadHandle, void* (*callback)(void*))
 int joinThread(pthread_t threadHandle)
 {
 #if defined(_WIN32)
-    return -1;
+    WaitForMultipleObjects(1, &threadHandle, TRUE, INFINITE);
+    CloseHandle(threadHandle);
 #else
     return pthread_join(threadHandle, NULL);
 #endif
@@ -89,12 +92,6 @@ int joinThread(pthread_t threadHandle)
 
 int main()
 {
-#if defined(_WIN32)
-    printf("This example does not work on Windows. But you can easily adapt it for now by starting a windows thread "
-           "which triggers the cyclicTrigger every second.\n");
-    return -1;
-#endif
-
     //! [initialization and shutdown handling]
     iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
