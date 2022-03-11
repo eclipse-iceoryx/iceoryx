@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// iox::config::GatewayConfig uses 1MB on the stack which is way too much for QNX
+#if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
+
 #include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "stubs/stub_toml_gateway_config_parser.hpp"
@@ -414,3 +417,5 @@ TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(parseErrorInputFile.first, result.get_error());
 }
+
+#endif // not defined QNX

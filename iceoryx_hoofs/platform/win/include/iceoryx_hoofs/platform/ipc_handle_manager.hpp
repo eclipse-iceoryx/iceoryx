@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
 
 #include "iceoryx_hoofs/platform/unique_system_id.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
-#include <map>
 
+#include <map>
+#include <mutex>
 
 enum class OwnerShip
 {
@@ -36,13 +37,23 @@ struct IpcHandle_t
 class IpcHandleManager
 {
   public:
+    IpcHandleManager(const IpcHandleManager&) = delete;
+    IpcHandleManager(IpcHandleManager&&) = delete;
     ~IpcHandleManager() noexcept;
 
-    bool getHandle(const UniqueSystemId& id, HANDLE& handle) noexcept;
+    IpcHandleManager& operator=(const IpcHandleManager&) = delete;
+    IpcHandleManager& operator=(IpcHandleManager&&) = delete;
+
+    static IpcHandleManager& getInstance() noexcept;
+
+    bool getHandle(const UniqueSystemId& id, HANDLE& handle) const noexcept;
     void addHandle(const UniqueSystemId& id, const OwnerShip ownerShip, HANDLE handle) noexcept;
     void removeHandle(const UniqueSystemId& id) noexcept;
 
   private:
+    IpcHandleManager() = default;
+
+    mutable std::mutex mtx;
     std::map<UniqueSystemId, IpcHandle_t> ipcHandles;
 };
 

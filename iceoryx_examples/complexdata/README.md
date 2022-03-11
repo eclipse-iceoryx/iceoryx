@@ -4,8 +4,8 @@
 
 To implement zero-copy data transfer we use a shared memory approach. This requires that every data structure needs to be entirely
 contained in the shared memory and must not internally use pointers or references. The complete list of restrictions can be found
-[here](https://iceoryx.io/latest/getting-started/overview/#restrictions). Therefore, most of the STL types cannot be used, but we
-reimplemented some [constructs](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx). This example shows how
+[here](https://iceoryx.io/v2.0.0/getting-started/overview/#restrictions). Therefore, most of the STL types cannot be used, but we
+reimplemented some [constructs](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_hoofs#cxx). This example shows how
 to send/receive a iox::cxx::vector and how to send/receive a complex data structure containing some of our STL container surrogates.
 
 ## Expected Output
@@ -28,7 +28,7 @@ iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRigh
 ```
 
 We use a while-loop similar to the one described in the
-[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery) to send the
+[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery) to send the
 vector to the subscriber. After successfully loaning memory we append elements to the vector until it's full.
 
 <!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_vector.cpp][vector emplace_back]-->
@@ -63,7 +63,7 @@ for (const auto& entry : *sample)
 
 In this example our publisher will send a more complex data structure. It contains some of the STL containers that are reimplemented
 in iceoryx. A list of all reimplemented containers can be found
-[here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx).
+[here](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_hoofs#cxx).
 
 <!--[geoffrey][iceoryx_examples/complexdata/topic_data.hpp][complexdata type]-->
 ```cpp
@@ -116,7 +116,7 @@ handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
 
 !!! note
     If you're not familiar with `optional`, please have a look at
-    [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/concepts/how-optional-and-error-values-are-returned-in-iceoryx.md/#optional).
+    [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/website/concepts/how-optional-and-error-values-are-returned-in-iceoryx.md/#optional).
 
 Now we fill the stack
 
@@ -209,5 +209,5 @@ for (const auto& i : sample->variantVector)
 ```
 
 <center>
-[Check out complexdata on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/complexdata){ .md-button }
+[Check out complexdata on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/complexdata){ .md-button }
 </center>

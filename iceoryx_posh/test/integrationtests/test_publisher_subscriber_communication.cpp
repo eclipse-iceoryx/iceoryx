@@ -211,7 +211,7 @@ TEST_F(PublisherSubscriberCommunication_test,
 }
 
 TEST_F(PublisherSubscriberCommunication_test,
-       SubscriberRequiringHistorySupportDoesConnectToPublisherWithSufficientHistorySupport)
+       SubscriberRequiringHistorySupportDoesConnectToPublisherWithEqualHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ca391fe-c4f6-48b5-bd36-96854513c6bb");
 
@@ -229,23 +229,25 @@ TEST_F(PublisherSubscriberCommunication_test,
 }
 
 TEST_F(PublisherSubscriberCommunication_test,
-       SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInSufficientHistorySupport)
+       SubscriberRequiringHistorySupportDoesConnectToPublisherWithLowerHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "46b917e6-75f1-4cd2-8ffa-1c254f3423a7");
 
-    constexpr uint64_t historyRequest = 3;
-    constexpr uint64_t historyCapacity = 2;
+    constexpr uint64_t historyRequest = 6;
+    constexpr uint64_t historyCapacity = 5;
     constexpr bool requiresHistorySupport = true;
 
     auto publisher = createPublisher<int>(historyCapacity);
     auto subscriber = createSubscriber<int>(historyRequest, requiresHistorySupport);
 
     ASSERT_TRUE(publisher);
-    EXPECT_FALSE(publisher->hasSubscribers());
+    EXPECT_TRUE(publisher->hasSubscribers());
+
+    publishAndExpectReceivedData(publisher, subscriber, 75);
 }
 
 TEST_F(PublisherSubscriberCommunication_test,
-       SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithInsufficientHistorySupport)
+       SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithLowerHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b672c382-f81b-4cd4-8049-36d2691bb532");
 
@@ -259,7 +261,7 @@ TEST_F(PublisherSubscriberCommunication_test,
     ASSERT_TRUE(publisher);
     EXPECT_TRUE(publisher->hasSubscribers());
 
-    publishAndExpectReceivedData(publisher, subscriber, 75);
+    publishAndExpectReceivedData(publisher, subscriber, 76);
 }
 
 TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenInterfaceDiffersFromPublisher)

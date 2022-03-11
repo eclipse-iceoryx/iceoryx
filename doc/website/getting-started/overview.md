@@ -1,16 +1,17 @@
 # Overview
 
-This document covers the core functionality of Eclipse iceoryx and is intended to quickly get started to
-set up iceoryx applications.
+This document covers the core functionality of Eclipse iceoryx and is intended to
+provide a quick introduction to setting up iceoryx applications.
 
 ## General
 
 To set up a collection of applications using iceoryx (an _iceoryx system_), the applications need to initialize a
-runtime and create _publishers_ and _subscribers_. The publishers send data of a specific _topic_ which can be
-received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
-these offered topics, the middleware daemon, called `RouDi`, must be running.
+runtime and create communication participants like _publishers_ and _subscribers_ or _clients_ and _servers_.
+Publishers send data of a specific _topic_ which can be received by subscribers of the same topic. Servers wait
+on a topic for requests from clients and respond to these requests. To enable the operation of these participants,
+the middleware daemon, called `RouDi`, must be running.
 
-But before we get into more details, let's start with a simple example.
+But before we get into more details, let's start with a simple publish-subscribe example.
 
 ### A first example
 
@@ -54,9 +55,9 @@ else
 
 Here `result` is an `expected` and hence we may get an error. This can happen if we try to loan too many samples
 and exhaust memory. We have to handle this potential error since the expected class has the `nodiscard` keyword
-attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also
-explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about `expected`,
-take a look at
+attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could
+also explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about
+`expected`, take a look at
 [How optional and error values are returned in iceoryx](how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 Let's create a corresponding subscriber.
@@ -66,9 +67,8 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](waitset.md) or the
-[Listener](callbacks.md). The code to receive the data is the same, the only difference is the way we wake
-up before checking for data.
+is also possible to explicitly wait for data using the [WaitSet](waitset.md) or the [Listener](callbacks.md). The
+code to receive the data is the same, the only difference is the way we wake up before checking for data.
 
 ```cpp
 while (keepRunning)
@@ -95,7 +95,7 @@ while (keepRunning)
 By calling `take` we get an `expected` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
-[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples
+[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/README.md) you can find further examples
 which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
@@ -117,7 +117,7 @@ Afterwards, we can start the applications which immediately connect to the RouDi
 When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
 includes all memory chunks used for the data transmission which may still be held by the application.
 
-Before going into the details in the next section, the following animations depicts the course of events.
+Before going into the details in the next sections, the following animation depicts the course of events.
 
 ![Overview](https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif)
 
@@ -126,12 +126,13 @@ We now briefly define the main entities of an iceoryx system which were partiall
 ### RouDi
 
 RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the communication setup but does not
-actually participate in the communication between the publisher and the subscriber. RouDi can be thought of as the
-switchboard operator of iceoryx. One of its other major tasks is the setup of the shared memory, which the
-applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages the shared memory and is
-responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps
-track of all applications which have initialized a runtime and are hence able to create publishers, subscribers,
-servers or clients. It provides facilities for applications to query this information.
+actually participate in the communication between the publisher and the subscriber or the client and the server.
+RouDi can be thought of as the switchboard operator of iceoryx. One of its other major tasks is the setup of the
+shared memory, which the applications use for exchanging payload data. Sometimes referred to as daemon, RouDi
+manages the shared memory and is responsible for the service discovery, i.e. enabling subscribers/clients to find
+topics offered by publishers/servers. It also keeps track of all applications which have initialized a runtime and
+are hence able to create publishers, subscribers, servers or clients. It provides facilities for applications to
+query this information.
 
 When an application crashes, RouDi cleans up all resources. Due to our mostly lock-free inter-process mechanisms
 (only one last lock; we are working to remove it), iceoryx-based communication is much more reliable compared to
@@ -142,13 +143,13 @@ To view the available command line options for RouDi call `$ICEORYX_ROOT/build/i
 ### Shared memory
 
 To enable zero-copy inter-process communication, iceoryx uses the shared memory approach, i.e. publishers and
-subscribers can communicate via shared memory resulting in zero-copy communication.
+subscribers or clients and servers can communicate via shared memory resulting in zero-copy communication.
 
 Shared memory is physical memory that is made accessible to multiple processes via a mapping to a memory area in their
 virtual address spaces.
 
 For further information have a look at our
-[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/shared-memory-communication.md).
+[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/shared-memory-communication.md).
 
 ### Runtime
 
@@ -169,8 +170,8 @@ application's address space.
 
 ### Creating service descriptions for topics
 
-A `ServiceDescription` in iceoryx represents a topic under which publisher and subscribers can exchange data and is
-uniquely identified by three string identifiers.
+A `ServiceDescription` in iceoryx represents a topic under which publishers and subscribers or clients and servers
+can exchange data and is uniquely identified by three string identifiers.
 
 1. `Group` name
 2. `Instance` name
@@ -188,13 +189,13 @@ The following table gives an overview of the different terminologies and the cur
 
 |                                                                                   | Group   | Instance         | Topic                  |
 |-----------------------------------------------------------------------------------|---------|------------------|------------------------|
-| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic | -                      |
+| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic  | -                      |
 | AUTOSAR                                                                           | Service | Instance         | Event                  |
-| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
-| [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds/pull/303/files)              | -       | Type Name        | Topic Name             |
+| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
+| [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds)                             | -       | Type Name        | Topic Name             |
 
-Service is related to instance like classes are related to objects in C++. Service describes an abstract topic and an
-instance is one instantiation of that abstraction. Like an object is an instantiated class. Events are in this context
+Service is related to instance like classes are related to objects in C++. A service describes an abstract topic and an
+instance is one instantiation of that abstraction, like an object is an instantiated class. Events are in this context
 like members of a class.
 
 Example:
@@ -210,9 +211,10 @@ MyRadarService frontLeftRadarInstance;
 std::cout << frontLeftRadarInstance.hasObstacleDetected << std::endl;
 ```
 
-In the iceoryx world we would subscribe to the service `("MyRadarService", "frontLeftRadarInstance", "hasObstacleDetected")`
-and would receive a sample whenever an obstacle was detected. Or we would subscribe to `distanceToObstacle` and would
-receive a constant stream of data which presents the distance to the obstacle.
+In the iceoryx world, we would for instance subscribe to the service
+`("MyRadarService", "frontLeftRadarInstance", "hasObstacleDetected")` and would receive a sample whenever
+an obstacle was detected. Or we would subscribe to `distanceToObstacle` and would receive a constant stream
+of data which presents the distance to the obstacle.
 
 #### Restrictions
 
@@ -227,7 +229,7 @@ to process local constructs, no dynamic allocators
 
 !!! note
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above.
-    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx).
+    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_hoofs#cxx).
 
 ### Publisher
 
@@ -237,7 +239,7 @@ the user has to ensure that it is interpreted correctly.
 
 Once it has offered its topic, it is able to publish (send) data of the specific type. Note that the default is to
 have multiple publishers for the same topic (n:m communication). A compile-time option to restrict iceoryx to
-1:n communication is available. Should 1:n communication be used RouDi checks for multiple publishers on the same
+1:n communication is available. Should 1:n communication be used, RouDi checks for multiple publishers on the same
 topics and raises an error if there is more than one publisher for a topic.
 
 ### Subscriber
@@ -250,39 +252,59 @@ untyped case this is raw memory and the user must take care that it is interpret
 data that was actually sent.
 
 When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in
-indeterminate order between different publishers).
+indeterminate order between different publishers). Note that the subscriber will not receive data from servers or
+clients, even when they use the same topic.
+
+### Client
+
+Similar to publishers and subscribers, clients are tied to a topic and need a service description to be constructed.
+If the client is typed, one needs to specify the request and response data types as template parameters. In the
+untyped case, the client is only aware of raw memory and the user has to take care of its correct interpretation.
+
+Once a client is connected to a server, it can send requests to and receive responses from the server. A sequence
+ID is used to match a response to a specific request. It must be set on request and checked on response by the user.
+
+### Server
+
+Like a client, a server needs a service description to be constructed and can be typed or untyped. In the typed
+case, the user has to provide the request and the response data types as template parameters. Otherwise, the server
+handles raw memory and the user has to ensure that it is interpreted correctly.
+
+Once connected, the server can receive requests from clients and send the corresponding responses.
 
 ## Avoid polling
 
-The easiest way to receive data is to periodically poll whether data is available as depicted on the left side of
-picture below. This is sufficient for simple use cases but inefficient in general, as it often leads to unnecessary
-latency and wake-ups without data. An alternative approach to receive data is to wait for user-defined events to occur.
-This is provided by our `WaitSet` and `Listener` which are introduced in the following sections.
+The easiest way to receive data is to periodically poll whether data is available as depicted on the left side of the
+picture below for the publish-subscribe messaging pattern. This is sufficient for simple use cases but inefficient in
+general, as it often leads to unnecessary latency and wake-ups without data. An alternative approach to receive data
+is to wait for user-defined events to occur. This is provided by our `WaitSet` and `Listener` which are introduced in
+the following sections.
 
-![Polling alternatives](avoid-polling.svg)
+![Polling alternatives](/images/avoid-polling.svg)
 
 ### WaitSet
 
-The `WaitSet` can be used to relinquish control by putting the thread to sleep with a non-busy wait and wait for
-user-defined events to occur. Usually, these events correspond to the availability of data at specific subscribers.
-This way we can immediately wake up when data is available and avoid unnecessary wake-ups if no data is available.
+The WaitSet can be used to relinquish control by putting the thread to sleep with a non-busy wait and wait for
+user-defined events to occur. Usually, these events correspond to the availability of data at specific subscribers
+or clients. This way we can immediately wake up when data is available and avoid unnecessary wake-ups if no data
+is available.
 
-One typical use case is to create a `WaitSet`, attach multiple subscribers and user triggers and then wait until one
-or many of the attached objects signal an event. If this happens one receives a list of all occured events called
-`notificationVector`. This makes it possible to collect data directly from the subscriber when it signals the WaitSet
-that new data is available.
+One typical use case is to create a WaitSet, attach multiple subscribers and/or clients and user triggers and then
+wait until one or many of the attached objects signal an event. If this happens one receives a list of all occured
+events called `notificationVector`. This makes it possible to collect data directly from the subscriber or client
+when it signals the WaitSet that new data or a new response is available.
 
 The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern) and is informed with a push
 strategy that one of the attached events occured at which it informs the user.
 
 For more information on how to use the WaitSet see our
-[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset).
+[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/waitset).
 
 ### Listener
 
-The `Listener` can be used to connect custom callbacks to user-defined events. Unlike the WaitSet, it reacts to those
-events by executing the connected custom callbacks in a background thread, that will be created by the `Listener`.
-As with the `WaitSet` the background thread waits non-busy on the reception of new data.
+The Listener can be used to connect custom callbacks to user-defined events. Unlike the WaitSet, it reacts to those
+events by executing the connected custom callbacks in a background thread, that will be created by the Listener.
+As with the WaitSet the background thread waits non-busy on the reception of new data.
 
 !!! note
     The Listener is completely thread-safe but please be aware that most of the objects which can be attached to the
@@ -292,17 +314,19 @@ As with the `WaitSet` the background thread waits non-busy on the reception of n
 
 One use case could be that one creates a Listener and attaches multiple subscribers. Every time new data is available,
 the corresponding connected callback will be executed, e.g. print something to the console or calculate an algorithm.
+Another use case could be that a server is attached to the Listener and every time a request is received, the
+connected callback that creates and sends a response, is executed.
 
 Like the WaitSet, the Listener uses the reactor pattern.
 
 For more information about the Listener see our
-[callbacks example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks).
+[callbacks examples](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/callbacks).
 
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](icedelivery.md) and
-[C example](icedelivery_in_c.md).
+[C++ example](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/icedelivery) and
+[C example](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/icedelivery_in_c).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `cxx::expected` and `cxx::optional` which are introduced

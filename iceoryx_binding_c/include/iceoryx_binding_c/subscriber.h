@@ -45,8 +45,8 @@ typedef struct
     /// @brief describes whether a publisher blocks when subscriber queue is full
     ENUM iox_QueueFullPolicy queueFullPolicy;
 
-    /// @brief Indicates whether we require the publisher to have historyCapacity >= historyRequest.
-    ///        If true and the condition is not met (i.e. historyCapacity < historyRequest), the subscriber will
+    /// @brief Indicates whether we require the publisher to have historyCapacity > 0.
+    ///        If true and the condition is not met (i.e. historyCapacity = 0), the subscriber will
     ///        not be connected to the publisher.
     bool requirePublisherHistorySupport;
 

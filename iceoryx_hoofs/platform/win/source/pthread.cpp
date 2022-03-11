@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@
 
 #include <cwchar>
 #include <vector>
-
-static IpcHandleManager ipcMutexHandleManager;
 
 int iox_pthread_setname_np(pthread_t thread, const char* name)
 {
@@ -107,7 +105,7 @@ static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
     }
 
     HANDLE newHandle;
-    if (ipcMutexHandleManager.getHandle(mutex->uniqueId, newHandle))
+    if (IpcHandleManager::getInstance().getHandle(mutex->uniqueId, newHandle))
     {
         return newHandle;
     }
@@ -121,7 +119,7 @@ static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
         return nullptr;
     }
 
-    ipcMutexHandleManager.addHandle(mutex->uniqueId, OwnerShip::LOAN, newHandle);
+    IpcHandleManager::getInstance().addHandle(mutex->uniqueId, OwnerShip::LOAN, newHandle);
     return newHandle;
 }
 
@@ -138,7 +136,7 @@ int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
         mutex->handle = createWin32Mutex(NULL, FALSE, generateMutexName(mutex->uniqueId).c_str());
         if (mutex->handle != nullptr)
         {
-            ipcMutexHandleManager.addHandle(mutex->uniqueId, OwnerShip::OWN, mutex->handle);
+            IpcHandleManager::getInstance().addHandle(mutex->uniqueId, OwnerShip::OWN, mutex->handle);
         }
     }
 

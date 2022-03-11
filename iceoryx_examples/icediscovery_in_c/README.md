@@ -5,7 +5,7 @@
 This example demonstrates how to search for specific services using iceoryx's
 service discovery. It provides two applications - one offering different
 services and one searching for those with different search queries. The
-behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery).
 
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->
@@ -119,8 +119,8 @@ all found services:
 ```c
 void searchFrontDevices(const iox_service_description_t service, void* count)
 {
-    if (strncmp("FrontLeft", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0
-        || strncmp("FrontRight", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
+    if (strncmp(service.instanceString, "FrontLeft", IOX_CONFIG_SERVICE_STRING_SIZE) == 0
+        || strncmp(service.instanceString, "FrontRight", IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
     {
         ++*(uint32_t*)count;
     }

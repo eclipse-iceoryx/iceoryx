@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.16)
-set(IOX_VERSION_STRING "1.91.0")
+set(IOX_VERSION_STRING "2.0.0")
 
 project(iceoryx_package VERSION ${IOX_VERSION_STRING})
 
@@ -22,7 +22,7 @@ project(iceoryx_package VERSION ${IOX_VERSION_STRING})
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "iceoryx-${iceoryx_package_VERSION}")
 set(CPACK_PACKAGE_FILE_NAME "iceoryx_${iceoryx_package_VERSION}_${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
-set(CPACK_PACKAGE_CONTACT "michael.poehnl@apex.ai")
+set(CPACK_PACKAGE_CONTACT "iceoryx-oss-support@apex.ai")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libacl1-dev,libncurses5-dev")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "iceoryx inter-process-communication (IPC) middleware")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/eclipse-iceoryx/iceoryx")

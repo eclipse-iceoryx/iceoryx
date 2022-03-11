@@ -15,14 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/timing_test.hpp"
-#if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
-
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/time.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
+#include "iceoryx_hoofs/testing/timing_test.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -381,4 +379,3 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     t.join();
 });
 } // namespace
-#endif // not defined QNX
