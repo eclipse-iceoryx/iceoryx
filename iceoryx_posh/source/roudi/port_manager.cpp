@@ -492,8 +492,7 @@ bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
         !(pubOpts.subscriberTooSlowPolicy == popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
           && subOpts.queueFullPolicy == popo::QueueFullPolicy::BLOCK_PRODUCER);
 
-    const bool historyRequestIsCompatible =
-        !subOpts.requiresPublisherHistorySupport || subOpts.historyRequest <= pubOpts.historyCapacity;
+    const bool historyRequestIsCompatible = !subOpts.requiresPublisherHistorySupport || pubOpts.historyCapacity > 0;
 
     return blockingPoliciesAreCompatible && historyRequestIsCompatible;
 }

@@ -47,8 +47,8 @@ struct SubscriberOptions
     /// @brief The option whether the publisher should block when the subscriber queue is full
     QueueFullPolicy queueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
 
-    /// @brief Indicates whether to enforce sufficient history support of the publisher,
-    ///        i.e. require historyCapacity >= historyRequest to be eligible to be connected
+    /// @brief Indicates whether to enforce history support of the publisher,
+    ///        i.e. require historyCapacity > 0 to be eligible to be connected
     bool requiresPublisherHistorySupport{false};
 
     /// @brief serialization of the SubscriberOptions
