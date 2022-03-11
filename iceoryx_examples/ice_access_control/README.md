@@ -101,7 +101,7 @@ to read, but don't have write access. Users in the writer group have both read a
 
 !!! tip
     Shared memory segment can also be configured via a
-    [TOML config](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/configuration-guide.md#dynamic-configuration) file.
+    [TOML config](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/website/advanced/configuration-guide.md#dynamic-configuration) file.
 
 The radar app is started with the user _perception_, which is in the group _privileged_. Therefore it has write access
 to the _privileged_ segment and is sending data into the _privileged_ shared memory segment.
@@ -172,5 +172,5 @@ iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
 <center>
-[Check out ice_access_control on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/ice_access_control){ .md-button }
+[Check out ice_access_control on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/ice_access_control){ .md-button }
 </center>

@@ -58,7 +58,7 @@ Please make sure you have:
 7. You open your pull request towards the base branch `master`
 8. Link the pull request to the according GitHub issue and set the label accordingly
 
-**NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
+**NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/tools/git-hooks/Readme.md).
 
 ## Branching strategy
 
@@ -115,7 +115,7 @@ codebase follows these rules, things are work in progress.
     shall not be propagated via an `iox::cxx::expected`
 9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 
-See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional
+See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/design/error-handling.md) for additional
 information about logging and error handling.
 
 ### Naming conventions

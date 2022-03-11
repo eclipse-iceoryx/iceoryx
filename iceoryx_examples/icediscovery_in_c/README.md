@@ -5,7 +5,7 @@
 This example demonstrates how to search for specific services using iceoryx's
 service discovery. It provides two applications - one offering different
 services and one searching for those with different search queries. The
-behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery).
 
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->

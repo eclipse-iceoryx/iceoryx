@@ -42,7 +42,7 @@ iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 ```
 
  3. We are starting RouDi, provide the required components and
-    disable monitoring. The last bool parameter `TERMINATE_APP_IN_ROUDI_DTOR_FLAG` 
+    disable monitoring. The last bool parameter `TERMINATE_APP_IN_ROUDI_DTOR_FLAG`
     states that RouDi does not
     terminate all registered processes when RouDi goes out of scope. If we would set it
     to `true`, our application would self terminate in the destructor of `roudi`.
@@ -83,7 +83,7 @@ std::cout << "Finished" << std::endl;
 ### Implementation of Publisher and Subscriber
 
 Since there are no differences to the inter-process ports you can take a look at the
-[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
+[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery)
 for a detailed documentation. We only provide here a short overview.
 
 #### Publisher
@@ -130,7 +130,7 @@ options.historyRequest = 5U;
 iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 ```
 
-Now we can receive the data in a while loop when our `SubscribeState` is `SUBSCRIBED` 
+Now we can receive the data in a while loop when our `SubscribeState` is `SUBSCRIBED`
 until someone terminates the application.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][receive]-->
@@ -161,5 +161,5 @@ while (!iox::posix::hasTerminationRequested())
 ```
 
 <center>
-[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/singleprocess){ .md-button }
+[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/singleprocess){ .md-button }
 </center>
