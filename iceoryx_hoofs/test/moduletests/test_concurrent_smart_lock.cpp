@@ -131,7 +131,7 @@ class smart_lock_test : public Test
         }
     }
 
-    Watchdog m_watchdog{iox::units::Duration::fromSeconds(2)};
+    Watchdog m_watchdog{iox::units::Duration::fromSeconds(60U)};
     using SutType_t = smart_lock<SmartLockTester>;
     optional<SutType_t> m_sut;
     std::atomic<uint64_t> m_numberOfThreadWaiter{0U};
