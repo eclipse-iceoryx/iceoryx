@@ -528,9 +528,9 @@ TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublis
     EXPECT_TRUE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisherWithSufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisherWithEqualHistorySupport)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "e2567667-4583-482b-9999-029f91c0cb71");
+    ::testing::Test::RecordProperty("TEST_ID", "20749a22-2771-4ec3-92f8-81bbdbd4aab6");
 
     auto publisherOptions = createTestPubOptions();
     auto subscriberOptions = createTestSubOptions();
@@ -547,15 +547,15 @@ TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisher
     EXPECT_TRUE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublisherWithInsufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesConnectToPublisherWithLowerHistorySupport)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "20749a22-2771-4ec3-92f8-81bbdbd4aab6");
+    ::testing::Test::RecordProperty("TEST_ID", "e2567667-4583-482b-9999-029f91c0cb71");
 
     auto publisherOptions = createTestPubOptions();
     auto subscriberOptions = createTestSubOptions();
 
-    publisherOptions.historyCapacity = 2;
-    subscriberOptions.historyRequest = 3;
+    publisherOptions.historyCapacity = 5;
+    subscriberOptions.historyRequest = 6;
     subscriberOptions.requiresPublisherHistorySupport = true;
 
     auto publisher = createPublisher(publisherOptions);
@@ -563,10 +563,10 @@ TEST_F(PortManager_test, SubscriberRequiringHistorySupportDoesNotConnectToPublis
 
     ASSERT_TRUE(publisher);
     ASSERT_TRUE(subscriber);
-    EXPECT_FALSE(publisher.hasSubscribers());
+    EXPECT_TRUE(publisher.hasSubscribers());
 }
 
-TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithInsufficientHistorySupport)
+TEST_F(PortManager_test, SubscriberNotRequiringHistorySupportDoesConnectToPublisherWithLowerHistorySupport)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e6c7cee4-cb4a-4a14-8790-4dbfce7d8584");
 

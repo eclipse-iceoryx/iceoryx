@@ -26,7 +26,7 @@
 - Extend `cxx::optional` constructor for in place construction so that copy/move for values inside the optional even could be deleted [\#967](https://github.com/eclipse-iceoryx/iceoryx/issues/967)
 - Add templated `from`/`into` free functions to formalize conversions from enums and other types [#992](https://github.com/eclipse-iceoryx/iceoryx/issues/992)
 - `UniqueId` class for unique IDs within a process [#1010](https://github.com/eclipse-iceoryx/iceoryx/issues/1010)
-- Add `requirePublisherHistorySupport` option at subscriber side (if set to true requires historyRequest <= historyCapacity to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029)
+- Add `requirePublisherHistorySupport` option at subscriber side (if set to true requires historyCapacity > 0 to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029), [#1278](https://github.com/eclipse-iceoryx/iceoryx/issues/1278)
 - Add `/tools/scripts/ice_env.sh` shell script to provide simple access to docker containers for CI debugging [#1049](https://github.com/eclipse-iceoryx/iceoryx/issues/1049)
 - Introduce `cxx::FunctionalInterface` to enrich nullable classes with `and_then`, `or_else`, `value_or`, `expect` [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 - Add C++17 `std::perms` as `cxx::perms` to `iceoryx_hoofs/cxx/filesystem.hpp`. [#1059](https://github.com/eclipse-iceoryx/iceoryx/issues/1059)

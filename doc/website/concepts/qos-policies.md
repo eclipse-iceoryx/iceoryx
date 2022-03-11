@@ -66,4 +66,4 @@ If `requiresPublisherHistorySupport` is set, additionally to the matching criter
 
 1. Same `capro::ServiceDescription`
 2. Matching `ConsumerTooSlowPolicy` and `QueueFullPolicy` in `PublisherOptions`/`SubscriberOptions`
-3. `SubscriberOptions::historyRequest` <= `PublisherOptions::historyCapacity`
+3. `PublisherOptions::historyCapacity` > 0
