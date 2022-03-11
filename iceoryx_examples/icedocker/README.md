@@ -8,7 +8,7 @@ in two different docker containers so that we end up with a system of 3
 different docker containers.
 
 To demonstrate the setup we use the
-[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 ```
                          +-----------+
@@ -77,7 +77,7 @@ use `archlinux:latest` but one is free to choose any other linux distribution.
 The iceoryx repository which contains an already built iceoryx can be found at
 `/home/user/iceoryx` which is bound to `/iceoryx`. The usage is
 explained in detail in the
-[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 #### Terminal 1 (iox-roudi)
 ```

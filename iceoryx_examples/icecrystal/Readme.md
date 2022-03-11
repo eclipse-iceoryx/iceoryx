@@ -10,7 +10,7 @@ memory.
 ## Expected Output
 
 We re-use the binaries from
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 <!-- @todo Add expected output with asciinema recording before v2.0-->
 <!-- The current one is outdated, e.g. the the ServiceDiscovery publisher is missing -->
@@ -19,7 +19,7 @@ We re-use the binaries from
 ## Feature walkthrough
 
 This example does not contain any additional code. The code of the `iceoryx_introspection_client` can be found under
-[tools/introspection/](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/tools/introspection).
+[tools/introspection/](https://github.com/eclipse-iceoryx/iceoryx/tree/master/tools/introspection).
 
 The introspection can be started with several command line arguments.
 

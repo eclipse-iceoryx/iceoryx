@@ -22,8 +22,8 @@ one.
 In the following scenario the client (client_cxx_waitset.cpp) uses the WaitSet to wait for a response from the server
 (server_cxx_listener.cpp). The server uses the Listener API to take and process the requests from the client.
 
-The client is inspired by the `iox-cpp-waitset-basic` example from the [WaitSet](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/waitset)
-example and the server from the `iox-cpp-callbacks-subscriber` in the [Listener](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/callbacks)
+The client is inspired by the `iox-cpp-waitset-basic` example from the [WaitSet](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset)
+example and the server from the `iox-cpp-callbacks-subscriber` in the [Listener](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks)
 example.
 
 This is the most recommended way to create an efficient client-server combination with iceoryx.
@@ -253,5 +253,5 @@ listener.detachEvent(server, iox::popo::ServerEvent::REQUEST_RECEIVED);
 ```
 
 <center>
-[Check out request_response on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/request_response){ .md-button }
+[Check out request_response on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response){ .md-button }
 </center>

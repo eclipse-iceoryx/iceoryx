@@ -11,7 +11,7 @@ one accessing it or that it is accessed with a guard like a `std::mutex`.
 ## Introduction
 
 For an introduction into the terminology please read the Glossary in the
-[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/waitset).
+[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
 
 The Listener is a completely thread-safe construct that reacts to events by
 executing registered callbacks in a background thread. Events can be emitted by
@@ -42,7 +42,7 @@ we store it until we received the other side.
 
 The publisher of this example does not contain any new features but if you have
 some questions take a look at the
-[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 ### ice_callbacks_subscriber.cpp
 
@@ -333,5 +333,5 @@ static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscr
 ```
 
 <center>
-[Check out callbacks on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/callbacks){ .md-button }
+[Check out callbacks on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks){ .md-button }
 </center>

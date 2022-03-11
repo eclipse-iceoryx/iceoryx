@@ -95,7 +95,7 @@ while (keepRunning)
 By calling `take` we get an `expected` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
-[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/README.md) you can find further examples
+[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples
 which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
@@ -149,7 +149,7 @@ Shared memory is physical memory that is made accessible to multiple processes v
 virtual address spaces.
 
 For further information have a look at our
-[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/doc/shared-memory-communication.md).
+[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/shared-memory-communication.md).
 
 ### Runtime
 
@@ -191,7 +191,7 @@ The following table gives an overview of the different terminologies and the cur
 |-----------------------------------------------------------------------------------|---------|------------------|------------------------|
 | [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic  | -                      |
 | AUTOSAR                                                                           | Service | Instance         | Event                  |
-| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
+| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
 | [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds)                             | -       | Type Name        | Topic Name             |
 
 Service is related to instance like classes are related to objects in C++. A service describes an abstract topic and an
@@ -229,7 +229,7 @@ to process local constructs, no dynamic allocators
 
 !!! note
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above.
-    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_hoofs#cxx).
+    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx).
 
 ### Publisher
 
@@ -298,7 +298,7 @@ The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pat
 strategy that one of the attached events occured at which it informs the user.
 
 For more information on how to use the WaitSet see our
-[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/waitset).
+[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset).
 
 ### Listener
 
@@ -320,13 +320,13 @@ connected callback that creates and sends a response, is executed.
 Like the WaitSet, the Listener uses the reactor pattern.
 
 For more information about the Listener see our
-[callbacks examples](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/callbacks).
+[callbacks examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks).
 
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/icedelivery) and
-[C example](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/icedelivery_in_c).
+[C++ example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery) and
+[C example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery_in_c).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `cxx::expected` and `cxx::optional` which are introduced

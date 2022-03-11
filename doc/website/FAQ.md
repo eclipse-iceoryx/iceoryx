@@ -4,7 +4,7 @@ In this document are tips and hints documented which can help for troubleshootin
 
 ## Does iceoryx run in a docker environment
 
-Yes. Take a look at the [icedocker example](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/icedocker)
+Yes. Take a look at the [icedocker example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedocker)
 
 ## iox-roudi fails on startup
 
@@ -99,4 +99,4 @@ docker run -it --shm-size="2g" ubuntu
 To avoid undefined behavior of iceoryx posh it is recommended to terminate RouDi and the corresponding middleware
 processes with SIGINT or SIGTERM. In RouDi, we have integrated a sighandler that catches the signals and gives RouDi
 the chance to exit and clean-up everything. This also applies for processes. Therefore, we recommend adding a signalhandler
-to your process (see [this example](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/icedelivery/iox_publisher_untyped.cpp)).
+to your process (see [this example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery/iox_publisher_untyped.cpp)).

@@ -15,7 +15,7 @@ These options adjust the limits of Publisher and Subscriber Ports for resource m
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can hold at a given time (subscriber history size)|
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used for gateways |
 
-Have a look at [IceoryxPoshDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
+Have a look at [IceoryxPoshDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
 
 !!! hint
     With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You can reduce the size by decreasing the values from the table via the CMake options. The current values are printed in the CMake stage when building iceoryx.
@@ -142,7 +142,7 @@ size = 1024
 count = 100
 ```
 
-When no config file is specified, a hard-coded version similar to the [default config](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
+When no config file is specified, a hard-coded version similar to the [default config](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
 
 ### Static configuration
 
@@ -150,4 +150,4 @@ Another way is to have a static config that is compile-time dependent, this mean
 You can have your source file with `main()` method where you can create your custom configuration and pass it to a RouDi instantiation.
 In your CMake file for your custom RouDi you need to ensure that it is **not** linking against `iceoryx_posh_config` to have a static config.
 
-A good example of a static config can be found [here](https://github.com/eclipse-iceoryx/iceoryx/blob/v2.0.0/iceoryx_examples/iceperf/roudi_main_static_config.cpp).
+A good example of a static config can be found [here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/iceperf/roudi_main_static_config.cpp).

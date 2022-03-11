@@ -182,11 +182,11 @@ std::this_thread::sleep_for(std::chrono::milliseconds(100));
 ```
 
 Increasing the polling rate is just one approach for reliable communication.
-[iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/iceoptions) explains how to
+[iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions) explains how to
 configure the history size of a subscriber. In the
-[WaitSet](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/waitset) example you learn how to
+[WaitSet](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset) example you learn how to
 avoid polling altogether.
 
 <center>
-[Check out icehello on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icehello){ .md-button }
+[Check out icehello on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icehello){ .md-button }
 </center>

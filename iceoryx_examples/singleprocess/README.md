@@ -83,7 +83,7 @@ std::cout << "Finished" << std::endl;
 ### Implementation of Publisher and Subscriber
 
 Since there are no differences to the inter-process ports you can take a look at the
-[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery)
+[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
 for a detailed documentation. We only provide here a short overview.
 
 #### Publisher
@@ -161,5 +161,5 @@ while (!iox::posix::hasTerminationRequested())
 ```
 
 <center>
-[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/singleprocess){ .md-button }
+[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/singleprocess){ .md-button }
 </center>
