@@ -9,14 +9,15 @@ The simple answer was to avoid copying of messages inside the middleware that ma
 the different software nodes. This can be done by using shared memory that can be accessed by the producers and
 consumers of messages. On its own, this is not a new innovation as the approach has been used since the 1970s.
 However, iceoryx takes the approach further, ending up in an inter-process-communication technology with a
-publish/subscribe architecture that is fast, flexible and dependable.
+publish/subscribe and request/response architecture that is fast, flexible and dependable.
 
 ## Fast
 
 With the iceoryx API, a publisher can write the message directly into a chunk of memory that was previously requested
 from the middleware. When the message is delivered, subscribers receive reference counted pointers to these memory
-chunks, which are stored in queues with configurable capacities. With this iceoryx achieves what we refer to as true
-zero-copy — an end-to-end approach from publishers to subscribers without creating a single copy.
+chunks, which are stored in queues with configurable capacities. The same principle applies to clients and servers.
+With this iceoryx achieves what we refer to as true zero-copy — an end-to-end approach from producers to consumers
+without creating a single copy.
 
 Avoiding the copies on API level is crucial when GBytes of sensor data have to be processed per second on robotics and
 autonomous driving systems. Therefore the iceoryx team contributed to the standardization of true zero-copy capable
@@ -33,7 +34,7 @@ are the next ones on the list. The typed C++ API is the most comfortable when yo
 on the user side. The untyped C++ API and the C API provide a data agnostic interface that is often preferred when
 integrating iceoryx as shared memory backbone into a bigger framework.
 
-The APIs support polling access and event-driven interactions with the [Waitset](../overview/#waitset) and
+The APIs support polling access and event-driven interactions with the [WaitSet](../overview/#waitset) and
 [Listener](../overview/#listener). Applications can be started and stopped flexibly as there is a service discovery
 behind the scenes that dynamically connects matching communication entities.
 
