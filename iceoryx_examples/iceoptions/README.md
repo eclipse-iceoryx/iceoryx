@@ -97,7 +97,7 @@ By default this is set to `false` and best-effort behavior is used.
 
 !!! warning
     In case of n:m communication, the history feature will **not** provide the overall last n samples based on delivery point in time!
-    For more information about this limitation see the [QoS article](https://iceoryx.io/v2.0.0/concepts/qos-policies/).
+    For more information about this limitation see the [QoS article](https://iceoryx.io/latest/concepts/qos-policies/).
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][history]-->
 ```cpp
