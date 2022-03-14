@@ -47,7 +47,6 @@ class CommandLineParser_test : public Test
         }
     }
 
-    using str_t = char[CommandLineParser::MAX_DESCRIPTION_LENGTH];
     static CommandLineOptions::value_t defaultValue;
 };
 CommandLineOptions::value_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
@@ -92,7 +91,6 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
 TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
-    CmdArgs args({std::string(CommandLineOptions::binaryName_t::capacity() + 1, 'a')});
     bool wasErrorHandlerCalled = false;
     CommandLineParser parser("");
     parser.addOptionalValue('c', "firstEntry", "", "", "");

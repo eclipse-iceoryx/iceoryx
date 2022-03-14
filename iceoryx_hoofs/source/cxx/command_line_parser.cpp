@@ -437,14 +437,14 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
         }
     }
     std::cout << std::endl;
-    errorHandler(Error::kCXX__COMMAND_LINE_PARSING_FAILURE, std::function<void()>(), ErrorLevel::FATAL);
+    Expects(false && "Command line parsing error");
 }
 
 CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
     if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
     {
-        errorHandler(Error::kCXX__COMMAND_LINE_INVALID_ARGUMENT, std::function<void()>(), ErrorLevel::FATAL);
+        Expects(false && "invalid command line argument");
         return *this;
     }
 
@@ -467,8 +467,7 @@ CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 
         if (isLongOrShortOptionRegistered)
         {
-            errorHandler(
-                Error::kCXX__COMMAND_LINE_OPTION_ALREADY_REGISTERED, std::function<void()>(), ErrorLevel::FATAL);
+            Expects(false && "command line option is already registered");
             return *this;
         }
     }
