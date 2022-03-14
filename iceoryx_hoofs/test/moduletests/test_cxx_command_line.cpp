@@ -103,24 +103,78 @@ TEST_F(CommandLine_test, AllValuesViaCommandLineAreSetCorrectly)
                   "--required-float",
                   "456.123",
                   "--required-uint",
-                  "1212"});
+                  "1212",
+                  "--string-value-1",
+                  "flatterdude",
+                  "--string-value-2",
+                  "evilhuhn",
+                  "--int-value-1",
+                  "4711123",
+                  "--int-value-2",
+                  "810456",
+                  "--uint-value-1",
+                  "39",
+                  "--uint-value-2",
+                  "31",
+                  "--light-switch-1",
+                  "--light-switch-2"});
     CommandLineSut sut(args.argc, args.argv);
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("anotherOneBitesTheDust"));
 
-    EXPECT_THAT(sut.stringValue1().c_str(), StrEq("default value"));
-    EXPECT_THAT(sut.stringValue2().c_str(), StrEq("some other value"));
-    EXPECT_THAT(sut.optionalInt1(), Eq(123));
-    EXPECT_THAT(sut.optionalInt2(), Eq(456));
-    EXPECT_THAT(sut.optionalUint1(), Eq(123));
-    EXPECT_THAT(sut.optionalUint2(), Eq(212));
-    EXPECT_THAT(sut.lightSwitch1(), Eq(false));
-    EXPECT_THAT(sut.lightSwitch2(), Eq(false));
+    EXPECT_THAT(sut.stringValue1().c_str(), StrEq("flatterdude"));
+    EXPECT_THAT(sut.stringValue2().c_str(), StrEq("evilhuhn"));
+    EXPECT_THAT(sut.optionalInt1(), Eq(4711123));
+    EXPECT_THAT(sut.optionalInt2(), Eq(810456));
+    EXPECT_THAT(sut.optionalUint1(), Eq(39));
+    EXPECT_THAT(sut.optionalUint2(), Eq(31));
+    EXPECT_THAT(sut.lightSwitch1(), Eq(true));
+    EXPECT_THAT(sut.lightSwitch2(), Eq(true));
 
     EXPECT_THAT(sut.requiredString().c_str(), StrEq("schnappidububa"));
     EXPECT_THAT(sut.requiredFloat(), Eq(456.123F));
     EXPECT_THAT(sut.requiredUint(), Eq(1212));
 }
 
+TEST_F(CommandLine_test, AllValuesViaCommandLineAndShortcutAreSetCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0c9abe4d-47ab-469a-a0fe-eff03a7aff37");
+    CmdArgs args({"noOneBitesHypnotoad",
+                  "-r",
+                  "AllYouNeedIsHorst",
+                  "-b",
+                  "810.123",
+                  "-c",
+                  "31415",
+                  "-s",
+                  "DoNotTouchTheFishy",
+                  "-t",
+                  "NoLittleTouchyFishy",
+                  "-i",
+                  "3",
+                  "-j",
+                  "4",
+                  "-u",
+                  "5",
+                  "-v",
+                  "25",
+                  "-l",
+                  "-m"});
+    CommandLineSut sut(args.argc, args.argv);
 
+    EXPECT_THAT(sut.binaryName().c_str(), StrEq("noOneBitesHypnotoad"));
+
+    EXPECT_THAT(sut.stringValue1().c_str(), StrEq("DoNotTouchTheFishy"));
+    EXPECT_THAT(sut.stringValue2().c_str(), StrEq("NoLittleTouchyFishy"));
+    EXPECT_THAT(sut.optionalInt1(), Eq(3));
+    EXPECT_THAT(sut.optionalInt2(), Eq(4));
+    EXPECT_THAT(sut.optionalUint1(), Eq(5));
+    EXPECT_THAT(sut.optionalUint2(), Eq(25));
+    EXPECT_THAT(sut.lightSwitch1(), Eq(true));
+    EXPECT_THAT(sut.lightSwitch2(), Eq(true));
+
+    EXPECT_THAT(sut.requiredString().c_str(), StrEq("AllYouNeedIsHorst"));
+    EXPECT_THAT(sut.requiredFloat(), Eq(810.123F));
+    EXPECT_THAT(sut.requiredUint(), Eq(31415));
+}
 } // namespace
