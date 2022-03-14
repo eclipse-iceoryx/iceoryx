@@ -6,6 +6,8 @@
 
 **Features:**
 
+- Add `command_line.hpp` which contains a macro builder to parse command line arguments quickly and safely [#1067](https://github.com/eclipse-iceoryx/iceoryx/issues/1067)
+
 **Bugfixes:**
 
 - Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)

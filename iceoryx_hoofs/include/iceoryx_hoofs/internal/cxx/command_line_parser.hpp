@@ -133,7 +133,7 @@ class CommandLineParser
                                         const typeName_t& typeName,
                                         const CommandLineOptions::value_t& defaultValue) noexcept;
 
-    /// @brief Adds a command line optional value argument
+    /// @brief Adds a command line required value argument
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
     /// @param[in] shortOption a single letter as short option
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
@@ -145,7 +145,7 @@ class CommandLineParser
                                         const typeName_t& typeName) noexcept;
 
     /// @brief Parses the arguments from the command line.
-    ///        Calls the error  handler when the command line arguments contain illegal syntax or required values are
+    ///        Calls the error handler when the command line arguments contain illegal syntax or required values are
     ///        not provided
     /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
     /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
@@ -170,22 +170,30 @@ class CommandLineParser
   private:
     CommandLineParser& addOption(const entry_t& option) noexcept;
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
-    bool areAllRequiredValuesPresent() const noexcept;
     void printHelpAndExit(const char* binaryName) const noexcept;
-    void sortAvailableOptions() noexcept;
-    void setDefaultValuesToUnsetOptions() noexcept;
+
+    /// BEGIN only used in parse to improve readability
+    ///
+    /// Do not use those internal methods outside of parse. They were written
+    /// to improve the readability of the code. None of those functions verify
+    /// the pre conditions they require, this has to be done by calling them
+    /// in the correct order.
+    bool areAllRequiredValuesPresent() const noexcept;
     bool hasArguments(const int argc) const noexcept;
     bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithMinus(const char* option) const noexcept;
-    bool hasOptionName(const char* option) const noexcept;
+    bool isOptionNameEmpty(const char* option) const noexcept;
     bool hasValidSwitchName(const char* option) const noexcept;
     bool hasValidOptionName(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
-    static void printOption(const entry_t& entry) noexcept;
     bool isOptionSet(const entry_t& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
     bool doesOptionHasSucceedingValue(const entry_t& entry, const uint64_t position) const noexcept;
+    /// END only used in parse to improve readability
+
+    void sortAvailableOptions() noexcept;
+    void setDefaultValuesToUnsetOptions() noexcept;
 
   private:
     int m_argc = 0;

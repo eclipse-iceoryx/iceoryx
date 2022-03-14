@@ -67,18 +67,18 @@ bool CommandLineParser::doesOptionStartWithMinus(const char* option) const noexc
     return doesOptionStartWithMinus;
 }
 
-bool CommandLineParser::hasOptionName(const char* option) const noexcept
+bool CommandLineParser::isOptionNameEmpty(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH);
-    const bool hasOptionName = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
+    const bool isOptionNameEmpty = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
 
-    if (!hasOptionName)
+    if (!isOptionNameEmpty)
     {
         std::cout << "Empty option names are forbidden" << std::endl;
         printHelpAndExit(m_options.binaryName().c_str());
     }
 
-    return hasOptionName;
+    return isOptionNameEmpty;
 }
 
 bool CommandLineParser::hasValidSwitchName(const char* option) const noexcept
@@ -208,7 +208,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 
-        if (!doesOptionStartWithMinus(argv[i]) || !hasOptionName(argv[i]) || !hasValidSwitchName(argv[i])
+        if (!doesOptionStartWithMinus(argv[i]) || !isOptionNameEmpty(argv[i]) || !hasValidSwitchName(argv[i])
             || !hasValidOptionName(argv[i]) || !doesOptionNameFitIntoString(argv[i]))
         {
             return m_options;

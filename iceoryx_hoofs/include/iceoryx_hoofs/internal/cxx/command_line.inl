@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_COMMAND_LINE_INL
 #define IOX_HOOFS_CXX_COMMAND_LINE_INL
 
+#include "iceoryx_hoofs/cxx/command_line.hpp"
+
 namespace iox
 {
 namespace cxx

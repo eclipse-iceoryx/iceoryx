@@ -63,12 +63,12 @@ void populateEntries(const internal::cmdEntries_t& entries,
 } // namespace internal
 
 /// @brief Adds an optional value to the command line
-/// @param[in] type the type of the required value
-/// @param[in] memberName the name under which the switch is accessible
+/// @param[in] type the type of the optional value
+/// @param[in] memberName the name under which the optional value is accessible
 /// @param[in] defaultValue the value when it is not set from outside
 /// @param[in] shortName a single character for the short option like `-s` for instance
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
-/// @param[in] description a description of the switch
+/// @param[in] description a description of the optional value
 #define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                               \
     INTERNAL_CMD_LINE_VALUE(                                                                                           \
         type, memberName, defaultValue, shortName, longName, description, iox::cxx::ArgumentType::OPTIONAL_VALUE)
@@ -76,10 +76,10 @@ void populateEntries(const internal::cmdEntries_t& entries,
 /// @brief Adds a required value to the command line, if it is not provided the program will print the help and
 ///        terminate
 /// @param[in] type the type of the required value
-/// @param[in] memberName the name under which the switch is accessible
+/// @param[in] memberName the name under which the required value is accessible
 /// @param[in] shortName a single character for the short option like `-s` for instance
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
-/// @param[in] description a description of the switch
+/// @param[in] description a description of the required value
 #define REQUIRED_VALUE(type, memberName, shortName, longName, description)                                             \
     INTERNAL_CMD_LINE_VALUE(                                                                                           \
         type, memberName, type(), shortName, longName, description, iox::cxx::ArgumentType::REQUIRED_VALUE)
@@ -90,8 +90,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the switch
 #define SWITCH(memberName, shortName, longName, description)                                                           \
-    INTERNAL_CMD_LINE_VALUE(                                                                                           \
-        bool, memberName, false, shortName, longName, description, iox::cxx::ArgumentType::OPTIONAL_VALUE)
+    INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::cxx::ArgumentType::SWITCH)
 
 /// @brief Helper macro to create a struct with full command line parsing from argc, argv.
 /// @param[in] Name the name of the class/struct
@@ -108,7 +107,7 @@ void populateEntries(const internal::cmdEntries_t& entries,
 ///     OPTIONAL_VALUE(uint64_t, version, 0, 'v', "version", "some description");
 /// };
 ///
-/// // This struct stores parses all command line arguments and stores them. In
+/// // This struct parses all command line arguments and stores them. In
 /// // the example above the struct provides access to
 /// //   .stringValue()
 /// //   .anotherString()
