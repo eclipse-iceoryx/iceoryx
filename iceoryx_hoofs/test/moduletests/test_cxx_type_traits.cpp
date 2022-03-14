@@ -170,4 +170,83 @@ TEST(TypeTraitsTest, IsFunctionPointerResolvesToFalse)
     EXPECT_FALSE(result);
 }
 
+struct UndefinedType
+{
+};
+
+TEST(TypeTraitsTest, TypeInfo_UndefinedTypeTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<UndefinedType>::NAME, StrEq("unknown type"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_StringTypeTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<iox::cxx::string<1>>::NAME, StrEq("string"));
+    EXPECT_THAT(TypeInfo<iox::cxx::string<123>>::NAME, StrEq("string"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_int8_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<int8_t>::NAME, StrEq("int8_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_int16_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<int16_t>::NAME, StrEq("int16_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_int32_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<int32_t>::NAME, StrEq("int32_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_int64_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<int64_t>::NAME, StrEq("int64_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_uint8_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<uint8_t>::NAME, StrEq("uint8_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_uint16_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<uint16_t>::NAME, StrEq("uint16_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_uint32_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<uint32_t>::NAME, StrEq("uint32_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_uint64_tTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<uint64_t>::NAME, StrEq("uint64_t"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_boolTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<bool>::NAME, StrEq("bool"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_charTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<char>::NAME, StrEq("char"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_floatTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<float>::NAME, StrEq("float"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_doubleTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<double>::NAME, StrEq("double"));
+}
+
+TEST(TypeTraitsTest, TypeInfo_long_doubleTranslatesCorrectly)
+{
+    EXPECT_THAT(TypeInfo<long double>::NAME, StrEq("long double"));
+}
 } // namespace
