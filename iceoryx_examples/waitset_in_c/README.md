@@ -481,9 +481,6 @@ thread every second to signal the _WaitSet_ that it's time for the next run.
 Additionally, we attach a callback (`cyclicRun`) to this user trigger
 so that the event can directly call the cyclic call.
 
-!!! note
-    This example does not run on Windows due to direct usage of the `pthread` API.
-
 We begin by creating the _WaitSet_ and attach the `shutdownTrigger`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_timer_driven_execution.c][initialization and shutdown handling]-->
@@ -517,7 +514,7 @@ the next lines.
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_timer_driven_execution.c][cyclic trigger thread]-->
 ```c
 pthread_t cyclicTriggerThread;
-if (createThread(&cyclicTriggerThread, cyclicTriggerCallback))
+if (!createThread(&cyclicTriggerThread, cyclicTriggerCallback))
 {
     printf("failed to create thread\n");
     return -1;
