@@ -280,7 +280,7 @@ general, as it often leads to unnecessary latency and wake-ups without data. An 
 is to wait for user-defined events to occur. This is provided by our `WaitSet` and `Listener` which are introduced in
 the following sections.
 
-![Polling alternatives](/images/avoid-polling.svg)
+![Polling alternatives](../images/avoid-polling.svg)
 
 ### WaitSet
 
