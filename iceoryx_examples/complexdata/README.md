@@ -4,7 +4,7 @@
 
 To implement zero-copy data transfer we use a shared memory approach. This requires that every data structure needs to be entirely
 contained in the shared memory and must not internally use pointers or references. The complete list of restrictions can be found
-[here](https://iceoryx.io/v2.0.0/getting-started/overview/#restrictions). Therefore, most of the STL types cannot be used, but we
+[here](https://iceoryx.io/latest/getting-started/overview/#restrictions). Therefore, most of the STL types cannot be used, but we
 reimplemented some [constructs](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx). This example shows how
 to send/receive a iox::cxx::vector and how to send/receive a complex data structure containing some of our STL container surrogates.
 
