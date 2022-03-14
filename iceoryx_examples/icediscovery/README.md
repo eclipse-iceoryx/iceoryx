@@ -12,8 +12,9 @@ In addition the applications `iox-wait-for-service` and `iox-discovery-monitor` 
 to write custom discovery functionality to wait for specific services or monitor
 the availability of services respectively.
 
-<!--## Expected Output-->
-<!-- @todo Add expected output with asciinema recording before v2.0-->
+## Expected Output
+
+[![asciicast](https://asciinema.org/a/476673.svg)](https://asciinema.org/a/476673)
 
 ## Code walkthrough
 

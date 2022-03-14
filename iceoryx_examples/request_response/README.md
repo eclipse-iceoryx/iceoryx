@@ -13,9 +13,9 @@ a WaitSet. Since you can find the general setup and functionality of the client
 and the server also in the Listener/WaitSet example, we will describe only this
 one.
 
-## Expected output basic server-client example
+## Expected output
 
-[![asciicast](https://asciinema.org/a/469913.svg)](https://asciinema.org/a/469913)
+[![asciicast](https://asciinema.org/a/476829.svg)](https://asciinema.org/a/476829)
 
 ## Code walkthrough
 
