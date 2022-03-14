@@ -5,7 +5,7 @@
 This example demonstrates how to search for specific services using iceoryx's
 service discovery. It provides two applications - one offering different
 services and one searching for those with different search queries. The
-behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
+behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery).
 
 <!--## Expected Output-->
 <!-- @todo Add expected output with asciinema recording before v2.0-->
@@ -17,7 +17,7 @@ behavior and structure is quite similar to the [icediscovery C++ example](https:
 We create several publishers which offer their services on construction by
 default. For more dynamism the `cameraPublishers` offer/stop their services
 periodically. If you want more information on how to create publishers,
-have a look at the [icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery_in_c).
+have a look at the [icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### Find services
 
@@ -119,8 +119,8 @@ all found services:
 ```c
 void searchFrontDevices(const iox_service_description_t service, void* count)
 {
-    if (strncmp("FrontLeft", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0
-        || strncmp("FrontRight", service.instanceString, IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
+    if (strncmp(service.instanceString, "FrontLeft", IOX_CONFIG_SERVICE_STRING_SIZE) == 0
+        || strncmp(service.instanceString, "FrontRight", IOX_CONFIG_SERVICE_STRING_SIZE) == 0)
     {
         ++*(uint32_t*)count;
     }
@@ -128,5 +128,5 @@ void searchFrontDevices(const iox_service_description_t service, void* count)
 ```
 
 <center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery_in_c){ .md-button }
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery_in_c){ .md-button }
 </center>

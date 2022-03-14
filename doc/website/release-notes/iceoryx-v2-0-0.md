@@ -26,7 +26,7 @@
 - Extend `cxx::optional` constructor for in place construction so that copy/move for values inside the optional even could be deleted [\#967](https://github.com/eclipse-iceoryx/iceoryx/issues/967)
 - Add templated `from`/`into` free functions to formalize conversions from enums and other types [#992](https://github.com/eclipse-iceoryx/iceoryx/issues/992)
 - `UniqueId` class for unique IDs within a process [#1010](https://github.com/eclipse-iceoryx/iceoryx/issues/1010)
-- Add `requirePublisherHistorySupport` option at subscriber side (if set to true requires historyRequest <= historyCapacity to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029)
+- Add `requirePublisherHistorySupport` option at subscriber side (if set to true requires historyCapacity > 0 to be eligible for connection) [#1029](https://github.com/eclipse-iceoryx/iceoryx/issues/1029), [#1278](https://github.com/eclipse-iceoryx/iceoryx/issues/1278)
 - Add `/tools/scripts/ice_env.sh` shell script to provide simple access to docker containers for CI debugging [#1049](https://github.com/eclipse-iceoryx/iceoryx/issues/1049)
 - Introduce `cxx::FunctionalInterface` to enrich nullable classes with `and_then`, `or_else`, `value_or`, `expect` [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 - Add C++17 `std::perms` as `cxx::perms` to `iceoryx_hoofs/cxx/filesystem.hpp`. [#1059](https://github.com/eclipse-iceoryx/iceoryx/issues/1059)
@@ -88,6 +88,9 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Update cyclone dds version used by gateway to support aarch64 [\#1223](https://github.com/eclipse-iceoryx/iceoryx/issues/1223)
 - The file lock posix wrapper unlocks and removes a file correctly [\#1216](https://github.com/eclipse-iceoryx/iceoryx/issues/1216)
 - Minor fixes for the examples [\#743](https://github.com/eclipse-iceoryx/iceoryx/issues/743)
+- Fix race condition in Windows platform semaphore/mutex posix implementation [\#1271](https://github.com/eclipse-iceoryx/iceoryx/issues/1271)
+- Fix race condition in Windows platform HandleTranslator [\#1264](https://github.com/eclipse-iceoryx/iceoryx/issues/1264)
+- Fix race condition in Windows platform shared memory implementation [\#1269](https://github.com/eclipse-iceoryx/iceoryx/issues/1269)
 
 **Refactoring:**
 

@@ -23,7 +23,9 @@
 #include "sleep_for.h"
 #include "topic_data.h"
 
-#if !defined(_WIN32)
+#if defined(_WIN32)
+typedef long unsigned int pthread_t;
+#else
 #include <pthread.h>
 #endif
 #include <signal.h>
@@ -67,14 +69,34 @@ void* cyclicTriggerCallback(void* dontCare)
     return NULL;
 }
 
+bool createThread(pthread_t* threadHandle, void* (*callback)(void*))
+{
+#if defined(_WIN32)
+    return -1;
+#else
+    return pthread_create(threadHandle, NULL, callback, NULL);
+#endif
+}
+
+int joinThread(pthread_t threadHandle)
+{
+#if defined(_WIN32)
+    return -1;
+#else
+    return pthread_join(threadHandle, NULL);
+#endif
+}
+
 int main()
 {
 #if defined(_WIN32)
     printf("This example does not work on Windows. But you can easily adapt it for now by starting a windows thread "
            "which triggers the cyclicTrigger every second.\n");
+    return -1;
 #endif
 
-    iox_runtime_init("iox-c-waitset-sync");
+    //! [initialization and shutdown handling]
+    iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -83,44 +105,47 @@ int main()
     // attach shutdownTrigger with no callback to handle CTRL+C
     iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
 
-    //// register signal after shutdownTrigger since we are using it in the handler
+    // register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
-
+    //! [initialization and shutdown handling]
 
     // create and attach the cyclicTrigger with a callback to
     // myCyclicRun
+    //! [cyclic trigger]
     cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
     iox_ws_attach_user_trigger_event(waitSet, cyclicTrigger, 0, cyclicRun);
+    //! [cyclic trigger]
 
     // start a thread which triggers cyclicTrigger every second
-#if !defined(_WIN32)
+    //! [cyclic trigger thread]
     pthread_t cyclicTriggerThread;
-    if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
+    if (createThread(&cyclicTriggerThread, cyclicTriggerCallback))
     {
         printf("failed to create thread\n");
         return -1;
     }
-#endif
+    //! [cyclic trigger thread]
 
+    //! [event loop]
     uint64_t missedElements = 0U;
     uint64_t numberOfNotifications = 0U;
 
     // array where all notifications from iox_ws_wait will be stored
     iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-    // event loop
     while (keepRunning)
     {
         numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 
+        //! [handle events]
         for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         {
             iox_notification_info_t notification = notificationArray[i];
 
             if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
             {
-                // CTRL+c was pressed -> exit
+                // CTRL+C was pressed -> exit
                 keepRunning = false;
             }
             else
@@ -129,15 +154,15 @@ int main()
                 iox_notification_info_call(notification);
             }
         }
+        //! [handle events]
     }
+    //! [event loop]
 
-    // cleanup all resources
-#if !defined(_WIN32)
-    pthread_join(cyclicTriggerThread, NULL);
-#endif
+    //! [cleanup all resources]
+    joinThread(cyclicTriggerThread);
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
-
+    //! [cleanup all resources]
 
     return 0;
 }

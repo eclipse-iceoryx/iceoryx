@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y \
 ADD . /iceoryx
 WORKDIR /iceoryx
 
-RUN ./tools/iceoryx_build_test.sh build-all
+RUN ./tools/iceoryx_build_test.sh clean build-all
 
 # ======================================================================================================================== #
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 #define IOX_HOOFS_WIN_PLATFORM_HANDLE_TRANSLATOR_HPP
 
 #include "iceoryx_hoofs/platform/windows.hpp"
-#include <vector>
+#include <map>
+#include <mutex>
+#include <queue>
 
 /// @brief In windows file handles have the type HANDLE (void*) in linux it is
 ///        usually an int. To establish the portability we keep track of the
@@ -28,14 +30,26 @@
 class HandleTranslator
 {
   public:
+    static constexpr int INVALID_LINUX_FD = -1;
+
+    HandleTranslator(const HandleTranslator&) = delete;
+    HandleTranslator(HandleTranslator&&) = delete;
+    HandleTranslator& operator=(const HandleTranslator&) = delete;
+    HandleTranslator& operator=(HandleTranslator&&) = delete;
+    ~HandleTranslator() = default;
+
     static HandleTranslator& getInstance() noexcept;
-    HANDLE get(const int handle) const noexcept;
-    int add(HANDLE handle) noexcept;
-    void remove(const int handle) noexcept;
+    HANDLE get(const int linuxFd) const noexcept;
+    int add(HANDLE windowsHandle) noexcept;
+    void remove(const int linuxFd) noexcept;
 
   private:
     HandleTranslator() noexcept = default;
-    std::vector<HANDLE> m_handleList;
+
+    int m_currentLinuxFileHandle = 0;
+    mutable std::mutex m_mtx;
+    std::map<int, HANDLE> m_linuxToWindows;
+    std::queue<int> m_freeFileDescriptors;
 };
 
 #endif

@@ -89,15 +89,15 @@ subscriberOptions.queueCapacity = 10U;
 `historyRequest` will enable a subscriber to receive the last n samples of matching publishers on subscription e.g. in case it was started later than the publisher.
 If the publisher does not have a sufficient `historyCapacity` (smaller than `historyRequest`), it will still be connected but we will not be able to
 receive the requested amount of historical data (if it was available). Instead we will receive the largest amount of historical sample
-the publisher has available, i.e. best-effort.
+the publisher has available, i.e. best-effort. In particular we will be connected to a publisher with `historyCapacity` = 0.
 
-If we want to enforce the contract that the publisher needs to support a `historyCapacity` of at least `historyRequest`, we can do so by setting
-`requirePublisherHistorySupport` to `true`. In this case, the subscriber will only connect if the publisher history support is at least as large as its request.
+If we want to enforce the contract that the publisher needs to support a `historyCapacity`, we can do so by setting `requirePublisherHistorySupport`
+to `true`. In this case, the subscriber will only connect if the publisher history support is at least 1, i.e. `historyCapacity` > 0.
 By default this is set to `false` and best-effort behavior is used.
 
 !!! warning
     In case of n:m communication, the history feature will **not** provide the overall last n samples based on delivery point in time!
-    For more information about this limitation see the [QoS article](https://iceoryx.io/latest/concepts/qos-policies/).
+    For more information about this limitation see the [QoS article](https://iceoryx.io/v2.0.0/concepts/qos-policies/).
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][history]-->
 ```cpp

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@
 
 #include <cstdarg>
 
-static IpcHandleManager ipcSemaphoreHandleManager;
-
 static std::string generateSemaphoreName(const UniqueSystemId& id)
 {
     return "iox_semaphore_" + static_cast<std::string>(id);
@@ -35,7 +33,7 @@ static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
     }
 
     HANDLE newHandle;
-    if (ipcSemaphoreHandleManager.getHandle(sem->uniqueId, newHandle))
+    if (IpcHandleManager::getInstance().getHandle(sem->uniqueId, newHandle))
     {
         return newHandle;
     }
@@ -50,7 +48,7 @@ static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
         return nullptr;
     }
 
-    ipcSemaphoreHandleManager.addHandle(sem->uniqueId, OwnerShip::LOAN, newHandle);
+    IpcHandleManager::getInstance().addHandle(sem->uniqueId, OwnerShip::LOAN, newHandle);
     return newHandle;
 }
 
@@ -148,7 +146,7 @@ int iox_sem_destroy(iox_sem_t* sem)
     CloseHandle(acquireSemaphoreHandle(sem));
     if (sem->isInterprocessSemaphore)
     {
-        ipcSemaphoreHandleManager.removeHandle(sem->uniqueId);
+        IpcHandleManager::getInstance().removeHandle(sem->uniqueId);
     }
     return 0;
 }
@@ -185,7 +183,7 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
         sem->handle = sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str());
         if (sem->handle != nullptr)
         {
-            ipcSemaphoreHandleManager.addHandle(sem->uniqueId, OwnerShip::OWN, sem->handle);
+            IpcHandleManager::getInstance().addHandle(sem->uniqueId, OwnerShip::OWN, sem->handle);
         }
     }
     else

@@ -7,7 +7,7 @@ environment and it should orchestrate two applications which are running again
 in two different docker containers so that we end up with a system of 3
 different docker containers.
 
-To demonstrate the setup we use the 
+To demonstrate the setup we use the
 [icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 ```
@@ -32,7 +32,7 @@ Every iceoryx application registers itself at our central broker RouDi
 by sending a message to the unix domain socket located at
 `IOX_UDS_SOCKET_PATH_PREFIX/roudi` which is defined in the corresponding
 platform settings file `platform_settings.hpp`. In linux the socket file handle
-can be found at `/tmp/roudi`. When the application registers at RouDi it 
+can be found at `/tmp/roudi`. When the application registers at RouDi it
 announces its unix domain socket as well to receive responses of requests which
 will be sent during runtime to RouDi.
 This socket is stored as well in `/tmp/IOX_RUNTIME_NAME`. The `iox-cpp-publisher`
@@ -42,8 +42,8 @@ runtime has the same name as the binary which leads to the socket
 ### Shared Access to File Locks
 
 Iceoryx applications ensure that every runtime name is unique in the system
-by creating a file lock before creating the runtime. This is stored in 
-`IOX_LOCK_FILE_PATH_PREFIX/IOX_RUNTIME_NAME.lock` whereby 
+by creating a file lock before creating the runtime. This is stored in
+`IOX_LOCK_FILE_PATH_PREFIX/IOX_RUNTIME_NAME.lock` whereby
 `IOX_LOCK_FILE_PATH_PREFIX` is defined in the platform settings file
 `platform_settings.hpp`. When running the icedelivery example in a linux
 environment one can observe
@@ -62,7 +62,7 @@ semaphores. For instance to signal a subscriber that data has arrived.
 
 ## Implementation
 
-To have shared access to the required resources we have to bind the host 
+To have shared access to the required resources we have to bind the host
 filesystem:
 
  * `/tmp`
@@ -75,8 +75,8 @@ into every docker container.
 We start in 3 separate terminals 3 docker instances. In this example we
 use `archlinux:latest` but one is free to choose any other linux distribution.
 The iceoryx repository which contains an already built iceoryx can be found at
-`/home/user/iceoryx` which is bound to `/iceoryx`. The usage is 
-explained in detail in the 
+`/home/user/iceoryx` which is bound to `/iceoryx`. The usage is
+explained in detail in the
 [icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 #### Terminal 1 (iox-roudi)

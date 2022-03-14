@@ -4,7 +4,7 @@ In this document are tips and hints documented which can help for troubleshootin
 
 ## Does iceoryx run in a docker environment
 
-Yes. Take a look at the [icedocker example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery)
+Yes. Take a look at the [icedocker example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedocker)
 
 ## iox-roudi fails on startup
 

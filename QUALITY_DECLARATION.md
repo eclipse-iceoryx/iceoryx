@@ -23,7 +23,7 @@ On Git, the tags have a `v` prefix before the version numbers. A [release script
 
 Since release `1.0.0` iceoryx is at a stable version, i.e. `>= 1.0.0`. The latest valid release can be found on the [release page](https://github.com/eclipse-iceoryx/iceoryx/releases) of iceoryx.
 
-The change history can be found in the [release notes section](https://iceoryx.io/latest/release-notes).
+The change history can be found in the [release notes section](https://iceoryx.io/v2.0.0/release-notes).
 
 ### Public API Declaration [1.iii]
 
@@ -89,8 +89,8 @@ It is required to create/modify the Doxygen/design and user documentation within
 
 ### Feature Documentation [3.i]
 
-The documentation of the main iceoryx features (sending, receiving data) can be found in the [overview](https://iceoryx.io/latest/getting-started/overview/) and [iceoryx examples](https://iceoryx.io/latest/getting-started/examples/) including a user-friendly description on how to use the iceoryx API.
-The [configuration guide](https://iceoryx.io/latest/advanced/configuration-guide/) completes the documentation on how to use iceoryx.
+The documentation of the main iceoryx features (sending, receiving data) can be found in the [overview](https://iceoryx.io/v2.0.0/getting-started/overview/) and [iceoryx examples](https://iceoryx.io/v2.0.0/getting-started/examples/) including a user-friendly description on how to use the iceoryx API.
+The [configuration guide](https://iceoryx.io/v2.0.0/advanced/configuration-guide/) completes the documentation on how to use iceoryx.
 
 Detailed technical documentation about iceoryx features can be found in the [design document](https://github.com/eclipse-iceoryx/iceoryx/tree/master/doc/design) section with descriptions and diagrams about internal mechanisms of iceoryx.
 
@@ -131,7 +131,7 @@ There is continuous effort to cover the corner cases in the usage of iceoryx in 
 ### Public API Testing [4.ii]
 
 All tests are executed for every major feature. New features must provide unit and integration tests that cover the code changes in the Pull-Request. The tests reside in separated folders for every package following a defined structure and naming convention.
-The features are tested at module(unit) -integration and system test level. The [guidelines](https://iceoryx.io/latest/advanced/best-practice-for-testing/) for Contributors ensure a high quality of test development.
+The features are tested at module(unit) -integration and system test level. The [guidelines](https://iceoryx.io/v2.0.0/advanced/best-practice-for-testing/) for Contributors ensure a high quality of test development.
 
 ### Coverage [4.iii]
 

@@ -15,7 +15,7 @@ These options adjust the limits of Publisher and Subscriber Ports for resource m
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can hold at a given time (subscriber history size)|
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used for gateways |
 
-Have a look at [iceoryx_posh_deployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of the constants.
+Have a look at [IceoryxPoshDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
 
 !!! hint
     With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You can reduce the size by decreasing the values from the table via the CMake options. The current values are printed in the CMake stage when building iceoryx.

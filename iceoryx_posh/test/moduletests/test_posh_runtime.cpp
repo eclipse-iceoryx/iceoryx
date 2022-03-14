@@ -143,8 +143,7 @@ TEST_F(PoshRuntime_test, NoAppName)
     ::testing::Test::RecordProperty("TEST_ID", "e053d114-c79c-4391-91e1-8fcfe90ee8e4");
     const iox::RuntimeName_t invalidAppName("");
 
-    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
-                 "Cannot initialize runtime. Application name must not be empty!");
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); }, "");
 }
 
 // To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
