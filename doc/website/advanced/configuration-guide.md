@@ -5,7 +5,7 @@
 There are several configuration options set by default when iceoryx_posh is build.
 These options adjust the global maximum amount of resources like Publisher and
 Subscriber Ports which can have a huge impact on the memory footprint of iceoryx
-since the define the size of the management structures
+since they define the size of the management structures
 in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
 
  |  switch  |  description |
@@ -40,8 +40,8 @@ on the subscriber side (see also [#615](https://github.com/eclipse-iceoryx/iceor
 ## :material-memory: Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to
-limit the read and write access between different applications. Memory pools are
-then managing the those segments and organizing the user payload data required
+limit the read and write access between different applications. Memory pools
+manage those segments and organize the user payload data required
 for communication.
 
 !!! note
@@ -72,8 +72,8 @@ One way is to read a configuration dynamically during the startup of RouDi.
 Using the TOML Config in RouDi is not mandatory for configuring segments and
 mempools, but a comfortable alternative.
 
-To enable the TOML config in iceoryx, the CMake option `-DTOML_CONFIG=ON` must
-be enabled (this is the default setting).
+The CMake option `-DTOML_CONFIG`, which is `ON` by default, enables the TOML config
+for iceoryx.
 The `iox-roudi` application provided by iceoryx is compiled with TOML support and
 can be used out of the box.
 
