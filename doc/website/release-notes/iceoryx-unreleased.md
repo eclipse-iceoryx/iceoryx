@@ -12,6 +12,8 @@
 
 **Refactoring:**
 
+- Separate test specific code from `ErrorHandler` and templatize `setTemporaryErrorHandler()` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)
+
 **New API features:**
 
 **API Breaking Changes:**
