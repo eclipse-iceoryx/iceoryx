@@ -94,16 +94,17 @@ inline bool addEntry(bool& value,
     return defaultValue;
 }
 
-inline void populateEntries(const internal::cmdEntries_t& entries,
-                            const internal::cmdAssignments_t& assignments,
-                            ::iox::cxx::CommandLineOptions::binaryName_t& binaryName,
+inline void populateEntries(const cmdEntries_t& entries,
+                            const cmdAssignments_t& assignments,
+                            CommandLineOptions::binaryName_t& binaryName,
                             const CommandLineParser::description_t& programDescription,
                             int argc,
                             char* argv[],
                             const uint64_t argcOffset,
-                            const UnknownOption actionWhenOptionUnknown)
+                            const UnknownOption actionWhenOptionUnknown,
+                            const cxx::function<void()>& onFailureCallback)
 {
-    CommandLineParser parser(programDescription);
+    CommandLineParser parser(programDescription, onFailureCallback);
     for (const auto& entry : entries)
     {
         switch (entry.type)

@@ -117,7 +117,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     /// @brief indicates whether a function is currently stored
     /// @return true if a function is stored, false otherwise
-    operator bool() noexcept;
+    explicit operator bool() const noexcept;
 
     /// @brief swap this with another storable function
     /// @param f the function to swap this with

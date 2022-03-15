@@ -47,6 +47,8 @@ class CommandLineParser_test : public Test
         }
     }
 
+    uint64_t numberOfErrorCallbackCalls = 0U;
+    iox::cxx::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
     static CommandLineOptions::value_t defaultValue;
 };
 CommandLineOptions::value_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
@@ -64,76 +66,48 @@ TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "627e7d26-7ba8-466f-8160-61dbff7f3a4d");
-    bool wasErrorHandlerCalled = false;
-    {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        IOX_DISCARD_RESULT(CommandLineParser("").parse(0, nullptr));
-    }
+    IOX_DISCARD_RESULT(CommandLineParser("", errorCallback).parse(0, nullptr));
 
-    EXPECT_TRUE(wasErrorHandlerCalled);
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
 TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a1000e2-6dbd-404b-ba6f-0287e5ffeb46");
     CmdArgs args({std::string(CommandLineOptions::binaryName_t::capacity() + 1, 'a')});
-    bool wasErrorHandlerCalled = false;
-    {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        IOX_DISCARD_RESULT(CommandLineParser("").parse(args.argc, args.argv));
-    }
+    IOX_DISCARD_RESULT(CommandLineParser("", errorCallback).parse(args.argc, args.argv));
 
-    EXPECT_TRUE(wasErrorHandlerCalled);
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
 TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
-    bool wasErrorHandlerCalled = false;
-    CommandLineParser parser("");
+    CommandLineParser parser("", errorCallback);
     parser.addOptionalValue('c', "firstEntry", "", "", "");
 
-    {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        parser.addOptionalValue('c', "duplicateShortOption", "", "", "");
-    }
-
-    EXPECT_TRUE(wasErrorHandlerCalled);
+    parser.addOptionalValue('c', "duplicateShortOption", "", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
 TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "076b8877-e3fc-46f7-851b-d3e7953f67d6");
-    bool wasErrorHandlerCalled = false;
-    CommandLineParser parser("");
+    CommandLineParser parser("", errorCallback);
     parser.addOptionalValue('c', "duplicate", "", "", "");
 
-    {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        parser.addOptionalValue('x', "duplicate", "", "", "");
-    }
-
-    EXPECT_TRUE(wasErrorHandlerCalled);
+    parser.addOptionalValue('x', "duplicate", "", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
 TEST_F(CommandLineParser_test, AddingOptionWithSameShortAndLongNameLeadsToExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4e01ed47-473d-4915-aed2-60aacce37de8");
-    bool wasErrorHandlerCalled = false;
-    CommandLineParser parser("");
+    CommandLineParser parser("", errorCallback);
     parser.addOptionalValue('d', "duplicate", "", "", "");
 
-    {
-        auto handle =
-            iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-        parser.addOptionalValue('d', "duplicate", "", "", "");
-    }
-
-    EXPECT_TRUE(wasErrorHandlerCalled);
+    parser.addOptionalValue('d', "duplicate", "", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
 void FailureTest(const std::vector<std::string>& options,
@@ -149,7 +123,7 @@ void FailureTest(const std::vector<std::string>& options,
 
     bool wasErrorHandlerCalled = false;
     {
-        CommandLineParser parser("");
+        CommandLineParser parser("", [&] { wasErrorHandlerCalled = true; });
         for (const auto& o : optionsToRegister)
         {
             parser.addOptionalValue(o[0], CommandLineOptions::name_t(TruncateToCapacity, o), "", "int", "0");
@@ -163,11 +137,7 @@ void FailureTest(const std::vector<std::string>& options,
             parser.addRequiredValue(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
         }
 
-        {
-            auto handle =
-                iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
-            IOX_DISCARD_RESULT(parser.parse(args.argc, args.argv, 1U, actionWhenOptionUnknown));
-        }
+        IOX_DISCARD_RESULT(parser.parse(args.argc, args.argv, 1U, actionWhenOptionUnknown));
     }
 
     switch (actionWhenOptionUnknown)

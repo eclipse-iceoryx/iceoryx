@@ -41,14 +41,15 @@ T addEntry(T& value,
            internal::cmdEntries_t& entries,
            internal::cmdAssignments_t& assignments);
 
-void populateEntries(const internal::cmdEntries_t& entries,
-                     const internal::cmdAssignments_t& assignments,
-                     ::iox::cxx::CommandLineOptions::binaryName_t& binaryName,
+void populateEntries(const cmdEntries_t& entries,
+                     const cmdAssignments_t& assignments,
+                     CommandLineOptions::binaryName_t& binaryName,
                      const CommandLineParser::description_t& programDescription,
                      int argc,
                      char* argv[],
                      const uint64_t argcOffset,
-                     const iox::cxx::UnknownOption actionWhenOptionUnknown);
+                     const UnknownOption actionWhenOptionUnknown,
+                     const cxx::function<void()>& onFailureCallback);
 
 #define INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)        \
   private:                                                                                                             \
@@ -131,10 +132,12 @@ void populateEntries(const internal::cmdEntries_t& entries,
     ::iox::cxx::CommandLineOptions::binaryName_t m_binaryName;                                                         \
                                                                                                                        \
   public:                                                                                                              \
-    Name(int argc,                                                                                                     \
-         char* argv[],                                                                                                 \
-         const uint64_t argcOffset = 1U,                                                                               \
-         const iox::cxx::UnknownOption actionWhenOptionUnknown = iox::cxx::UnknownOption::TERMINATE)                   \
+    Name(                                                                                                              \
+        int argc,                                                                                                      \
+        char* argv[],                                                                                                  \
+        const uint64_t argcOffset = 1U,                                                                                \
+        const ::iox::cxx::UnknownOption actionWhenOptionUnknown = ::iox::cxx::UnknownOption::TERMINATE,                \
+        const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
     {                                                                                                                  \
         ::iox::cxx::internal::populateEntries(m_entries,                                                               \
                                               m_assignments,                                                           \
@@ -143,7 +146,8 @@ void populateEntries(const internal::cmdEntries_t& entries,
                                               argc,                                                                    \
                                               argv,                                                                    \
                                               argcOffset,                                                              \
-                                              actionWhenOptionUnknown);                                                \
+                                              actionWhenOptionUnknown,                                                 \
+                                              onFailureCallback);                                                      \
     }                                                                                                                  \
                                                                                                                        \
     const ::iox::cxx::CommandLineOptions::binaryName_t& binaryName() const noexcept                                    \

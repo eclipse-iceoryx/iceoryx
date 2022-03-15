@@ -110,7 +110,11 @@ class CommandLineParser
 
     /// @brief The constructor.
     /// @param[in] programDescription The description to the program. Will be printed in the help.
-    explicit CommandLineParser(const description_t& programDescription) noexcept;
+    /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is defined std::exit(1) is
+    ///            called
+    CommandLineParser(
+        const description_t& programDescription,
+        const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
 
     /// @brief Adds a command line switch argument
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
@@ -152,13 +156,11 @@ class CommandLineParser
     /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
     /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
-    /// option/switch which is unknown
-    CommandLineOptions parse(
-        int argc,
-        char* argv[],
-        const uint64_t argcOffset = 1U,
-        const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE,
-        const cxx::function<void()> callbackForParsingError = [] { std::exit(-1); }) noexcept;
+    ///             option/switch which is unknown
+    CommandLineOptions parse(int argc,
+                             char* argv[],
+                             const uint64_t argcOffset = 1U,
+                             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
     struct entry_t
     {
@@ -203,7 +205,7 @@ class CommandLineParser
     char** m_argv = nullptr;
     description_t m_programDescription;
     cxx::vector<entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
-    cxx::function<void()> m_terminate = [] { std::exit(-1); };
+    cxx::function<void()> m_onFailureCallback;
     CommandLineOptions m_options;
 };
 

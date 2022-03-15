@@ -24,8 +24,10 @@ namespace iox
 {
 namespace cxx
 {
-CommandLineParser::CommandLineParser(const description_t& programDescription) noexcept
+CommandLineParser::CommandLineParser(const description_t& programDescription,
+                                     const cxx::function<void()> onFailureCallback) noexcept
     : m_programDescription{programDescription}
+    , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
 {
     std::move(*this).addOption({'h', {"help"}, {"Display help."}, ArgumentType::SWITCH, {""}, {""}});
 }
@@ -189,10 +191,8 @@ void CommandLineParser::sortAvailableOptions() noexcept
 CommandLineOptions CommandLineParser::parse(int argc,
                                             char* argv[],
                                             const uint64_t argcOffset,
-                                            const UnknownOption actionWhenOptionUnknown,
-                                            const cxx::function<void()> callbackForParsingError) noexcept
+                                            const UnknownOption actionWhenOptionUnknown) noexcept
 {
-    m_terminate = callbackForParsingError;
     /// sort options so that they are alphabetically sorted in help output
     sortAvailableOptions();
 
@@ -439,14 +439,14 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
         }
     }
     std::cout << std::endl;
-    m_terminate();
+    m_onFailureCallback();
 }
 
 CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
     if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
     {
-        m_terminate();
+        m_onFailureCallback();
         return *this;
     }
 
@@ -469,7 +469,7 @@ CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 
         if (isLongOrShortOptionRegistered)
         {
-            m_terminate();
+            m_onFailureCallback();
             return *this;
         }
     }
