@@ -18,5 +18,5 @@
 
 namespace iox
 {
-std::mutex ErrorHandlerMock::handler_mutex;
+std::mutex ErrorHandlerMock::m_handlerMutex;
 } // namespace iox

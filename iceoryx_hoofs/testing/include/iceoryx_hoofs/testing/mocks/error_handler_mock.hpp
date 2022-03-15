@@ -33,9 +33,7 @@ class ErrorHandlerMock : protected ErrorHandler
     static cxx::GenericRAII setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
 
   protected:
-    /// Needed, if you want to exchange the handler. Remember the old one and call it if it is not your error. The error
-    /// mock needs to be the last one exchanging the handler in tests.
-    static std::mutex handler_mutex;
+    static std::mutex m_handlerMutex;
 };
 
 template <typename Error>
@@ -68,12 +66,12 @@ ErrorHandlerMock::setTemporaryErrorHandler(const TypedHandlerFunction<Error>& ne
 {
     return cxx::GenericRAII(
         [&newHandler] {
-            std::lock_guard<std::mutex> lock(handler_mutex);
+            std::lock_guard<std::mutex> lock(m_handlerMutex);
             typedHandler<iox::Error>.emplace(newHandler);
             handler = errorHandlerForTest<Error>;
         },
         [] {
-            std::lock_guard<std::mutex> lock(handler_mutex);
+            std::lock_guard<std::mutex> lock(m_handlerMutex);
             typedHandler<iox::Error>.reset();
             handler = defaultHandler;
         });
