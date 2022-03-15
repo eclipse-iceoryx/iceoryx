@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/platform/platform_settings.hpp"
@@ -152,10 +153,12 @@ class CommandLineParser
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
     /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
     /// option/switch which is unknown
-    CommandLineOptions parse(int argc,
-                             char* argv[],
-                             const uint64_t argcOffset = 1U,
-                             const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+    CommandLineOptions parse(
+        int argc,
+        char* argv[],
+        const uint64_t argcOffset = 1U,
+        const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE,
+        const cxx::function<void()> callbackForParsingError = [] { std::exit(-1); }) noexcept;
 
     struct entry_t
     {
@@ -200,6 +203,7 @@ class CommandLineParser
     char** m_argv = nullptr;
     description_t m_programDescription;
     cxx::vector<entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    cxx::function<void()> m_terminate = [] { std::exit(-1); };
     CommandLineOptions m_options;
 };
 

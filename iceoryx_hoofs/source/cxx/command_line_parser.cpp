@@ -189,8 +189,10 @@ void CommandLineParser::sortAvailableOptions() noexcept
 CommandLineOptions CommandLineParser::parse(int argc,
                                             char* argv[],
                                             const uint64_t argcOffset,
-                                            const UnknownOption actionWhenOptionUnknown) noexcept
+                                            const UnknownOption actionWhenOptionUnknown,
+                                            const cxx::function<void()> callbackForParsingError) noexcept
 {
+    m_terminate = callbackForParsingError;
     /// sort options so that they are alphabetically sorted in help output
     sortAvailableOptions();
 
@@ -437,14 +439,14 @@ void CommandLineParser::printHelpAndExit(const char* binaryName) const noexcept
         }
     }
     std::cout << std::endl;
-    Expects(false && "Command line parsing error");
+    m_terminate();
 }
 
 CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 {
     if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
     {
-        Expects(false && "invalid command line argument");
+        m_terminate();
         return *this;
     }
 
@@ -467,7 +469,7 @@ CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
 
         if (isLongOrShortOptionRegistered)
         {
-            Expects(false && "command line option is already registered");
+            m_terminate();
             return *this;
         }
     }
