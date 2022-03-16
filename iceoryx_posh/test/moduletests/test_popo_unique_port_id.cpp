@@ -33,7 +33,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
     ::testing::Test::RecordProperty("TEST_ID", "473467bf-1a6f-4cd2-acd8-447a623a5301");
     uint16_t someId = 1243U;
     // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([](auto, auto, auto) {});
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([](auto, auto) {});
     auto uniqueRouDiIdResetScopeGuard =
         GenericRAII{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
@@ -46,8 +46,8 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
     uint16_t someId = 1243U;
     optional<iox::Error> detectedError;
     optional<iox::ErrorLevel> detectedErrorLevel;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             detectedErrorLevel.emplace(errorLevel);
         });

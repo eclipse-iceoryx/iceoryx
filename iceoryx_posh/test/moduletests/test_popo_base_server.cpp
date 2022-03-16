@@ -261,9 +261,9 @@ TYPED_TEST(BaseServer_test, EnableStateCallsUnderlyingPortAndTriggerHandle)
         EXPECT_CALL(this->sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
 
         bool errorDetected{false};
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([&](const iox::Error error,
-                                                                                 const std::function<void()>,
-                                                                                 const iox::ErrorLevel errorLevel) {
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error,
+                                                                                                 const iox::ErrorLevel
+                                                                                                     errorLevel) {
             EXPECT_THAT(
                 error,
                 Eq(iox::Error::
@@ -323,9 +323,9 @@ TYPED_TEST(BaseServer_test, EnableEventCallsUnderlyingPortAndTriggerHandle)
         EXPECT_CALL(this->sut->port(), setConditionVariable(Ref(condVar), TRIGGER_ID)).Times(1);
 
         bool errorDetected{false};
-        auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler([&](const iox::Error error,
-                                                                                 const std::function<void()>,
-                                                                                 const iox::ErrorLevel errorLevel) {
+        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error,
+                                                                                                 const iox::ErrorLevel
+                                                                                                     errorLevel) {
             EXPECT_THAT(
                 error,
                 Eq(iox::Error::

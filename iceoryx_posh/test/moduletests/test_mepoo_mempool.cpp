@@ -72,8 +72,8 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
     constexpr uint32_t NOT_ALLIGNED_CHUNKED_SIZE{33U};
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
@@ -176,8 +176,8 @@ TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
     chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
     sut.freeChunk(chunks[INDEX]);
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });

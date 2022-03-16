@@ -27,6 +27,8 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
 
+#include <mutex>
+
 namespace iox
 {
 namespace popo

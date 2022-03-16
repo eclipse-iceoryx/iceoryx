@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/timer.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
@@ -379,57 +378,44 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 }
 
 TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
-    std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
-
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
     ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
-
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
-    TIMING_TEST_EXPECT_FALSE(hasTerminated);
+    // EXPECT_NO_DEATH
+    EXPECT_TRUE(true);
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
-    std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
-
     Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
     ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::IMMEDIATE).has_error());
-
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
-    TIMING_TEST_EXPECT_FALSE(hasTerminated);
+    // EXPECT_NO_DEATH
+    EXPECT_TRUE(true);
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyTerminateTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
-    std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
-
-    Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
-    ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
-    TIMING_TEST_EXPECT_TRUE(hasTerminated);
+    EXPECT_DEATH(
+        {
+            Timer sut(TIMEOUT,
+                      [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
+            ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+        },
+        ".*");
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyChangeToTerminateChangesBehaviorToTerminate, Repeat(5), [&] {
-    std::atomic_bool hasTerminated{false};
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+    EXPECT_DEATH(
+        {
+            Timer sut(TIMEOUT,
+                      [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
 
-    Timer sut(TIMEOUT, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10)); });
-
-    ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
-    ASSERT_FALSE(sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
-
-    TIMING_TEST_EXPECT_TRUE(hasTerminated);
+            ASSERT_FALSE(sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT).has_error());
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+            ASSERT_FALSE(sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::TERMINATE).has_error());
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.toMilliseconds() * 10));
+        },
+        ".*");
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatSkipsCallbackWhenStillRunning, Repeat(5), [&] {

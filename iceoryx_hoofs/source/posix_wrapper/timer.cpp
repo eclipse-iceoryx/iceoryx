@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/posix_wrapper/timer.hpp"
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include <atomic>
@@ -113,11 +112,7 @@ void Timer::OsTimer::callbackHelper(sigval data) noexcept
             // prohibits other threads from entering the flag protected region
             handle.m_callbackIsAboutToBeExecuted.test_and_set(std::memory_order_acq_rel);
 
-            if (handle.m_timer == nullptr)
-            {
-                errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
-                return;
-            }
+            cxx::Expects((handle.m_timer != nullptr) && "Timer in inconsistent state");
 
             if (!handle.m_inUse.load(std::memory_order::memory_order_relaxed))
             {
@@ -166,11 +161,8 @@ void Timer::OsTimer::callbackHelper(sigval data) noexcept
     }
     else
     {
-        if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
-        {
-            errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
-        }
-        return;
+        cxx::Ensures((handle.m_catchUpPolicy != CatchUpPolicy::TERMINATE)
+                     && "Timer callback runtime exceeds retrigger time");
     }
 }
 
@@ -218,10 +210,7 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
         m_callbackHandleIndex++;
     }
 
-    if (!callbackHandleFound)
-    {
-        errorHandler(Error::kPOSIX_TIMER__TIMERPOOL_OVERFLOW);
-    }
+    cxx::Ensures(callbackHandleFound && "Timerpool overflowed");
 
     // Create the struct in order to configure the timer in the OS
     struct sigevent asyncCallNotification = {};
@@ -274,16 +263,9 @@ Timer::OsTimer::~OsTimer() noexcept
 
 void Timer::OsTimer::executeCallback() noexcept
 {
-    if (m_isInitialized && m_callback)
-    {
-        m_callback();
-    }
-    else
-    {
-        // Thread couldn't reach callback or object is not correctly initalized, maybe the originial object was a
-        // temporary?
-        errorHandler(Error::kPOSIX_TIMER__FIRED_TIMER_BUT_STATE_IS_INVALID);
-    }
+    cxx::Expects(m_isInitialized && m_callback && "Timer fired but state is invalid");
+
+    m_callback();
 }
 
 cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept

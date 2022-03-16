@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 #define IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 
 namespace iox
 {

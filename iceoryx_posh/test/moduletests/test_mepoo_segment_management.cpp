@@ -162,8 +162,8 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWrite
     SegmentManager<> sut{segmentConfig, &allocator};
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });

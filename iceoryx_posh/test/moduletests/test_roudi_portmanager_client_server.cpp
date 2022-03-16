@@ -109,7 +109,7 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceCal
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard =
-        iox::ErrorHandler::setTemporaryErrorHandler([&](const auto error, const auto, const auto errorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const auto error, const auto errorLevel) {
             EXPECT_THAT(error, Eq(iox::Error::kPOSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             detectedError.emplace(error);
@@ -141,8 +141,8 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceAnd
     serverPortDataResult.value()->m_toBeDestroyed = true;
 
     iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const auto error, const auto, const auto) { detectedError.emplace(error); });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&](const auto error, const auto) { detectedError.emplace(error); });
 
     // second call must now also succeed
     m_portManager->acquireServerPortData(sd, serverOptions, runtimeName, m_payloadDataSegmentMemoryManager, {})
@@ -150,8 +150,10 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceAnd
             GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
         });
 
-    detectedError.and_then(
-        [&](const auto& error) { GTEST_FAIL() << "Expected error handler to not be called but got: " << error; });
+    detectedError.and_then([&](const auto& error) {
+        GTEST_FAIL() << "Expected error handler to not be called but got: "
+                     << static_cast<std::underlying_type<iox::Error>::type>(error);
+    });
 }
 
 // END aquireServerPortData tests

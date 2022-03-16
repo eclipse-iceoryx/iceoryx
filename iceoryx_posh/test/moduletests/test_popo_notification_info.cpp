@@ -94,8 +94,8 @@ TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
     ::testing::Test::RecordProperty("TEST_ID", "badb467b-bf64-4e43-af30-77c163e90c99");
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+    auto errorHandlerGuard =
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
@@ -111,8 +111,8 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
     ::testing::Test::RecordProperty("TEST_ID", "4fdb2bed-9928-4181-b195-e411d1b16572");
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+    auto errorHandlerGuard =
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
             errorHandlerType = error;
             errorHandlerCalled = true;
         });

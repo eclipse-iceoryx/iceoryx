@@ -414,10 +414,8 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     constexpr uint32_t SAMPLE_SIZE = 2048U;
     constexpr uint32_t REPETITION = 1U;
     iox::cxx::optional<iox::Error> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            receivedError.emplace(error);
-        });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&receivedError](const iox::Error error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE}));
 
@@ -434,10 +432,8 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     constexpr uint32_t SAMPLE_SIZE_1 = 200U;
     constexpr uint32_t REPETITION = 1U;
     iox::cxx::optional<iox::Error> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::setTemporaryErrorHandler(
-        [&receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            receivedError.emplace(error);
-        });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
+        [&receivedError](const iox::Error error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
     // make the mempool empty
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(DEFAULT_NUMBER_OF_CHUNKS));

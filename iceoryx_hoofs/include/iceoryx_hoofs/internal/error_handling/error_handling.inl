@@ -1,4 +1,3 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,21 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_TEST_TEST_HPP
-#define IOX_POSH_TEST_TEST_HPP
+#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
+#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
 
-#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
-#include <fstream>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+namespace iox
+{
+template <typename Error>
+inline void errorHandler(const Error error,
+                         const std::function<void()>& errorCallBack IOX_MAYBE_UNUSED,
+                         const ErrorLevel level) noexcept
+{
+    ErrorHandler::handler(static_cast<typename std::underlying_type<Error>::type>(error), toString(error), level);
+}
 
-#endif // IOX_POSH_TEST_TEST_HPP
+} // namespace iox
+
+#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL

@@ -1,4 +1,3 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_TEST_TEST_HPP
-#define IOX_POSH_TEST_TEST_HPP
 
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 
-#include <fstream>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
-#endif // IOX_POSH_TEST_TEST_HPP
+namespace iox
+{
+std::mutex ErrorHandlerMock::m_handlerMutex;
+} // namespace iox
