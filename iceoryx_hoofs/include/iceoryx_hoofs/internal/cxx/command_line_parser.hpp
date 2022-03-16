@@ -29,6 +29,12 @@ namespace iox
 {
 namespace cxx
 {
+class CommandLineParser;
+namespace internal
+{
+void handleError(const CommandLineParser& parser);
+}
+
 enum class ArgumentType
 {
     SWITCH,
@@ -179,6 +185,8 @@ class CommandLineParser
     };
 
   private:
+    friend void internal::handleError(const CommandLineParser&);
+
     CommandLineParser& addOption(const entry_t& option) noexcept;
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
     void printHelpAndExit() const noexcept;

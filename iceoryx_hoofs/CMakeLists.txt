@@ -159,6 +159,7 @@ setup_package_name_and_create_files(
 add_library(iceoryx_hoofs
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
+    source/cxx/command_line.cpp
     source/cxx/command_line_parser.cpp
     source/cxx/deadline_timer.cpp
     source/cxx/filesystem.cpp

@@ -27,7 +27,7 @@ CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
     T value;
     if (!cxx::convert::fromString(stringValue.c_str(), value))
     {
-        std::cerr << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
+        std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
         return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
     }
     return cxx::success<T>(value);
@@ -40,7 +40,7 @@ CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
     bool doesContainTrueAsString = (strncmp(stringValue.c_str(), "true", 5) == 0);
     if (!doesContainTrueAsString && (strncmp(stringValue.c_str(), "false", 6) != 0))
     {
-        std::cerr << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
+        std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
         return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
     }
     return cxx::success<bool>(doesContainTrueAsString);

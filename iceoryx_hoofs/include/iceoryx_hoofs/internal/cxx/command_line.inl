@@ -26,7 +26,11 @@ namespace cxx
 namespace internal
 {
 template <typename T>
-inline void extractValue(T& value, const cmdEntries_t& entries, const uint64_t index, const CommandLineOptions& options)
+inline void extractValue(const CommandLineParser& parser,
+                         T& value,
+                         const cmdEntries_t& entries,
+                         const uint64_t index,
+                         const CommandLineOptions& options)
 {
     auto result = options.get<T>(entries[index].longOption);
     if (result.has_error())
@@ -48,14 +52,16 @@ inline void extractValue(T& value, const cmdEntries_t& entries, const uint64_t i
         }
 
         std::cout << "\" is not of type \"" << entries[index].typeName << "\"" << std::endl;
-        std::terminate();
+
+        handleError(parser);
     }
 
     value = result.value();
 }
 
 template <typename T>
-inline T addEntry(T& value,
+inline T addEntry(const CommandLineParser& parser,
+                  T& value,
                   const char shortName,
                   const CommandLineOptions::name_t& name,
                   const CommandLineParser::description_t& description,
@@ -71,14 +77,15 @@ inline T addEntry(T& value,
                                    argumentType,
                                    {TypeInfo<T>::NAME},
                                    CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
-    assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
-        extractValue(value, entries, index, options);
+    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
+        extractValue(parser, value, entries, index, options);
     });
     return defaultValue;
 }
 
 template <>
-inline bool addEntry(bool& value,
+inline bool addEntry(const CommandLineParser& parser,
+                     bool& value,
                      const char shortName,
                      const CommandLineOptions::name_t& name,
                      const CommandLineParser::description_t& description,
@@ -94,55 +101,17 @@ inline bool addEntry(bool& value,
                                    argumentType,
                                    {"true|false"},
                                    CommandLineOptions::value_t(TruncateToCapacity, (defaultValue) ? "true" : "false")});
-    assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
+    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         if (entries[index].type == ArgumentType::SWITCH)
         {
             value = options.has(entries[index].longOption);
         }
         else
         {
-            extractValue(value, entries, index, options);
+            extractValue(parser, value, entries, index, options);
         }
     });
     return defaultValue;
-}
-
-inline void populateEntries(const cmdEntries_t& entries,
-                            const cmdAssignments_t& assignments,
-                            CommandLineOptions::binaryName_t& binaryName,
-                            const CommandLineParser::description_t& programDescription,
-                            int argc,
-                            char* argv[],
-                            const uint64_t argcOffset,
-                            const UnknownOption actionWhenOptionUnknown,
-                            const cxx::function<void()>& onFailureCallback)
-{
-    CommandLineParser parser(programDescription, onFailureCallback);
-    for (const auto& entry : entries)
-    {
-        switch (entry.type)
-        {
-        case ArgumentType::SWITCH:
-            parser.addSwitch(entry.shortOption, entry.longOption, entry.description);
-            break;
-        case ArgumentType::REQUIRED_VALUE:
-            parser.addRequiredValue(entry.shortOption, entry.longOption, entry.description, entry.typeName);
-            break;
-        case ArgumentType::OPTIONAL_VALUE:
-            parser.addOptionalValue(
-                entry.shortOption, entry.longOption, entry.description, entry.typeName, entry.defaultValue);
-            break;
-        }
-    }
-
-    auto options = parser.parse(argc, argv, argcOffset, actionWhenOptionUnknown);
-
-    for (const auto& assignment : assignments)
-    {
-        assignment(options);
-    }
-
-    binaryName = options.binaryName();
 }
 } // namespace internal
 } // namespace cxx

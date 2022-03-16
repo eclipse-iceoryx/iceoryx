@@ -31,11 +31,18 @@ namespace internal
 using cmdEntries_t = vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
 using cmdAssignments_t = vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
 
-template <typename T>
-void extractValue(T& value, const cmdEntries_t& entries, const uint64_t index, const CommandLineOptions& options);
+void handleError(const CommandLineParser& parser);
 
 template <typename T>
-T addEntry(T& value,
+void extractValue(const CommandLineParser& parser,
+                  T& value,
+                  const cmdEntries_t& entries,
+                  const uint64_t index,
+                  const CommandLineOptions& options);
+
+template <typename T>
+T addEntry(const CommandLineParser& parser,
+           T& value,
            const char shortName,
            const CommandLineOptions::name_t& name,
            const CommandLineParser::description_t& description,
@@ -44,20 +51,26 @@ T addEntry(T& value,
            internal::cmdEntries_t& entries,
            internal::cmdAssignments_t& assignments);
 
-void populateEntries(const cmdEntries_t& entries,
+void populateEntries(CommandLineParser& parser,
+                     const cmdEntries_t& entries,
                      const cmdAssignments_t& assignments,
                      CommandLineOptions::binaryName_t& binaryName,
-                     const CommandLineParser::description_t& programDescription,
                      int argc,
                      char* argv[],
                      const uint64_t argcOffset,
-                     const UnknownOption actionWhenOptionUnknown,
-                     const cxx::function<void()>& onFailureCallback);
+                     const UnknownOption actionWhenOptionUnknown);
 
 #define INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)        \
   private:                                                                                                             \
-    type m_##memberName = iox::cxx::internal::addEntry<type>(                                                          \
-        this->m_##memberName, shortName, longName, description, argumentType, defaultValue, m_entries, m_assignments); \
+    type m_##memberName = iox::cxx::internal::addEntry<type>(this->m_parser,                                           \
+                                                             this->m_##memberName,                                     \
+                                                             shortName,                                                \
+                                                             longName,                                                 \
+                                                             description,                                              \
+                                                             argumentType,                                             \
+                                                             defaultValue,                                             \
+                                                             m_entries,                                                \
+                                                             m_assignments);                                           \
                                                                                                                        \
   public:                                                                                                              \
     const type& memberName() const noexcept                                                                            \
@@ -130,6 +143,7 @@ void populateEntries(const cmdEntries_t& entries,
 /// @endcode
 #define COMMAND_LINE(Name, ProgramDescription)                                                                         \
   private:                                                                                                             \
+    ::iox::cxx::CommandLineParser m_parser;                                                                            \
     ::iox::cxx::internal::cmdEntries_t m_entries;                                                                      \
     ::iox::cxx::internal::cmdAssignments_t m_assignments;                                                              \
     ::iox::cxx::CommandLineOptions::binaryName_t m_binaryName;                                                         \
@@ -141,16 +155,10 @@ void populateEntries(const cmdEntries_t& entries,
         const uint64_t argcOffset = 1U,                                                                                \
         const ::iox::cxx::UnknownOption actionWhenOptionUnknown = ::iox::cxx::UnknownOption::TERMINATE,                \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
+        : m_parser(ProgramDescription, onFailureCallback)                                                              \
     {                                                                                                                  \
-        ::iox::cxx::internal::populateEntries(m_entries,                                                               \
-                                              m_assignments,                                                           \
-                                              m_binaryName,                                                            \
-                                              ProgramDescription,                                                      \
-                                              argc,                                                                    \
-                                              argv,                                                                    \
-                                              argcOffset,                                                              \
-                                              actionWhenOptionUnknown,                                                 \
-                                              onFailureCallback);                                                      \
+        ::iox::cxx::internal::populateEntries(                                                                         \
+            m_parser, m_entries, m_assignments, m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);        \
     }                                                                                                                  \
                                                                                                                        \
     const ::iox::cxx::CommandLineOptions::binaryName_t& binaryName() const noexcept                                    \
