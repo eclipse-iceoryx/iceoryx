@@ -14,6 +14,8 @@ then sends the sum of those numbers back.
 
 ## Expected Output
 
+[![asciicast](https://asciinema.org/a/476845.svg)](https://asciinema.org/a/476845)
+
 ## Code walkthrough
 
 ### Client Basic
