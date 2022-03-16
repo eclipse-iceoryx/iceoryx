@@ -201,7 +201,7 @@ class CommandLineParser
     bool hasArguments(const int argc) const noexcept;
     bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithMinus(const char* option) const noexcept;
-    bool isOptionNameEmpty(const char* option) const noexcept;
+    bool hasOptionName(const char* option) const noexcept;
     bool hasValidSwitchName(const char* option) const noexcept;
     bool hasValidOptionName(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
