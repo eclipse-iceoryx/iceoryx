@@ -7,8 +7,9 @@ service discovery. It provides two applications - one offering different
 services and one searching for those with different search queries. The
 behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icediscovery).
 
-<!--## Expected Output-->
-<!-- @todo Add expected output with asciinema recording before v2.0-->
+## Expected Output
+
+[![asciicast](https://asciinema.org/a/476732.svg)](https://asciinema.org/a/476732)
 
 ## Code walkthrough
 

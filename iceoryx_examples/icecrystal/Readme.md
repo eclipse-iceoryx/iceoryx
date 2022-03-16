@@ -12,9 +12,7 @@ memory.
 We re-use the binaries from
 [icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.0/iceoryx_examples/icedelivery).
 
-<!-- @todo Add expected output with asciinema recording before v2.0-->
-<!-- The current one is outdated, e.g. the the ServiceDiscovery publisher is missing -->
-<!-- [![asciicast](https://asciinema.org/a/407442.svg)](https://asciinema.org/a/407442) -->
+[![asciicast](https://asciinema.org/a/476669.svg)](https://asciinema.org/a/476669)
 
 ## Feature walkthrough
 
