@@ -164,7 +164,7 @@ namespace iox
 
 enum class PoshError : uint32_t
 {
-    kNO_ERROR = 2000,
+    kNO_ERROR = POSH_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,
     POSH_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 

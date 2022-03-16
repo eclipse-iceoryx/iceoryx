@@ -27,6 +27,13 @@
 
 namespace iox
 {
+constexpr uint16_t HOOFS_MODULE_IDENTIFIER{1};
+constexpr uint16_t POSH_MODULE_IDENTIFIER{2};
+constexpr uint16_t C_BINDING_MODULE_IDENTIFIER{3};
+constexpr uint16_t USER_DEFINED_MODULE_IDENTIFIER{256};
+
+constexpr uint8_t ERROR_ENUM_OFFSET_IN_BITS{16};
+
 // DO NOT TOUCH START, you can doodle around with the lines above!!!
 #define CREATE_ICEORYX_ERROR_ENUM(name) k##name,
 #define CREATE_ICEORYX_ERROR_STRING(name) #name,

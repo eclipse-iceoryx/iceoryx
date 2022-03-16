@@ -31,7 +31,7 @@ namespace iox
 
 enum class HoofsError : uint32_t
 {
-    kNO_ERROR = 1000,
+    kNO_ERROR = HOOFS_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,
     HOOFS_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 

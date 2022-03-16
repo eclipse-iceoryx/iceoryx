@@ -42,11 +42,12 @@ cxx::optional<iox::TypedHandlerFunction<Error>> typedHandler;
 template <typename ErrorEnumType>
 inline void errorHandlerForTest(const uint32_t error, const char* errorName, const ErrorLevel level) noexcept
 {
-    uint32_t errorEnumType = error >> 16;
-    uint32_t expectedErrorEnumType =
-        static_cast<typename std::underlying_type<ErrorEnumType>::type>(ErrorEnumType::kNO_ERROR) >> 16;
+    uint32_t errorModuleIdentifier = error >> ERROR_ENUM_OFFSET_IN_BITS;
+    uint32_t expectedErrorModuleIdentifier =
+        static_cast<typename std::underlying_type<ErrorEnumType>::type>(ErrorEnumType::kNO_ERROR)
+        >> ERROR_ENUM_OFFSET_IN_BITS;
 
-    if (errorEnumType == expectedErrorEnumType)
+    if (errorModuleIdentifier == expectedErrorModuleIdentifier)
     {
         // We undo the type erasure
         auto typedError = static_cast<ErrorEnumType>(error);
@@ -55,8 +56,8 @@ inline void errorHandlerForTest(const uint32_t error, const char* errorName, con
     }
     else
     {
-        GTEST_FAIL() << "errorName: " << errorName << ", expected error enum type: " << expectedErrorEnumType
-                     << ", actual error enum type: " << errorEnumType;
+        GTEST_FAIL() << "errorName: " << errorName << ", expected error enum type: " << expectedErrorModuleIdentifier
+                     << ", actual error enum type: " << errorModuleIdentifier;
     }
 }
 
