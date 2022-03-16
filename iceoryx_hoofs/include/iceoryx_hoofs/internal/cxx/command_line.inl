@@ -26,6 +26,35 @@ namespace cxx
 namespace internal
 {
 template <typename T>
+inline void extractValue(T& value, const cmdEntries_t& entries, const uint64_t index, const CommandLineOptions& options)
+{
+    auto result = options.get<T>(entries[index].longOption);
+    if (result.has_error())
+    {
+        std::cout << "It seems that the option value of \"";
+        const bool hasShortOption = (entries[index].shortOption != '\0');
+        const bool hasLongOption = (!entries[index].longOption.empty());
+        if (hasShortOption)
+        {
+            std::cout << "-" << entries[index].shortOption;
+        }
+        if (hasShortOption && hasLongOption)
+        {
+            std::cout << ", ";
+        }
+        if (hasLongOption)
+        {
+            std::cout << "--" << entries[index].longOption;
+        }
+
+        std::cout << "\" is not of type \"" << entries[index].typeName << "\"" << std::endl;
+        std::terminate();
+    }
+
+    value = result.value();
+}
+
+template <typename T>
 inline T addEntry(T& value,
                   const char shortName,
                   const CommandLineOptions::name_t& name,
@@ -43,30 +72,7 @@ inline T addEntry(T& value,
                                    {TypeInfo<T>::NAME},
                                    CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
-        auto result = options.get<T>(entries[index].longOption);
-        if (result.has_error())
-        {
-            std::cout << "It seems that the switch value of \"";
-            const bool hasShortOption = (entries[index].shortOption != '\0');
-            const bool hasLongOption = (!entries[index].longOption.empty());
-            if (hasShortOption)
-            {
-                std::cout << "-" << entries[index].shortOption;
-            }
-            if (hasShortOption && hasLongOption)
-            {
-                std::cout << ", ";
-            }
-            if (hasLongOption)
-            {
-                std::cout << "--" << entries[index].longOption;
-            }
-
-            std::cout << "\" is not of type \"" << TypeInfo<T>::NAME << "\"" << std::endl;
-            std::terminate();
-        }
-
-        value = result.value();
+        extractValue(value, entries, index, options);
     });
     return defaultValue;
 }
@@ -86,10 +92,17 @@ inline bool addEntry(bool& value,
                                    name,
                                    description,
                                    argumentType,
-                                   {TypeInfo<bool>::NAME},
-                                   CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
+                                   {"true|false"},
+                                   CommandLineOptions::value_t(TruncateToCapacity, (defaultValue) ? "true" : "false")});
     assignments.emplace_back([&value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
-        value = options.has(entries[index].longOption);
+        if (entries[index].type == ArgumentType::SWITCH)
+        {
+            value = options.has(entries[index].longOption);
+        }
+        else
+        {
+            extractValue(value, entries, index, options);
+        }
     });
     return defaultValue;
 }

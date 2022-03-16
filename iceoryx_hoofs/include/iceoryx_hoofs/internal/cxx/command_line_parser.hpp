@@ -13,6 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_CXX_COMMAND_LINE_PARSER_HPP
+#define IOX_HOOFS_CXX_COMMAND_LINE_PARSER_HPP
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
@@ -80,6 +82,10 @@ class IOX_NO_DISCARD CommandLineOptions
     const binaryName_t& binaryName() const noexcept;
 
     friend class CommandLineParser;
+
+  private:
+    template <typename T>
+    cxx::expected<T, Result> convertFromString(const value_t& value) const noexcept;
 
   private:
     struct argument_t
@@ -175,7 +181,7 @@ class CommandLineParser
   private:
     CommandLineParser& addOption(const entry_t& option) noexcept;
     cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
-    void printHelpAndExit(const char* binaryName) const noexcept;
+    void printHelpAndExit() const noexcept;
 
     /// BEGIN only used in parse to improve readability
     ///
@@ -203,6 +209,8 @@ class CommandLineParser
   private:
     int m_argc = 0;
     char** m_argv = nullptr;
+    uint64_t m_argcOffset = 0;
+
     description_t m_programDescription;
     cxx::vector<entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
     cxx::function<void()> m_onFailureCallback;
@@ -215,3 +223,5 @@ std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t&
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/cxx/command_line_parser.inl"
+
+#endif

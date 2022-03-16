@@ -32,6 +32,9 @@ using cmdEntries_t = vector<CommandLineParser::entry_t, CommandLineOptions::MAX_
 using cmdAssignments_t = vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
 
 template <typename T>
+void extractValue(T& value, const cmdEntries_t& entries, const uint64_t index, const CommandLineOptions& options);
+
+template <typename T>
 T addEntry(T& value,
            const char shortName,
            const CommandLineOptions::name_t& name,

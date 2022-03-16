@@ -13,11 +13,39 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_CXX_COMMAND_LINE_PARSER_INL
+#define IOX_HOOFS_CXX_COMMAND_LINE_PARSER_INL
 
 namespace iox
 {
 namespace cxx
 {
+template <typename T>
+inline cxx::expected<T, CommandLineOptions::Result>
+CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
+{
+    T value;
+    if (!cxx::convert::fromString(stringValue.c_str(), value))
+    {
+        std::cerr << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
+        return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
+    }
+    return cxx::success<T>(value);
+}
+
+template <>
+inline cxx::expected<bool, CommandLineOptions::Result>
+CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
+{
+    bool doesContainTrueAsString = (strncmp(stringValue.c_str(), "true", 5) == 0);
+    if (!doesContainTrueAsString && (strncmp(stringValue.c_str(), "false", 6) != 0))
+    {
+        std::cerr << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
+        return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
+    }
+    return cxx::success<bool>(doesContainTrueAsString);
+}
+
 template <typename T>
 inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(const name_t& optionName) const noexcept
 {
@@ -25,13 +53,7 @@ inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(cons
     {
         if (a.id == optionName || (optionName.size() == 1 && a.shortId == optionName.c_str()[0]))
         {
-            T value;
-            if (!cxx::convert::fromString(a.value.c_str(), value))
-            {
-                std::cerr << "\"" << a.value.c_str() << "\" could not be converted to the requested type" << std::endl;
-                return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
-            }
-            return cxx::success<T>(value);
+            return convertFromString<T>(a.value);
         }
     }
 
@@ -39,3 +61,5 @@ inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(cons
 }
 } // namespace cxx
 } // namespace iox
+
+#endif
