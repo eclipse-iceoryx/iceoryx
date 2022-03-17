@@ -47,7 +47,7 @@ target_compile_options(
 ## C++ untyped API server
 add_executable(
     iox-cpp-request-response-untyped-server
-    server_cxx_untpyed.cpp
+    server_cxx_untyped.cpp
 )
 target_link_libraries(
     iox-cpp-request-response-untyped-server
