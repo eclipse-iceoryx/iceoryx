@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 ICEORYX_ROOT_PATH=$(git rev-parse --show-toplevel)
+EXIT_CODE=0
+ENABLE_URL_CHECK=0
 
 setupTerminalColors()
 {
@@ -48,7 +50,7 @@ setupTerminalFormat()
 {
     if [[ -t 1 ]]
     then
-        STATUS_MSG_SPACING="          "
+        STATUS_MSG_SPACING="             "
         STATUS_MSG_POSITION="\r"
     else
         STATUS_MSG_SPACING=""
@@ -58,7 +60,7 @@ setupTerminalFormat()
 
 doesWebURLExist()
 {
-    if curl --head --silent --fail $1 2> /dev/null 1>/dev/null ;
+    if curl --connect-timeout 10 --retry 5 --retry-delay 0 --retry-max-time 30 --head --silent --fail $1 2> /dev/null 1>/dev/null ;
     then
         echo 1
     else
@@ -74,29 +76,145 @@ isWebLink()
     echo $RESULT | grep 1 | wc -l
 }
 
+isMailLink()
+{
+    echo $1 | grep -E "^mailto:" | wc -l
+}
+
+isLinkToSection()
+{
+    echo $1 | grep -E "^#" | wc -l
+}
+
+isAbsolutePath()
+{
+    echo $1 | grep -E "^/" | wc -l
+}
+
+printLinkFailureSource()
+{
+    echo -e "  name:    ${COLOR_LIGHT_YELLOW} $LINK_NAME ${COLOR_RESET}"
+    echo -e "  link:    ${COLOR_LIGHT_RED} $LINK${COLOR_RESET}"
+    echo
+
+    EXIT_CODE=1
+}
+
+checkLinkToSection()
+{
+    local LOCAL_LINK_VALUE=$1
+    local LOCAL_FILE=$2
+
+    LINK=$(echo $LOCAL_LINK_VALUE | sed -n "s/^#\(.*\)/#\1/p" | tr - '.')
+    local LOCAL_LINK=$(echo $LINK | cut -f 2 -d '#')
+    if ! [[ $(cat $LOCAL_FILE | grep -iE "# $LOCAL_LINK\$" | wc -l ) == 1 ]]
+    then
+        printLinkFailureSource
+    fi
+}
+
+checkLinkToUrl()
+{
+    if [[ $ENABLE_URL_CHECK == "1" ]]
+    then
+        LINK=$1
+        if ! [[ $(doesWebURLExist $LINK) == "1" ]]
+        then
+            printLinkFailureSource
+        fi
+    fi
+}
+
+performLinkCheck()
+{
+    NUMBER_OF_FILES=$(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | wc -l)
+
+    CURRENT_FILE=0
+    for FILE in $(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github)
+    do
+        let CURRENT_FILE=$CURRENT_FILE+1
+        FILE_DIRECTORY=$(dirname $FILE)
+        echo [$CURRENT_FILE/$NUMBER_OF_FILES] $FILE
+
+        OLD_IFS=$IFS
+        IFS=$'\n'
+        IS_IN_CODE_ENV="0"
+
+        for LINE in $(cat $FILE)
+        do
+            if [[ $(echo $LINE | grep -E "^[ ]*\`\`\`" | wc -l) == "1" ]]
+            then
+                if [[ $IS_IN_CODE_ENV == "1" ]]
+                then
+                    IS_IN_CODE_ENV="0"
+                else
+                    IS_IN_CODE_ENV="1"
+                fi
+            fi
+
+            if [[ $IS_IN_CODE_ENV == "1" ]]
+            then
+                continue
+            fi
+
+            ## sed -e 's/[^[]`[^`]*`//g' 
+            ## remove inline code env like `auto bla = [blubb](auto i) ..` which could be mistaken as
+            ## a markdown link like [linkName](linkValue)
+            ##
+            ## sed -n "s/.*\[\(.*\)](\([^)]*\)).*/\1[\2/p"
+            ## extract markdown links
+            link=$(echo $LINE | sed -e 's/[^[]`[^`]*`//g' | sed -n "s/.*\[\(.*\)](\([^)]*\)).*/\1[\2/p" | tr ' ' _)
+            if [[ $link == "" ]]
+            then
+                continue
+            fi
+
+            LINK_NAME=$(echo $link | cut -f 1 -d '[')
+            LINK_VALUE=$(echo $link | cut -f 2 -d '[')
+
+            if [[ $(isMailLink $LINK_VALUE) == "1" ]]
+            then
+                continue
+            elif [[ $(isWebLink $LINK_VALUE) == "1" ]]
+            then
+                checkLinkToUrl $LINK_VALUE
+            elif [[ $(isLinkToSection $LINK_VALUE) == "1" ]]
+            then
+                checkLinkToSection $LINK_VALUE $FILE
+            else
+                if [[ ${isAbsolutePath} == "1" ]]
+                then
+                    LINK=$LINK
+                else
+                    LINK=${FILE_DIRECTORY}/${LINK_VALUE}
+                fi
+
+                if [[ $(echo $LINK | grep '#' | wc -l) == "1" ]]
+                then
+                    SECTION_IN_FILE=$(echo $LINK | cut -f 2 -d '#')
+                    LINK=$(echo $LINK | cut -f 1 -d '#')
+                fi
+
+                if ! [ -f $LINK ] && ! [ -d $LINK ]
+                then
+                    printLinkFailureSource
+                    continue
+                fi
+
+                if ! [[ $SECTION_IN_FILE == "" ]]
+                then
+                    checkLinkToSection "#$SECTION_IN_FILE" $LINK
+                fi
+
+                SECTION_IN_FILE=""
+            fi
+        done
+    done
+}
+
 setupTerminalColors
 setupTerminalFormat
 
-for file in $(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github)
-do
-    FILE_DIRECTORY=$(dirname $file)
-    for link in $(cat $file | sed -n "s/.*\[\(.*\)](\([^)]*\)).*/\1[\2/p" | tr ' ' _)
-    do
-        LINK_NAME=$(echo $link | cut -f 1 -d '[')
-        LINK_VALUE=$(echo $link | cut -f 2 -d '[')
+performLinkCheck
 
-        echo -en "  ${STATUS_MSG_SPACING}${COLOR_RESET}[ ${COLOR_LIGHT_BLUE}$LINK_NAME${COLOR_RESET} ] "
-        if [[ $(isWebLink $LINK_VALUE) == "1" ]]
-        then
-            echo -en "Verify WebLink : ${COLOR_LIGHT_BLUE}$LINK_VALUE${COLOR_RESET} "
-            if [[ $(doesWebURLExist $LINK_VALUE) == "1" ]]
-            then
-                echo -e "${STATUS_MSG_POSITION}<${COLOR_LIGHT_GREEN} success${COLOR_RESET} >"
-            else
-                echo -e "${STATUS_MSG_POSITION}<${COLOR_LIGHT_RED} failed${COLOR_RESET} >"
-            fi
-        else
-            echo bla
-        fi
-    done
-done
+exit $EXIT_CODE
