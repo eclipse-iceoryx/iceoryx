@@ -1,6 +1,6 @@
 # Installation guide for contributors
 
-## :material-test-tube: Build and run tests
+## Build and run tests
 
 While developing on iceoryx, you may want to know if your changes will break existing functionality or if your
 newly written tests will pass. For that purpose, we generate CMake targets that execute the tests. First,
@@ -55,7 +55,7 @@ Let's assume you want to execute only `ServiceDescription_test` from posh_module
     While writing code on iceoryx you should use git hooks that automatically ensure that you follow the coding and style guidelines.
     See [`git-hooks`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
 
-## :fontawesome-solid-pump-soap: Use Sanitizer Scan
+## Use Sanitizer Scan
 
 Due to the fact that iceoryx works a lot with system memory, it should be ensured that errors like memory leaks are not introduced.
 To prevent this, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the
@@ -97,7 +97,7 @@ This should be used only rarely and only in coordination with an iceoryx maintai
     the script. If you want to use the ${ICEORYX_WARNINGS} then you have to call `find_package(iceoryx_hoofs)` and `include(IceoryxPlatform)`
     to make use of the ${ICEORYX_SANITIZER_FLAGS}.
 
-## :material-library: iceoryx library build
+## iceoryx library build
 
 The iceoryx build consists of several libraries which have dependencies on each other. The goal is to have encapsulated
 library packages available so that the end-user can easily find them with the CMake command `find_package(...)`.

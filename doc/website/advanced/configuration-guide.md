@@ -1,6 +1,6 @@
 # Configuration guide
 
-## :material-cog: CMake switches for configuring iceoryx_posh build
+## CMake switches for configuring iceoryx_posh build
 
 There are several configuration options set by default when iceoryx_posh is build.
 These options adjust the global maximum amount of resources like Publisher and
@@ -37,7 +37,7 @@ With that change, the footprint of the management segment is reduced to ~52.7 MB
 For larger use cases you can increase the value to avoid that samples are dropped
 on the subscriber side (see also [#615](https://github.com/eclipse-iceoryx/iceoryx/issues/615)).
 
-## :material-memory: Configuring Mempools for RouDi
+## Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to
 limit the read and write access between different applications. Memory pools
@@ -66,7 +66,7 @@ provides you an API for compiling your own RouDi application and is part of `ice
 
 The value for the alignment is set to 8.
 
-### :material-file-cog: Dynamic configuration
+### Dynamic configuration
 
 One way is to read a configuration dynamically during the startup of RouDi.
 Using the TOML Config in RouDi is not mandatory for configuring segments and
