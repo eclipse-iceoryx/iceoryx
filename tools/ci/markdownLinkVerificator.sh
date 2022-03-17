@@ -197,6 +197,10 @@ checkLinksInFile()
             if ! [ -f $LINK ] && ! [ -d $LINK ]
             then
                 printLinkFailureSource
+
+                POSSIBLE_ALTERNATIVE=$(find $ICEORYX_ROOT_PATH -type f -iname $(basename $LINK))
+                echo -e "Is this the file you are looking for: ${COLOR_LIGHT_BLUE}$POSSIBLE_ALTERNATIVE${COLOR_RESET}"
+                echo
                 continue
             fi
 
