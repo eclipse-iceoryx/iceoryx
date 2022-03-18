@@ -234,6 +234,20 @@ checkLinksInFile()
     do
         let LINE_NR=$LINE_NR+1
 
+        # it is possible to have code environments like
+        # ````
+        # ```
+        # hello world
+        # ```
+        # ````
+        # this is at the moment not supported, only ``` so we print a warning when we
+        # encounter such a line
+        if [[ $(echo $LINE | grep -E "^[ ]*\`\`\`\`" | wc -l) == "1" ]]
+        then
+            echo -e ${COLOR_LIGHT_RED}File: $FILE, markdown code environment with more than 3 \` are not supported. You may encounter false positives.${COLOR_RESET}
+            continue
+        fi
+
         # detect code environments, see ``` and skip them
         if [[ $(echo $LINE | grep -E "^[ ]*\`\`\`" | wc -l) == "1" ]]
         then

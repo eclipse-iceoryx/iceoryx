@@ -289,11 +289,11 @@ Or with a comment one line above (the number after the warning number indicates 
 *mynullptr = foo;
 ```
 
-Scan results of the `master` branch are available on a [Axivion dashboard](https://iceoryx-axivion.apex.ai/). Please <!--NOLINT see issue: #1298-->
+Scan results of the `master` branch are available on a [Axivion dashboard](https://iceoryx-axivion.apex.ai/)<!--NOLINT see issue: #1298-->. Please
 contact one of the maintainers, if you're interested in getting access.
 
 Don't be afraid if you don't have Axivion available. As we want to make it easy for developers to contribute,
-please raise a pull request and one of the maintainers will provided you access to the [dashboard](https://iceoryx-axivion.apex.ai/). <!--NOLINT see issue: #1298-->
+please raise a pull request and one of the maintainers will provided you access to the [dashboard](https://iceoryx-axivion.apex.ai/)<!--NOLINT see issue: #1298-->.
 
 ### Header
 

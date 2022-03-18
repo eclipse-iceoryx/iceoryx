@@ -194,4 +194,4 @@ Every release that is integrated with ROS will be build with the ROS CI to ensur
 This package conforms to the Vulnerability Disclosure Policy in REP-2006.
 The Eclipse Project Handbook states the project's [vulnerability disclosure policy](https://www.eclipse.org/projects/handbook/#vulnerability-disclosure) in detail.
 
-The [iceoryx website](https://iceoryx.io) provides a link to report a security vulnerability. <!--NOLINT explicit link to website-->
+The [iceoryx website](https://iceoryx.io)<!--NOLINT explicit link to website--> provides a link to report a security vulnerability.
