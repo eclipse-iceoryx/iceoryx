@@ -145,7 +145,7 @@ We will give the API draft some weeks for finalizing the features and to incorpo
 - Incorrect usage of strncpy [\#374](https://github.com/eclipse-iceoryx/iceoryx/issues/374)
 - Global Instantiation of Publisher/Subscriber created core dump [\#327](https://github.com/eclipse-iceoryx/iceoryx/issues/327)
 
-## [v0.17.0](https://github.com/eclipse-iceoryx/iceoryx/tree/ICEORYX_0.17.0) (2020-08-27)
+## [v0.17.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.17.0) (2020-08-27)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/ICEORYX_0.17.0_RC6...v0.17.0)\
 MacOS support and preparations for new API

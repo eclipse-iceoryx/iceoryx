@@ -48,7 +48,7 @@ The number of segments used by an iceoryx system, along with the configuration o
 provided to the system via configuration.
 
 The configuration can be provided at compile time (as a header) or at runtime (as a toml-formatted text file).
-See the [configuration guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/configuration-guide.md#configuring-mempools-for-roudi) for more details.
+See the [configuration guide](./website/advanced/configuration-guide.md#configuring-mempools-for-roudi) for more details.
 
 ## Zero-copy communication
 

@@ -21,7 +21,7 @@ The different libraries and their namespaces are depicted below.
 Handy Objects Optimized For Safety (hoofs) is a library and contains various building blocks like fixed size containers,
 concurrency classes and modern, next-gen C++ constructs from upcoming C++ standard releases.
 
-For more information about the components, refer to its [detailed description](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/README.md).
+For more information about the components, refer to its [detailed description](../../../iceoryx_hoofs/README.md).
 
 ### iceoryx posh
 
@@ -55,7 +55,7 @@ The module `iceoryx_binding_c` makes the inter-process communication features of
 The package `iceoryx_dds` provides a bi-directional DDS gateway using [Eclipse Cyclone DDS](https://cyclonedds.io/).
 The gateway can be used to send data over a network e.g. via Ethernet.
 
-For more information, refer to the [Readme](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_dds/README.md).
+For more information, refer to the [Readme](../../../iceoryx_dds/README.md).
 
 ### iceoryx introspection
 

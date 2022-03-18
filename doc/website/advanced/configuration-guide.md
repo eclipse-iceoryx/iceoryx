@@ -18,9 +18,7 @@ in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can take in parallel|
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used by gateways |
 
-Have a look at 
-[IceoryxPoshDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/IceoryxPoshDeployment.cmake)
-for the default values of the constants.
+Have a look at [IceoryxPoshDeployment.cmake](../../../iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
 
 !!! hint
     With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You
@@ -170,7 +168,7 @@ count = 100
 ```
 
 When no configuration file is specified a hard-coded version similar to the 
-[default config](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
+[default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
 will be used.
 
 ### Static configuration
@@ -184,4 +182,4 @@ In the cmake file entry of the custom RouDi executable you need to ensure that i
 is **not** linking against `iceoryx_posh_config` to ensure using the static configuration.
 
 An example of a static config can be found 
-[here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/iceperf/roudi_main_static_config.cpp).
+[here](../../../iceoryx_examples/iceperf/roudi_main_static_config.cpp).

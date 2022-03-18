@@ -93,7 +93,7 @@ Generally, you will not find any Doxygen file in our repo because we let CMake g
 In [Cmake](CMakeLists.txt) is the command `doxygen_add_docs` which does the job.
 There, we are also setting some parameters and the aliases for the custom tags. Aliases with an `xrefitem` create a page where all occurrences of the corresponding tag are collected.
 ### file header
-Please see [Header](https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#header).
+Please see [Header](../../CONTRIBUTING.md#header).
 
 ### Include guards
 Every header and inl file needs to have an include guard. Pragma once is not allowed.

@@ -115,7 +115,7 @@ attribute overview of the available Queues:
 
 ### Error handling
 
-The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md)
+The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](../doc/design/error-handling.md)
 
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
@@ -124,7 +124,7 @@ The error handler is a central instance for collecting all errors and react to t
 
 ### Log
 
-For information about how to use the logger API see [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md)
+For information about how to use the logger API see [error-handling.md](../doc/design/error-handling.md)
 
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|

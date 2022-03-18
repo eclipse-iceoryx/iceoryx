@@ -53,7 +53,7 @@ Let's assume you want to execute only `ServiceDescription_test` from posh_module
 
 !!! hint
     While writing code on iceoryx you should use git hooks that automatically ensure that you follow the coding and style guidelines.
-    See [`git-hooks`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
+    See [`git-hooks`](../../../tools/git-hooks/Readme.md).
 
 ## Use Sanitizer Scan
 

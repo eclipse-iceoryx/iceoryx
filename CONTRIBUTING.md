@@ -58,7 +58,7 @@ Please make sure you have:
 7. You open your pull request towards the base branch `master`
 8. Link the pull request to the according GitHub issue and set the label accordingly
 
-**NOTE:** For support while developing you can use little helper scripts, see [git-hooks](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/git-hooks/Readme.md).
+**NOTE:** For support while developing you can use little helper scripts, see [git-hooks](./tools/git-hooks/Readme.md).
 
 ## Branching strategy
 
@@ -105,7 +105,7 @@ codebase follows these rules, things are work in progress.
 2) **No exceptions are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
 4) **Use C++14**
-5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
+5) **[Rule of Five](https://en.cppreference.com/w/cpp/language/rule_of_three)**, if there is a non-default
     destructor needed, the rule of five has to be applied
 6) **[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)**, we aim to be compatible towards the STL, but
     our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
@@ -115,7 +115,7 @@ codebase follows these rules, things are work in progress.
     shall not be propagated via an `iox::cxx::expected`
 9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 
-See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional
+See [error-handling.md](./doc/design/error-handling.md) for additional
 information about logging and error handling.
 
 ### Naming conventions
@@ -294,9 +294,6 @@ contact one of the maintainers, if you're interested in getting access.
 
 Don't be afraid if you don't have Axivion available. As we want to make it easy for developers to contribute,
 please raise a pull request and one of the maintainers will provided you access to the [dashboard](https://iceoryx-axivion.apex.ai/).
-
-As an alternative it is also possible to use Perforce's
-[Helix QAC++](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
 ### Header
 

@@ -94,7 +94,7 @@ while (keepRunning)
 By calling `take` we get an `expected` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
-[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples
+[Here](../../../iceoryx_examples/README.md) you can find further examples
 which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
@@ -148,7 +148,7 @@ Shared memory is physical memory that is made accessible to multiple processes v
 virtual address spaces.
 
 For further information have a look at our
-[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/shared-memory-communication.md).
+[shared memory concept article](../../shared-memory-communication.md).
 
 ### Runtime
 
@@ -297,7 +297,7 @@ The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pat
 strategy that one of the attached events occured at which it informs the user.
 
 For more information on how to use the WaitSet see our
-[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset).
+[WaitSet examples](../../../iceoryx_examples/waitset).
 
 ### Listener
 
@@ -319,7 +319,7 @@ connected callback that creates and sends a response, is executed.
 Like the WaitSet, the Listener uses the reactor pattern.
 
 For more information about the Listener see our
-[callbacks examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks).
+[callbacks example](../../../iceoryx_examples/callbacks).
 
 ## API
 

@@ -15,7 +15,7 @@ to the WaitSet where the user has to call the event-callbacks explicitly.
 
 ## Terminology
 
-- [Condition Variable](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2)
+- [Condition Variable](https://en.cppreference.com/w/cpp/thread/condition_variable)
   Used by an attached object to inform the Listener/WaitSet that an event has
   occurred.
 - **event** is changing the state of an object.

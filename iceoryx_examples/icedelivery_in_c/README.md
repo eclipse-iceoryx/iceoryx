@@ -1,12 +1,12 @@
 # icedelivery in C
 
 You can find a more detailed description of the C API in the
-[iceoryx_binding_c README.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_binding_c/README.md).
+[iceoryx_binding_c README.md](../../iceoryx_binding_c/README.md).
 
 ## Introduction
 
 The behavior and structure is identical to the
-[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
+[icedelivery C++ example](../icedelivery)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
 ## Expected Output
@@ -18,7 +18,7 @@ so that we explain here only the C API differences and not the underlying mechan
 ### Subscriber
 
 As in the
-[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery),
+[icedelivery C++ example](../icedelivery),
 we perform the following steps:
 
  1. Create a runtime instance.

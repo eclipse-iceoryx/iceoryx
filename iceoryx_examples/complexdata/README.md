@@ -116,7 +116,7 @@ handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
 
 !!! note
     If you're not familiar with `optional`, please have a look at
-    [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/concepts/how-optional-and-error-values-are-returned-in-iceoryx.md/#optional).
+    [How optional and error values are returned in iceoryx](../../doc/website/concepts/how-optional-and-error-values-are-returned-in-iceoryx.md#optional).
 
 Now we fill the stack
 

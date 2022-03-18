@@ -1,12 +1,12 @@
 # Request response in C
 
 You can find a more detailed description of the C API in the
-[iceoryx_binding_c README.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_binding_c/README.md).
+[iceoryx_binding_c README.md](../../iceoryx_binding_c/README.md).
 
 ## Introduction
 
 The behavior and structure is very close to the
-[request response C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response)
+[request response C++ example](../request_response)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
 The rough idea is that the client sends two fibonacci numbers to the server which
