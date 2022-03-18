@@ -9,7 +9,7 @@ EXIT_CODE=0
 
 ENABLE_URL_CHECK=1
 
-# skips github issue and compare links since they tend to fail quiet often
+# skips github issue urls since they tend to fail quiet often
 # without reason
 SKIP_GITHUB_URL_CHECK=1
 
@@ -59,7 +59,7 @@ setupTerminalColors()
 
 doesWebURLExist()
 {
-    if curl --connect-timeout 10 --retry 5 --retry-delay 0 --retry-max-time 30 --head --silent --fail $1 2> /dev/null 1>/dev/null ;
+    if curl --insecure --head --silent --fail $1 2> /dev/null 1>/dev/null ;
     then
         echo 1
     else
@@ -121,13 +121,11 @@ verifyLinkToUrl()
 
         if [[ $SKIP_GITHUB_URL_CHECK == "1" ]]
         then
-            if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/compare" | wc -l) == "1" ]] ||
-               [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/issue" | wc -l) == "1" ]]
+            if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/issue" | wc -l) == "1" ]]
             then
                 return
             fi
         fi
-
         #### [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/tree" | wc -l) == "1" ]] ||
 
         if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/blob" | wc -l) == "1" ]]
@@ -194,6 +192,7 @@ checkLinksInFile()
     do
         let LINE_NR=$LINE_NR+1
 
+        # detect code environments, see ``` and skip them
         if [[ $(echo $LINE | grep -E "^[ ]*\`\`\`" | wc -l) == "1" ]]
         then
             if [[ $IS_IN_CODE_ENV == "1" ]]
@@ -205,6 +204,12 @@ checkLinksInFile()
         fi
 
         if [[ $IS_IN_CODE_ENV == "1" ]]
+        then
+            continue
+        fi
+
+        # detect NOLINT and skip those lines
+        if [[ $(echo $LINE | grep -E "<!--NOLINT.*-->" | wc -l) == "1" ]]
         then
             continue
         fi
