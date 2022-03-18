@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 
+## IMPORTANT
+# when an URL contains ( ) please replace them with the code %28 %29 otherwise
+# the parser will deliver a false positive
+
 ICEORYX_ROOT_PATH=$(git rev-parse --show-toplevel)
 EXIT_CODE=0
+
 ENABLE_URL_CHECK=1
+
+# skips github issue and compare links since they tend to fail quiet often
+# without reason
+SKIP_GITHUB_URL_CHECK=1
 
 FILE_TO_SCAN=$1
 
@@ -109,6 +118,26 @@ verifyLinkToUrl()
     if [[ $ENABLE_URL_CHECK == "1" ]]
     then
         LINK=$1
+
+        if [[ $SKIP_GITHUB_URL_CHECK == "1" ]]
+        then
+            if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/compare" | wc -l) == "1" ]] ||
+               [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/issue" | wc -l) == "1" ]]
+            then
+                return
+            fi
+        fi
+
+        #### [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/tree" | wc -l) == "1" ]] ||
+
+        if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/blob" | wc -l) == "1" ]]
+        then
+            echo -e "${COLOR_LIGHT_RED}Please do not use a github url when also a relative path works!${COLOR_RESET}"
+            echo -e "${COLOR_LIGHT_RED}Relative paths ensure that the tag/branch of link source and destination is equal.${COLOR_RESET}"
+            printLinkFailureSource
+            return
+        fi
+
         if ! [[ $(doesWebURLExist $LINK) == "1" ]]
         then
             printLinkFailureSource
@@ -141,7 +170,7 @@ verifyLinkToFile()
         echo -e "Is this the file you are looking for: ${COLOR_LIGHT_BLUE}$POSSIBLE_ALTERNATIVE${COLOR_RESET}"
         echo
         SECTION_IN_FILE=""
-        continue
+        return
     fi
 
     if ! [[ $SECTION_IN_FILE == "" ]]
