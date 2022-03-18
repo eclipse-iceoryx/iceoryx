@@ -16,6 +16,12 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./tools/scripts/clang_format.sh check
 
+  verify-links-in-markdown-documentation:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./tools/ci/markdown-link-verificator.sh
+
   build-test-ubuntu:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
