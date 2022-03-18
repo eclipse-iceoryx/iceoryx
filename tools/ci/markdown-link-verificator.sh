@@ -2,13 +2,13 @@
 
 ICEORYX_ROOT_PATH=$(git rev-parse --show-toplevel)
 EXIT_CODE=0
-ENABLE_URL_CHECK=0
+ENABLE_URL_CHECK=1
 
 FILE_TO_SCAN=$1
 
 setupTerminalColors()
 {
-    if [[ -t 1 ]]
+    if [[ -t 1 ]] ## output to console, we want colors!
     then
         COLOR_BLACK="\e[30m"
         COLOR_RED="\e[31m"
@@ -27,7 +27,7 @@ setupTerminalColors()
         COLOR_LIGHT_MAGENTA="\e[96m"
         COLOR_WHITE="\e[97m"
         COLOR_RESET="\e[0m"
-    else
+    else ## output into file, no colors and escape codes!
         COLOR_BLACK=""
         COLOR_RED=""
         COLOR_GREEN=""
@@ -45,18 +45,6 @@ setupTerminalColors()
         COLOR_LIGHT_MAGENTA=""
         COLOR_WHITE=""
         COLOR_RESET=""
-    fi
-}
-
-setupTerminalFormat()
-{
-    if [[ -t 1 ]]
-    then
-        STATUS_MSG_SPACING="             "
-        STATUS_MSG_POSITION="\r"
-    else
-        STATUS_MSG_SPACING=""
-        STATUS_MSG_POSITION=""
     fi
 }
 
@@ -95,20 +83,20 @@ isAbsolutePath()
 
 printLinkFailureSource()
 {
-    echo -e "  name:    ${COLOR_LIGHT_YELLOW} $LINK_NAME ${COLOR_RESET}"
-    echo -e "  line:    ${COLOR_LIGHT_YELLOW} $LINE_NR ${COLOR_RESET}"
-    echo -e "  link:    ${COLOR_LIGHT_RED} $LINK${COLOR_RESET}"
+    echo -e "  name: ${COLOR_LIGHT_YELLOW} $LINK_NAME ${COLOR_RESET}"
+    echo -e "  line: ${COLOR_LIGHT_YELLOW} $LINE_NR ${COLOR_RESET}"
+    echo -e "  link: ${COLOR_LIGHT_RED} $LINK${COLOR_RESET}"
     echo
 
     EXIT_CODE=1
 }
 
-checkLinkToSection()
+verifyLinkToSection()
 {
     local LOCAL_LINK_VALUE=$1
     local LOCAL_FILE=$2
 
-    LINK=$(echo $LOCAL_LINK_VALUE | sed -n "s/^#\(.*\)/#\1/p" | tr - '.')
+    LINK=$(echo $LOCAL_LINK_VALUE | sed -n "s/^#\(.*\)/#\1/p" | sed "s/\./\\\./g" | tr - '.')
     local LOCAL_LINK=$(echo $LINK | cut -f 2 -d '#')
     if ! [[ $(cat $LOCAL_FILE | grep -iE "# $LOCAL_LINK\$" | wc -l ) == 1 ]]
     then
@@ -116,7 +104,7 @@ checkLinkToSection()
     fi
 }
 
-checkLinkToUrl()
+verifyLinkToUrl()
 {
     if [[ $ENABLE_URL_CHECK == "1" ]]
     then
@@ -126,6 +114,42 @@ checkLinkToUrl()
             printLinkFailureSource
         fi
     fi
+}
+
+verifyLinkToFile()
+{
+    LINK_VALUE=$1
+
+    if [[ $(isAbsolutePath $LINK_VALUE) == "1" ]]
+    then
+        LINK=${ICEORYX_ROOT_PATH}/${LINK_VALUE}
+    else
+        LINK=${FILE_DIRECTORY}/${LINK_VALUE}
+    fi
+
+    if [[ $(echo $LINK | grep '#' | wc -l) == "1" ]]
+    then
+        SECTION_IN_FILE=$(echo $LINK | cut -f 2 -d '#')
+        LINK=$(echo $LINK | cut -f 1 -d '#')
+    fi
+
+    if ! [ -f $LINK ] && ! [ -d $LINK ]
+    then
+        printLinkFailureSource
+
+        POSSIBLE_ALTERNATIVE=$(find $ICEORYX_ROOT_PATH -type f -iname $(basename $LINK))
+        echo -e "Is this the file you are looking for: ${COLOR_LIGHT_BLUE}$POSSIBLE_ALTERNATIVE${COLOR_RESET}"
+        echo
+        SECTION_IN_FILE=""
+        continue
+    fi
+
+    if ! [[ $SECTION_IN_FILE == "" ]]
+    then
+        verifyLinkToSection "#$SECTION_IN_FILE" $LINK
+    fi
+
+    SECTION_IN_FILE=""
 }
 
 checkLinksInFile()
@@ -162,64 +186,36 @@ checkLinksInFile()
         ##
         ## sed -n "s/.*\[\(.*\)](\([^)]*\)).*/\1[\2/p"
         ## extract markdown links
-        link=$(echo $LINE | sed -e 's/[^[]`[^`]*`//g' | sed -n "s/.*\[\(.*\)](\([^)]*\)).*/\1[\2/p" | tr ' ' _)
-        if [[ $link == "" ]]
+        MARKDOWN_LINK=$(echo $LINE | sed -e 's/[^[]`[^`]*`//g' | sed -n "s/.*\[\(.*\)](\([^)]*\)).*/\1[\2/p" | tr ' ' _)
+        if [[ $MARKDOWN_LINK == "" ]]
         then
             continue
         fi
 
-        LINK_NAME=$(echo $link | cut -f 1 -d '[')
-        LINK_VALUE=$(echo $link | cut -f 2 -d '[')
+        LINK_NAME=$(echo $MARKDOWN_LINK | cut -f 1 -d '[')
+        LINK_VALUE=$(echo $MARKDOWN_LINK | cut -f 2 -d '[')
 
         if [[ $(isMailLink $LINK_VALUE) == "1" ]]
         then
             continue
         elif [[ $(isWebLink $LINK_VALUE) == "1" ]]
         then
-            checkLinkToUrl $LINK_VALUE
+            verifyLinkToUrl $LINK_VALUE
         elif [[ $(isLinkToSection $LINK_VALUE) == "1" ]]
         then
-            checkLinkToSection $LINK_VALUE $FILE
+            verifyLinkToSection $LINK_VALUE $FILE
         else
-            if [[ ${isAbsolutePath} == "1" ]]
-            then
-                LINK=$LINK
-            else
-                LINK=${FILE_DIRECTORY}/${LINK_VALUE}
-            fi
-
-            if [[ $(echo $LINK | grep '#' | wc -l) == "1" ]]
-            then
-                SECTION_IN_FILE=$(echo $LINK | cut -f 2 -d '#')
-                LINK=$(echo $LINK | cut -f 1 -d '#')
-            fi
-
-            if ! [ -f $LINK ] && ! [ -d $LINK ]
-            then
-                printLinkFailureSource
-
-                POSSIBLE_ALTERNATIVE=$(find $ICEORYX_ROOT_PATH -type f -iname $(basename $LINK))
-                echo -e "Is this the file you are looking for: ${COLOR_LIGHT_BLUE}$POSSIBLE_ALTERNATIVE${COLOR_RESET}"
-                echo
-                continue
-            fi
-
-            if ! [[ $SECTION_IN_FILE == "" ]]
-            then
-                checkLinkToSection "#$SECTION_IN_FILE" $LINK
-            fi
-
-            SECTION_IN_FILE=""
+            verifyLinkToFile $LINK_VALUE
         fi
     done
 }
 
 performLinkCheck()
 {
-    NUMBER_OF_FILES=$(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | wc -l)
+    NUMBER_OF_FILES=$(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | grep -v ${ICEORYX_ROOT_PATH}/.git | wc -l)
 
     CURRENT_FILE=0
-    for FILE in $(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github)
+    for FILE in $(find $ICEORYX_ROOT_PATH -type f -iname "*.md" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | grep -v ${ICEORYX_ROOT_PATH}/.git)
     do
         let CURRENT_FILE=$CURRENT_FILE+1
         echo -e "[$CURRENT_FILE/$NUMBER_OF_FILES] ${COLOR_LIGHT_GREEN}$FILE${COLOR_RESET}"
@@ -229,7 +225,6 @@ performLinkCheck()
 }
 
 setupTerminalColors
-setupTerminalFormat
 
 if ! [ -z $1 ]
 then
