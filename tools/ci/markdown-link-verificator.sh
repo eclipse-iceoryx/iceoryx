@@ -62,7 +62,7 @@ setupTerminalColors()
 
 doesWebURLExist()
 {
-    if curl --insecure --head --silent --fail $1 2> /dev/null 1>/dev/null ;
+    if curl --max-time 10 --insecure --head --silent --fail $1 2> /dev/null 1>/dev/null ;
     then
         echo 1
     else
