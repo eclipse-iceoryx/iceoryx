@@ -16,10 +16,10 @@ trigger the _TriggerHandle_.
 ## Introduction
 
 A detailed introduction into the WaitSet nomenclature and topic can be found in the
-[waitset C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
+[waitset C++ example](../waitset).
 Here we will only introduce the C API and not the WaitSet in general. For this, we will
 take a look at the same use case as the
-[waitset C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
+[waitset C++ example](../waitset).
 The examples are structured in the same way as the C++ ones.
 
 ## Expected Output
@@ -34,7 +34,7 @@ The examples are structured in the same way as the C++ ones.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-c-waitset-publisher`. They are identical to the ones introduced in the
-[icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
+[icedelivery C example](../icedelivery_in_c).
 
 ### Gateway
 
@@ -572,5 +572,5 @@ iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 <center>
-[Check out waitset_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset_in_c){ .md-button }
+[Check out waitset_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

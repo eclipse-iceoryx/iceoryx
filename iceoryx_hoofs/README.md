@@ -193,5 +193,5 @@ setTimeout(5_ms); // 5 milliseconds
 |`FileReader`          | i | X | Wrapper for opening files and reading them. |
 
 <center>
-[Check out iceoryx_hoofs on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs/){ .md-button }
+[Check out iceoryx_hoofs on GitHub](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs/){ .md-button } <!--NOLINT required only for the website, github URL required-->
 </center>

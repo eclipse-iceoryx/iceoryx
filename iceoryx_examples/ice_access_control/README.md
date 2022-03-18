@@ -172,5 +172,5 @@ iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
 <center>
-[Check out ice_access_control on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/ice_access_control){ .md-button }
+[Check out ice_access_control on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/ice_access_control){ .md-button } <!--NOLINT github url required for website-->
 </center>

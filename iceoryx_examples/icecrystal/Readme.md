@@ -10,7 +10,7 @@ memory.
 ## Expected Output
 
 We re-use the binaries from
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
+[icedelivery](../icedelivery).
 
 [![asciicast](https://asciinema.org/a/476669.svg)](https://asciinema.org/a/476669)
 

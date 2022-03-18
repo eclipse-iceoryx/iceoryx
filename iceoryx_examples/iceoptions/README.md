@@ -97,7 +97,7 @@ By default this is set to `false` and best-effort behavior is used.
 
 !!! warning
     In case of n:m communication, the history feature will **not** provide the overall last n samples based on delivery point in time!
-    For more information about this limitation see the [QoS article](https://iceoryx.io/latest/concepts/qos-policies/).
+    For more information about this limitation see the [QoS article](../../doc/website/concepts/qos-policies.md).
 
 <!--[geoffrey][iceoryx_examples/iceoptions/iox_subscriber_with_options.cpp][history]-->
 ```cpp
@@ -136,5 +136,5 @@ subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
 ```
 
 <center>
-[Check out iceoptions on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions){ .md-button }
+[Check out iceoptions on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions){ .md-button } <!--NOLINT github url required for website-->
 </center>

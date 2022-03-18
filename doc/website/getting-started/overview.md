@@ -190,7 +190,7 @@ The following table gives an overview of the different terminologies and the cur
 |-----------------------------------------------------------------------------------|---------|------------------|------------------------|
 | [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic  | -                      |
 | AUTOSAR                                                                           | Service | Instance         | Event                  |
-| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
+| [DDS Gateway](../../../iceoryx_dds)                                               | -       | -                | /Group/Instance/Topic  |
 | [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds)                             | -       | Type Name        | Topic Name             |
 
 Service is related to instance like classes are related to objects in C++. A service describes an abstract topic and an
@@ -228,7 +228,7 @@ to process local constructs, no dynamic allocators
 
 !!! note
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above.
-    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx).
+    You can find an overview [here](../../../iceoryx_hoofs/README.md#cxx).
 
 ### Publisher
 

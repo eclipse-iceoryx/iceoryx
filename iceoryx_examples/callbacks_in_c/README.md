@@ -12,9 +12,9 @@ one accessing it or that it is accessed with a guard like a `mutex`.
 
 For a general introduction into the Listener concept please take a look at
 the first part of the
-[Listener C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks)
+[Listener C++ example](../callbacks)
 and at the Glossary of the
-[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
+[WaitSet C++ example](../waitset).
 
 ## Expected Output
 
@@ -35,7 +35,7 @@ received a sample from each service we calculate the sum of it.
 
 The publisher contains only already known iceoryx features. If some of them
 are not known to you please take a look at the
-[icedelivery in C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
+[icedelivery in C example](../icedelivery_in_c).
 
 ### ice_c_callbacks_subscriber.c
 
@@ -267,5 +267,5 @@ iox_listener_attach_subscriber_event_with_context_data(
 ```
 
 <center>
-[Check out callbacks_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks_in_c){ .md-button }
+[Check out callbacks_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

@@ -100,7 +100,7 @@ iox_sub_deinit(subscriber);
 ### Publisher
 
 The publisher is implemented in a similar way like in the
-[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery):
+[icedelivery C++ example](../icedelivery):
 
  1. Create a runtime instance.
  2. Create a publisher with some options.
@@ -175,5 +175,5 @@ iox_pub_deinit(publisher);
 ```
 
 <center>
-[Check out icedelivery_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c){ .md-button }
+[Check out icedelivery_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c){ .md-button } <!--NOLINT github url for website-->
 </center>

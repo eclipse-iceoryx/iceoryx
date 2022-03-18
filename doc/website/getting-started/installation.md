@@ -58,7 +58,7 @@ Additionally, there is an optional dependency to the [cpptoml](https://github.co
 QNX SDP 7.0 and 7.1 are supported (shipping with gcc 5.4 and gcc 8.3 respectively).
 
 The easiest way to build iceoryx on QNX is by using the build script and providing a toolchain file.
-We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](https://github.com/eclipse-iceoryx/iceoryx/tree/master/tools/toolchains/qnx)).
+We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](../../../tools/toolchains/qnx)).
 
 ARM_64:
 
