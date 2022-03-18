@@ -63,9 +63,10 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
 After creating the runtime, the client is created and attached to the WaitSet.
-The [options](../iceoptions/) can be used to alter the behavior of the client, like setting the response
-queue capacity or blocking behavior when the response queue is full or the server is too slow.
-The `ClientOptions` are similar to `PublisherOptions`/`SubscriberOptions`.
+
+The [options](../iceoptions) can be used to alter
+the behavior of the client, like setting the response queue capacity or blocking behavior when the response queue is
+full or the server is too slow. The `ClientOptions` are similar to `PublisherOptions`/`SubscriberOptions`.
 
 <!--[geoffrey][iceoryx_examples/request_response/client_cxx_waitset.cpp][create waitset]-->
 ```cpp
