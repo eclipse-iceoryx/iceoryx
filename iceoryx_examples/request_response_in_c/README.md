@@ -1,12 +1,12 @@
 # Request response in C
 
 You can find a more detailed description of the C API in the
-[iceoryx_binding_c README.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_binding_c/README.md).
+[iceoryx_binding_c README.md](../../iceoryx_binding_c/README.md).
 
 ## Introduction
 
 The behavior and structure is very close to the
-[request response C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response)
+[request response C++ example](../request_response)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
 The rough idea is that the client sends two fibonacci numbers to the server which
@@ -149,9 +149,9 @@ The server and client or both attachable to either a listener or a waitset. In
 this example we demonstrate how one can implement the client basic example with
 a waitset.
 For deeper insights into the WaitSet take a look at the
-[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset)
+[WaitSet C++ example](../waitset)
 or when you would like to know more about the listener, see the
-[Callbacks C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+[Callbacks C++ example](../callbacks).
 
 The startup phase is identical to the client basic version, we register the signal
 handlers, initialize the runtime, create a client and initialize our variables.
@@ -307,9 +307,9 @@ The server and client or both attachable to either a listener or a waitset. In
 this example we demonstrate how one can implement the server basic example with
 a listener.
 For deeper insights into the WaitSet take a look at the
-[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset)
+[WaitSet C++ example](../waitset)
 or when you would like to know more about the listener, see the
-[Callbacks C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+[Callbacks C++ example](../callbacks).
 
 The listener example starts like the basic example by registering the signal handler,
 initializing the runtime and creating a server.
@@ -390,5 +390,5 @@ iox_server_deinit(server);
 ```
 
 <center>
-[Check out request response in c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response_in_c){ .md-button }
+[Check out request response in c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

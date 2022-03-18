@@ -2,7 +2,7 @@
 
 ## [v1.0.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-04-15)
 
-[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.7...v1.0.0)
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.0...v1.0.0)
 
 Description:
 This is the first major release for Eclipse iceoryx. That means it is the first release with long-term support and the adopters of iceoryx can rely on a stable API. The release called Almond allows for true zero-copy inter-process-communication on Linux, QNX and MacOS and provides C and modern C++ user APIs. This release is supported until 2022-04-01.
@@ -145,7 +145,7 @@ We will give the API draft some weeks for finalizing the features and to incorpo
 - Incorrect usage of strncpy [\#374](https://github.com/eclipse-iceoryx/iceoryx/issues/374)
 - Global Instantiation of Publisher/Subscriber created core dump [\#327](https://github.com/eclipse-iceoryx/iceoryx/issues/327)
 
-## [v0.17.0](https://github.com/eclipse-iceoryx/iceoryx/tree/ICEORYX_0.17.0) (2020-08-27)
+## [v0.17.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.17.0) (2020-08-27)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/ICEORYX_0.17.0_RC6...v0.17.0)\
 MacOS support and preparations for new API

@@ -34,7 +34,7 @@ The latter overlaps with a case from the **ZOM** part, which illustrates that th
 
 **Exercise Exceptional Behavior** means to not only test the happy path, but also the negative one.
 Basically, you should test silly inputs and check for a graceful behavior like the previous example with division by 0.
-The linked blog post explains [negative testing](https://www.softwaretestinghelp.com/what-is-negative-testing/) in a more thorough way.
+The linked blog post explains [negative testing](https://www.softwaretestinghelp.com/what-is-negative-testing) <!--NOLINT link works but linter fails--> in a more thorough way.
 
 The catchwords can be used to draw simple scenarios which nicely fits to the AAA pattern. A non-exhaustive list of these scenarios are
 

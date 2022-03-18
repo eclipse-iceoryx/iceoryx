@@ -12,9 +12,9 @@ one accessing it or that it is accessed with a guard like a `mutex`.
 
 For a general introduction into the Listener concept please take a look at
 the first part of the
-[Listener C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks)
+[Listener C++ example](../callbacks)
 and at the Glossary of the
-[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
+[WaitSet C++ example](../waitset).
 
 ## Expected Output
 
@@ -35,7 +35,7 @@ received a sample from each service we calculate the sum of it.
 
 The publisher contains only already known iceoryx features. If some of them
 are not known to you please take a look at the
-[icedelivery in C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
+[icedelivery in C example](../icedelivery_in_c).
 
 ### ice_c_callbacks_subscriber.c
 
@@ -218,7 +218,7 @@ within the callback. To facilitate this we provide the functions called
 additional void pointer for the callback as second argument.
 
 The following example is a simplified version of the
-[ice_c_callbacks_subscriber.c](#ice_c_callbacks_subscriberc) example where we
+[ice_c_callbacks_subscriber.c](#ice_c_callbacks_subscriber.c) example where we
 removed the cyclic heartbeat trigger. The key difference is that we have
 a local variable called `counterService` in which we store the `leftCache`
 and `rightCache` and we let the callback update that variable directly.
@@ -267,5 +267,5 @@ iox_listener_attach_subscriber_event_with_context_data(
 ```
 
 <center>
-[Check out callbacks_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks_in_c){ .md-button }
+[Check out callbacks_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

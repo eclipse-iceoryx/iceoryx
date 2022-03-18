@@ -58,8 +58,7 @@ and exhaust memory. We have to handle this potential error since the expected cl
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could
 also explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about
 `expected`, take a look at
-[How optional and error values are returned in iceoryx](how-optional-and-error-values-are-returned-in-iceoryx.md).
-
+[How optional and error values are returned in iceoryx](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md).
 Let's create a corresponding subscriber.
 
 ```cpp
@@ -67,8 +66,8 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](waitset.md) or the [Listener](callbacks.md). The
-code to receive the data is the same, the only difference is the way we wake up before checking for data.
+is also possible to explicitly wait for data using the [WaitSet](../../../iceoryx_examples/waitset/README.md) or 
+the [Listener](../../../iceoryx_examples/callbacks/README.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
 
 ```cpp
 while (keepRunning)
@@ -95,7 +94,7 @@ while (keepRunning)
 By calling `take` we get an `expected` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
-[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples
+[Here](../../../iceoryx_examples/README.md) you can find further examples
 which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
@@ -149,7 +148,7 @@ Shared memory is physical memory that is made accessible to multiple processes v
 virtual address spaces.
 
 For further information have a look at our
-[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/shared-memory-communication.md).
+[shared memory concept article](../../shared-memory-communication.md).
 
 ### Runtime
 
@@ -191,7 +190,7 @@ The following table gives an overview of the different terminologies and the cur
 |-----------------------------------------------------------------------------------|---------|------------------|------------------------|
 | [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic  | -                      |
 | AUTOSAR                                                                           | Service | Instance         | Event                  |
-| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_dds) | -       | -                | /Group/Instance/Topic  |
+| [DDS Gateway](../../../iceoryx_dds)                                               | -       | -                | /Group/Instance/Topic  |
 | [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds)                             | -       | Type Name        | Topic Name             |
 
 Service is related to instance like classes are related to objects in C++. A service describes an abstract topic and an
@@ -229,7 +228,7 @@ to process local constructs, no dynamic allocators
 
 !!! note
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above.
-    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs#cxx).
+    You can find an overview [here](../../../iceoryx_hoofs/README.md#cxx).
 
 ### Publisher
 
@@ -298,7 +297,7 @@ The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pat
 strategy that one of the attached events occured at which it informs the user.
 
 For more information on how to use the WaitSet see our
-[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset).
+[WaitSet examples](../../../iceoryx_examples/waitset).
 
 ### Listener
 
@@ -320,17 +319,17 @@ connected callback that creates and sends a response, is executed.
 Like the WaitSet, the Listener uses the reactor pattern.
 
 For more information about the Listener see our
-[callbacks examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks).
+[callbacks example](../../../iceoryx_examples/callbacks).
 
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery) and
-[C example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery_in_c).
+[C++ example](../../../iceoryx_examples/icedelivery) and
+[C example](../../../iceoryx_examples/icedelivery_in_c).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `cxx::expected` and `cxx::optional` which are introduced
-[here](how-optional-and-error-values-are-returned-in-iceoryx.md).
+[here](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 With the C++ API, we distinguish between the `typed API` and the `untyped API`. In the typed API, the underlying
 data type is made apparent by typed pointers or references to some data type T (often a template parameter). This allows

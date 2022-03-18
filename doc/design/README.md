@@ -19,7 +19,7 @@ A good online-editor with cheat-sheet can be found at [https://plantuml-editor.k
 Alternatively you can use extensions in your IDE.
 
 The integration of the generated PlantUML into your design documents is done via *.svg files.
-You need to create a .puml file and export it to .svg afterwards for linking it with the markdown. In the `tools` folder is a [helper script](https://github.com/eclipse-iceoryx/iceoryx/blob/master/tools/scripts/generate_plantuml_svg.sh) provided which downloads a defined version of PlantUML to export the vector graphics.
+You need to create a .puml file and export it to .svg afterwards for linking it with the markdown. In the `tools` folder is a [helper script](../../tools/scripts/generate_plantuml_svg.sh) provided which downloads a defined version of PlantUML to export the vector graphics.
 These steps are necessary due to the current support of PlantUML in [Github](https://github.community/t/support-uml-diagrams-in-markdown-with-plantuml-syntax/626).
 
 **NOTE:** Don't set parameter for theming (like background color) directly in individual puml files but use the central `doc/iceoryx-plantuml-config.puml` which is shared with all diagrams.

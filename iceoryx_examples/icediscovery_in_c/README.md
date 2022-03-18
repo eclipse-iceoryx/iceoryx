@@ -5,7 +5,7 @@
 This example demonstrates how to search for specific services using iceoryx's
 service discovery. It provides two applications - one offering different
 services and one searching for those with different search queries. The
-behavior and structure is quite similar to the [icediscovery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery).
+behavior and structure is quite similar to the [icediscovery C++ example](../icediscovery).
 
 ## Expected Output
 
@@ -18,7 +18,7 @@ behavior and structure is quite similar to the [icediscovery C++ example](https:
 We create several publishers which offer their services on construction by
 default. For more dynamism the `cameraPublishers` offer/stop their services
 periodically. If you want more information on how to create publishers,
-have a look at the [icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
+have a look at the [icedelivery C example](../icedelivery_in_c).
 
 ### Find services
 
@@ -129,5 +129,5 @@ void searchFrontDevices(const iox_service_description_t service, void* count)
 ```
 
 <center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery_in_c){ .md-button }
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

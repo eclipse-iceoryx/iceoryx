@@ -1,6 +1,6 @@
 # Configuration guide
 
-## :material-cog: CMake switches for configuring iceoryx_posh build
+## CMake switches for configuring iceoryx_posh build
 
 There are several configuration options set by default when iceoryx_posh is build.
 These options adjust the global maximum amount of resources like Publisher and
@@ -18,9 +18,7 @@ in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can take in parallel|
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used by gateways |
 
-Have a look at 
-[IceoryxPoshDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/IceoryxPoshDeployment.cmake)
-for the default values of the constants.
+Have a look at [IceoryxPoshDeployment.cmake](../../../iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
 
 !!! hint
     With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You
@@ -37,7 +35,7 @@ With that change, the footprint of the management segment is reduced to ~52.7 MB
 For larger use cases you can increase the value to avoid that samples are dropped
 on the subscriber side (see also [#615](https://github.com/eclipse-iceoryx/iceoryx/issues/615)).
 
-## :material-memory: Configuring Mempools for RouDi
+## Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to
 limit the read and write access between different applications. Memory pools
@@ -51,7 +49,7 @@ for communication.
     user-payload will be smaller than the configured chunk-payload since some
     space is needed for the other functionality.
     Please have a look at the 
-    [chunk_header.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/chunk_header.md)
+    [chunk_header.md](../../design/chunk_header.md)
     design document for a formula how to determine the necessary chunk-payload
     size with user-header and extended user-payload alignment.
 
@@ -66,7 +64,7 @@ provides you an API for compiling your own RouDi application and is part of `ice
 
 The value for the alignment is set to 8.
 
-### :material-file-cog: Dynamic configuration
+### Dynamic configuration
 
 One way is to read a configuration dynamically during the startup of RouDi.
 Using the TOML Config in RouDi is not mandatory for configuring segments and
@@ -170,7 +168,7 @@ count = 100
 ```
 
 When no configuration file is specified a hard-coded version similar to the 
-[default config](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
+[default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
 will be used.
 
 ### Static configuration
@@ -184,4 +182,4 @@ In the cmake file entry of the custom RouDi executable you need to ensure that i
 is **not** linking against `iceoryx_posh_config` to ensure using the static configuration.
 
 An example of a static config can be found 
-[here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/iceperf/roudi_main_static_config.cpp).
+[here](../../../iceoryx_examples/iceperf/roudi_main_static_config.cpp).

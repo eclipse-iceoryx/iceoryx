@@ -147,7 +147,7 @@ This example consists of 6 use cases.
 All our examples require a running `iox-roudi` and some data to receive which will be
 send by `iox-cpp-waitset-publisher`. The publisher does not contain any _WaitSet_ specific
 logic and is explained in detail in the
-[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
+[icedelivery example](../icedelivery).
 
 ### Basic
 
@@ -713,7 +713,7 @@ while (keepRunning.load())
 
 In this example we describe how you would implement a _Triggerable_ class which
 can be attached to a _WaitSet_ or a
-[Listener](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+[Listener](../callbacks).
 Our class in this example will be called `MyTriggerClass` and it can signal the _WaitSet_
 the two states `HAS_PERFORMED_ACTION` and `IS_ACTIVATED`. Furthermore, we can also attach the
 two corresponding events `PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`. The
@@ -766,7 +766,7 @@ enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
 ##### Attaching Events
 
 Events can be attached to _WaitSets_ and
-[Listeners](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+[Listeners](../callbacks).
 For this to work the class has to implement the following methods.
 
  1. `void enableEvent(iox::popo::TriggerHandle&&, const UserDefinedEventEnum)`
@@ -1113,5 +1113,5 @@ std::thread triggerThread([&] {
 ```
 
 <center>
-[Check out waitset on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset){ .md-button }
+[Check out waitset on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset){ .md-button } <!--NOLINT github url required for website-->
 </center>

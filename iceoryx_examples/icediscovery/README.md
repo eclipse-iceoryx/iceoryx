@@ -23,9 +23,9 @@ the availability of services respectively.
 We create several publishers which offer their services on construction by
 default. For more dynamism the `cameraPublishers` offer/stop their services
 periodically. If you want more information on how to create a publisher, have a
-look at the [icehello](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icehello),
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery),
-and [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions)
+look at the [icehello](../icehello),
+[icedelivery](../icedelivery),
+and [iceoptions](../iceoptions)
 examples.
 
 ### Find services
@@ -45,7 +45,7 @@ It is included via:
 ```
 
 On that object we can call the method `findService` which expects the three
-service [string identifiers](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/getting-started/overview.md#creating-service-descriptions-for-topics)
+service [string identifiers](../../doc/website/getting-started/overview.md#creating-service-descriptions-for-topics)
 and a callable which will be applied to all matching services.
 In addition we have to specify whether we want to search for publishers (`MessagingPattern::PUB_SUB`)
 used in publish-subscribe communication or servers (`MessagingPattern::REQ_RES`) used in
@@ -181,7 +181,7 @@ if (discoveryPtr)
 ### Monitor service availability
 
 If we want to continously monitor the availability of some service or check some discovery condition we can do so by
-using e.g. a listener to conditionally execute [callbacks](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+using e.g. a listener to conditionally execute [callbacks](../callbacks).
 
 To do so, we start the applications `iox-discovery-monitor` and `iox-offer-service`
 (again in any order, but for demonstration purposes `iox-offer-service` should be started last).
@@ -369,7 +369,7 @@ The benefit is that this way we can choose containers which do not necessrily re
 ### Implementation of Discovery monitoring
 
 To implement a `Discovery` where we actively monitor availability of services we employ a
-[listener](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
+[listener](../callbacks).
 Contrary to the blocking solution this does not block the user threads and executes any callback
 in a background thread created by the listener.
 The callback will be executed on any change of the available services.
@@ -432,5 +432,5 @@ which detaches the callback from the listener.
 As before we built on an `iox::runtime::ServiceDiscovery` by composition and define a custom`findService` function which returns a `std::vector`.
 
 <center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery){ .md-button }
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery){ .md-button } <!--NOLINT github url required for website-->
 </center>

@@ -9,7 +9,7 @@ introduce in the following sections.
 ## Optional
 
 The type `iox::cxx::optional<T>` is used to indicate that there may or may not be a value of a specific type `T`
-available. This is essentially the 'maybe [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming))' in
+available. This is essentially the 'maybe [monad](https://en.wikipedia.org/wiki/Monad_%28functional_programming%29)' in
 functional programming. Assuming we have some optional (usually the result of some computation)
 
 ```cpp
@@ -47,7 +47,7 @@ result.and_then([](int& value) { /*do something with the value*/ })
 ```
 
 Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the
-[lambda expression](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) or function we pass.
+[lambda expression](https://en.wikipedia.org/wiki/Anonymous_function#C++_%28since_C++11%29) or function we pass.
 
 The optional can be initialized from a value directly
 
@@ -64,7 +64,7 @@ result = iox::cxx::nullopt;
 ```
 
 For a complete list of available functions see
-[`optional.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/include/iceoryx_hoofs/cxx/optional.hpp).
+[`optional.hpp`](../../../iceoryx_hoofs/include/iceoryx_hoofs/cxx/optional.hpp).
 The `iox::cxx::optional` behaves like the [`std::optional`](https://en.cppreference.com/w/cpp/utility/optional)
 except that it does not throw exceptions and has no undefined behavior.
 
@@ -76,7 +76,7 @@ the 'either monad'. It is usually used to pass a value of type `T` or an error t
 error type.
 
 For more information on how it is used for error handling see
-[error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md).
+[error-handling.md](../../design/error-handling.md).
 
 Assume we have `E` as an error type, then we can create a value
 
@@ -117,7 +117,7 @@ result.and_then(handleValue).or_else(handleError);
 
 There are more convenience functions such as `value_or` which provides the value or an alternative specified by the
 user. These can be found in
-[`expected.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp).
+[`expected.hpp`](../../../iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp).
 
 Note that when we move an `expected`, the origin contains a moved `T` or `E`, depending on the content before the move.
 This reflects the behavior of moving the content out of the `iox::cxx::expected` as in

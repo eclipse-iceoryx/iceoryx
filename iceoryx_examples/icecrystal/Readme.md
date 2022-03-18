@@ -10,14 +10,14 @@ memory.
 ## Expected Output
 
 We re-use the binaries from
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
+[icedelivery](../icedelivery).
 
 [![asciicast](https://asciinema.org/a/476669.svg)](https://asciinema.org/a/476669)
 
 ## Feature walkthrough
 
 This example does not contain any additional code. The code of the `iceoryx_introspection_client` can be found under
-[tools/introspection/](https://github.com/eclipse-iceoryx/iceoryx/tree/master/tools/introspection).
+[tools/introspection/](../../tools/introspection).
 
 The introspection can be started with several command line arguments.
 
