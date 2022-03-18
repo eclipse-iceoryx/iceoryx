@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-## IMPORTANT
-# when an URL contains ( ) please replace them with the code %28 %29 otherwise
-# the parser will deliver a false positive
+## usage hints
+# * when an URL contains ( ) please replace them with the code %28 %29 otherwise
+#   the parser will deliver a false positive
+#
+# * when a link should not be tested add the comment <!--NOLINT some comment-->
+#   in the same line
 
 ICEORYX_ROOT_PATH=$(git rev-parse --show-toplevel)
 EXIT_CODE=0
@@ -126,8 +129,21 @@ verifyLinkToUrl()
                 return
             fi
         fi
-        #### [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/tree" | wc -l) == "1" ]] ||
 
+        # verify that no link to a specific github tree is used in the documentation
+        if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/tree/" | wc -l ) == "1" ]]
+        then
+            local PATH_AFTER_TREE=$(echo $LINK | sed -n "s/https:\/\/github.com\/eclipse-iceoryx\/iceoryx\/tree\/\(.*\)/\1/p")
+            if [[ $(echo $PATH_AFTER_TREE | grep "/" | wc -l ) == "1" ]]
+            then
+                echo -e "${COLOR_LIGHT_RED}Please do not use a github url when also a relative path works!${COLOR_RESET}"
+                echo -e "${COLOR_LIGHT_RED}Relative paths ensure that the tag/branch of link source and destination is equal.${COLOR_RESET}"
+                printLinkFailureSource
+                return
+            fi
+        fi
+
+        # verify that no link to a specific github branch is used in the documentation
         if [[ $(echo $LINK | grep "https://github.com/eclipse-iceoryx/iceoryx/blob" | wc -l) == "1" ]]
         then
             echo -e "${COLOR_LIGHT_RED}Please do not use a github url when also a relative path works!${COLOR_RESET}"
