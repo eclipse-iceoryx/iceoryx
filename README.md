@@ -45,7 +45,7 @@ instead the typed C++ API. The normal use case is that iceoryx is integrated as 
 a bigger framework with additional API layers.
 An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/). Others are listed in the next section.
 
-You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io).
+You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io). <!--NOLINT explicit link to website-->
 
 ### Supported Platforms
 

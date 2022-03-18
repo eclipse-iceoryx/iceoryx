@@ -23,7 +23,7 @@ On Git, the tags have a `v` prefix before the version numbers. A [release script
 
 Since release `1.0.0` iceoryx is at a stable version, i.e. `>= 1.0.0`. The latest valid release can be found on the [release page](https://github.com/eclipse-iceoryx/iceoryx/releases) of iceoryx.
 
-The change history can be found in the [release notes section](https://iceoryx.io/latest/release-notes).
+The change history can be found in the [release notes section](./doc/website/release-notes).
 
 ### Public API Declaration [1.iii]
 
@@ -101,7 +101,7 @@ Currently there is ongoing work to complete the documentation of existing featur
 
 ### Public API Documentation [3.ii]
 
-The public API is documented in form of Doxygen comments and available as API reference on [iceoryx.io](https://iceoryx.io/).
+The public API is documented in form of Doxygen comments and available as API reference on [iceoryx.io](https://iceoryx.io/). <!--NOLINT explicit link to website-->
 
 ### License [3.iii]
 
@@ -194,4 +194,4 @@ Every release that is integrated with ROS will be build with the ROS CI to ensur
 This package conforms to the Vulnerability Disclosure Policy in REP-2006.
 The Eclipse Project Handbook states the project's [vulnerability disclosure policy](https://www.eclipse.org/projects/handbook/#vulnerability-disclosure) in detail.
 
-The [iceoryx website](https://iceoryx.io) provides a link to report a security vulnerability.
+The [iceoryx website](https://iceoryx.io) provides a link to report a security vulnerability. <!--NOLINT explicit link to website-->

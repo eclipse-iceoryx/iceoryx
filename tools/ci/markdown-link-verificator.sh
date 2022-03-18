@@ -152,6 +152,14 @@ verifyLinkToUrl()
             return
         fi
 
+        if [[ $(echo $LINK | grep "https://iceoryx.io" | wc -l ) == "1" ]]
+        then
+            echo -e "${COLOR_LIGHT_RED}Please try to avoid to link directly to the documentation on https://iceoryx.io!${COLOR_RESET}"
+            echo -e "${COLOR_LIGHT_RED}This causes switching between multiple sources of the same material.${COLOR_RESET}"
+            printLinkFailureSource
+            return
+        fi
+
         if ! [[ $(doesWebURLExist $LINK) == "1" ]]
         then
             printLinkFailureSource
