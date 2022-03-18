@@ -25,7 +25,7 @@ APIs in [ROS 2](https://www.ros.org/) and [AUTOSAR Adaptive](https://www.autosar
 
 On modern processors iceoryx has a latency of less than 1 µs for transferring a message. And the best message is that
 this latency is constant as size doesn't matter. Want to give it a try? Then have a look at our
-[iceperf example](iceperf.md) after having made the first steps.
+[iceperf example](../examples/iceperf.md) after having made the first steps.
 
 ## Flexible
 
@@ -34,8 +34,8 @@ are the next ones on the list. The typed C++ API is the most comfortable when yo
 on the user side. The untyped C++ API and the C API provide a data agnostic interface that is often preferred when
 integrating iceoryx as shared memory backbone into a bigger framework.
 
-The APIs support polling access and event-driven interactions with the [WaitSet](../overview/#waitset) and
-[Listener](../overview/#listener). Applications can be started and stopped flexibly as there is a service discovery
+The APIs support polling access and event-driven interactions with the [WaitSet](overview.md#waitset) and
+[Listener](overview.md#listener). Applications can be started and stopped flexibly as there is a service discovery
 behind the scenes that dynamically connects matching communication entities.
 
 That iceoryx has the right set of features can be seen from the already existing integrations in middleware and
@@ -52,7 +52,7 @@ design and implementation of features. The usage of heap, exceptions and any und
 to increase the predictability. Instead a custom memory allocation is being used, based on static memory pools.
 Additionally, the handling of return values and error cases was inspired by upcoming C++ features and other
 languages like Rust (details can be found
-[here](how-optional-and-error-values-are-returned-in-iceoryx.md)).
+[here](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md)).
 
 As different processes are operating on shared data structures, avoiding deadlocks is becoming all the more important.
 iceoryx uses lock-free data structures like the multi-producer multi-consumer (MPMC) queue that was written portably
@@ -61,4 +61,4 @@ thanks to modern C++.
 The tools available for automotive-compliant software development are always one or two releases behind the latest C++
 standard. This fact, combined with our already mentioned constraints, led to a bunch of STL like C++ classes that have
 the goal to combine modern C++ with the reliability needed for the domains iceoryx is used in. They can be found in
-the iceoryx hoofs which are introduced [here](iceoryx_hoofs.md).
+the iceoryx hoofs which are introduced [here](../advanced/iceoryx_hoofs.md).

@@ -58,8 +58,7 @@ and exhaust memory. We have to handle this potential error since the expected cl
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could
 also explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about
 `expected`, take a look at
-[How optional and error values are returned in iceoryx](how-optional-and-error-values-are-returned-in-iceoryx.md).
-
+[How optional and error values are returned in iceoryx](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md).
 Let's create a corresponding subscriber.
 
 ```cpp
@@ -67,8 +66,8 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](waitset.md) or the [Listener](callbacks.md). The
-code to receive the data is the same, the only difference is the way we wake up before checking for data.
+is also possible to explicitly wait for data using the [WaitSet](../waitset.md) or 
+the [Listener](../callbacks.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
 
 ```cpp
 while (keepRunning)
@@ -325,12 +324,12 @@ For more information about the Listener see our
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery) and
-[C example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery_in_c).
+[C++ example](../examples/icedelivery.md) and
+[C example](../examples/icedelivery_in_c.md).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `cxx::expected` and `cxx::optional` which are introduced
-[here](how-optional-and-error-values-are-returned-in-iceoryx.md).
+[here](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 With the C++ API, we distinguish between the `typed API` and the `untyped API`. In the typed API, the underlying
 data type is made apparent by typed pointers or references to some data type T (often a template parameter). This allows
