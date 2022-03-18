@@ -7,8 +7,7 @@ environment and it should orchestrate two applications which are running again
 in two different docker containers so that we end up with a system of 3
 different docker containers.
 
-To demonstrate the setup we use the 
-[icedelivery C++ example](../icedelivery).
+To demonstrate the setup we use the [icedelivery C++ example](../icedelivery).
 
 ```
                          +-----------+

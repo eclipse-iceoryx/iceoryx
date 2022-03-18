@@ -324,8 +324,8 @@ For more information about the Listener see our
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](../examples/icedelivery.md) and
-[C example](../examples/icedelivery_in_c.md).
+[C++ example](../../../iceoryx_examples/icedelivery) and
+[C example](../../../iceoryx_examples/icedelivery_in_c).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `cxx::expected` and `cxx::optional` which are introduced
