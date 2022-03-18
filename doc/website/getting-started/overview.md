@@ -66,8 +66,8 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](../waitset.md) or 
-the [Listener](../callbacks.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
+is also possible to explicitly wait for data using the [WaitSet](../../../iceoryx_examples/waitset/README.md) or 
+the [Listener](../../../iceoryx_examples/callbacks/README.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
 
 ```cpp
 while (keepRunning)

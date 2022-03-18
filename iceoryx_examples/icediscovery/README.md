@@ -23,15 +23,9 @@ the availability of services respectively.
 We create several publishers which offer their services on construction by
 default. For more dynamism the `cameraPublishers` offer/stop their services
 periodically. If you want more information on how to create a publisher, have a
-<<<<<<< HEAD
-look at the [icehello](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icehello),
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery),
-and [iceoptions](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions)
-=======
 look at the [icehello](../icehello),
 [icedelivery](../icedelivery),
 and [iceoptions](../iceoptions)
->>>>>>> f6c02a05a (iox-#1294 Fix links which are pointing to github trees)
 examples.
 
 ### Find services
@@ -187,11 +181,7 @@ if (discoveryPtr)
 ### Monitor service availability
 
 If we want to continously monitor the availability of some service or check some discovery condition we can do so by
-<<<<<<< HEAD
-using e.g. a listener to conditionally execute [callbacks](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
-=======
 using e.g. a listener to conditionally execute [callbacks](../callbacks).
->>>>>>> f6c02a05a (iox-#1294 Fix links which are pointing to github trees)
 
 To do so, we start the applications `iox-discovery-monitor` and `iox-offer-service`
 (again in any order, but for demonstration purposes `iox-offer-service` should be started last).
@@ -379,11 +369,7 @@ The benefit is that this way we can choose containers which do not necessrily re
 ### Implementation of Discovery monitoring
 
 To implement a `Discovery` where we actively monitor availability of services we employ a
-<<<<<<< HEAD
-[listener](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks).
-=======
 [listener](../callbacks).
->>>>>>> f6c02a05a (iox-#1294 Fix links which are pointing to github trees)
 Contrary to the blocking solution this does not block the user threads and executes any callback
 in a background thread created by the listener.
 The callback will be executed on any change of the available services.

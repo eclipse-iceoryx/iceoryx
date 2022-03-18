@@ -49,7 +49,7 @@ for communication.
     user-payload will be smaller than the configured chunk-payload since some
     space is needed for the other functionality.
     Please have a look at the 
-    [chunk_header.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/chunk_header.md)
+    [chunk_header.md](../../design/chunk_header.md)
     design document for a formula how to determine the necessary chunk-payload
     size with user-header and extended user-payload alignment.
 
