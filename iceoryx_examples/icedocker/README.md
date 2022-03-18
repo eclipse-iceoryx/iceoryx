@@ -74,9 +74,8 @@ into every docker container.
 We start in 3 separate terminals 3 docker instances. In this example we
 use `archlinux:latest` but one is free to choose any other linux distribution.
 The iceoryx repository which contains an already built iceoryx can be found at
-`/home/user/iceoryx` which is bound to `/iceoryx`. The usage is 
-explained in detail in the 
-[icedelivery C++ example](../icedelivery).
+`/home/user/iceoryx` which is bound to `/iceoryx`. The usage is
+explained in detail in the [icedelivery C++ example](../icedelivery).
 
 #### Terminal 1 (iox-roudi)
 ```
