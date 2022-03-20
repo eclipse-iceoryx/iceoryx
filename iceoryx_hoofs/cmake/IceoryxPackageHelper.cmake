@@ -44,10 +44,11 @@ Macro(setup_package_name_and_create_files)
         ${PACKAGE_VERSION_FILE}
         COMPATIBILITY AnyNewerVersion
     )
+
     configure_package_config_file(
-    "cmake/Config.cmake.in"
-    ${PACKAGE_CONFIG_FILE}
-    INSTALL_DESTINATION ${DESTINATION_CONFIGDIR}
+        "cmake/Config.cmake.in"
+        ${PACKAGE_CONFIG_FILE}
+        INSTALL_DESTINATION ${DESTINATION_CONFIGDIR}
     )
 endMacro()
 

@@ -74,3 +74,5 @@ elseif(UNIX)
         pthread
     )
 endif()
+
+add_library(iceoryx_hoofs::iceoryx_platform ALIAS iceoryx_platform)
