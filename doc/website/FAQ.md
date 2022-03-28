@@ -2,9 +2,39 @@
 
 In this document are tips and hints documented which can help for troubleshooting on RouDi.
 
-## Does iceoryx run in a docker environment
+## Does iceoryx run in a docker environment?
 
 Yes. Take a look at the [icedocker example](../../iceoryx_examples/icedocker/)
+
+## How can I find out if RouDi is running?
+
+flock -n /tmp/roudi.lock echo "RouDi not running"
+With echo $? can the return code of the last command evaluated
+
+```python
+try:
+    fcntl.flock(roudi_lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+except BlockingIOError as exception:
+    raise RuntimeError("RouDi already running.") from exception
+finally:
+    fcntl.flock(roudi_lock.fileno(), fcntl.LOCK_UN)
+```
+
+## Out of chunks error `MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS`
+
+https://github.com/eclipse-iceoryx/iceoryx/issues/581
+
+Follow this checklist:
+
+Questions
+1. Are you publisher sending at a higher frequency than the subscribers are taking the samples?
+2. Are you using the blocking publisher feature?
+3. Are lost samples aka latest and greatest allowed?
+
+Solutions
+1. Increase memory configuration in RouDi
+1. Increase queueCapacity
+1. Make sure the publisher is sending at a lower frequency
 
 ## iox-roudi fails on startup
 
