@@ -34,7 +34,6 @@ constexpr uint16_t USER_DEFINED_MODULE_IDENTIFIER{256};
 
 constexpr uint8_t ERROR_ENUM_OFFSET_IN_BITS{16};
 
-// DO NOT TOUCH START, you can doodle around with the lines above!!!
 #define CREATE_ICEORYX_ERROR_ENUM(name) k##name,
 #define CREATE_ICEORYX_ERROR_STRING(name) #name,
 
