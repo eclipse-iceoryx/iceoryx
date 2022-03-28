@@ -6,6 +6,8 @@
 
 **Features:**
 
+- C binding: add functions to get chunk header attributes [\#585](https://github.com/eclipse-iceoryx/iceoryx/issues/585)
+
 **Bugfixes:**
 
 - Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)

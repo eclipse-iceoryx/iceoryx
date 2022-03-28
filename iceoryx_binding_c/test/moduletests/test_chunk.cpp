@@ -159,4 +159,60 @@ TEST_F(Chunk_test, GettingUserHeaderFromConstChunkHeaderWorks)
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
+TEST_F(Chunk_test, GettingHeaderPropertiesFromConstChunkHeaderWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0d561c7e-ae29-11ec-b909-0242ac120002");
+    constexpr uint32_t USER_PAYLOAD_SIZE(42U);
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT(64U);
+    constexpr uint32_t USER_HEADER_SIZE = 16U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 8U;
+    void* userPayload{nullptr};
+    ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
+                                                          &userPayload,
+                                                          USER_PAYLOAD_SIZE,
+                                                          USER_PAYLOAD_ALIGNMENT,
+                                                          USER_HEADER_SIZE,
+                                                          USER_HEADER_ALIGNMENT),
+              AllocationResult_SUCCESS);
+
+    const iox_chunk_header_t* chunkHeader = iox_chunk_header_from_user_payload(userPayload);
+
+    ASSERT_EQ(iox_chunk_header_user_chunk_size(chunkHeader), USER_HEADER_SIZE + USER_PAYLOAD_SIZE);
+    ASSERT_EQ(iox_chunk_header_user_header_size(chunkHeader), USER_HEADER_SIZE);
+    ASSERT_EQ(iox_chunk_header_user_payload_size(chunkHeader), USER_PAYLOAD_SIZE);
+    ASSERT_EQ(iox_chunk_header_user_payload_alignment(chunkHeader), USER_PAYLOAD_ALIGNMENT);
+}
+
+TEST_F(Chunk_test, GettingSequenceNumberFromConstChunkHeaderWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fd564011-77a7-494a-93ae-f5b3f895cf95");
+    constexpr uint32_t USER_PAYLOAD_SIZE(42U);
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT(64U);
+    constexpr uint32_t USER_HEADER_SIZE = 16U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 8U;
+
+    void* userPayload1{nullptr};
+    ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
+                                                          &userPayload1,
+                                                          USER_PAYLOAD_SIZE,
+                                                          USER_PAYLOAD_ALIGNMENT,
+                                                          USER_HEADER_SIZE,
+                                                          USER_HEADER_ALIGNMENT),
+              AllocationResult_SUCCESS);
+    const iox_chunk_header_t* chunkHeader1 = iox_chunk_header_from_user_payload(userPayload1);
+
+    void* userPayload2{nullptr};
+    ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
+                                                          &userPayload2,
+                                                          USER_PAYLOAD_SIZE,
+                                                          USER_PAYLOAD_ALIGNMENT,
+                                                          USER_HEADER_SIZE,
+                                                          USER_HEADER_ALIGNMENT),
+              AllocationResult_SUCCESS);
+
+    const iox_chunk_header_t* chunkHeader2 = iox_chunk_header_from_user_payload(userPayload2);
+
+    ASSERT_GT(iox_chunk_header_sequence_number(chunkHeader2), iox_chunk_header_sequence_number(chunkHeader1));
+}
+
 } // namespace

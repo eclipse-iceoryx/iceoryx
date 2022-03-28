@@ -43,6 +43,31 @@ const void* iox_chunk_header_to_user_header_const(const iox_chunk_header_t* cons
     return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userHeader();
 }
 
+uint32_t iox_chunk_header_user_chunk_size(const iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->chunkSize();
+}
+
+uint32_t iox_chunk_header_user_header_size(const iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userHeaderSize();
+}
+
+uint32_t iox_chunk_header_user_payload_size(const iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userPayloadSize();
+}
+
+uint32_t iox_chunk_header_user_payload_alignment(const iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userPayloadAlignment();
+}
+
+uint64_t iox_chunk_header_sequence_number(const iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->sequenceNumber();
+}
+
 iox_chunk_header_t* iox_chunk_header_from_user_payload(void* const userPayload)
 {
     return reinterpret_cast<iox_chunk_header_t*>(ChunkHeader::fromUserPayload(userPayload));

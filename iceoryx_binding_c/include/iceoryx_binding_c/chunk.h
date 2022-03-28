@@ -39,6 +39,26 @@ void* iox_chunk_header_to_user_header(iox_chunk_header_t* const chunkHeader);
 /// @return const pointer to the user-header
 const void* iox_chunk_header_to_user_header_const(const iox_chunk_header_t* const chunkHeader);
 
+/// @brief The size of the whole chunk, including the header
+/// @return the chunk size
+uint32_t iox_chunk_header_user_chunk_size(const iox_chunk_header_t* const chunkHeader);
+
+/// @brief The size of the chunk occupied by the user-header
+/// @return the user-header size
+uint32_t iox_chunk_header_user_header_size(const iox_chunk_header_t* const chunkHeader);
+
+/// @brief The size of the chunk occupied by the user-payload
+/// @return the user-payload size
+uint32_t iox_chunk_header_user_payload_size(const iox_chunk_header_t* const chunkHeader);
+
+/// @brief The alignment of the chunk occupied by the user-payload
+/// @return the user-payload alignment
+uint32_t iox_chunk_header_user_payload_alignment(const iox_chunk_header_t* const chunkHeader);
+
+/// @brief A serial number for the sent chunks
+/// @brief the serquence number of the chunk
+uint64_t iox_chunk_header_sequence_number(const iox_chunk_header_t* const chunkHeader);
+
 /// @brief gets the chunk-header from the user-payload
 /// @param[in] userPayload pointer to the user-payload
 /// @return pointer to the chunk-header
