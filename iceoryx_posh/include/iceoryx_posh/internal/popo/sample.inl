@@ -34,7 +34,7 @@ void Sample<T, H>::publish() noexcept
     else
     {
         LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
-        errorHandler(PoshError::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::POSH__PUBLISHING_EMPTY_SAMPLE, ErrorLevel::MODERATE);
     }
 }
 } // namespace popo

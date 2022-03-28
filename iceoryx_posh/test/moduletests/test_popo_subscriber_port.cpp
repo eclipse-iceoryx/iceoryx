@@ -358,7 +358,7 @@ TEST_F(SubscriberPortSingleProducer_test, NackWhenNotWaitingForResultsInError)
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::PoshError::kPOPO__CAPRO_PROTOCOL_ERROR));
+    ASSERT_THAT(receivedError, Eq(iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR));
 }
 
 class SubscriberPortMultiProducer_test : public Test
@@ -541,7 +541,7 @@ TEST_F(SubscriberPortMultiProducer_test, InvalidMessageResultsInError)
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::PoshError::kPOPO__CAPRO_PROTOCOL_ERROR));
+    ASSERT_THAT(receivedError, Eq(iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR));
 }
 
 } // namespace

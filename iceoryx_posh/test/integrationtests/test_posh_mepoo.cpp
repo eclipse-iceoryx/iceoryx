@@ -420,7 +420,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE}));
 
     ASSERT_TRUE(receivedError.has_value());
-    EXPECT_THAT(receivedError.value(), Eq(iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
+    EXPECT_THAT(receivedError.value(), Eq(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
 }
 
 TEST_F(Mepoo_IntegrationTest, SampleOverflow)
@@ -442,7 +442,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(REPETITION, {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS}));
 
     ASSERT_TRUE(receivedError.has_value());
-    ASSERT_THAT(receivedError.value(), Eq(iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
+    ASSERT_THAT(receivedError.value(), Eq(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
 }
 
 TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5), [&] {

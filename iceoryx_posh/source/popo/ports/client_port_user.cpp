@@ -63,7 +63,7 @@ void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
     else
     {
-        errorHandler(PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER, ErrorLevel::SEVERE);
     }
 }
 
@@ -72,7 +72,7 @@ cxx::expected<ClientSendError> ClientPortUser::sendRequest(RequestHeader* const 
     if (requestHeader == nullptr)
     {
         LogError() << "Attempted to send a nullptr request!";
-        errorHandler(PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
         return cxx::error<ClientSendError>(ClientSendError::INVALID_REQUEST);
     }
 
@@ -136,7 +136,7 @@ void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
     else
     {
-        errorHandler(PoshError::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
     }
 }
 

@@ -87,8 +87,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
         {
             // that's not the fault of the chunk distributor user, we report a moderate error and indicate that adding
             // the queue was not possible
-            errorHandler(
-                PoshError::kPOPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, nullptr, ErrorLevel::MODERATE);
+            errorHandler(PoshError::POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, ErrorLevel::MODERATE);
 
             return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW);
         }
@@ -344,8 +343,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::cleanup() noexcept
         /// and a sending application dies when having the lock for sending. If the RouDi daemon wants to
         /// cleanup or does discovery changes we have a deadlock or an exception when destroying the mutex
         /// As long as we don't have a multi-threaded lock-free ChunkDistributor or another concept we die here
-        errorHandler(PoshError::kPOPO__CHUNK_DISTRIBUTOR_CLEANUP_DEADLOCK_BECAUSE_BAD_APPLICATION_TERMINATION,
-                     nullptr,
+        errorHandler(PoshError::POPO__CHUNK_DISTRIBUTOR_CLEANUP_DEADLOCK_BECAUSE_BAD_APPLICATION_TERMINATION,
                      ErrorLevel::FATAL);
     }
 }

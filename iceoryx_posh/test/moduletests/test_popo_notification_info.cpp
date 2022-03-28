@@ -103,7 +103,7 @@ TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
     m_sut.getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(errorHandlerType, iox::PoshError::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    EXPECT_EQ(errorHandlerType, iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
@@ -120,7 +120,7 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
     const_cast<NotificationInfo&>(m_sut).getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(errorHandlerType, iox::PoshError::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    EXPECT_EQ(errorHandlerType, iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(NotificationInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)

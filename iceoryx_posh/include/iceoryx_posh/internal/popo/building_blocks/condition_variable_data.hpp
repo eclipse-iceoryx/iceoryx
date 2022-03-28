@@ -38,14 +38,12 @@ struct ConditionVariableData
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
     ~ConditionVariableData() noexcept = default;
 
-    posix::Semaphore m_semaphore =
-        std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U)
-                      .or_else([](posix::SemaphoreError&) {
-                          errorHandler(PoshError::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE,
-                                       nullptr,
-                                       ErrorLevel::FATAL);
-                      })
-                      .value());
+    posix::Semaphore m_semaphore = std::move(
+        posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U)
+            .or_else([](posix::SemaphoreError&) {
+                errorHandler(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
+            })
+            .value());
 
     RuntimeName_t m_runtimeName;
     std::atomic_bool m_toBeDestroyed{false};

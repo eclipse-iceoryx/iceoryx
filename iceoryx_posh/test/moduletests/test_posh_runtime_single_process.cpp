@@ -78,7 +78,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
     std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)};
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
 }
 
 } // namespace

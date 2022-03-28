@@ -89,7 +89,7 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
     EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__SENDING_EMPTY_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
 }
 
 TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
@@ -111,7 +111,7 @@ TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
     EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__SENDING_EMPTY_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
 }
 
 TEST_F(Response_test, GetResponseHeaderWorks)

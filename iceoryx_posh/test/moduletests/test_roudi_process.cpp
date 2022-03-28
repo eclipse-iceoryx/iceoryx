@@ -107,7 +107,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 
     ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
     EXPECT_THAT(sendViaIpcChannelStatusFail.value(),
-                Eq(iox::PoshError::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
+                Eq(iox::PoshError::POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
 }
 
 TEST_F(Process_test, TimeStamp)

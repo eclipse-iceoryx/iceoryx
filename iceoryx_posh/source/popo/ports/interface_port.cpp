@@ -48,7 +48,7 @@ void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     if (!getMembers()->m_caproMessageFiFo.push(caProMessage))
     {
         // information loss for this interface port
-        errorHandler(PoshError::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, ErrorLevel::SEVERE);
     }
 }
 

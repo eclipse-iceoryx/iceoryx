@@ -35,9 +35,7 @@ void ConditionListener::resetSemaphore() noexcept
            && getMembers()
                   ->m_semaphore.tryWait()
                   .or_else([&](posix::SemaphoreError) {
-                      errorHandler(PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET,
-                                   nullptr,
-                                   ErrorLevel::FATAL);
+                      errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET, ErrorLevel::FATAL);
                       hasFatalError = true;
                   })
                   .value())
@@ -49,7 +47,7 @@ void ConditionListener::destroy() noexcept
 {
     m_toBeDestroyed.store(true, std::memory_order_relaxed);
     getMembers()->m_semaphore.post().or_else([](auto) {
-        errorHandler(PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_DESTROY, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_DESTROY, ErrorLevel::FATAL);
     });
 }
 
@@ -58,8 +56,7 @@ bool ConditionListener::wasNotified() const noexcept
     auto result = getMembers()->m_semaphore.getValue();
     if (result.has_error())
     {
-        errorHandler(
-            PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, ErrorLevel::FATAL);
         return false;
     }
 
@@ -71,7 +68,7 @@ ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
     return waitImpl([this]() -> bool {
         if (this->getMembers()->m_semaphore.wait().has_error())
         {
-            errorHandler(PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, ErrorLevel::FATAL);
             return false;
         }
         return true;
@@ -83,8 +80,7 @@ ConditionListener::NotificationVector_t ConditionListener::timedWait(const units
     return waitImpl([this, timeToWait]() -> bool {
         if (this->getMembers()->m_semaphore.timedWait(timeToWait).has_error())
         {
-            errorHandler(
-                PoshError::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
+            errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, ErrorLevel::FATAL);
         }
         return false;
     });

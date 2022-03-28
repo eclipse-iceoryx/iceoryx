@@ -211,7 +211,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError
     ASSERT_TRUE(detectedError.has_value());
     ASSERT_TRUE(detectedErrorLevel.has_value());
     EXPECT_THAT(detectedError.value(),
-                Eq(iox::PoshError::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
+                Eq(iox::PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
 
     // reset unique RouDi ID

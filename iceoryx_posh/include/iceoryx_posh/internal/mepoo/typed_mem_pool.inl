@@ -47,7 +47,7 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
     ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.getChunk());
     if (chunkManagement == nullptr)
     {
-        errorHandler(PoshError::kMEPOO__TYPED_MEMPOOL_HAS_INCONSISTENT_STATE);
+        errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_HAS_INCONSISTENT_STATE);
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
@@ -75,7 +75,7 @@ inline cxx::expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::creat
 
     if (newObject.has_error())
     {
-        errorHandler(PoshError::kMEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
+        errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
@@ -104,7 +104,7 @@ TypedMemPool<T>::createObjectWithCreationPattern(Targs&&... args) noexcept
 
     if (sharedPointer.has_error())
     {
-        errorHandler(PoshError::kMEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
+        errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
         return cxx::error<errorType_t>(cxx::in_place_index<0>(), TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 

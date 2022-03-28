@@ -93,7 +93,7 @@ void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType
     // this shouldn't be reached
     LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "' with offer state '"
                << (getMembers()->m_offered ? "OFFERED" : "NOT OFFERED") << "'!";
-    errorHandler(PoshError::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+    errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
 }
 
 cxx::optional<capro::CaproMessage>
@@ -113,8 +113,7 @@ ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& ca
         if (caProMessage.m_chunkQueueData == nullptr)
         {
             LogWarn() << "No client response queue passed to server";
-            errorHandler(
-                PoshError::kPOPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, nullptr, ErrorLevel::MODERATE);
+            errorHandler(PoshError::POPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, ErrorLevel::MODERATE);
         }
         else
         {

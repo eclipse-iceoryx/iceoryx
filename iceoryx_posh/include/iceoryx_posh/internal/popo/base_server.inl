@@ -117,8 +117,7 @@ inline void BaseServer<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
 
             errorHandler(
                 PoshError::
-                    kPOPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
-                nullptr,
+                    POPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
                 ErrorLevel::MODERATE);
         }
         m_trigger = std::move(triggerHandle);
@@ -167,8 +166,7 @@ inline void BaseServer<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
                    "first.";
             errorHandler(
                 PoshError::
-                    kPOPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
-                nullptr,
+                    POPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
                 ErrorLevel::MODERATE);
         }
         m_trigger = std::move(triggerHandle);

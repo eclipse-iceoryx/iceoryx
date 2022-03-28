@@ -55,7 +55,7 @@ void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
     if (!sendSuccess)
     {
         LogWarn() << "Process cannot send message over communication channel";
-        errorHandler(PoshError::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, ErrorLevel::MODERATE);
     }
 }
 

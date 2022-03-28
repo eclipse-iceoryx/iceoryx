@@ -266,7 +266,7 @@ TYPED_TEST(BaseServer_test, EnableStateCallsUnderlyingPortAndTriggerHandle)
             EXPECT_THAT(
                 error,
                 Eq(iox::PoshError::
-                       kPOPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
+                       POPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             errorDetected = true;
         });
@@ -327,7 +327,7 @@ TYPED_TEST(BaseServer_test, EnableEventCallsUnderlyingPortAndTriggerHandle)
             EXPECT_THAT(
                 error,
                 Eq(iox::PoshError::
-                       kPOPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
+                       POPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             errorDetected = true;
         });

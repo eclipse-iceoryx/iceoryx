@@ -269,7 +269,7 @@ TEST_F(ClientPort_test, ReleaseRequestWithNullptrCallsErrorHandler)
     sut.portUser.releaseRequest(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, ReleaseRequestWithValidRequestWorksAndReleasesTheChunkToTheMempool)
@@ -305,7 +305,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortCallsErrorHan
         .or_else([&](auto error) { EXPECT_THAT(error, Eq(ClientSendError::INVALID_REQUEST)); });
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER);
 }
 
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
@@ -427,7 +427,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
     sut.portUser.releaseResponse(nullptr);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::POPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER);
 }
 
 TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempool)
@@ -994,7 +994,7 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
             auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
             ASSERT_FALSE(responseCaproMessage.has_value());
             ASSERT_TRUE(detectedError.has_value());
-            EXPECT_EQ(detectedError.value(), iox::PoshError::kPOPO__CAPRO_PROTOCOL_ERROR);
+            EXPECT_EQ(detectedError.value(), iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR);
         }
     }
 }

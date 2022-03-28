@@ -110,7 +110,7 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceCal
     iox::cxx::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto error, const auto errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE));
+            EXPECT_THAT(error, Eq(iox::PoshError::POSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
             detectedError.emplace(error);
         });

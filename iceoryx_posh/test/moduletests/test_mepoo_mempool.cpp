@@ -82,7 +82,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(),
-                Eq(iox::PoshError::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT));
+                Eq(iox::PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT));
 }
 
 TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThanChunkMemoryAlignmentGetsTerminated)
@@ -185,7 +185,7 @@ TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
     sut.freeChunk(chunks[INDEX]);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__MEMPOOL_POSSIBLE_DOUBLE_FREE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__MEMPOOL_POSSIBLE_DOUBLE_FREE));
 }
 
 TEST_F(MemPool_test, FreeChunkMethodWhenTheChunkIndexIsInvalidReturnsError)

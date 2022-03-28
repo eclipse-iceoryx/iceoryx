@@ -199,7 +199,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
     constexpr uint64_t typeHash = 0U;
 
     bool hasTerminated = false;
-    iox::PoshError errorType = iox::PoshError::kNO_ERROR;
+    iox::PoshError errorType = iox::PoshError::NO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel) {
             hasTerminated = true;
@@ -217,7 +217,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
                 typeHash);
 
     EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(errorType, Eq(iox::PoshError::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK));
+    EXPECT_THAT(errorType, Eq(iox::PoshError::POPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK));
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
 }
@@ -231,7 +231,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
     constexpr uint64_t typeHash = 0U;
 
     bool hasTerminated = false;
-    iox::PoshError errorType = iox::PoshError::kNO_ERROR;
+    iox::PoshError errorType = iox::PoshError::NO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel) {
             hasTerminated = true;
@@ -249,7 +249,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
                 typeHash);
 
     EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(errorType, Eq(iox::PoshError::kPOPO__TRIGGER_INVALID_RESET_CALLBACK));
+    EXPECT_THAT(errorType, Eq(iox::PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK));
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
 }
@@ -698,7 +698,7 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
     constexpr uint64_t originTypeHash = 0U;
 
     bool hasTerminated = false;
-    iox::PoshError errorType = iox::PoshError::kNO_ERROR;
+    iox::PoshError errorType = iox::PoshError::NO_ERROR;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel) {
             hasTerminated = true;
@@ -715,7 +715,7 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
                 originTypeHash);
 
     EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(errorType, Eq(iox::PoshError::kPOPO__TRIGGER_INVALID_RESET_CALLBACK));
+    EXPECT_THAT(errorType, Eq(iox::PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK));
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
 }

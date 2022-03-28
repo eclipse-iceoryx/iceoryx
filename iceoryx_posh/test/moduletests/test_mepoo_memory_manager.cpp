@@ -101,7 +101,7 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kMEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
 }
 
 TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
@@ -121,7 +121,7 @@ TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kMEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
 }
 
 TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexReturnsZeroForAllMempoolAttributes)
@@ -175,7 +175,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL);
 }
 
 
@@ -206,7 +206,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
 }
 
 TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsError)
@@ -234,7 +234,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
+    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
 }
 
 TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableInMemPoolConfig)

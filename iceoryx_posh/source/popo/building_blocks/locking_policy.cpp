@@ -25,7 +25,7 @@ void ThreadSafePolicy::lock() const noexcept
 {
     if (!m_mutex.lock())
     {
-        errorHandler(PoshError::kPOPO__CHUNK_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__CHUNK_LOCKING_ERROR, ErrorLevel::FATAL);
     }
 }
 
@@ -33,7 +33,7 @@ void ThreadSafePolicy::unlock() const noexcept
 {
     if (!m_mutex.unlock())
     {
-        errorHandler(PoshError::kPOPO__CHUNK_UNLOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__CHUNK_UNLOCKING_ERROR, ErrorLevel::FATAL);
     }
 }
 

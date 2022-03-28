@@ -69,7 +69,7 @@ TEST_F(Sample_test, PublishingAlreadyPublishedSampleCallsErrorHandler)
     sutProducer.publish();
 
     ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__PUBLISHING_EMPTY_SAMPLE));
+    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE));
 }
 
 TEST_F(Sample_test, PublishingMovedSampleCallsErrorHandler)
@@ -87,7 +87,7 @@ TEST_F(Sample_test, PublishingMovedSampleCallsErrorHandler)
     sutProducer.publish();
 
     ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::kPOSH__PUBLISHING_EMPTY_SAMPLE));
+    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE));
 }
 
 } // namespace

@@ -50,7 +50,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (!maybePortPool.has_value())
     {
         LogFatal() << "Could not get PortPool!";
-        errorHandler(PoshError::kPORT_MANAGER__PORT_POOL_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
+        errorHandler(PoshError::PORT_MANAGER__PORT_POOL_UNAVAILABLE, iox::ErrorLevel::FATAL);
     }
     m_portPool = maybePortPool.value();
 
@@ -58,8 +58,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Could not get MemoryManager for introspection!";
-        errorHandler(
-            PoshError::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
+        errorHandler(PoshError::PORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, iox::ErrorLevel::FATAL);
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -153,8 +152,7 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
             LogWarn() << "CaPro protocol error for publisher from runtime '" << publisherPort.getRuntimeName()
                       << "' and with service description '" << publisherPort.getCaProServiceDescription()
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
-            errorHandler(PoshError::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
-                         nullptr,
+            errorHandler(PoshError::PORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
                          iox::ErrorLevel::MODERATE);
         }
 
@@ -205,8 +203,7 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
             LogWarn() << "CaPro protocol error for subscriber from runtime '" << subscriberPort.getRuntimeName()
                       << "' and with service description '" << subscriberPort.getCaProServiceDescription()
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
-            errorHandler(PoshError::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
-                         nullptr,
+            errorHandler(PoshError::PORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
                          iox::ErrorLevel::MODERATE);
             return;
         }
@@ -282,9 +279,7 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
             LogWarn() << "CaPro protocol error for client from runtime '" << clientPort.getRuntimeName()
                       << "' and with service description '" << clientPort.getCaProServiceDescription()
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
-            errorHandler(PoshError::kPORT_MANAGER__HANDLE_CLIENT_PORTS_INVALID_CAPRO_MESSAGE,
-                         nullptr,
-                         iox::ErrorLevel::MODERATE);
+            errorHandler(PoshError::PORT_MANAGER__HANDLE_CLIENT_PORTS_INVALID_CAPRO_MESSAGE, iox::ErrorLevel::MODERATE);
             return;
         }
     });
@@ -368,9 +363,7 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
             LogWarn() << "CaPro protocol error for server from runtime '" << serverPort.getRuntimeName()
                       << "' and with service description '" << serverPort.getCaProServiceDescription()
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
-            errorHandler(PoshError::kPORT_MANAGER__HANDLE_SERVER_PORTS_INVALID_CAPRO_MESSAGE,
-                         nullptr,
-                         iox::ErrorLevel::MODERATE);
+            errorHandler(PoshError::PORT_MANAGER__HANDLE_SERVER_PORTS_INVALID_CAPRO_MESSAGE, iox::ErrorLevel::MODERATE);
             return;
         }
 
@@ -880,7 +873,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
                     << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
             }))
     {
-        errorHandler(PoshError::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::POSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
@@ -890,8 +883,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
     }
     else if (isInternal(service))
     {
-        errorHandler(
-            PoshError::kPOSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::POSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN);
     }
 
@@ -920,7 +912,7 @@ PortManager::acquireInternalPublisherPortData(const capro::ServiceDescription& s
                service, publisherOptions, IPC_CHANNEL_ROUDI_NAME, payloadDataSegmentMemoryManager, PortConfigInfo())
         .or_else([&service](auto&) {
             LogFatal() << "Could not create PublisherPort for internal service " << service;
-            errorHandler(PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE, nullptr, ErrorLevel::FATAL);
+            errorHandler(PoshError::PORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE, ErrorLevel::FATAL);
         })
         .and_then([&](auto publisherPortData) {
             // now the port to send registry information exists and can be used to publish service registry changes
@@ -939,7 +931,7 @@ PublisherPortRouDiType::MemberType_t* PortManager::acquireInternalPublisherPortD
                service, publisherOptions, IPC_CHANNEL_ROUDI_NAME, payloadDataSegmentMemoryManager, PortConfigInfo())
         .or_else([&service](auto&) {
             LogFatal() << "Could not create PublisherPort for internal service " << service;
-            errorHandler(PoshError::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE, nullptr, ErrorLevel::FATAL);
+            errorHandler(PoshError::PORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE, ErrorLevel::FATAL);
         })
         .value();
 }
@@ -1009,7 +1001,7 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
                       << "' violates the communication policy by requesting a ServerPort which is already used by '"
                       << serverPortData->m_runtimeName << "' with service '"
                       << service.operator cxx::Serialization().toString() << "'.";
-            errorHandler(PoshError::kPOSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+            errorHandler(PoshError::POSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE, ErrorLevel::MODERATE);
             return cxx::error<PortPoolError>(PortPoolError::UNIQUE_SERVER_PORT_ALREADY_EXISTS);
         }
     }
@@ -1077,7 +1069,7 @@ void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription&
 {
     m_serviceRegistry.addPublisher(service).or_else([&](auto&) {
         LogWarn() << "Could not add publisher with service description '" << service << "' to service registry!";
-        errorHandler(PoshError::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, ErrorLevel::MODERATE);
     });
     publishServiceRegistry();
 }
@@ -1092,7 +1084,7 @@ void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& se
 {
     m_serviceRegistry.addServer(service).or_else([&](auto&) {
         LogWarn() << "Could not add server with service description '" << service << "' to service registry!";
-        errorHandler(PoshError::kPOSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, nullptr, ErrorLevel::MODERATE);
+        errorHandler(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, ErrorLevel::MODERATE);
     });
     publishServiceRegistry();
 }

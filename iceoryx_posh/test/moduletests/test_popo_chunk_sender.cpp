@@ -499,7 +499,7 @@ TEST_F(ChunkSender_test, sendToQueueWithInvalidChunkTriggersTheErrorHandler)
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&errorHandlerCalled](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             errorHandlerCalled = true;
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 

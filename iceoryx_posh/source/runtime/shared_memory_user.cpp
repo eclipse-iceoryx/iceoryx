@@ -47,7 +47,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
 
             m_shmObject.emplace(std::move(sharedMemoryObject));
         })
-        .or_else([](auto&) { errorHandler(PoshError::kPOSH__SHM_APP_MAPP_ERR); });
+        .or_else([](auto&) { errorHandler(PoshError::POSH__SHM_APP_MAPP_ERR); });
 }
 
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
@@ -68,7 +68,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {
-                    errorHandler(PoshError::kPOSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
+                    errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
                 rp::BaseRelativePointer::registerPtr(
@@ -80,7 +80,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })
-            .or_else([](auto&) { errorHandler(PoshError::kPOSH__SHM_APP_SEGMENT_MAPP_ERR); });
+            .or_else([](auto&) { errorHandler(PoshError::POSH__SHM_APP_SEGMENT_MAPP_ERR); });
     }
 }
 } // namespace runtime

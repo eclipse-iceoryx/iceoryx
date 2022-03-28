@@ -59,7 +59,7 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> c
     else
     {
         std::cerr << chunkSize << " :: " << numberOfChunks << std::endl;
-        errorHandler(PoshError::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
+        errorHandler(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }
 
@@ -105,7 +105,7 @@ void MemPool::freeChunk(const void* chunk) noexcept
 
     if (!m_freeIndices.push(index))
     {
-        errorHandler(PoshError::kPOSH__MEMPOOL_POSSIBLE_DOUBLE_FREE);
+        errorHandler(PoshError::POSH__MEMPOOL_POSSIBLE_DOUBLE_FREE);
     }
 
     m_usedChunks.fetch_sub(1U, std::memory_order_relaxed);

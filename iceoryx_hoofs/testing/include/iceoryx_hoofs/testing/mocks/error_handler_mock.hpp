@@ -44,7 +44,7 @@ inline void errorHandlerForTest(const uint32_t error, const char* errorName, con
 {
     uint32_t errorModuleIdentifier = error >> ERROR_ENUM_OFFSET_IN_BITS;
     uint32_t expectedErrorModuleIdentifier =
-        static_cast<typename std::underlying_type<ErrorEnumType>::type>(ErrorEnumType::kNO_ERROR)
+        static_cast<typename std::underlying_type<ErrorEnumType>::type>(ErrorEnumType::NO_ERROR)
         >> ERROR_ENUM_OFFSET_IN_BITS;
 
     if (errorModuleIdentifier == expectedErrorModuleIdentifier)

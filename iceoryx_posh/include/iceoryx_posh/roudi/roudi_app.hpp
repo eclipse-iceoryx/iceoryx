@@ -64,7 +64,7 @@ class RouDiApp
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0u)
                       .or_else([](posix::SemaphoreError&) {
-                          errorHandler(PoshError::kROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, nullptr, ErrorLevel::FATAL);
+                          errorHandler(PoshError::ROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
                       })
                       .value());
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};

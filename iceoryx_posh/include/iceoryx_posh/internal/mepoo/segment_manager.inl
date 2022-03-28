@@ -78,7 +78,7 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
                 }
                 else
                 {
-                    errorHandler(PoshError::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
+                    errorHandler(PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
                     return SegmentManager::SegmentMappingContainer();
                 }
             }

@@ -25,26 +25,23 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(runtimeName, maxMessages, messageSize)
-    , m_fileLock(std::move(posix::FileLock::create(runtimeName)
-                               .or_else([&runtimeName](auto& error) {
-                                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
-                                   {
-                                       LogFatal() << "An application with the name " << runtimeName
-                                                  << " is still running. Using the "
-                                                     "same name twice is not supported.";
-                                       errorHandler(PoshError::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING,
-                                                    nullptr,
-                                                    iox::ErrorLevel::FATAL);
-                                   }
-                                   else
-                                   {
-                                       LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
-                                       errorHandler(PoshError::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK,
-                                                    nullptr,
-                                                    iox::ErrorLevel::FATAL);
-                                   }
-                               })
-                               .value()))
+    , m_fileLock(std::move(
+          posix::FileLock::create(runtimeName)
+              .or_else([&runtimeName](auto& error) {
+                  if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                  {
+                      LogFatal() << "An application with the name " << runtimeName
+                                 << " is still running. Using the "
+                                    "same name twice is not supported.";
+                      errorHandler(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, iox::ErrorLevel::FATAL);
+                  }
+                  else
+                  {
+                      LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
+                      errorHandler(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, iox::ErrorLevel::FATAL);
+                  }
+              })
+              .value()))
 {
     // check if the IPC channel is still there (e.g. because of no proper termination
     // of the process)

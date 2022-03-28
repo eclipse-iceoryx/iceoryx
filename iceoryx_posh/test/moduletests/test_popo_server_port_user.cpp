@@ -405,7 +405,7 @@ TEST_F(ServerPort_test, ReleaseRequestWithInvalidChunkCallsTheErrorHandler)
     iox::cxx::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
@@ -423,7 +423,7 @@ TEST_F(ServerPort_test, ReleaseRequestWithNullptrRequestHeaderCallsTheErrorHandl
     iox::cxx::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
@@ -637,7 +637,7 @@ TEST_F(ServerPort_test, ReleaseResponseWithInvalidChunkCallsTheErrorHandler)
     iox::cxx::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
@@ -660,7 +660,7 @@ TEST_F(ServerPort_test, ReleaseResponseWithWithNullptrResponseHeaderCallsTheErro
     iox::cxx::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });
@@ -682,7 +682,7 @@ TEST_F(ServerPort_test, SendResponseWithWithNullptrResponseHeaderCallsTheErrorHa
     iox::cxx::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::kPOPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
             detectedError.emplace(error);
         });

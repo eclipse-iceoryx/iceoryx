@@ -75,7 +75,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (fatalError)
     {
         /// @todo #539 Use separate error enums once RouDi is more modular
-        errorHandler(PoshError::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::ROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, ErrorLevel::FATAL);
     }
 }
 
@@ -177,7 +177,7 @@ void ProcessManager::evaluateKillError(const Process& process,
                   << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
                   << ", because the command failed with the following error: " << errorString
                   << " See manpage for kill(2) or type 'man 2 kill' in console for more information";
-        errorHandler(PoshError::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
     }
     else
     {
@@ -185,7 +185,7 @@ void ProcessManager::evaluateKillError(const Process& process,
                   << "' could not be killed with"
                   << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: ’"
                   << errorString << "'";
-        errorHandler(PoshError::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
     }
 }
 

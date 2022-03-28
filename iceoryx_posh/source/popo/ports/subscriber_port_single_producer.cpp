@@ -100,7 +100,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
         }
         else
         {
-            errorHandler(PoshError::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::MODERATE);
+            errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::MODERATE);
         }
 
         return cxx::nullopt_t();
@@ -117,7 +117,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
         }
         else
         {
-            errorHandler(PoshError::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::MODERATE);
+            errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::MODERATE);
         }
 
         return cxx::nullopt_t();
@@ -131,7 +131,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
     }
     else
     {
-        errorHandler(PoshError::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
         return cxx::nullopt_t();
     }
 }

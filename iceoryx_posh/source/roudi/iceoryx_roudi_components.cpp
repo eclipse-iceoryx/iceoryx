@@ -32,7 +32,7 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
 
         rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
             LogFatal() << "Could not create SharedMemory! Error: " << error;
-            errorHandler(PoshError::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
+            errorHandler(PoshError::ROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, iox::ErrorLevel::FATAL);
         });
         return &rouDiMemoryManager;
     }())

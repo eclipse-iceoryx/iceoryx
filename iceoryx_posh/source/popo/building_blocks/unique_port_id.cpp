@@ -37,7 +37,7 @@ UniquePortId::UniquePortId() noexcept
 
     if (globalIDCounter.load() >= (static_cast<UniquePortId::value_type>(1u) << UNIQUE_ID_BIT_LENGTH))
     {
-        errorHandler(PoshError::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__TYPED_UNIQUE_ID_OVERFLOW, ErrorLevel::FATAL);
     }
 }
 
@@ -58,8 +58,7 @@ void UniquePortId::setUniqueRouDiId(const uint16_t id) noexcept
 {
     if (finalizeSetUniqueRouDiId())
     {
-        errorHandler(
-            PoshError::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID, ErrorLevel::SEVERE);
     }
     uniqueRouDiId.store(id, std::memory_order_relaxed);
 }

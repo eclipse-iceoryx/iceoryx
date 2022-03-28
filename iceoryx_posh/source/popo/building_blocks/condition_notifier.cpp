@@ -30,7 +30,7 @@ ConditionNotifier::ConditionNotifier(ConditionVariableData& condVarDataRef, cons
     {
         LogFatal() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
                    << MAX_NUMBER_OF_NOTIFIERS << "[.";
-        errorHandler(PoshError::kPOPO__CONDITION_NOTIFIER_INDEX_TOO_LARGE, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__CONDITION_NOTIFIER_INDEX_TOO_LARGE, ErrorLevel::FATAL);
     }
 }
 
@@ -40,9 +40,8 @@ void ConditionNotifier::notify() noexcept
     {
         getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
     }
-    getMembers()->m_semaphore.post().or_else([](auto) {
-        errorHandler(PoshError::kPOPO__CONDITION_NOTIFIER_SEMAPHORE_CORRUPT_IN_NOTIFY, nullptr, ErrorLevel::FATAL);
-    });
+    getMembers()->m_semaphore.post().or_else(
+        [](auto) { errorHandler(PoshError::POPO__CONDITION_NOTIFIER_SEMAPHORE_CORRUPT_IN_NOTIFY, ErrorLevel::FATAL); });
 }
 
 const ConditionVariableData* ConditionNotifier::getMembers() const noexcept

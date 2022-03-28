@@ -30,7 +30,7 @@ For ``ERR`` and ``FATAL`` see also error levels ``MODERATE``, ``SEVERE`` (logged
 Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource (e.g. a semaphore) or an application does not respond. In contrast, regular behavior such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
 
 There are two general approaches to deal with errors:
-1. using exceptions 
+1. using exceptions
 
 2. return codes combined with control flow statements and a central instance to handle errors that cannot be mitigated otherwise (the error handler).
 
@@ -159,24 +159,21 @@ LogWarn() << "log message " << someValue << "log message continued";
 A line break is inserted implicitly at the end (after "log message continued" in the example).
 
 ### Error Handler
+
 The most general use case is the following
-```
+
+```cpp
 if(noError()) {
     //handle the regular case
 } else {
-    auto callback = []() { //some error handling callback};
-    errorHandler(Error::kSOME_ERROR_CODE, callback, ErrorLevel::SEVERE);
+    errorHandler(Error::SOME_ERROR_CODE, ErrorLevel::SEVERE);
 }
 ```
 
-If no callback or error level are specified, the error level is assumed to be FATAL by default.
-```
-errorHandler(Error::kSOME_ERROR_CODE)
-```
+If no error level are specified, the error level is assumed to be FATAL by default.
 
-If no callback but an error level is desired, a *nullptr* has to be provided for the callback.
-```
-errorHandler(Error::kSOME_ERROR_CODE, nullptr, ErrorLevel::MODERATE);
+```cpp
+errorHandler(Error::SOME_ERROR_CODE)
 ```
 
 ### Expects and Ensures
@@ -210,7 +207,7 @@ When Expects and Ensures are implemented to leave no trace in release mode, we d
 ### cxx::expected
 This example checks the arguments and if they are valid proceeds to compute a result and returns it.
 Otherwise it creates an Error object from an errorCode and returns it.
- 
+
 ```
 cxx::expected<SomeType, Error> func(Arg arg) {
     int32_t errorCode = checkArg(arg);
@@ -265,14 +262,14 @@ This is related to centralized error handling as well.
 
 ### Overriding Specific Error Reaction
 * Do we want to provide the ability to override error reaction based on e.g. error codes?
-* Do we want to disable certain error levels? (if so, this should preferably happen at compile 
+* Do we want to disable certain error levels? (if so, this should preferably happen at compile
 time with no or few runtime artifacts). It could be an option to e.g. disable all ``MODERATE`` error reaction at compile time.
 * It is probably not reasonable to allow disabling reaction on fatal errors.
 
 This is also related to the hooks for 3rd party error handling we may want to provide.
 
 ### Return in Case of Fatal Error
-The reporting code does not need to be able to continue properly in case of a fatal error, but there needs to be a return after the error handler call. While the error handler is not required to return, it still might under certain circumstances (e.g. a mock error handler in a test case). 
+The reporting code does not need to be able to continue properly in case of a fatal error, but there needs to be a return after the error handler call. While the error handler is not required to return, it still might under certain circumstances (e.g. a mock error handler in a test case).
 
 The (complete) intended behavior of the error handler requires some further clarification, especially in the case of fatal errors. In the case of non-fatal errors the code invoking the error handler must be able to continue after the error handler returns.
 
@@ -284,7 +281,7 @@ One reason for this is that currently it is not possible to provide an additiona
 It would be desirable to allow the possibility to provide additional messages (or even general functions/arguments) to the error handler, which is currently missing.
 This can be combined with the addition of error location to the error handler.
 
-An optional stack-trace (at least in debug mode) may also prove very useful. 
+An optional stack-trace (at least in debug mode) may also prove very useful.
 What is needed to have a limited stack-trace even in release mode?
 
 ### Debug vs. release mode
@@ -299,7 +296,7 @@ In principle with a sufficiently powerful Assert or ``Expects`` (resp. ``Ensures
 In this section we briefly describe ways to potentially improve or extend functionality of existing error handling components. This list is by no means exhaustive and all suggestions are up for discussion and may be refined further.
 
 ### Logger
-1. The logger could be extended to include logging over a network to a remote server or similar. 
+1. The logger could be extended to include logging over a network to a remote server or similar.
 2. Support asynchronous logging.
 
 ### Error Handler

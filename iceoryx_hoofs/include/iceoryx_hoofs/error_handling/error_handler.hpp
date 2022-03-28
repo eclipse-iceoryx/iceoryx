@@ -34,7 +34,7 @@ constexpr uint16_t USER_DEFINED_MODULE_IDENTIFIER{256};
 
 constexpr uint8_t ERROR_ENUM_OFFSET_IN_BITS{16};
 
-#define CREATE_ICEORYX_ERROR_ENUM(name) k##name,
+#define CREATE_ICEORYX_ERROR_ENUM(name) name,
 #define CREATE_ICEORYX_ERROR_STRING(name) #name,
 
 /// @brief the available error levels
@@ -74,11 +74,11 @@ enum class ErrorLevel : uint32_t
 ///     2.) Specialize the following methods for your NewEnumErrorType:
 ///         - const char* toString(const NewEnumErrorType error)
 ///
-///     3.) Call errorHandler(Error::kMODULE_NAME__MY_FUNKY_ERROR);
+///     3.) Call errorHandler(Error::MODULE_NAME__MY_FUNKY_ERROR);
 ///             Please pay attention to the "k" prefix
 ///         The defaults for errorCallback and ErrorLevel can also be overwritten:
 ///             errorHandler(
-///                 Error::kMODULE_NAME__MY_FUNKY_ERROR,
+///                 Error::MODULE_NAME__MY_FUNKY_ERROR,
 ///                 []{ std::cout << "MyCustomCallback" << std::endl; },
 ///                 ErrorLevel::MODERATE
 ///             );
@@ -87,7 +87,7 @@ enum class ErrorLevel : uint32_t
 /// class PrettyClass {
 ///     float division(float a, float b) {
 ///         if ( b == 0.0f ) {
-///             errorHandler(Error::kPRETTY_CLASS__DIVISION_BY_ZERO);
+///             errorHandler(Error::PRETTY_CLASS__DIVISION_BY_ZERO);
 ///         }
 ///     }
 /// };
@@ -100,14 +100,12 @@ enum class ErrorLevel : uint32_t
 ///         called = true;
 ///     });
 ///
-/// errorHandler(Error::kTEST__ASSERT_CALLED);
+/// errorHandler(Error::TEST__ASSERT_CALLED);
 /// ASSERT_TRUE(called);
 /// @endcode
 /// @tparam[in] Error type which is used to report the error (typically an enum)
 template <typename Error>
-void errorHandler(const Error error,
-                  const std::function<void()>& errorCallBack = std::function<void()>(),
-                  const ErrorLevel level = ErrorLevel::FATAL) noexcept;
+void errorHandler(const Error error, const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 
 using HandlerFunction = std::function<void(const uint32_t, const char*, const ErrorLevel)>;
 
@@ -117,8 +115,7 @@ using HandlerFunction = std::function<void(const uint32_t, const char*, const Er
 class ErrorHandler
 {
     template <typename Error>
-    friend void
-    errorHandler(const Error error, const std::function<void()>& errorCallBack, const ErrorLevel level) noexcept;
+    friend void errorHandler(const Error error, const ErrorLevel level) noexcept;
 
   protected:
     static void reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept;

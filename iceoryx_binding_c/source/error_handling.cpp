@@ -24,7 +24,7 @@ const char* toString(const CBindingError error) noexcept
 {
     return C_BINDING_ERROR_NAMES[static_cast<typename std::underlying_type<CBindingError>::type>(error)
                                  - static_cast<typename std::underlying_type<CBindingError>::type>(
-                                     CBindingError::kNO_ERROR)
+                                     CBindingError::NO_ERROR)
                                  - 1];
 }
 } // namespace iox

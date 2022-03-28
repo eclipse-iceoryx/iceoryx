@@ -95,7 +95,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
             LogFatal() << "subscriber options may not have been initialized with iox_sub_init";
-            errorHandler(CBindingError::kBINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
+            errorHandler(CBindingError::BINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
         }
         subscriberOptions.queueCapacity = options->queueCapacity;
         subscriberOptions.historyRequest = options->historyRequest;

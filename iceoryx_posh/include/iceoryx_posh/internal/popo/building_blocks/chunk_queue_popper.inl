@@ -60,8 +60,7 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
         {
             LogError() << "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion
                        << "' but expected '" << mepoo::ChunkHeader::CHUNK_HEADER_VERSION << "'! Dropping chunk!";
-            errorHandler(PoshError::kPOPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
-                         nullptr,
+            errorHandler(PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
                          ErrorLevel::SEVERE);
             return cxx::nullopt_t();
         }
