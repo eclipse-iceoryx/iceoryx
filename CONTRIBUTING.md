@@ -271,7 +271,7 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 | Ruleset name | Github issue label | Priority |
 |---|---|---|
 | [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
-| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT | :star::star: |
+| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682)<!--NOLINT website temporarily unavailable--> 2016 Coding Standard | CERT | :star::star: |
 | [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA | :star: |
 
 If one of the rules is not followed, a rationale is added in the following manner:

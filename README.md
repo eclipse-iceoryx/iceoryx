@@ -68,7 +68,7 @@ In general unix platforms should work with iceoryx but we only test FreeBSD on o
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [AUTOSAR Adaptive Platform](https://www.autosar.org/standards/adaptive-platform/) software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/en/index.aspx) | <!--NOLINT ADlink seems to be sporadically unreachable-->
 | [Apex.Middleware](https://www.apex.ai/apex-middleware) | Safe and certified middleware for autonomous mobility systems from [Apex.AI](https://www.apex.ai/) |
-| [AVIN AP](https://www.avinsystems.com/products/autosar_ap_solutions/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
+| [AVIN AGNOSAR](https://www.avinsystems.com/products/agnosar_ap/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
 
 ## Build and install
 
