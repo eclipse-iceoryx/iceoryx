@@ -27,7 +27,7 @@ COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
 QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_hoofs/platform/qnx/
-WHITELIST=$WORKSPACE/tools/scripts/stl-header-whitelist.txt
+WHITELIST=$WORKSPACE/tools/scripts/header-allowlist.txt
 TEMP_FILE=$(mktemp)
 
 for COMPONENT in ${COMPONENTS[@]}; do
@@ -36,9 +36,9 @@ for COMPONENT in ${COMPONENTS[@]}; do
     done
 done
 
-echo "# QNX platform system headers" >> $TEMP_FILE
+echo "# QNX platform/ libc headers" >> $TEMP_FILE
 
-echo "# available system headers for QNX"
+echo "# usage of headers for QNX"
 gcc -w -fpreprocessed -dD -E $(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -iname *.hpp) \
  | grep -e "#include <" \
  | grep -oP "\<\K[^<>]+(?=>)" \
@@ -48,10 +48,10 @@ gcc -w -fpreprocessed -dD -E $(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -i
  | cat
 
 
-echo "# iceoryx_posh / iceoryx_hoofs system headers" >> $TEMP_FILE
+echo "# iceoryx_posh / iceoryx_hoofs headers" >> $TEMP_FILE
 # GCC can't preprocess .inl so we grep them in plain text
 echo
-echo "# usage of system header includes"
+echo "# usage of <..> header includes"
 { gcc -w -fpreprocessed -dD -E $(find $GREP_PATH -type f -iname *.cpp -o -iname *.hpp); cat $(find $GREP_PATH -type f -iname *.inl); } \
  | grep -e "#include <" \
  | grep -oP "\<\K[^<>]+(?=>)" \
@@ -62,13 +62,13 @@ echo "# usage of system header includes"
 
 if [[ "$SCOPE" == "check" ]]; then
     echo
-    echo "Comparing system headers against whitelist.."
+    echo "Comparing system headers against allowed ones.."
     diff $TEMP_FILE $WHITELIST
     if [ $? -eq 1 ]; then
-        echo "One or more system header is not on the whitelist, please remove the header usage or extend the whitelist!"
+        echo "One or more header is not on the allow list, please remove the header usage or extend the allow list!"
         exit 1
     fi
-    echo "No system header divergence found!"
+    echo "No header divergence found!"
 fi
 
 echo

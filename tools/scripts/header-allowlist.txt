@@ -1,4 +1,4 @@
-# QNX platform system headers
+# QNX platform/ libc headers
 arpa/inet.h
 cstdint
 dlfcn.h
@@ -22,7 +22,7 @@ sys/types.h
 sys/un.h
 sys/wait.h
 unistd.h
-# iceoryx_posh / iceoryx_hoofs system headers
+# iceoryx_posh / iceoryx_hoofs headers
 algorithm
 assert.h
 atomic
