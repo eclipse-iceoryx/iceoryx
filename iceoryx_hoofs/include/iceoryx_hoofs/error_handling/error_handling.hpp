@@ -29,6 +29,8 @@ namespace iox
 
 // clang-format on
 
+// DO NOT TOUCH THE ENUM, you can doodle around with the lines above!!!
+
 enum class HoofsError : uint32_t
 {
     NO_ERROR = HOOFS_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,

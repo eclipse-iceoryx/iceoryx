@@ -38,6 +38,8 @@ namespace iox
 
 // clang-format on
 
+// DO NOT TOUCH THE ENUM, you can doodle around with the lines above!!!
+
 enum class CBindingError : uint32_t
 {
     NO_ERROR = C_BINDING_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,
