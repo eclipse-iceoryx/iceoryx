@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 
 namespace iox
 {

@@ -18,7 +18,6 @@
 #define IOX_POSH_POPO_NOTIFICATION_INFO_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 

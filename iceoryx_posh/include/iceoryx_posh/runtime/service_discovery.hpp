@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 #define IOX_POSH_RUNTIME_SERVICE_DISCOVERY_HPP
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
