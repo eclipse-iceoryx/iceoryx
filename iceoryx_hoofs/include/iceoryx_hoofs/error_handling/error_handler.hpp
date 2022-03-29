@@ -72,7 +72,7 @@ enum class ErrorLevel : uint32_t
 ///         And a long name is alright!
 ///
 ///     2.) Specialize the following methods for your NewEnumErrorType:
-///         - const char* toString(const NewEnumErrorType error)
+///         - const char* asStringLiteral(const NewEnumErrorType error)
 ///
 ///     3.) Call errorHandler(Error::MODULE_NAME__MY_FUNKY_ERROR);
 ///             Please pay attention to the "k" prefix

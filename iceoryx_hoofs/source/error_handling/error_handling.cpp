@@ -22,7 +22,7 @@ namespace iox
 {
 const char* HOOFS_ERROR_NAMES[] = {HOOFS_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
-const char* toString(const HoofsError error) noexcept
+const char* asStringLiteral(const HoofsError error) noexcept
 {
     return HOOFS_ERROR_NAMES[static_cast<typename std::underlying_type<HoofsError>::type>(error)
                              - static_cast<typename std::underlying_type<HoofsError>::type>(HoofsError::NO_ERROR) - 1];

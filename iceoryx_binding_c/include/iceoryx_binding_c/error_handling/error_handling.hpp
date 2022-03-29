@@ -46,7 +46,7 @@ enum class CBindingError : uint32_t
     C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
-const char* toString(const CBindingError error) noexcept;
+const char* asStringLiteral(const CBindingError error) noexcept;
 
 } // namespace iox
 #endif // IOX_BINDING_C_ERROR_HANDLING_ERROR_HANDLING_HPP

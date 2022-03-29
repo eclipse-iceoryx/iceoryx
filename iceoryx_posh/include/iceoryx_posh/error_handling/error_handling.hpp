@@ -163,7 +163,7 @@ enum class PoshError : uint32_t
     POSH_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
-const char* toString(const PoshError error) noexcept;
+const char* asStringLiteral(const PoshError error) noexcept;
 
 } // namespace iox
 #endif // IOX_POSH_ERROR_HANDLING_ERROR_HANDLING_HPP

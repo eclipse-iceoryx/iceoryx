@@ -37,7 +37,7 @@ enum class HoofsError : uint32_t
     HOOFS_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
-const char* toString(const HoofsError error) noexcept;
+const char* asStringLiteral(const HoofsError error) noexcept;
 
 } // namespace iox
 

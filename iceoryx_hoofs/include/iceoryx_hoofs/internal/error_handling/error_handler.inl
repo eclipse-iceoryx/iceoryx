@@ -23,7 +23,8 @@ namespace iox
 template <typename Error>
 inline void errorHandler(const Error error, const ErrorLevel level) noexcept
 {
-    ErrorHandler::handler(static_cast<typename std::underlying_type<Error>::type>(error), toString(error), level);
+    ErrorHandler::handler(
+        static_cast<typename std::underlying_type<Error>::type>(error), asStringLiteral(error), level);
 }
 
 } // namespace iox
