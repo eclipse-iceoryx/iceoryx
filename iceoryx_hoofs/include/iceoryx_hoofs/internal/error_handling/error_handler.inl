@@ -27,6 +27,13 @@ inline void errorHandler(const Error error, const ErrorLevel level) noexcept
         static_cast<typename std::underlying_type<Error>::type>(error), asStringLiteral(error), level);
 }
 
+template <typename Error>
+auto errorToStringIndex(Error error) noexcept
+{
+    return static_cast<typename std::underlying_type<Error>::type>(error)
+           - static_cast<typename std::underlying_type<Error>::type>(Error::NO_ERROR) - 1;
+}
+
 } // namespace iox
 
 #endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL

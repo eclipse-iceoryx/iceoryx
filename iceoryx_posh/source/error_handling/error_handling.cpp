@@ -22,7 +22,6 @@ const char* POSH_ERROR_NAMES[] = {POSH_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
 const char* asStringLiteral(const PoshError error) noexcept
 {
-    return POSH_ERROR_NAMES[static_cast<typename std::underlying_type<PoshError>::type>(error)
-                            - static_cast<typename std::underlying_type<PoshError>::type>(PoshError::NO_ERROR) - 1];
+    return POSH_ERROR_NAMES[errorToStringIndex(error)];
 }
 } // namespace iox

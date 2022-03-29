@@ -22,9 +22,6 @@ const char* C_BINDING_ERROR_NAMES[] = {C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_STR
 
 const char* asStringLiteral(const CBindingError error) noexcept
 {
-    return C_BINDING_ERROR_NAMES[static_cast<typename std::underlying_type<CBindingError>::type>(error)
-                                 - static_cast<typename std::underlying_type<CBindingError>::type>(
-                                     CBindingError::NO_ERROR)
-                                 - 1];
+    return C_BINDING_ERROR_NAMES[errorToStringIndex(error)];
 }
 } // namespace iox

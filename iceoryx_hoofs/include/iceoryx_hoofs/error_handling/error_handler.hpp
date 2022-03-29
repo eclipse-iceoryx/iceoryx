@@ -109,6 +109,12 @@ void errorHandler(const Error error, const ErrorLevel level = ErrorLevel::FATAL)
 
 using HandlerFunction = std::function<void(const uint32_t, const char*, const ErrorLevel)>;
 
+/// @brief Converts an error into its index assuming the enum starts with 'NO_ERROR'
+/// @tparam[in] Error type which is used to report the error (typically an enum)
+/// @return Use the underlying enum type as return value
+template <typename Error>
+auto errorToStringIndex(Error error) noexcept;
+
 /// @brief This handler is needed for unit testing, special debugging cases and
 ///         other corner cases where we'd like to explicitly suppress the
 ///         error handling.
