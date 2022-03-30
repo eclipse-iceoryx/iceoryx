@@ -157,7 +157,7 @@ TEST(PoshRuntime, LeadingSlashAppName)
     auto errorHandlerCalled{false};
     iox::PoshError receivedError{iox::PoshError::NO_ERROR};
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&errorHandlerCalled, &receivedError](const iox::PoshError error, const iox::ErrorLevel) {
+        [&errorHandlerCalled, &receivedError](const auto error, const iox::ErrorLevel) {
             errorHandlerCalled = true;
             receivedError = error;
         });

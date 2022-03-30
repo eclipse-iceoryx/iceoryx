@@ -26,6 +26,20 @@ namespace iox
 template <typename Error>
 using TypedHandlerFunction = std::function<void(const Error, const ErrorLevel)>;
 
+/// @brief This mock is needed for unit testing, special debugging cases and
+///         other corner cases where we'd like to explicitly suppress the
+///         error handling.
+///
+/// @code
+/// bool called = false;
+/// auto temporaryErrorHandler = ErrorHandlerMock::setTemporaryErrorHandler<Error>(
+///     [&](const Error, const ErrorLevel) {
+///         called = true;
+///     });
+///
+/// errorHandler(Error::TEST__ASSERT_CALLED);
+/// ASSERT_TRUE(called);
+/// @endcode
 class ErrorHandlerMock : protected ErrorHandler
 {
   public:

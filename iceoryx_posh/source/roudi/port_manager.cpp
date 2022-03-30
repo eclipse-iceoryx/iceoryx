@@ -154,6 +154,7 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
                       << "'! Cannot handle CaProMessageType '" << caproMessage.m_type << "'";
             errorHandler(PoshError::PORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
                          iox::ErrorLevel::MODERATE);
+            return;
         }
 
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);

@@ -40,17 +40,17 @@ constexpr uint8_t ERROR_ENUM_OFFSET_IN_BITS{16};
 /// @brief the available error levels
 /// FATAL
 /// - Log message with FATAL
-/// - RouDi cannot recover from that error. RouDi is terminated
+/// - Application cannot recover from that error and is terminated
 /// - Assert (in DEBUG) and terminate
 /// - Reporting code must handle this and continue or go to a save state. Error handler could return (e.g. in test)
 /// SEVERE
 /// - Log message with ERROR
-/// - RouDi can still run. Error is reported
+/// - Application can still run. Error is reported
 /// - Assert in DEBUG, in RELEASE continue to run
 /// - Reporting code must handle this and continue
 /// MODERATE
 /// - Log message with ERROR
-/// - RouDi can still run. Error is reported
+/// - Application can still run. Error is reported
 /// - NO assert
 /// - Reporting code must handle this and continue
 enum class ErrorLevel : uint32_t
@@ -71,15 +71,18 @@ enum class ErrorLevel : uint32_t
 ///             MODULE_NAME__A_CLEAR_BUT_SHORT_ERROR_DESCRIPTION
 ///         And a long name is alright!
 ///
-///     2.) Specialize the following methods for your NewEnumErrorType:
+///     2.) Add a new FOO_MODULE_IDENTIFIER at the top of this file or use
+///         USER_DEFINED_MODULE_IDENTIFIER as the first entry in the enum:
+///         - NO_ERROR = FOO_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS
+///         - NO_ERROR = USER_DEFINED_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS
+///
+///     3.) Specialize the following methods for your NewEnumErrorType:
 ///         - const char* asStringLiteral(const NewEnumErrorType error)
 ///
-///     3.) Call errorHandler(Error::MODULE_NAME__MY_FUNKY_ERROR);
-///             Please pay attention to the "k" prefix
-///         The defaults for errorCallback and ErrorLevel can also be overwritten:
+///     4.) Call errorHandler(Error::MODULE_NAME__MY_FUNKY_ERROR);
+///         The defaults for ErrorLevel can also be overwritten:
 ///             errorHandler(
 ///                 Error::MODULE_NAME__MY_FUNKY_ERROR,
-///                 []{ std::cout << "MyCustomCallback" << std::endl; },
 ///                 ErrorLevel::MODERATE
 ///             );
 ///
@@ -93,16 +96,6 @@ enum class ErrorLevel : uint32_t
 /// };
 /// @endcode
 ///
-/// @code
-/// bool called = false;
-/// auto temporaryErrorHandler = ErrorHandler::setTemporaryErrorHandler(
-///     [&](const Error e, std::function<void()>, const ErrorLevel) {
-///         called = true;
-///     });
-///
-/// errorHandler(Error::TEST__ASSERT_CALLED);
-/// ASSERT_TRUE(called);
-/// @endcode
 /// @tparam[in] Error type which is used to report the error (typically an enum)
 template <typename Error>
 void errorHandler(const Error error, const ErrorLevel level = ErrorLevel::FATAL) noexcept;
@@ -115,9 +108,6 @@ using HandlerFunction = std::function<void(const uint32_t, const char*, const Er
 template <typename Error>
 auto errorToStringIndex(Error error) noexcept;
 
-/// @brief This handler is needed for unit testing, special debugging cases and
-///         other corner cases where we'd like to explicitly suppress the
-///         error handling.
 class ErrorHandler
 {
     template <typename Error>
