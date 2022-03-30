@@ -24,28 +24,27 @@ iox::HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};
 
 void ErrorHandler::defaultHandler(const uint32_t, const char* errorName, const ErrorLevel level) noexcept
 {
-    std::stringstream ss;
-    ss << "ICEORYX error! " << errorName;
-
-    reactOnErrorLevel(level, ss.str().c_str());
+    reactOnErrorLevel(level, errorName);
 }
 
-void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
+void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorName) noexcept
 {
     static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
+    constexpr const char ERROR_TEXT[] = "ICEORYX error! ";
+
     switch (level)
     {
     case ErrorLevel::FATAL:
-        logger.LogError() << errorText;
+        logger.LogError() << ERROR_TEXT << errorName;
         assert(false);
         std::terminate();
         break;
     case ErrorLevel::SEVERE:
-        logger.LogWarn() << errorText;
+        logger.LogWarn() << ERROR_TEXT << errorName;
         assert(false);
         break;
     case ErrorLevel::MODERATE:
-        logger.LogWarn() << errorText;
+        logger.LogWarn() << ERROR_TEXT << errorName;
         break;
     }
 }
