@@ -30,6 +30,7 @@ namespace iox
 constexpr uint16_t HOOFS_MODULE_IDENTIFIER{1};
 constexpr uint16_t POSH_MODULE_IDENTIFIER{2};
 constexpr uint16_t C_BINDING_MODULE_IDENTIFIER{3};
+// Every identifier larger than USER_DEFINED_MODULE_IDENTIFIER can be used externally
 constexpr uint16_t USER_DEFINED_MODULE_IDENTIFIER{256};
 
 constexpr uint8_t ERROR_ENUM_OFFSET_IN_BITS{16};
@@ -87,10 +88,25 @@ enum class ErrorLevel : uint32_t
 ///             );
 ///
 /// @code
+/// // definition of error_handling.hpp for module 'foo'
+/// #define FOO_ERRORS(error) '\'
+///     error(PRETTY_CLASS__DIVISION_BY_ZERO)
+///
+/// enum class FooError : uint32_t
+/// {
+///     NO_ERROR = FOO_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,
+///     FOO_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
+/// };
+///
+/// const char* asStringLiteral(const FooError error) noexcept;
+///
+/// // usage of the module
+/// #include "module_foo/error_handling.hpp"
+///
 /// class PrettyClass {
 ///     float division(float a, float b) {
 ///         if ( b == 0.0f ) {
-///             errorHandler(Error::PRETTY_CLASS__DIVISION_BY_ZERO);
+///             errorHandler(FooError::PRETTY_CLASS__DIVISION_BY_ZERO);
 ///         }
 ///     }
 /// };
