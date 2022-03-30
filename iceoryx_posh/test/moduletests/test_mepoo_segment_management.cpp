@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -161,9 +161,9 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWrite
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
     SegmentManager<> sut{segmentConfig, &allocator};
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
@@ -171,7 +171,7 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWrite
     sut.getSegmentMappings(PosixUser("iox_roudi_test1"));
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMaximumNumberOfSegmentsWorks))

@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_APP_HPP
 #define IOX_POSH_ROUDI_ROUDI_APP_HPP
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/log/logcommon.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
@@ -64,7 +64,7 @@ class RouDiApp
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0u)
                       .or_else([](posix::SemaphoreError&) {
-                          errorHandler(Error::kROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, nullptr, ErrorLevel::FATAL);
+                          errorHandler(PoshError::ROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
                       })
                       .value());
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};

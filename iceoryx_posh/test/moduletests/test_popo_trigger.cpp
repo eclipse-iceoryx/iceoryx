@@ -199,11 +199,11 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
     constexpr uint64_t typeHash = 0U;
 
     bool hasTerminated = false;
-    iox::Error errorType = iox::Error::kNO_ERROR;
+    iox::PoshError error = iox::PoshError::NO_ERROR;
     auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
             hasTerminated = true;
-            errorType = error;
+            error = e;
         });
 
     Trigger sut(StateBasedTrigger,
@@ -217,7 +217,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
                 typeHash);
 
     EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(errorType, Eq(iox::Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK));
+    EXPECT_THAT(error, Eq(iox::PoshError::POPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK));
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
 }
@@ -231,11 +231,11 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
     constexpr uint64_t typeHash = 0U;
 
     bool hasTerminated = false;
-    iox::Error errorType = iox::Error::kNO_ERROR;
+    iox::PoshError error = iox::PoshError::NO_ERROR;
     auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
             hasTerminated = true;
-            errorType = error;
+            error = e;
         });
 
     Trigger sut(StateBasedTrigger,
@@ -248,8 +248,8 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
                 type,
                 typeHash);
 
-    EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(errorType, Eq(iox::Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK));
+    ASSERT_TRUE(hasTerminated);
+    EXPECT_THAT(error, Eq(iox::PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK));
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
 }
@@ -303,8 +303,8 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     constexpr uint64_t type = 0U;
     constexpr uint64_t typeHash = 0U;
 
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error, const iox::ErrorLevel) {});
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError, const iox::ErrorLevel) {});
 
     Trigger sut(StateBasedTrigger,
                 &m_triggerClass,
@@ -698,11 +698,11 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
     constexpr uint64_t originTypeHash = 0U;
 
     bool hasTerminated = false;
-    iox::Error errorType = iox::Error::kNO_ERROR;
+    iox::PoshError error = iox::PoshError::NO_ERROR;
     auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([&](const iox::Error error, const iox::ErrorLevel) {
+        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
             hasTerminated = true;
-            errorType = error;
+            error = e;
         });
 
     Trigger sut(EventBasedTrigger,
@@ -714,8 +714,8 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
                 originType,
                 originTypeHash);
 
-    EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(errorType, Eq(iox::Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK));
+    ASSERT_TRUE(hasTerminated);
+    EXPECT_THAT(error, Eq(iox::PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK));
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
 }

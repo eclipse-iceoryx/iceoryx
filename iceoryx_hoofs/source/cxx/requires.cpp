@@ -33,7 +33,7 @@ void Require(
     {
         std::cerr << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
                   << ")" << std::endl;
-        errorHandler(Error::kEXPECTS_ENSURES_FAILED, std::function<void()>(), ErrorLevel::FATAL);
+        errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
     }
 }
 } // namespace internal

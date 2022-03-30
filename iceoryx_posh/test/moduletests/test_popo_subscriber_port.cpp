@@ -25,8 +25,8 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "test.hpp"
 
@@ -315,8 +315,8 @@ TEST_F(SubscriberPortSingleProducer_test, InvalidMessageResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "23aaa4fd-5567-4831-b539-802c5de238ab");
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -330,8 +330,8 @@ TEST_F(SubscriberPortSingleProducer_test, AckWhenNotWaitingForResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "541719e5-fdfa-4ef8-86f6-a9baf4919fe8");
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -345,9 +345,9 @@ TEST_F(SubscriberPortSingleProducer_test, NackWhenNotWaitingForResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "063e3a61-209b-4755-abfa-69aed6258ab3");
     auto errorHandlerCalled{false};
-    iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled, &receivedError](const iox::Error error, const iox::ErrorLevel) {
+    iox::PoshError receivedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled, &receivedError](const iox::PoshError error, const iox::ErrorLevel) {
             errorHandlerCalled = true;
             receivedError = error;
         });
@@ -358,7 +358,7 @@ TEST_F(SubscriberPortSingleProducer_test, NackWhenNotWaitingForResultsInError)
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
+    ASSERT_THAT(receivedError, Eq(iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR));
 }
 
 class SubscriberPortMultiProducer_test : public Test
@@ -528,9 +528,9 @@ TEST_F(SubscriberPortMultiProducer_test, InvalidMessageResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "419aa91f-991b-4814-b1ee-11637ee14d30");
     auto errorHandlerCalled{false};
-    iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled, &receivedError](const iox::Error error, const iox::ErrorLevel) {
+    iox::PoshError receivedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled, &receivedError](const iox::PoshError error, const iox::ErrorLevel) {
             errorHandlerCalled = true;
             receivedError = error;
         });
@@ -541,7 +541,7 @@ TEST_F(SubscriberPortMultiProducer_test, InvalidMessageResultsInError)
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
+    ASSERT_THAT(receivedError, Eq(iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR));
 }
 
 } // namespace

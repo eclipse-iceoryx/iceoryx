@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
@@ -51,7 +51,7 @@ void MemoryManager::addMemPool(posix::Allocator& managementAllocator,
     if (m_denyAddMemPool)
     {
         LogFatal() << "After the generation of the chunk management pool you are not allowed to create new mempools.";
-        errorHandler(iox::Error::kMEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
+        errorHandler(iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
     }
     else if (m_memPoolVector.size() > 0 && adjustedChunkSize <= m_memPoolVector.back().getChunkSize())
     {
@@ -63,7 +63,7 @@ void MemoryManager::addMemPool(posix::Allocator& managementAllocator,
             << adjustedChunkSize << ", ChunkPayloadSize = " << static_cast<uint32_t>(chunkPayloadSize)
             << ", ChunkCount = " << static_cast<uint32_t>(numberOfChunks) << "] breaks that requirement!";
         log.Flush();
-        errorHandler(iox::Error::kMEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
+        errorHandler(iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
     }
 
     m_memPoolVector.emplace_back(adjustedChunkSize, numberOfChunks, managementAllocator, chunkMemoryAllocator);
@@ -173,7 +173,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
     {
         LogFatal() << "There are no mempools available!";
 
-        errorHandler(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, nullptr, ErrorLevel::SEVERE);
+        errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, ErrorLevel::SEVERE);
         return cxx::error<Error>(Error::NO_MEMPOOLS_AVAILABLE);
     }
     else if (memPoolPointer == nullptr)
@@ -184,7 +184,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         log << "Could not find a fitting mempool for a chunk of size " << requiredChunkSize;
         log.Flush();
 
-        errorHandler(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, nullptr, ErrorLevel::SEVERE);
+        errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, ErrorLevel::SEVERE);
         return cxx::error<Error>(Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE);
     }
     else if (chunk == nullptr)
@@ -196,7 +196,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         printMemPoolVector(log);
         log.Flush();
 
-        errorHandler(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, nullptr, ErrorLevel::MODERATE);
+        errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, ErrorLevel::MODERATE);
         return cxx::error<Error>(Error::MEMPOOL_OUT_OF_CHUNKS);
     }
     else

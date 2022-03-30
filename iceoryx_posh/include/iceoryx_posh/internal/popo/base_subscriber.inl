@@ -18,6 +18,8 @@
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
+#include "iceoryx_posh/internal/popo/base_subscriber.hpp"
+
 namespace iox
 {
 namespace popo
@@ -123,8 +125,7 @@ inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& trigg
                    "attaching it to the new one with SubscriberState::HAS_DATA. Best practice is to call detach first.";
 
             errorHandler(
-                Error::kPOPO__BASE_SUBSCRIBER_OVERRIDING_WITH_STATE_SINCE_HAS_DATA_OR_DATA_RECEIVED_ALREADY_ATTACHED,
-                nullptr,
+                PoshError::POPO__BASE_SUBSCRIBER_OVERRIDING_WITH_STATE_SINCE_HAS_DATA_OR_DATA_RECEIVED_ALREADY_ATTACHED,
                 ErrorLevel::MODERATE);
         }
         m_trigger = std::move(triggerHandle);
@@ -173,8 +174,7 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
                    "attaching it to the new one with SubscriberEvent::DATA_RECEIVED. Best practice is to call detach "
                    "first.";
             errorHandler(
-                Error::kPOPO__BASE_SUBSCRIBER_OVERRIDING_WITH_EVENT_SINCE_HAS_DATA_OR_DATA_RECEIVED_ALREADY_ATTACHED,
-                nullptr,
+                PoshError::POPO__BASE_SUBSCRIBER_OVERRIDING_WITH_EVENT_SINCE_HAS_DATA_OR_DATA_RECEIVED_ALREADY_ATTACHED,
                 ErrorLevel::MODERATE);
         }
         m_trigger = std::move(triggerHandle);

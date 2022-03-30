@@ -13,21 +13,15 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
-#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 
 namespace iox
 {
-template <typename Error>
-inline void errorHandler(const Error error,
-                         const std::function<void()>& errorCallBack IOX_MAYBE_UNUSED,
-                         const ErrorLevel level) noexcept
+const char* C_BINDING_ERROR_NAMES[] = {C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+
+const char* asStringLiteral(const CBindingError error) noexcept
 {
-    ErrorHandler::handler(static_cast<typename std::underlying_type<Error>::type>(error), toString(error), level);
+    return C_BINDING_ERROR_NAMES[errorToStringIndex(error)];
 }
-
 } // namespace iox
-
-#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLING_INL

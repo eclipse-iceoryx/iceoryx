@@ -68,9 +68,9 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
 
     const RuntimeName_t runtimeName{"App"};
 
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&detectedError](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    iox::cxx::optional<iox::PoshError> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
@@ -78,7 +78,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
     std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)};
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
+    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
 }
 
 } // namespace

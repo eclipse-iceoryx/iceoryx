@@ -20,7 +20,6 @@
 
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"

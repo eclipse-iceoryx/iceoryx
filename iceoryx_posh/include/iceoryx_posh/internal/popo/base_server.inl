@@ -116,8 +116,8 @@ inline void BaseServer<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
                    "attaching it to the new one with ServerState::HAS_REQUEST. Best practice is to call detach first.";
 
             errorHandler(
-                Error::kPOPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
-                nullptr,
+                PoshError::
+                    POPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
                 ErrorLevel::MODERATE);
         }
         m_trigger = std::move(triggerHandle);
@@ -165,8 +165,8 @@ inline void BaseServer<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
                    "attaching it to the new one with ServerEvent::REQUEST_RECEIVED. Best practice is to call detach "
                    "first.";
             errorHandler(
-                Error::kPOPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
-                nullptr,
+                PoshError::
+                    POPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
                 ErrorLevel::MODERATE);
         }
         m_trigger = std::move(triggerHandle);

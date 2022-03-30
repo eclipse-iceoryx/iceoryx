@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -33,13 +34,12 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                       LogFatal() << "An application with the name " << runtimeName
                                  << " is still running. Using the "
                                     "same name twice is not supported.";
-                      errorHandler(
-                          Error::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+                      errorHandler(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, iox::ErrorLevel::FATAL);
                   }
                   else
                   {
                       LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
-                      errorHandler(Error::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
+                      errorHandler(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, iox::ErrorLevel::FATAL);
                   }
               })
               .value()))

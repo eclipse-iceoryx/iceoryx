@@ -13,31 +13,27 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL
+#define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL
 
-#ifndef IOX_POSH_POPO_SAMPLE_INL
-#define IOX_POSH_POPO_SAMPLE_INL
-
-#include "iceoryx_posh/popo/sample.hpp"
+#include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
 namespace iox
 {
-namespace popo
+template <typename Error>
+inline void errorHandler(const Error error, const ErrorLevel level) noexcept
 {
-template <typename T, typename H>
-template <typename S, typename>
-void Sample<T, H>::publish() noexcept
-{
-    if (BaseType::m_members.smartChunkUniquePtr)
-    {
-        BaseType::m_members.producerRef.get().publish(std::move(*(this)));
-    }
-    else
-    {
-        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
-        errorHandler(PoshError::POSH__PUBLISHING_EMPTY_SAMPLE, ErrorLevel::MODERATE);
-    }
+    ErrorHandler::handler(
+        static_cast<typename std::underlying_type<Error>::type>(error), asStringLiteral(error), level);
 }
-} // namespace popo
+
+template <typename Error>
+auto errorToStringIndex(Error error) noexcept
+{
+    return static_cast<typename std::underlying_type<Error>::type>(error)
+           - static_cast<typename std::underlying_type<Error>::type>(Error::NO_ERROR) - 1;
+}
+
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_INL

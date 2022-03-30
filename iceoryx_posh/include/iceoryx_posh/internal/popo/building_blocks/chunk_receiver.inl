@@ -17,8 +17,9 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 
 namespace iox
 {
@@ -103,7 +104,7 @@ inline void ChunkReceiver<ChunkReceiverDataType>::release(const mepoo::ChunkHead
     // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
     if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk)) // PRQA S 4127
     {
-        errorHandler(Error::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+        errorHandler(PoshError::POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
     }
 }
 

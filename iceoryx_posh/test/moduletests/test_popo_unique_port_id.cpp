@@ -33,7 +33,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
     ::testing::Test::RecordProperty("TEST_ID", "473467bf-1a6f-4cd2-acd8-447a623a5301");
     uint16_t someId = 1243U;
     // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>([](auto, auto) {});
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
     auto uniqueRouDiIdResetScopeGuard =
         GenericRAII{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
@@ -44,10 +44,10 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe468314-cd38-4363-bbf9-f106bf9ec1f4");
     uint16_t someId = 1243U;
-    optional<iox::Error> detectedError;
+    optional<iox::PoshError> detectedError;
     optional<iox::ErrorLevel> detectedErrorLevel;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
             detectedErrorLevel.emplace(errorLevel);
         });
@@ -64,7 +64,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
     ASSERT_TRUE(detectedError.has_value());
     ASSERT_TRUE(detectedErrorLevel.has_value());
     EXPECT_THAT(detectedError.value(),
-                Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
+                Eq(iox::PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
     EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
 }
 

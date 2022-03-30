@@ -17,7 +17,10 @@
 #ifndef IOX_POSH_POPO_TRIGGER_INL
 #define IOX_POSH_POPO_TRIGGER_INL
 
+#include "iceoryx_posh/popo/trigger.hpp"
+
 #include <type_traits>
+
 namespace iox
 {
 namespace popo
@@ -42,7 +45,7 @@ inline Trigger::Trigger(T* const notificationOrigin,
 {
     if (!resetCallback)
     {
-        errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK, ErrorLevel::FATAL);
         invalidate();
     }
 }
@@ -69,7 +72,7 @@ inline Trigger::Trigger(StateBasedTrigger_t,
 {
     if (!hasTriggeredCallback)
     {
-        errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+        errorHandler(PoshError::POPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, ErrorLevel::FATAL);
         invalidate();
     }
 }

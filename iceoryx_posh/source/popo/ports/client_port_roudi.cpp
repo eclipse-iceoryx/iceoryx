@@ -114,7 +114,7 @@ void ClientPortRouDi::handleCaProProtocolViolation(const iox::capro::CaproMessag
     // this shouldn't be reached
     LogFatal() << "CaPro Protocol Violation! Got '" << messageType << "' in `"
                << getMembers()->m_connectionState.load(std::memory_order_relaxed) << "'";
-    errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+    errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
 }
 
 cxx::optional<capro::CaproMessage>

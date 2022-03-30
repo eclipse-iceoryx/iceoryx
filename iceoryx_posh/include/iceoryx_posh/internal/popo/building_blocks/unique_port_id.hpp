@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 
 #include "iceoryx_hoofs/cxx/newtype.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 
 #include <atomic>
 #include <cstdint>

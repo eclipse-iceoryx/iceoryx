@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
@@ -242,8 +242,8 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     m_chunkSender.release(myCrazyChunk.chunkHeader());
@@ -418,8 +418,8 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         UniquePortId(), sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -436,8 +436,8 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     auto numberOfDeliveries = m_chunkSender.send(myCrazyChunk.chunkHeader());
@@ -496,10 +496,10 @@ TEST_F(ChunkSender_test, sendToQueueWithInvalidChunkTriggersTheErrorHandler)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error error, const iox::ErrorLevel errorLevel) {
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             errorHandlerCalled = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER));
+            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
@@ -536,8 +536,8 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::Error>(
-        [&errorHandlerCalled](const iox::Error, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
+        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     ChunkMock<bool> myCrazyChunk;
     m_chunkSender.pushToHistory(myCrazyChunk.chunkHeader());

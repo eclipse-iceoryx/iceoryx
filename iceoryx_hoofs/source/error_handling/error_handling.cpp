@@ -15,46 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 namespace iox
 {
-const char* ERROR_NAMES[] = {ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+const char* HOOFS_ERROR_NAMES[] = {HOOFS_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
 
-// NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests
-iox::HandlerFunction ErrorHandler::handler = {ErrorHandler::defaultHandler};
-
-const char* toString(const Error error) noexcept
+const char* asStringLiteral(const HoofsError error) noexcept
 {
-    return ERROR_NAMES[static_cast<typename std::underlying_type<Error>::type>(error)];
+    return HOOFS_ERROR_NAMES[errorToStringIndex(error)];
 }
-
-void ErrorHandler::defaultHandler(const uint32_t, const char* errorName, const ErrorLevel level) noexcept
-{
-    std::stringstream ss;
-    ss << "ICEORYX error! " << errorName;
-
-    reactOnErrorLevel(level, ss.str().c_str());
-}
-
-void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorText) noexcept
-{
-    static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
-    switch (level)
-    {
-    case ErrorLevel::FATAL:
-        logger.LogError() << errorText;
-        assert(false);
-        std::terminate();
-        break;
-    case ErrorLevel::SEVERE:
-        logger.LogWarn() << errorText;
-        assert(false);
-        break;
-    case ErrorLevel::MODERATE:
-        logger.LogWarn() << errorText;
-        break;
-    }
-}
-
 } // namespace iox

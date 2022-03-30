@@ -99,6 +99,7 @@ add_library(iceoryx_posh # @todo iox-#590 Rename this to iceoryx_posh_core
     source/log/posh_logging.cpp
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
+    source/error_handling/error_handling.cpp
     source/mepoo/chunk_header.cpp
     source/mepoo/chunk_management.cpp
     source/mepoo/chunk_settings.cpp
