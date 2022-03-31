@@ -56,7 +56,7 @@ TEST(PublisherOptions_test, DeserializingBogusDataFails)
     const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::PublisherOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
-        .or_else([&](auto&) { SUCCEED(); });
+        .or_else([&](auto&) { GTEST_SUCCEED(); });
 }
 
 TEST(PublisherOptions_test, DeserializingInvalidSubscriberTooSlowPolicyFails)
@@ -71,7 +71,7 @@ TEST(PublisherOptions_test, DeserializingInvalidSubscriberTooSlowPolicyFails)
         iox::cxx::Serialization::create(HISTORY_CAPACITY, NODE_NAME, OFFER_ON_CREATE, SUBSCRIBER_TOO_SLOW_POLICY);
     iox::popo::PublisherOptions::deserialize(serialized)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
-        .or_else([&](auto&) { SUCCEED(); });
+        .or_else([&](auto&) { GTEST_SUCCEED(); });
 }
 
 } // namespace

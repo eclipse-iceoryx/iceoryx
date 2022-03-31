@@ -63,7 +63,7 @@ TEST(SubscriberOptions_test, DeserializingBogusDataFails)
     const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::SubscriberOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
-        .or_else([&](auto&) { SUCCEED(); });
+        .or_else([&](auto&) { GTEST_SUCCEED(); });
 }
 
 TEST(SubscriberOptions_test, DeserializingInvalidQueueFullPolicyFails)
@@ -79,7 +79,7 @@ TEST(SubscriberOptions_test, DeserializingInvalidQueueFullPolicyFails)
         QUEUE_CAPACITY, HISTORY_REQUEST, NODE_NAME, SUBSCRIBE_ON_CREATE, QUEUE_FULL_POLICY);
     iox::popo::SubscriberOptions::deserialize(serialized)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
-        .or_else([&](auto&) { SUCCEED(); });
+        .or_else([&](auto&) { GTEST_SUCCEED(); });
 }
 
 } // namespace
