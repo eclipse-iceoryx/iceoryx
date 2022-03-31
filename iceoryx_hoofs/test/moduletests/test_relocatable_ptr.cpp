@@ -459,7 +459,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, negativeNullPointerCheckWithIfWorks)
     }
     else
     {
-        FAIL();
+        GTEST_FAIL();
     }
 }
 
@@ -471,7 +471,7 @@ TYPED_TEST(Relocatable_ptr_typed_test, positiveNullPointerCheckWithIfWorks)
 
     if (rp)
     {
-        FAIL();
+        GTEST_FAIL();
     }
     else
     {

@@ -56,7 +56,7 @@ class MemoryManager_test : public Test
                     EXPECT_TRUE(chunk);
                     chunkStore.push_back(chunk);
                 })
-                .or_else([](const auto& error) { FAIL() << "getChunk failed with: " << error; });
+                .or_else([](const auto& error) { GTEST_FAIL() << "getChunk failed with: " << error; });
         }
         return chunkStore;
     }
@@ -171,7 +171,8 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 
     constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::NO_MEMPOOLS_AVAILABLE};
     sut->getChunk(chunkSettings)
-        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .and_then(
+            [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
@@ -202,7 +203,8 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
 
     constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE};
     sut->getChunk(chunkSettings)
-        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .and_then(
+            [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
@@ -230,7 +232,8 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
 
     constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
     sut->getChunk(chunkSettings)
-        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .and_then(
+            [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     ASSERT_TRUE(detectedError.has_value());
@@ -250,7 +253,7 @@ TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableI
     auto& chunkSettings = chunkSettingsResult.value();
 
     sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
-        FAIL() << "getChunk failed with: " << error;
+        GTEST_FAIL() << "getChunk failed with: " << error;
     });
 }
 
@@ -284,7 +287,8 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolToMuchChunks)
 
     constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
     sut->getChunk(chunkSettings_128)
-        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .and_then(
+            [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 }
 
@@ -325,7 +329,7 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolSingleChunk)
     for (const auto& chunkSettings : {chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256})
     {
         sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
-            FAIL() << "getChunk failed with: " << error;
+            GTEST_FAIL() << "getChunk failed with: " << error;
         });
     }
 }
@@ -374,8 +378,8 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
     {
         sut->getChunk(chunkSettings)
             .and_then([&](auto&) {
-                FAIL() << "getChunk for payload size " << chunkSettings.userPayloadSize() << " should fail with '"
-                       << EXPECTED_ERROR << "' but did not fail";
+                GTEST_FAIL() << "getChunk for payload size " << chunkSettings.userPayloadSize() << " should fail with '"
+                             << EXPECTED_ERROR << "' but did not fail";
             })
             .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
     }
@@ -396,7 +400,8 @@ TEST_F(MemoryManager_test, emptyMemPoolDoesNotResultInAcquiringChunksFromOtherMe
 
     constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
     sut->getChunk(chunkSettings_64)
-        .and_then([&](auto&) { FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
+        .and_then(
+            [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
     EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0U));
@@ -459,7 +464,7 @@ TEST_F(MemoryManager_test, getChunkWithUserPayloadSizeZeroShouldNotFail)
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
-        FAIL() << "getChunk failed with: " << error;
+        GTEST_FAIL() << "getChunk failed with: " << error;
     });
 }
 

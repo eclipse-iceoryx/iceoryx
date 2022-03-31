@@ -189,7 +189,7 @@ class PortUser_IntegrationTest : public Test
         else
         {
             // Error shall never occur
-            FAIL() << "Error in subscriber SUB CaPro message!";
+            GTEST_FAIL() << "Error in subscriber SUB CaPro message!";
         }
 
         // Wait for subscription ACK from publisher
@@ -219,7 +219,7 @@ class PortUser_IntegrationTest : public Test
                     else
                     {
                         // Errors shall never occur
-                        FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(result);
+                        GTEST_FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(result);
                     }
                 });
         }
@@ -248,7 +248,7 @@ class PortUser_IntegrationTest : public Test
             else
             {
                 // Error shall never occur
-                FAIL() << "Error in publisher OFFER CaPro message!";
+                GTEST_FAIL() << "Error in publisher OFFER CaPro message!";
             }
 
             // Wait for subscriber to subscribe
@@ -266,7 +266,7 @@ class PortUser_IntegrationTest : public Test
             else
             {
                 // Error shall never occur
-                FAIL() << "Error in publisher ACK CaPro message!";
+                GTEST_FAIL() << "Error in publisher ACK CaPro message!";
             }
         }
         else
@@ -305,7 +305,7 @@ class PortUser_IntegrationTest : public Test
                 })
                 .or_else([](auto error) {
                     // Errors shall never occur
-                    FAIL() << "Error in tryAllocateChunk(): " << static_cast<uint32_t>(error);
+                    GTEST_FAIL() << "Error in tryAllocateChunk(): " << static_cast<uint32_t>(error);
                 });
 
             /// Add some jitter to make thread breathe

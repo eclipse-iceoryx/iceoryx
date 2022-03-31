@@ -54,7 +54,7 @@ TEST(SubscriberOptions_test, SerializationRoundTripIsSuccessful)
             EXPECT_THAT(roundTripOptions.requiresPublisherHistorySupport,
                         Eq(testOptions.requiresPublisherHistorySupport));
         })
-        .or_else([&](auto&) { FAIL() << "Serialization/Deserialization of SubscriberOptions failed!"; });
+        .or_else([&](auto&) { GTEST_FAIL() << "Serialization/Deserialization of SubscriberOptions failed!"; });
 }
 
 TEST(SubscriberOptions_test, DeserializingBogusDataFails)
@@ -62,7 +62,7 @@ TEST(SubscriberOptions_test, DeserializingBogusDataFails)
     ::testing::Test::RecordProperty("TEST_ID", "6b4b77cc-09ce-4f71-b2b5-371be27f863a");
     const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::SubscriberOptions::deserialize(bogusSerialization)
-        .and_then([&](auto&) { FAIL() << "Deserialization is expected to fail!"; })
+        .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
         .or_else([&](auto&) { SUCCEED(); });
 }
 
@@ -78,7 +78,7 @@ TEST(SubscriberOptions_test, DeserializingInvalidQueueFullPolicyFails)
     const auto serialized = iox::cxx::Serialization::create(
         QUEUE_CAPACITY, HISTORY_REQUEST, NODE_NAME, SUBSCRIBE_ON_CREATE, QUEUE_FULL_POLICY);
     iox::popo::SubscriberOptions::deserialize(serialized)
-        .and_then([&](auto&) { FAIL() << "Deserialization is expected to fail!"; })
+        .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
         .or_else([&](auto&) { SUCCEED(); });
 }
 

@@ -172,7 +172,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
             EXPECT_THAT(service.getSourceInterface(), Eq(Interfaces::INTERNAL));
         })
         .or_else([](const auto& error) {
-            FAIL() << "Deserialization should not fail but failed with: " << static_cast<uint32_t>(error);
+            GTEST_FAIL() << "Deserialization should not fail but failed with: " << static_cast<uint32_t>(error);
         });
 }
 

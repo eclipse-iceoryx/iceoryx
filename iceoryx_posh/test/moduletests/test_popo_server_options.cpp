@@ -52,7 +52,7 @@ TEST(ServerOptions_test, SerializationRoundTripIsSuccessful)
             EXPECT_THAT(roundTripOptions.clientTooSlowPolicy, Ne(defaultOptions.clientTooSlowPolicy));
             EXPECT_THAT(roundTripOptions.clientTooSlowPolicy, Eq(testOptions.clientTooSlowPolicy));
         })
-        .or_else([&](auto&) { FAIL() << "Serialization/Deserialization of ServerOptions failed!"; });
+        .or_else([&](auto&) { GTEST_FAIL() << "Serialization/Deserialization of ServerOptions failed!"; });
 }
 
 TEST(ServerOptions_test, DeserializingBogusDataFails)

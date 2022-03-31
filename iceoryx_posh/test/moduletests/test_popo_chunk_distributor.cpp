@@ -272,7 +272,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithAddedQueueReturnsIndex)
 
     sut.getQueueIndex(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 }
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsIndex)
@@ -294,15 +294,15 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsInd
 
     sut.getQueueIndex(queueData1->m_uniqueId, EXPECTED_QUEUE_INDEX_1)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_1)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 
     sut.getQueueIndex(queueData2->m_uniqueId, EXPECTED_QUEUE_INDEX_2)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_2)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 
     sut.getQueueIndex(queueData3->m_uniqueId, EXPECTED_QUEUE_INDEX_3)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_3)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 }
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknownLastIndexReturnsIndex)
@@ -325,15 +325,15 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknown
 
     sut.getQueueIndex(queueData1->m_uniqueId, UNKNOWN_QUEUE_INDEX)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_1)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 
     sut.getQueueIndex(queueData2->m_uniqueId, UNKNOWN_QUEUE_INDEX)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_2)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 
     sut.getQueueIndex(queueData3->m_uniqueId, UNKNOWN_QUEUE_INDEX)
         .and_then([&](const auto& index) { EXPECT_THAT(index, Eq(EXPECTED_QUEUE_INDEX_3)); })
-        .or_else([] { FAIL() << "Expected to get an index!"; });
+        .or_else([] { GTEST_FAIL() << "Expected to get an index!"; });
 }
 
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithPreviouslyAddedQueueRemovedReturnsNoIndex)
@@ -549,7 +549,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithoutAddedQueueReturnsError)
 
     auto chunk = this->allocateChunk(111);
     sut.deliverToQueue(queueData->m_uniqueId, UNKNOWN_QUEUE_INDEX, chunk)
-        .and_then([] { FAIL() << "Expected fail with'ChunkDistributorError::QUEUE_NOT_IN_CONTAINER'!"; })
+        .and_then([] { GTEST_FAIL() << "Expected fail with'ChunkDistributorError::QUEUE_NOT_IN_CONTAINER'!"; })
         .or_else([](const auto& error) { EXPECT_THAT(error, Eq(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER)); });
 }
 
