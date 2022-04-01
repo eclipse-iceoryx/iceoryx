@@ -27,8 +27,9 @@ COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
 QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_hoofs/platform/qnx/
-WHITELIST=$WORKSPACE/tools/scripts/header-allowlist.txt
+ALLOWLIST=$WORKSPACE/tools/scripts/header-allowlist.txt
 TEMP_FILE=$(mktemp)
+GET_HEADER_NAME="\<\K[^<>]+(?=>)" # Matches the content between angle brackets
 
 for COMPONENT in ${COMPONENTS[@]}; do
     for DIR in ${SOURCE_DIR[@]}; do
@@ -41,7 +42,7 @@ echo "# QNX platform/ libc headers" >> $TEMP_FILE
 echo "# usage of headers for QNX"
 gcc -w -fpreprocessed -dD -E $(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -iname *.hpp) \
  | grep -e "#include <" \
- | grep -oP "\<\K[^<>]+(?=>)" \
+ | grep -oP $GET_HEADER_NAME \
  | sort \
  | uniq \
  | tee -a $TEMP_FILE \
@@ -54,7 +55,7 @@ echo
 echo "# usage of <..> header includes"
 { gcc -w -fpreprocessed -dD -E $(find $GREP_PATH -type f -iname *.cpp -o -iname *.hpp); cat $(find $GREP_PATH -type f -iname *.inl); } \
  | grep -e "#include <" \
- | grep -oP "\<\K[^<>]+(?=>)" \
+ | grep -oP $GET_HEADER_NAME \
  | sort \
  | uniq \
  | tee -a $TEMP_FILE \
@@ -63,7 +64,7 @@ echo "# usage of <..> header includes"
 if [[ "$SCOPE" == "check" ]]; then
     echo
     echo "Comparing system headers against allowed ones.."
-    diff $TEMP_FILE $WHITELIST
+    diff $TEMP_FILE $ALLOWLIST
     if [ $? -eq 1 ]; then
         echo "One or more header is not on the allow list, please remove the header usage or extend the allow list!"
         exit 1
