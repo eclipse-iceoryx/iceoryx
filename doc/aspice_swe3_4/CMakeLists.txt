@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(IOX_VERSION_STRING "2.0.0")
+set(IOX_VERSION_STRING "2.0.1")
 
 project(iceoryx_doc VERSION ${IOX_VERSION_STRING})
 
@@ -26,6 +26,7 @@ set(DOXYGEN_GENERATE_HTML YES)
 set(DOXYGEN_GENERATE_LATEX YES)
 set(DOXYGEN_GENERATE_XML YES)
 set(DOXYGEN_XML_OUTPUT xml)
+# if some header need to be excluded from the exclude pattern have a look at INCLUDE_DIR_AND_ADDITIONAL_FILES below
 set(DOXYGEN_EXCLUDE_PATTERNS "*/internal/*")
 set(DOXYGEN_EXCLUDE_SYMBOLS "internal::*")
 
@@ -76,8 +77,26 @@ foreach(val RANGE ${cmp_len})
 
   set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/doc/${cmp})
 
+  set(INCLUDE_DIR_AND_ADDITIONAL_FILES ${cmp_dir}/include)
+  if(${cmp} STREQUAL iceoryx_posh)
+    list(APPEND INCLUDE_DIR_AND_ADDITIONAL_FILES
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/base_client.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/base_publisher.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/base_server.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/base_subscriber.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/client_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/publisher_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/server_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/subscriber_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/untyped_client_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/untyped_publisher_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/untyped_server_impl.hpp
+      ${cmp_dir}/include/iceoryx_posh/internal/popo/untyped_subscriber_impl.hpp
+    )
+  endif()
+
   doxygen_add_docs(doxygen_${cmp}
-                  ${cmp_dir}/include
+                  ${INCLUDE_DIR_AND_ADDITIONAL_FILES}
                   WORKING_DIRECTORY ${cmp_dir}/include
                   ALL)
 endforeach()
