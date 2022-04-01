@@ -33,6 +33,8 @@ namespace iox
 {
 namespace popo
 {
+/// @brief The ClientImpl class implements the typed client API
+/// @note Not intended for public usage! Use the `Client` instead!
 template <typename Req, typename Res, typename BaseClientT = BaseClient<>>
 class ClientImpl : public BaseClientT, private RpcInterface<Request<Req>, ClientSendError>
 {

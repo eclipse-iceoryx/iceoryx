@@ -25,6 +25,8 @@ namespace iox
 {
 namespace popo
 {
+/// @brief The UntypedServerImpl class implements the untyped server API
+/// @note Not intended for public usage! Use the `UntypedServer` instead!
 template <typename BaseServerT = BaseServer<>>
 class UntypedServerImpl : public BaseServerT
 {
