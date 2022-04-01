@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_UNTYPED_SERVER_IMPL_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/internal/popo/base_server.hpp"
+#include "iceoryx_posh/popo/impl/base_server.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
 
 namespace iox

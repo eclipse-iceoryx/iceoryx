@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_CLIENT_HPP
 #define IOX_POSH_POPO_CLIENT_HPP
 
-#include "iceoryx_posh/internal/popo/client_impl.hpp"
+#include "iceoryx_posh/popo/impl/client_impl.hpp"
 
 namespace iox
 {

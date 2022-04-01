@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/internal/popo/untyped_publisher_impl.hpp"
+#include "iceoryx_posh/popo/impl/untyped_publisher_impl.hpp"
 
 namespace iox
 {

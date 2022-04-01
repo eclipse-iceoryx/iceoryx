@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_BASE_CLIENT_INL
 #define IOX_POSH_POPO_BASE_CLIENT_INL
 
-#include "iceoryx_posh/internal/popo/base_client.hpp"
+#include "iceoryx_posh/popo/impl/base_client.hpp"
 
 namespace iox
 {

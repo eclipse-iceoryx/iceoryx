@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_TYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_TYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/internal/popo/publisher_impl.hpp"
+#include "iceoryx_posh/popo/impl/publisher_impl.hpp"
 
 namespace iox
 {

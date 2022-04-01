@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/internal/popo/untyped_subscriber_impl.hpp"
+#include "iceoryx_posh/popo/impl/untyped_subscriber_impl.hpp"
 
 namespace iox
 {

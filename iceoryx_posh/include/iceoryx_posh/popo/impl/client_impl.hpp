@@ -18,12 +18,12 @@
 #define IOX_POSH_POPO_CLIENT_IMPL_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/internal/popo/base_client.hpp"
 #include "iceoryx_posh/internal/popo/request_deleter.hpp"
 #include "iceoryx_posh/internal/popo/response_deleter.hpp"
 #include "iceoryx_posh/internal/popo/rpc_interface.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
+#include "iceoryx_posh/popo/impl/base_client.hpp"
 #include "iceoryx_posh/popo/request.hpp"
 #include "iceoryx_posh/popo/response.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"

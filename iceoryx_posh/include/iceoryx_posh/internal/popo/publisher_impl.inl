@@ -18,7 +18,7 @@
 #ifndef IOX_POSH_POPO_TYPED_PUBLISHER_IMPL_INL
 #define IOX_POSH_POPO_TYPED_PUBLISHER_IMPL_INL
 
-#include "iceoryx_posh/internal/popo/publisher_impl.hpp"
+#include "iceoryx_posh/popo/impl/publisher_impl.hpp"
 
 #include <cstdint>
 

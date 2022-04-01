@@ -18,8 +18,8 @@
 #define IOX_POSH_POPO_UNTYPED_CLIENT_IMPL_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/internal/popo/base_client.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
+#include "iceoryx_posh/popo/impl/base_client.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
