@@ -24,6 +24,8 @@ namespace
 {
 using namespace ::testing;
 
+constexpr uint16_t MODULE_IDENTIFIER_OFFSET{42};
+
 // clang-format off
 #define TEST_ERRORS(error) \
     error(TEST__FOOBAR) \
@@ -40,7 +42,7 @@ enum class KnownError : uint32_t
 
 enum class UnknownError : uint32_t
 {
-    NO_ERROR = (iox::USER_DEFINED_MODULE_IDENTIFIER + 42) << iox::ERROR_ENUM_OFFSET_IN_BITS,
+    NO_ERROR = (iox::USER_DEFINED_MODULE_IDENTIFIER + MODULE_IDENTIFIER_OFFSET) << iox::ERROR_ENUM_OFFSET_IN_BITS,
     TEST_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
@@ -58,10 +60,7 @@ TEST(ErrorHandlerMock_test, UnsettingTemporaryErrorHandlerWithKnownModuleWorks)
 {
     {
         auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>(
-            [&](const auto error, const iox::ErrorLevel level) {
-                EXPECT_THAT(error, Eq(KnownError::TEST__FOOBAR));
-                EXPECT_THAT(level, Eq(iox::ErrorLevel::MODERATE));
-            });
+            [&](const auto, const iox::ErrorLevel) { GTEST_FAIL() << "Temporary ErrorHandler shall not be called"; });
     }
     iox::errorHandler(KnownError::TEST__FOOBAR, iox::ErrorLevel::MODERATE);
 }
@@ -94,6 +93,8 @@ TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfUnknownModuleCallsGTes
             EXPECT_THAT(level, Eq(iox::ErrorLevel::FATAL));
         });
     EXPECT_FATAL_FAILURE({ iox::errorHandler(UnknownError::TEST__FOOBAR); },
-                         "errorName: TEST__FOOBAR, expected error enum type: 256, actual error enum type: 298");
+                         "errorName: TEST__FOOBAR, expected error enum type: "
+                             + std::to_string(iox::USER_DEFINED_MODULE_IDENTIFIER) + ", actual error enum type: "
+                             + std::to_string(iox::USER_DEFINED_MODULE_IDENTIFIER + MODULE_IDENTIFIER_OFFSET));
 }
 } // namespace
