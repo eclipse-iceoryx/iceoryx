@@ -50,6 +50,7 @@ enum class SubscriberState : StateEnumIdentifier
 
 /// @brief base class for all types of subscriber
 /// @param[in] port_t type of the underlying port, required for testing
+/// @note Not intended for public usage! Use the `Subscriber` or `UntypedSubscriber` instead!
 template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
