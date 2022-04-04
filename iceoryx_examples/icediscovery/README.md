@@ -12,9 +12,13 @@ In addition the applications `iox-wait-for-service` and `iox-discovery-monitor` 
 to write custom discovery functionality to wait for specific services or monitor
 the availability of services respectively.
 
+<!--
 ## Expected Output
 
+/// @todo #1295 re-record asciicast
+
 [![asciicast](https://asciinema.org/a/476673.svg)](https://asciinema.org/a/476673)
+-->
 
 ## Code walkthrough
 
