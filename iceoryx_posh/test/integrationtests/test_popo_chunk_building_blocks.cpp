@@ -110,7 +110,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                 })
                 .or_else([](AllocationError) {
                     // Errors shall never occur
-                    FAIL();
+                    GTEST_FAIL();
                 });
 
             /// Add some jitter to make thread breathe
@@ -192,7 +192,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                     else
                     {
                         // Errors shall never occur
-                        FAIL();
+                        GTEST_FAIL();
                     }
                 });
         }

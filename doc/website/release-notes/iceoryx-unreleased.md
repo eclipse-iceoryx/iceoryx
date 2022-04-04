@@ -15,6 +15,7 @@
 - Separate module specific errors from `iceoryx_hoofs` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)
   - Move test specific code to `ErrorHandlerMock` and templatize `setTemporaryErrorHandler()`
   - Create separate error enum for each module
+- Use `GTEST_FAIL` and `GTEST_SUCCEED` instead of `FAIL` and `SUCCEED` [\#1072](https://github.com/eclipse-iceoryx/iceoryx/issues/1072)
 
 **New API features:**
 

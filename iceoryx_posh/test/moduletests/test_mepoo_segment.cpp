@@ -200,7 +200,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     sut.getMemoryManager()
         .getChunk(chunkSettings)
         .and_then([&](auto& chunk) { EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE)); })
-        .or_else([](auto& error) { FAIL() << "getChunk failed with: " << error; });
+        .or_else([](auto& error) { GTEST_FAIL() << "getChunk failed with: " << error; });
 }
 
 } // namespace

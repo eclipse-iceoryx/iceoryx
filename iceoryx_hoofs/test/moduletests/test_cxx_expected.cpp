@@ -552,7 +552,9 @@ TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsAndThen)
     IOX_DISCARD_RESULT(movedValue);
 
     bool success{false};
-    sut.and_then([&](auto&) { success = true; }).or_else([&](auto&) { FAIL() << "'or_else' should not be called"; });
+    sut.and_then([&](auto&) { success = true; }).or_else([&](auto&) {
+        GTEST_FAIL() << "'or_else' should not be called";
+    });
     EXPECT_TRUE(success);
 }
 
@@ -564,7 +566,9 @@ TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsOrElse)
     IOX_DISCARD_RESULT(movedValue);
 
     bool success{false};
-    sut.and_then([&](auto&) { FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) { success = true; });
+    sut.and_then([&](auto&) { GTEST_FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) {
+        success = true;
+    });
     EXPECT_TRUE(success);
 }
 
@@ -576,7 +580,7 @@ TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsAndThe
     IOX_DISCARD_RESULT(movedValue);
 
     bool success{false};
-    sut.and_then([&]() { success = true; }).or_else([&](auto&) { FAIL() << "'or_else' should not be called"; });
+    sut.and_then([&]() { success = true; }).or_else([&](auto&) { GTEST_FAIL() << "'or_else' should not be called"; });
     EXPECT_TRUE(success);
 }
 
@@ -588,7 +592,7 @@ TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsOrElse
     IOX_DISCARD_RESULT(movedValue);
 
     bool success{false};
-    sut.and_then([&]() { FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) { success = true; });
+    sut.and_then([&]() { GTEST_FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) { success = true; });
     EXPECT_TRUE(success);
 }
 
