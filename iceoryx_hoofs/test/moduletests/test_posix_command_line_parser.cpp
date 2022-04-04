@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
 #include "test.hpp"
-#include "test_cxx_command_line_common.hpp"
+#include "test_posix_command_line_common.hpp"
 
 #include <cstdlib>
 #include <memory>
@@ -27,6 +27,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::posix;
 using namespace iox::cxx;
 
 class CommandLineParser_test : public Test

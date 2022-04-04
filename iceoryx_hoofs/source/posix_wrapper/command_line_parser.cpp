@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace cxx
+namespace posix
 {
 CommandLineParser::CommandLineParser(const description_t& programDescription,
                                      const cxx::function<void()> onFailureCallback) noexcept
@@ -524,5 +524,5 @@ std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t&
 
     return stream;
 }
-} // namespace cxx
+} // namespace posix
 } // namespace iox

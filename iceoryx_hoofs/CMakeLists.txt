@@ -159,8 +159,6 @@ setup_package_name_and_create_files(
 add_library(iceoryx_hoofs
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
-    source/cxx/command_line.cpp
-    source/cxx/command_line_parser.cpp
     source/cxx/deadline_timer.cpp
     source/cxx/filesystem.cpp
     source/cxx/helplets.cpp
@@ -178,6 +176,8 @@ add_library(iceoryx_hoofs
     source/log/logmanager.cpp
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
+    source/posix_wrapper/command_line.cpp
+    source/posix_wrapper/command_line_parser.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/file_lock.cpp
     source/posix_wrapper/semaphore.cpp

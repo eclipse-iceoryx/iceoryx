@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_COMMAND_LINE_INL
-#define IOX_HOOFS_CXX_COMMAND_LINE_INL
+#ifndef IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_INL
+#define IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_INL
 
-#include "iceoryx_hoofs/cxx/command_line.hpp"
+#include "iceoryx_hoofs/posix_wrapper/command_line.hpp"
 
 namespace iox
 {
-namespace cxx
+namespace posix
 {
 namespace internal
 {
@@ -70,13 +70,13 @@ inline T addEntry(const CommandLineParser& parser,
                   internal::cmdEntries_t& entries,
                   internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(
-        CommandLineParser::entry_t{shortName,
-                                   name,
-                                   description,
-                                   argumentType,
-                                   {TypeInfo<T>::NAME},
-                                   CommandLineOptions::value_t(TruncateToCapacity, convert::toString(defaultValue))});
+    entries.emplace_back(CommandLineParser::entry_t{
+        shortName,
+        name,
+        description,
+        argumentType,
+        {cxx::TypeInfo<T>::NAME},
+        CommandLineOptions::value_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultValue))});
     assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         extractValue(parser, value, entries, index, options);
     });
@@ -94,13 +94,13 @@ inline bool addEntry(const CommandLineParser& parser,
                      internal::cmdEntries_t& entries,
                      internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(
-        CommandLineParser::entry_t{shortName,
-                                   name,
-                                   description,
-                                   argumentType,
-                                   {"true|false"},
-                                   CommandLineOptions::value_t(TruncateToCapacity, (defaultValue) ? "true" : "false")});
+    entries.emplace_back(CommandLineParser::entry_t{
+        shortName,
+        name,
+        description,
+        argumentType,
+        {"true|false"},
+        CommandLineOptions::value_t(cxx::TruncateToCapacity, (defaultValue) ? "true" : "false")});
     assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
         if (entries[index].type == ArgumentType::SWITCH)
         {
@@ -114,7 +114,7 @@ inline bool addEntry(const CommandLineParser& parser,
     return defaultValue;
 }
 } // namespace internal
-} // namespace cxx
+} // namespace posix
 } // namespace iox
 
 #endif

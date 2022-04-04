@@ -13,23 +13,24 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_COMMAND_LINE_HPP
-#define IOX_HOOFS_CXX_COMMAND_LINE_HPP
+#ifndef IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_HPP
+#define IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_HPP
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cxx/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
 
 namespace iox
 {
-namespace cxx
+namespace posix
 {
 namespace internal
 {
-using cmdEntries_t = vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
-using cmdAssignments_t = vector<function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+using cmdEntries_t = cxx::vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+using cmdAssignments_t =
+    cxx::vector<cxx::function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
 
 void handleError(const CommandLineParser& parser);
 
@@ -62,15 +63,15 @@ void populateEntries(CommandLineParser& parser,
 
 #define INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)        \
   private:                                                                                                             \
-    type m_##memberName = iox::cxx::internal::addEntry<type>(this->m_parser,                                           \
-                                                             this->m_##memberName,                                     \
-                                                             shortName,                                                \
-                                                             longName,                                                 \
-                                                             description,                                              \
-                                                             argumentType,                                             \
-                                                             defaultValue,                                             \
-                                                             m_entries,                                                \
-                                                             m_assignments);                                           \
+    type m_##memberName = iox::posix::internal::addEntry<type>(this->m_parser,                                         \
+                                                               this->m_##memberName,                                   \
+                                                               shortName,                                              \
+                                                               longName,                                               \
+                                                               description,                                            \
+                                                               argumentType,                                           \
+                                                               defaultValue,                                           \
+                                                               m_entries,                                              \
+                                                               m_assignments);                                         \
                                                                                                                        \
   public:                                                                                                              \
     const type& memberName() const noexcept                                                                            \
@@ -88,7 +89,7 @@ void populateEntries(CommandLineParser& parser,
 /// @param[in] description a description of the optional value
 #define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                               \
     INTERNAL_CMD_LINE_VALUE(                                                                                           \
-        type, memberName, defaultValue, shortName, longName, description, iox::cxx::ArgumentType::OPTIONAL_VALUE)
+        type, memberName, defaultValue, shortName, longName, description, iox::posix::ArgumentType::OPTIONAL_VALUE)
 
 /// @brief Adds a required value to the command line, if it is not provided the program will print the help and
 ///        terminate
@@ -99,7 +100,7 @@ void populateEntries(CommandLineParser& parser,
 /// @param[in] description a description of the required value
 #define REQUIRED_VALUE(type, memberName, shortName, longName, description)                                             \
     INTERNAL_CMD_LINE_VALUE(                                                                                           \
-        type, memberName, type(), shortName, longName, description, iox::cxx::ArgumentType::REQUIRED_VALUE)
+        type, memberName, type(), shortName, longName, description, iox::posix::ArgumentType::REQUIRED_VALUE)
 
 /// @brief Adds a switch to the command line
 /// @param[in] memberName the name under which the switch is accessible
@@ -107,7 +108,7 @@ void populateEntries(CommandLineParser& parser,
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the switch
 #define SWITCH(memberName, shortName, longName, description)                                                           \
-    INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::cxx::ArgumentType::SWITCH)
+    INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::posix::ArgumentType::SWITCH)
 
 /// @brief Helper macro to create a struct with full command line parsing from argc, argv.
 /// @param[in] Name the name of the class/struct
@@ -143,30 +144,30 @@ void populateEntries(CommandLineParser& parser,
 /// @endcode
 #define COMMAND_LINE(Name, ProgramDescription)                                                                         \
   private:                                                                                                             \
-    ::iox::cxx::CommandLineParser m_parser;                                                                            \
-    ::iox::cxx::internal::cmdEntries_t m_entries;                                                                      \
-    ::iox::cxx::internal::cmdAssignments_t m_assignments;                                                              \
-    ::iox::cxx::CommandLineOptions::binaryName_t m_binaryName;                                                         \
+    ::iox::posix::CommandLineParser m_parser;                                                                          \
+    ::iox::posix::internal::cmdEntries_t m_entries;                                                                    \
+    ::iox::posix::internal::cmdAssignments_t m_assignments;                                                            \
+    ::iox::posix::CommandLineOptions::binaryName_t m_binaryName;                                                       \
                                                                                                                        \
   public:                                                                                                              \
     Name(                                                                                                              \
         int argc,                                                                                                      \
         char* argv[],                                                                                                  \
         const uint64_t argcOffset = 1U,                                                                                \
-        const ::iox::cxx::UnknownOption actionWhenOptionUnknown = ::iox::cxx::UnknownOption::TERMINATE,                \
+        const ::iox::posix::UnknownOption actionWhenOptionUnknown = ::iox::posix::UnknownOption::TERMINATE,            \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
         : m_parser(ProgramDescription, onFailureCallback)                                                              \
     {                                                                                                                  \
-        ::iox::cxx::internal::populateEntries(                                                                         \
+        ::iox::posix::internal::populateEntries(                                                                       \
             m_parser, m_entries, m_assignments, m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);        \
     }                                                                                                                  \
                                                                                                                        \
-    const ::iox::cxx::CommandLineOptions::binaryName_t& binaryName() const noexcept                                    \
+    const ::iox::posix::CommandLineOptions::binaryName_t& binaryName() const noexcept                                  \
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
     }
-} // namespace cxx
+} // namespace posix
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/command_line.inl"
+#include "iceoryx_hoofs/internal/posix_wrapper/command_line.inl"
 #endif
