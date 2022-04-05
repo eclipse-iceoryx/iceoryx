@@ -16,6 +16,7 @@
   - Move test specific code to `ErrorHandlerMock` and templatize `setTemporaryErrorHandler()`
   - Create separate error enum for each module
 - Use `GTEST_FAIL` and `GTEST_SUCCEED` instead of `FAIL` and `SUCCEED` [\#1072](https://github.com/eclipse-iceoryx/iceoryx/issues/1072)
+- posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
 
 **New API features:**
 
