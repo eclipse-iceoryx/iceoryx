@@ -24,8 +24,8 @@ jobs:
       - name: Get git diff
         id: changed_files
         uses: Ana06/get-changed-files@v1.2
-      - name: Clang-Tidy of added or modified files
+      - name: Clang-Tidy of added files
         run: |
-          for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
+          for diff_file in ${{ steps.changed_files.outputs.added }}; do
             ./tools/scripts/clang_tidy_check.sh ci_pull_request ${diff_file}
           done
