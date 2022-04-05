@@ -76,19 +76,6 @@ TEST_F(Optional_test, emplaceWithPresetValue)
     EXPECT_THAT(m_sutWithValue.value(), Eq(123));
 }
 
-TEST_F(Optional_test, value_or_NoValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "126c0def-f6c0-4913-b3b0-46f486e03b6b");
-    EXPECT_THAT(m_sutNoValue.value_or(1337), Eq(1337));
-}
-
-TEST_F(Optional_test, value_or_WithValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1cd0c905-ced9-404f-a83c-86406b223593");
-    m_sutWithValue.emplace(42);
-    EXPECT_THAT(m_sutWithValue.value_or(1337), Eq(42));
-}
-
 TEST_F(Optional_test, value)
 {
     ::testing::Test::RecordProperty("TEST_ID", "04e56e48-a7df-499b-9f72-1a8d5704c4c6");
@@ -481,46 +468,6 @@ TEST_F(Optional_test, MakeOptional)
     auto sut2 = iox::cxx::make_optional<Make>();
     EXPECT_THAT(sut2->a, Eq(0));
     EXPECT_THAT(sut2->b, Eq(0));
-}
-
-TEST_F(Optional_test, AndThenWhenContainingValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c28d8a22-f5f4-4c1b-9ac1-1f98c0eb3c46");
-    iox::cxx::optional<int> sut(123);
-    int value = 0;
-
-    sut.and_then([&](int& v) { value = v; });
-    EXPECT_THAT(value, Eq(123));
-}
-
-TEST_F(Optional_test, AndThenWhenNotContainingValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8497ede2-e77b-4e13-b975-c23cc21ff32d");
-    iox::cxx::optional<int> sut;
-    int value = 0;
-
-    sut.and_then([&](int&) { value = 42; });
-    EXPECT_THAT(value, Eq(0));
-}
-
-TEST_F(Optional_test, OrElseWhenContainingValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8d685d4c-1334-4d31-953e-e5acba4f6b0f");
-    iox::cxx::optional<int> sut(123);
-    int value = 0;
-
-    sut.or_else([&] { value = 42; });
-    EXPECT_THAT(value, Eq(0));
-}
-
-TEST_F(Optional_test, OrElseWhenNotContainingValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "b56cad5b-d728-4c74-81d6-3b65a970b96b");
-    iox::cxx::optional<int> sut;
-    int value = 0;
-
-    sut.or_else([&] { value = 42; });
-    EXPECT_THAT(value, Eq(42));
 }
 
 TEST_F(Optional_test, ReturningNulloptWithoutConstruction)

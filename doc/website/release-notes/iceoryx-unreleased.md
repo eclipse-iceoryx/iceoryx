@@ -6,6 +6,8 @@
 
 **Features:**
 
+- optional inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
+
 **Bugfixes:**
 
 - Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)

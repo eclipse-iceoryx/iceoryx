@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CXX_OPTIONAL_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/types.hpp"
 
@@ -65,7 +66,7 @@ constexpr in_place_t in_place{};
 ///     }
 /// @endcode
 template <typename T>
-class optional
+class optional : public FunctionalInterface<optional<T>, T, void>
 {
   public:
     using type = T;
@@ -221,35 +222,6 @@ class optional
     ///         optional has a value by calling has_value() before using it.
     /// @return const rvalue reference to the underlying type
     const T&& value() const&& noexcept;
-
-    /// @brief If the optional contains a value a copy of that value is returned,
-    ///         otherwise the default_value is returned.
-    /// @return copy of the underlying type if the optional has a value otherwise
-    ///         a copy of default_value
-    template <typename U>
-    constexpr T value_or(U&& default_value) const noexcept;
-
-    /// @brief calls the provided callable with the optional value as arguments
-    ///         if the optional contains a value
-    /// @param[in] callable which has T as argument
-    /// @return reference to this
-    optional& and_then(const cxx::function_ref<void(T&)>& callable) noexcept;
-
-    /// @brief calls the provided callable with the optional value as arguments
-    ///         if the optional contains a value
-    /// @param[in] callable which has T as argument
-    /// @return reference to this
-    const optional& and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept;
-
-    /// @brief calls the provided callable if the optional does not contain a value
-    /// @param[in] callable
-    /// @return reference to this
-    optional& or_else(const cxx::function_ref<void()>& callable) noexcept;
-
-    /// @brief calls the provided callable if the optional does not contain a value
-    /// @param[in] callable
-    /// @return reference to this
-    const optional& or_else(const cxx::function_ref<void()>& callable) const noexcept;
 
   private:
     alignas(T) byte_t m_data[sizeof(T)];
