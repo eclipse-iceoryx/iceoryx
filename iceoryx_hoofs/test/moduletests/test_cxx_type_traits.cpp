@@ -174,11 +174,6 @@ struct UndefinedType
 {
 };
 
-TEST(TypeTraitsTest, TypeInfo_UndefinedTypeTranslatesCorrectly)
-{
-    EXPECT_THAT(TypeInfo<UndefinedType>::NAME, StrEq("unknown type"));
-}
-
 TEST(TypeTraitsTest, TypeInfo_StringTypeTranslatesCorrectly)
 {
     EXPECT_THAT(TypeInfo<iox::cxx::string<1>>::NAME, StrEq("string"));

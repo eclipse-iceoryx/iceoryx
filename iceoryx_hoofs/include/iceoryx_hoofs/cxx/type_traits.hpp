@@ -140,21 +140,11 @@ using void_t = void;
 template <typename T>
 struct TypeInfo
 {
+    static_assert(always_false_v<T>, "unknown type");
     static constexpr const char NAME[] = "unknown type";
 };
 template <typename T>
 constexpr const char TypeInfo<T>::NAME[];
-
-template <uint64_t>
-class string;
-
-template <uint64_t N>
-struct TypeInfo<iox::cxx::string<N>>
-{
-    static constexpr const char NAME[] = "string";
-};
-template <uint64_t N>
-constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
 
 template <>
 struct TypeInfo<int8_t>
@@ -233,6 +223,17 @@ struct TypeInfo<long double>
 {
     static constexpr const char NAME[] = "long double";
 };
+
+template <uint64_t>
+class string;
+
+template <uint64_t N>
+struct TypeInfo<iox::cxx::string<N>>
+{
+    static constexpr const char NAME[] = "string";
+};
+template <uint64_t N>
+constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
 //////////////////
 /// END TypeInfo
 //////////////////
