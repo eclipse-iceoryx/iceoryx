@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_PARSER_INL
 #define IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_PARSER_INL
 
+#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
+
 namespace iox
 {
 namespace posix

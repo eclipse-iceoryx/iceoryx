@@ -132,7 +132,7 @@ bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noex
                 && m_argv[position + 1][0] != '-'));
 }
 
-bool CommandLineParser::isOptionSet(const entry_t& entry) const noexcept
+bool CommandLineParser::isOptionSet(const Entry& entry) const noexcept
 {
     bool isOptionSet = false;
     for (const auto& option : m_options.m_arguments)
@@ -170,7 +170,7 @@ bool CommandLineParser::doesOptionValueFitIntoString(const char* value) const no
 
 void CommandLineParser::sortAvailableOptions() noexcept
 {
-    std::sort(m_availableOptions.begin(), m_availableOptions.end(), [](const entry_t& lhs, const entry_t& rhs) {
+    std::sort(m_availableOptions.begin(), m_availableOptions.end(), [](const Entry& lhs, const Entry& rhs) {
         if (lhs.shortOption != NO_SHORT_OPTION && rhs.shortOption != NO_SHORT_OPTION)
         {
             return lhs.shortOption < rhs.shortOption;
@@ -284,7 +284,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
     return m_options;
 }
 
-bool CommandLineParser::doesOptionHasSucceedingValue(const entry_t& entry, const uint64_t position) const noexcept
+bool CommandLineParser::doesOptionHasSucceedingValue(const Entry& entry, const uint64_t position) const noexcept
 {
     bool doesOptionHasSucceedingValue = (position + 1 < static_cast<uint64_t>(m_argc));
     if (!doesOptionHasSucceedingValue)
@@ -325,7 +325,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
     }
 }
 
-cxx::optional<CommandLineParser::entry_t>
+cxx::optional<CommandLineParser::Entry>
 CommandLineParser::getOption(const CommandLineOptions::name_t& name) const noexcept
 {
     const auto nameSize = name.size();
@@ -449,7 +449,7 @@ void CommandLineParser::printHelpAndExit() const noexcept
     m_onFailureCallback();
 }
 
-CommandLineParser& CommandLineParser::addOption(const entry_t& option) noexcept
+CommandLineParser& CommandLineParser::addOption(const Entry& option) noexcept
 {
     if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
     {
@@ -507,7 +507,7 @@ CommandLineParser& CommandLineParser::addRequiredValue(const char shortOption,
     return addOption({shortOption, longOption, description, ArgumentType::REQUIRED_VALUE, typeName, {""}});
 }
 
-std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t& entry) noexcept
+std::ostream& operator<<(std::ostream& stream, const CommandLineParser::Entry& entry) noexcept
 {
     if (entry.shortOption != CommandLineParser::NO_SHORT_OPTION)
     {

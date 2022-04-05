@@ -70,7 +70,7 @@ inline T addEntry(const CommandLineParser& parser,
                   internal::cmdEntries_t& entries,
                   internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(CommandLineParser::entry_t{
+    entries.emplace_back(CommandLineParser::Entry{
         shortName,
         name,
         description,
@@ -94,7 +94,7 @@ inline bool addEntry(const CommandLineParser& parser,
                      internal::cmdEntries_t& entries,
                      internal::cmdAssignments_t& assignments)
 {
-    entries.emplace_back(CommandLineParser::entry_t{
+    entries.emplace_back(CommandLineParser::Entry{
         shortName,
         name,
         description,

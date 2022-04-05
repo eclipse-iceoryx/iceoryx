@@ -28,7 +28,7 @@ namespace posix
 {
 namespace internal
 {
-using cmdEntries_t = cxx::vector<CommandLineParser::entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+using cmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
 using cmdAssignments_t =
     cxx::vector<cxx::function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
 

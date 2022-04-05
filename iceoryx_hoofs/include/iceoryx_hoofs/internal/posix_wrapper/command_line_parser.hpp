@@ -94,7 +94,7 @@ class IOX_NO_DISCARD CommandLineOptions
     cxx::expected<T, Result> convertFromString(const value_t& value) const noexcept;
 
   private:
-    struct argument_t
+    struct Argument
     {
         char shortId;
         name_t id;
@@ -102,7 +102,7 @@ class IOX_NO_DISCARD CommandLineOptions
     };
 
     binaryName_t m_binaryName;
-    cxx::vector<argument_t, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
+    cxx::vector<Argument, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };
 
 /// @brief Factory class for the CommandLineOptions. First one has to register
@@ -124,7 +124,7 @@ class CommandLineParser
     /// @param[in] programDescription The description to the program. Will be printed in the help.
     /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is defined std::exit(1) is
     ///            called
-    CommandLineParser(
+    explicit CommandLineParser(
         const description_t& programDescription,
         const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
 
@@ -174,7 +174,7 @@ class CommandLineParser
                              const uint64_t argcOffset = 1U,
                              const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
-    struct entry_t
+    struct Entry
     {
         char shortOption = NO_SHORT_OPTION;
         CommandLineOptions::name_t longOption;
@@ -187,8 +187,8 @@ class CommandLineParser
   private:
     friend void internal::handleError(const CommandLineParser&);
 
-    CommandLineParser& addOption(const entry_t& option) noexcept;
-    cxx::optional<entry_t> getOption(const CommandLineOptions::name_t& name) const noexcept;
+    CommandLineParser& addOption(const Entry& option) noexcept;
+    cxx::optional<Entry> getOption(const CommandLineOptions::name_t& name) const noexcept;
     void printHelpAndExit() const noexcept;
 
     /// BEGIN only used in parse to improve readability
@@ -206,9 +206,9 @@ class CommandLineParser
     bool hasValidOptionName(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
-    bool isOptionSet(const entry_t& entry) const noexcept;
+    bool isOptionSet(const Entry& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
-    bool doesOptionHasSucceedingValue(const entry_t& entry, const uint64_t position) const noexcept;
+    bool doesOptionHasSucceedingValue(const Entry& entry, const uint64_t position) const noexcept;
     /// END only used in parse to improve readability
 
     void sortAvailableOptions() noexcept;
@@ -220,12 +220,12 @@ class CommandLineParser
     uint64_t m_argcOffset = 0;
 
     description_t m_programDescription;
-    cxx::vector<entry_t, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    cxx::vector<Entry, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
     cxx::function<void()> m_onFailureCallback;
     CommandLineOptions m_options;
 };
 
-std::ostream& operator<<(std::ostream& stream, const CommandLineParser::entry_t& entry) noexcept;
+std::ostream& operator<<(std::ostream& stream, const CommandLineParser::Entry& entry) noexcept;
 
 } // namespace posix
 } // namespace iox
