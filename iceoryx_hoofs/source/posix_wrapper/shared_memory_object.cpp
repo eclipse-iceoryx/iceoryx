@@ -115,7 +115,6 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (m_isInitialized && m_sharedMemory->hasOwnership())
     {
-        std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -139,7 +138,6 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
-        std::clog << "[ Reserving shared memory successful ] " << std::endl;
     }
 }
 
