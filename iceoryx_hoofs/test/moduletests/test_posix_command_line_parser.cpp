@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
+#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 #include "test.hpp"
 #include "test_posix_command_line_common.hpp"
 
@@ -951,8 +952,8 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
         }
 
         {
-            auto handle =
-                iox::ErrorHandler::setTemporaryErrorHandler([&](auto, auto, auto) { wasErrorHandlerCalled = true; });
+            auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
+                [&](const iox::HoofsError, const iox::ErrorLevel) { wasErrorHandlerCalled = true; });
             retVal = parser.parse(args.argc, args.argv, argcOffset, UnknownOption::IGNORE);
         }
     }
