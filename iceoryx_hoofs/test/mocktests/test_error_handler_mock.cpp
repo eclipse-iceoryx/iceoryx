@@ -67,22 +67,38 @@ TEST(ErrorHandlerMock_test, UnsettingTemporaryErrorHandlerWithKnownModuleWorks)
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndDefaultLevelIsCaught)
 {
+    iox::cxx::optional<KnownError> detectedError;
+    iox::cxx::optional<iox::ErrorLevel> detectedLevel;
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>([&](const auto error, const iox::ErrorLevel level) {
-            EXPECT_THAT(error, Eq(KnownError::TEST__FOOBAR));
-            EXPECT_THAT(level, Eq(iox::ErrorLevel::FATAL));
+            detectedError.emplace(error);
+            detectedLevel.emplace(level);
         });
+
     iox::errorHandler(KnownError::TEST__FOOBAR);
+
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_THAT(detectedError, Eq(KnownError::TEST__FOOBAR));
+    ASSERT_TRUE(detectedLevel.has_value());
+    EXPECT_THAT(detectedLevel, Eq(iox::ErrorLevel::FATAL));
 }
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndNonDefaultLevelIsCaught)
 {
+    iox::cxx::optional<KnownError> detectedError;
+    iox::cxx::optional<iox::ErrorLevel> detectedLevel;
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>([&](const auto error, const iox::ErrorLevel level) {
-            EXPECT_THAT(error, Eq(KnownError::TEST__FOOBAR));
-            EXPECT_THAT(level, Eq(iox::ErrorLevel::MODERATE));
+            detectedError.emplace(error);
+            detectedLevel.emplace(level);
         });
+
     iox::errorHandler(KnownError::TEST__FOOBAR, iox::ErrorLevel::MODERATE);
+
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_THAT(detectedError, Eq(KnownError::TEST__FOOBAR));
+    ASSERT_TRUE(detectedLevel.has_value());
+    EXPECT_THAT(detectedLevel, Eq(iox::ErrorLevel::MODERATE));
 }
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfUnknownModuleCallsGTestFail)
