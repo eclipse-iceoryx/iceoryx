@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,13 +53,17 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }
 
-    posix::SharedMemoryObject::create(m_shmName, size, m_accessMode, m_openMode, nullptr)
-        .and_then([this](auto& sharedMemoryObject) {
-            sharedMemoryObject.finalizeAllocation();
-            m_shmObject.emplace(std::move(sharedMemoryObject));
-        });
-
-    if (!m_shmObject.has_value())
+    if (!posix::SharedMemoryObjectBuilder()
+             .name(m_shmName)
+             .memorySizeInBytes(size)
+             .accessMode(m_accessMode)
+             .openMode(m_openMode)
+             .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+             .create()
+             .and_then([this](auto& sharedMemoryObject) {
+                 sharedMemoryObject.finalizeAllocation();
+                 m_shmObject.emplace(std::move(sharedMemoryObject));
+             }))
     {
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
     }

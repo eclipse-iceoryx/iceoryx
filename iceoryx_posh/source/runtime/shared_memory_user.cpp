@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,12 +30,13 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
                                    const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
-    // create and map the already existing shared memory region
-    posix::SharedMemoryObject::create(roudi::SHM_NAME,
-                                      topicSize,
-                                      posix::AccessMode::READ_WRITE,
-                                      posix::OpenMode::OPEN_EXISTING,
-                                      posix::SharedMemoryObject::NO_ADDRESS_HINT)
+    posix::SharedMemoryObjectBuilder()
+        .name(roudi::SHM_NAME)
+        .memorySizeInBytes(topicSize)
+        .accessMode(posix::AccessMode::READ_WRITE)
+        .openMode(posix::OpenMode::OPEN_EXISTING)
+        .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+        .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
             rp::BaseRelativePointer::registerPtr(
                 segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
@@ -60,11 +61,13 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     for (const auto& segment : segmentMapping)
     {
         auto accessMode = segment.m_isWritable ? posix::AccessMode::READ_WRITE : posix::AccessMode::READ_ONLY;
-        posix::SharedMemoryObject::create(segment.m_sharedMemoryName,
-                                          segment.m_size,
-                                          accessMode,
-                                          posix::OpenMode::OPEN_EXISTING,
-                                          posix::SharedMemoryObject::NO_ADDRESS_HINT)
+        posix::SharedMemoryObjectBuilder()
+            .name(segment.m_sharedMemoryName)
+            .memorySizeInBytes(segment.m_size)
+            .accessMode(accessMode)
+            .openMode(posix::OpenMode::OPEN_EXISTING)
+            .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+            .create()
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
-    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, *m_sharedMemoryObject.getAllocator());
+    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, m_sharedMemoryObject.getAllocator());
     m_sharedMemoryObject.finalizeAllocation();
 }
 
@@ -66,17 +66,14 @@ template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
     const MePooConfig& mempoolConfig, const posix::PosixGroup& writerGroup) noexcept
 {
-    // we let the OS decide where to map the shm segments
-    constexpr void* BASE_ADDRESS_HINT{nullptr};
-
     return std::move(
-        SharedMemoryObjectType::create(writerGroup.getName(),
-                                       MemoryManager::requiredChunkMemorySize(mempoolConfig),
-                                       posix::AccessMode::READ_WRITE,
-                                       posix::OpenMode::PURGE_AND_CREATE,
-                                       BASE_ADDRESS_HINT,
-                                       cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read
-                                           | cxx::perms::group_write)
+        typename SharedMemoryObjectType::Builder()
+            .name(writerGroup.getName())
+            .memorySizeInBytes(MemoryManager::requiredChunkMemorySize(mempoolConfig))
+            .accessMode(posix::AccessMode::READ_WRITE)
+            .openMode(posix::OpenMode::PURGE_AND_CREATE)
+            .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+            .create()
             .and_then([this](auto& sharedMemoryObject) {
                 this->setSegmentId(iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
                                                                              sharedMemoryObject.getSizeInBytes()));

@@ -40,8 +40,10 @@ using namespace iox::posix;
 class MePooSegment_test : public Test
 {
   public:
-    struct SharedMemoryObject_MOCK : public DesignPattern::Creation<SharedMemoryObject_MOCK, int>
+    class SharedMemoryObject_MOCKBuilder;
+    struct SharedMemoryObject_MOCK
     {
+        using Builder = SharedMemoryObject_MOCKBuilder;
         using createFct = std::function<void(const SharedMemory::Name_t,
                                              const uint64_t,
                                              const iox::posix::AccessMode,
@@ -62,7 +64,6 @@ class MePooSegment_test : public Test
                 createVerificator(name, memorySizeInBytes, accessMode, openMode, baseAddressHint, permissions);
             }
             filehandle = creat("/tmp/roudi_segment_test", S_IRWXU);
-            m_isInitialized = true;
         }
 
         ~SharedMemoryObject_MOCK()
@@ -70,9 +71,9 @@ class MePooSegment_test : public Test
             remove("/tmp/roudi_segment_test");
         }
 
-        iox::posix::Allocator* getAllocator()
+        iox::posix::Allocator& getAllocator()
         {
-            return allocator.get();
+            return *allocator;
         }
 
         void finalizeAllocation()
@@ -107,6 +108,34 @@ class MePooSegment_test : public Test
         int filehandle;
         static createFct createVerificator;
     };
+
+    class SharedMemoryObject_MOCKBuilder
+    {
+        IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+
+        IOX_BUILDER_PARAMETER(uint64_t, memorySizeInBytes, 0U)
+
+        IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_ONLY)
+
+        IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
+
+        IOX_BUILDER_PARAMETER(iox::cxx::optional<const void*>, baseAddressHint, iox::cxx::nullopt)
+
+        IOX_BUILDER_PARAMETER(iox::cxx::perms, permissions, iox::cxx::perms::none)
+
+      public:
+        iox::cxx::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
+        {
+            return iox::cxx::success<SharedMemoryObject_MOCK>(
+                SharedMemoryObject_MOCK(m_name,
+                                        m_memorySizeInBytes,
+                                        m_accessMode,
+                                        m_openMode,
+                                        (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
+                                        m_permissions));
+        }
+    };
+
 
     void SetUp(){};
     void TearDown(){};

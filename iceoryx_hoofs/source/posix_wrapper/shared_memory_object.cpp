@@ -46,68 +46,55 @@ static void memsetSigbusHandler(int) noexcept
     _exit(EXIT_FAILURE);
 }
 
-// TODO: reduce number of arguments by moving them to struct
-// NOLINTNEXTLINE(readability-function-size)
-SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
-                                       const uint64_t memorySizeInBytes,
-                                       const AccessMode accessMode,
-                                       const OpenMode openMode,
-                                       const cxx::optional<const void*>& baseAddressHint,
-                                       const cxx::perms permissions) noexcept
-    : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
+cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
-    m_isInitialized = true;
+    auto printErrorDetails = [this] {
+        LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
+                   << ", sizeInBytes = " << m_memorySizeInBytes
+                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
+                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)] << ", baseAddressHint = "
+                   << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
+                                           : log::HexFormat(static_cast<uint64_t>(0U)))
+                   << ((m_baseAddressHint) ? "" : " (no hint set)")
+                   << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
+    };
 
-    SharedMemoryBuilder()
-        .name(name)
-        .accessMode(accessMode)
-        .openMode(openMode)
-        .filePermissions(permissions)
-        .size(m_memorySizeInBytes)
-        .create()
-        .and_then([this](auto& sharedMemory) { m_sharedMemory.emplace(std::move(sharedMemory)); })
-        .or_else([this](auto&) {
-            LogError() << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
-            m_isInitialized = false;
-            m_errorValue = SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED;
-        });
-
-    if (m_isInitialized)
+    cxx::optional<SharedMemory> sharedMemory;
+    if (!SharedMemoryBuilder()
+             .name(m_name)
+             .accessMode(m_accessMode)
+             .openMode(m_openMode)
+             .filePermissions(m_permissions)
+             .size(m_memorySizeInBytes)
+             .create()
+             .and_then([&](auto& value) { sharedMemory.emplace(std::move(value)); }))
     {
-        MemoryMapBuilder()
-            .baseAddressHint((baseAddressHint) ? *baseAddressHint : nullptr)
-            .length(memorySizeInBytes)
-            .fileDescriptor(m_sharedMemory->getHandle())
-            .accessMode(accessMode)
-            .flags(MemoryMapFlags::SHARE_CHANGES)
-            .offset(0)
-            .create()
-            .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
-            .or_else([this](auto) {
-                LogError() << "Failed to map created shared memory into process!";
-                m_isInitialized = false;
-                m_errorValue = SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED;
-            });
+        printErrorDetails();
+        LogError() << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
+        return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
-    if (!m_isInitialized)
+    cxx::optional<MemoryMap> memoryMap;
+    if (!MemoryMapBuilder()
+             .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
+             .length(m_memorySizeInBytes)
+             .fileDescriptor(sharedMemory->getHandle())
+             .accessMode(m_accessMode)
+             .flags(MemoryMapFlags::SHARE_CHANGES)
+             .offset(0)
+             .create()
+             .and_then([&](auto& value) { memoryMap.emplace(std::move(value)); }))
     {
-        LogError() << "Unable to create a shared memory object with the following properties [ name = " << name
-                   << ", sizeInBytes = " << memorySizeInBytes
-                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)] << ", baseAddressHint = "
-                   << ((baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*baseAddressHint))
-                                         : log::HexFormat(static_cast<uint64_t>(0U)))
-                   << ((baseAddressHint) ? "" : " (no hint set)")
-                   << ", permissions = " << log::BinFormat(static_cast<mode_t>(permissions)) << " ]";
-        return;
+        printErrorDetails();
+        LogError() << "Failed to map created shared memory into process!";
+        return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
-    m_allocator.emplace(m_memoryMap->getBaseAddress(), m_memorySizeInBytes);
+    Allocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
 
-    if (m_isInitialized && m_sharedMemory->hasOwnership())
+    if (sharedMemory->hasOwnership())
     {
-        LogDebug() << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]";
+        LogDebug() << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name << "]";
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -122,47 +109,57 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
                 "open mode = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
                 "currently available in the system.\n",
-                name.c_str(),
-                static_cast<unsigned long long>(memorySizeInBytes),
-                ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
-                OPEN_MODE_STRING[static_cast<uint64_t>(openMode)],
-                (baseAddressHint) ? *baseAddressHint : nullptr,
-                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(permissions)).to_ulong());
+                m_name.c_str(),
+                static_cast<unsigned long long>(m_memorySizeInBytes),
+                ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)],
+                OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)],
+                (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
+                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong());
 
-            memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
+            memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
-        LogDebug() << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << name << "]";
+        LogDebug() << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name
+                   << "]";
     }
+
+    return cxx::success<SharedMemoryObject>(
+        SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap), std::move(allocator), m_memorySizeInBytes));
+}
+
+SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
+                                       MemoryMap&& memoryMap,
+                                       Allocator&& allocator,
+                                       const uint64_t memorySizeInBytes) noexcept
+    : m_memorySizeInBytes(memorySizeInBytes)
+    , m_sharedMemory(std::move(sharedMemory))
+    , m_memoryMap(std::move(memoryMap))
+    , m_allocator(std::move(allocator))
+{
 }
 
 void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
-    return m_allocator->allocate(size, alignment);
+    return m_allocator.allocate(size, alignment);
 }
 
 void SharedMemoryObject::finalizeAllocation() noexcept
 {
-    m_allocator->finalizeAllocation();
+    m_allocator.finalizeAllocation();
 }
 
-bool SharedMemoryObject::isInitialized() const noexcept
+Allocator& SharedMemoryObject::getAllocator() noexcept
 {
-    return m_isInitialized;
-}
-
-Allocator* SharedMemoryObject::getAllocator() noexcept
-{
-    return &*m_allocator;
+    return m_allocator;
 }
 
 const void* SharedMemoryObject::getBaseAddress() const noexcept
 {
-    return m_memoryMap->getBaseAddress();
+    return m_memoryMap.getBaseAddress();
 }
 
 void* SharedMemoryObject::getBaseAddress() noexcept
 {
-    return m_memoryMap->getBaseAddress();
+    return m_memoryMap.getBaseAddress();
 }
 
 uint64_t SharedMemoryObject::getSizeInBytes() const noexcept
@@ -172,12 +169,12 @@ uint64_t SharedMemoryObject::getSizeInBytes() const noexcept
 
 int32_t SharedMemoryObject::getFileHandle() const noexcept
 {
-    return m_sharedMemory->getHandle();
+    return m_sharedMemory.getHandle();
 }
 
 bool SharedMemoryObject::hasOwnership() const noexcept
 {
-    return m_sharedMemory->hasOwnership();
+    return m_sharedMemory.hasOwnership();
 }
 
 

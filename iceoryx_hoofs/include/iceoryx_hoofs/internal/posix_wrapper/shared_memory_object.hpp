@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/design_pattern/creation.hpp"
+#include "iceoryx_hoofs/design_pattern/builder_pattern.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
@@ -39,9 +39,12 @@ enum class SharedMemoryObjectError
     MAPPING_SHARED_MEMORY_FAILED,
 };
 
-class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>
+class SharedMemoryObjectBuilder;
+class SharedMemoryObject
 {
   public:
+    using Builder = SharedMemoryObjectBuilder;
+
     static constexpr void* NO_ADDRESS_HINT = nullptr;
     SharedMemoryObject(const SharedMemoryObject&) = delete;
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
@@ -52,7 +55,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
     void finalizeAllocation() noexcept;
 
-    Allocator* getAllocator() noexcept;
+    Allocator& getAllocator() noexcept;
     const void* getBaseAddress() const noexcept;
     void* getBaseAddress() noexcept;
 
@@ -60,26 +63,39 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     int getFileHandle() const noexcept;
     bool hasOwnership() const noexcept;
 
-    friend class DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>;
+
+    friend class SharedMemoryObjectBuilder;
 
   private:
-    SharedMemoryObject(const SharedMemory::Name_t& name,
-                       const uint64_t memorySizeInBytes,
-                       const AccessMode accessMode,
-                       const OpenMode openMode,
-                       const cxx::optional<const void*>& baseAddressHint = cxx::nullopt,
-                       const cxx::perms permissions = cxx::perms::owner_read | cxx::perms::owner_write
-                                                      | cxx::perms::group_read | cxx::perms::group_write) noexcept;
-
-    bool isInitialized() const noexcept;
+    SharedMemoryObject(SharedMemory&& sharedMemory,
+                       MemoryMap&& memoryMap,
+                       Allocator&& allocator,
+                       const uint64_t memorySizeInBytes) noexcept;
 
   private:
     uint64_t m_memorySizeInBytes;
-    cxx::optional<SharedMemory> m_sharedMemory;
-    cxx::optional<MemoryMap> m_memoryMap;
-    cxx::optional<Allocator> m_allocator;
 
-    bool m_isInitialized;
+    SharedMemory m_sharedMemory;
+    MemoryMap m_memoryMap;
+    Allocator m_allocator;
+};
+
+class SharedMemoryObjectBuilder
+{
+    IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+
+    IOX_BUILDER_PARAMETER(uint64_t, memorySizeInBytes, 0U)
+
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_ONLY)
+
+    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
+
+    IOX_BUILDER_PARAMETER(cxx::optional<const void*>, baseAddressHint, cxx::nullopt)
+
+    IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
+
+  public:
+    cxx::expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
 };
 } // namespace posix
 } // namespace iox
