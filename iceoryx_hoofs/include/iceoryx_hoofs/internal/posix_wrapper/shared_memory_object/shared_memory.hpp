@@ -19,9 +19,9 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/design_pattern/builder_pattern.hpp"
 
 #include <cstdint>
 

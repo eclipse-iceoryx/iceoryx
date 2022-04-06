@@ -314,50 +314,6 @@ constexpr T from(const F value) noexcept;
 /// @return converted value of F to corresponding value of T
 template <typename T, typename F>
 constexpr T into(const F value) noexcept;
-
-/// @brief Macro which generates a setter method useful for a builder pattern.
-/// @param[in] type the data type of the parameter
-/// @param[in] name the name of the parameter
-/// @param[in] defaultValue the default value of the parameter
-/// @code
-///   class MyBuilder {
-///     IOX_BUILDER_PARAMETER(TypeA, NameB, ValueC)
-///     // START generates the following code
-///     public:
-///       decltype(auto) NameB(TypeA const& value) &&
-///       {
-///           m_NameB = value;
-///           return std::move(*this);
-///       }
-///
-///       decltype(auto) NameB(TypeA&& value) &&
-///       {
-///           m_NameB = std::move(value);
-///           return std::move(*this);
-///       }
-///
-///     private:
-///       TypeA m_NameB = ValueC;
-///     // END
-///   };
-/// @endcode
-#define IOX_BUILDER_PARAMETER(type, name, defaultValue)                                                                \
-  public:                                                                                                              \
-    decltype(auto) name(type const& value)&&                                                                           \
-    {                                                                                                                  \
-        m_##name = value;                                                                                              \
-        return std::move(*this);                                                                                       \
-    }                                                                                                                  \
-                                                                                                                       \
-    decltype(auto) name(type&& value)&&                                                                                \
-    {                                                                                                                  \
-        m_##name = std::move(value);                                                                                   \
-        return std::move(*this);                                                                                       \
-    }                                                                                                                  \
-                                                                                                                       \
-  private:                                                                                                             \
-    type m_##name{defaultValue};
-
 } // namespace cxx
 } // namespace iox
 
