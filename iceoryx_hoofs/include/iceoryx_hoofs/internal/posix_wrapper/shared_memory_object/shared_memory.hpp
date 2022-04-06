@@ -74,7 +74,7 @@ enum class SharedMemoryError
 /// @brief Creates a bare metal shared memory object with the posix functions
 ///        shm_open, shm_unlink etc.
 ///        It must be used in combination with MemoryMap (or manual mmap calls)
-//         to gain access to the created/opened shared memory
+///        to gain access to the created/opened shared memory
 class SharedMemory
 {
   public:
