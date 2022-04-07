@@ -115,8 +115,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 {
     if (other == nullptr)
     {
-        m_rawstring[0U] = '\0';
-        m_rawstringSize = 0U;
+        clear();
     }
     else if (Capacity < count)
     {
@@ -297,6 +296,13 @@ inline constexpr bool string<Capacity>::empty() const noexcept
 }
 
 template <uint64_t Capacity>
+inline constexpr void string<Capacity>::clear() noexcept
+{
+    m_rawstring[0U] = '\0';
+    m_rawstringSize = 0U;
+}
+
+template <uint64_t Capacity>
 inline string<Capacity>::operator std::string() const noexcept
 {
     return std::string(c_str());
@@ -325,8 +331,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
-    rhs.m_rawstring[0U] = '\0';
-    rhs.m_rawstringSize = 0U;
+    rhs.clear();
     return *this;
 }
 
@@ -499,12 +504,11 @@ inline
 }
 
 template <uint64_t Capacity>
-inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos,
-                                                                     const uint64_t count) const noexcept
+inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, const uint64_t count) const noexcept
 {
     if (pos > m_rawstringSize)
     {
-        return iox::cxx::nullopt;
+        return nullopt;
     }
 
     uint64_t length = std::min(count, m_rawstringSize - pos);
@@ -516,7 +520,7 @@ inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint6
 }
 
 template <uint64_t Capacity>
-inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos) const noexcept
+inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos) const noexcept
 {
     return substr(pos, m_rawstringSize);
 }
@@ -525,17 +529,17 @@ template <uint64_t Capacity>
 template <typename T>
 inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                    || internal::IsCxxString<T>::value,
-                               iox::cxx::optional<uint64_t>>::type
+                               optional<uint64_t>>::type
 string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
-        return iox::cxx::nullopt;
+        return nullopt;
     }
     const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(t));
     if (found == nullptr)
     {
-        return iox::cxx::nullopt;
+        return nullopt;
     }
     return (found - c_str());
 }
@@ -544,12 +548,12 @@ template <uint64_t Capacity>
 template <typename T>
 inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                    || internal::IsCxxString<T>::value,
-                               iox::cxx::optional<uint64_t>>::type
+                               optional<uint64_t>>::type
 string<Capacity>::find_first_of(const T& t, const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
-        return iox::cxx::nullopt;
+        return nullopt;
     }
     const char* found = nullptr;
     const char* data = internal::GetData<T>::call(t);
@@ -561,19 +565,19 @@ string<Capacity>::find_first_of(const T& t, const uint64_t pos) const noexcept
             return p;
         }
     }
-    return iox::cxx::nullopt;
+    return nullopt;
 }
 
 template <uint64_t Capacity>
 template <typename T>
 inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                    || internal::IsCxxString<T>::value,
-                               iox::cxx::optional<uint64_t>>::type
+                               optional<uint64_t>>::type
 string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
 {
     if (m_rawstringSize == 0U)
     {
-        return iox::cxx::nullopt;
+        return nullopt;
     }
 
     auto p = pos;
@@ -596,7 +600,7 @@ string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
     {
         return 0U;
     }
-    return iox::cxx::nullopt;
+    return nullopt;
 }
 } // namespace cxx
 } // namespace iox
