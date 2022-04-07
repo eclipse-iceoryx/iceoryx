@@ -719,6 +719,6 @@ TEST_F(expected_test, OrElseInErrorExpectedWithEmptyCallableDoesNotDie)
 
     // we test here that std::terminate is not called from the function_ref
     sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
-    sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
+    sut2.or_else(iox::cxx::function_ref<void(const TestError&)>());
 }
 } // namespace

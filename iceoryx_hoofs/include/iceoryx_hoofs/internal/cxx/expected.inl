@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_EXPECTED_INL
 #define IOX_HOOFS_CXX_EXPECTED_INL
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
 
 namespace iox
 {
@@ -492,42 +492,6 @@ template <typename ErrorType>
 inline ErrorType& expected<ErrorType>::get_error() & noexcept
 {
     return *m_store.template get_at_index<ERROR_INDEX>();
-}
-
-template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
-{
-    if (has_error() && callable)
-    {
-        callable(get_error());
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>&
-expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->or_else(callable);
-}
-
-template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::and_then(const cxx::function_ref<void()>& callable) noexcept
-{
-    if (!has_error() && callable)
-    {
-        callable();
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>&
-expected<ErrorType>::and_then(const cxx::function_ref<void()>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->and_then(callable);
 }
 } // namespace cxx
 } // namespace iox

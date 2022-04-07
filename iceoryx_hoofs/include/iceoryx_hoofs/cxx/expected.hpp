@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/variant.hpp"
@@ -143,7 +144,7 @@ class IOX_NO_DISCARD expected;
 ///     allHailHypnotoad->push_back(7);
 /// @endcode
 template <typename ErrorType>
-class IOX_NO_DISCARD expected<ErrorType>
+class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<ErrorType>, void, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -240,50 +241,6 @@ class IOX_NO_DISCARD expected<ErrorType>
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
     ErrorType&& get_error() && noexcept;
-
-    /// @brief  if the expected does contain an error the given callable is called and
-    ///         a reference to the ErrorType is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains an error
-    /// @return const reference to the expected itself
-    /// @code
-    ///     someExpected.or_else([](float& error){
-    ///         std::cout << "error occured : " << error << std::endl;
-    ///     })
-    /// @endcode
-    const expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
-
-    /// @brief  if the expected does contain an error the given callable is called and
-    ///         a reference to the ErrorType is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains an error
-    /// @return const reference to the expected itself
-    /// @code
-    ///     someExpected.or_else([](float& error){
-    ///         std::cout << "error occured : " << error << std::endl;
-    ///     })
-    /// @endcode
-    expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
-
-    /// @brief  if the expected does contain a success value the given callable is called and
-    ///         a reference to the expected is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains a success value
-    /// @return const reference to the expected itself
-    /// @code
-    ///     someExpected.and_then([]{
-    ///         std::cout << "we are successful!" << std::endl;
-    ///     })
-    /// @endcode
-    const expected& and_then(const cxx::function_ref<void()>& callable) const noexcept;
-
-    /// @brief  if the expected does contain a success value the given callable is called and
-    ///         a reference to the expected is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains a success value
-    /// @return const reference to the expected itself
-    /// @code
-    ///     someExpected.and_then([]{
-    ///         std::cout << "we are successful!" << std::endl;
-    ///     })
-    /// @endcode
-    expected& and_then(const cxx::function_ref<void()>& callable) noexcept;
 
   private:
     expected(variant<ErrorType>&& store, const bool hasError) noexcept;
