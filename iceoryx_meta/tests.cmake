@@ -30,6 +30,10 @@ if (BUILD_TEST)
     endif()
 
     ### create test targets without Timing tests
+
+    ### Only hoofs has mock tests
+    list(APPEND MOCKTEST_CMD COMMAND ./hoofs/test/hoofs_mocktests --gtest_filter=-*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/hoofs_MockTestResults.xml)
+
     foreach(cmp IN ITEMS ${COMPONENTS})
         list(APPEND MODULETEST_CMD COMMAND ./${cmp}/test/${cmp}_moduletests --gtest_filter=-*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_ModuleTestResults.xml)
     endforeach()
@@ -39,10 +43,17 @@ if (BUILD_TEST)
             list(APPEND INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=-*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_IntegrationTestResults.xml)
         endif()
     endforeach()
-        
+
     add_custom_target( all_tests
         ${MODULETEST_CMD}
+        ${MOCKTEST_CMD}
         ${INTEGRATIONTEST_CMD}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+    )
+
+    add_custom_target( mock_tests
+        ${MOCKTEST_CMD}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
@@ -57,7 +68,7 @@ if (BUILD_TEST)
     add_custom_target( integration_tests
         ${INTEGRATIONTEST_CMD}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    VERBATIM
+        VERBATIM
     )
 
     ### create test target with Timing tests
@@ -65,7 +76,7 @@ if (BUILD_TEST)
         list(APPEND TIMING_MODULETEST_CMD COMMAND ./${cmp}/test/${cmp}_moduletests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingModuleTestResults.xml)
         if(NOT (cmp STREQUAL "dds_gateway" OR cmp STREQUAL "binding_c"))
             list(APPEND TIMING_INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingIntegrationTestResults.xml)
-        endif()    
+        endif()
     endforeach()
 
     add_custom_target( timing_module_tests
