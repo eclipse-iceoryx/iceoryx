@@ -19,17 +19,39 @@
   - Create separate error enum for each module
 - Use `GTEST_FAIL` and `GTEST_SUCCEED` instead of `FAIL` and `SUCCEED` [\#1072](https://github.com/eclipse-iceoryx/iceoryx/issues/1072)
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
+- posix wrapper `SharedMemoryObject` uses builder pattern instead of creation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+- Builder pattern extracted from `helplets.hpp` into `design_pattern/builder_pattern.hpp` [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 
 **New API features:**
 
 **API Breaking Changes:**
 
-1. Some API change.
+1. Builder pattern in `SharedMemoryObject` instead of creation pattern
 
     ```cpp
     // before
-    #include "old/include.hpp"
+    auto sharedMemory = iox::posix::SharedMemoryObject::create("shmAllocate",
+                                                      16,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OpenMode::PURGE_AND_CREATE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     // after
-    #include "new/include.hpp"
+    auto sharedMemory = iox::posix::SharedMemoryObjectBuilder()
+                            .name("shmAllocate")
+                            .memorySizeInBytes(16)
+                            .accessMode(iox::posix::AccessMode::READ_WRITE)
+                            .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                            .permissions(cxx::perms::owner_all)
+                            .create();
+    ```
+
+2. Builder pattern extracted from `helplets.hpp` into `design_pattern/builder_pattern.hpp`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+
+    // after
+    #include "iceoryx_hoofs/design_pattern/builder_pattern.hpp"
     ```
