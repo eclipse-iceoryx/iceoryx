@@ -2426,4 +2426,82 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstAtSucceeds
 
     EXPECT_THAT(sut.at(STRINGCAP - 1), Eq('M'));
 }
+
+/// @note constexpr char& operator[](const uint64_t pos) noexcept
+TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
+    EXPECT_DEATH({ this->testSubject[0U]; }, ".*");
+}
+
+TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ab52924e-1d6a-41e1-a8a9-8cfd9ab2120d");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, ".*");
+}
+
+TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaSubscriptOperatorReturnsCorrectCharacter)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "86a984b9-8345-4413-a25c-e9a1c74c5cef");
+    this->testSubject = "L";
+    EXPECT_THAT(this->testSubject[0U], Eq('L'));
+}
+
+TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaSubscriptOperatorSucceeds)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9e2dd8ba-6053-4532-895b-f18a9ae0adf6");
+    constexpr char START_CHARACTER = 'F';
+    constexpr char NEW_CHARACTER = 'S';
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+
+    std::string testSTDString(STRINGCAP, START_CHARACTER);
+    ASSERT_THAT(this->testSubject.unsafe_assign(testSTDString), Eq(true));
+
+    this->testSubject[STRINGCAP - 1] = NEW_CHARACTER;
+    testSTDString[STRINGCAP - 1] = NEW_CHARACTER;
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString));
+}
+
+/// @note constexpr const char& operator[](const uint64_t pos) const noexcept
+TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperatorFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7ca75e53-8e26-4451-8712-a86bfe5bd32c");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+    const string<STRINGCAP> sut;
+    EXPECT_DEATH({ sut[0U]; }, ".*");
+}
+
+TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5498e314-d321-464a-a667-400ee0c4d81f");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+    const string<STRINGCAP> sut;
+    EXPECT_DEATH({ sut[STRINGCAP]; }, ".*");
+}
+
+TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstSubscriptOperatorReturnsCorrectCharacter)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7ea474cc-db27-43cd-a2f8-dfa2ba196404");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+    const string<STRINGCAP> sut("L");
+    EXPECT_THAT(sut[0U], Eq('L'));
+}
+
+TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstSubscriptOperatorSucceeds)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "43ca0e71-7ac6-4039-a0fb-ebe84f7c0bad");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+
+    std::string testSTDString(STRINGCAP, 'L');
+    const string<STRINGCAP> sut(TruncateToCapacity, testSTDString);
+
+    EXPECT_THAT(sut[STRINGCAP - 1], Eq('L'));
+}
 } // namespace

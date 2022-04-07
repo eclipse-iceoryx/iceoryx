@@ -615,6 +615,18 @@ inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noex
     Expects(pos < size() && "Out of bounds access!");
     return m_rawstring[pos];
 }
+
+template <uint64_t Capacity>
+inline constexpr char& string<Capacity>::operator[](const uint64_t pos) noexcept
+{
+    return at(pos);
+}
+
+template <uint64_t Capacity>
+inline constexpr const char& string<Capacity>::operator[](const uint64_t pos) const noexcept
+{
+    return at(pos);
+}
 } // namespace cxx
 } // namespace iox
 
