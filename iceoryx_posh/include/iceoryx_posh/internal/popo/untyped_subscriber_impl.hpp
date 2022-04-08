@@ -32,6 +32,8 @@ class Void
 {
 };
 
+/// @brief The UntypedSubscriberImpl class implements the untyped subscriber API
+/// @note Not intended for public usage! Use the `UntypedSubscriber` instead!
 template <typename BaseSubscriberType = BaseSubscriber<>>
 class UntypedSubscriberImpl : public BaseSubscriberType
 {
