@@ -254,6 +254,7 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
 /// @param ErrorType type of the error which can be stored in the expected
 template <typename ValueType, typename ErrorType>
 class IOX_NO_DISCARD expected<ValueType, ErrorType>
+    : public FunctionalInterface<expected<ValueType, ErrorType>, ValueType, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -352,17 +353,6 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     /// @return rvalue reference to the internally contained value
     ValueType&& value() && noexcept;
 
-    /// @brief  returns a copy of the contained success value if the expected does
-    ///         contain a success value, otherwise it returns a copy of value
-    /// @return copy of the internally contained value or copy of value
-    ValueType value_or(const ValueType& value) const noexcept;
-
-    /// @brief  returns a copy of the contained success value if the expected does
-    ///         contain a success value, otherwise it returns a copy of value
-    /// @return copy of the internally contained value or copy of value
-    ValueType value_or(const ValueType& value) noexcept;
-
-
     /// @brief dereferencing operator which returns a reference to the contained
     ///         success value. if the expected contains an error the behavior is
     ///         undefined.
@@ -415,130 +405,14 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///     }
     /// @endcode
     template <typename T>
-    operator expected<T>() noexcept;
-
-    /// @brief conversion operator to an error only expected which can be useful
-    ///         if you would like to return only the success of a function
-    /// @return converts an expected which can contain a value and an error to an
-    ///         expected which contains only an error
-    /// @code
-    ///     cxx::expected<int, int> someErrorProneFunction(){}
-    ///
-    ///     cxx::expected<int> isItSuccessful() {
-    ///         return someErrorProneFunction();
-    ///     }
-    /// @endcode
-    template <typename T>
     operator expected<T>() const noexcept;
 
-    /// @brief  if the expected does contain an error the given callable is called and
-    ///         a reference to the ErrorType is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains an error
-    /// @return const reference to the expected itself
-    /// @code
-    ///     someExpected.or_else([](float& result){
-    ///         std::cout << "error occured : " << error << std::endl;
-    ///     })
-    /// @endcode
-    const expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
+    /// @brief conversion operator to an optional.
+    /// @return optional containing the value if the expected contains a value, otherwise a nullopt
+    operator optional<ValueType>() const noexcept;
 
-    /// @brief  if the expected does contain an error the given callable is called and
-    ///         a reference to the ErrorType is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains an error
-    /// @return reference to the expected itself
-    /// @code
-    ///     someExpected.or_else([](float& error){
-    ///         std::cout << "error occured : " << error << std::endl;
-    ///     })
-    /// @endcode
-    expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
-
-    /// @brief  if the expected does contain a success value the given callable is called and
-    ///         a reference to the result is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains a success value
-    /// @return const reference to the expected
-    /// @code
-    ///     someExpected.and_then([](int& result){
-    ///         std::cout << "we have a result : " << result << std::endl;
-    ///     })
-    /// @endcode
-    const expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) const noexcept;
-
-    /// @brief  if the expected does contain a success value the given callable is called and
-    ///         a reference to the result is given as an argument to the callable
-    /// @param[in] callable callable which will be called if the expected contains a success value
-    /// @return reference to the expected
-    /// @code
-    ///     someExpected.and_then([](int& result){
-    ///         std::cout << "we have a result : " << result << std::endl;
-    ///     })
-    /// @endcode
-    expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
-
-    ///
-    /// @brief if the expected contains a success value and its type is a non-empty optional, retrieve the value from
-    ///         the optional and provide it as the argument to the provided callable
-    /// @param[in] callable the callable to be called with the contents of the optional
-    /// @return reference to the expected
-    /// @code
-    ///     anExpectedOptional.and_then([](int& value){
-    ///         std::cout << "the optional contains the value: " << result << std::endl;
-    ///     })
-    /// @endcode
-    ///
-    template <typename Optional = ValueType,
-              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
-    const expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept;
-
-    ///
-    /// @brief if the expected contains a success value and its type is a non-empty optional, retrieve the value from
-    ///         the optional and provide it as the argument to the provided callable
-    /// @param[in] callable the callable to be called with the contents of the optional
-    /// @return reference to the expected
-    /// @code
-    ///     anExpectedOptional.and_then([](int& value){
-    ///         std::cout << "the optional contains the value: " << result << std::endl;
-    ///     })
-    /// @endcode
-    ///
-    template <typename Optional = ValueType,
-              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
-    expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
-
-    ///
-    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
-    /// @param[in] callable the callable to be called if the contained optional is empty
-    /// @return reference to the expected
-    /// @code
-    ///     anExpectedOptional.and_then([](SomeType& value){
-    ///             std::cout << "we got something in the optional: " << value << std::endl;
-    ///         })
-    ///         .if_empty([](){
-    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
-    ///         })
-    /// @endcode
-    ///
-    template <typename Optional = ValueType,
-              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
-    [[deprecated]] const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
-
-    ///
-    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
-    /// @param[in] callable the callable to be called if the contained optional is empty
-    /// @return reference to the expected
-    /// @code
-    ///     anExpectedOptional.and_then([](SomeType& value){
-    ///             std::cout << "we got something in the optional: " << value << std::endl;
-    ///         })
-    ///         .if_empty([](){
-    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
-    ///         })
-    /// @endcode
-    ///
-    template <typename Optional = ValueType,
-              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
-    [[deprecated]] expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
-
+    /// @brief conversion operator to an optional.
+    /// @return optional containing the value if the expected contains a value, otherwise a nullopt
     optional<ValueType> to_optional() const noexcept;
 
   private:

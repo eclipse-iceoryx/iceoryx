@@ -626,8 +626,12 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
     ::testing::Test::RecordProperty("TEST_ID", "a877f9bd-5793-437f-8dee-a109aed9f647");
     expected<int, TestError> sut{success<int>(4711)};
     optional<int> value = sut.to_optional();
+    optional<int> implicitCastValue = sut;
+
     ASSERT_THAT(value.has_value(), Eq(true));
     EXPECT_THAT(*value, Eq(4711));
+    ASSERT_THAT(implicitCastValue.has_value(), Eq(true));
+    EXPECT_THAT(*implicitCastValue, Eq(4711));
 }
 
 TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
@@ -635,43 +639,10 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
     ::testing::Test::RecordProperty("TEST_ID", "fe161275-8fa2-43c9-86e7-0a20d79eb44f");
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
     optional<int> value = sut.to_optional();
+    optional<int> implicitCastValue = sut;
+
     ASSERT_THAT(value.has_value(), Eq(false));
-}
-
-TEST_F(expected_test, AndThenUnpacksOptionalWhenNonEmptyOptionalValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8b5429f1-3755-4027-ace3-7614640252e5");
-    auto sut = expected<iox::cxx::optional<int>, TestError>::create_value(123);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onSuccess).Times(1);
-
-    sut.and_then([&mocks](int& val) {
-        mocks.onSuccess();
-        ASSERT_THAT(val, Eq(123));
-    });
-}
-
-TEST_F(expected_test, ConstAndThenUnpacksOptionalWhenNonEmptyOptionalValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "cdfc2bf1-a35a-43fc-a049-513085d1a8a6");
-    const auto sut = expected<iox::cxx::optional<int>, TestError>::create_value(321);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onSuccess).Times(1);
-
-    sut.and_then([&mocks](int& val) {
-        mocks.onSuccess();
-        ASSERT_THAT(val, Eq(321));
-    });
-}
-
-TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7ad22cfe-4341-4947-9b66-89b2615b0877");
-    auto sut = expected<iox::cxx::optional<int>, TestError>::create_value(iox::cxx::nullopt);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onSuccess).Times(0);
-
-    sut.and_then([&mocks](int&) { mocks.onSuccess(); });
+    ASSERT_THAT(implicitCastValue.has_value(), Eq(false));
 }
 
 TEST_F(expected_test, AndThenInValueExpectedWithEmptyCallableDoesNotDie)
@@ -679,14 +650,10 @@ TEST_F(expected_test, AndThenInValueExpectedWithEmptyCallableDoesNotDie)
     ::testing::Test::RecordProperty("TEST_ID", "3e2e8278-454e-4f17-b295-c418a2972ab1");
     auto sut1 = expected<int, TestError>::create_value(123);
     const auto sut2 = expected<int, TestError>::create_value(123);
-    auto sut3 = expected<iox::cxx::optional<int>, TestError>::create_value(123);
-    const auto sut4 = expected<iox::cxx::optional<int>, TestError>::create_value(123);
 
     // we test here that std::terminate is not called from the function_ref
     sut1.and_then(iox::cxx::function_ref<void(int&)>());
-    sut2.and_then(iox::cxx::function_ref<void(int&)>());
-    sut3.and_then(iox::cxx::function_ref<void(int&)>());
-    sut4.and_then(iox::cxx::function_ref<void(int&)>());
+    sut2.and_then(iox::cxx::function_ref<void(const int&)>());
 }
 
 TEST_F(expected_test, OrElseInValueExpectedWithEmptyCallableDoesNotDie)
@@ -697,7 +664,7 @@ TEST_F(expected_test, OrElseInValueExpectedWithEmptyCallableDoesNotDie)
 
     // we test here that std::terminate is not called from the function_ref
     sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
-    sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
+    sut2.or_else(iox::cxx::function_ref<void(const TestError&)>());
 }
 
 TEST_F(expected_test, AndThenInErrorExpectedWithEmptyCallableDoesNotDie)
