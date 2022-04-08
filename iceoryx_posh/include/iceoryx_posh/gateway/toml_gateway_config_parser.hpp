@@ -23,6 +23,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 
 #include <cpptoml.h>
+#include <limits> // workaround for missing include in cpptoml.h
 
 namespace iox
 {
