@@ -243,9 +243,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     ErrorType&& get_error() && noexcept;
 
   private:
-    expected(variant<ErrorType>&& store, const bool hasError) noexcept;
+    explicit expected(variant<ErrorType>&& store) noexcept;
     variant<ErrorType> m_store;
-    bool m_hasError;
     static constexpr uint64_t ERROR_INDEX = 0U;
 };
 
@@ -416,9 +415,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     optional<ValueType> to_optional() const noexcept;
 
   private:
-    expected(variant<ValueType, ErrorType>&& f_store, const bool hasError) noexcept;
+    explicit expected(variant<ValueType, ErrorType>&& f_store) noexcept;
     variant<ValueType, ErrorType> m_store;
-    bool m_hasError;
     static constexpr uint64_t VALUE_INDEX = 0U;
     static constexpr uint64_t ERROR_INDEX = 1U;
 };

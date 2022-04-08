@@ -75,37 +75,32 @@ inline error<T>::error(Targs&&... args) noexcept
 
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& f_store, const bool hasError) noexcept
+inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& f_store) noexcept
     : m_store(std::move(f_store))
-    , m_hasError(hasError)
 {
 }
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(const success<ValueType>& successValue) noexcept
     : m_store(in_place_index<VALUE_INDEX>(), successValue.value)
-    , m_hasError(false)
 {
 }
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(success<ValueType>&& successValue) noexcept
     : m_store(in_place_index<VALUE_INDEX>(), std::move(successValue.value))
-    , m_hasError(false)
 {
 }
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(const error<ErrorType>& errorValue) noexcept
     : m_store(in_place_index<ERROR_INDEX>(), errorValue.value)
-    , m_hasError(true)
 {
 }
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(error<ErrorType>&& errorValue) noexcept
     : m_store(in_place_index<ERROR_INDEX>(), std::move(errorValue.value))
-    , m_hasError(true)
 {
 }
 
@@ -122,7 +117,6 @@ expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) 
     if (this != &rhs)
     {
         m_store = std::move(rhs.m_store);
-        m_hasError = std::move(rhs.m_hasError);
     }
     return *this;
 }
@@ -131,8 +125,8 @@ template <typename ValueType, typename ErrorType>
 template <typename... Targs>
 inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_value(Targs&&... args) noexcept
 {
-    expected<ValueType, ErrorType> returnValue(
-        variant<ValueType, ErrorType>(in_place_index<VALUE_INDEX>(), std::forward<Targs>(args)...), false);
+    expected<ValueType, ErrorType> returnValue{
+        variant<ValueType, ErrorType>(in_place_index<VALUE_INDEX>(), std::forward<Targs>(args)...)};
 
     return returnValue;
 }
@@ -141,8 +135,8 @@ template <typename ValueType, typename ErrorType>
 template <typename... Targs>
 inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_error(Targs&&... args) noexcept
 {
-    expected<ValueType, ErrorType> returnValue(
-        variant<ValueType, ErrorType>(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...), true);
+    expected<ValueType, ErrorType> returnValue{
+        variant<ValueType, ErrorType>(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...)};
 
     return returnValue;
 }
@@ -150,13 +144,13 @@ inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_err
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::operator bool() const noexcept
 {
-    return !m_hasError;
+    return !has_error();
 }
 
 template <typename ValueType, typename ErrorType>
 inline bool expected<ValueType, ErrorType>::has_error() const noexcept
 {
-    return m_hasError;
+    return m_store.index() == ERROR_INDEX;
 }
 
 template <typename ValueType, typename ErrorType>
@@ -223,7 +217,11 @@ template <typename ValueType, typename ErrorType>
 template <typename T>
 inline expected<ValueType, ErrorType>::operator expected<T>() const noexcept
 {
-    return const_cast<expected*>(this)->operator expected<T>();
+    if (has_error())
+    {
+        return error<ErrorType>(get_error());
+    }
+    return success<>();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -245,15 +243,13 @@ inline expected<ValueType, ErrorType>::operator optional<ValueType>() const noex
 // expected<ErrorType>
 
 template <typename ErrorType>
-inline expected<ErrorType>::expected(variant<ErrorType>&& f_store, const bool hasError) noexcept
+inline expected<ErrorType>::expected(variant<ErrorType>&& f_store) noexcept
     : m_store(std::move(f_store))
-    , m_hasError(hasError)
 {
 }
 
 template <typename ErrorType>
 inline expected<ErrorType>::expected(const success<void>&) noexcept
-    : m_hasError(false)
 {
 }
 
@@ -269,7 +265,6 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&&
     if (this != &rhs)
     {
         m_store = std::move(rhs.m_store);
-        m_hasError = rhs.m_hasError;
     }
     return *this;
 }
@@ -277,14 +272,12 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&&
 template <typename ErrorType>
 inline expected<ErrorType>::expected(const error<ErrorType>& errorValue) noexcept
     : m_store(in_place_index<ERROR_INDEX>(), errorValue.value)
-    , m_hasError(true)
 {
 }
 
 template <typename ErrorType>
 inline expected<ErrorType>::expected(error<ErrorType>&& errorValue) noexcept
     : m_store(in_place_index<ERROR_INDEX>(), std::move(errorValue.value))
-    , m_hasError(true)
 {
 }
 
@@ -345,7 +338,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
 template <typename ErrorType>
 inline expected<ErrorType> expected<ErrorType>::create_value() noexcept
 {
-    expected<ErrorType> returnValue(variant<ErrorType>(), false);
+    expected<ErrorType> returnValue{variant<ErrorType>()};
 
     return returnValue;
 }
@@ -354,8 +347,7 @@ template <typename ErrorType>
 template <typename... Targs>
 inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) noexcept
 {
-    expected<ErrorType> returnValue(variant<ErrorType>(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...),
-                                    true);
+    expected<ErrorType> returnValue(variant<ErrorType>(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...));
 
     return returnValue;
 }
@@ -363,13 +355,13 @@ inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) no
 template <typename ErrorType>
 inline expected<ErrorType>::operator bool() const noexcept
 {
-    return !m_hasError;
+    return !has_error();
 }
 
 template <typename ErrorType>
 inline bool expected<ErrorType>::has_error() const noexcept
 {
-    return m_hasError;
+    return (m_store.index() == ERROR_INDEX);
 }
 
 template <typename ErrorType>
