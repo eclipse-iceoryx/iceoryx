@@ -22,7 +22,10 @@
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include <cpptoml.h>
+namespace cpptoml
+{
+class table;
+}
 
 namespace iox
 {
