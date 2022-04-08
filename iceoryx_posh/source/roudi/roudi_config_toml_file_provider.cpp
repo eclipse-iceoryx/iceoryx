@@ -24,6 +24,7 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 
 #include <cpptoml.h>
+#include <limits> // workaround for missing include in cpptoml.h
 #include <string>
 
 namespace iox
