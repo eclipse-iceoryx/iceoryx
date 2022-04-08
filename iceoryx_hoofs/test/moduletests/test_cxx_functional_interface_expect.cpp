@@ -72,15 +72,12 @@ TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid
 template <typename FactoryType, typename SutType, typename ExpectCall>
 void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
 {
-    bool wasErrorHandlerCalled = true;
     SutType sut = FactoryType::createInvalidObject();
     {
-        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
-            [&](auto, auto) { wasErrorHandlerCalled = true; });
-        callExpect(sut);
+        auto handle =
+            iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>([&](auto, auto) { std::terminate(); });
+        EXPECT_DEATH(callExpect(sut), ".*");
     }
-
-    EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)

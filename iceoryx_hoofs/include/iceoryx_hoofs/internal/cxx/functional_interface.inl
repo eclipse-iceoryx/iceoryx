@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 #define IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 
+#include "iceoryx_hoofs/cxx/functional_interface.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -111,7 +113,7 @@ inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_ca
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis)
+    if (*derivedThis && callable)
     {
         callable(derivedThis->value());
     }
@@ -131,7 +133,7 @@ AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& 
 {
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (*derivedThis)
+    if (*derivedThis && callable)
     {
         callable(derivedThis->value());
     }
@@ -151,7 +153,7 @@ inline Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) 
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis)
+    if (*derivedThis && callable)
     {
         callable();
     }
@@ -188,7 +190,7 @@ inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callb
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*derivedThis))
+    if (!(*derivedThis) && callable)
     {
         callable(derivedThis->get_error());
     }
@@ -208,7 +210,7 @@ OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& cal
 {
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (!(*derivedThis))
+    if (!(*derivedThis) && callable)
     {
         callable(derivedThis->get_error());
     }
@@ -228,7 +230,7 @@ inline Derived& OrElse<Derived>::or_else(const or_else_callback_t& callable) & n
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*derivedThis))
+    if (!(*derivedThis) && callable)
     {
         callable();
     }
