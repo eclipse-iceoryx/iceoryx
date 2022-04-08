@@ -1,5 +1,14 @@
 # Change Log
 
+## [v1.0.3](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.3) (2022-04-08)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.2...v1.0.3)
+
+**Bugfixes:**
+
+- CMake warning: empty command-line option [\#1311](https://github.com/eclipse-iceoryx/iceoryx/issues/1311) thanks to @clalancette
+- Double build issue in ROS2 build farm [\#1323](https://github.com/eclipse-iceoryx/iceoryx/issues/1323)
+
 ## [v1.0.2](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.2) (2022-02-18)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v1.0.1...v1.0.2)
