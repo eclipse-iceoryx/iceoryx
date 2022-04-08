@@ -24,6 +24,7 @@
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cpptoml.h>
+#include <limits> // workaround for missing include in cpptoml.h
 #include <string>
 
 namespace iox
