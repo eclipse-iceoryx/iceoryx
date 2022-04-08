@@ -22,8 +22,10 @@
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include <cpptoml.h>
-#include <limits> // workaround for missing include in cpptoml.h
+namespace cpptoml
+{
+class table;
+}
 
 namespace iox
 {
