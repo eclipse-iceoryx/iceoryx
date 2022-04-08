@@ -37,7 +37,7 @@ class PosixShmMemoryProvider_Test : public Test
   public:
     void SetUp() override
     {
-        /// @note just is case a test left something behind, cleanup the shm by creating a new one with "mine" ownership
+        /// @note just in the case a test left something behind we remove the shared memory if it exists
         IOX_DISCARD_RESULT(iox::posix::SharedMemory::unlinkIfExist(TEST_SHM_NAME));
     }
 

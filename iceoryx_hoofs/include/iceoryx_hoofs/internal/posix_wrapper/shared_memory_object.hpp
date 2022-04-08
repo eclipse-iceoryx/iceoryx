@@ -59,8 +59,9 @@ class SharedMemoryObject
     ///        alignment
     /// @param[in] size the size of the memory inside the shared memory
     /// @param[in] alignment the alignment of the memory
-    /// @return nullptr if the allocation failed or finalizeAllocation was called,
-    //          otherwise a pointer to a memory address with the requested size and alignment
+    /// @return pointer to a memory address with the requested size and alignment.
+    ///         if finalizeAllocation was called before or not enough memory is available
+    ///         allocate will call the errorHandler via cxx::Expects
     void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief After this call the user cannot allocate memory inside the SharedMemoryObject
@@ -120,7 +121,10 @@ class SharedMemoryObjectBuilder
     /// @brief Defines how the shared memory is acquired
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
-    /// @brief If this is set to a non null address create will try to
+    /// @brief If this is set to a non null address create will try to map the shared
+    ///        memory to the provided address. Since it is a hint, this mapping can
+    ///        fail. The .getBaseAddress() method of the SharedMemoryObject returns
+    ///        the actual mapped base address.
     IOX_BUILDER_PARAMETER(cxx::optional<const void*>, baseAddressHint, cxx::nullopt)
 
     /// @brief Defines the access permissions of the shared memory
