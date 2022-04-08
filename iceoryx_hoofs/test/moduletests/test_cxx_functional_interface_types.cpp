@@ -97,4 +97,66 @@ OptionalFactory::Type OptionalFactory::createInvalidObject() noexcept
 ///////////////////////
 /// END OptionalFactory
 ///////////////////////
+
+//////////////////////////////////
+/// BEGIN ExpectedValueErrorFactory
+//////////////////////////////////
+ExpectedValueErrorFactory::value_t ExpectedValueErrorFactory::usedTestValue = 11;
+ExpectedValueErrorFactory::value_t ExpectedValueErrorFactory::anotherTestValue = 12;
+ExpectedValueErrorFactory::error_t ExpectedValueErrorFactory::usedErrorValue = 13;
+ExpectedValueErrorFactory::error_t ExpectedValueErrorFactory::anotherErrorValue = 14;
+
+void ExpectedValueErrorFactory::configureNextTestCase() noexcept
+{
+    // we increment all the values with an arbitrary value in every test case
+    // so that we have some variation with every test and reduce the false positives
+    // probability due to memory corruptions
+    usedTestValue += 189;
+    anotherTestValue += 189;
+    usedErrorValue += 191;
+    anotherErrorValue += 191;
+}
+
+ExpectedValueErrorFactory::Type ExpectedValueErrorFactory::createValidObject() noexcept
+{
+    return iox::cxx::success<uint64_t>(usedTestValue);
+}
+
+ExpectedValueErrorFactory::Type ExpectedValueErrorFactory::createInvalidObject() noexcept
+{
+    return iox::cxx::error<uint64_t>(usedErrorValue);
+}
+//////////////////////////////////
+/// END ExpectedValueErrorFactory
+//////////////////////////////////
+
+//////////////////////////////
+/// BEGIN ExpectedErrorFactory
+//////////////////////////////
+ExpectedErrorFactory::error_t ExpectedErrorFactory::usedErrorValue = 13;
+ExpectedErrorFactory::error_t ExpectedErrorFactory::anotherErrorValue = 14;
+
+void ExpectedErrorFactory::configureNextTestCase() noexcept
+{
+    // we increment all the values with an arbitrary value in every test case
+    // so that we have some variation with every test and reduce the false positives
+    // probability due to memory corruptions
+    usedErrorValue += 191;
+    anotherErrorValue += 191;
+}
+
+ExpectedErrorFactory::Type ExpectedErrorFactory::createValidObject() noexcept
+{
+    return iox::cxx::success<>();
+}
+
+ExpectedErrorFactory::Type ExpectedErrorFactory::createInvalidObject() noexcept
+{
+    return iox::cxx::error<uint64_t>(usedErrorValue);
+}
+////////////////////////////
+/// END ExpectedErrorFactory
+////////////////////////////
+
+
 } // namespace test_cxx_functional_interface

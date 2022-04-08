@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
 #define IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "test_cxx_functional_interface_common.hpp"
 
@@ -71,6 +72,44 @@ struct OptionalFactory
     static Type createInvalidObject() noexcept;
 };
 
+struct ExpectedValueErrorFactory
+{
+    using value_t = uint64_t;
+    using error_t = uint64_t;
+
+    using Type = iox::cxx::expected<value_t, error_t>;
+
+    static constexpr bool EXPECT_AND_THEN_WITH_VALUE = true;
+    static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;
+
+    static value_t usedTestValue;
+    static value_t anotherTestValue;
+
+    static error_t usedErrorValue;
+    static error_t anotherErrorValue;
+
+    static void configureNextTestCase() noexcept;
+    static Type createValidObject() noexcept;
+    static Type createInvalidObject() noexcept;
+};
+
+struct ExpectedErrorFactory
+{
+    using error_t = uint64_t;
+
+    using Type = iox::cxx::expected<error_t>;
+
+    static constexpr bool EXPECT_AND_THEN_WITH_VALUE = false;
+    static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;
+
+    static error_t usedErrorValue;
+    static error_t anotherErrorValue;
+
+    static void configureNextTestCase() noexcept;
+    static Type createValidObject() noexcept;
+    static Type createInvalidObject() noexcept;
+};
+
 /// @brief Add here a type which inherits from FunctionalInterface and should
 ///        be tested. Please consider GenericValueErrorFactory and GenericPlainFactory
 ///        as a template.
@@ -113,8 +152,11 @@ struct OptionalFactory
 ///        * static error_t anotherErrorValue
 ///            Another error value which can be compared to usedErrorValue and is not equal to it
 
-using FunctionalInterfaceImplementations =
-    testing::Types<GenericValueErrorFactory, GenericPlainFactory, OptionalFactory>;
+using FunctionalInterfaceImplementations = testing::Types<GenericValueErrorFactory,
+                                                          GenericPlainFactory,
+                                                          OptionalFactory,
+                                                          ExpectedValueErrorFactory,
+                                                          ExpectedErrorFactory>;
 TYPED_TEST_SUITE(FunctionalInterface_test, FunctionalInterfaceImplementations);
 
 } // namespace test_cxx_functional_interface
