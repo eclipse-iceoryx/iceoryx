@@ -286,8 +286,7 @@ template <typename ErrorType>
 template <typename ValueType>
 inline expected<ErrorType>::expected(const expected<ValueType, ErrorType>& rhs) noexcept
 {
-    m_hasError = rhs.has_error();
-    if (m_hasError)
+    if (rhs.has_error())
     {
         m_store.emplace_at_index<ERROR_INDEX>(rhs.get_error());
     }
@@ -297,8 +296,7 @@ template <typename ErrorType>
 template <typename ValueType>
 inline expected<ErrorType>::expected(expected<ValueType, ErrorType>&& rhs) noexcept
 {
-    m_hasError = rhs.has_error();
-    if (m_hasError)
+    if (rhs.has_error())
     {
         m_store.emplace_at_index<ERROR_INDEX>(std::move(rhs.get_error()));
     }
@@ -308,7 +306,7 @@ template <typename ErrorType>
 template <typename ValueType>
 inline expected<ErrorType>& expected<ErrorType>::operator=(const expected<ValueType, ErrorType>& rhs) noexcept
 {
-    if (m_hasError && rhs.has_error())
+    if (has_error() && rhs.has_error())
     {
         m_store.get_error() = rhs.get_error();
     }
@@ -316,14 +314,13 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(const expected<ValueT
     {
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), rhs.get_error());
     }
-    m_hasError = rhs.has_error();
 }
 
 template <typename ErrorType>
 template <typename ValueType>
 inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) noexcept
 {
-    if (m_hasError && rhs.has_error())
+    if (has_error() && rhs.has_error())
     {
         m_store.get_error() = std::move(rhs.get_error());
     }
@@ -331,7 +328,6 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
     {
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), std::move(rhs.get_error()));
     }
-    m_hasError = rhs.has_error();
 }
 #endif
 
