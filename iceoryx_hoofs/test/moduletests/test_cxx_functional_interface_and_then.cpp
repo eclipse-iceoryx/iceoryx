@@ -203,7 +203,6 @@ struct AndThenDoesNotCrashWithNullFunction_Const<TYPE_HAS_VALUE_METHOD>
     }
 };
 
-
 TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_LValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "661a087d-90ee-4b27-9af4-b4d4b211adeb");

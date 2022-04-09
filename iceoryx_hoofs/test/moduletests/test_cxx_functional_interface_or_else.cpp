@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#include "iceoryx_hoofs/testing/expect_no_death.hpp"
 #include "test_cxx_functional_interface_types.hpp"
 
 namespace
@@ -147,5 +148,78 @@ TYPED_TEST(FunctionalInterface_test, OrElseIsNotCalledWhenValid_ConstRValueCase)
     IOX_TEST_FUNCTIONAL_INTERFACE(OrElseIsNotCalledWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
+template <bool HasValue>
+struct OrElseDoesNotCrashWithNullFunction;
+
+template <>
+struct OrElseDoesNotCrashWithNullFunction<TYPE_HAS_NO_GET_ERROR_METHOD>
+{
+    template <typename TestFactory, typename OrElseCall>
+    static void performTest(const OrElseCall& callOrElse)
+    {
+        auto sut = TestFactory::createInvalidObject();
+        EXPECT_NO_DEATH([&] { callOrElse(sut, iox::cxx::function_ref<void()>()); });
+    }
+};
+
+template <>
+struct OrElseDoesNotCrashWithNullFunction<TYPE_HAS_GET_ERROR_METHOD>
+{
+    template <typename TestFactory, typename OrElseCall>
+    static void performTest(const OrElseCall& callOrElse)
+    {
+        auto sut = TestFactory::createInvalidObject();
+        EXPECT_NO_DEATH([&] { callOrElse(sut, iox::cxx::function_ref<void(typename TestFactory::error_t&)>()); });
+    }
+};
+
+template <bool HasValue>
+struct OrElseDoesNotCrashWithNullFunction_Const;
+
+template <>
+struct OrElseDoesNotCrashWithNullFunction_Const<TYPE_HAS_NO_GET_ERROR_METHOD>
+{
+    template <typename TestFactory, typename OrElseCall>
+    static void performTest(const OrElseCall& callOrElse)
+    {
+        auto sut = TestFactory::createInvalidObject();
+        EXPECT_NO_DEATH([&] { callOrElse(sut, iox::cxx::function_ref<void()>()); });
+    }
+};
+
+template <>
+struct OrElseDoesNotCrashWithNullFunction_Const<TYPE_HAS_GET_ERROR_METHOD>
+{
+    template <typename TestFactory, typename OrElseCall>
+    static void performTest(const OrElseCall& callOrElse)
+    {
+        auto sut = TestFactory::createInvalidObject();
+        EXPECT_NO_DEATH([&] { callOrElse(sut, iox::cxx::function_ref<void(const typename TestFactory::error_t&)>()); });
+    }
+};
+
+TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_LValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "661a087d-90ee-4b27-9af4-b4d4b211adeb");
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction, sut);
+}
+
+TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_ConstLValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5913ed24-cb6e-47e6-a0af-c0650cc642a0");
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction_Const, const_cast<const SutType&>(sut));
+}
+
+TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_RValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction, std::move(sut));
+}
+
+TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_ConstRValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction_Const, std::move(const_cast<const SutType&>(sut)));
+}
 #undef IOX_TEST_FUNCTIONAL_INTERFACE
 } // namespace
