@@ -602,6 +602,31 @@ string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
     }
     return nullopt;
 }
+
+template <uint64_t Capacity>
+inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
+{
+    return const_cast<char&>(const_cast<const string<Capacity>*>(this)->at(pos));
+}
+
+template <uint64_t Capacity>
+inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noexcept
+{
+    Expects(pos < size() && "Out of bounds access!");
+    return m_rawstring[pos];
+}
+
+template <uint64_t Capacity>
+inline constexpr char& string<Capacity>::operator[](const uint64_t pos) noexcept
+{
+    return at(pos);
+}
+
+template <uint64_t Capacity>
+inline constexpr const char& string<Capacity>::operator[](const uint64_t pos) const noexcept
+{
+    return at(pos);
+}
 } // namespace cxx
 } // namespace iox
 
