@@ -7,9 +7,13 @@ service discovery. It provides two applications - one offering different
 services and one searching for those with different search queries. The
 behavior and structure is quite similar to the [icediscovery C++ example](../icediscovery).
 
+<!--
 ## Expected Output
 
+/// @todo #1295 re-record asciicast
+
 [![asciicast](https://asciinema.org/a/476732.svg)](https://asciinema.org/a/476732)
+-->
 
 ## Code walkthrough
 
@@ -42,10 +46,10 @@ We can now call three different find service functions. Let's start with
 <!--[geoffrey][iceoryx_examples/icediscovery_in_c/iox_c_find_service.c][find service and apply callable]-->
 ```c
 iox_service_discovery_find_service_apply_callable(
-    serviceDiscovery, "Radar", "FrontLeft", "Image", printSearchResult, MessagingPattern_PUB_SUB);
+    serviceDiscovery, "Radar", "FrontLeft", "Objects", printSearchResult, MessagingPattern_PUB_SUB);
 ```
 
-which searches for all `{Radar, FrontLeft, Image}` services offered by
+which searches for all `{Radar, FrontLeft, Objects}` services offered by
 publishers and applies the provided function `printSearchResult` on each of
 them. The function must have the signature
 `void(const iox_service_description_t)`. Here we pass a function that prints the

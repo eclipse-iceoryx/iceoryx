@@ -25,8 +25,8 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // offer services by creating publishers
-    iox::popo::Publisher<uint32_t> radarLeft({"Radar", "FrontLeft", "Image"});
-    iox::popo::Publisher<uint32_t> radarRight({"Radar", "FrontRight", "Image"});
+    iox::popo::Publisher<uint32_t> radarLeft({"Radar", "FrontLeft", "Objects"});
+    iox::popo::Publisher<uint32_t> radarRight({"Radar", "FrontRight", "Objects"});
     iox::popo::Publisher<uint32_t> lidarLeft({"Lidar", "FrontLeft", "Counter"});
 
     iox::cxx::vector<iox::popo::Publisher<uint32_t>, 5> cameraPublishers;
