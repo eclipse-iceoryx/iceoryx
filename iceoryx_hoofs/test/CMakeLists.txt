@@ -1,5 +1,5 @@
 # Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ set(PROJECT_PREFIX "hoofs")
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
+file(GLOB_RECURSE MOCKTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/mocktests/*.cpp")
 file(GLOB_RECURSE COMPONENTTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/componenttests/*.cpp")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
@@ -58,7 +59,18 @@ target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+# mock tests
+add_executable(${PROJECT_PREFIX}_mocktests ${MOCKTESTS_SRC})
+target_compile_options(${PROJECT_PREFIX}_mocktests PRIVATE ${TEST_CXX_FLAGS})
+target_include_directories(${PROJECT_PREFIX}_mocktests PRIVATE .)
+target_link_libraries(${PROJECT_PREFIX}_mocktests ${TEST_LINK_LIBS})
+set_target_properties(${PROJECT_PREFIX}_mocktests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -69,7 +81,7 @@ add_executable( ${PROJECT_PREFIX}_integrationtests ${INTEGRATIONTESTS_SRC})
 target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
 target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
