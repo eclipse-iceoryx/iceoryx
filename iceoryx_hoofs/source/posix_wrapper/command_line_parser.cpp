@@ -453,6 +453,22 @@ CommandLineParser& CommandLineParser::addOption(const Entry& option) noexcept
 {
     if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
     {
+        std::cout << "Unable to add option with empty short and long option." << std::endl;
+        m_onFailureCallback();
+        return *this;
+    }
+
+    if (!option.longOption.empty() && option.longOption.c_str()[0] == '-')
+    {
+        std::cout << "The first character of a long option cannot start with minus \"-\" but the option \""
+                  << option.longOption << "\" starts with minus." << std::endl;
+        m_onFailureCallback();
+        return *this;
+    }
+
+    if (option.shortOption == '-')
+    {
+        std::cout << "Minus \"-\" is not a valid character for a short option." << std::endl;
         m_onFailureCallback();
         return *this;
     }

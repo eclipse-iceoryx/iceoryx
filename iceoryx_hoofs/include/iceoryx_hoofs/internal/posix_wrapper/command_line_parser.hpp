@@ -122,8 +122,8 @@ class CommandLineParser
 
     /// @brief The constructor.
     /// @param[in] programDescription The description to the program. Will be printed in the help.
-    /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is defined std::exit(1) is
-    ///            called
+    /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is
+    ///            defined std::exit(EXIT_FAILURE) is called
     explicit CommandLineParser(
         const description_t& programDescription,
         const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;

@@ -112,6 +112,60 @@ TEST_F(CommandLineParser_test, AddingOptionWithSameShortAndLongNameLeadsToExist)
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
+TEST_F(CommandLineParser_test, AddingSwitchWithMinusAsShortOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5c6558ec-ecd9-47e9-b396-593445cef68f");
+    CommandLineParser parser("", errorCallback);
+    parser.addSwitch('-', "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineParser_test, AddingOptionalValueWithMinusAsShortOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8afd403b-9a77-4bde-92df-0200d4fb661b");
+    CommandLineParser parser("", errorCallback);
+    parser.addOptionalValue('-', "", "", "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineParser_test, AddingRequiredValueWithMinusAsShortOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
+    CommandLineParser parser("", errorCallback);
+    parser.addRequiredValue('-', "", "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineParser_test, AddingSwitchWithMinusStartingLongOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "62c0882a-7055-4a74-9dd9-8505d72da1e0");
+    CommandLineParser parser("", errorCallback);
+    parser.addSwitch('a', "-oh-no-i-start-with-minus", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineParser_test, AddingOptionalValueWithMinusStartingLongOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "69c975d1-57d3-429a-b894-7ff1efa9f473");
+    CommandLineParser parser("", errorCallback);
+    parser.addOptionalValue('c', "-whoopsie-there-is-a-minus", "", "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineParser_test, AddingRequiredValueWithMinusStartingLongOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "43929047-1051-45cd-8a13-ebf8ea8c4e26");
+    CommandLineParser parser("", errorCallback);
+    parser.addRequiredValue('b', "-minus-is-all-i-need", "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
 void FailureTest(const std::vector<std::string>& options,
                  const std::vector<std::string>& optionsToRegister = {},
                  const std::vector<std::string>& switchesToRegister = {},
