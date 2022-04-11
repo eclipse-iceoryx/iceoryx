@@ -186,28 +186,32 @@ struct OrElseWithValue
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return reference to *this
-    Derived& or_else(const or_else_callback_t& callable) & noexcept;
+    template <typename Functor>
+    Derived& or_else(const Functor& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return const reference to *this
-    const Derived& or_else(const const_or_else_callback_t& callable) const& noexcept;
+    template <typename Functor>
+    const Derived& or_else(const Functor& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return rvalue reference to *this
-    Derived&& or_else(const or_else_callback_t& callable) && noexcept;
+    template <typename Functor>
+    Derived&& or_else(const Functor& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return const rvalue reference to *this
-    const Derived&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
+    template <typename Functor>
+    const Derived&& or_else(const Functor& callable) const&& noexcept;
 };
 
 template <typename Derived>

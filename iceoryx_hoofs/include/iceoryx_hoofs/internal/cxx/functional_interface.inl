@@ -114,7 +114,7 @@ inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& ca
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis)
+    if (*derivedThis && and_then_callback_t(callable))
     {
         callable(derivedThis->value());
     }
@@ -135,7 +135,7 @@ inline const Derived& AndThenWithValue<Derived, ValueType>::and_then(const Funct
 {
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (*derivedThis)
+    if (*derivedThis && const_and_then_callback_t(callable))
     {
         callable(derivedThis->value());
     }
@@ -188,11 +188,12 @@ inline const Derived&& AndThen<Derived>::and_then(const and_then_callback_t& cal
 // BEGIN or_else
 ////////////////
 template <typename Derived, typename ErrorType>
-inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) & noexcept
+template <typename Functor>
+inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) & noexcept
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*derivedThis) && callable)
+    if (!(*derivedThis) && or_else_callback_t(callable))
     {
         callable(derivedThis->get_error());
     }
@@ -201,18 +202,19 @@ inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callb
 }
 
 template <typename Derived, typename ErrorType>
-inline Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) && noexcept
+template <typename Functor>
+inline Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) && noexcept
 {
     return std::move(this->or_else(callable));
 }
 
 template <typename Derived, typename ErrorType>
-inline const Derived&
-OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& callable) const& noexcept
+template <typename Functor>
+inline const Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) const& noexcept
 {
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (!(*derivedThis) && callable)
+    if (!(*derivedThis) && const_or_else_callback_t(callable))
     {
         callable(derivedThis->get_error());
     }
@@ -221,8 +223,8 @@ OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& cal
 }
 
 template <typename Derived, typename ErrorType>
-inline const Derived&&
-OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& callable) const&& noexcept
+template <typename Functor>
+inline const Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) const&& noexcept
 {
     return std::move(this->or_else(callable));
 }
