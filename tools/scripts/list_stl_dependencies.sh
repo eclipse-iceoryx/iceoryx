@@ -27,7 +27,7 @@ COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
 QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_hoofs/platform/qnx/
-ALLOWLIST=$WORKSPACE/tools/scripts/header-allowlist.txt
+USELIST=$WORKSPACE/tools/scripts/used-headers.txt
 TEMP_FILE=$(mktemp)
 GET_HEADER_NAME="\<\K[^<>]+(?=>)" # Matches the content between angle brackets
 
@@ -63,10 +63,10 @@ echo "# usage of <..> header includes"
 
 if [[ "$SCOPE" == "check" ]]; then
     echo
-    echo "Comparing system headers against allowed ones.."
-    diff $TEMP_FILE $ALLOWLIST
+    echo "Comparing the used system headers against the list.."
+    diff $TEMP_FILE $USELIST
     if [ $? -eq 1 ]; then
-        echo "One or more header is not on the allow list, please remove the header usage or extend the allow list!"
+        echo "One or more header is not on the list, please remove the header usage or extend the list!"
         exit 1
     fi
     echo "No header divergence found!"
