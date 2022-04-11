@@ -109,11 +109,12 @@ inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) && noexc
 // BEGIN and_then
 /////////////////
 template <typename Derived, typename ValueType>
-inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
+template <typename Functor>
+inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) & noexcept
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis && callable)
+    if (*derivedThis)
     {
         callable(derivedThis->value());
     }
@@ -122,18 +123,19 @@ inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_ca
 }
 
 template <typename Derived, typename ValueType>
-inline Derived&& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) && noexcept
+template <typename Functor>
+inline Derived&& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) && noexcept
 {
     return std::move(this->and_then(callable));
 }
 
 template <typename Derived, typename ValueType>
-inline const Derived&
-AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
+template <typename Functor>
+inline const Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) const& noexcept
 {
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (*derivedThis && callable)
+    if (*derivedThis)
     {
         callable(derivedThis->value());
     }
@@ -142,8 +144,8 @@ AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& 
 }
 
 template <typename Derived, typename ValueType>
-inline const Derived&&
-AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& callable) const&& noexcept
+template <typename Functor>
+inline const Derived&& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) const&& noexcept
 {
     return std::move(this->and_then(callable));
 }

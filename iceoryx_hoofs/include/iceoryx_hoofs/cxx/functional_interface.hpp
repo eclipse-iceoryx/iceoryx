@@ -117,28 +117,32 @@ struct AndThenWithValue
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return reference to *this
-    Derived& and_then(const and_then_callback_t& callable) & noexcept;
+    template <typename Functor>
+    Derived& and_then(const Functor& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return const reference to *this
-    const Derived& and_then(const const_and_then_callback_t& callable) const& noexcept;
+    template <typename Functor>
+    const Derived& and_then(const Functor& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return rvalue reference to *this
-    Derived&& and_then(const and_then_callback_t& callable) && noexcept;
+    template <typename Functor>
+    Derived&& and_then(const Functor& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return const rvalue reference to *this
-    const Derived&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
+    template <typename Functor>
+    const Derived&& and_then(const Functor& callable) const&& noexcept;
 };
 
 template <typename Derived>

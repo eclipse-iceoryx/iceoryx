@@ -224,7 +224,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     const T&& value() const&& noexcept;
 
   private:
-    alignas(T) byte_t m_data[sizeof(T)];
+    alignas(T) byte_t m_data[sizeof(T)]{0};
     bool m_hasValue{false};
 
   private:

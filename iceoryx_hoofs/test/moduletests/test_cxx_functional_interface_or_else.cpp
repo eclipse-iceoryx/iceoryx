@@ -218,7 +218,7 @@ TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_RValueCa
 
 TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_ConstRValueCase)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    ::testing::Test::RecordProperty("TEST_ID", "0e2ed65f-a130-4de8-8757-3585cd77cc75");
     IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction_Const, std::move(const_cast<const SutType&>(sut)));
 }
 #undef IOX_TEST_FUNCTIONAL_INTERFACE

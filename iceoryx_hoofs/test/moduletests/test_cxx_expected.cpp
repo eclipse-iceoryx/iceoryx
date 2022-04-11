@@ -476,12 +476,9 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
     ::testing::Test::RecordProperty("TEST_ID", "a877f9bd-5793-437f-8dee-a109aed9f647");
     expected<int, TestError> sut{success<int>(4711)};
     optional<int> value = sut.to_optional();
-    optional<int> implicitCastValue = sut;
 
     ASSERT_THAT(value.has_value(), Eq(true));
     EXPECT_THAT(*value, Eq(4711));
-    ASSERT_THAT(implicitCastValue.has_value(), Eq(true));
-    EXPECT_THAT(*implicitCastValue, Eq(4711));
 }
 
 TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
@@ -489,9 +486,26 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
     ::testing::Test::RecordProperty("TEST_ID", "fe161275-8fa2-43c9-86e7-0a20d79eb44f");
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
     optional<int> value = sut.to_optional();
-    optional<int> implicitCastValue = sut;
 
     ASSERT_THAT(value.has_value(), Eq(false));
+}
+
+TEST_F(expected_test, ExpectedWithValueConvertsImplicitlyToOptionalWithValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "873387ec-0e39-4620-80bf-ac9f4c8cb1fd");
+    expected<int, TestError> sut{success<int>(4711)};
+    optional<int> implicitCastValue = sut;
+
+    ASSERT_THAT(implicitCastValue.has_value(), Eq(true));
+    EXPECT_THAT(*implicitCastValue, Eq(4711));
+}
+
+TEST_F(expected_test, ExpectedWithErrorConvertsImplicitlyToOptionalWithoutValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9fab861c-a90c-4fcd-aa98-ab8ce1f961b1");
+    expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
+    optional<int> implicitCastValue = sut;
+
     ASSERT_THAT(implicitCastValue.has_value(), Eq(false));
 }
 } // namespace
