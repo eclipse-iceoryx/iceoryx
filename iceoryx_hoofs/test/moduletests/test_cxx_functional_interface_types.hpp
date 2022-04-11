@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
 #define IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "test_cxx_functional_interface_common.hpp"
 
 namespace test_cxx_functional_interface
@@ -48,6 +49,22 @@ struct GenericPlainFactory
 
     static constexpr bool EXPECT_AND_THEN_WITH_VALUE = false;
     static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = false;
+
+    static void configureNextTestCase() noexcept;
+    static Type createValidObject() noexcept;
+    static Type createInvalidObject() noexcept;
+};
+
+struct OptionalFactory
+{
+    using value_t = uint64_t;
+    using Type = iox::cxx::optional<value_t>;
+
+    static constexpr bool EXPECT_AND_THEN_WITH_VALUE = true;
+    static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = false;
+
+    static value_t usedTestValue;
+    static value_t anotherTestValue;
 
     static void configureNextTestCase() noexcept;
     static Type createValidObject() noexcept;
@@ -96,7 +113,8 @@ struct GenericPlainFactory
 ///        * static error_t anotherErrorValue
 ///            Another error value which can be compared to usedErrorValue and is not equal to it
 
-using FunctionalInterfaceImplementations = testing::Types<GenericValueErrorFactory, GenericPlainFactory>;
+using FunctionalInterfaceImplementations =
+    testing::Types<GenericValueErrorFactory, GenericPlainFactory, OptionalFactory>;
 TYPED_TEST_SUITE(FunctionalInterface_test, FunctionalInterfaceImplementations);
 
 } // namespace test_cxx_functional_interface

@@ -27,6 +27,8 @@ namespace iox
 {
 namespace popo
 {
+/// @brief The UntypedClientImpl class implements the untyped client API
+/// @note Not intended for public usage! Use the `UntypedClient` instead!
 template <typename BaseClientT = BaseClient<>>
 class UntypedClientImpl : public BaseClientT
 {

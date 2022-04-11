@@ -143,7 +143,8 @@ All the methods presented (``cxx::expected``, ``Expects`` and ``Ensures`` and th
 
 ### Error handling in hoofs
 
-Error logging is currently done by calls to ``std::cerr``. In the future those might be redirected to the logger.
+Console output should be printed exclusively via the iceoryx logger with `LogDebug()`, `LogError()` etc.
+Some files may still use `std::cout`/`std::cerr`/`std::clog` but this should be avoided.
 
 The error handler cannot be used in hoofs.
 

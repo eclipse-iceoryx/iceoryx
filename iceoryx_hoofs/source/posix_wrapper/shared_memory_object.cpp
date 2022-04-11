@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
@@ -66,8 +67,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         .create()
         .and_then([this](auto& sharedMemory) { m_sharedMemory.emplace(std::move(sharedMemory)); })
         .or_else([this](auto&) {
-            std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
-                      << std::endl;
+            LogError() << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
             m_isInitialized = false;
             m_errorValue = SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED;
         });
@@ -84,7 +84,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
             .create()
             .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
             .or_else([this](auto) {
-                std::cerr << "Failed to map created shared memory into process!" << std::endl;
+                LogError() << "Failed to map created shared memory into process!";
                 m_isInitialized = false;
                 m_errorValue = SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED;
             });
@@ -92,22 +92,14 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (!m_isInitialized)
     {
-        auto flags = std::cerr.flags();
-        std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
-                  << ", sizeInBytes = " << memorySizeInBytes
-                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
-                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)] << ", baseAddressHint = ";
-        if (baseAddressHint)
-        {
-            std::cerr << std::hex << *baseAddressHint << std::dec;
-        }
-        else
-        {
-            std::cerr << "no hint set";
-        }
-        std::cerr << ", permissions = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(permissions)) << " ]"
-                  << std::endl;
-        std::cerr.setf(flags);
+        LogError() << "Unable to create a shared memory object with the following properties [ name = " << name
+                   << ", sizeInBytes = " << memorySizeInBytes
+                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
+                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(openMode)] << ", baseAddressHint = "
+                   << ((baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*baseAddressHint))
+                                         : log::HexFormat(static_cast<uint64_t>(0U)))
+                   << ((baseAddressHint) ? "" : " (no hint set)")
+                   << ", permissions = " << log::BinFormat(static_cast<mode_t>(permissions)) << " ]";
         return;
     }
 
@@ -115,7 +107,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     if (m_isInitialized && m_sharedMemory->hasOwnership())
     {
-        std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
+        LogDebug() << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]";
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -139,7 +131,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
-        std::clog << "[ Reserving shared memory successful ] " << std::endl;
+        LogDebug() << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << name << "]";
     }
 }
 

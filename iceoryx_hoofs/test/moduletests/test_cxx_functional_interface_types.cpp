@@ -18,6 +18,9 @@
 
 namespace test_cxx_functional_interface
 {
+//////////////////////////////////
+/// BEGIN GenericValueErrorFactory
+//////////////////////////////////
 GenericValueErrorFactory::value_t GenericValueErrorFactory::usedTestValue = 1;
 GenericValueErrorFactory::value_t GenericValueErrorFactory::anotherTestValue = 2;
 GenericValueErrorFactory::error_t GenericValueErrorFactory::usedErrorValue = 3;
@@ -43,7 +46,13 @@ GenericValueErrorFactory::Type GenericValueErrorFactory::createInvalidObject() n
 {
     return GenericValueError(GenericValueError::INVALID_VALUE, usedErrorValue);
 }
+//////////////////////////////////
+/// END GenericValueErrorFactory
+//////////////////////////////////
 
+/////////////////////////////
+/// BEGIN GenericPlainFactory
+/////////////////////////////
 void GenericPlainFactory::configureNextTestCase() noexcept
 {
 }
@@ -57,4 +66,35 @@ GenericPlain GenericPlainFactory::createInvalidObject() noexcept
 {
     return GenericPlain(GenericPlain::INVALID_VALUE, GenericPlain::INVALID_VALUE);
 }
+///////////////////////////
+/// END GenericPlainFactory
+///////////////////////////
+
+/////////////////////////
+/// BEGIN OptionalFactory
+/////////////////////////
+OptionalFactory::value_t OptionalFactory::usedTestValue = 56;
+OptionalFactory::value_t OptionalFactory::anotherTestValue = 1174;
+
+void OptionalFactory::configureNextTestCase() noexcept
+{
+    // we increment all the values with an arbitrary value every test case
+    // so that we have some variation with every test and reduce the false positives
+    // probability due to memory corruptions
+    usedTestValue += 67;
+    anotherTestValue += 69;
+}
+
+OptionalFactory::Type OptionalFactory::createValidObject() noexcept
+{
+    return OptionalFactory::Type(iox::cxx::in_place, usedTestValue);
+}
+
+OptionalFactory::Type OptionalFactory::createInvalidObject() noexcept
+{
+    return iox::cxx::nullopt;
+}
+///////////////////////
+/// END OptionalFactory
+///////////////////////
 } // namespace test_cxx_functional_interface

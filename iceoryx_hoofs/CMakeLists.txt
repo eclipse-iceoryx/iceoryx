@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(IOX_VERSION_STRING "2.0.0")
+set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
@@ -169,6 +169,7 @@ add_library(iceoryx_hoofs
     source/error_handling/error_handler.cpp
     source/error_handling/error_handling.cpp
     source/file_reader/file_reader.cpp
+    source/log/hoofs_logging.cpp
     source/log/logcommon.cpp
     source/log/logger.cpp
     source/log/logging.cpp

@@ -1260,7 +1260,7 @@ TYPED_TEST(stringTyped_test, StreamInputOfSizeCapacityWorks)
     EXPECT_THAT(testStream.str(), Eq(testFixedString.c_str()));
 }
 
-/// @ note constexpr bool empty() const noexcept
+/// @note constexpr bool empty() const noexcept
 TYPED_TEST(stringTyped_test, NewlyCreatedStringIsEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b76d10c1-46e2-4bc3-ab79-af187b85d584");
@@ -1275,6 +1275,39 @@ TYPED_TEST(stringTyped_test, StringWithContentIsNotEmtpy)
     using MyString = typename TestFixture::stringType;
     MyString sut(TruncateToCapacity, "Dr.SchluepferStrikesAgain!");
     EXPECT_THAT(sut.empty(), Eq(false));
+}
+
+/// @note void clear() noexcept
+TYPED_TEST(stringTyped_test, ClearEmptyStringDoesNotChangeString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5109413a-6067-4f7f-ac35-8dd3a33a641f");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+
+    this->testSubject.clear();
+    EXPECT_THAT(this->testSubject.empty(), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+}
+
+TYPED_TEST(stringTyped_test, ClearNotEmptyStringResultsInEmptyStringWithUnchangedCapacity)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d25d2a74-6ea0-4892-b072-02177b31309e");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString().capacity();
+    this->testSubject = "M";
+    ASSERT_THAT(this->testSubject.empty(), Eq(false));
+
+    this->testSubject.clear();
+    EXPECT_THAT(this->testSubject.empty(), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+}
+
+TYPED_TEST(stringTyped_test, ChangeStringAfterClearWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "58444d00-ec85-464f-8269-7838823f04c2");
+    this->testSubject.clear();
+    this->testSubject = "M";
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
 }
 
 /// @note template <uint64_t N>

@@ -18,6 +18,8 @@
 #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 #include "iceoryx_posh/internal/log/posh_config_logging.hpp"
 
+#include <cpptoml.h>
+#include <limits> // workaround for missing include in cpptoml.h
 #include <regex>
 
 iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>

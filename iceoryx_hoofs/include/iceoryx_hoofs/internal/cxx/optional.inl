@@ -262,14 +262,6 @@ inline const T&& optional<T>::value() const&& noexcept
     return std::move(*const_cast<optional<T>*>(this)->value());
 }
 
-
-template <typename T>
-template <typename U>
-inline constexpr T optional<T>::value_or(U&& default_value) const noexcept
-{
-    return (m_hasValue) ? value() : std::forward<U>(default_value);
-}
-
 template <typename T>
 template <typename... Targs>
 inline void optional<T>::construct_value(Targs&&... args) noexcept
@@ -292,48 +284,6 @@ inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
     returnValue.emplace(std::forward<Targs>(args)...);
     return returnValue;
 }
-
-template <typename T>
-inline optional<T>& optional<T>::and_then(const cxx::function_ref<void(T&)>& callable) noexcept
-{
-    if (m_hasValue && callable)
-    {
-        callable(value());
-    }
-    return *this;
-}
-
-template <typename T>
-inline const optional<T>& optional<T>::and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept
-{
-    if (m_hasValue && callable)
-    {
-        callable(value());
-    }
-    return *this;
-}
-
-template <typename T>
-inline optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& callable) noexcept
-{
-    if (!m_hasValue && callable)
-    {
-        callable();
-    }
-    return *this;
-}
-
-template <typename T>
-inline const optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& callable) const noexcept
-{
-    if (!m_hasValue && callable)
-    {
-        callable();
-    }
-    return *this;
-}
-
-
 } // namespace cxx
 } // namespace iox
 
