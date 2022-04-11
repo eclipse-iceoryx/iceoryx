@@ -460,7 +460,7 @@ class string
     ///
     /// @return true if the insertion was successful, otherwise false
     template <typename T>
-    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+    constexpr typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
     insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
 
     /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size

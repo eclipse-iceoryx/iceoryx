@@ -2505,8 +2505,8 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstSubscriptO
     EXPECT_THAT(sut[STRINGCAP - 1], Eq('L'));
 }
 
-// template <typename T>
-// optional<string<Capacity>> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
+/// @note template <typename T>
+/// constexpr bool insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
 TEST(String10, InsertStringLiteralAtTheBeginningOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f3c5bf8-2367-46c0-b803-570a2a640c93");
