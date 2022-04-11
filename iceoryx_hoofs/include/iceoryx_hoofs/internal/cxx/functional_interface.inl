@@ -32,9 +32,7 @@ template <typename Derived>
 template <typename StringContainer>
 inline void Expect<Derived>::expect(const StringContainer& msg) const noexcept
 {
-    static_assert((std::is_array<StringContainer>::value
-                   && std::is_same<typename std::remove_all_extents<StringContainer>::type, char>::value)
-                      || is_iox_string<StringContainer>::value,
+    static_assert(is_char_array<StringContainer>::value || is_cxx_string<StringContainer>::value,
                   "Only char arrays and iox::cxx::strings are allowed as message type.");
 
     if (!(*static_cast<const Derived*>(this)))
@@ -48,9 +46,7 @@ template <typename Derived, typename ValueType>
 template <typename StringContainer>
 inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringContainer& msg) & noexcept
 {
-    static_assert((std::is_array<StringContainer>::value
-                   && std::is_same<typename std::remove_all_extents<StringContainer>::type, char>::value)
-                      || is_iox_string<StringContainer>::value,
+    static_assert(is_char_array<StringContainer>::value || is_cxx_string<StringContainer>::value,
                   "Only char arrays and iox::cxx::strings are allowed as message type.");
 
     Derived* derivedThis = static_cast<Derived*>(this);
@@ -132,9 +128,13 @@ inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& ca
 
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis && and_then_callback_t(callable))
+    if (*derivedThis)
     {
-        callable(derivedThis->value());
+        auto callback = static_cast<and_then_callback_t>(callable);
+        if (callback)
+        {
+            callback(derivedThis->value());
+        }
     }
 
     return *derivedThis;
@@ -156,9 +156,13 @@ inline const Derived& AndThenWithValue<Derived, ValueType>::and_then(const Funct
 
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (*derivedThis && const_and_then_callback_t(callable))
+    if (*derivedThis)
     {
-        callable(derivedThis->value());
+        auto callback = static_cast<const_and_then_callback_t>(callable);
+        if (callback)
+        {
+            callback(derivedThis->value());
+        }
     }
 
     return *derivedThis;
@@ -217,9 +221,14 @@ inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& call
 
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*derivedThis) && or_else_callback_t(callable))
+    if (!(*derivedThis))
     {
-        callable(derivedThis->get_error());
+        auto callback = static_cast<or_else_callback_t>(callable);
+
+        if (callback)
+        {
+            callback(derivedThis->get_error());
+        }
     }
 
     return *derivedThis;
@@ -241,9 +250,13 @@ inline const Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor
 
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
-    if (!(*derivedThis) && const_or_else_callback_t(callable))
+    if (!(*derivedThis))
     {
-        callable(derivedThis->get_error());
+        auto callback = static_cast<const_or_else_callback_t>(callable);
+        if (callback)
+        {
+            callback(derivedThis->get_error());
+        }
     }
 
     return *derivedThis;

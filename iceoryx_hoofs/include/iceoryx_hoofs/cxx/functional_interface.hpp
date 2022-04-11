@@ -17,6 +17,7 @@
 #define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <iostream>
 #include <utility>

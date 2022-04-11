@@ -130,17 +130,31 @@ struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
 template <uint64_t Capacity>
 class string;
 
-/// @brief Check whether T is a iox:cxx::string or not
+/// @brief struct to check whether an argument is a char array
 template <typename T>
-struct is_iox_string : std::false_type
+struct is_char_array
 {
+    static constexpr bool value = false;
 };
 
 template <uint64_t N>
-struct is_iox_string<string<N>> : std::true_type
+struct is_char_array<char[N]>
 {
+    static constexpr bool value = true;
 };
 
+/// @brief struct to check whether an argument is a cxx string
+template <typename T>
+struct is_cxx_string
+{
+    static constexpr bool value = false;
+};
+
+template <uint64_t N>
+struct is_cxx_string<string<N>>
+{
+    static constexpr bool value = true;
+};
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
 using void_t = void;
