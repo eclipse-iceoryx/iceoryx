@@ -35,7 +35,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .memorySizeInBytes(topicSize)
         .accessMode(posix::AccessMode::READ_WRITE)
         .openMode(posix::OpenMode::OPEN_EXISTING)
-        .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+        .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
             rp::BaseRelativePointer::registerPtr(
@@ -66,7 +66,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
             .memorySizeInBytes(segment.m_size)
             .accessMode(accessMode)
             .openMode(posix::OpenMode::OPEN_EXISTING)
-            .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+            .permissions(SHM_SEGMENT_PERMISSIONS)
             .create()
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)

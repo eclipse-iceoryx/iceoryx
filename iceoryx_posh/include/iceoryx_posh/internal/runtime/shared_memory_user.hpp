@@ -48,6 +48,8 @@ class SharedMemoryUser
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
     cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
+    static constexpr cxx::perms SHM_SEGMENT_PERMISSIONS =
+        cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read | cxx::perms::group_write;
 };
 
 } // namespace runtime

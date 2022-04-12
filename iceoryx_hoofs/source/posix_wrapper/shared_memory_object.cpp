@@ -59,31 +59,31 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                    << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
     };
 
-    cxx::optional<SharedMemory> sharedMemory;
-    if (!SharedMemoryBuilder()
-             .name(m_name)
-             .accessMode(m_accessMode)
-             .openMode(m_openMode)
-             .filePermissions(m_permissions)
-             .size(m_memorySizeInBytes)
-             .create()
-             .and_then([&](auto& value) { sharedMemory.emplace(std::move(value)); }))
+    auto sharedMemory = SharedMemoryBuilder()
+                            .name(m_name)
+                            .accessMode(m_accessMode)
+                            .openMode(m_openMode)
+                            .filePermissions(m_permissions)
+                            .size(m_memorySizeInBytes)
+                            .create();
+
+    if (!sharedMemory)
     {
         printErrorDetails();
         LogError() << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
         return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
-    cxx::optional<MemoryMap> memoryMap;
-    if (!MemoryMapBuilder()
-             .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
-             .length(m_memorySizeInBytes)
-             .fileDescriptor(sharedMemory->getHandle())
-             .accessMode(m_accessMode)
-             .flags(MemoryMapFlags::SHARE_CHANGES)
-             .offset(0)
-             .create()
-             .and_then([&](auto& value) { memoryMap.emplace(std::move(value)); }))
+    auto memoryMap = MemoryMapBuilder()
+                         .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
+                         .length(m_memorySizeInBytes)
+                         .fileDescriptor(sharedMemory->getHandle())
+                         .accessMode(m_accessMode)
+                         .flags(MemoryMapFlags::SHARE_CHANGES)
+                         .offset(0)
+                         .create();
+
+    if (!memoryMap)
     {
         printErrorDetails();
         LogError() << "Failed to map created shared memory into process!";

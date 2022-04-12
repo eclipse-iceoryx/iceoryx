@@ -58,7 +58,7 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
              .memorySizeInBytes(size)
              .accessMode(m_accessMode)
              .openMode(m_openMode)
-             .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+             .permissions(SHM_MEMORY_PERMISSIONS)
              .create()
              .and_then([this](auto& sharedMemoryObject) {
                  sharedMemoryObject.finalizeAllocation();

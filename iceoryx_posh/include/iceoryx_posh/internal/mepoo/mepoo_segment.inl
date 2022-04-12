@@ -72,7 +72,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
             .memorySizeInBytes(MemoryManager::requiredChunkMemorySize(mempoolConfig))
             .accessMode(posix::AccessMode::READ_WRITE)
             .openMode(posix::OpenMode::PURGE_AND_CREATE)
-            .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+            .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {
                 this->setSegmentId(iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),

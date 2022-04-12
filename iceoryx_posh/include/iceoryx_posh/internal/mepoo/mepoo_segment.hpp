@@ -58,6 +58,9 @@ class MePooSegment
     uint64_t m_segmentId;
     iox::mepoo::MemoryInfo m_memoryInfo;
 
+    static constexpr cxx::perms SEGMENT_PERMISSIONS =
+        cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read | cxx::perms::group_write;
+
   private:
     void setSegmentId(const uint64_t segmentId) noexcept;
 };
