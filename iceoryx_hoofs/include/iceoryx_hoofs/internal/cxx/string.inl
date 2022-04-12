@@ -511,10 +511,6 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
     {
         return false;
     }
-    if (pos > m_rawstringSize)
-    {
-        return false;
-    }
     const auto new_size = m_rawstringSize + count;
     if (new_size > Capacity)
     {
@@ -522,9 +518,30 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
     }
 
     auto remainder = substr(pos);
+    if (!remainder)
+    {
+        return false;
+    }
 
+    // ignored for gcc since the code above ensures that there is no out of bounds access:
+    // Capacity >= m_rawstringSize + count and m_rawstringSize >= pos,
+    // therefore Capacity >= pos + count
+    //
+    // if it should be enabled again, the following code can be uncommented to suppress the warning
+    //
+    // if (Capacity < pos + count)
+    // {
+    //   return false;
+    // }
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     std::memcpy(&(m_rawstring[pos]), internal::GetData<T>::call(str), count);
     std::memcpy(&(m_rawstring[pos + count]), remainder->c_str(), remainder->size());
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
 
     m_rawstring[new_size] = '\0';
     m_rawstringSize = new_size;
