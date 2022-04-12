@@ -82,7 +82,7 @@ TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExist)
+TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
     CommandLineParser parser("", errorCallback);

@@ -170,10 +170,6 @@ TEST(TypeTraitsTest, IsFunctionPointerResolvesToFalse)
     EXPECT_FALSE(result);
 }
 
-struct UndefinedType
-{
-};
-
 TEST(TypeTraitsTest, TypeInfo_StringTypeTranslatesCorrectly)
 {
     EXPECT_THAT(TypeInfo<iox::cxx::string<1>>::NAME, StrEq("string"));
