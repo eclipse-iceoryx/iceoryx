@@ -34,8 +34,8 @@
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
 #include <cstdint>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)

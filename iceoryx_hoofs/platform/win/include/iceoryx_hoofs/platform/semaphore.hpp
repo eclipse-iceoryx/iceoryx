@@ -24,10 +24,10 @@
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
 
+#include <cstdio>
 #include <cstdlib>
 #include <map>
 #include <sddl.h>
-#include <stdio.h>
 #include <time.h>
 #include <type_traits>
 

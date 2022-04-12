@@ -1,4 +1,4 @@
-# QNX platform/ libc headers
+# QNX platform / libc headers
 arpa/inet.h
 cstdint
 dlfcn.h
@@ -54,8 +54,6 @@ process.h
 regex
 sstream
 stdint.h
-stdio.h
-stdlib.h
 string
 thread
 type_traits

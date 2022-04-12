@@ -160,7 +160,7 @@ External dependencies such as the [STL](https://en.wikipedia.org/wiki/Standard_T
 other libaries shall be kept to a minium for `iceoryx_posh` and `iceoryx_hoofs`. If you think a new dependency is
 necessary, do the following:
 
-1. Engage with the maintainers beforehand by opening an issue to discuss the necessity
+1. Contact the maintainers beforehand by opening an issue to discuss the necessity
 1. If accepted, add the new header to `tools/scripts/used-headers.txt` for the CI to pass
 
 ## Folder structure

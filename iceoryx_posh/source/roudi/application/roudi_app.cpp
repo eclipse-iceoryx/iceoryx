@@ -35,7 +35,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 namespace iox
 {
