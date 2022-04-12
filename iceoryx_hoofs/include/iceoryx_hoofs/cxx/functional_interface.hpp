@@ -112,6 +112,11 @@ struct AndThenWithValue
     using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
     using const_and_then_callback_t = cxx::function_ref<void(const ValueType&)>;
 
+    /// @note and_then has a template argument since otherwise we encounter issue
+    ///       with the type deduction and constness of auto arguments. A detailed
+    ///       discussion can be found here:
+    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-consthttps://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
+
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
@@ -180,6 +185,11 @@ struct OrElseWithValue
 {
     using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
     using const_or_else_callback_t = cxx::function_ref<void(const ErrorType&)>;
+
+    /// @note and_then has a template argument since otherwise we encounter issue
+    ///       with the type deduction and constness of auto arguments. A detailed
+    ///       discussion can be found here:
+    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-consthttps://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing

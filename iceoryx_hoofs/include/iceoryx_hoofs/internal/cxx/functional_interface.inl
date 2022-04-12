@@ -112,6 +112,9 @@ template <typename Derived, typename ValueType>
 template <typename Functor>
 inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) & noexcept
 {
+    static_assert(cxx::is_invocable<Functor, ValueType&>::value,
+                  "Only callables with a signature of void(ValueType&) are allowed!");
+
     Derived* derivedThis = static_cast<Derived*>(this);
 
     if (*derivedThis && and_then_callback_t(callable))
@@ -133,6 +136,9 @@ template <typename Derived, typename ValueType>
 template <typename Functor>
 inline const Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) const& noexcept
 {
+    static_assert(cxx::is_invocable<Functor, const ValueType&>::value,
+                  "Only callables with a signature of void(const ValueType&) are allowed!");
+
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
     if (*derivedThis && const_and_then_callback_t(callable))
@@ -191,6 +197,9 @@ template <typename Derived, typename ErrorType>
 template <typename Functor>
 inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) & noexcept
 {
+    static_assert(cxx::is_invocable<Functor, ErrorType&>::value,
+                  "Only callables with a signature of void(ErrorType&) are allowed!");
+
     Derived* derivedThis = static_cast<Derived*>(this);
 
     if (!(*derivedThis) && or_else_callback_t(callable))
@@ -212,6 +221,9 @@ template <typename Derived, typename ErrorType>
 template <typename Functor>
 inline const Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) const& noexcept
 {
+    static_assert(cxx::is_invocable<Functor, ErrorType&>::value,
+                  "Only callables with a signature of void(const ErrorType&) are allowed!");
+
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
     if (!(*derivedThis) && const_or_else_callback_t(callable))

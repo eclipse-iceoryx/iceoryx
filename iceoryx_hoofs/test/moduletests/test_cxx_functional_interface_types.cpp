@@ -108,7 +108,7 @@ ExpectedValueErrorFactory::error_t ExpectedValueErrorFactory::anotherErrorValue 
 
 void ExpectedValueErrorFactory::configureNextTestCase() noexcept
 {
-    // we increment all the values with an arbitrary value in every test case
+    // we increment all the values with an static arbitrary value in every test case
     // so that we have some variation with every test and reduce the false positives
     // probability due to memory corruptions
     usedTestValue += 189;
@@ -138,7 +138,7 @@ ExpectedErrorFactory::error_t ExpectedErrorFactory::anotherErrorValue = 14;
 
 void ExpectedErrorFactory::configureNextTestCase() noexcept
 {
-    // we increment all the values with an arbitrary value in every test case
+    // we increment all the values with an static arbitrary value in every test case
     // so that we have some variation with every test and reduce the false positives
     // probability due to memory corruptions
     usedErrorValue += 191;
