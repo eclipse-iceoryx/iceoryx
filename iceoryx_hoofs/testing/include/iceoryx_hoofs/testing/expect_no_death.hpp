@@ -25,6 +25,8 @@
     EXPECT_EXIT(                                                                                                       \
         {                                                                                                              \
             callable();                                                                                                \
+            /* Use fprintf here instead of std::cerr. cerr can be rerouted to another stream which can lead to failing \
+             * tests in combination with internal::CaptureStderr() for instance. */                                    \
             fprintf(stderr, "callable did not terminate");                                                             \
             exit(0);                                                                                                   \
         },                                                                                                             \
@@ -39,6 +41,8 @@
     ASSERT_EXIT(                                                                                                       \
         {                                                                                                              \
             callable();                                                                                                \
+            /* Use fprintf here instead of std::cerr. cerr can be rerouted to another stream which can lead to failing \
+             * tests in combination with internal::CaptureStderr() for instance. */                                    \
             fprintf(stderr, "callable did not terminate");                                                             \
             exit(0);                                                                                                   \
         },                                                                                                             \
