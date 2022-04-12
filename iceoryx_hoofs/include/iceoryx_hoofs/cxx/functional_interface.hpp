@@ -25,6 +25,12 @@ namespace iox
 {
 namespace cxx
 {
+template <uint64_t Capacity>
+class string;
+
+template <uint64_t Capacity>
+using charArray = char[Capacity];
+
 namespace internal
 {
 template <typename Derived, class = void>
@@ -53,7 +59,13 @@ struct Expect
     /// @brief Expects that the object is valid, otherwise the method prints the
     ///        provided message and induces a fatal error
     /// @param[in] msg Message which will be printed when the object is invalid
-    void expect(const char* const msg) const noexcept;
+    // void expect(const char* const msg) const noexcept;
+
+    /// @brief Expects that the object is valid, otherwise the method prints the
+    ///        provided message and induces a fatal error
+    /// @param[in] msg Message which will be printed when the object is invalid
+    template <typename StringContainer>
+    void expect(const StringContainer& msg) const noexcept;
 };
 
 template <typename Derived, typename ValueType>
@@ -63,25 +75,29 @@ struct ExpectWithValue
     //         the method prints the provided message and induces a fatal error
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a reference to the contained value
-    ValueType& expect(const char* const msg) & noexcept;
+    template <typename StringContainer>
+    ValueType& expect(const StringContainer& msg) & noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a const reference the contained value
-    const ValueType& expect(const char* const msg) const& noexcept;
+    template <typename StringContainer>
+    const ValueType& expect(const StringContainer& msg) const& noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return rvalue reference to the contained value
-    ValueType&& expect(const char* const msg) && noexcept;
+    template <typename StringContainer>
+    ValueType&& expect(const StringContainer& msg) && noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return const rvalue reference to the contained value
-    const ValueType&& expect(const char* const msg) const&& noexcept;
+    template <typename StringContainer>
+    const ValueType&& expect(const StringContainer& msg) const&& noexcept;
 };
 
 template <typename Derived, typename ValueType>
