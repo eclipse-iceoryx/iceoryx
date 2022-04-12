@@ -78,6 +78,42 @@ The solution shall be:
 +----------------------------------------------+
 ```
 
+#### Sequence Diagram
+
+Lets assume we would like to add a switch, an optional and a required value, parse
+them and print them on the console.
+
+```
+  User
+   |  CommandLineParser()    CommandLineParser
+   | ------------------------------> |
+   |                                 |
+   |    addSwitch()                  |
+   | ------------------------------> |
+   |                                 |
+   |    addOptionalValue()           |
+   | ------------------------------> |
+   |                                 |
+   |    addRequiredValue()           |
+   | ------------------------------> |
+   |                                 |
+   |    parse()                      |
+   | ------------------------------> |
+   |    CommandLineOptions                   CommandLineOptions
+   |                                                 |
+   |                has(switchName)                  |
+   | ----------------------------------------------> |
+   |                bool                             |
+   |                                                 |
+   |                get<TypeName>(optionalValueName) |
+   | ----------------------------------------------> |
+   |                TypeName                         |
+   |                                                 |
+   |                get<TypeName>(requiredValueName) |
+   | ----------------------------------------------> |
+   |                TypeName                         |
+```
+
 #### Macro Based Code Generator
 
 The macros `COMMAND_LINE`, `SWITCH`, `OPTIONAL_VALUE` and `REQUIRED_VALUE`
