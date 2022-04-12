@@ -20,5 +20,6 @@
 |[icediscovery](./icediscovery)                    | Searching for currently available services                                | :star::star:       |
 |[icediscovery_in_c](./icediscovery_in_c/)         | Searching for currently available services using C                        | :star::star:       |
 |[ice_access_control](./ice_access_control/)       | Configuring access rights for shared memory segments                      | :star::star::star: |
+|[ara_com](./ara_com/)                             | Using iceoryx as an AUTOSAR Adaptive `ara::com` implementation            | :star::star::star: |
 |[iceperf](./iceperf/)                             | Measuring the latency of different IPC mechanisms                         | :star::star::star: |
 |[icecrystal](./icecrystal/)                       | Using the introspection client for debugging                              | :star::star::star: |
