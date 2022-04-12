@@ -37,13 +37,12 @@ for COMPONENT in ${COMPONENTS[@]}; do
     done
 done
 
-echo "# QNX platform / libc headers" >> $CURRENTLY_USED_HEADERS
+echo "# QNX platform / libc headers" | tee -a $CURRENTLY_USED_HEADERS
 
 # GCC can't preprocess .inl so we grep them in plain text
 QNX_CPP_HPP_FILES=$(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -iname *.hpp)
 QNX_INL_FILES=$(find $QNX_PLATFORM_DIR -type f -iname *.inl)
 
-echo "# usage of headers for QNX"
 { gcc -w -fpreprocessed -dD -E $QNX_CPP_HPP_FILES; if [[ -n $QNX_INL_FILES ]]; then cat $QNX_INL_FILES; fi; } \
  | grep -e "#include <" \
  | grep -oP $GET_HEADER_NAME \
@@ -52,15 +51,14 @@ echo "# usage of headers for QNX"
  | tee -a $CURRENTLY_USED_HEADERS \
  | cat
 
+echo
 
-echo "# iceoryx_posh / iceoryx_hoofs headers" >> $CURRENTLY_USED_HEADERS
+echo "# iceoryx_posh / iceoryx_hoofs headers" | tee -a $CURRENTLY_USED_HEADERS
 
 # GCC can't preprocess .inl so we grep them in plain text
 HOOFS_POSH_CPP_HPP_FILES=$(find $GREP_PATH_HOOFS_POSH -type f -iname *.cpp -o -iname *.hpp)
 HOOFS_POSH_INL_FILES=$(find $GREP_PATH_HOOFS_POSH -type f -iname *.inl)
 
-echo
-echo "# usage of <..> header includes"
 { gcc -w -fpreprocessed -dD -E $HOOFS_POSH_CPP_HPP_FILES; if [[ -n $HOOFS_POSH_INL_FILES ]]; then cat $HOOFS_POSH_INL_FILES; fi; } \
  | grep -e "#include <" \
  | grep -oP $GET_HEADER_NAME \
@@ -74,7 +72,7 @@ if [[ "$SCOPE" == "check" ]]; then
     echo "Comparing the used system headers against the list.."
     diff $CURRENTLY_USED_HEADERS $USELIST
     if [ $? -eq 1 ]; then
-        echo "One or more header is not on the list, please remove the header usage or extend the list!"
+        echo "Mismatch of expected and found headers. Please check the diff above and remove/add the header in 'tools/used-headers.txt'!"
         exit 1
     fi
     echo "No header divergence found!"
@@ -94,10 +92,6 @@ grep -RIne "std::" $GREP_PATH_HOOFS_POSH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::
 
 echo
 echo "# using namespace with std component"
-grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH_HOOFS_POSH | sed -n "s/\(.*\)/\ \ \1/p"
-
-echo
-echo "# usage of std components"
-grep -RIne "std::" $GREP_PATH_HOOFS_POSH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/\ \ \1/p" | sort | uniq
+grep -RIne ".*using\s*namespace\s*std" $GREP_PATH_HOOFS_POSH | sed -n "s/\(.*\)/\ \ \1/p"
 
 exit 0
