@@ -29,6 +29,9 @@ namespace iox
 namespace mepoo
 {
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
+constexpr cxx::perms MePooSegment<SharedMemoryObjectType, MemoryManagerType>::SEGMENT_PERMISSIONS;
+
+template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     const MePooConfig& mempoolConfig,
     posix::Allocator& managementAllocator,

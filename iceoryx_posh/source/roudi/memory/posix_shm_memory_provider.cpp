@@ -28,6 +28,8 @@ namespace iox
 {
 namespace roudi
 {
+constexpr cxx::perms PosixShmMemoryProvider::SHM_MEMORY_PERMISSIONS;
+
 PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmName_t& shmName,
                                                const posix::AccessMode accessMode,
                                                const posix::OpenMode openMode) noexcept
