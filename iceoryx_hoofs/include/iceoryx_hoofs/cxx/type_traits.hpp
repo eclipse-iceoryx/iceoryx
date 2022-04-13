@@ -151,7 +151,7 @@ struct is_cxx_string
 };
 
 template <uint64_t N>
-struct is_cxx_string<string<N>>
+struct is_cxx_string<::iox::cxx::string<N>>
 {
     static constexpr bool value = true;
 };

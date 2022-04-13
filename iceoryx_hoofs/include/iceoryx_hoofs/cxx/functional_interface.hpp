@@ -59,11 +59,7 @@ struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
     ///        provided message and induces a fatal error
-    /// @param[in] msg Message which will be printed when the object is invalid
-    // void expect(const char* const msg) const noexcept;
-
-    /// @brief Expects that the object is valid, otherwise the method prints the
-    ///        provided message and induces a fatal error
+    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     template <typename StringContainer>
     void expect(const StringContainer& msg) const noexcept;
@@ -74,6 +70,7 @@ struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a reference to the contained value
     template <typename StringContainer>
@@ -81,6 +78,7 @@ struct ExpectWithValue
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a const reference the contained value
     template <typename StringContainer>
@@ -88,6 +86,7 @@ struct ExpectWithValue
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return rvalue reference to the contained value
     template <typename StringContainer>
@@ -95,6 +94,7 @@ struct ExpectWithValue
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return const rvalue reference to the contained value
     template <typename StringContainer>
@@ -132,7 +132,7 @@ struct AndThenWithValue
     /// @note and_then has a template argument since otherwise we encounter issue
     ///       with the type deduction and constness of auto arguments. A detailed
     ///       discussion can be found here:
-    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-consthttps://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
+    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
@@ -203,10 +203,10 @@ struct OrElseWithValue
     using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
     using const_or_else_callback_t = cxx::function_ref<void(const ErrorType&)>;
 
-    /// @note and_then has a template argument since otherwise we encounter issue
+    /// @note or_else has a template argument since otherwise we encounter issue
     ///       with the type deduction and constness of auto arguments. A detailed
     ///       discussion can be found here:
-    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-consthttps://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
+    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
