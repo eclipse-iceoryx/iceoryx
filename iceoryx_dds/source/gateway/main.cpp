@@ -32,7 +32,7 @@ class ShutdownManager
   public:
     static void scheduleShutdown(int num)
     {
-        char reason;
+        char reason = '\0';
         psignal(num, &reason);
         s_semaphore.post().or_else([](auto) {
             std::cerr << "failed to call post on shutdown semaphore" << std::endl;

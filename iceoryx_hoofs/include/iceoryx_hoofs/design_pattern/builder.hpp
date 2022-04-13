@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_DESIGN_PATTERN_BUILDER_PATTERN_HPP
-#define IOX_HOOFS_DESIGN_PATTERN_BUILDER_PATTERN_HPP
+#ifndef IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
+#define IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
 
 /// @brief Macro which generates a setter method useful for a builder pattern.
 /// @param[in] type the data type of the parameter

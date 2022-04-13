@@ -21,7 +21,7 @@
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
 - Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
   - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
-  - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder_pattern.hpp`
+  - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
 
 **New API features:**
 
@@ -47,12 +47,12 @@
                             .create();
     ```
 
-2. Builder pattern extracted from `helplets.hpp` into `design_pattern/builder_pattern.hpp`
+2. Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
 
     ```cpp
     // before
     #include "iceoryx_hoofs/cxx/helplets.hpp"
 
     // after
-    #include "iceoryx_hoofs/design_pattern/builder_pattern.hpp"
+    #include "iceoryx_hoofs/design_pattern/builder.hpp"
     ```
