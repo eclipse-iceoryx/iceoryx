@@ -821,133 +821,6 @@ TEST(String100, CompareStringsWithDifferentCapaInclNullCharacterWorks)
 }
 
 /// @note template <uint64_t N>
-/// constexpr int64_t compare(const char (&other)[N]) const noexcept
-TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayResultsInZero)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
-    for (uint64_t i = 0U; i < STRINGCAP; ++i)
-    {
-        fuu[i] = 'M';
-    }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'L');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
-    for (uint64_t i = 0U; i < STRINGCAP; ++i)
-    {
-        fuu[i] = 'M';
-    }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
-    for (uint64_t i = 0U; i < STRINGCAP; ++i)
-    {
-        fuu[i] = 'L';
-    }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    this->testSubject = "M";
-    char fuu[STRINGCAP + 1U] = {'\0'};
-    EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
-}
-
-TEST(String100, CompareStringAndCharArrayInclNullCharacterWorks)
-{
-    std::string testString{"ice\0ryx", 7};
-    string<100U> testSubject1(TruncateToCapacity, testString.c_str(), 7U);
-    char testSubject2[100U] = "ice\0rYx";
-    EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResultsInZero)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 2U];
-    for (uint64_t i = 0U; i < STRINGCAP; ++i)
-    {
-        fuu[i] = 'M';
-    }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 2U];
-    for (uint64_t i = 0U; i < STRINGCAP + 1U; ++i)
-    {
-        fuu[i] = 'M';
-    }
-    fuu[STRINGCAP + 1U] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP + 1U, 'M');
-    string<STRINGCAP + 1U> sut;
-    ASSERT_THAT(sut.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP];
-    for (uint64_t i = 0U; i < STRINGCAP - 1U; ++i)
-    {
-        fuu[i] = 'M';
-    }
-    fuu[STRINGCAP - 1U] = '\0';
-    EXPECT_THAT(sut.compare(fuu), Gt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPositive)
-{
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 1U> testSubject1("M");
-    char testSubject2[STRINGCAP] = {'\0'};
-    EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
-}
-
-TEST(String100, CompareStringAndCharArrayWithDifferentCapaInclNullCharacterWorks)
-{
-    std::string testString{"ice\0ryx", 7};
-    string<100U> testSubject1(TruncateToCapacity, testString.c_str(), 7U);
-    char testSubject2[8U] = "ice\0rYx";
-    EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
-}
-
-/// @note template <uint64_t N>
 /// bool operator==(const string<N>& rhs) const noexcept
 TYPED_TEST(stringTyped_test, CompareOperatorEqualResultTrue)
 {
@@ -1214,6 +1087,264 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCap
     string<STRINGCAP + 1U> bar("L");
     this->testSubject = "L";
     EXPECT_THAT(bar >= fuu, Eq(false));
+}
+
+/// @note template <uint64_t N>
+/// constexpr int64_t compare(const char (&other)[N]) const noexcept
+TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayResultsInZero)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'M');
+    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP + 1U];
+    for (uint64_t i = 0U; i < STRINGCAP; ++i)
+    {
+        fuu[i] = 'M';
+    }
+    fuu[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'L');
+    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP + 1U];
+    for (uint64_t i = 0U; i < STRINGCAP; ++i)
+    {
+        fuu[i] = 'M';
+    }
+    fuu[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'M');
+    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP + 1U];
+    for (uint64_t i = 0U; i < STRINGCAP; ++i)
+    {
+        fuu[i] = 'L';
+    }
+    fuu[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject = "M";
+    char fuu[STRINGCAP + 1U] = {'\0'};
+    EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResultsInZero)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'M');
+    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP + 2U];
+    for (uint64_t i = 0U; i < STRINGCAP; ++i)
+    {
+        fuu[i] = 'M';
+    }
+    fuu[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'M');
+    ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP + 2U];
+    for (uint64_t i = 0U; i < STRINGCAP + 1U; ++i)
+    {
+        fuu[i] = 'M';
+    }
+    fuu[STRINGCAP + 1U] = '\0';
+    EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP + 1U, 'M');
+    string<STRINGCAP + 1U> sut;
+    ASSERT_THAT(sut.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP];
+    for (uint64_t i = 0U; i < STRINGCAP - 1U; ++i)
+    {
+        fuu[i] = 'M';
+    }
+    fuu[STRINGCAP - 1U] = '\0';
+    EXPECT_THAT(sut.compare(fuu), Gt(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPositive)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP + 1U> testSubject1("M");
+    char testSubject2[STRINGCAP] = {'\0'};
+    EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
+}
+
+/// @note template <uint64_t N>
+/// bool operator==(const char (&rhs)[N]) const noexcept
+/// and
+/// @note template <uint64_t N>
+/// bool operator!=(const char (&rhs)[N]) const noexcept
+TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP> fuu("M");
+    char bar[STRINGCAP + 1U] = "M";
+    EXPECT_THAT(fuu == bar, Eq(true));
+    EXPECT_THAT(fuu != bar, Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP> fuu("M");
+    char bar[STRINGCAP + 1U] = "L";
+    EXPECT_THAT(fuu == bar, Eq(false));
+    EXPECT_THAT(fuu != bar, Eq(true));
+}
+
+TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWithDifferentCapaWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP> testString1("M");
+    char testString2[STRINGCAP + 1U] = "M";
+    EXPECT_THAT(testString1 == testString2, Eq(true));
+    EXPECT_THAT(testString1 != testString2, Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCapaWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP + 2U> testString1("M");
+    char testString2[STRINGCAP + 1U] = "L";
+    string<STRINGCAP + 2U> testString3;
+    std::string testStdString(STRINGCAP + 2U, 'L');
+    EXPECT_THAT(testString3.unsafe_assign(testStdString), Eq(true));
+    EXPECT_THAT(testString1 == testString2, Eq(false));
+    EXPECT_THAT(testString3 == testString2, Eq(false));
+    EXPECT_THAT(testString1 != testString2, Eq(true));
+    EXPECT_THAT(testString3 != testString2, Eq(true));
+}
+
+/// @note template <uint64_t N>
+/// bool operator<(const char (&rhs)[N]) const noexcept
+/// and
+/// @note template <uint64_t N>
+/// bool operator<=(const char (&rhs)[N]) const noexcept
+/// and
+/// @note template <uint64_t N>
+/// bool operator>(const char (&rhs)[N]) const noexcept
+/// and
+/// @note template <uint64_t N>
+/// bool operator>=(const char (&rhs)[N]) const noexcept
+TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bla("F");
+    char bar[STRINGCAP + 1U] = "L";
+    EXPECT_THAT(fuu < bar, Eq(false));
+    EXPECT_THAT(fuu <= bar, Eq(false));
+    EXPECT_THAT(bla < bar, Eq(true));
+    EXPECT_THAT(bla <= bar, Eq(true));
+    EXPECT_THAT(fuu > bar, Eq(true));
+    EXPECT_THAT(fuu >= bar, Eq(true));
+    EXPECT_THAT(bla > bar, Eq(false));
+    EXPECT_THAT(bla >= bar, Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArrays)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP> fuu("M");
+    char bar[STRINGCAP + 1U] = "M";
+    EXPECT_THAT(fuu < bar, Eq(false));
+    EXPECT_THAT(fuu <= bar, Eq(true));
+    EXPECT_THAT(fuu > bar, Eq(false));
+    EXPECT_THAT(fuu >= bar, Eq(true));
+}
+
+TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferentCapa)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+
+    std::string testString1(STRINGCAP + 5U, 'M');
+    string<STRINGCAP + 5U> bar;
+    ASSERT_THAT(bar.unsafe_assign(testString1), Eq(true));
+    std::string testString2(STRINGCAP + 5U, 'F');
+    string<STRINGCAP + 5U> bla;
+    ASSERT_THAT(bla.unsafe_assign(testString2), Eq(true));
+    char fuu[STRINGCAP + 1U];
+    for (uint64_t i = 0U; i < STRINGCAP; ++i)
+    {
+        fuu[i] = 'L';
+    }
+    fuu[STRINGCAP] = '\0';
+
+    EXPECT_THAT(bar < fuu, Eq(false));
+    EXPECT_THAT(bar <= fuu, Eq(false));
+    EXPECT_THAT(bla < fuu, Eq(true));
+    EXPECT_THAT(bla <= fuu, Eq(true));
+    EXPECT_THAT(bar > fuu, Eq(true));
+    EXPECT_THAT(bar >= fuu, Eq(true));
+    EXPECT_THAT(bla > fuu, Eq(false));
+    EXPECT_THAT(bla >= fuu, Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArraysWithDifferentCapa)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+
+    std::string testString(STRINGCAP, 'M');
+    string<STRINGCAP + 6U> bar;
+    ASSERT_THAT(bar.unsafe_assign(testString), Eq(true));
+    char fuu[STRINGCAP + 1U];
+    for (uint64_t i = 0U; i < STRINGCAP; ++i)
+    {
+        fuu[i] = 'M';
+    }
+    fuu[STRINGCAP] = '\0';
+
+    EXPECT_THAT(bar < fuu, Eq(false));
+    EXPECT_THAT(bar <= fuu, Eq(true));
+    EXPECT_THAT(bar > fuu, Eq(false));
+    EXPECT_THAT(bar >= fuu, Eq(true));
 }
 
 /// @note explicit operator std::string() const noexcept
