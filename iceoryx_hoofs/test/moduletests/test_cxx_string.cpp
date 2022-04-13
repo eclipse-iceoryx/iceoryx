@@ -821,7 +821,7 @@ TEST(String100, CompareStringsWithDifferentCapaInclNullCharacterWorks)
 }
 
 /// @note template <uint64_t N>
-/// int64_t compare(const char (&other)[N]) const noexcept
+/// constexpr int64_t compare(const char (&other)[N]) const noexcept
 TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayResultsInZero)
 {
     using MyString = typename TestFixture::stringType;

@@ -239,7 +239,7 @@ inline int64_t string<Capacity>::compare(const string<N>& other) const noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
-inline int64_t string<Capacity>::compare(const char (&other)[N]) const noexcept
+inline constexpr int64_t string<Capacity>::compare(const char (&other)[N]) const noexcept
 {
     auto otherSize = strnlen(other, N);
     auto result = memcmp(c_str(), other, std::min(m_rawstringSize, otherSize));

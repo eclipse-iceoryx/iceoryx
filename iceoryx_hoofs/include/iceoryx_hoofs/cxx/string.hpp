@@ -320,7 +320,7 @@ class string
     /// the contents of self and other are equal, an integer > 0 if the first character that does not match has a
     /// greater value in self than in other
     template <uint64_t N>
-    int64_t compare(const char (&other)[N]) const noexcept;
+    constexpr int64_t compare(const char (&other)[N]) const noexcept;
 
     /// @brief checks if self is equal to rhs
     ///
