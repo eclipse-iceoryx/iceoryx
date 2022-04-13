@@ -19,7 +19,8 @@
   - Create separate error enum for each module
 - Use `GTEST_FAIL` and `GTEST_SUCCEED` instead of `FAIL` and `SUCCEED` [\#1072](https://github.com/eclipse-iceoryx/iceoryx/issues/1072)
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
-- posix wrapper `SharedMemoryObject` uses builder pattern instead of creation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+- Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+  - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
   - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder_pattern.hpp`
 
 **New API features:**
