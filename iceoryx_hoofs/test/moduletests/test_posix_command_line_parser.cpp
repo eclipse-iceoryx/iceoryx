@@ -92,7 +92,7 @@ TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExit)
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExist)
+TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "076b8877-e3fc-46f7-851b-d3e7953f67d6");
     CommandLineParser parser("", errorCallback);
@@ -102,7 +102,7 @@ TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExist)
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineParser_test, AddingOptionWithSameShortAndLongNameLeadsToExist)
+TEST_F(CommandLineParser_test, AddingOptionWithSameShortAndLongNameLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4e01ed47-473d-4915-aed2-60aacce37de8");
     CommandLineParser parser("", errorCallback);
