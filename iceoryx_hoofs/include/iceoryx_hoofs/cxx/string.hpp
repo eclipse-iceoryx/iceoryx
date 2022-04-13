@@ -426,11 +426,6 @@ class string
     /// @param [in] rhs is the char pointer to the array to compare
     ///
     /// @return false
-    ///
-    /// @todo consider implementing the equality operator for a char array for which the size is known at compile time;
-    /// it could have the following signature
-    /// template <int N>
-    /// bool operator==(const char (&rhs)[N]) const noexcept
     bool operator==(const char* const rhs) const noexcept;
 
     /// @brief The inequality operator for fixed string and char pointer is disabled via a static_assert, because it may
@@ -441,11 +436,6 @@ class string
     /// @param [in] rhs is the char pointer to the array to compare
     ///
     /// @return false
-    ///
-    /// @todo consider implementing the inequality operator for a char array for which the size is known at compile
-    /// time; it could have the following signature
-    /// template <int N>
-    /// bool operator!=(const char (&rhs)[N]) const noexcept
     bool operator!=(const char* const rhs) const noexcept;
 
     /// @brief returns a pointer to the char array of self
