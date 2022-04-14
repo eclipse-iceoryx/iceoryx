@@ -22,30 +22,76 @@
 #   ./list_stl_dependencies.sh
 #=====================================================
 
+SCOPE=${1:-list}
 COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
+QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_hoofs/platform/qnx/
+USELIST=$WORKSPACE/tools/scripts/used-headers.txt
+CURRENTLY_USED_HEADERS=$(mktemp)
+GET_HEADER_NAME="\<\K[^<>]+(?=>)" # Matches the content between angle brackets
 
 for COMPONENT in ${COMPONENTS[@]}; do
     for DIR in ${SOURCE_DIR[@]}; do
-        GREP_PATH="${GREP_PATH} ${WORKSPACE}/${COMPONENT}/$DIR"
+        GREP_PATH_HOOFS_POSH="${GREP_PATH_HOOFS_POSH} ${WORKSPACE}/${COMPONENT}/$DIR"
     done
 done
 
-echo
-echo usage of std components by file
-grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \ \1  \2/p" | sort | uniq
+echo "# QNX platform / libc headers" | tee -a $CURRENTLY_USED_HEADERS
+
+# GCC can't preprocess .inl so we grep them in plain text
+QNX_CPP_HPP_FILES=$(find $QNX_PLATFORM_DIR -type f -iname *.cpp -o -iname *.hpp)
+QNX_INL_FILES=$(find $QNX_PLATFORM_DIR -type f -iname *.inl)
+
+{ gcc -w -fpreprocessed -dD -E $QNX_CPP_HPP_FILES; if [[ -n $QNX_INL_FILES ]]; then cat $QNX_INL_FILES; fi; } \
+ | grep -e "#include <" \
+ | grep -oP $GET_HEADER_NAME \
+ | sort \
+ | uniq \
+ | tee -a $CURRENTLY_USED_HEADERS \
+ | cat
 
 echo
-echo files with stl dependency
-grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::[a-zA-Z_]*.*/\1/p" | xargs -I{} basename {} | sort | uniq
+
+echo "# iceoryx_posh / iceoryx_hoofs headers" | tee -a $CURRENTLY_USED_HEADERS
+
+# GCC can't preprocess .inl so we grep them in plain text
+HOOFS_POSH_CPP_HPP_FILES=$(find $GREP_PATH_HOOFS_POSH -type f -iname *.cpp -o -iname *.hpp)
+HOOFS_POSH_INL_FILES=$(find $GREP_PATH_HOOFS_POSH -type f -iname *.inl)
+
+{ gcc -w -fpreprocessed -dD -E $HOOFS_POSH_CPP_HPP_FILES; if [[ -n $HOOFS_POSH_INL_FILES ]]; then cat $HOOFS_POSH_INL_FILES; fi; } \
+ | grep -e "#include <" \
+ | grep -oP $GET_HEADER_NAME \
+ | sort \
+ | uniq \
+ | tee -a $CURRENTLY_USED_HEADERS \
+ | cat
+
+if [[ "$SCOPE" == "check" ]]; then
+    echo
+    echo "Comparing the used system headers against the list.."
+    diff $CURRENTLY_USED_HEADERS $USELIST
+    if [ $? -eq 1 ]; then
+        echo "Mismatch of expected and found headers. Please check the diff above and remove/add the header in 'tools/used-headers.txt'!"
+        exit 1
+    fi
+    echo "No header divergence found!"
+fi
 
 echo
-echo using namespace with std component
-grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH | sed -n "s/\(.*\)/\ \ \1/p"
+echo "# usage of std components"
+{ gcc -w -fpreprocessed -dD -E $(find $GREP_PATH_HOOFS_POSH -type f -iname *.cpp -o -iname *.hpp); cat $(find $GREP_PATH_HOOFS_POSH -type f -iname *.inl); } \
+ | grep -HIne "std::" \
+ | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \  \2/p" \
+ | sort \
+ | uniq
 
 echo
-echo usage of std components
-grep -RIne "std::" $GREP_PATH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/\ \ \1/p" | sort | uniq
+echo "# files with stl dependency"
+grep -RIne "std::" $GREP_PATH_HOOFS_POSH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::[a-zA-Z_]*.*/\1/p" | xargs -I{} basename {} | sort | uniq
 
+echo
+echo "# using namespace with std component"
+grep -RIne ".*using\s*namespace.*std" $GREP_PATH_HOOFS_POSH | sed -n "s/\(.*\)/\ \ \1/p"
 
+exit 0

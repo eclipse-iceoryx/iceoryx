@@ -25,11 +25,11 @@
 #include "iceoryx_hoofs/platform/time.hpp"
 
 #include <atomic>
-#include <condition_variable>
 #include <cstdint>
 #include <ctime>
 #include <functional>
 #include <limits>
+#include <mutex>
 
 
 namespace iox

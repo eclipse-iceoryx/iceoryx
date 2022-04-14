@@ -23,8 +23,10 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/platform/errno.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/platform/time.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
@@ -32,11 +34,9 @@
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
 #include <cstdint>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
-#include <time.h>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <process.h>

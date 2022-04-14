@@ -24,7 +24,6 @@
 #include "iceoryx_posh/popo/notification_info.hpp"
 
 #include <type_traits>
-#include <typeinfo>
 
 namespace iox
 {
