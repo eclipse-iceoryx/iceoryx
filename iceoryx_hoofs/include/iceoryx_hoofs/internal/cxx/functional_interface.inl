@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 #define IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 
+#include "iceoryx_hoofs/cxx/functional_interface.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -27,8 +29,12 @@ namespace internal
 // BEGIN expect
 ///////////////
 template <typename Derived>
-inline void Expect<Derived>::expect(const char* const msg) const noexcept
+template <typename StringType>
+inline void Expect<Derived>::expect(const StringType& msg) const noexcept
 {
+    static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
+                  "Only char arrays and iox::cxx::strings are allowed as message type.");
+
     if (!(*static_cast<const Derived*>(this)))
     {
         std::cout << msg << std::endl;
@@ -37,8 +43,12 @@ inline void Expect<Derived>::expect(const char* const msg) const noexcept
 }
 
 template <typename Derived, typename ValueType>
-inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) & noexcept
+template <typename StringType>
+inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) & noexcept
 {
+    static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
+                  "Only char arrays and iox::cxx::strings are allowed as message type.");
+
     Derived* derivedThis = static_cast<Derived*>(this);
 
     if (!(*derivedThis))
@@ -51,20 +61,23 @@ inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const 
 }
 
 template <typename Derived, typename ValueType>
-inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) const& noexcept
+template <typename StringType>
+inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) const& noexcept
 {
     using Self = ExpectWithValue<Derived, ValueType>;
     return const_cast<const ValueType&>(const_cast<Self*>(this)->expect(msg));
 }
 
 template <typename Derived, typename ValueType>
-inline ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) && noexcept
+template <typename StringType>
+inline ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) && noexcept
 {
     return std::move(this->expect(msg));
 }
 
 template <typename Derived, typename ValueType>
-inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const char* const msg) const&& noexcept
+template <typename StringType>
+inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) const&& noexcept
 {
     using Self = ExpectWithValue<Derived, ValueType>;
     return const_cast<const ValueType&&>(std::move(const_cast<Self*>(this)->expect(msg)));
@@ -107,41 +120,57 @@ inline ValueType ValueOr<Derived, ValueType>::value_or(U&& alternative) && noexc
 // BEGIN and_then
 /////////////////
 template <typename Derived, typename ValueType>
-inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) & noexcept
+template <typename Functor>
+inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) & noexcept
 {
+    static_assert(cxx::is_invocable<Functor, ValueType&>::value,
+                  "Only callables with a signature of void(ValueType&) are allowed!");
+
     Derived* derivedThis = static_cast<Derived*>(this);
 
     if (*derivedThis)
     {
-        callable(derivedThis->value());
+        auto callback = static_cast<and_then_callback_t>(callable);
+        if (callback)
+        {
+            callback(derivedThis->value());
+        }
     }
 
     return *derivedThis;
 }
 
 template <typename Derived, typename ValueType>
-inline Derived&& AndThenWithValue<Derived, ValueType>::and_then(const and_then_callback_t& callable) && noexcept
+template <typename Functor>
+inline Derived&& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) && noexcept
 {
     return std::move(this->and_then(callable));
 }
 
 template <typename Derived, typename ValueType>
-inline const Derived&
-AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& callable) const& noexcept
+template <typename Functor>
+inline const Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) const& noexcept
 {
+    static_assert(cxx::is_invocable<Functor, const ValueType&>::value,
+                  "Only callables with a signature of void(const ValueType&) are allowed!");
+
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
     if (*derivedThis)
     {
-        callable(derivedThis->value());
+        auto callback = static_cast<const_and_then_callback_t>(callable);
+        if (callback)
+        {
+            callback(derivedThis->value());
+        }
     }
 
     return *derivedThis;
 }
 
 template <typename Derived, typename ValueType>
-inline const Derived&&
-AndThenWithValue<Derived, ValueType>::and_then(const const_and_then_callback_t& callable) const&& noexcept
+template <typename Functor>
+inline const Derived&& AndThenWithValue<Derived, ValueType>::and_then(const Functor& callable) const&& noexcept
 {
     return std::move(this->and_then(callable));
 }
@@ -151,7 +180,7 @@ inline Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) 
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis)
+    if (*derivedThis && callable)
     {
         callable();
     }
@@ -184,41 +213,58 @@ inline const Derived&& AndThen<Derived>::and_then(const and_then_callback_t& cal
 // BEGIN or_else
 ////////////////
 template <typename Derived, typename ErrorType>
-inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) & noexcept
+template <typename Functor>
+inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) & noexcept
 {
+    static_assert(cxx::is_invocable<Functor, ErrorType&>::value,
+                  "Only callables with a signature of void(ErrorType&) are allowed!");
+
     Derived* derivedThis = static_cast<Derived*>(this);
 
     if (!(*derivedThis))
     {
-        callable(derivedThis->get_error());
+        auto callback = static_cast<or_else_callback_t>(callable);
+
+        if (callback)
+        {
+            callback(derivedThis->get_error());
+        }
     }
 
     return *derivedThis;
 }
 
 template <typename Derived, typename ErrorType>
-inline Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const or_else_callback_t& callable) && noexcept
+template <typename Functor>
+inline Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) && noexcept
 {
     return std::move(this->or_else(callable));
 }
 
 template <typename Derived, typename ErrorType>
-inline const Derived&
-OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& callable) const& noexcept
+template <typename Functor>
+inline const Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) const& noexcept
 {
+    static_assert(cxx::is_invocable<Functor, ErrorType&>::value,
+                  "Only callables with a signature of void(const ErrorType&) are allowed!");
+
     const Derived* derivedThis = static_cast<const Derived*>(this);
 
     if (!(*derivedThis))
     {
-        callable(derivedThis->get_error());
+        auto callback = static_cast<const_or_else_callback_t>(callable);
+        if (callback)
+        {
+            callback(derivedThis->get_error());
+        }
     }
 
     return *derivedThis;
 }
 
 template <typename Derived, typename ErrorType>
-inline const Derived&&
-OrElseWithValue<Derived, ErrorType>::or_else(const const_or_else_callback_t& callable) const&& noexcept
+template <typename Functor>
+inline const Derived&& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& callable) const&& noexcept
 {
     return std::move(this->or_else(callable));
 }
@@ -228,7 +274,7 @@ inline Derived& OrElse<Derived>::or_else(const or_else_callback_t& callable) & n
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*derivedThis))
+    if (!(*derivedThis) && callable)
     {
         callable();
     }

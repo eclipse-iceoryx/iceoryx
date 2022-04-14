@@ -424,8 +424,8 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 }
 
 template <typename T1, typename T2>
-inline typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
-                                   && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+inline typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
+                                   && (is_char_array<T2>::value || is_cxx_string<T2>::value),
                                string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
 concatenate(const T1& t1, const T2& t2) noexcept
 {
@@ -442,8 +442,8 @@ concatenate(const T1& t1, const T2& t2) noexcept
 }
 
 template <typename T1, typename T2, typename... Targs>
-inline typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
-                                   && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+inline typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
+                                   && (is_char_array<T2>::value || is_cxx_string<T2>::value),
                                string<internal::SumCapa<T1, T2, Targs...>::value>>::type
 concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept
 {
@@ -451,9 +451,9 @@ concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept
 }
 
 template <typename T1, typename T2>
-inline typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxString<T2>::value)
-                                   || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
-                                   || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value),
+inline typename std::enable_if<(is_char_array<T1>::value && is_cxx_string<T2>::value)
+                                   || (is_cxx_string<T1>::value && is_char_array<T2>::value)
+                                   || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
                                string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
 operator+(const T1& t1, const T2& t2) noexcept
 {
@@ -462,7 +462,7 @@ operator+(const T1& t1, const T2& t2) noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+inline typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
 string<Capacity>::unsafe_append(const T& t) noexcept
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
@@ -483,9 +483,8 @@ string<Capacity>::unsafe_append(const T& t) noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline
-    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string<Capacity>&>::type
-    string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
+inline typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, string<Capacity>&>::type
+string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);
@@ -527,10 +526,10 @@ inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos) c
 
 template <uint64_t Capacity>
 template <typename T>
-inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-                                   || internal::IsCxxString<T>::value,
-                               optional<uint64_t>>::type
-string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
+inline
+    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
+                            optional<uint64_t>>::type
+    string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
@@ -546,10 +545,10 @@ string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-                                   || internal::IsCxxString<T>::value,
-                               optional<uint64_t>>::type
-string<Capacity>::find_first_of(const T& t, const uint64_t pos) const noexcept
+inline
+    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
+                            optional<uint64_t>>::type
+    string<Capacity>::find_first_of(const T& t, const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
@@ -570,10 +569,10 @@ string<Capacity>::find_first_of(const T& t, const uint64_t pos) const noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-                                   || internal::IsCxxString<T>::value,
-                               optional<uint64_t>>::type
-string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
+inline
+    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
+                            optional<uint64_t>>::type
+    string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
 {
     if (m_rawstringSize == 0U)
     {

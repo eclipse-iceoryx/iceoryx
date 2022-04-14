@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_CXX_TYPE_TRAITS_HPP
 #define IOX_HOOFS_CXX_TYPE_TRAITS_HPP
 
+#include <cstdint>
 #include <type_traits>
 
 namespace iox
@@ -123,6 +124,31 @@ struct is_function_pointer : std::false_type
 };
 template <typename ReturnType, typename... ArgTypes>
 struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
+{
+};
+
+template <uint64_t Capacity>
+class string;
+
+/// @brief struct to check whether an argument is a char array
+template <typename T>
+struct is_char_array : std::false_type
+{
+};
+
+template <uint64_t N>
+struct is_char_array<char[N]> : std::true_type
+{
+};
+
+/// @brief struct to check whether an argument is a cxx string
+template <typename T>
+struct is_cxx_string : std::false_type
+{
+};
+
+template <uint64_t N>
+struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
 {
 };
 
