@@ -29,10 +29,10 @@ namespace internal
 // BEGIN expect
 ///////////////
 template <typename Derived>
-template <typename StringContainer>
-inline void Expect<Derived>::expect(const StringContainer& msg) const noexcept
+template <typename StringType>
+inline void Expect<Derived>::expect(const StringType& msg) const noexcept
 {
-    static_assert(is_char_array<StringContainer>::value || is_cxx_string<StringContainer>::value,
+    static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
                   "Only char arrays and iox::cxx::strings are allowed as message type.");
 
     if (!(*static_cast<const Derived*>(this)))
@@ -43,10 +43,10 @@ inline void Expect<Derived>::expect(const StringContainer& msg) const noexcept
 }
 
 template <typename Derived, typename ValueType>
-template <typename StringContainer>
-inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringContainer& msg) & noexcept
+template <typename StringType>
+inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) & noexcept
 {
-    static_assert(is_char_array<StringContainer>::value || is_cxx_string<StringContainer>::value,
+    static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
                   "Only char arrays and iox::cxx::strings are allowed as message type.");
 
     Derived* derivedThis = static_cast<Derived*>(this);
@@ -61,23 +61,23 @@ inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringContai
 }
 
 template <typename Derived, typename ValueType>
-template <typename StringContainer>
-inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringContainer& msg) const& noexcept
+template <typename StringType>
+inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) const& noexcept
 {
     using Self = ExpectWithValue<Derived, ValueType>;
     return const_cast<const ValueType&>(const_cast<Self*>(this)->expect(msg));
 }
 
 template <typename Derived, typename ValueType>
-template <typename StringContainer>
-inline ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringContainer& msg) && noexcept
+template <typename StringType>
+inline ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) && noexcept
 {
     return std::move(this->expect(msg));
 }
 
 template <typename Derived, typename ValueType>
-template <typename StringContainer>
-inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringContainer& msg) const&& noexcept
+template <typename StringType>
+inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) const&& noexcept
 {
     using Self = ExpectWithValue<Derived, ValueType>;
     return const_cast<const ValueType&&>(std::move(const_cast<Self*>(this)->expect(msg)));

@@ -155,6 +155,7 @@ struct is_cxx_string<::iox::cxx::string<N>>
 {
     static constexpr bool value = true;
 };
+
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
 using void_t = void;

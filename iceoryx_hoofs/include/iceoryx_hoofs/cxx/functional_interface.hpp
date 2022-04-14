@@ -59,10 +59,10 @@ struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
     ///        provided message and induces a fatal error
-    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
-    template <typename StringContainer>
-    void expect(const StringContainer& msg) const noexcept;
+    template <typename StringType>
+    void expect(const StringType& msg) const noexcept;
 };
 
 template <typename Derived, typename ValueType>
@@ -70,35 +70,35 @@ struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a reference to the contained value
-    template <typename StringContainer>
-    ValueType& expect(const StringContainer& msg) & noexcept;
+    template <typename StringType>
+    ValueType& expect(const StringType& msg) & noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a const reference the contained value
-    template <typename StringContainer>
-    const ValueType& expect(const StringContainer& msg) const& noexcept;
+    template <typename StringType>
+    const ValueType& expect(const StringType& msg) const& noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return rvalue reference to the contained value
-    template <typename StringContainer>
-    ValueType&& expect(const StringContainer& msg) && noexcept;
+    template <typename StringType>
+    ValueType&& expect(const StringType& msg) && noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
-    /// @tparam StringContainer the string type of the message. Allowed types are a char array and a cxx::string
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return const rvalue reference to the contained value
-    template <typename StringContainer>
-    const ValueType&& expect(const StringContainer& msg) const&& noexcept;
+    template <typename StringType>
+    const ValueType&& expect(const StringType& msg) const&& noexcept;
 };
 
 template <typename Derived, typename ValueType>
