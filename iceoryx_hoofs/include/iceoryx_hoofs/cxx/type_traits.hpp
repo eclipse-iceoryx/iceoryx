@@ -132,28 +132,24 @@ class string;
 
 /// @brief struct to check whether an argument is a char array
 template <typename T>
-struct is_char_array
+struct is_char_array : std::false_type
 {
-    static constexpr bool value = false;
 };
 
 template <uint64_t N>
-struct is_char_array<char[N]>
+struct is_char_array<char[N]> : std::true_type
 {
-    static constexpr bool value = true;
 };
 
 /// @brief struct to check whether an argument is a cxx string
 template <typename T>
-struct is_cxx_string
+struct is_cxx_string : std::false_type
 {
-    static constexpr bool value = false;
 };
 
 template <uint64_t N>
-struct is_cxx_string<::iox::cxx::string<N>>
+struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
 {
-    static constexpr bool value = true;
 };
 
 /// @brief Maps a sequence of any types to the type void
