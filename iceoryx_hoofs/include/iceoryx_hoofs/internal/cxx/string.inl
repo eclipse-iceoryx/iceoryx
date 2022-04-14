@@ -345,6 +345,42 @@ inline bool string<Capacity>::operator>=(const char (&rhs)[N]) const noexcept
     return !(compare(rhs) < 0);
 }
 
+template <uint64_t N, uint64_t Capacity>
+inline bool operator==(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) == 0);
+}
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator!=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) != 0);
+}
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator<(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) > 0);
+}
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator<=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) >= 0);
+}
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator>(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) < 0);
+}
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) <= 0);
+}
+
 template <uint64_t Capacity>
 inline const char* string<Capacity>::c_str() const noexcept
 {

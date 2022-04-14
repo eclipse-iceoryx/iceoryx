@@ -1203,17 +1203,28 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
 /// @note template <uint64_t N>
 /// bool operator==(const char (&rhs)[N]) const noexcept
 /// and
-/// @note template <uint64_t N>
+/// template <uint64_t N>
 /// bool operator!=(const char (&rhs)[N]) const noexcept
+/// and
+/// template <uint64_t N, uint64_t Capacity>
+/// inline bool operator==(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+/// and
+/// template <uint64_t N, uint64_t Capacity>
+/// inline bool operator!=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP> fuu("M");
-    char bar[STRINGCAP + 1U] = "M";
+    char bar[STRINGCAP + 1U] = {'M'};
     EXPECT_THAT(fuu == bar, Eq(true));
+    EXPECT_THAT(bar == fuu, Eq(true));
     EXPECT_THAT(fuu != bar, Eq(false));
+    EXPECT_THAT(bar != fuu, Eq(false));
+
+    // using namespace std::string_literals;
+    //  EXPECT_THAT(fuu == "M"s, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWorks)
@@ -1222,9 +1233,11 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWorks)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP> fuu("M");
-    char bar[STRINGCAP + 1U] = "L";
+    char bar[STRINGCAP + 1U] = {'L'};
     EXPECT_THAT(fuu == bar, Eq(false));
+    EXPECT_THAT(bar == fuu, Eq(false));
     EXPECT_THAT(fuu != bar, Eq(true));
+    EXPECT_THAT(bar != fuu, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWithDifferentCapaWorks)
@@ -1233,9 +1246,11 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWithDifferentCapa
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP> testString1("M");
-    char testString2[STRINGCAP + 1U] = "M";
+    char testString2[STRINGCAP + 5U] = {'M'};
     EXPECT_THAT(testString1 == testString2, Eq(true));
+    EXPECT_THAT(testString2 == testString1, Eq(true));
     EXPECT_THAT(testString1 != testString2, Eq(false));
+    EXPECT_THAT(testString2 != testString1, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCapaWorks)
@@ -1244,27 +1259,42 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCa
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP + 2U> testString1("M");
-    char testString2[STRINGCAP + 1U] = "L";
+    char testString2[STRINGCAP + 1U] = {'L'};
     string<STRINGCAP + 2U> testString3;
     std::string testStdString(STRINGCAP + 2U, 'L');
     EXPECT_THAT(testString3.unsafe_assign(testStdString), Eq(true));
     EXPECT_THAT(testString1 == testString2, Eq(false));
     EXPECT_THAT(testString3 == testString2, Eq(false));
+    EXPECT_THAT(testString2 == testString1, Eq(false));
+    EXPECT_THAT(testString2 == testString3, Eq(false));
     EXPECT_THAT(testString1 != testString2, Eq(true));
     EXPECT_THAT(testString3 != testString2, Eq(true));
+    EXPECT_THAT(testString2 != testString1, Eq(true));
+    EXPECT_THAT(testString2 != testString3, Eq(true));
 }
 
 /// @note template <uint64_t N>
 /// bool operator<(const char (&rhs)[N]) const noexcept
 /// and
-/// @note template <uint64_t N>
+/// template <uint64_t N>
 /// bool operator<=(const char (&rhs)[N]) const noexcept
 /// and
-/// @note template <uint64_t N>
+/// template <uint64_t N>
 /// bool operator>(const char (&rhs)[N]) const noexcept
 /// and
-/// @note template <uint64_t N>
+/// template <uint64_t N>
 /// bool operator>=(const char (&rhs)[N]) const noexcept
+/// template <uint64_t N, uint64_t Capacity>
+/// inline bool operator<(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+/// and
+/// template <uint64_t N, uint64_t Capacity>
+/// inline bool operator<=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+/// and
+/// template <uint64_t N, uint64_t Capacity>
+/// inline bool operator>(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
+/// and
+/// template <uint64_t N, uint64_t Capacity>
+/// inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "");
@@ -1272,7 +1302,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP> fuu("M");
     string<STRINGCAP> bla("F");
-    char bar[STRINGCAP + 1U] = "L";
+    char bar[STRINGCAP + 1U] = {'L'};
     EXPECT_THAT(fuu < bar, Eq(false));
     EXPECT_THAT(fuu <= bar, Eq(false));
     EXPECT_THAT(bla < bar, Eq(true));
@@ -1281,6 +1311,15 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
     EXPECT_THAT(fuu >= bar, Eq(true));
     EXPECT_THAT(bla > bar, Eq(false));
     EXPECT_THAT(bla >= bar, Eq(false));
+
+    EXPECT_THAT(bar < fuu, Eq(true));
+    EXPECT_THAT(bar <= fuu, Eq(true));
+    EXPECT_THAT(bar < bla, Eq(false));
+    EXPECT_THAT(bar <= bla, Eq(false));
+    EXPECT_THAT(bar > fuu, Eq(false));
+    EXPECT_THAT(bar >= fuu, Eq(false));
+    EXPECT_THAT(bar > bla, Eq(true));
+    EXPECT_THAT(bar >= bla, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArrays)
@@ -1289,11 +1328,16 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArrays)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP> fuu("M");
-    char bar[STRINGCAP + 1U] = "M";
+    char bar[STRINGCAP + 1U] = {'M'};
     EXPECT_THAT(fuu < bar, Eq(false));
     EXPECT_THAT(fuu <= bar, Eq(true));
     EXPECT_THAT(fuu > bar, Eq(false));
     EXPECT_THAT(fuu >= bar, Eq(true));
+
+    EXPECT_THAT(bar < fuu, Eq(false));
+    EXPECT_THAT(bar <= fuu, Eq(true));
+    EXPECT_THAT(bar > fuu, Eq(false));
+    EXPECT_THAT(bar >= fuu, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferentCapa)
@@ -1323,6 +1367,15 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferent
     EXPECT_THAT(bar >= fuu, Eq(true));
     EXPECT_THAT(bla > fuu, Eq(false));
     EXPECT_THAT(bla >= fuu, Eq(false));
+
+    EXPECT_THAT(fuu < bar, Eq(true));
+    EXPECT_THAT(fuu <= bar, Eq(true));
+    EXPECT_THAT(fuu < bla, Eq(false));
+    EXPECT_THAT(fuu <= bla, Eq(false));
+    EXPECT_THAT(fuu > bar, Eq(false));
+    EXPECT_THAT(fuu >= bar, Eq(false));
+    EXPECT_THAT(fuu > bla, Eq(true));
+    EXPECT_THAT(fuu >= bla, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArraysWithDifferentCapa)
@@ -1345,6 +1398,11 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArraysWithDifferentCap
     EXPECT_THAT(bar <= fuu, Eq(true));
     EXPECT_THAT(bar > fuu, Eq(false));
     EXPECT_THAT(bar >= fuu, Eq(true));
+
+    EXPECT_THAT(fuu < bar, Eq(false));
+    EXPECT_THAT(fuu <= bar, Eq(true));
+    EXPECT_THAT(fuu > bar, Eq(false));
+    EXPECT_THAT(fuu >= bar, Eq(true));
 }
 
 /// @note explicit operator std::string() const noexcept

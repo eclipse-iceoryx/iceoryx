@@ -664,6 +664,24 @@ inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noex
 template <uint64_t Capacity>
 inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs) noexcept;
 
+template <uint64_t N, uint64_t Capacity>
+inline bool operator==(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator!=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator<(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator<=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator>(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
+
+template <uint64_t N, uint64_t Capacity>
+inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
+
 /// @brief The equality operator for char pointer and fixed string is disabled via a static_assert, because it may
 /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
 /// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
