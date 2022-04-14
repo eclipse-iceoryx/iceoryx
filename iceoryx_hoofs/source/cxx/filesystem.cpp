@@ -17,51 +17,11 @@
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include <iostream>
-#include <type_traits>
 
 namespace iox
 {
 namespace cxx
 {
-perms operator|(const perms& lhs, const perms& rhs) noexcept
-{
-    using T = std::underlying_type<perms>::type;
-    return static_cast<perms>(static_cast<T>(lhs) | static_cast<T>(rhs));
-}
-
-perms operator&(const perms& lhs, const perms& rhs) noexcept
-{
-    using T = std::underlying_type<perms>::type;
-    return static_cast<perms>(static_cast<T>(lhs) & static_cast<T>(rhs));
-}
-
-perms operator^(const perms& lhs, const perms& rhs) noexcept
-{
-    using T = std::underlying_type<perms>::type;
-    return static_cast<perms>(static_cast<T>(lhs) ^ static_cast<T>(rhs));
-}
-
-perms operator~(const perms& value) noexcept
-{
-    using T = std::underlying_type<perms>::type;
-    return static_cast<perms>(~static_cast<T>(value));
-}
-
-perms operator|=(perms& lhs, const perms& rhs) noexcept
-{
-    return lhs = lhs | rhs;
-}
-
-perms operator&=(perms& lhs, const perms& rhs) noexcept
-{
-    return lhs = lhs & rhs;
-}
-
-perms operator^=(perms& lhs, const perms& rhs) noexcept
-{
-    return lhs = lhs ^ rhs;
-}
-
 template <typename StreamType>
 StreamType& operator<<(StreamType& stream, perms value) noexcept
 {

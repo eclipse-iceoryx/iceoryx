@@ -19,9 +19,9 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/design_pattern/builder.hpp"
 
 #include <cstdint>
 
@@ -74,7 +74,7 @@ enum class SharedMemoryError
 /// @brief Creates a bare metal shared memory object with the posix functions
 ///        shm_open, shm_unlink etc.
 ///        It must be used in combination with MemoryMap (or manual mmap calls)
-//         to gain access to the created/opened shared memory
+///        to gain access to the created/opened shared memory
 class SharedMemory
 {
   public:

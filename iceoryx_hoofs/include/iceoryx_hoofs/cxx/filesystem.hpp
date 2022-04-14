@@ -17,6 +17,7 @@
 #define IOX_HOOFS_CXX_FILESYSTEM_HPP
 
 #include <cstdint>
+#include <type_traits>
 
 namespace iox
 {
@@ -84,42 +85,42 @@ enum class perms : uint64_t
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs | rhs
-perms operator|(const perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator|(const perms& lhs, const perms& rhs) noexcept;
 
 /// @brief Implements the binary and operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs & rhs
-perms operator&(const perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator&(const perms& lhs, const perms& rhs) noexcept;
 
 /// @brief Implements the binary exclusive or operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs ^ rhs
-perms operator^(const perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator^(const perms& lhs, const perms& rhs) noexcept;
 
 /// @brief Implements the binary complement operation
 /// @param[in] value the value used for the operation
 /// @return ~value
-perms operator~(const perms& value) noexcept;
+constexpr perms operator~(const perms& value) noexcept;
 
 /// @brief Implements the binary or assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs | rhs
-perms operator|=(perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator|=(perms& lhs, const perms& rhs) noexcept;
 
 /// @brief Implements the binary and assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs & rhs
-perms operator&=(perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator&=(perms& lhs, const perms& rhs) noexcept;
 
 /// @brief Implements the binary exclusive or assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs ^ rhs
-perms operator^=(perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator^=(perms& lhs, const perms& rhs) noexcept;
 
 /// @brief The streaming operator for the perms enum. It handles the enum as if
 ///        it was a bitset and always lists the values for owner, group, others, special bits
@@ -130,5 +131,7 @@ template <typename StreamType>
 StreamType& operator<<(StreamType& stream, perms value) noexcept;
 } // namespace cxx
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/cxx/filesystem.inl"
 
 #endif
