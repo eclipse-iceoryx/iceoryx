@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace iox
 {

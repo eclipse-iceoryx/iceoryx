@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_STATIC_STORAGE_HPP
 #define IOX_HOOFS_STATIC_STORAGE_HPP
 
+#include <cstdint>
 #include <cstring>
 #include <memory>
-#include <stdint.h>
 
 namespace iox
 {

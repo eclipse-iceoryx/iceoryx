@@ -92,6 +92,6 @@ grep -RIne "std::" $GREP_PATH_HOOFS_POSH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::
 
 echo
 echo "# using namespace with std component"
-grep -RIne ".*using\s*namespace\s*std" $GREP_PATH_HOOFS_POSH | sed -n "s/\(.*\)/\ \ \1/p"
+grep -RIne ".*using\s*namespace.*std" $GREP_PATH_HOOFS_POSH | sed -n "s/\(.*\)/\ \ \1/p"
 
 exit 0

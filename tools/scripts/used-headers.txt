@@ -24,7 +24,6 @@ sys/wait.h
 unistd.h
 # iceoryx_posh / iceoryx_hoofs headers
 algorithm
-assert.h
 atomic
 bitset
 cassert
@@ -53,7 +52,6 @@ numeric
 process.h
 regex
 sstream
-stdint.h
 string
 thread
 type_traits
