@@ -64,20 +64,6 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-if(BUILD_TEST AND NOT GTest_FOUND)
-    find_package(GTest CONFIG REQUIRED)
-endif(BUILD_TEST AND NOT GTest_FOUND)
-
-if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_hoofs_testing without also building the tests
-    setup_package_name_and_create_files(
-        NAME ${PROJECT_NAME}_testing
-        NAMESPACE iceoryx_hoofs_testing
-        PROJECT_PREFIX ${PREFIX}
-    )
-
-    add_subdirectory(testing)
-endif(GTest_FOUND)
-
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
     NAMESPACE iceoryx_hoofs
@@ -165,6 +151,15 @@ target_include_directories(iceoryx_hoofs
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
+#
+########## hoofs testing ##########
+#
+
+if(BUILD_TEST)
+    find_package(GTest CONFIG REQUIRED)
+    add_subdirectory(testing)
+    add_subdirectory(test)
+endif(BUILD_TEST)
 
 #
 ########## exporting library ##########
@@ -190,10 +185,6 @@ install(
         cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
-
-if(BUILD_TEST)
-    add_subdirectory(test)
-endif(BUILD_TEST)
 
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE

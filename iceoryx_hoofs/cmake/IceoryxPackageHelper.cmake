@@ -46,7 +46,7 @@ Macro(setup_package_name_and_create_files)
     )
 
     configure_package_config_file(
-        "cmake/Config.cmake.in"
+        "${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in"
         ${PACKAGE_CONFIG_FILE}
         INSTALL_DESTINATION ${DESTINATION_CONFIGDIR}
     )

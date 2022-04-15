@@ -20,6 +20,12 @@
 # TODO: we need something like internal public for internal build dependencies
 # instead of making the whole source folder public for internal dependency resolution
 
+setup_package_name_and_create_files(
+    NAME ${PROJECT_NAME}_testing
+    NAMESPACE iceoryx_hoofs_testing
+    PROJECT_PREFIX ${PREFIX}
+)
+
 add_library(iceoryx_hoofs_testing
     STATIC
     mocks/time_mock.cpp
