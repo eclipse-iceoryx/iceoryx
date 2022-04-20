@@ -54,6 +54,7 @@ jobs:
         usesh: true
         mem: 2048
         prepare: pkg install -y cmake git ncurses bash wget bison
+        run: git config --global --add safe.directory /Users/runner/work/iceoryx/iceoryx
         run: ./tools/ci/build-test-freebsd.sh
 
   build-test-windows:
