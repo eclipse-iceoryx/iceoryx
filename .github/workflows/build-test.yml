@@ -13,21 +13,21 @@ jobs:
   pre-flight-check:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/scripts/clang_format.sh check
       - run: ./tools/scripts/list_stl_dependencies.sh check
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/markdown-link-verificator.sh
 
   build-test-ubuntu:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: egor-tensin/setup-gcc@v1
         with:
           version: 9
@@ -44,7 +44,7 @@ jobs:
     needs: pre-flight-check
     runs-on: macos-10.15
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         ref: 'master'
     - name: Unix (FreeBSD) test
@@ -62,7 +62,7 @@ jobs:
     runs-on: windows-2019
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/build-test-windows.ps1
         shell: powershell
 
@@ -71,21 +71,21 @@ jobs:
     needs: pre-flight-check
     steps:
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@0.2.1
+        uses: ros-tooling/setup-ros@v0.3
         with:
           required-ros-distributions: foxy
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/run-integration-test.sh
 
   build-test-ubuntu-with-sanitizers-gcc-latest:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-gcc@v1.2
+      - uses: egor-tensin/setup-gcc@v1
         with:
           version: 11
           platform: x64
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc
 
   build-test-ubuntu-with-sanitizers-clang-latest:
@@ -96,7 +96,7 @@ jobs:
         with:
           version: 13
           platform: x64
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
   build-test-macos-with-sanitizers:
@@ -105,7 +105,7 @@ jobs:
     timeout-minutes: 60
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/build-test-macos-with-sanitizers.sh
 
   # gcc 5.4 is compiler used in QNX 7.0
@@ -113,18 +113,18 @@ jobs:
     runs-on: ubuntu-18.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/build-test-ubuntu-with-gcc54.sh
 
   coverage-and-docs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./tools/ci/coverage-and-docs.sh
 
       - name: Archive generated doxygen
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: iceoryx-pdf
           path: |
@@ -132,7 +132,7 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
@@ -140,7 +140,7 @@ jobs:
           fail_ci_if_error: true
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
           name: iceoryx
