@@ -14,7 +14,7 @@
 
 **Bugfixes:**
 
-- Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)
+- FreeBSD CI build is broken [\#1338](https://github.com/eclipse-iceoryx/iceoryx/issues/1338)
 
 **Refactoring:**
 
