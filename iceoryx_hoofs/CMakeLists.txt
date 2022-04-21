@@ -155,11 +155,19 @@ target_include_directories(iceoryx_hoofs
 ########## hoofs testing ##########
 #
 
-if(BUILD_TEST)
+# Finding gtest and adding the subdirectories is split to support the use case of
+# building the testing lib without the tests by providing gtest externally
+if(NOT GTest_FOUND AND BUILD_TEST)
     find_package(GTest CONFIG REQUIRED)
+endif()
+
+if(GTest_FOUND)
+    message(STATUS "GTest was found, building iceoryx_hoofs_testing enabled.")
     add_subdirectory(testing)
-    add_subdirectory(test)
-endif(BUILD_TEST)
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif()
+endif()
 
 #
 ########## exporting library ##########
