@@ -19,6 +19,7 @@
 #include "owl/kom/event_subscriber.hpp"
 #include "owl/kom/field_subscriber.hpp"
 #include "owl/kom/method_client.hpp"
+#include "owl/runtime.hpp"
 #include "owl/types.hpp"
 
 class MinimalProxy
@@ -28,10 +29,23 @@ class MinimalProxy
     MinimalProxy(const MinimalProxy&) = delete;
     MinimalProxy& operator=(const MinimalProxy&) = delete;
 
-    static owl::kom::FindServiceHandle StartFindService();
-    static void StopFindService();
+    static owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<owl::kom::FindServiceHandle>,
+                                                        owl::core::String&) noexcept
+    {
+        // attach to listener to call handler if service registry has changed
+        // m_discovery.findService();
+        return owl::kom::FindServiceHandle();
+    }
+
+    static void StopFindService() noexcept
+    {
+    }
+
     static owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle>
-    FindService(owl::core::String& InstanceIdentifier);
+    FindService(owl::core::String& InstanceIdentifier) noexcept
+    {
+        return owl::Runtime::GetInstance().FindService(InstanceIdentifier);
+    }
 
     owl::kom::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
     owl::kom::FieldSubscriber<Topic> m_field{"MinimalSkeleton", "Instance", "Field"};

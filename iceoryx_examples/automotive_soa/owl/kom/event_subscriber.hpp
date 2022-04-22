@@ -35,7 +35,7 @@ class EventSubscriber
     using SampleType = T;
 
     EventSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_subscriber({service, instance, event})
+        : m_subscriber({service, instance, event}, {10U, 1U, "", false})
     {
     }
 
@@ -72,6 +72,8 @@ class EventSubscriber
         }
         return numberOfSamples;
     }
+
+    /// @todo SetReceiveHandler() needed?
 
   private:
     iox::popo::Subscriber<T> m_subscriber;

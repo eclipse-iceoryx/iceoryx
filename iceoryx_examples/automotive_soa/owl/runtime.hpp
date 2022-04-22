@@ -17,7 +17,9 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_RUNTIME_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_RUNTIME_HPP
 
+#include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "types.hpp"
 
@@ -34,12 +36,39 @@ class Runtime
         return runtime;
     }
 
+    static Runtime& GetInstance() noexcept
+    {
+        static Runtime runtime;
+        return runtime;
+    }
+
+    owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle>
+    FindService(owl::core::String& InstanceIdentifier) noexcept
+    {
+        owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle> serviceContainer;
+        m_discovery.findService(
+            iox::cxx::nullopt,
+            InstanceIdentifier,
+            iox::cxx::nullopt,
+            [&](auto& service) { serviceContainer.push_back(service); },
+            iox::popo::MessagingPattern::PUB_SUB);
+
+        return serviceContainer;
+    }
+
   private:
     explicit Runtime(const std::string name) noexcept
     {
         iox::runtime::PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, name));
     }
-    /// @todo add listener here
+
+    explicit Runtime() noexcept
+    {
+        iox::runtime::PoshRuntime::getInstance();
+    }
+
+    iox::runtime::ServiceDiscovery m_discovery;
+    iox::popo::Listener m_listener;
 };
 } // namespace owl
 
