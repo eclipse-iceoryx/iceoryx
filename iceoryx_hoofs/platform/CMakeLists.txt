@@ -38,7 +38,9 @@ set(ICEORYX_PLATFORM ${ICEORYX_PLATFORM} CACHE PATH "" FORCE)
 file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
     ${ICEORYX_PLATFORM}/source/*.cpp
 )
+
 add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
+add_library(iceoryx_hoofs::iceoryx_platform ALIAS iceoryx_platform)
 target_include_directories(iceoryx_platform
     PUBLIC
     $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
