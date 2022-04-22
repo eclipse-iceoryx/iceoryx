@@ -40,10 +40,10 @@ int main()
     {
         ++counter;
 
-        // // Event
-        // auto sample = skeleton.m_event.Allocate();
-        // (*sample).counter = counter;
-        // skeleton.m_event.Send(std::move(sample));
+        // Event
+        auto sample = skeleton.m_event.Allocate();
+        (*sample).counter = counter;
+        skeleton.m_event.Send(std::move(sample));
 
         // // Field
         // if (counter > 30)

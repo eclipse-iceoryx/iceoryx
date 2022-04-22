@@ -39,9 +39,9 @@ int main()
 
     while (!iox::posix::hasTerminationRequested())
     {
-        // // Event
-        // proxy.m_event.GetNewSamples(
-        //     [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
+        // Event
+        proxy.m_event.GetNewSamples(
+            [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
 
         // // Field
         // proxy.m_field.GetNewSamples(

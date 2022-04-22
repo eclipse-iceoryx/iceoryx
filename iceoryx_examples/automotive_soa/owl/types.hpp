@@ -23,7 +23,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 
-//#include "kom/sample_allocatee_ptr.hpp"
+#include "kom/sample_allocatee_ptr.hpp"
 
 #include <future>
 #include <memory>
