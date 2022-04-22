@@ -19,6 +19,17 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_DATA_HPP
 
+struct AddRequest
+{
+    uint64_t addend1{0};
+    uint64_t addend2{0};
+};
+
+struct AddResponse
+{
+    uint64_t sum{0};
+};
+
 struct Topic
 {
     Topic() noexcept = default;

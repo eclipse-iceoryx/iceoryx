@@ -14,35 +14,48 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "topic_data.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
+//#include "owl/com/event_publisher.hpp"
+#include "owl/runtime.hpp"
+#include "minimal_skeleton.hpp"
 
 #include <iostream>
 
-constexpr char APP_NAME[] = "iox-cpp-automotive-subscriber";
+constexpr char APP_NAME[] = "iox-cpp-automotive-skeleton";
+
+// owl::kom::InstanceIdentifier needed?
 
 int main()
 {
-    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    owl::Runtime::GetInstance(APP_NAME);
 
-    iox::popo::Subscriber<Topic> subscriber({"Service", "Instance", "Event"});
+    MinimalSkeleton skeleton;
 
+    skeleton.OfferService();
+
+    uint64_t counter = 0;
     while (!iox::posix::hasTerminationRequested())
     {
-        subscriber.take()
-            .and_then([](auto& sample) { std::cout << APP_NAME << " got: " << sample->counter << std::endl; })
-            .or_else([](auto& result) {
-                if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                {
-                    std::cout << "Error receiving chunk!" << std::endl;
-                }
-            });
+        ++counter;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // // Event
+        // auto sample = skeleton.m_event.Allocate();
+        // (*sample).counter = counter;
+        // skeleton.m_event.Send(std::move(sample));
+
+        // // Field
+        // if (counter > 30)
+        // {
+        //     Topic field{counter};
+        //     skeleton.m_field.Update(field);
+        // }
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    return (EXIT_SUCCESS);
+    skeleton.StopOfferService();
+
+    return 0;
 }

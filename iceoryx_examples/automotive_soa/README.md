@@ -1,5 +1,9 @@
 # automotive_soa
 
+* Small amount of functionality, if you need functionality contact autosar foundation.
+
+* Not production-ready
+
 ## Introduction
 
 ## Expected Output
@@ -7,6 +11,8 @@
 <!-- [![asciicast](https://asciinema.org/a/000000.svg)](https://asciinema.org/a/000000) -->
 
 ## Code walkthrough
+
+`MinimalProxy` and `MinimalSkeleton` are typically generated.
 
 ### publisher application
 

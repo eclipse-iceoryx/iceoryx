@@ -25,26 +25,40 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-automotive-publisher ./iox_automotive_publisher.cpp)
-target_link_libraries(iox-cpp-automotive-publisher
+add_executable(iox-cpp-automotive-skeleton ./iox_automotive_skeleton.cpp)
+target_link_libraries(iox-cpp-automotive-skeleton
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-automotive-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-automotive-skeleton PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-cpp-automotive-subscriber ./iox_automotive_subscriber.cpp)
-target_link_libraries(iox-cpp-automotive-subscriber
+target_include_directories(iox-cpp-automotive-skeleton
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
+)
+
+add_executable(iox-cpp-automotive-proxy ./iox_automotive_proxy.cpp)
+target_link_libraries(iox-cpp-automotive-proxy
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-automotive-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-automotive-proxy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-cpp-automotive-subscriber
-                      iox-cpp-automotive-publisher
+target_include_directories(iox-cpp-automotive-proxy
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
+)
+
+set_target_properties(iox-cpp-automotive-proxy
+                      iox-cpp-automotive-skeleton
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
-install(TARGETS iox-cpp-automotive-publisher
-                iox-cpp-automotive-subscriber
+install(TARGETS iox-cpp-automotive-skeleton
+                iox-cpp-automotive-proxy
         RUNTIME DESTINATION bin)
