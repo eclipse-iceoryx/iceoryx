@@ -59,7 +59,7 @@ class MockSubscriberPortUser
     MOCK_METHOD2(setConditionVariable, bool(iox::popo::ConditionVariableData&, uint64_t));
     MOCK_METHOD0(isConditionVariableSet, bool());
     MOCK_METHOD0(unsetConditionVariable, bool());
-    MOCK_METHOD0(destroy, bool());
+    MOCK_METHOD0(destroy, void());
     MOCK_CONST_METHOD0(getUniqueID, iox::popo::UniquePortId());
 };
 
