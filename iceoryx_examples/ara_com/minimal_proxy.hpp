@@ -19,6 +19,7 @@
 #include "ara/com/event_subscriber.hpp"
 #include "ara/com/field_subscriber.hpp"
 #include "ara/com/method_client.hpp"
+#include "ara/runtime.hpp"
 #include "ara/types.hpp"
 
 class MinimalProxy
@@ -28,10 +29,23 @@ class MinimalProxy
     MinimalProxy(const MinimalProxy&) = delete;
     MinimalProxy& operator=(const MinimalProxy&) = delete;
 
-    static ara::com::FindServiceHandle StartFindService();
-    static void StopFindService();
+    static ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<ara::com::FindServiceHandle>,
+                                                        ara::core::String&) noexcept
+    {
+        // attach to listener to call handler if service registry has changed
+        // m_discovery.findService();
+        return ara::com::FindServiceHandle();
+    }
+
+    static void StopFindService() noexcept
+    {
+    }
+
     static ara::com::ServiceHandleContainer<ara::com::FindServiceHandle>
-    FindService(ara::core::String& InstanceIdentifier);
+    FindService(ara::core::String& InstanceIdentifier) noexcept
+    {
+        return ara::Runtime::GetInstance().FindService(InstanceIdentifier);
+    }
 
     ara::com::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
     ara::com::FieldSubscriber<Topic> m_field{"MinimalSkeleton", "Instance", "Field"};
