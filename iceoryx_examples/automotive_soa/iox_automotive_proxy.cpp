@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "owl/runtime.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "minimal_proxy.hpp"
+#include "owl/runtime.hpp"
 
 #include <iostream>
 
@@ -47,19 +47,19 @@ int main()
         proxy.m_field.GetNewSamples(
             [](const auto& field) { std::cout << "Receiving field: " << field->counter << std::endl; });
 
-        // // Method
-        // auto future = proxy.computeSum(addend1, addend2);
-        // try
-        // {
-        //     auto result = future.get();
-        //     std::cout << "Result of " << std::to_string(addend1) << " + " << std::to_string(addend2) << " is "
-        //               << result.sum << std::endl;
-        // }
-        // catch (const std::future_error& e)
-        // {
-        //     std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton' before '" << APP_NAME << "'"
-        //               << std::endl;
-        // }
+        // Method
+        auto future = proxy.computeSum(addend1, addend2);
+        try
+        {
+            auto result = future.get();
+            std::cout << "Result of " << std::to_string(addend1) << " + " << std::to_string(addend2) << " is "
+                      << result.sum << std::endl;
+        }
+        catch (const std::future_error& e)
+        {
+            std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton' before '" << APP_NAME
+                      << "'" << std::endl;
+        }
 
         addend1 += addend2 + addend2;
         addend2++;

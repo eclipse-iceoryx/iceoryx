@@ -18,7 +18,7 @@
 
 #include "owl/kom/event_subscriber.hpp"
 #include "owl/kom/field_subscriber.hpp"
-// #include "owl/kom/method_client.hpp"
+#include "owl/kom/method_client.hpp"
 #include "owl/types.hpp"
 
 class MinimalProxy
@@ -35,5 +35,5 @@ class MinimalProxy
 
     owl::kom::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
     owl::kom::FieldSubscriber<Topic> m_field{"MinimalSkeleton", "Instance", "Field"};
-    // owl::kom::MethodClient computeSum{"MinimalSkeleton", "Instance", "Method"};
+    owl::kom::MethodClient computeSum{"MinimalSkeleton", "Instance", "Method"};
 };

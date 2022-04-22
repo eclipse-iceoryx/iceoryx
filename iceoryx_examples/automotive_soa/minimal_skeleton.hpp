@@ -18,7 +18,7 @@
 
 #include "owl/kom/event_publisher.hpp"
 #include "owl/kom/field_publisher.hpp"
-// #include "owl/kom/method_server.hpp"
+#include "owl/kom/method_server.hpp"
 #include "owl/types.hpp"
 
 class MinimalSkeleton
@@ -43,5 +43,5 @@ class MinimalSkeleton
     owl::kom::EventPublisher<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
     Topic initalFieldValue{4242};
     owl::kom::FieldPublisher<Topic> m_field{"MinimalSkeleton", "Instance", "Field", initalFieldValue};
-    // owl::kom::MethodServer computeSum{"MinimalSkeleton", "Instance", "Method"};
+    owl::kom::MethodServer computeSum{"MinimalSkeleton", "Instance", "Method"};
 };
