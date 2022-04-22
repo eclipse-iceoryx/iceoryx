@@ -45,12 +45,12 @@ int main()
         (*sample).counter = counter;
         skeleton.m_event.Send(std::move(sample));
 
-        // // Field
-        // if (counter > 30)
-        // {
-        //     Topic field{counter};
-        //     skeleton.m_field.Update(field);
-        // }
+        // Field
+        if (counter > 30)
+        {
+            Topic field{counter};
+            skeleton.m_field.Update(field);
+        }
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

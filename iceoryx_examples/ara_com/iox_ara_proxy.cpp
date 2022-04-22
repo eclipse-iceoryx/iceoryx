@@ -43,9 +43,9 @@ int main()
         proxy.m_event.GetNewSamples(
             [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
 
-        // // Field
-        // proxy.m_field.GetNewSamples(
-        //     [](const auto& field) { std::cout << "Receiving field: " << field->counter << std::endl; });
+        // Field
+        proxy.m_field.GetNewSamples(
+            [](const auto& field) { std::cout << "Receiving field: " << field->counter << std::endl; });
 
         // // Method
         // auto future = proxy.computeSum(addend1, addend2);

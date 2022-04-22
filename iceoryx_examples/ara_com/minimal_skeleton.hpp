@@ -17,7 +17,7 @@
 #include "topic.hpp"
 
 #include "ara/com/event_publisher.hpp"
-// #include "ara/com/field_publisher.hpp"
+#include "ara/com/field_publisher.hpp"
 // #include "ara/com/method_server.hpp"
 #include "ara/types.hpp"
 
@@ -41,7 +41,7 @@ class MinimalSkeleton
     }
 
     ara::com::EventPublisher<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
-    // Topic initalFieldValue{4242};
-    // ara::com::FieldPublisher<Topic> m_field{"MinimalSkeleton", "Instance", "Field", initalFieldValue};
+    Topic initalFieldValue{4242};
+    ara::com::FieldPublisher<Topic> m_field{"MinimalSkeleton", "Instance", "Field", initalFieldValue};
     // ara::com::MethodServer computeSum{"MinimalSkeleton", "Instance", "Method"};
 };
