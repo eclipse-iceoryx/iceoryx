@@ -58,6 +58,14 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
     iox::config::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
+    auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
+    EXPECT_CALL(*mockSubscriber, subscribe()).Times(1);
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
+
+    auto mockWriter = createMockDDSTerminal(testService);
+    EXPECT_CALL(*mockWriter, connect()).Times(1);
+    stageMockDDSTerminal(std::move(mockWriter));
+
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
@@ -78,9 +86,13 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices
     EXPECT_CALL(*mockSubscriber, subscribe()).Times(1);
     stageMockIceoryxTerminal(std::move(mockSubscriber));
 
+    auto mockWriter = createMockDDSTerminal(testService);
+    EXPECT_CALL(*mockWriter, connect()).Times(1);
+    stageMockDDSTerminal(std::move(mockWriter));
+
     TestGateway gw{};
-    ON_CALL(gw, findChannel(_)).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(_, _)).WillByDefault(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
+    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
 
     // === Test
     gw.loadConfiguration(config);
@@ -94,13 +106,17 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfigure
     iox::config::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
+    auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
+    EXPECT_CALL(*mockSubscriber, subscribe()).Times(1);
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
+
     auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter, connect()).Times(1);
     stageMockDDSTerminal(std::move(mockWriter));
 
     TestGateway gw{};
-    ON_CALL(gw, findChannel(_)).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(_, _)).WillByDefault(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
+    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
 
     // === Test
     gw.loadConfiguration(config);
@@ -139,6 +155,15 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
     ::testing::Test::RecordProperty("TEST_ID", "0f356ca7-8f0f-442e-8888-592578145e59");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+
+    auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
+    EXPECT_CALL(*mockSubscriber, subscribe()).Times(1);
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
+
+    auto mockWriter = createMockDDSTerminal(testService);
+    EXPECT_CALL(*mockWriter, connect()).Times(1);
+    stageMockDDSTerminal(std::move(mockWriter));
+
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
     msg.m_serviceType = iox::capro::CaproServiceType::PUBLISHER;
@@ -155,17 +180,22 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
     ::testing::Test::RecordProperty("TEST_ID", "53e36923-1e39-43c5-a094-651f1ca4c08c");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+
     auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
     EXPECT_CALL(*mockSubscriber, subscribe()).Times(1);
     stageMockIceoryxTerminal(std::move(mockSubscriber));
+
+    auto mockWriter = createMockDDSTerminal(testService);
+    EXPECT_CALL(*mockWriter, connect()).Times(1);
+    stageMockDDSTerminal(std::move(mockWriter));
 
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
     msg.m_serviceType = iox::capro::CaproServiceType::PUBLISHER;
 
     // Mock methods of the mock generic dds gateway base class
-    ON_CALL(gw, findChannel(_)).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(_, _)).WillByDefault(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
+    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
 
     // === Test
     gw.discover(msg);
@@ -176,6 +206,11 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
     ::testing::Test::RecordProperty("TEST_ID", "334d8d97-672a-40ab-958c-e90ec9a726f5");
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+
+    auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
+    EXPECT_CALL(*mockSubscriber, subscribe()).Times(1);
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
+
     auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter, connect()).Times(1);
     stageMockDDSTerminal(std::move(mockWriter));
@@ -185,8 +220,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
     msg.m_serviceType = iox::capro::CaproServiceType::PUBLISHER;
 
     // Mock methods of the mock generic dds gateway base class
-    ON_CALL(gw, findChannel(_)).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(_, _)).WillByDefault(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
+    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
 
     // === Test
     gw.discover(msg);

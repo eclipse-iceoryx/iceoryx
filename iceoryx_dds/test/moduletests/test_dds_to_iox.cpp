@@ -47,6 +47,14 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
     iox::config::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
+    auto mockPublisher = createMockIceoryxTerminal(testService, iox::popo::PublisherOptions());
+    EXPECT_CALL(*mockPublisher, offer).Times(1);
+    stageMockIceoryxTerminal(std::move(mockPublisher));
+
+    auto mockDataReader = createMockDDSTerminal(testService);
+    EXPECT_CALL(*mockDataReader, connect).Times(1);
+    stageMockDDSTerminal(std::move(mockDataReader));
+
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel(testService, _))
@@ -69,10 +77,14 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
     EXPECT_CALL(*mockPublisher, offer).Times(1);
     stageMockIceoryxTerminal(std::move(mockPublisher));
 
+    auto mockDataReader = createMockDDSTerminal(testService);
+    EXPECT_CALL(*mockDataReader, connect).Times(1);
+    stageMockDDSTerminal(std::move(mockDataReader));
+
     TestGateway gw{};
-    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(testService, _))
-        .WillByDefault(Return(channelFactory(testService, iox::popo::PublisherOptions())));
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel(testService, _))
+        .WillOnce(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 
     // === Test
     gw.loadConfiguration(config);
@@ -87,14 +99,18 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
     iox::config::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
+    auto mockPublisher = createMockIceoryxTerminal(testService, iox::popo::PublisherOptions());
+    EXPECT_CALL(*mockPublisher, offer).Times(1);
+    stageMockIceoryxTerminal(std::move(mockPublisher));
+
     auto mockDataReader = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockDataReader, connect).Times(1);
     stageMockDDSTerminal(std::move(mockDataReader));
 
     TestGateway gw{};
-    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(testService, _))
-        .WillByDefault(Return(channelFactory(testService, iox::popo::PublisherOptions())));
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel(testService, _))
+        .WillOnce(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 
     // === Test
     gw.loadConfiguration(config);
