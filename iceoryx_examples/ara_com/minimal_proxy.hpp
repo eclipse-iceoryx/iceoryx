@@ -16,7 +16,7 @@
 
 #include "topic.hpp"
 
-// #include "ara/com/event_subscriber.hpp"
+#include "ara/com/event_subscriber.hpp"
 // #include "ara/com/field_subscriber.hpp"
 // #include "ara/com/method_client.hpp"
 #include "ara/types.hpp"
@@ -33,7 +33,7 @@ class MinimalProxy
     static ara::com::ServiceHandleContainer<ara::com::FindServiceHandle>
     FindService(ara::core::String& InstanceIdentifier);
 
-    // ara::com::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
+    ara::com::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
     // ara::com::FieldSubscriber<Topic> m_field{"MinimalSkeleton", "Instance", "Field"};
     // ara::com::MethodClient computeSum{"MinimalSkeleton", "Instance", "Method"};
 };

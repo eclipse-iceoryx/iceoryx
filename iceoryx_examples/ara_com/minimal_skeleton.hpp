@@ -16,7 +16,7 @@
 
 #include "topic.hpp"
 
-// #include "ara/com/event_publisher.hpp"
+#include "ara/com/event_publisher.hpp"
 // #include "ara/com/field_publisher.hpp"
 // #include "ara/com/method_server.hpp"
 #include "ara/types.hpp"
@@ -31,16 +31,16 @@ class MinimalSkeleton
     void OfferService() noexcept
     {
         /// @todo Should call PoshRuntime::OfferService, how to add the Service Registry entry instead?
-        // m_event.Offer();
+        m_event.Offer();
     }
 
     void StopOfferService() noexcept
     {
         /// @todo Should call PoshRuntime::StopOfferService, how to remove the Service Registry entry instead?
-        // m_event.StopOffer();
+        m_event.StopOffer();
     }
 
-    // ara::com::EventPublisher<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
+    ara::com::EventPublisher<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
     // Topic initalFieldValue{4242};
     // ara::com::FieldPublisher<Topic> m_field{"MinimalSkeleton", "Instance", "Field", initalFieldValue};
     // ara::com::MethodServer computeSum{"MinimalSkeleton", "Instance", "Method"};
