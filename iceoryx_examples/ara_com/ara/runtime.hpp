@@ -14,15 +14,33 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include <cstdint>
+#ifndef IOX_EXAMPLES_ARA_COM_RUNTIME_HPP
+#define IOX_EXAMPLES_ARA_COM_RUNTIME_HPP
 
-#ifndef IOX_EXAMPLES_ARA_COM_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ARA_COm_TOPIC_DATA_HPP
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-struct Topic
+#include "types.hpp"
+
+#include <string>
+
+namespace ara
 {
-    Topic() noexcept = default;
-    uint64_t counter{0};
-};
+class Runtime
+{
+  public:
+    static Runtime& GetInstance(const std::string name) noexcept
+    {
+        static Runtime runtime(name);
+        return runtime;
+    }
 
-#endif // IOX_EXAMPLES_ARA_COM_TOPIC_DATA_HPP
+  private:
+    explicit Runtime(const std::string name) noexcept
+    {
+        iox::runtime::PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, name));
+    }
+    /// @todo add listener here
+};
+} // namespace ara
+
+#endif // IOX_EXAMPLES_ARA_COM_RUNTIME_HPP

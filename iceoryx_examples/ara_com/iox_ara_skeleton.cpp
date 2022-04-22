@@ -14,38 +14,48 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "topic_data.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
+#include "ara/com/event_publisher.hpp"
+#include "ara/runtime.hpp"
+#include "minimal_skeleton.hpp"
 
 #include <iostream>
 
-constexpr char APP_NAME[] = "iox-cpp-ara-publisher";
+constexpr char APP_NAME[] = "iox-cpp-ara-skeleton";
+
+// ara::com::InstanceIdentifier needed?
 
 int main()
 {
-    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    ara::Runtime::GetInstance(APP_NAME);
 
-    iox::popo::Publisher<Topic> publisher({"Service", "Instance", "Event"});
+    MinimalSkeleton skeleton;
+
+    skeleton.OfferService();
 
     uint64_t counter = 0;
     while (!iox::posix::hasTerminationRequested())
     {
         ++counter;
 
-        publisher.loan()
-            .and_then([&](auto& sample) {
-                sample->counter = counter;
-                sample.publish();
-            })
-            .or_else([](auto& error) { std::cerr << "Unable to loan sample, error: " << error << std::endl; });
+        // // Event
+        // auto sample = skeleton.m_event.Allocate();
+        // (*sample).counter = counter;
+        // skeleton.m_event.Send(std::move(sample));
 
-        std::cout << APP_NAME << " sent: " << counter << std::endl;
+        // // Field
+        // if (counter > 30)
+        // {
+        //     Topic field{counter};
+        //     skeleton.m_field.Update(field);
+        // }
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+
+    skeleton.StopOfferService();
 
     return 0;
 }

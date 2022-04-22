@@ -25,26 +25,40 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-ara-publisher ./iox_ara_publisher.cpp)
-target_link_libraries(iox-cpp-ara-publisher
+add_executable(iox-cpp-ara-skeleton ./iox_ara_skeleton.cpp)
+target_link_libraries(iox-cpp-ara-skeleton
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-ara-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-ara-skeleton PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-cpp-ara-subscriber ./iox_ara_subscriber.cpp)
-target_link_libraries(iox-cpp-ara-subscriber
+target_include_directories(iox-cpp-ara-skeleton
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
+)
+
+add_executable(iox-cpp-ara-proxy ./iox_ara_proxy.cpp)
+target_link_libraries(iox-cpp-ara-proxy
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-ara-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-ara-proxy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-cpp-ara-subscriber
-                      iox-cpp-ara-publisher
+target_include_directories(iox-cpp-ara-proxy
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
+)
+
+set_target_properties(iox-cpp-ara-proxy
+                      iox-cpp-ara-skeleton
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
-install(TARGETS iox-cpp-ara-publisher
-                iox-cpp-ara-subscriber
+install(TARGETS iox-cpp-ara-skeleton
+                iox-cpp-ara-proxy
         RUNTIME DESTINATION bin)
