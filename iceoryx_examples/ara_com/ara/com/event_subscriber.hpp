@@ -39,9 +39,10 @@ class EventSubscriber
     {
     }
 
-    void Subscribe(std::size_t maxSampleCount) noexcept
+    void Subscribe(std::size_t) noexcept
     {
-        m_subscriber.subscribe(maxSampleCount);
+        /// @todo maxSampleCount shall not be ignored
+        m_subscriber.subscribe();
     }
 
     void Unsubscribe() noexcept
@@ -71,6 +72,11 @@ class EventSubscriber
         {
         }
         return numberOfSamples;
+    }
+
+    iox::capro::ServiceDescription GetServiceDescription() noexcept
+    {
+        return m_subscriber.getServiceDescription();
     }
 
     /// @todo SetReceiveHandler() needed?
