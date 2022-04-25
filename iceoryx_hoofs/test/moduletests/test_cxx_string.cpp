@@ -2510,36 +2510,40 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstSubscriptO
 TEST(String10, InsertStringLiteralAtTheBeginningOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f3c5bf8-2367-46c0-b803-570a2a640c93");
+    const string<10> expectedString("Hypnotoad");
     string<10> sut("toad");
     ASSERT_TRUE(sut.insert(0, "Hypno", 5));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertStringLiteralInTheMiddleOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "861eec68-3e78-42cf-ac75-30c23a3e60d2");
+    const string<10> expectedString("Hypnotoad");
     string<10> sut("Hypoad");
     ASSERT_TRUE(sut.insert(3, "not", 3));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertStringLiteralAtTheEndOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "91f733e0-5ded-4f85-9727-241b649bd7dc");
+    const string<10> expectedString("Hypnotoad");
     string<10> sut("Hypno");
-    ASSERT_TRUE(sut.insert(5, "toad", 4));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+    ASSERT_TRUE(sut.insert(sut.size(), "toad", 4));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TYPED_TEST(stringTyped_test, InsertStringLiteralToEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eba320fc-9909-4043-a944-7a5c9f2a4272");
+    const string<1> expectedString("M");
     ASSERT_TRUE(this->testSubject.insert(0, "M", 1));
-    EXPECT_THAT(this->testSubject.size(), Eq(1));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+    EXPECT_THAT(this->testSubject.size(), Eq(expectedString.size()));
+    EXPECT_THAT(this->testSubject, Eq(expectedString));
 }
 
 TYPED_TEST(stringTyped_test, InsertEmptyStringLiteralDoesNotChangeTheString)
@@ -2562,19 +2566,21 @@ TYPED_TEST(stringTyped_test, InsertStringLiteralWithCountGreaterThanSizeOfString
 TEST(String10, InsertTooLargeStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f11f387-f437-4a39-8207-259df4807c70");
+    const string<10> expectedString("Ferdinand");
     string<10> sut("Ferdinand");
     ASSERT_FALSE(sut.insert(9, "Spitzschnueffler", 16));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Ferdinand"));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertTooLargeStringLiteralWithSmallCountSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2763b3d8-3023-4841-80d1-798acd3b71d7");
+    const string<10> expectedString("FerdinandS");
     string<10> sut("Ferdinand");
-    ASSERT_TRUE(sut.insert(9, "Spitzschnueffler", 1));
-    EXPECT_THAT(sut.size(), Eq(10));
-    EXPECT_THAT(sut.c_str(), StrEq("FerdinandS"));
+    ASSERT_TRUE(sut.insert(sut.size(), "Spitzschnueffler", 1));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TYPED_TEST(stringTyped_test, InsertStringLiteralWithCount0DoesntChangeTheString)
@@ -2588,40 +2594,44 @@ TYPED_TEST(stringTyped_test, InsertStringLiteralWithCount0DoesntChangeTheString)
 TEST(String10, InsertStringLiteralAtPositionGreaterStringSizeFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a3a30ea5-f228-48f4-9497-08502e4f2c9a");
+    const string<10> expectedString("Muesli");
     string<10> sut("Muesli");
-    ASSERT_FALSE(sut.insert(7, "s", 1));
-    EXPECT_THAT(sut.size(), Eq(6));
-    EXPECT_THAT(sut.c_str(), StrEq("Muesli"));
+    ASSERT_FALSE(sut.insert(sut.size() + 1U, "s", 1));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertCxxStringAtTheBeginningOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df62df30-0838-4282-91f7-b39b1c861861");
+    const string<10> expectedString("Hypnotoad");
     string<10> sut("toad");
     string<10> string_to_insert("Hypno");
     ASSERT_TRUE(sut.insert(0, string_to_insert, 5));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertCxxStringInTheMiddleOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b5a94b5a-c734-4654-a6ba-08819b4b7eac");
+    const string<10> expectedString("Hypnotoad");
     string<10> sut("Hypoad");
     string<10> string_to_insert("not");
     ASSERT_TRUE(sut.insert(3, string_to_insert, 3));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertCxxStringAtTheEndOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f77dfb73-77ce-471f-b90b-8fcf0ab1a5de");
+    const string<10> expectedString("Hypnotoad");
     string<10> sut("Hypno");
     string<10> string_to_insert("toad");
-    ASSERT_TRUE(sut.insert(5, string_to_insert, 4));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Hypnotoad"));
+    ASSERT_TRUE(sut.insert(sut.size(), string_to_insert, 4));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TYPED_TEST(stringTyped_test, InsertCxxStringToEmptyStringWorks)
@@ -2629,8 +2639,8 @@ TYPED_TEST(stringTyped_test, InsertCxxStringToEmptyStringWorks)
     ::testing::Test::RecordProperty("TEST_ID", "95ce194c-62a7-420c-9f37-9a2d7c5b17b2");
     string<1> string_to_insert("M");
     ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, 1));
-    EXPECT_THAT(this->testSubject.size(), Eq(1));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(string_to_insert.c_str()));
+    EXPECT_THAT(this->testSubject.size(), Eq(string_to_insert.size()));
+    EXPECT_THAT(this->testSubject, Eq(string_to_insert));
 }
 
 TYPED_TEST(stringTyped_test, InsertEmptyCxxStringDoesNotChangeTheString)
@@ -2655,27 +2665,29 @@ TYPED_TEST(stringTyped_test, InsertCxxStringWithCountGreaterThanSizeOfStringLite
 TEST(String10, InsertTooLargeCxxStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e9d88dd2-9da5-4f5f-a798-10b3931e6516");
+    const string<10> expectedString("Ferdinand");
     string<10> sut("Ferdinand");
     string<16> string_to_insert("Spitzschnueffler");
     ASSERT_FALSE(sut.insert(9, string_to_insert, 16));
-    EXPECT_THAT(sut.size(), Eq(9));
-    EXPECT_THAT(sut.c_str(), StrEq("Ferdinand"));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TEST(String10, InsertTooLargeCxxStringWithSmallCountSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e99348ac-87a4-4678-b33a-2ddac3e21cb4");
+    const string<10> expectedString("FerdinandS");
     string<10> sut("Ferdinand");
     string<16> string_to_insert("Spitzschnueffler");
-    ASSERT_TRUE(sut.insert(9, string_to_insert, 1));
-    EXPECT_THAT(sut.size(), Eq(10));
-    EXPECT_THAT(sut.c_str(), StrEq("FerdinandS"));
+    ASSERT_TRUE(sut.insert(sut.size(), string_to_insert, 1));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 
 TYPED_TEST(stringTyped_test, InsertCxxStringWithCount0DoesntChangeTheString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "340c595e-b0b1-43a8-a08e-ebb62dc0d306");
-    string<9> string_to_insert("Ferdinand");
+    string<10> string_to_insert("Ferdinand");
     ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, 0));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -2684,10 +2696,11 @@ TYPED_TEST(stringTyped_test, InsertCxxStringWithCount0DoesntChangeTheString)
 TEST(String10, InsertCxxStringAtPositionGreaterStringSizeFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a2517ea0-2842-4f56-a89a-b7fd01c6c6ba");
+    const string<10> expectedString("Muesli");
     string<10> sut("Muesli");
     string<1> string_to_insert("s");
-    ASSERT_FALSE(sut.insert(7, string_to_insert, 1));
-    EXPECT_THAT(sut.size(), Eq(6));
-    EXPECT_THAT(sut.c_str(), StrEq("Muesli"));
+    ASSERT_FALSE(sut.insert(sut.size() + 1U, string_to_insert, 1));
+    EXPECT_THAT(sut.size(), Eq(expectedString.size()));
+    EXPECT_THAT(sut, Eq(expectedString));
 }
 } // namespace

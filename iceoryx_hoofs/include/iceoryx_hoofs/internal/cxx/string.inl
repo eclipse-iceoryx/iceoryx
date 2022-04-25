@@ -504,7 +504,7 @@ string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline constexpr typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+inline constexpr typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
 string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
 {
     if (count > internal::GetSize<T>::call(str))
