@@ -1057,6 +1057,7 @@ void PortManager::publishServiceRegistry() const noexcept
             *sample = m_serviceRegistry;
 
             publisher.sendChunk(chunk);
+            std::cout << "Send service registry!!!!" << std::endl;
         })
         .or_else([](auto&) { LogWarn() << "Could not allocate a chunk for the service registry!"; });
 }

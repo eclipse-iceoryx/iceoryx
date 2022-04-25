@@ -25,6 +25,8 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
+# @todo enable 1:N communication cmake switch
+
 add_executable(iox-cpp-ara-skeleton ./iox_ara_skeleton.cpp ./minimal_skeleton.cpp)
 target_link_libraries(iox-cpp-ara-skeleton
     iceoryx_posh::iceoryx_posh
