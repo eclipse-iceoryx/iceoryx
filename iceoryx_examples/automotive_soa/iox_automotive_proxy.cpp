@@ -29,12 +29,17 @@ int main()
     MinimalProxy proxy;
 
     owl::core::String searchString(iox::cxx::TruncateToCapacity, "Instance");
+    std::cout << "Searching for instances called '" << searchString.c_str() << "'." << std::endl;
     auto serviceContainer = proxy.FindService(searchString);
     for (auto& service : serviceContainer)
     {
-        std::cout << "Found service: " << service.getServiceIDString() << " " << service.getInstanceIDString() << " "
-                  << service.getEventIDString() << std::endl;
-        // service.subscribe();
+        std::cout << "  Found service: " << service.getServiceIDString() << ", " << service.getInstanceIDString()
+                  << ", " << service.getEventIDString() << std::endl;
+
+        if (service == proxy.m_event.GetServiceDescription())
+        {
+            proxy.m_event.Subscribe(10U);
+        }
     }
 
     uint64_t addend1{0};

@@ -30,9 +30,10 @@ namespace owl
 class Runtime
 {
   public:
-    static Runtime& GetInstance(const std::string name) noexcept
+    static Runtime& GetInstance(const std::string& name) noexcept
     {
-        static Runtime runtime(name);
+        iox::runtime::PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, name));
+        static Runtime runtime;
         return runtime;
     }
 
@@ -57,15 +58,7 @@ class Runtime
     }
 
   private:
-    explicit Runtime(const std::string name) noexcept
-    {
-        iox::runtime::PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, name));
-    }
-
-    explicit Runtime() noexcept
-    {
-        iox::runtime::PoshRuntime::getInstance();
-    }
+    explicit Runtime() noexcept = default;
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
