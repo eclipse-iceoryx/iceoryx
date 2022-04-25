@@ -24,7 +24,13 @@
 class MinimalSkeleton
 {
   public:
-    MinimalSkeleton() = default;
+    /// @todo make c'tor of cxx::string constexpr'able
+    static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
+
+    MinimalSkeleton(ara::core::String& instanceIdentifier)
+        : m_instanceIdentifier(instanceIdentifier)
+    {
+    }
     MinimalSkeleton(const MinimalSkeleton&) = delete;
     MinimalSkeleton& operator=(const MinimalSkeleton&) = delete;
 
@@ -40,8 +46,9 @@ class MinimalSkeleton
         m_event.StopOffer();
     }
 
-    ara::com::EventPublisher<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
+    const ara::core::String m_instanceIdentifier;
+    ara::com::EventPublisher<Topic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     Topic initalFieldValue{4242};
-    ara::com::FieldPublisher<Topic> m_field{"MinimalSkeleton", "Instance", "Field", initalFieldValue};
-    ara::com::MethodServer computeSum{"MinimalSkeleton", "Instance", "Method"};
+    ara::com::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
+    ara::com::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };

@@ -25,13 +25,12 @@
 
 constexpr char APP_NAME[] = "iox-cpp-ara-skeleton";
 
-// ara::com::InstanceIdentifier needed?
-
 int main()
 {
     ara::Runtime::GetInstance(APP_NAME);
 
-    MinimalSkeleton skeleton;
+    ara::core::String instanceIdentifier{iox::cxx::TruncateToCapacity, "Instance"};
+    MinimalSkeleton skeleton{instanceIdentifier};
 
     skeleton.OfferService();
 

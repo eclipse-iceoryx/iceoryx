@@ -25,29 +25,38 @@
 class MinimalProxy
 {
   public:
-    MinimalProxy() = default;
+    /// @todo make c'tor of cxx::string constexpr'able
+    static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
+
+    MinimalProxy(ara::com::FindServiceHandle& handle)
+        : m_instanceIdentifier(handle.instanceIdentifier)
+    {
+    }
     MinimalProxy(const MinimalProxy&) = delete;
     MinimalProxy& operator=(const MinimalProxy&) = delete;
 
-    static ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<ara::com::FindServiceHandle>,
-                                                        ara::core::String&) noexcept
+    static ara::com::FindServiceHandle
+    StartFindService(ara::com::FindServiceHandler<ara::com::FindServiceHandle> handler,
+                     ara::core::String& instanceIdentifier) noexcept
     {
-        // attach to listener to call handler if service registry has changed
-        // m_discovery.findService();
-        return ara::com::FindServiceHandle();
+        ara::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        return ara::Runtime::GetInstance().StartFindService(handler, serviceIdentifier, instanceIdentifier);
     }
 
-    static void StopFindService() noexcept
+    static void StopFindService(ara::com::FindServiceHandle handle) noexcept
     {
+        ara::Runtime::GetInstance().StopFindService(handle);
     }
 
     static ara::com::ServiceHandleContainer<ara::com::FindServiceHandle>
-    FindService(ara::core::String& InstanceIdentifier) noexcept
+    FindService(ara::core::String& instanceIdentifier) noexcept
     {
-        return ara::Runtime::GetInstance().FindService(InstanceIdentifier);
+        ara::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        return ara::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
     }
 
-    ara::com::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
-    ara::com::FieldSubscriber<Topic> m_field{"MinimalSkeleton", "Instance", "Field"};
-    ara::com::MethodClient computeSum{"MinimalSkeleton", "Instance", "Method"};
+    const ara::core::String m_instanceIdentifier;
+    ara::com::EventSubscriber<Topic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    ara::com::FieldSubscriber<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field"};
+    ara::com::MethodClient computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };
