@@ -300,7 +300,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
 {
     for (const auto& r : m_availableOptions)
     {
-        if (r.type != OptionType::OPTIONAL_VALUE)
+        if (r.type != OptionType::OPTIONAL)
         {
             continue;
         }
@@ -344,7 +344,7 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
     bool areAllRequiredValuesPresent = true;
     for (const auto& r : m_availableOptions)
     {
-        if (r.type == OptionType::REQUIRED_VALUE)
+        if (r.type == OptionType::REQUIRED)
         {
             bool isValuePresent = false;
             for (const auto& o : m_options.m_arguments)
@@ -417,12 +417,12 @@ void CommandLineParser::printHelpAndExit() const noexcept
             outLength += 2 + a.longOption.size();
         }
 
-        if (a.type == OptionType::REQUIRED_VALUE)
+        if (a.type == OptionType::REQUIRED)
         {
             std::cout << " [" << a.typeName << "]";
             outLength += 3 + a.typeName.size();
         }
-        else if (a.type == OptionType::OPTIONAL_VALUE)
+        else if (a.type == OptionType::OPTIONAL)
         {
             std::cout << " [" << a.typeName << "]";
             outLength += 3 + a.typeName.size();
@@ -436,7 +436,7 @@ void CommandLineParser::printHelpAndExit() const noexcept
         }
         std::cout << a.description << std::endl;
 
-        if (a.type == OptionType::OPTIONAL_VALUE)
+        if (a.type == OptionType::OPTIONAL)
         {
             for (uint64_t i = 0; i < OPTION_OUTPUT_WIDTH; ++i)
             {
@@ -507,20 +507,20 @@ CommandLineParser& CommandLineParser::addSwitch(const char shortOption,
     return addOption({shortOption, longOption, description, OptionType::SWITCH, {""}, {""}});
 }
 
-CommandLineParser& CommandLineParser::addOptionalValue(const char shortOption,
-                                                       const CommandLineOptions::name_t& longOption,
-                                                       const description_t& description,
-                                                       const typeName_t& typeName,
-                                                       const CommandLineOptions::value_t& defaultValue) noexcept
+CommandLineParser& CommandLineParser::addOptional(const char shortOption,
+                                                  const CommandLineOptions::name_t& longOption,
+                                                  const description_t& description,
+                                                  const typeName_t& typeName,
+                                                  const CommandLineOptions::value_t& defaultValue) noexcept
 {
-    return addOption({shortOption, longOption, description, OptionType::OPTIONAL_VALUE, typeName, defaultValue});
+    return addOption({shortOption, longOption, description, OptionType::OPTIONAL, typeName, defaultValue});
 }
-CommandLineParser& CommandLineParser::addRequiredValue(const char shortOption,
-                                                       const CommandLineOptions::name_t& longOption,
-                                                       const description_t& description,
-                                                       const typeName_t& typeName) noexcept
+CommandLineParser& CommandLineParser::addMandatory(const char shortOption,
+                                                   const CommandLineOptions::name_t& longOption,
+                                                   const description_t& description,
+                                                   const typeName_t& typeName) noexcept
 {
-    return addOption({shortOption, longOption, description, OptionType::REQUIRED_VALUE, typeName, {""}});
+    return addOption({shortOption, longOption, description, OptionType::REQUIRED, typeName, {""}});
 }
 
 std::ostream& operator<<(std::ostream& stream, const CommandLineParser::Entry& entry) noexcept

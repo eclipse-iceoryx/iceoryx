@@ -55,20 +55,19 @@ struct CommandLineSut
 {
     IOX_CLI_DEFINITION(CommandLineSut, {"My program description"});
 
-    IOX_CLI_OPTIONAL_VALUE(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});
-    IOX_CLI_OPTIONAL_VALUE(
-        string<100>, stringValue2, {"some other value"}, 't', {"string-value-2"}, {"some description"});
-    IOX_CLI_OPTIONAL_VALUE(int64_t, optionalInt1, 123, 'i', {"int-value-1"}, {"some description"});
-    IOX_CLI_OPTIONAL_VALUE(int64_t, optionalInt2, 456, 'j', {"int-value-2"}, {"some description"});
-    IOX_CLI_OPTIONAL_VALUE(uint8_t, optionalUint1, 123, 'u', {"uint-value-1"}, {"some description"});
-    IOX_CLI_OPTIONAL_VALUE(uint8_t, optionalUint2, 212, 'v', {"uint-value-2"}, {"some description"});
+    IOX_CLI_OPTIONAL(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});
+    IOX_CLI_OPTIONAL(string<100>, stringValue2, {"some other value"}, 't', {"string-value-2"}, {"some description"});
+    IOX_CLI_OPTIONAL(int64_t, optionalInt1, 123, 'i', {"int-value-1"}, {"some description"});
+    IOX_CLI_OPTIONAL(int64_t, optionalInt2, 456, 'j', {"int-value-2"}, {"some description"});
+    IOX_CLI_OPTIONAL(uint8_t, optionalUint1, 123, 'u', {"uint-value-1"}, {"some description"});
+    IOX_CLI_OPTIONAL(uint8_t, optionalUint2, 212, 'v', {"uint-value-2"}, {"some description"});
 
     IOX_CLI_SWITCH(lightSwitch1, 'l', "light-switch-1", "do some stuff - some description");
     IOX_CLI_SWITCH(lightSwitch2, 'm', "light-switch-2", "do some stuff - some description");
 
-    IOX_CLI_REQUIRED_VALUE(string<100>, requiredString, 'r', "required-string", "some description");
-    IOX_CLI_REQUIRED_VALUE(float, requiredFloat, 'b', "required-float", "some description");
-    IOX_CLI_REQUIRED_VALUE(uint16_t, requiredUint, 'c', "required-uint", "some description");
+    IOX_CLI_REQUIRED(string<100>, requiredString, 'r', "required-string", "some description");
+    IOX_CLI_REQUIRED(float, requiredFloat, 'b', "required-float", "some description");
+    IOX_CLI_REQUIRED(uint16_t, requiredUint, 'c', "required-uint", "some description");
 };
 
 TEST_F(CommandLine_test, OnlyRequiredValuesSetsRemainingValuesToDefault)

@@ -38,8 +38,8 @@ void handleError(const CommandLineParser& parser);
 enum class OptionType
 {
     SWITCH,
-    REQUIRED_VALUE,
-    OPTIONAL_VALUE
+    REQUIRED,
+    OPTIONAL
 };
 
 enum class UnknownOption
@@ -144,11 +144,11 @@ class CommandLineParser
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
     /// @param[in] defaultValue the value which will be set to the option when it is not set by the user
-    CommandLineParser& addOptionalValue(const char shortOption,
-                                        const CommandLineOptions::name_t& longOption,
-                                        const description_t& description,
-                                        const typeName_t& typeName,
-                                        const CommandLineOptions::value_t& defaultValue) noexcept;
+    CommandLineParser& addOptional(const char shortOption,
+                                   const CommandLineOptions::name_t& longOption,
+                                   const description_t& description,
+                                   const typeName_t& typeName,
+                                   const CommandLineOptions::value_t& defaultValue) noexcept;
 
     /// @brief Adds a command line required value argument
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
@@ -156,10 +156,10 @@ class CommandLineParser
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
-    CommandLineParser& addRequiredValue(const char shortOption,
-                                        const CommandLineOptions::name_t& longOption,
-                                        const description_t& description,
-                                        const typeName_t& typeName) noexcept;
+    CommandLineParser& addMandatory(const char shortOption,
+                                    const CommandLineOptions::name_t& longOption,
+                                    const description_t& description,
+                                    const typeName_t& typeName) noexcept;
 
     /// @brief Parses the arguments from the command line.
     ///        Calls the error handler when the command line arguments contain illegal syntax or required values are

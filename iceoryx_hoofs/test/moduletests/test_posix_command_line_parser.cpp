@@ -86,9 +86,9 @@ TEST_F(CommandLineParser_test, AddingTheSameShortOptionLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
     CommandLineParser parser("", errorCallback);
-    parser.addOptionalValue('c', "firstEntry", "", "", "");
+    parser.addOptional('c', "firstEntry", "", "", "");
 
-    parser.addOptionalValue('c', "duplicateShortOption", "", "", "");
+    parser.addOptional('c', "duplicateShortOption", "", "", "");
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
@@ -96,9 +96,9 @@ TEST_F(CommandLineParser_test, AddingTheSameLongOptionLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "076b8877-e3fc-46f7-851b-d3e7953f67d6");
     CommandLineParser parser("", errorCallback);
-    parser.addOptionalValue('c', "duplicate", "", "", "");
+    parser.addOptional('c', "duplicate", "", "", "");
 
-    parser.addOptionalValue('x', "duplicate", "", "", "");
+    parser.addOptional('x', "duplicate", "", "", "");
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
@@ -106,9 +106,9 @@ TEST_F(CommandLineParser_test, AddingOptionWithSameShortAndLongNameLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4e01ed47-473d-4915-aed2-60aacce37de8");
     CommandLineParser parser("", errorCallback);
-    parser.addOptionalValue('d', "duplicate", "", "", "");
+    parser.addOptional('d', "duplicate", "", "", "");
 
-    parser.addOptionalValue('d', "duplicate", "", "", "");
+    parser.addOptional('d', "duplicate", "", "", "");
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
@@ -125,7 +125,7 @@ TEST_F(CommandLineParser_test, AddingOptionalValueWithMinusAsShortOptionLeadsToF
 {
     ::testing::Test::RecordProperty("TEST_ID", "8afd403b-9a77-4bde-92df-0200d4fb661b");
     CommandLineParser parser("", errorCallback);
-    parser.addOptionalValue('-', "", "", "", "");
+    parser.addOptional('-', "", "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -134,7 +134,7 @@ TEST_F(CommandLineParser_test, AddingRequiredValueWithMinusAsShortOptionLeadsToF
 {
     ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
     CommandLineParser parser("", errorCallback);
-    parser.addRequiredValue('-', "", "", "");
+    parser.addMandatory('-', "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -152,7 +152,7 @@ TEST_F(CommandLineParser_test, AddingOptionalValueWithMinusStartingLongOptionLea
 {
     ::testing::Test::RecordProperty("TEST_ID", "69c975d1-57d3-429a-b894-7ff1efa9f473");
     CommandLineParser parser("", errorCallback);
-    parser.addOptionalValue('c', "-whoopsie-there-is-a-minus", "", "", "");
+    parser.addOptional('c', "-whoopsie-there-is-a-minus", "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -161,7 +161,7 @@ TEST_F(CommandLineParser_test, AddingRequiredValueWithMinusStartingLongOptionLea
 {
     ::testing::Test::RecordProperty("TEST_ID", "43929047-1051-45cd-8a13-ebf8ea8c4e26");
     CommandLineParser parser("", errorCallback);
-    parser.addRequiredValue('b', "-minus-is-all-i-need", "", "");
+    parser.addMandatory('b', "-minus-is-all-i-need", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -182,7 +182,7 @@ void FailureTest(const std::vector<std::string>& options,
         CommandLineParser parser("", [&] { wasErrorHandlerCalled = true; });
         for (const auto& o : optionsToRegister)
         {
-            parser.addOptionalValue(o[0], CommandLineOptions::name_t(TruncateToCapacity, o), "", "int", "0");
+            parser.addOptional(o[0], CommandLineOptions::name_t(TruncateToCapacity, o), "", "int", "0");
         }
         for (const auto& s : switchesToRegister)
         {
@@ -190,7 +190,7 @@ void FailureTest(const std::vector<std::string>& options,
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            parser.addRequiredValue(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
+            parser.addMandatory(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
         }
 
         IOX_DISCARD_RESULT(parser.parse(args.argc, args.argv, 1U, actionWhenOptionUnknown));
@@ -990,11 +990,11 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
         CommandLineParser parser("");
         for (const auto& o : optionsToRegister)
         {
-            parser.addOptionalValue(o[0],
-                                    CommandLineOptions::name_t(TruncateToCapacity, o),
-                                    "",
-                                    "int",
-                                    CommandLineParser_test::defaultValue);
+            parser.addOptional(o[0],
+                               CommandLineOptions::name_t(TruncateToCapacity, o),
+                               "",
+                               "int",
+                               CommandLineParser_test::defaultValue);
         }
         for (const auto& s : switchesToRegister)
         {
@@ -1002,7 +1002,7 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            parser.addRequiredValue(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
+            parser.addMandatory(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
         }
 
         {

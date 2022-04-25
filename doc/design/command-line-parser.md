@@ -20,14 +20,34 @@ alternative.
 
 ## Terminology
 
+The terminology is close to the terminology used in the POSIX.1-2017 standard.
+For more details see
+[Utility Conventions](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html).
+
+Assume we have a iceoryx tool with command line arguments like:
+```
+iox_tool -a --bla -c 123 --dr_dotter blubb
+```
+
+| Name              | Description                                              |
+| :---------------- | :------------------------------------------------------- |
+| options           | Arguments which start with minus `-` or `--`, like `-a` or `--bla`. |
+| short option      | Argument which starts with a single minus followed by a non-minus symbol, like `-a` or `-c` |
+| long option       | Argument which starts with two minus followed by at least another non-minus symbol, like `--bla` or `--dr_dotter` |
+| option name       | The symbols after the leading minus of an option, for instance `a` or `dr_dotter`. |
+| option argument   | Argument which is separated by a space from an option, like `123` or `blubb`. |
+| argc & argv       | Taken from `int main(int argc, char* argv[])`. Provides access to the command line arguments. |
+
+### Option Types
+
 | Name              | Description                                              |
 | :---------------- | :------------------------------------------------------- |
 | switch            | When provided as argument the switch is activated, see `-h` and `--help`. A boolean signals to the user whether the switch was provided (activated) or not. |
-| optional value    | A value which can be provided via command line but is not required. Every optional value requires a default value. |
-| required value    | A value which has to be provided via command line. Does not require a default value. |
-| argc & argv       | Taken from `int main(int argc, char* argv[])`. Provides access to the command line arguments. |
-| short option      | Consists of a minus followed by a non minus symbol, see `-h` or `-a 123`. |
-| long option       | Has a double minus prefix followed by a string, see `--help` or `--set-thing 123` |
+| optional          | A value which can be provided via command line but is not required. Every optional option requires a default value. |
+| required          | A value which has to be provided via command line. Does not require a default value. |
+
+Every option has an option argument but since the switch is boolean in nature
+the argument is implicitly provided when stating the option.
 
 ## Design
 
@@ -53,8 +73,8 @@ The solution shall be:
 | CommandLineParser                            |     * extract user defined values as string from command line
 |                                              |     * "parse" creates a CommandLineOptions object through
 |  - CommandLineParser & addSwitch(...)        |         which those values can be accessed
-|  - CommandLineParser & addOptionalValue(...) |     * it generates the help output based on the provided user
-|  - CommandLineParser & addRequiredValue(...) |         arguments and prints it on syntax failure or user
+|  - CommandLineParser & addOptional(...)      |     * it generates the help output based on the provided user
+|  - CommandLineParser & addRequired(...)      |         arguments and prints it on syntax failure or user
 |                                              |         request (-h or --help)
 |  - CommandLineOptions parse(argc, argv, ...) |
 +----------------------------------------------+
@@ -80,7 +100,7 @@ The solution shall be:
 
 #### Sequence Diagram
 
-Lets assume we would like to add a switch, an optional and a required value, parse
+Lets assume we would like to add a switch, an optional and a required option, parse
 them and print them on the console.
 
 ```
@@ -91,32 +111,32 @@ them and print them on the console.
    |    addSwitch()                  |
    | ------------------------------> |
    |                                 |
-   |    addOptionalValue()           |
+   |    addOptional()                |
    | ------------------------------> |
    |                                 |
-   |    addRequiredValue()           |
+   |    addRequired()                |
    | ------------------------------> |
    |                                 |
    |    parse()                      |
    | ------------------------------> |
-   |    CommandLineOptions                   CommandLineOptions
-   |                                                 |
-   |                has(switchName)                  |
-   | ----------------------------------------------> |
-   |                bool                             |
-   |                                                 |
-   |                get<TypeName>(optionalValueName) |
-   | ----------------------------------------------> |
-   |                TypeName                         |
-   |                                                 |
-   |                get<TypeName>(requiredValueName) |
-   | ----------------------------------------------> |
-   |                TypeName                         |
+   |    CommandLineOptions                    CommandLineOptions
+   |                                                   |
+   |                has(switchName)                    |
+   | ------------------------------------------------> |
+   |                bool                               |
+   |                                                   |
+   |                get<TypeName>(optionalOptionName)  |
+   | ------------------------------------------------> |
+   |                TypeName                           |
+   |                                                   |
+   |                get<TypeName>(requiredOptionName) |
+   | ------------------------------------------------> |
+   |                TypeName                           |
 ```
 
 #### Macro Based Code Generator
 
-The macros `COMMAND_LINE`, `SWITCH`, `OPTIONAL_VALUE` and `REQUIRED_VALUE`
+The macros `IOX_CLI_DEFINITION`, `IOX_CLI_SWITCH`, `IOX_CLI_OPTIONAL` and `IOX_CLI_MANDATORY`
 provide building blocks so that the user can generate a struct. The members of that
 struct are defined via the macros and set in the constructor of that struct which
 will use `CommandLineParser` and `CommandLineOptions` to parse and extract the
@@ -130,12 +150,12 @@ The struct constructor can be called with `argc` and `argv` as arguments from
 ```cpp
 struct CommandLine
 {
-    COMMAND_LINE(CommandLine, "My program description");
+    IOX_CLI_DEFINITION(CommandLine, "My program description");
 
-    OPTIONAL_VALUE(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
-    REQUIRED_VALUE(string<100>, anotherString, 'a', "another-string", "some description");
-    SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
-    OPTIONAL_VALUE(uint64_t, version, 0, 'v', "version", "some description");
+    IOX_CLI_OPTIONAL(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
+    IOX_CLI_REQUIRED(string<100>, anotherString, 'a', "another-string", "some description");
+    IOX_CLI_SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
+    IOX_CLI_OPTIONAL(uint64_t, version, 0, 'v', "version", "some description");
 };
 
 // This struct parses all command line arguments and stores them. In
