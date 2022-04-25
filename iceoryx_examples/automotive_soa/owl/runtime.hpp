@@ -17,6 +17,8 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_RUNTIME_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_RUNTIME_HPP
 
+#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/cxx/pair.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
@@ -44,24 +46,81 @@ class Runtime
     }
 
     owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle>
-    FindService(owl::core::String& InstanceIdentifier) noexcept
+    FindService(owl::core::String& serviceIdentifier, owl::core::String& instanceIdentifier) noexcept
     {
         owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle> serviceContainer;
         m_discovery.findService(
+            serviceIdentifier,
+            instanceIdentifier,
             iox::cxx::nullopt,
-            InstanceIdentifier,
-            iox::cxx::nullopt,
-            [&](auto& service) { serviceContainer.push_back(service); },
+            [&](auto& service) {
+                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
+            },
             iox::popo::MessagingPattern::PUB_SUB);
 
         return serviceContainer;
     }
 
+    owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<owl::kom::FindServiceHandle> handler,
+                                                 owl::core::String& serviceIdentifier,
+                                                 owl::core::String& instanceIdentifier) noexcept
+    {
+        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
+
+        if (m_callbacks.size() == 1)
+        {
+            auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
+            m_listener.attachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
+                .or_else([](auto) {
+                    std::cerr << "unable to attach discovery" << std::endl;
+                    std::exit(EXIT_FAILURE);
+                });
+        }
+
+        return owl::kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
+    }
+
+    void StopFindService(owl::kom::FindServiceHandle) noexcept
+    {
+        /// @todo use unique integer id in FindServiceHandle for easier adding/removal
+        // auto iter = std::find(m_callbacks.begin(), m_callbacks.end(), handle);
+        // if (iter != m_callbacks.end())
+        // {
+        //     m_callbacks.erase(iter);
+        // }
+
+        if (m_callbacks.empty())
+        {
+            m_listener.detachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
+        }
+    }
+
   private:
     explicit Runtime() noexcept = default;
 
+    static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self)
+    {
+        // 1) Has the availability of one of the registered services changed?
+        // 2) If yes, call the user-defined callback
+        for (auto& callback : self->m_callbacks)
+        {
+            auto container = self->FindService(callback.second.serviceIdentifier, callback.second.instanceIdentifier);
+            if (container.empty())
+            {
+                continue;
+            }
+            (callback.first)(
+                container,
+                owl::kom::FindServiceHandle({callback.second.serviceIdentifier, callback.second.instanceIdentifier}));
+        }
+    }
+
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
+    iox::cxx::vector<
+        iox::cxx::pair<owl::kom::FindServiceHandler<owl::kom::FindServiceHandle>, owl::kom::FindServiceHandle>,
+        100U>
+        m_callbacks;
 };
 } // namespace owl
 

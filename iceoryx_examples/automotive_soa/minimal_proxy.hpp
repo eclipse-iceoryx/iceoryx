@@ -25,29 +25,38 @@
 class MinimalProxy
 {
   public:
-    MinimalProxy() = default;
+    /// @todo make c'tor of cxx::string constexpr'able
+    static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
+
+    MinimalProxy(owl::kom::FindServiceHandle& handle)
+        : m_instanceIdentifier(handle.instanceIdentifier)
+    {
+    }
     MinimalProxy(const MinimalProxy&) = delete;
     MinimalProxy& operator=(const MinimalProxy&) = delete;
 
-    static owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<owl::kom::FindServiceHandle>,
-                                                        owl::core::String&) noexcept
+    static owl::kom::FindServiceHandle
+    StartFindService(owl::kom::FindServiceHandler<owl::kom::FindServiceHandle> handler,
+                     owl::core::String& instanceIdentifier) noexcept
     {
-        // attach to listener to call handler if service registry has changed
-        // m_discovery.findService();
-        return owl::kom::FindServiceHandle();
+        owl::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        return owl::Runtime::GetInstance().StartFindService(handler, serviceIdentifier, instanceIdentifier);
     }
 
-    static void StopFindService() noexcept
+    static void StopFindService(owl::kom::FindServiceHandle handle) noexcept
     {
+        owl::Runtime::GetInstance().StopFindService(handle);
     }
 
     static owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle>
-    FindService(owl::core::String& InstanceIdentifier) noexcept
+    FindService(owl::core::String& instanceIdentifier) noexcept
     {
-        return owl::Runtime::GetInstance().FindService(InstanceIdentifier);
+        owl::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        return owl::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
     }
 
-    owl::kom::EventSubscriber<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
-    owl::kom::FieldSubscriber<Topic> m_field{"MinimalSkeleton", "Instance", "Field"};
-    owl::kom::MethodClient computeSum{"MinimalSkeleton", "Instance", "Method"};
+    const owl::core::String m_instanceIdentifier;
+    owl::kom::EventSubscriber<Topic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    owl::kom::FieldSubscriber<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field"};
+    owl::kom::MethodClient computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };

@@ -24,7 +24,13 @@
 class MinimalSkeleton
 {
   public:
-    MinimalSkeleton() = default;
+    /// @todo make c'tor of cxx::string constexpr'able
+    static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
+
+    MinimalSkeleton(owl::core::String& instanceIdentifier)
+        : m_instanceIdentifier(instanceIdentifier)
+    {
+    }
     MinimalSkeleton(const MinimalSkeleton&) = delete;
     MinimalSkeleton& operator=(const MinimalSkeleton&) = delete;
 
@@ -40,8 +46,9 @@ class MinimalSkeleton
         m_event.StopOffer();
     }
 
-    owl::kom::EventPublisher<Topic> m_event{"MinimalSkeleton", "Instance", "Event"};
+    const owl::core::String m_instanceIdentifier;
+    owl::kom::EventPublisher<Topic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     Topic initalFieldValue{4242};
-    owl::kom::FieldPublisher<Topic> m_field{"MinimalSkeleton", "Instance", "Field", initalFieldValue};
-    owl::kom::MethodServer computeSum{"MinimalSkeleton", "Instance", "Method"};
+    owl::kom::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
+    owl::kom::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };

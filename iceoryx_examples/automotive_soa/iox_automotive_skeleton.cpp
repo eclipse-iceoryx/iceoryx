@@ -18,20 +18,19 @@
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 
 //#include "owl/com/event_publisher.hpp"
-#include "owl/runtime.hpp"
 #include "minimal_skeleton.hpp"
+#include "owl/runtime.hpp"
 
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-automotive-skeleton";
 
-// owl::kom::InstanceIdentifier needed?
-
 int main()
 {
     owl::Runtime::GetInstance(APP_NAME);
 
-    MinimalSkeleton skeleton;
+    owl::core::String instanceIdentifier{iox::cxx::TruncateToCapacity, "Instance"};
+    MinimalSkeleton skeleton{instanceIdentifier};
 
     skeleton.OfferService();
 
