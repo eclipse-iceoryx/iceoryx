@@ -1040,7 +1040,7 @@ void verifyEntry(const CommandLineOptions& options,
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(CommandLineOptions::Result::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.get_error(), Eq(CommandLineOptions::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 

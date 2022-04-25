@@ -47,7 +47,7 @@ T addEntry(const CommandLineParser& parser,
            const char shortName,
            const CommandLineOptions::name_t& name,
            const CommandLineParser::description_t& description,
-           const ArgumentType argumentType,
+           const OptionType optionType,
            T defaultValue, // not const to enable RTVO
            internal::cmdEntries_t& entries,
            internal::cmdAssignments_t& assignments);
@@ -61,14 +61,14 @@ void populateEntries(CommandLineParser& parser,
                      const uint64_t argcOffset,
                      const UnknownOption actionWhenOptionUnknown);
 
-#define INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, argumentType)        \
+#define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   private:                                                                                                             \
     type m_##memberName = iox::posix::internal::addEntry<type>(this->m_parser,                                         \
                                                                this->m_##memberName,                                   \
                                                                shortName,                                              \
                                                                longName,                                               \
                                                                description,                                            \
-                                                               argumentType,                                           \
+                                                               optionType,                                             \
                                                                defaultValue,                                           \
                                                                m_entries,                                              \
                                                                m_assignments);                                         \
@@ -87,9 +87,9 @@ void populateEntries(CommandLineParser& parser,
 /// @param[in] shortName a single character for the short option like `-s` for instance
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the optional value
-#define OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                               \
-    INTERNAL_CMD_LINE_VALUE(                                                                                           \
-        type, memberName, defaultValue, shortName, longName, description, iox::posix::ArgumentType::OPTIONAL_VALUE)
+#define IOX_CLI_OPTIONAL_VALUE(type, memberName, defaultValue, shortName, longName, description)                       \
+    IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
+        type, memberName, defaultValue, shortName, longName, description, iox::posix::OptionType::OPTIONAL_VALUE)
 
 /// @brief Adds a required value to the command line, if it is not provided the program will print the help and
 ///        terminate
@@ -98,17 +98,18 @@ void populateEntries(CommandLineParser& parser,
 /// @param[in] shortName a single character for the short option like `-s` for instance
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the required value
-#define REQUIRED_VALUE(type, memberName, shortName, longName, description)                                             \
-    INTERNAL_CMD_LINE_VALUE(                                                                                           \
-        type, memberName, type(), shortName, longName, description, iox::posix::ArgumentType::REQUIRED_VALUE)
+#define IOX_CLI_REQUIRED_VALUE(type, memberName, shortName, longName, description)                                     \
+    IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
+        type, memberName, type(), shortName, longName, description, iox::posix::OptionType::REQUIRED_VALUE)
 
 /// @brief Adds a switch to the command line
 /// @param[in] memberName the name under which the switch is accessible
 /// @param[in] shortName a single character for the short option like `-s` for instance
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the switch
-#define SWITCH(memberName, shortName, longName, description)                                                           \
-    INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::posix::ArgumentType::SWITCH)
+#define IOX_CLI_SWITCH(memberName, shortName, longName, description)                                                   \
+    IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
+        bool, memberName, false, shortName, longName, description, iox::posix::OptionType::SWITCH)
 
 /// @brief Helper macro to create a struct with full command line parsing from argc, argv.
 /// @param[in] Name the name of the class/struct
@@ -117,12 +118,12 @@ void populateEntries(CommandLineParser& parser,
 /// // With those macros a struct can be generated easily like this:
 /// struct CommandLine
 /// {
-///     COMMAND_LINE(CommandLine, "My program description");
+///     IOX_CLI_DEFINITION(CommandLine, "My program description");
 ///
-///     OPTIONAL_VALUE(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
-///     REQUIRED_VALUE(string<100>, anotherString, 'a', "another-string", "some description");
-///     SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
-///     OPTIONAL_VALUE(uint64_t, version, 0, 'v', "version", "some description");
+///     IOX_CLI_OPTIONAL_VALUE(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
+///     IOX_CLI_REQUIRED_VALUE(string<100>, anotherString, 'a', "another-string", "some description");
+///     IOX_CLI_SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
+///     IOX_CLI_OPTIONAL_VALUE(uint64_t, version, 0, 'v', "version", "some description");
 /// };
 ///
 /// // This struct parses all command line arguments and stores them. In
@@ -142,7 +143,7 @@ void populateEntries(CommandLineParser& parser,
 ///   std::cout << cmd.stringValue() << " " << cmd.anotherString() << std::endl;
 /// }
 /// @endcode
-#define COMMAND_LINE(Name, ProgramDescription)                                                                         \
+#define IOX_CLI_DEFINITION(Name, ProgramDescription)                                                                   \
   private:                                                                                                             \
     ::iox::posix::CommandLineParser m_parser;                                                                          \
     ::iox::posix::internal::cmdEntries_t m_entries;                                                                    \

@@ -23,33 +23,33 @@ namespace iox
 namespace posix
 {
 template <typename T>
-inline cxx::expected<T, CommandLineOptions::Result>
+inline cxx::expected<T, CommandLineOptions::Error>
 CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
 {
     T value;
     if (!cxx::convert::fromString(stringValue.c_str(), value))
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
-        return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
+        return cxx::error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
     }
     return cxx::success<T>(value);
 }
 
 template <>
-inline cxx::expected<bool, CommandLineOptions::Result>
+inline cxx::expected<bool, CommandLineOptions::Error>
 CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
 {
     bool doesContainTrueAsString = (strncmp(stringValue.c_str(), "true", 5) == 0);
     if (!doesContainTrueAsString && (strncmp(stringValue.c_str(), "false", 6) != 0))
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
-        return cxx::error<Result>(Result::UNABLE_TO_CONVERT_VALUE);
+        return cxx::error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
     }
     return cxx::success<bool>(doesContainTrueAsString);
 }
 
 template <typename T>
-inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(const name_t& optionName) const noexcept
+inline cxx::expected<T, CommandLineOptions::Error> CommandLineOptions::get(const name_t& optionName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
@@ -59,7 +59,7 @@ inline cxx::expected<T, CommandLineOptions::Result> CommandLineOptions::get(cons
         }
     }
 
-    return cxx::error<Result>(Result::NO_SUCH_VALUE);
+    return cxx::error<Error>(Error::NO_SUCH_VALUE);
 }
 } // namespace posix
 } // namespace iox

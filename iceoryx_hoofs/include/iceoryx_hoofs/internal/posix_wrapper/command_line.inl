@@ -65,7 +65,7 @@ inline T addEntry(const CommandLineParser& parser,
                   const char shortName,
                   const CommandLineOptions::name_t& name,
                   const CommandLineParser::description_t& description,
-                  const ArgumentType argumentType,
+                  const OptionType optionType,
                   T defaultValue,
                   internal::cmdEntries_t& entries,
                   internal::cmdAssignments_t& assignments)
@@ -74,7 +74,7 @@ inline T addEntry(const CommandLineParser& parser,
         shortName,
         name,
         description,
-        argumentType,
+        optionType,
         {cxx::TypeInfo<T>::NAME},
         CommandLineOptions::value_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultValue))});
     assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
@@ -89,7 +89,7 @@ inline bool addEntry(const CommandLineParser& parser,
                      const char shortName,
                      const CommandLineOptions::name_t& name,
                      const CommandLineParser::description_t& description,
-                     const ArgumentType argumentType,
+                     const OptionType optionType,
                      bool defaultValue,
                      internal::cmdEntries_t& entries,
                      internal::cmdAssignments_t& assignments)
@@ -98,11 +98,11 @@ inline bool addEntry(const CommandLineParser& parser,
         shortName,
         name,
         description,
-        argumentType,
+        optionType,
         {"true|false"},
         CommandLineOptions::value_t(cxx::TruncateToCapacity, (defaultValue) ? "true" : "false")});
     assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
-        if (entries[index].type == ArgumentType::SWITCH)
+        if (entries[index].type == OptionType::SWITCH)
         {
             value = options.has(entries[index].longOption);
         }

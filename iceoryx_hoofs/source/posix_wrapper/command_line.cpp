@@ -40,13 +40,13 @@ void populateEntries(CommandLineParser& parser,
     {
         switch (entry.type)
         {
-        case ArgumentType::SWITCH:
+        case OptionType::SWITCH:
             parser.addSwitch(entry.shortOption, entry.longOption, entry.description);
             break;
-        case ArgumentType::REQUIRED_VALUE:
+        case OptionType::REQUIRED_VALUE:
             parser.addRequiredValue(entry.shortOption, entry.longOption, entry.description, entry.typeName);
             break;
-        case ArgumentType::OPTIONAL_VALUE:
+        case OptionType::OPTIONAL_VALUE:
             parser.addOptionalValue(
                 entry.shortOption, entry.longOption, entry.description, entry.typeName, entry.defaultValue);
             break;

@@ -65,13 +65,13 @@ The solution shall be:
 | CommandLineOptions                           |     * provides a type safe access to the user defined command
 |                                              |         line values with `get`, `has` or `binaryName`
 |  +----------------------------+              |
-|  | Result [enum class]        |              |
+|  | Error [enum class]        |              |
 |  |  # UNABLE_TO_CONVERT_VALUE |              |
 |  |  # NO_SUCH_VALUE           |              |
 |  +----------------------------+              |
 |                                              |
 |  - template<typename T>                      |
-|    cxx::expected<T, Result> get(optionName)  |
+|    cxx::expected<T, Error> get(optionName)  |
 |  - bool has(switchName)                      |
 |  - binaryName_t binaryName()                 |
 |                                              |
@@ -173,7 +173,7 @@ struct Command {
 
 // this generates a help with an overview of all available commands which can
 // be printed with --help or when a syntax error occurs
-bool parseCommand(argc, argv, vector<Command> availableCommands);
+bool parseCommand(argc, argv, const vector<Command> & availableCommands);
 
 void userDefinedCommand1(argc, argv) {
     // here we use the already implemented CommandLineStruct to parse the

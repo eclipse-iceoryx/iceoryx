@@ -35,7 +35,7 @@ namespace internal
 void handleError(const CommandLineParser& parser);
 }
 
-enum class ArgumentType
+enum class OptionType
 {
     SWITCH,
     REQUIRED_VALUE,
@@ -66,7 +66,7 @@ class IOX_NO_DISCARD CommandLineOptions
     using value_t = cxx::string<MAX_OPTION_VALUE_LENGTH>;
     using binaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
 
-    enum class Result
+    enum class Error
     {
         UNABLE_TO_CONVERT_VALUE,
         NO_SUCH_VALUE
@@ -75,10 +75,10 @@ class IOX_NO_DISCARD CommandLineOptions
     /// @brief returns the value of a specified option
     /// @tparam T the type of the value
     /// @param[in] optionName either one letter for the shortOption or the whole longOption
-    /// @return the contained value if the value is present and convertable, otherwise an Result which describes the
+    /// @return the contained value if the value is present and convertable, otherwise an Error which describes the
     /// error
     template <typename T>
-    cxx::expected<T, Result> get(const name_t& optionName) const noexcept;
+    cxx::expected<T, Error> get(const name_t& optionName) const noexcept;
 
     /// @brief returns true if the specified switch was set, otherwise false
     /// @param[in] switchName either one letter for the shortOption or the whole longOption
@@ -91,7 +91,7 @@ class IOX_NO_DISCARD CommandLineOptions
 
   private:
     template <typename T>
-    cxx::expected<T, Result> convertFromString(const value_t& value) const noexcept;
+    cxx::expected<T, Error> convertFromString(const value_t& value) const noexcept;
 
   private:
     struct Argument
@@ -179,7 +179,7 @@ class CommandLineParser
         char shortOption = NO_SHORT_OPTION;
         CommandLineOptions::name_t longOption;
         description_t description;
-        ArgumentType type = ArgumentType::SWITCH;
+        OptionType type = OptionType::SWITCH;
         typeName_t typeName;
         CommandLineOptions::value_t defaultValue;
     };

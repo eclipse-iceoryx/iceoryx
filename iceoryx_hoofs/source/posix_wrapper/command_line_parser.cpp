@@ -29,7 +29,7 @@ CommandLineParser::CommandLineParser(const description_t& programDescription,
     : m_programDescription{programDescription}
     , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
 {
-    std::move(*this).addOption({'h', {"help"}, {"Display help."}, ArgumentType::SWITCH, {""}, {""}});
+    std::move(*this).addOption({'h', {"help"}, {"Display help."}, OptionType::SWITCH, {""}, {""}});
 }
 
 bool CommandLineParser::hasArguments(const int argc) const noexcept
@@ -247,7 +247,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
             return m_options;
         }
 
-        if (optionEntry->type == ArgumentType::SWITCH)
+        if (optionEntry->type == OptionType::SWITCH)
         {
             m_options.m_arguments.emplace_back();
             m_options.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
@@ -300,7 +300,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
 {
     for (const auto& r : m_availableOptions)
     {
-        if (r.type != ArgumentType::OPTIONAL_VALUE)
+        if (r.type != OptionType::OPTIONAL_VALUE)
         {
             continue;
         }
@@ -344,7 +344,7 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
     bool areAllRequiredValuesPresent = true;
     for (const auto& r : m_availableOptions)
     {
-        if (r.type == ArgumentType::REQUIRED_VALUE)
+        if (r.type == OptionType::REQUIRED_VALUE)
         {
             bool isValuePresent = false;
             for (const auto& o : m_options.m_arguments)
@@ -417,12 +417,12 @@ void CommandLineParser::printHelpAndExit() const noexcept
             outLength += 2 + a.longOption.size();
         }
 
-        if (a.type == ArgumentType::REQUIRED_VALUE)
+        if (a.type == OptionType::REQUIRED_VALUE)
         {
             std::cout << " [" << a.typeName << "]";
             outLength += 3 + a.typeName.size();
         }
-        else if (a.type == ArgumentType::OPTIONAL_VALUE)
+        else if (a.type == OptionType::OPTIONAL_VALUE)
         {
             std::cout << " [" << a.typeName << "]";
             outLength += 3 + a.typeName.size();
@@ -436,7 +436,7 @@ void CommandLineParser::printHelpAndExit() const noexcept
         }
         std::cout << a.description << std::endl;
 
-        if (a.type == ArgumentType::OPTIONAL_VALUE)
+        if (a.type == OptionType::OPTIONAL_VALUE)
         {
             for (uint64_t i = 0; i < OPTION_OUTPUT_WIDTH; ++i)
             {
@@ -504,7 +504,7 @@ CommandLineParser& CommandLineParser::addSwitch(const char shortOption,
                                                 const CommandLineOptions::name_t& longOption,
                                                 const description_t& description) noexcept
 {
-    return addOption({shortOption, longOption, description, ArgumentType::SWITCH, {""}, {""}});
+    return addOption({shortOption, longOption, description, OptionType::SWITCH, {""}, {""}});
 }
 
 CommandLineParser& CommandLineParser::addOptionalValue(const char shortOption,
@@ -513,14 +513,14 @@ CommandLineParser& CommandLineParser::addOptionalValue(const char shortOption,
                                                        const typeName_t& typeName,
                                                        const CommandLineOptions::value_t& defaultValue) noexcept
 {
-    return addOption({shortOption, longOption, description, ArgumentType::OPTIONAL_VALUE, typeName, defaultValue});
+    return addOption({shortOption, longOption, description, OptionType::OPTIONAL_VALUE, typeName, defaultValue});
 }
 CommandLineParser& CommandLineParser::addRequiredValue(const char shortOption,
                                                        const CommandLineOptions::name_t& longOption,
                                                        const description_t& description,
                                                        const typeName_t& typeName) noexcept
 {
-    return addOption({shortOption, longOption, description, ArgumentType::REQUIRED_VALUE, typeName, {""}});
+    return addOption({shortOption, longOption, description, OptionType::REQUIRED_VALUE, typeName, {""}});
 }
 
 std::ostream& operator<<(std::ostream& stream, const CommandLineParser::Entry& entry) noexcept
