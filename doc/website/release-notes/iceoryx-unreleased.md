@@ -26,6 +26,7 @@
 - Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
   - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
   - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+- Uninteresting mock function calls in tests [/#1341](https://github.com/eclipse-iceoryx/iceoryx/issues/1341)
 
 **New API features:**
 

@@ -77,6 +77,7 @@ class BaseSubscriberTest : public Test
 
     void SetUp()
     {
+        EXPECT_CALL(sut.port(), destroy).WillRepeatedly(Return());
     }
 
     void TearDown()
@@ -184,6 +185,7 @@ TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPo
     ASSERT_FALSE(waitSet.attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Verify ===== //
     // ===== Cleanup ===== //
+    EXPECT_CALL(sut.port(), unsetConditionVariable()).Times(1);
 }
 
 TEST_F(BaseSubscriberTest, AttachEventToWaitsetForwardedToUnderlyingSubscriberPort)
@@ -197,6 +199,7 @@ TEST_F(BaseSubscriberTest, AttachEventToWaitsetForwardedToUnderlyingSubscriberPo
     ASSERT_FALSE(waitSet.attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
     // ===== Verify ===== //
     // ===== Cleanup ===== //
+    EXPECT_CALL(sut.port(), unsetConditionVariable()).Times(1);
 }
 
 TEST_F(BaseSubscriberTest, WaitSetUnsetStateBasedConditionVariableWhenGoingOutOfScope)
@@ -243,6 +246,7 @@ TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesI
     EXPECT_EQ(waitSet->size(), 0U);
     EXPECT_EQ(waitSet2->size(), 1U);
     // ===== Cleanup ===== //
+    EXPECT_CALL(sut.port(), unsetConditionVariable()).Times(1);
 }
 
 TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
@@ -259,6 +263,7 @@ TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 1U);
     // ===== Cleanup ===== //
+    EXPECT_CALL(sut.port(), unsetConditionVariable()).Times(1);
 }
 
 TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)

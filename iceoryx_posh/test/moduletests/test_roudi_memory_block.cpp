@@ -62,6 +62,7 @@ TEST_F(MemoryBlock_Test, MemoryAvailableAfterCreation)
     EXPECT_THAT(memoryProvider.dummyMemory, Ne(nullptr));
     ASSERT_THAT(sut.memory().has_value(), Eq(true));
     EXPECT_THAT(sut.memory().value(), Eq(memoryProvider.dummyMemory));
+    EXPECT_CALL(sut, destroy()).Times(1);
 }
 
 } // namespace

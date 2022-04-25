@@ -153,6 +153,7 @@ TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
         .Times(1)
         .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+    EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
     // ===== Test ===== //
     auto maybeSample = sut.take();
     // ===== Verify ===== //
