@@ -28,8 +28,8 @@ void handleError(const CommandLineParser& parser)
 }
 
 void populateEntries(CommandLineParser& parser,
-                     const cmdEntries_t& entries,
-                     const cmdAssignments_t& assignments,
+                     const CmdEntries_t& entries,
+                     const CmdAssignments_t& assignments,
                      CommandLineOption::BinaryName_t& binaryName,
                      int argc,
                      char* argv[],

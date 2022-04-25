@@ -26,11 +26,11 @@ namespace posix
 namespace internal
 {
 template <typename T>
-inline void extractValue(const CommandLineParser& parser,
-                         T& value,
-                         const cmdEntries_t& entries,
-                         const uint64_t index,
-                         const CommandLineOption& options)
+inline void extractOptionArgumentValue(const CommandLineParser& parser,
+                                       T& referenceToMember,
+                                       const CmdEntries_t& entries,
+                                       const uint64_t index,
+                                       const CommandLineOption& options)
 {
     auto result = options.get<T>(entries[index].longOption);
     if (result.has_error())
@@ -56,19 +56,19 @@ inline void extractValue(const CommandLineParser& parser,
         handleError(parser);
     }
 
-    value = result.value();
+    referenceToMember = result.value();
 }
 
 template <typename T>
-inline T addEntry(const CommandLineParser& parser,
-                  T& value,
-                  const char shortName,
-                  const CommandLineOption::Name_t& name,
-                  const CommandLineParser::Description_t& description,
-                  const OptionType optionType,
-                  T defaultValue,
-                  internal::cmdEntries_t& entries,
-                  internal::cmdAssignments_t& assignments)
+inline T defineOption(const CommandLineParser& parser,
+                      T& referenceToMember,
+                      const char shortName,
+                      const CommandLineOption::Name_t& name,
+                      const CommandLineParser::Description_t& description,
+                      const OptionType optionType,
+                      T defaultArgumentValue,
+                      internal::CmdEntries_t& entries,
+                      internal::CmdAssignments_t& assignments)
 {
     entries.emplace_back(CommandLineParser::Entry{
         shortName,
@@ -76,23 +76,24 @@ inline T addEntry(const CommandLineParser& parser,
         description,
         optionType,
         {cxx::TypeInfo<T>::NAME},
-        CommandLineOption::Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultValue))});
-    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOption& options) {
-        extractValue(parser, value, entries, index, options);
-    });
-    return defaultValue;
+        CommandLineOption::Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))});
+    assignments.emplace_back(
+        [&parser, &referenceToMember, &entries, index = entries.size() - 1](CommandLineOption& options) {
+            extractOptionArgumentValue(parser, referenceToMember, entries, index, options);
+        });
+    return defaultArgumentValue;
 }
 
 template <>
-inline bool addEntry(const CommandLineParser& parser,
-                     bool& value,
-                     const char shortName,
-                     const CommandLineOption::Name_t& name,
-                     const CommandLineParser::Description_t& description,
-                     const OptionType optionType,
-                     bool defaultValue,
-                     internal::cmdEntries_t& entries,
-                     internal::cmdAssignments_t& assignments)
+inline bool defineOption(const CommandLineParser& parser,
+                         bool& referenceToMember,
+                         const char shortName,
+                         const CommandLineOption::Name_t& name,
+                         const CommandLineParser::Description_t& description,
+                         const OptionType optionType,
+                         bool defaultArgumentValue,
+                         internal::CmdEntries_t& entries,
+                         internal::CmdAssignments_t& assignments)
 {
     entries.emplace_back(CommandLineParser::Entry{
         shortName,
@@ -100,18 +101,19 @@ inline bool addEntry(const CommandLineParser& parser,
         description,
         optionType,
         {"true|false"},
-        CommandLineOption::Argument_t(cxx::TruncateToCapacity, (defaultValue) ? "true" : "false")});
-    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOption& options) {
-        if (entries[index].type == OptionType::SWITCH)
-        {
-            value = options.has(entries[index].longOption);
-        }
-        else
-        {
-            extractValue(parser, value, entries, index, options);
-        }
-    });
-    return defaultValue;
+        CommandLineOption::Argument_t(cxx::TruncateToCapacity, (defaultArgumentValue) ? "true" : "false")});
+    assignments.emplace_back(
+        [&parser, &referenceToMember, &entries, index = entries.size() - 1](CommandLineOption& options) {
+            if (entries[index].type == OptionType::SWITCH)
+            {
+                referenceToMember = options.has(entries[index].longOption);
+            }
+            else
+            {
+                extractOptionArgumentValue(parser, referenceToMember, entries, index, options);
+            }
+        });
+    return defaultArgumentValue;
 }
 } // namespace internal
 } // namespace posix

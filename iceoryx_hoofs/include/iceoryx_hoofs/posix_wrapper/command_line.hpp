@@ -28,33 +28,33 @@ namespace posix
 {
 namespace internal
 {
-using cmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
-using cmdAssignments_t =
+using CmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
+using CmdAssignments_t =
     cxx::vector<cxx::function<void(CommandLineOption&)>, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
 
 void handleError(const CommandLineParser& parser);
 
 template <typename T>
-void extractValue(const CommandLineParser& parser,
-                  T& value,
-                  const cmdEntries_t& entries,
-                  const uint64_t index,
-                  const CommandLineOption& options);
+void extractOptionArgumentValue(const CommandLineParser& parser,
+                                T& referenceToMember,
+                                const CmdEntries_t& entries,
+                                const uint64_t index,
+                                const CommandLineOption& options);
 
 template <typename T>
-T addEntry(const CommandLineParser& parser,
-           T& value,
-           const char shortName,
-           const CommandLineOption::Name_t& name,
-           const CommandLineParser::Description_t& description,
-           const OptionType optionType,
-           T defaultValue, // not const to enable RTVO
-           internal::cmdEntries_t& entries,
-           internal::cmdAssignments_t& assignments);
+T defineOption(const CommandLineParser& parser,
+               T& referenceToMember, // not a pointer since it must be always valid
+               const char shortName,
+               const CommandLineOption::Name_t& name,
+               const CommandLineParser::Description_t& description,
+               const OptionType optionType,
+               T defaultArgumentValue, // not const to enable RTVO
+               internal::CmdEntries_t& entries,
+               internal::CmdAssignments_t& assignments);
 
 void populateEntries(CommandLineParser& parser,
-                     const cmdEntries_t& entries,
-                     const cmdAssignments_t& assignments,
+                     const CmdEntries_t& entries,
+                     const CmdAssignments_t& assignments,
                      CommandLineOption::BinaryName_t& binaryName,
                      int argc,
                      char* argv[],
@@ -63,15 +63,15 @@ void populateEntries(CommandLineParser& parser,
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   private:                                                                                                             \
-    type m_##memberName = iox::posix::internal::addEntry<type>(this->m_parser,                                         \
-                                                               this->m_##memberName,                                   \
-                                                               shortName,                                              \
-                                                               longName,                                               \
-                                                               description,                                            \
-                                                               optionType,                                             \
-                                                               defaultValue,                                           \
-                                                               m_entries,                                              \
-                                                               m_assignments);                                         \
+    type m_##memberName = iox::posix::internal::defineOption<type>(this->m_parser,                                     \
+                                                                   this->m_##memberName,                               \
+                                                                   shortName,                                          \
+                                                                   longName,                                           \
+                                                                   description,                                        \
+                                                                   optionType,                                         \
+                                                                   defaultValue,                                       \
+                                                                   m_entries,                                          \
+                                                                   m_assignments);                                     \
                                                                                                                        \
   public:                                                                                                              \
     const type& memberName() const noexcept                                                                            \
@@ -146,8 +146,8 @@ void populateEntries(CommandLineParser& parser,
 #define IOX_CLI_DEFINITION(Name, ProgramDescription)                                                                   \
   private:                                                                                                             \
     ::iox::posix::CommandLineParser m_parser;                                                                          \
-    ::iox::posix::internal::cmdEntries_t m_entries;                                                                    \
-    ::iox::posix::internal::cmdAssignments_t m_assignments;                                                            \
+    ::iox::posix::internal::CmdEntries_t m_entries;                                                                    \
+    ::iox::posix::internal::CmdAssignments_t m_assignments;                                                            \
     ::iox::posix::CommandLineOption::BinaryName_t m_binaryName;                                                        \
                                                                                                                        \
   public:                                                                                                              \
