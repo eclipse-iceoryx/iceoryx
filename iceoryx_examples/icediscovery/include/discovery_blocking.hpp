@@ -51,6 +51,7 @@ class Discovery
     void unblockWait();
 
     /// @brief get all services matching a findService query
+    /// @return ServiceContainer, containing the found services
     /// @note invokes findService of the native iceoryx ServiceDiscovery API
     ServiceContainer findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
                                  const iox::cxx::optional<iox::capro::IdString_t>& instance,

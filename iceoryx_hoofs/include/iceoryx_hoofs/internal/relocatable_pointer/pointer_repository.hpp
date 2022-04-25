@@ -21,7 +21,7 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include <iostream>
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 
 namespace iox

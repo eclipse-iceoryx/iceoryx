@@ -64,6 +64,9 @@ class PosixShmMemoryProvider : public MemoryProvider
     posix::AccessMode m_accessMode{posix::AccessMode::READ_ONLY};
     posix::OpenMode m_openMode{posix::OpenMode::OPEN_EXISTING};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
+
+    static constexpr cxx::perms SHM_MEMORY_PERMISSIONS =
+        cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read | cxx::perms::group_write;
 };
 
 } // namespace roudi

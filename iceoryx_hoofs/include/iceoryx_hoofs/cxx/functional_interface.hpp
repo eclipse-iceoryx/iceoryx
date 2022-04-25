@@ -17,6 +17,7 @@
 #define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <iostream>
 #include <utility>
@@ -25,6 +26,12 @@ namespace iox
 {
 namespace cxx
 {
+template <uint64_t Capacity>
+class string;
+
+template <uint64_t Capacity>
+using charArray = char[Capacity];
+
 namespace internal
 {
 template <typename Derived, class = void>
@@ -52,8 +59,10 @@ struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
     ///        provided message and induces a fatal error
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
-    void expect(const char* const msg) const noexcept;
+    template <typename StringType>
+    void expect(const StringType& msg) const noexcept;
 };
 
 template <typename Derived, typename ValueType>
@@ -61,27 +70,35 @@ struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a reference to the contained value
-    ValueType& expect(const char* const msg) & noexcept;
+    template <typename StringType>
+    ValueType& expect(const StringType& msg) & noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return a const reference the contained value
-    const ValueType& expect(const char* const msg) const& noexcept;
+    template <typename StringType>
+    const ValueType& expect(const StringType& msg) const& noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return rvalue reference to the contained value
-    ValueType&& expect(const char* const msg) && noexcept;
+    template <typename StringType>
+    ValueType&& expect(const StringType& msg) && noexcept;
 
     /// @brief Expects that the object is valid and returns the contained value, otherwise
     //         the method prints the provided message and induces a fatal error
+    /// @tparam StringType the string type of the message. Allowed types are a char array and a cxx::string
     /// @param[in] msg Message which will be printed when the object is invalid
     /// @return const rvalue reference to the contained value
-    const ValueType&& expect(const char* const msg) const&& noexcept;
+    template <typename StringType>
+    const ValueType&& expect(const StringType& msg) const&& noexcept;
 };
 
 template <typename Derived, typename ValueType>
@@ -112,33 +129,42 @@ struct AndThenWithValue
     using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
     using const_and_then_callback_t = cxx::function_ref<void(const ValueType&)>;
 
+    /// @note and_then has a template argument since otherwise we encounter issue
+    ///       with the type deduction and constness of auto arguments. A detailed
+    ///       discussion can be found here:
+    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
+
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return reference to *this
-    Derived& and_then(const and_then_callback_t& callable) & noexcept;
+    template <typename Functor>
+    Derived& and_then(const Functor& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return const reference to *this
-    const Derived& and_then(const const_and_then_callback_t& callable) const& noexcept;
+    template <typename Functor>
+    const Derived& and_then(const Functor& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return rvalue reference to *this
-    Derived&& and_then(const and_then_callback_t& callable) && noexcept;
+    template <typename Functor>
+    Derived&& and_then(const Functor& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is valid and provides the underlying
     ///        value const reference as argument to the callable. If the object is not valid, nothing
     ///        happens.
     /// @param[in] callable will be called when valid
     /// @return const rvalue reference to *this
-    const Derived&& and_then(const const_and_then_callback_t& callable) const&& noexcept;
+    template <typename Functor>
+    const Derived&& and_then(const Functor& callable) const&& noexcept;
 };
 
 template <typename Derived>
@@ -177,33 +203,42 @@ struct OrElseWithValue
     using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
     using const_or_else_callback_t = cxx::function_ref<void(const ErrorType&)>;
 
+    /// @note or_else has a template argument since otherwise we encounter issue
+    ///       with the type deduction and constness of auto arguments. A detailed
+    ///       discussion can be found here:
+    ///       https://stackoverflow.com/questions/71797023/type-deduction-for-stdfunction-argument-types-with-auto-adds-const
+
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return reference to *this
-    Derived& or_else(const or_else_callback_t& callable) & noexcept;
+    template <typename Functor>
+    Derived& or_else(const Functor& callable) & noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return const reference to *this
-    const Derived& or_else(const const_or_else_callback_t& callable) const& noexcept;
+    template <typename Functor>
+    const Derived& or_else(const Functor& callable) const& noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return rvalue reference to *this
-    Derived&& or_else(const or_else_callback_t& callable) && noexcept;
+    template <typename Functor>
+    Derived&& or_else(const Functor& callable) && noexcept;
 
     /// @brief Calls the provided callable when the object is invalid and provide the underlying
     ///        error const reference as argument to the callable. If the object is valid, nothing
     ///        happens.
     /// @param[in] callable will be called when invalid
     /// @return const rvalue reference to *this
-    const Derived&& or_else(const const_or_else_callback_t& callable) const&& noexcept;
+    template <typename Functor>
+    const Derived&& or_else(const Functor& callable) const&& noexcept;
 };
 
 template <typename Derived>

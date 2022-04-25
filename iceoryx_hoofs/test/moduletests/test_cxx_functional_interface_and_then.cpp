@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#include "iceoryx_hoofs/testing/expect_no_death.hpp"
 #include "test_cxx_functional_interface_types.hpp"
 
 namespace
@@ -150,6 +151,83 @@ TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstRValueCa
     ::testing::Test::RecordProperty("TEST_ID", "d4162bb7-c2b3-4c82-bb78-bc63acf4b3b9");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
+
+template <bool HasValue>
+struct AndThenDoesNotCrashWithNullFunction;
+
+template <>
+struct AndThenDoesNotCrashWithNullFunction<TYPE_HAS_NO_VALUE_METHOD>
+{
+    template <typename TestFactory, typename AndThenCall>
+    static void performTest(const AndThenCall& callAndThen)
+    {
+        auto sut = TestFactory::createValidObject();
+        EXPECT_NO_DEATH([&] { callAndThen(sut, iox::cxx::function_ref<void()>()); });
+    }
+};
+
+template <>
+struct AndThenDoesNotCrashWithNullFunction<TYPE_HAS_VALUE_METHOD>
+{
+    template <typename TestFactory, typename AndThenCall>
+    static void performTest(const AndThenCall& callAndThen)
+    {
+        auto sut = TestFactory::createValidObject();
+        EXPECT_NO_DEATH([&] { callAndThen(sut, iox::cxx::function_ref<void(typename TestFactory::value_t&)>()); });
+    }
+};
+
+template <bool HasValue>
+struct AndThenDoesNotCrashWithNullFunction_Const;
+
+template <>
+struct AndThenDoesNotCrashWithNullFunction_Const<TYPE_HAS_NO_VALUE_METHOD>
+{
+    template <typename TestFactory, typename AndThenCall>
+    static void performTest(const AndThenCall& callAndThen)
+    {
+        auto sut = TestFactory::createValidObject();
+        EXPECT_NO_DEATH([&] { callAndThen(sut, iox::cxx::function_ref<void()>()); });
+    }
+};
+
+template <>
+struct AndThenDoesNotCrashWithNullFunction_Const<TYPE_HAS_VALUE_METHOD>
+{
+    template <typename TestFactory, typename AndThenCall>
+    static void performTest(const AndThenCall& callAndThen)
+    {
+        auto sut = TestFactory::createValidObject();
+        EXPECT_NO_DEATH(
+            [&] { callAndThen(sut, iox::cxx::function_ref<void(const typename TestFactory::value_t&)>()); });
+    }
+};
+
+TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_LValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "661a087d-90ee-4b27-9af4-b4d4b211adeb");
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction, sut);
+}
+
+TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_ConstLValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5913ed24-cb6e-47e6-a0af-c0650cc642a0");
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction_Const, const_cast<const SutType&>(sut));
+}
+
+TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_RValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction, std::move(sut));
+}
+
+TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_ConstRValueCase)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction_Const,
+                                  std::move(const_cast<const SutType&>(sut)));
+}
+
 
 #undef IOX_TEST_FUNCTIONAL_INTERFACE
 } // namespace

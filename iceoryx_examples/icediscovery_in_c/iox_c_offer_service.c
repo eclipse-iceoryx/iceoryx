@@ -45,8 +45,8 @@ int main()
     iox_pub_storage_t publisherStorage;
     iox_pub_options_t options;
     iox_pub_options_init(&options);
-    iox_pub_t radarLeft = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Image", &options);
-    iox_pub_t radarRight = iox_pub_init(&publisherStorage, "Radar", "FrontRight", "Image", &options);
+    iox_pub_t radarLeft = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Objects", &options);
+    iox_pub_t radarRight = iox_pub_init(&publisherStorage, "Radar", "FrontRight", "Objects", &options);
     iox_pub_t lidarLeft = iox_pub_init(&publisherStorage, "Lidar", "FrontLeft", "Counter", &options);
 
     iox_pub_storage_t cameraPublisherStorage[NUMBER_OF_CAMERA_PUBLISHERS];

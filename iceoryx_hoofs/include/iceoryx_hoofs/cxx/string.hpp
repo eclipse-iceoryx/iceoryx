@@ -41,8 +41,8 @@ namespace cxx
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
-                            && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
+                            && (is_char_array<T2>::value || is_cxx_string<T2>::value),
                         string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
 concatenate(const T1& t1, const T2& t2) noexcept;
 
@@ -57,8 +57,8 @@ concatenate(const T1& t1, const T2& t2) noexcept;
 ///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
-typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
-                            && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
+                            && (is_char_array<T2>::value || is_cxx_string<T2>::value),
                         string<internal::SumCapa<T1, T2, Targs...>::value>>::type
 concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 
@@ -69,9 +69,9 @@ concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 ///
 /// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
 template <typename T1, typename T2>
-typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxString<T2>::value)
-                            || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
-                            || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value),
+typename std::enable_if<(is_char_array<T1>::value && is_cxx_string<T2>::value)
+                            || (is_cxx_string<T1>::value && is_char_array<T2>::value)
+                            || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
                         string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
 operator+(const T1& t1, const T2& t2) noexcept;
 
@@ -437,7 +437,7 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string&>::type
+    typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, string&>::type
     append(TruncateToCapacity_t, const T& t) noexcept;
 
     /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
@@ -447,7 +447,7 @@ class string
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+    typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
     unsafe_append(const T& t) noexcept;
 
     /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size
@@ -479,8 +479,7 @@ class string
     /// @return an optional containing the position of the first character of the found substring, iox::cxx::nullopt if
     /// no substring is found
     template <typename T>
-    typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-                                || internal::IsCxxString<T>::value,
+    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
                             optional<uint64_t>>::type
     find(const T& t, const uint64_t pos = 0U) const noexcept;
 
@@ -494,8 +493,7 @@ class string
     /// @return an optional containing the position of the first character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-                                || internal::IsCxxString<T>::value,
+    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
                             optional<uint64_t>>::type
     find_first_of(const T& t, const uint64_t pos = 0U) const noexcept;
 
@@ -508,17 +506,40 @@ class string
     /// @return an optional containing the position of the last character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-                                || internal::IsCxxString<T>::value,
+    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
                             optional<uint64_t>>::type
     find_last_of(const T& t, const uint64_t pos = Capacity) const noexcept;
+
+    /// @brief returns a reference to the character stored at pos
+    /// @param[in] pos position of character to return
+    /// @return reference to the character
+    /// @note out of bounds access leads to program termination
+    constexpr char& at(const uint64_t pos) noexcept;
+
+    /// @brief returns a reference to the character stored at pos
+    /// @param[in] pos position of character to return
+    /// @return const reference to the character
+    /// @note out of bounds access leads to program termination
+    constexpr const char& at(const uint64_t pos) const noexcept;
+
+    /// @brief returns a reference to the character stored at pos
+    /// @param[in] pos position of the character to return
+    /// @return reference to the character
+    /// @note out of bounds access leads to program termination
+    constexpr char& operator[](const uint64_t pos) noexcept;
+
+    /// @brief returns a const reference to the character stored at pos
+    /// @param[in] pos position of the character to return
+    /// @return const reference to the character
+    /// @note out of bounds access leads to program termination
+    constexpr const char& operator[](const uint64_t pos) const noexcept;
 
     template <uint64_t N>
     friend class string;
 
     template <typename T1, typename T2>
-    friend typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
-                                       && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+    friend typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
+                                       && (is_char_array<T2>::value || is_cxx_string<T2>::value),
                                    string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
     concatenate(const T1& t1, const T2& t2) noexcept;
 

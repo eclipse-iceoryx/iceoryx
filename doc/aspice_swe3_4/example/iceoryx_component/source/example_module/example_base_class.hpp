@@ -17,7 +17,7 @@
 #ifndef IOX_DOC_EXAMPLE_MODULE_EXAMPLE_BASE_CLASS_HPP
 #define IOX_DOC_EXAMPLE_MODULE_EXAMPLE_BASE_CLASS_HPP
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace example
 {

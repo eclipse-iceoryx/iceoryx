@@ -29,7 +29,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
 template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
-    : m_pointerToCallable(reinterpret_cast<void*>(std::addressof(callable)))
+    : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
         return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
             std::forward<ArgTypes>(args)...);

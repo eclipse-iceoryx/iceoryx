@@ -84,10 +84,10 @@ int main()
 
         printf("\n=========================================\n");
 
-        printf("\nSearched for {'Radar', 'FrontLeft', 'Image'}. Found the following services:\n");
+        printf("\nSearched for {'Radar', 'FrontLeft', 'Objects'}. Found the following services:\n");
         //! [find service and apply callable]
         iox_service_discovery_find_service_apply_callable(
-            serviceDiscovery, "Radar", "FrontLeft", "Image", printSearchResult, MessagingPattern_PUB_SUB);
+            serviceDiscovery, "Radar", "FrontLeft", "Objects", printSearchResult, MessagingPattern_PUB_SUB);
         //! [find service and apply callable]
 
         printf("\nSearched for {'Radar', *, *}. Found the following services:\n");

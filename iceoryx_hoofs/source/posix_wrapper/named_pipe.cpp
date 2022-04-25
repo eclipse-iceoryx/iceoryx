@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -89,24 +89,20 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    if (SharedMemoryObject::create(
-            convertName(NAMED_PIPE_PREFIX, name),
-            // add alignment since we require later aligned memory to perform the placement new of
-            // m_messages. when we add the alignment it is guaranteed that enough memory should be available.
-            sizeof(NamedPipeData) + alignof(NamedPipeData),
-            AccessMode::READ_WRITE,
-            (channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING,
-            iox::posix::SharedMemoryObject::NO_ADDRESS_HINT)
-            .and_then([&](auto& r) { m_sharedMemory.emplace(std::move(r)); })
-            .or_else([&](auto) {
-                std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
-                          << "\" for named pipe \"" << name << "\"" << std::endl;
-                m_isInitialized = false;
-                m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
-                                                                       : IpcChannelError::INTERNAL_LOGIC_ERROR;
-            })
-            .has_error())
+    if (!SharedMemoryObjectBuilder()
+             .name(convertName(NAMED_PIPE_PREFIX, name))
+             .memorySizeInBytes(sizeof(NamedPipeData) + alignof(NamedPipeData))
+             .accessMode(AccessMode::READ_WRITE)
+             .openMode((channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING)
+             .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+             .create()
+             .and_then([this](auto& value) { m_sharedMemory.emplace(std::move(value)); }))
     {
+        std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
+                  << "\" for named pipe \"" << name << "\"" << std::endl;
+        m_isInitialized = false;
+        m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
+                                                               : IpcChannelError::INTERNAL_LOGIC_ERROR;
         return;
     }
 

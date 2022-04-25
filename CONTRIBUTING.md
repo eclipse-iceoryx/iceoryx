@@ -107,9 +107,10 @@ codebase follows these rules, things are work in progress.
 4) **Use C++14**
 5) **[Rule of Five](https://en.cppreference.com/w/cpp/language/rule_of_three)**, if there is a non-default
     destructor needed, the rule of five has to be applied
-6) **[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)**, we aim to be compatible towards the STL, but
-    our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
-    does return a bool)
+6) **Keep the [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) dependencies to a minimum**,
+    the building blocks in `iceoryx_hoofs` aim to be compatible with the STL, but the code may contain additions
+    which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()` does return a bool); see
+    [section](CONTRIBUTING.md#external-dependencies) below
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler` or `iox::cxx::Expects`/`iox::cxx::Ensures`**, when an error occurs that cannot or
     shall not be propagated via an `iox::cxx::expected`
@@ -152,6 +153,15 @@ For overrides of virtual methods the `copydoc` tag can be used:
 ```
 
 A good example for code formatting and doxygen structure can be found in [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
+
+### External dependencies
+
+External dependencies such as the [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) or
+other libaries shall be kept to a minium for `iceoryx_posh` and `iceoryx_hoofs`. If you think a new dependency is
+necessary, do the following:
+
+1. Contact the maintainers beforehand by opening an issue to discuss the necessity
+1. If accepted, add the new header to `tools/scripts/used-headers.txt` for the CI to pass
 
 ## Folder structure
 

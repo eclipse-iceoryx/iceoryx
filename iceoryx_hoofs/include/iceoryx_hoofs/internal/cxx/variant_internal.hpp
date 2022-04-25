@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 #define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 
-#include <assert.h>
+#include <cassert>
 #include <cstdint>
 #include <type_traits>
 #include <utility>

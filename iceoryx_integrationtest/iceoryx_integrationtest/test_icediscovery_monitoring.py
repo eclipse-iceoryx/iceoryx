@@ -34,7 +34,7 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-offer-service', 'iox-wait-for-service', 'iox-discovery-monitor']
+    executable_list = ['iox-cpp-offer-service', 'iox-cpp-wait-for-service', 'iox-cpp-discovery-monitor']
     process_list = []
 
     for exec in executable_list:
@@ -65,8 +65,8 @@ def generate_test_description():
         process_list[2],
         roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-offer-service': process_list[0], 'iox-wait-for-service': process_list[1],
-         'iox-discovery-monitor': process_list[2], 'roudi_process': roudi_process}
+    ]), {'iox-cpp-offer-service': process_list[0], 'iox-cpp-wait-for-service': process_list[1],
+         'iox-cpp-discovery-monitor': process_list[2], 'roudi_process': roudi_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi

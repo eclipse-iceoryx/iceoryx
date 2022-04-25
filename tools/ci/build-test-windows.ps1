@@ -28,6 +28,7 @@ if ($?) { Write-Host "running tests (excluding timing_tests)" }
 # we have to exclude the tests explicitly until everyone is running
 
 if ($?) { build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-*TimingTest*" }
+if ($?) { build\hoofs\test\Debug\hoofs_mocktests.exe }
 if ($?) { build\hoofs\test\Debug\hoofs_integrationtests.exe }
 if ($?) { build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime_test.RuntimeNameLengthIsOutOfLimit:BindingC_Runtime_test.RuntimeNameIsNullptr:*TimingTest*" }
 if ($?) { build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-ChunkHeader_test.ChunkHeaderBinaryCompatibilityCheck:TomlGatewayConfigParserSuiteTest*:IceoryxRoudiApp_test.ConstructorCalledWithArgUniqueIdTwoTimesReturnError:IceoryxRoudiApp_test.ConstructorCalledWithArgVersionSetRunVariableToFalse:ValidTest*:ParseAllMalformedInput*:*TimingTest*" }

@@ -393,4 +393,19 @@ TEST_F(function_refTest, CreationWithFunctionNullPointerIsNotCallable)
     EXPECT_FALSE(sut.operator bool());
 }
 
+template <typename Functor>
+void canBeConstructedFromConstReferenceCallable(const Functor& f)
+{
+    function_ref<void()> sut(f);
+}
+
+TEST_F(function_refTest, CanBeConstructedFromConstReference)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "df97fc89-3b37-4be2-af8e-80d405fa9797");
+    // this is a compile time test. the function_ref should be constructable from
+    // const references to callables. if this is not the case the test fails with
+    // a compilation error
+    canBeConstructedFromConstReferenceCallable([] {});
+}
+
 } // namespace

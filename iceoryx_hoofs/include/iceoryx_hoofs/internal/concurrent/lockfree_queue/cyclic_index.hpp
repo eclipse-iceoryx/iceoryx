@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP
 #define IOX_HOOFS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP
 
+#include <cstdint>
 #include <limits>
-#include <stdint.h>
 #include <type_traits>
 
 

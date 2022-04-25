@@ -309,34 +309,6 @@ TEST_F(expected_test, ErrorTypeOnlyBoolOperatorReturnsNoError)
     ASSERT_THAT(sut.operator bool(), Eq(true));
 }
 
-TEST_F(expected_test, ValueOrWithErrorReturnsGivenValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "490ddf23-be03-4433-bf6a-43ccae5cde73");
-    auto sut = expected<int, TestError>::create_error(TestError::ERROR1);
-    EXPECT_THAT(sut.value_or(90), Eq(90));
-}
-
-TEST_F(expected_test, ConstValueOrWithErrorReturnsGivenValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d5714512-7f75-4b0e-a6ac-fcff09e6a60f");
-    const auto sut = expected<int, TestError>::create_error(TestError::ERROR1);
-    EXPECT_THAT(sut.value_or(51), Eq(51));
-}
-
-TEST_F(expected_test, ValueOrWithSuccessReturnsStoredValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "12e6bf3a-4e99-444f-bf8c-641737a2ee03");
-    auto sut = expected<int, TestError>::create_value(999);
-    EXPECT_THAT(sut.value_or(15), Eq(999));
-}
-
-TEST_F(expected_test, ConstValueOrWithSuccessReturnsStoredValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "3fe6982f-64a5-4245-adc9-22c2c9b0f0fe");
-    const auto sut = expected<int, TestError>::create_value(652);
-    EXPECT_THAT(sut.value_or(15), Eq(652));
-}
-
 TEST_F(expected_test, ArrowOperatorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "39898e81-d4ad-4f27-8c45-d29c80114be2");
@@ -474,128 +446,6 @@ TEST_F(expected_test, CreateFromErrorLeadsToCorrectError)
     EXPECT_THAT(sut.get_error(), Eq(TestError::ERROR2));
 }
 
-TEST_F(expected_test, WhenHavingAnErrorCallsOrElse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "68d359ad-b1be-42ac-b1d3-4ea24b5b1410");
-    expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
-    TestError error;
-    sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& r) { error = r; });
-
-    EXPECT_THAT(error, Eq(TestError::ERROR1));
-}
-
-TEST_F(expected_test, ConstWhenHavingAnErrorCallsOrElse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f93447da-16ea-45b1-89bd-3ddd34562c10");
-    const expected<int, TestError> sut{error<TestError>(TestError::ERROR2)};
-    TestError error;
-    sut.and_then([&](auto&) { error = TestError::ERROR1; }).or_else([&](auto& r) { error = r; });
-
-    EXPECT_THAT(error, Eq(TestError::ERROR2));
-}
-
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorCallsOrElse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2a479d51-324b-4d87-bf36-7a10ca98f1ea");
-    expected<TestError> sut{error<TestError>(TestError::ERROR2)};
-    TestError error;
-    sut.and_then([&]() { error = TestError::ERROR1; }).or_else([&](auto& r) { error = r; });
-
-    EXPECT_THAT(error, Eq(TestError::ERROR2));
-}
-
-TEST_F(expected_test, ErrorTypeOnlyConstWhenHavingAnErrorCallsOrElse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "93512987-6cd1-4895-b345-ea6004e5ed13");
-    const expected<TestError> sut{error<TestError>(TestError::ERROR1)};
-    float a = 55.44f;
-    sut.and_then([&]() { a = 91.f; }).or_else([&](auto&) { a = 612.1f; });
-
-    EXPECT_THAT(a, Eq(612.1f));
-}
-
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessCallsAndThen)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "a7e6ec36-094d-4d63-ae97-7e712a4fa83e");
-    expected<TestError> sut{success<>()};
-    int a = 0;
-    sut.and_then([&]() { a = 65; }).or_else([&](auto&) { a = 111111; });
-
-    EXPECT_THAT(a, Eq(65));
-}
-
-TEST_F(expected_test, WhenHavingSuccessCallsAndThen)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "010e4cc6-0966-462b-bda0-a0c2c0d680e4");
-    expected<int, TestError> sut{success<int>(112)};
-    int a = 0;
-    sut.and_then([&](auto& r) { a = r; }).or_else([&](auto&) { a = 3; });
-
-    EXPECT_THAT(a, Eq(112));
-}
-
-TEST_F(expected_test, ConstWhenHavingSuccessCallsAndThen)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5371e909-0ea5-494b-b969-cb382a0189b8");
-    const expected<int, TestError> sut{success<int>(1142)};
-    int a = 0;
-    sut.and_then([&](auto& r) { a = r; }).or_else([&](auto&) { a = 3; });
-
-    EXPECT_THAT(a, Eq(1142));
-}
-
-TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsAndThen)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7c30ccec-614d-4ef3-bb60-c187a8679b8d");
-    expected<int, TestError> sut{success<int>(1143)};
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-
-    bool success{false};
-    sut.and_then([&](auto&) { success = true; }).or_else([&](auto&) {
-        GTEST_FAIL() << "'or_else' should not be called";
-    });
-    EXPECT_TRUE(success);
-}
-
-TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsOrElse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f55225eb-7f60-4748-8b69-13fde30d6aa3");
-    expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-
-    bool success{false};
-    sut.and_then([&](auto&) { GTEST_FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) {
-        success = true;
-    });
-    EXPECT_TRUE(success);
-}
-
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsAndThen)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "3e4b0e4e-fdd1-49da-98ff-21d71a5178e6");
-    expected<TestError> sut{success<>()};
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-
-    bool success{false};
-    sut.and_then([&]() { success = true; }).or_else([&](auto&) { GTEST_FAIL() << "'or_else' should not be called"; });
-    EXPECT_TRUE(success);
-}
-
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsOrElse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "417e4296-9542-4407-9d27-e4a2f2bb306f");
-    expected<TestError> sut{error<TestError>(TestError::ERROR1)};
-    auto movedValue = std::move(sut);
-    IOX_DISCARD_RESULT(movedValue);
-
-    bool success{false};
-    sut.and_then([&]() { GTEST_FAIL() << "'and_then' should not be called"; }).or_else([&](auto&) { success = true; });
-    EXPECT_TRUE(success);
-}
-
 TEST_F(expected_test, ConvertNonEmptySuccessResultToErrorTypeOnlyResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b14f4aaa-abd0-4b99-84df-d644506712fa");
@@ -626,6 +476,7 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
     ::testing::Test::RecordProperty("TEST_ID", "a877f9bd-5793-437f-8dee-a109aed9f647");
     expected<int, TestError> sut{success<int>(4711)};
     optional<int> value = sut.to_optional();
+
     ASSERT_THAT(value.has_value(), Eq(true));
     EXPECT_THAT(*value, Eq(4711));
 }
@@ -635,90 +486,26 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
     ::testing::Test::RecordProperty("TEST_ID", "fe161275-8fa2-43c9-86e7-0a20d79eb44f");
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
     optional<int> value = sut.to_optional();
+
     ASSERT_THAT(value.has_value(), Eq(false));
 }
 
-TEST_F(expected_test, AndThenUnpacksOptionalWhenNonEmptyOptionalValue)
+TEST_F(expected_test, ExpectedWithValueConvertsImplicitlyToOptionalWithValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "8b5429f1-3755-4027-ace3-7614640252e5");
-    auto sut = expected<iox::cxx::optional<int>, TestError>::create_value(123);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onSuccess).Times(1);
+    ::testing::Test::RecordProperty("TEST_ID", "873387ec-0e39-4620-80bf-ac9f4c8cb1fd");
+    expected<int, TestError> sut{success<int>(4711)};
+    optional<int> implicitCastValue = sut;
 
-    sut.and_then([&mocks](int& val) {
-        mocks.onSuccess();
-        ASSERT_THAT(val, Eq(123));
-    });
+    ASSERT_THAT(implicitCastValue.has_value(), Eq(true));
+    EXPECT_THAT(*implicitCastValue, Eq(4711));
 }
 
-TEST_F(expected_test, ConstAndThenUnpacksOptionalWhenNonEmptyOptionalValue)
+TEST_F(expected_test, ExpectedWithErrorConvertsImplicitlyToOptionalWithoutValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "cdfc2bf1-a35a-43fc-a049-513085d1a8a6");
-    const auto sut = expected<iox::cxx::optional<int>, TestError>::create_value(321);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onSuccess).Times(1);
+    ::testing::Test::RecordProperty("TEST_ID", "9fab861c-a90c-4fcd-aa98-ab8ce1f961b1");
+    expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
+    optional<int> implicitCastValue = sut;
 
-    sut.and_then([&mocks](int& val) {
-        mocks.onSuccess();
-        ASSERT_THAT(val, Eq(321));
-    });
-}
-
-TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7ad22cfe-4341-4947-9b66-89b2615b0877");
-    auto sut = expected<iox::cxx::optional<int>, TestError>::create_value(iox::cxx::nullopt);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onSuccess).Times(0);
-
-    sut.and_then([&mocks](int&) { mocks.onSuccess(); });
-}
-
-TEST_F(expected_test, AndThenInValueExpectedWithEmptyCallableDoesNotDie)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "3e2e8278-454e-4f17-b295-c418a2972ab1");
-    auto sut1 = expected<int, TestError>::create_value(123);
-    const auto sut2 = expected<int, TestError>::create_value(123);
-    auto sut3 = expected<iox::cxx::optional<int>, TestError>::create_value(123);
-    const auto sut4 = expected<iox::cxx::optional<int>, TestError>::create_value(123);
-
-    // we test here that std::terminate is not called from the function_ref
-    sut1.and_then(iox::cxx::function_ref<void(int&)>());
-    sut2.and_then(iox::cxx::function_ref<void(int&)>());
-    sut3.and_then(iox::cxx::function_ref<void(int&)>());
-    sut4.and_then(iox::cxx::function_ref<void(int&)>());
-}
-
-TEST_F(expected_test, OrElseInValueExpectedWithEmptyCallableDoesNotDie)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "a81a57ac-5932-4077-a51f-83939abd0065");
-    auto sut1 = expected<int, TestError>::create_error(TestError::ERROR1);
-    const auto sut2 = expected<int, TestError>::create_error(TestError::ERROR1);
-
-    // we test here that std::terminate is not called from the function_ref
-    sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
-    sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
-}
-
-TEST_F(expected_test, AndThenInErrorExpectedWithEmptyCallableDoesNotDie)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1e6b7874-52eb-4029-8b0f-68006a5a244e");
-    auto sut1 = expected<TestError>::create_value();
-    const auto sut2 = expected<TestError>::create_value();
-
-    // we test here that std::terminate is not called from the function_ref
-    sut1.and_then(iox::cxx::function_ref<void()>());
-    sut2.and_then(iox::cxx::function_ref<void()>());
-}
-
-TEST_F(expected_test, OrElseInErrorExpectedWithEmptyCallableDoesNotDie)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "59be2b98-06ee-4c10-867d-deaabd3d113f");
-    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
-    const auto sut2 = expected<TestError>::create_error(TestError::ERROR1);
-
-    // we test here that std::terminate is not called from the function_ref
-    sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
-    sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
+    ASSERT_THAT(implicitCastValue.has_value(), Eq(false));
 }
 } // namespace

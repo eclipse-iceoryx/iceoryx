@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "test.hpp"
 
@@ -239,5 +240,41 @@ TEST(TypeTraitsTest, TypeInfo_doubleTranslatesCorrectly)
 TEST(TypeTraitsTest, TypeInfo_long_doubleTranslatesCorrectly)
 {
     EXPECT_THAT(TypeInfo<long double>::NAME, StrEq("long double"));
+}
+
+TEST(TypeTraitsTest, NonCharArraysAreIdentifiedCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "40359de0-2ccd-422a-b1d4-da4b4f12a172");
+
+    EXPECT_FALSE(is_char_array<int>::value);
+    EXPECT_FALSE(is_char_array<int[10]>::value);
+    EXPECT_FALSE(is_char_array<iox::cxx::string<11>>::value);
+    EXPECT_FALSE(is_char_array<char>::value);
+}
+
+TEST(TypeTraitsTest, CharArraysAreIdentifiedCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1c115d9-80c4-4bc9-97d0-338112dfe1d3");
+
+    EXPECT_TRUE(is_char_array<char[1]>::value);
+    EXPECT_TRUE(is_char_array<char[10]>::value);
+}
+
+TEST(TypeTraitsTest, NonCxxStringsAreIdentifiedCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
+
+    EXPECT_FALSE(is_cxx_string<int>::value);
+    EXPECT_FALSE(is_cxx_string<int[10]>::value);
+    EXPECT_FALSE(is_cxx_string<char[11]>::value);
+    EXPECT_FALSE(is_cxx_string<char>::value);
+}
+
+TEST(TypeTraitsTest, CxxStringsAreIdentifiedCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
+
+    EXPECT_TRUE(is_cxx_string<iox::cxx::string<1>>::value);
+    EXPECT_TRUE(is_cxx_string<iox::cxx::string<10>>::value);
 }
 } // namespace

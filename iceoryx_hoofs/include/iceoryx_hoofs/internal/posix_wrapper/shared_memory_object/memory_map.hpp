@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/design_pattern/creation.hpp"
+#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_hoofs/platform/mman.hpp"
 

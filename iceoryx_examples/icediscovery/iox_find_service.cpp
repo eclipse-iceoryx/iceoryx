@@ -43,11 +43,11 @@ int main()
     {
         std::cout << "\n=========================================" << std::endl;
 
-        std::cout << "\nSearched for {'Radar', 'FrontLeft', 'Image'}. Found the following services:" << std::endl;
+        std::cout << "\nSearched for {'Radar', 'FrontLeft', 'Objects'}. Found the following services:" << std::endl;
         //! [search for unique service]
         serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
                                      iox::capro::IdString_t{"FrontLeft"},
-                                     iox::capro::IdString_t{"Image"},
+                                     iox::capro::IdString_t{"Objects"},
                                      printSearchResult,
                                      iox::popo::MessagingPattern::PUB_SUB);
         //! [search for unique service]

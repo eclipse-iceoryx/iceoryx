@@ -64,96 +64,16 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-#
-########## set util internal target, needed by tests in components ##########
-#
-# TODO: we need something like internal public for internal build dependencies
-# instead of making the whole source folder public for internal dependency resolution
-
-if(BUILD_TEST AND NOT GTest_FOUND)
-    find_package(GTest CONFIG REQUIRED)
-endif(BUILD_TEST AND NOT GTest_FOUND)
-
-if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_hoofs_testing without also building the tests
-
-    setup_package_name_and_create_files(
-        NAME ${PROJECT_NAME}_testing
-        NAMESPACE iceoryx_hoofs_testing
-        PROJECT_PREFIX ${PREFIX}
-    )
-
-    add_library(iceoryx_hoofs_testing
-        STATIC
-        testing/mocks/time_mock.cpp
-        testing/mocks/error_handler_mock.cpp
-        testing/timing_test.cpp
-        testing/compile_test.cpp
-    )
-
-    add_library(iceoryx_hoofs_testing::iceoryx_hoofs_testing ALIAS iceoryx_hoofs_testing)
-
-    set_target_properties(iceoryx_hoofs_testing PROPERTIES VERSION ${PROJECT_VERSION})
-    if(PERFORM_CLANG_TIDY)
-        set_target_properties(
-            iceoryx_hoofs_testing PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-        )
-    endif(PERFORM_CLANG_TIDY)
-    set_target_properties(iceoryx_hoofs_testing PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-    )
-
-    if(TEST_WITH_ADDITIONAL_USER)
-        target_compile_definitions(iceoryx_hoofs_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
-    endif(TEST_WITH_ADDITIONAL_USER)
-
-    target_include_directories(iceoryx_hoofs_testing
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/testing/include>
-        $<INSTALL_INTERFACE:include/${PREFIX}>
-    )
-
-    target_link_libraries(iceoryx_hoofs_testing
-        PUBLIC
-            GTest::gtest
-            GTest::gmock
-        PRIVATE
-            ${CODE_COVERAGE_LIBS}
-            iceoryx_hoofs
-            ${CMAKE_DL_LIBS}
-    )
-
-    if(LINUX)
-        target_link_libraries(iceoryx_hoofs_testing PRIVATE rt)
-    endif()
-
-    target_compile_options(iceoryx_hoofs_testing PRIVATE ${ICEORYX_WARNINGS})
-
-    setup_install_directories_and_export_package(
-        TARGETS iceoryx_hoofs_testing
-        INCLUDE_DIRECTORY testing/include/
-    )
-
-    #
-    ########## find_package in source tree ##########
-    #
-    set(${PROJECT_NAME}_testing_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}_testingConfig.cmake to make find_package(${PROJECT_NAME}_testing) work in source tree!"
-    FORCE
-    )
-
-endif(GTest_FOUND)
-
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
     NAMESPACE iceoryx_hoofs
     PROJECT_PREFIX ${PREFIX}
 )
 
+add_subdirectory(platform)
+
 #
-########## build iceoryx util lib ##########
+########## build iceoryx hoofs lib ##########
 #
 
 add_library(iceoryx_hoofs
@@ -161,6 +81,7 @@ add_library(iceoryx_hoofs
     source/concurrent/loffli.cpp
     source/cxx/deadline_timer.cpp
     source/cxx/filesystem.cpp
+    source/cxx/generic_raii.cpp
     source/cxx/helplets.cpp
     source/cxx/requires.cpp
     source/cxx/generic_raii.cpp
@@ -172,8 +93,8 @@ add_library(iceoryx_hoofs
     source/log/hoofs_logging.cpp
     source/log/logcommon.cpp
     source/log/logger.cpp
-    source/log/logging.cpp
     source/log/logging_internal.cpp
+    source/log/logging.cpp
     source/log/logmanager.cpp
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
@@ -181,23 +102,24 @@ add_library(iceoryx_hoofs
     source/posix_wrapper/command_line_parser.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/file_lock.cpp
-    source/posix_wrapper/semaphore.cpp
-    source/posix_wrapper/timer.cpp
-    source/posix_wrapper/shared_memory_object.cpp
-    source/posix_wrapper/signal_handler.cpp
-    source/posix_wrapper/signal_watcher.cpp
     source/posix_wrapper/message_queue.cpp
+    source/posix_wrapper/mutex.cpp
     source/posix_wrapper/named_pipe.cpp
-    source/posix_wrapper/unix_domain_socket.cpp
+    source/posix_wrapper/posix_access_rights.cpp
+    source/posix_wrapper/semaphore.cpp
+    source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp
     source/posix_wrapper/shared_memory_object/memory_map.cpp
     source/posix_wrapper/shared_memory_object/shared_memory.cpp
+    source/posix_wrapper/signal_handler.cpp
+    source/posix_wrapper/signal_watcher.cpp
     source/posix_wrapper/system_configuration.cpp
-    source/posix_wrapper/posix_access_rights.cpp
     source/posix_wrapper/thread.cpp
-    source/units/duration.cpp
+    source/posix_wrapper/timer.cpp
+    source/posix_wrapper/unix_domain_socket.cpp
     source/relocatable_pointer/base_relative_pointer.cpp
     source/relocatable_pointer/relative_pointer_data.cpp
+    source/units/duration.cpp
 )
 
 add_library(iceoryx_hoofs::iceoryx_hoofs ALIAS iceoryx_hoofs)
@@ -213,9 +135,6 @@ if(PERFORM_CLANG_TIDY)
         iceoryx_hoofs PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
     )
 endif(PERFORM_CLANG_TIDY)
-
-add_subdirectory(platform)
-add_library(iceoryx_hoofs::iceoryx_platform ALIAS iceoryx_platform)
 
 target_link_libraries(iceoryx_hoofs
     PUBLIC
@@ -233,9 +152,27 @@ target_compile_options(iceoryx_hoofs PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANIT
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_hoofs
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
+
+#
+########## hoofs testing ##########
+#
+
+# Finding gtest and adding the subdirectories is split to support the use case of
+# building the testing lib without the tests by providing gtest externally
+if(NOT GTest_FOUND AND BUILD_TEST)
+    find_package(GTest CONFIG REQUIRED)
+endif()
+
+if(GTest_FOUND)
+    message(STATUS "GTest was found, building iceoryx_hoofs_testing enabled.")
+    add_subdirectory(testing)
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif()
+endif()
 
 #
 ########## exporting library ##########
@@ -261,10 +198,6 @@ install(
         cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
-
-if(BUILD_TEST)
-    add_subdirectory(test)
-endif(BUILD_TEST)
 
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
