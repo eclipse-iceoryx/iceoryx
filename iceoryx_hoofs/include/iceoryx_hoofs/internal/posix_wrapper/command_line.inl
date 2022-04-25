@@ -30,7 +30,7 @@ inline void extractValue(const CommandLineParser& parser,
                          T& value,
                          const cmdEntries_t& entries,
                          const uint64_t index,
-                         const CommandLineOptions& options)
+                         const CommandLineOption& options)
 {
     auto result = options.get<T>(entries[index].longOption);
     if (result.has_error())
@@ -63,8 +63,8 @@ template <typename T>
 inline T addEntry(const CommandLineParser& parser,
                   T& value,
                   const char shortName,
-                  const CommandLineOptions::name_t& name,
-                  const CommandLineParser::description_t& description,
+                  const CommandLineOption::Name_t& name,
+                  const CommandLineParser::Description_t& description,
                   const OptionType optionType,
                   T defaultValue,
                   internal::cmdEntries_t& entries,
@@ -76,8 +76,8 @@ inline T addEntry(const CommandLineParser& parser,
         description,
         optionType,
         {cxx::TypeInfo<T>::NAME},
-        CommandLineOptions::value_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultValue))});
-    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
+        CommandLineOption::Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultValue))});
+    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOption& options) {
         extractValue(parser, value, entries, index, options);
     });
     return defaultValue;
@@ -87,8 +87,8 @@ template <>
 inline bool addEntry(const CommandLineParser& parser,
                      bool& value,
                      const char shortName,
-                     const CommandLineOptions::name_t& name,
-                     const CommandLineParser::description_t& description,
+                     const CommandLineOption::Name_t& name,
+                     const CommandLineParser::Description_t& description,
                      const OptionType optionType,
                      bool defaultValue,
                      internal::cmdEntries_t& entries,
@@ -100,8 +100,8 @@ inline bool addEntry(const CommandLineParser& parser,
         description,
         optionType,
         {"true|false"},
-        CommandLineOptions::value_t(cxx::TruncateToCapacity, (defaultValue) ? "true" : "false")});
-    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOptions& options) {
+        CommandLineOption::Argument_t(cxx::TruncateToCapacity, (defaultValue) ? "true" : "false")});
+    assignments.emplace_back([&parser, &value, &entries, index = entries.size() - 1](CommandLineOption& options) {
         if (entries[index].type == OptionType::SWITCH)
         {
             value = options.has(entries[index].longOption);

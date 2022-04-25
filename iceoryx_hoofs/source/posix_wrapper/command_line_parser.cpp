@@ -24,7 +24,7 @@ namespace iox
 {
 namespace posix
 {
-CommandLineParser::CommandLineParser(const description_t& programDescription,
+CommandLineParser::CommandLineParser(const Description_t& programDescription,
                                      const cxx::function<void()> onFailureCallback) noexcept
     : m_programDescription{programDescription}
     , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
@@ -59,7 +59,7 @@ bool CommandLineParser::assignBinaryName(const char* name) noexcept
 bool CommandLineParser::doesOptionStartWithMinus(const char* option) const noexcept
 {
     const bool doesOptionStartWithMinus =
-        (strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0 && option[0] == '-');
+        (strnlen(option, CommandLineOption::MAX_OPTION_NAME_LENGTH) > 0 && option[0] == '-');
 
     if (!doesOptionStartWithMinus)
     {
@@ -71,7 +71,7 @@ bool CommandLineParser::doesOptionStartWithMinus(const char* option) const noexc
 
 bool CommandLineParser::hasOptionName(const char* option) const noexcept
 {
-    const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH);
+    const uint64_t argIdentifierLength = strnlen(option, CommandLineOption::MAX_OPTION_NAME_LENGTH);
     const bool hasOptionName = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
 
     if (!hasOptionName)
@@ -85,7 +85,7 @@ bool CommandLineParser::hasOptionName(const char* option) const noexcept
 
 bool CommandLineParser::hasValidSwitchName(const char* option) const noexcept
 {
-    const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH);
+    const uint64_t argIdentifierLength = strnlen(option, CommandLineOption::MAX_OPTION_NAME_LENGTH);
     const bool hasValidSwitchName = !(argIdentifierLength > 2 && option[1] != '-');
 
     if (!hasValidSwitchName)
@@ -99,7 +99,7 @@ bool CommandLineParser::hasValidSwitchName(const char* option) const noexcept
 
 bool CommandLineParser::hasValidOptionName(const char* option) const noexcept
 {
-    const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
+    const uint64_t argIdentifierLength = strnlen(option, CommandLineOption::MAX_OPTION_NAME_LENGTH + 1);
     const bool hasValidOptionName = !(argIdentifierLength > 2 && option[2] == '-');
 
     if (!hasValidOptionName)
@@ -113,13 +113,13 @@ bool CommandLineParser::hasValidOptionName(const char* option) const noexcept
 
 bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const noexcept
 {
-    const uint64_t argIdentifierLength = strnlen(option, CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1);
-    const bool doesOptionNameFitIntoString = (argIdentifierLength <= CommandLineOptions::MAX_OPTION_NAME_LENGTH);
+    const uint64_t argIdentifierLength = strnlen(option, CommandLineOption::MAX_OPTION_NAME_LENGTH + 1);
+    const bool doesOptionNameFitIntoString = (argIdentifierLength <= CommandLineOption::MAX_OPTION_NAME_LENGTH);
 
     if (!doesOptionNameFitIntoString)
     {
         std::cout << "\"" << option << "\" is longer then the maximum supported size of "
-                  << CommandLineOptions::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
+                  << CommandLineOption::MAX_OPTION_NAME_LENGTH << " for option names." << std::endl;
         printHelpAndExit();
     }
     return doesOptionNameFitIntoString;
@@ -128,7 +128,7 @@ bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const no
 bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noexcept
 {
     return (m_argc > 0 && static_cast<uint64_t>(m_argc) > position + 1
-            && (strnlen(m_argv[position + 1], CommandLineOptions::MAX_OPTION_NAME_LENGTH) > 0
+            && (strnlen(m_argv[position + 1], CommandLineOption::MAX_OPTION_NAME_LENGTH) > 0
                 && m_argv[position + 1][0] != '-'));
 }
 
@@ -155,13 +155,13 @@ bool CommandLineParser::isOptionSet(const Entry& entry) const noexcept
 
 bool CommandLineParser::doesOptionValueFitIntoString(const char* value) const noexcept
 {
-    const bool doesOptionValueFitIntoString =
-        strnlen(value, CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1) <= CommandLineOptions::MAX_OPTION_VALUE_LENGTH;
+    const bool doesOptionValueFitIntoString = strnlen(value, CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1)
+                                              <= CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH;
 
     if (!doesOptionValueFitIntoString)
     {
         std::cout << "\"" << value << "\" is longer then the maximum supported size of "
-                  << CommandLineOptions::MAX_OPTION_VALUE_LENGTH << " for option values." << std::endl;
+                  << CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH << " for option values." << std::endl;
         printHelpAndExit();
     }
 
@@ -188,10 +188,10 @@ void CommandLineParser::sortAvailableOptions() noexcept
     });
 }
 
-CommandLineOptions CommandLineParser::parse(int argc,
-                                            char* argv[],
-                                            const uint64_t argcOffset,
-                                            const UnknownOption actionWhenOptionUnknown) noexcept
+CommandLineOption CommandLineParser::parse(int argc,
+                                           char* argv[],
+                                           const uint64_t argcOffset,
+                                           const UnknownOption actionWhenOptionUnknown) noexcept
 {
     /// sort options so that they are alphabetically sorted in help output
     sortAvailableOptions();
@@ -200,7 +200,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
     m_argv = argv;
     m_argcOffset = argcOffset;
     // reset options otherwise multiple parse calls work on already parsed options
-    m_options = CommandLineOptions();
+    m_options = CommandLineOption();
 
     if (!hasArguments(argc) || !assignBinaryName(argv[0]))
     {
@@ -218,7 +218,7 @@ CommandLineOptions CommandLineParser::parse(int argc,
         }
 
         uint64_t optionNameStart = (argv[i][1] == '-') ? 2 : 1;
-        auto optionEntry = getOption(CommandLineOptions::name_t(cxx::TruncateToCapacity, argv[i] + optionNameStart));
+        auto optionEntry = getOption(CommandLineOption::Name_t(cxx::TruncateToCapacity, argv[i] + optionNameStart));
 
         if (!optionEntry)
         {
@@ -326,7 +326,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
 }
 
 cxx::optional<CommandLineParser::Entry>
-CommandLineParser::getOption(const CommandLineOptions::name_t& name) const noexcept
+CommandLineParser::getOption(const CommandLineOption::Name_t& name) const noexcept
 {
     const auto nameSize = name.size();
     for (const auto& r : m_availableOptions)
@@ -366,12 +366,12 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
     return areAllRequiredValuesPresent;
 }
 
-const CommandLineOptions::binaryName_t& CommandLineOptions::binaryName() const noexcept
+const CommandLineOption::BinaryName_t& CommandLineOption::binaryName() const noexcept
 {
     return m_binaryName;
 }
 
-bool CommandLineOptions::has(const name_t& switchName) const noexcept
+bool CommandLineOption::has(const Name_t& switchName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
@@ -501,24 +501,24 @@ CommandLineParser& CommandLineParser::addOption(const Entry& option) noexcept
 }
 
 CommandLineParser& CommandLineParser::addSwitch(const char shortOption,
-                                                const CommandLineOptions::name_t& longOption,
-                                                const description_t& description) noexcept
+                                                const CommandLineOption::Name_t& longOption,
+                                                const Description_t& description) noexcept
 {
     return addOption({shortOption, longOption, description, OptionType::SWITCH, {""}, {""}});
 }
 
 CommandLineParser& CommandLineParser::addOptional(const char shortOption,
-                                                  const CommandLineOptions::name_t& longOption,
-                                                  const description_t& description,
-                                                  const typeName_t& typeName,
-                                                  const CommandLineOptions::value_t& defaultValue) noexcept
+                                                  const CommandLineOption::Name_t& longOption,
+                                                  const Description_t& description,
+                                                  const TypeName_t& typeName,
+                                                  const CommandLineOption::Argument_t& defaultValue) noexcept
 {
     return addOption({shortOption, longOption, description, OptionType::OPTIONAL, typeName, defaultValue});
 }
 CommandLineParser& CommandLineParser::addMandatory(const char shortOption,
-                                                   const CommandLineOptions::name_t& longOption,
-                                                   const description_t& description,
-                                                   const typeName_t& typeName) noexcept
+                                                   const CommandLineOption::Name_t& longOption,
+                                                   const Description_t& description,
+                                                   const TypeName_t& typeName) noexcept
 {
     return addOption({shortOption, longOption, description, OptionType::REQUIRED, typeName, {""}});
 }

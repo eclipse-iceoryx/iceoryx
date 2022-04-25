@@ -23,8 +23,8 @@ namespace iox
 namespace posix
 {
 template <typename T>
-inline cxx::expected<T, CommandLineOptions::Error>
-CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
+inline cxx::expected<T, CommandLineOption::Error>
+CommandLineOption::convertFromString(const Argument_t& stringValue) const noexcept
 {
     T value;
     if (!cxx::convert::fromString(stringValue.c_str(), value))
@@ -36,8 +36,8 @@ CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
 }
 
 template <>
-inline cxx::expected<bool, CommandLineOptions::Error>
-CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
+inline cxx::expected<bool, CommandLineOption::Error>
+CommandLineOption::convertFromString(const Argument_t& stringValue) const noexcept
 {
     bool doesContainTrueAsString = (strncmp(stringValue.c_str(), "true", 5) == 0);
     if (!doesContainTrueAsString && (strncmp(stringValue.c_str(), "false", 6) != 0))
@@ -49,7 +49,7 @@ CommandLineOptions::convertFromString(const value_t& stringValue) const noexcept
 }
 
 template <typename T>
-inline cxx::expected<T, CommandLineOptions::Error> CommandLineOptions::get(const name_t& optionName) const noexcept
+inline cxx::expected<T, CommandLineOption::Error> CommandLineOption::get(const Name_t& optionName) const noexcept
 {
     for (const auto& a : m_arguments)
     {

@@ -51,14 +51,14 @@ class CommandLineParser_test : public Test
 
     uint64_t numberOfErrorCallbackCalls = 0U;
     iox::cxx::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
-    static CommandLineOptions::value_t defaultValue;
+    static CommandLineOption::Argument_t defaultValue;
 };
-CommandLineOptions::value_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
+CommandLineOption::Argument_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
 
 TEST_F(CommandLineParser_test, SettingBinaryNameWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb5e0199-c061-4fa4-be14-c797f996fff6");
-    const CommandLineOptions::binaryName_t binaryName("AllHailHypnotoad");
+    const CommandLineOption::BinaryName_t binaryName("AllHailHypnotoad");
     CmdArgs args({binaryName.c_str()});
     auto options = CommandLineParser("").parse(args.argc, args.argv);
 
@@ -76,7 +76,7 @@ TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
 TEST_F(CommandLineParser_test, TooLargeBinaryNameLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a1000e2-6dbd-404b-ba6f-0287e5ffeb46");
-    CmdArgs args({std::string(CommandLineOptions::binaryName_t::capacity() + 1, 'a')});
+    CmdArgs args({std::string(CommandLineOption::BinaryName_t::capacity() + 1, 'a')});
     IOX_DISCARD_RESULT(CommandLineParser("", errorCallback).parse(args.argc, args.argv));
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
@@ -172,7 +172,7 @@ void FailureTest(const std::vector<std::string>& options,
                  const std::vector<std::string>& requiredValuesToRegister = {},
                  const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept
 {
-    const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
+    const CommandLineOption::BinaryName_t binaryName("GloryToTheHasselToad");
     std::vector<std::string> optionVector{binaryName.c_str()};
     optionVector.insert(optionVector.end(), options.begin(), options.end());
     CmdArgs args(optionVector);
@@ -182,15 +182,15 @@ void FailureTest(const std::vector<std::string>& options,
         CommandLineParser parser("", [&] { wasErrorHandlerCalled = true; });
         for (const auto& o : optionsToRegister)
         {
-            parser.addOptional(o[0], CommandLineOptions::name_t(TruncateToCapacity, o), "", "int", "0");
+            parser.addOptional(o[0], CommandLineOption::Name_t(TruncateToCapacity, o), "", "int", "0");
         }
         for (const auto& s : switchesToRegister)
         {
-            parser.addSwitch(s[0], CommandLineOptions::name_t{TruncateToCapacity, s}, "");
+            parser.addSwitch(s[0], CommandLineOption::Name_t{TruncateToCapacity, s}, "");
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            parser.addMandatory(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
+            parser.addMandatory(r[0], CommandLineOption::Name_t(TruncateToCapacity, r), "", "int");
         }
 
         IOX_DISCARD_RESULT(parser.parse(args.argc, args.argv, 1U, actionWhenOptionUnknown));
@@ -343,8 +343,8 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_Mul
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_SingleArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8066d89f-0fc0-4db2-8bb5-11708f82794f");
-    FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')});
-    FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'), "someValue"});
+    FailureTest({std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a')});
+    FailureTest({std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a'), "someValue"});
 }
 
 TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiArgument)
@@ -352,13 +352,13 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiAr
     ::testing::Test::RecordProperty("TEST_ID", "4c530a35-de80-4352-ae13-763a1ccfae5c");
     std::vector<std::string> optionsToRegister{"set", "bla"};
     // begin
-    FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+    FailureTest({std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a'),
                  "--set",
                  "setValue",
                  "--bla",
                  "blaValue"},
                 optionsToRegister);
-    FailureTest({std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+    FailureTest({std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a'),
                  "someValue",
                  "--set",
                  "setValue",
@@ -368,13 +368,13 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiAr
     // middle
     FailureTest({"--set",
                  "setValue",
-                 std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                 std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a'),
                  "--bla",
                  "blaValue"},
                 optionsToRegister);
     FailureTest({"someValue",
                  "--set",
-                 std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                 std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a'),
                  "setValue",
                  "--bla",
                  "blaValue"},
@@ -384,13 +384,13 @@ TEST_F(CommandLineParser_test, FailSyntaxWhenOptionNameExceedMaximumSize_MultiAr
                  "setValue",
                  "--bla",
                  "blaValue",
-                 std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a')},
+                 std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a')},
                 optionsToRegister);
     FailureTest({"--set",
                  "setValue",
                  "--bla",
                  "blaValue",
-                 std::string("--") + std::string(CommandLineOptions::MAX_OPTION_NAME_LENGTH + 1, 'a'),
+                 std::string("--") + std::string(CommandLineOption::MAX_OPTION_NAME_LENGTH + 1, 'a'),
                  "someValue"},
                 optionsToRegister);
 }
@@ -486,7 +486,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_SingleArgume
 {
     ::testing::Test::RecordProperty("TEST_ID", "500e56b2-b7a6-4ed9-8583-d109f530d09f");
     std::vector<std::string> optionsToRegister{"set"};
-    FailureTest({"--set", std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a')}, optionsToRegister);
+    FailureTest({"--set", std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a')}, optionsToRegister);
 }
 
 TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgument)
@@ -496,7 +496,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
 
     // begin
     FailureTest({"--set",
-                 std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a'),
+                 std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a'),
                  "--bla",
                  "blaValue",
                  "--fuu",
@@ -506,7 +506,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
     FailureTest({"--set",
                  "blaValue",
                  "--bla",
-                 std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a'),
+                 std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a'),
                  "--fuu",
                  "fuuValue"},
                 optionsToRegister);
@@ -516,7 +516,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
                  "--bla",
                  "fuuValue",
                  "--fuu",
-                 std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a')},
+                 std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a')},
                 optionsToRegister);
 }
 
@@ -527,15 +527,15 @@ TEST_F(CommandLineParser_test, FailWhenOptionValueExceedMaximumSize_MultiArgumen
 
     // begin
     FailureTest(
-        {"-s", std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a'), "-b", "blaValue", "-f", "fuuValue"},
+        {"-s", std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a'), "-b", "blaValue", "-f", "fuuValue"},
         optionsToRegister);
     // middle
     FailureTest(
-        {"-s", "blaValue", "-b", std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a'), "-f", "fuuValue"},
+        {"-s", "blaValue", "-b", std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a'), "-f", "fuuValue"},
         optionsToRegister);
     // end
     FailureTest(
-        {"-s", "blaValue", "-b", "fuuValue", "-f", std::string(CommandLineOptions::MAX_OPTION_VALUE_LENGTH + 1, 'a')},
+        {"-s", "blaValue", "-b", "fuuValue", "-f", std::string(CommandLineOption::MAX_OPTION_ARGUMENT_LENGTH + 1, 'a')},
         optionsToRegister);
 }
 /// END option failure test
@@ -973,17 +973,17 @@ TEST_F(CommandLineParser_test, IgnoreWhenSwitchIsNotRegistered_MixedArguments)
 }
 /// END required, optional option and switch failure mix
 
-CommandLineOptions SuccessTest(const std::vector<std::string>& options,
-                               const std::vector<std::string>& optionsToRegister = {},
-                               const std::vector<std::string>& switchesToRegister = {},
-                               const std::vector<std::string>& requiredValuesToRegister = {},
-                               const uint64_t argcOffset = 1U) noexcept
+CommandLineOption SuccessTest(const std::vector<std::string>& options,
+                              const std::vector<std::string>& optionsToRegister = {},
+                              const std::vector<std::string>& switchesToRegister = {},
+                              const std::vector<std::string>& requiredValuesToRegister = {},
+                              const uint64_t argcOffset = 1U) noexcept
 {
-    const CommandLineOptions::binaryName_t binaryName("GloryToTheHasselToad");
+    const CommandLineOption::BinaryName_t binaryName("GloryToTheHasselToad");
     std::vector<std::string> optionVector{binaryName.c_str()};
     optionVector.insert(optionVector.end(), options.begin(), options.end());
     CmdArgs args(optionVector);
-    CommandLineOptions retVal;
+    CommandLineOption retVal;
 
     bool wasErrorHandlerCalled = false;
     {
@@ -991,18 +991,18 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
         for (const auto& o : optionsToRegister)
         {
             parser.addOptional(o[0],
-                               CommandLineOptions::name_t(TruncateToCapacity, o),
+                               CommandLineOption::Name_t(TruncateToCapacity, o),
                                "",
                                "int",
                                CommandLineParser_test::defaultValue);
         }
         for (const auto& s : switchesToRegister)
         {
-            parser.addSwitch(s[0], CommandLineOptions::name_t{TruncateToCapacity, s}, "");
+            parser.addSwitch(s[0], CommandLineOption::Name_t{TruncateToCapacity, s}, "");
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            parser.addMandatory(r[0], CommandLineOptions::name_t(TruncateToCapacity, r), "", "int");
+            parser.addMandatory(r[0], CommandLineOption::Name_t(TruncateToCapacity, r), "", "int");
         }
 
         {
@@ -1016,8 +1016,8 @@ CommandLineOptions SuccessTest(const std::vector<std::string>& options,
 }
 
 template <typename T>
-void verifyEntry(const CommandLineOptions& options,
-                 const CommandLineOptions::name_t& entry,
+void verifyEntry(const CommandLineOption& options,
+                 const CommandLineOption::Name_t& entry,
                  const iox::cxx::optional<T>& value)
 {
     auto result = options.get<T>(entry);
@@ -1040,7 +1040,7 @@ void verifyEntry(const CommandLineOptions& options,
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(CommandLineOptions::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.get_error(), Eq(CommandLineOption::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 

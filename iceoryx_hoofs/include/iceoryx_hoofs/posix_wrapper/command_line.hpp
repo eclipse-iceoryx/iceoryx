@@ -28,9 +28,9 @@ namespace posix
 {
 namespace internal
 {
-using cmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+using cmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
 using cmdAssignments_t =
-    cxx::vector<cxx::function<void(CommandLineOptions&)>, CommandLineOptions::MAX_NUMBER_OF_ARGUMENTS>;
+    cxx::vector<cxx::function<void(CommandLineOption&)>, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
 
 void handleError(const CommandLineParser& parser);
 
@@ -39,14 +39,14 @@ void extractValue(const CommandLineParser& parser,
                   T& value,
                   const cmdEntries_t& entries,
                   const uint64_t index,
-                  const CommandLineOptions& options);
+                  const CommandLineOption& options);
 
 template <typename T>
 T addEntry(const CommandLineParser& parser,
            T& value,
            const char shortName,
-           const CommandLineOptions::name_t& name,
-           const CommandLineParser::description_t& description,
+           const CommandLineOption::Name_t& name,
+           const CommandLineParser::Description_t& description,
            const OptionType optionType,
            T defaultValue, // not const to enable RTVO
            internal::cmdEntries_t& entries,
@@ -55,7 +55,7 @@ T addEntry(const CommandLineParser& parser,
 void populateEntries(CommandLineParser& parser,
                      const cmdEntries_t& entries,
                      const cmdAssignments_t& assignments,
-                     CommandLineOptions::binaryName_t& binaryName,
+                     CommandLineOption::BinaryName_t& binaryName,
                      int argc,
                      char* argv[],
                      const uint64_t argcOffset,
@@ -148,7 +148,7 @@ void populateEntries(CommandLineParser& parser,
     ::iox::posix::CommandLineParser m_parser;                                                                          \
     ::iox::posix::internal::cmdEntries_t m_entries;                                                                    \
     ::iox::posix::internal::cmdAssignments_t m_assignments;                                                            \
-    ::iox::posix::CommandLineOptions::binaryName_t m_binaryName;                                                       \
+    ::iox::posix::CommandLineOption::BinaryName_t m_binaryName;                                                        \
                                                                                                                        \
   public:                                                                                                              \
     Name(                                                                                                              \
@@ -163,7 +163,7 @@ void populateEntries(CommandLineParser& parser,
             m_parser, m_entries, m_assignments, m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);        \
     }                                                                                                                  \
                                                                                                                        \
-    const ::iox::posix::CommandLineOptions::binaryName_t& binaryName() const noexcept                                  \
+    const ::iox::posix::CommandLineOption::BinaryName_t& binaryName() const noexcept                                   \
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
     }
