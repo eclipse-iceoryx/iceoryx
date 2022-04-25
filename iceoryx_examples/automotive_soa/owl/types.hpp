@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "kom/sample_allocatee_ptr.hpp"
 
@@ -47,10 +48,30 @@ using SamplePtr = iox::cxx::optional<iox::popo::Sample<const T>>;
 struct FindServiceHandle
 {
     // Only the Runtime shall be able to create handles, not the user
-    // private:
     friend class owl::Runtime;
-    core::String serviceIdentifier;
-    core::String instanceIdentifier;
+
+    core::String getServiceIdentifier() noexcept
+    {
+        return m_serviceIdentifier;
+    }
+
+    core::String getInstanceIdentifer() noexcept
+    {
+        return m_instanceIdentifier;
+    }
+
+  private:
+    FindServiceHandle(core::String serviceIdentifier,
+                      core::String instanceIdentifier,
+                      iox::popo::MessagingPattern pattern) noexcept
+        : m_serviceIdentifier(serviceIdentifier)
+        , m_instanceIdentifier(instanceIdentifier)
+        , m_pattern(pattern)
+    {
+    }
+    core::String m_serviceIdentifier;
+    core::String m_instanceIdentifier;
+    iox::popo::MessagingPattern m_pattern;
 };
 
 template <typename T>

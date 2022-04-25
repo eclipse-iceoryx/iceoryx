@@ -49,14 +49,28 @@ class Runtime
     FindService(owl::core::String& serviceIdentifier, owl::core::String& instanceIdentifier) noexcept
     {
         owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle> serviceContainer;
+
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
             [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
+                serviceContainer.push_back({service.getServiceIDString(),
+                                            service.getInstanceIDString(),
+                                            iox::popo::MessagingPattern::PUB_SUB});
             },
             iox::popo::MessagingPattern::PUB_SUB);
+
+        m_discovery.findService(
+            serviceIdentifier,
+            instanceIdentifier,
+            iox::cxx::nullopt,
+            [&](auto& service) {
+                serviceContainer.push_back({service.getServiceIDString(),
+                                            service.getInstanceIDString(),
+                                            iox::popo::MessagingPattern::REQ_RES});
+            },
+            iox::popo::MessagingPattern::REQ_RES);
 
         return serviceContainer;
     }
@@ -65,9 +79,10 @@ class Runtime
                                                  owl::core::String& serviceIdentifier,
                                                  owl::core::String& instanceIdentifier) noexcept
     {
-        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
+        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier, iox::popo::MessagingPattern::PUB_SUB}});
+        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier, iox::popo::MessagingPattern::REQ_RES}});
 
-        if (m_callbacks.size() == 1)
+        if (m_callbacks.size() == 2)
         {
             auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
             m_listener.attachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
@@ -77,17 +92,30 @@ class Runtime
                 });
         }
 
-        return owl::kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
+        // We return a PUB_SUB FindServiceHandle, because the user can't access it and the message pattern is not
+        // considered when passing it to the MinimalProxy c'tor
+        return owl::kom::FindServiceHandle(
+            {serviceIdentifier, instanceIdentifier, iox::popo::MessagingPattern::PUB_SUB});
     }
 
-    void StopFindService(owl::kom::FindServiceHandle) noexcept
+    void StopFindService(owl::kom::FindServiceHandle handle) noexcept
     {
-        /// @todo use unique integer id in FindServiceHandle for easier adding/removal
-        // auto iter = std::find(m_callbacks.begin(), m_callbacks.end(), handle);
-        // if (iter != m_callbacks.end())
-        // {
-        //     m_callbacks.erase(iter);
-        // }
+        /// @todo use unique integer id in FindServiceHandle for easier adding/removal?
+        ///       it is necessary to delete both PUB_SUB and REQ_RES!
+        /// auto iter = std::find(m_callbacks.begin(), m_callbacks.end(), handle);
+        auto iter = m_callbacks.begin();
+        for (; iter != m_callbacks.end(); iter++)
+        {
+            if (iter->second.getServiceIdentifier() == handle.getInstanceIdentifer()
+                && iter->second.getInstanceIdentifer() == handle.getInstanceIdentifer())
+            {
+                break;
+            }
+        }
+        if (iter != m_callbacks.end())
+        {
+            m_callbacks.erase(iter);
+        }
 
         if (m_callbacks.empty())
         {
@@ -98,20 +126,23 @@ class Runtime
   private:
     explicit Runtime() noexcept = default;
 
+    /// @todo why is this method not called when all services are removed?
     static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self)
     {
         // 1) Has the availability of one of the registered services changed?
         // 2) If yes, call the user-defined callback
         for (auto& callback : self->m_callbacks)
         {
-            auto container = self->FindService(callback.second.serviceIdentifier, callback.second.instanceIdentifier);
+            auto container =
+                self->FindService(callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier);
             if (container.empty())
             {
                 continue;
             }
-            (callback.first)(
-                container,
-                owl::kom::FindServiceHandle({callback.second.serviceIdentifier, callback.second.instanceIdentifier}));
+            (callback.first)(container,
+                             owl::kom::FindServiceHandle({callback.second.m_serviceIdentifier,
+                                                          callback.second.m_instanceIdentifier,
+                                                          callback.second.m_pattern}));
         }
     }
 

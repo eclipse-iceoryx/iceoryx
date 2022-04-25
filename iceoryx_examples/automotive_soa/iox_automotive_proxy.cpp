@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "minimal_proxy.hpp"
 #include "owl/runtime.hpp"
@@ -30,7 +31,7 @@ int main()
 {
     Runtime::GetInstance(APP_NAME);
 
-    optional<MinimalProxy> maybeProxy;
+    iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
     optional<kom::FindServiceHandle> maybeHandle;
 
     // 1) Discover the available services
@@ -40,48 +41,83 @@ int main()
 
     if (!handleContainer.empty())
     {
-        // 2) If available, create proxy from handle
+        // 2a) If available, create proxy from handle
+        // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
+        uint32_t numberOfServices{0U};
+        constexpr uint32_t expectedNumberOfServices{3U};
         for (auto& handle : handleContainer)
         {
-            std::cout << "  Found service: '" << handle.serviceIdentifier.c_str() << "', '"
-                      << handle.instanceIdentifier.c_str() << "'" << std::endl;
-            maybeProxy.emplace(handle);
+            if (handle.getServiceIdentifier()
+                    == owl::core::String(TruncateToCapacity, MinimalProxy::m_serviceIdentifier)
+                && handle.getInstanceIdentifer() == owl::core::String(TruncateToCapacity, "Instance"))
+            {
+                numberOfServices++;
+            }
+            if (numberOfServices == expectedNumberOfServices)
+            {
+                std::cout << "  Found service: '" << handle.getServiceIdentifier().c_str() << "', '"
+                          << handle.getInstanceIdentifer().c_str() << "'" << std::endl;
+                maybeProxy->emplace(handle);
+            }
         }
     }
     else
     {
-        // 2) If not available yet, setup asychronous search to be notified when the service becomes available
+        // 2b) If not available yet, setup asychronous search to be notified when the service becomes available
         std::cout << "  Found no service(s), setting up asynchronous search with 'StartFindService'!" << std::endl;
         auto callback = [&](kom::ServiceHandleContainer<kom::FindServiceHandle> container,
-                            kom::FindServiceHandle) -> void {
-            /// @todo What is the 2nd parameter needed for?
+                            kom::FindServiceHandle handle) -> void {
             if (container.empty())
             {
                 return;
             }
 
+            // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
+            uint32_t numberOfServices{0U};
+            constexpr uint32_t expectedNumberOfServices{3U};
+
             for (auto& entry : container)
             {
-                std::cout << "  Found service: '" << entry.serviceIdentifier.c_str() << "', '"
-                          << entry.instanceIdentifier.c_str() << "'" << std::endl;
+                if (entry.getServiceIdentifier()
+                        == owl::core::String(TruncateToCapacity, MinimalProxy::m_serviceIdentifier)
+                    && entry.getInstanceIdentifer() == owl::core::String(TruncateToCapacity, "Instance"))
+                {
+                    numberOfServices++;
+                }
+            }
+            if (!maybeProxy->has_value() && numberOfServices == expectedNumberOfServices)
+            {
+                std::cout << "  Found complete service: '" << handle.getServiceIdentifier().c_str() << "', '"
+                          << handle.getInstanceIdentifer().c_str() << "'" << std::endl;
+                maybeProxy->emplace(handle);
+            }
+            else
+            {
+                std::cout << "  Service not available yet/anymore: '" << handle.getServiceIdentifier().c_str() << "', '"
+                          << handle.getInstanceIdentifer().c_str() << "'" << std::endl;
+                /// @todo what to do if services are gone after being there for some time?
+                maybeProxy->reset();
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         };
 
         auto handle = MinimalProxy::StartFindService(callback, searchString);
-        maybeProxy.emplace(handle);
         maybeHandle.emplace(handle);
+        std::cout << "  Waiting for instance called '" << searchString.c_str() << "' to become available.."
+                  << std::endl;
     }
 
-    if (maybeProxy.has_value())
+    uint64_t addend1{0};
+    uint64_t addend2{0};
+
+    while (!iox::posix::hasTerminationRequested())
     {
-        auto& proxy = maybeProxy.value();
-        proxy.m_event.Subscribe(10U);
-
-        uint64_t addend1{0};
-        uint64_t addend2{0};
-
-        while (!iox::posix::hasTerminationRequested())
+        if (maybeProxy->has_value())
         {
+            auto proxyGuard = maybeProxy.getScopeGuard();
+            auto& proxy = proxyGuard->value();
+            proxy.m_event.Subscribe(10U);
+
             // Event
             proxy.m_event.GetNewSamples(
                 [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
@@ -106,7 +142,6 @@ int main()
 
             addend1 += addend2 + addend2;
             addend2++;
-
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     }

@@ -29,7 +29,7 @@ class MinimalProxy
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
     MinimalProxy(owl::kom::FindServiceHandle& handle)
-        : m_instanceIdentifier(handle.instanceIdentifier)
+        : m_instanceIdentifier(handle.getInstanceIdentifer())
     {
     }
     MinimalProxy(const MinimalProxy&) = delete;
