@@ -83,7 +83,7 @@ class Runtime
                                                  owl::kom::ServiceIdentifier& serviceIdentifier,
                                                  owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        /// @todo Are duplicate entries allowed?
+        /// @todo #1332 Are duplicate entries allowed?
         m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
 
         if (m_callbacks.size() == 1)
@@ -101,8 +101,6 @@ class Runtime
 
     void StopFindService(owl::kom::FindServiceHandle handle) noexcept
     {
-        /// @todo use unique integer id in FindServiceHandle for easier adding/removal?
-        /// auto iter = std::find(m_callbacks.begin(), m_callbacks.end(), handle);
         auto iter = m_callbacks.begin();
         for (; iter != m_callbacks.end(); iter++)
         {
@@ -120,7 +118,6 @@ class Runtime
         if (m_callbacks.empty())
         {
             m_listener.detachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
-            std::cout << "detached!" << std::endl;
         }
     }
 

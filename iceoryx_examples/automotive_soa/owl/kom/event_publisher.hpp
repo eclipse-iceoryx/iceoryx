@@ -44,7 +44,7 @@ class EventPublisher
     EventPublisher& operator=(EventPublisher&&) = delete;
 
     EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_publisher({service, instance, event}, {0U, "", false})
+        : m_publisher({service, instance, event}, {1U, "", false})
     {
     }
 

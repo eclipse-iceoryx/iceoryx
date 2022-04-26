@@ -28,7 +28,6 @@ class MinimalProxy
     /// @todo make c'tor of cxx::string constexpr'able
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
-
     MinimalProxy(owl::kom::ProxyHandleType& handle)
         : m_instanceIdentifier(handle.GetInstanceId())
     {
@@ -55,9 +54,9 @@ class MinimalProxy
     }
 
     static owl::kom::ServiceHandleContainer<owl::kom::ProxyHandleType>
-    FindService(owl::core::String& instanceIdentifier) noexcept
+    FindService(owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        owl::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        owl::kom::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
         return owl::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
     }
 

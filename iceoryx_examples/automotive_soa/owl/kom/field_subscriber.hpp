@@ -61,7 +61,7 @@ class FieldSubscriber
         return numberOfSamples;
     }
 
-    /// @todo implement getter/setter
+    /// @todo #1332 implement getter/setter
 
   private:
     iox::popo::Subscriber<T> m_subscriber;
