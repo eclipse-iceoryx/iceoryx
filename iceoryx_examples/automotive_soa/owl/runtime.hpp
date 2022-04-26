@@ -55,9 +55,7 @@ class Runtime
             instanceIdentifier,
             iox::cxx::nullopt,
             [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(),
-                                            service.getInstanceIDString(),
-                                            iox::popo::MessagingPattern::PUB_SUB});
+                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
             },
             iox::popo::MessagingPattern::PUB_SUB);
 
@@ -66,9 +64,7 @@ class Runtime
             instanceIdentifier,
             iox::cxx::nullopt,
             [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(),
-                                            service.getInstanceIDString(),
-                                            iox::popo::MessagingPattern::REQ_RES});
+                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
             },
             iox::popo::MessagingPattern::REQ_RES);
 
@@ -79,10 +75,9 @@ class Runtime
                                                  owl::core::String& serviceIdentifier,
                                                  owl::core::String& instanceIdentifier) noexcept
     {
-        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier, iox::popo::MessagingPattern::PUB_SUB}});
-        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier, iox::popo::MessagingPattern::REQ_RES}});
+        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
 
-        if (m_callbacks.size() == 2)
+        if (m_callbacks.size() == 1)
         {
             auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
             m_listener.attachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
@@ -92,10 +87,7 @@ class Runtime
                 });
         }
 
-        // We return a PUB_SUB FindServiceHandle, because the user can't access it and the message pattern is not
-        // considered when passing it to the MinimalProxy c'tor
-        return owl::kom::FindServiceHandle(
-            {serviceIdentifier, instanceIdentifier, iox::popo::MessagingPattern::PUB_SUB});
+        return owl::kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
     }
 
     void StopFindService(owl::kom::FindServiceHandle handle) noexcept
@@ -140,9 +132,8 @@ class Runtime
                 continue;
             }
             (callback.first)(container,
-                             owl::kom::FindServiceHandle({callback.second.m_serviceIdentifier,
-                                                          callback.second.m_instanceIdentifier,
-                                                          callback.second.m_pattern}));
+                             owl::kom::FindServiceHandle(
+                                 {callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
         }
     }
 

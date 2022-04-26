@@ -112,38 +112,39 @@ int main()
 
     while (!iox::posix::hasTerminationRequested())
     {
-        if (maybeProxy->has_value())
         {
             auto proxyGuard = maybeProxy.getScopeGuard();
-            auto& proxy = proxyGuard->value();
-            proxy.m_event.Subscribe(10U);
-
-            // Event
-            proxy.m_event.GetNewSamples(
-                [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
-
-            // Field
-            proxy.m_field.GetNewSamples(
-                [](const auto& field) { std::cout << "Receiving field: " << field->counter << std::endl; });
-
-            // Method
-            auto future = proxy.computeSum(addend1, addend2);
-            try
+            if (proxyGuard->has_value())
             {
-                auto result = future.get();
-                std::cout << "Result of " << std::to_string(addend1) << " + " << std::to_string(addend2) << " is "
-                          << result.sum << std::endl;
-            }
-            catch (const std::future_error&)
-            {
-                std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton' before '"
-                          << APP_NAME << "'" << std::endl;
-            }
+                auto& proxy = proxyGuard->value();
+                proxy.m_event.Subscribe(10U);
 
-            addend1 += addend2 + addend2;
-            addend2++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                // Event
+                proxy.m_event.GetNewSamples(
+                    [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
+
+                // Field
+                proxy.m_field.GetNewSamples(
+                    [](const auto& field) { std::cout << "Receiving field: " << field->counter << std::endl; });
+
+                // Method
+                auto future = proxy.computeSum(addend1, addend2);
+                try
+                {
+                    auto result = future.get();
+                    std::cout << "Result of " << std::to_string(addend1) << " + " << std::to_string(addend2) << " is "
+                              << result.sum << std::endl;
+                }
+                catch (const std::future_error&)
+                {
+                    std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton'" << std::endl;
+                }
+
+                addend1 += addend2 + addend2;
+                addend2++;
+            }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
     if (maybeHandle.has_value())

@@ -22,7 +22,6 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "kom/sample_allocatee_ptr.hpp"
 
@@ -61,17 +60,13 @@ struct FindServiceHandle
     }
 
   private:
-    FindServiceHandle(core::String serviceIdentifier,
-                      core::String instanceIdentifier,
-                      iox::popo::MessagingPattern pattern) noexcept
+    FindServiceHandle(core::String serviceIdentifier, core::String instanceIdentifier) noexcept
         : m_serviceIdentifier(serviceIdentifier)
         , m_instanceIdentifier(instanceIdentifier)
-        , m_pattern(pattern)
     {
     }
     core::String m_serviceIdentifier;
     core::String m_instanceIdentifier;
-    iox::popo::MessagingPattern m_pattern;
 };
 
 template <typename T>
