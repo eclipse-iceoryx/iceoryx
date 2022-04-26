@@ -27,7 +27,7 @@ constexpr char APP_NAME[] = "iox-cpp-ara-skeleton";
 
 int main()
 {
-    ara::Runtime<uint16_t>::GetInstance(APP_NAME);
+    ara::Runtime::GetInstance(APP_NAME);
 
     ara::core::String instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
     MinimalSkeleton skeleton{instanceIdentifier};

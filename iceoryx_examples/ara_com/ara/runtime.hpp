@@ -29,7 +29,6 @@
 
 namespace ara
 {
-template <typename HandleType>
 class Runtime
 {
   public:
@@ -46,36 +45,41 @@ class Runtime
         return runtime;
     }
 
-    ara::com::ServiceHandleContainer<HandleType> FindService(ara::com::ServiceIdentifier& serviceIdentifier,
-                                                             ara::com::InstanceIdentifier& instanceIdentifier) noexcept
+    ara::com::ServiceHandleContainer<com::ProxyHandleType>
+    FindService(ara::com::ServiceIdentifier& serviceIdentifier,
+                ara::com::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        ara::com::ServiceHandleContainer<HandleType> iceoryxServiceContainer;
+        ara::com::ServiceHandleContainer<com::ProxyHandleType> iceoryxServiceContainer;
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
+            [&](auto& service) {
+                iceoryxServiceContainer.push_back({service.getEventIDString(), service.getInstanceIDString()});
+            },
             iox::popo::MessagingPattern::PUB_SUB);
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
+            [&](auto& service) {
+                iceoryxServiceContainer.push_back({service.getEventIDString(), service.getInstanceIDString()});
+            },
             iox::popo::MessagingPattern::REQ_RES);
 
         // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
-        ara::com::ServiceHandleContainer<HandleType> araServiceContainer;
+        ara::com::ServiceHandleContainer<com::ProxyHandleType> araServiceContainer;
         if (verifyThatServiceIsComplete(iceoryxServiceContainer))
         {
-            araServiceContainer.push_back({instanceIdentifier});
+            araServiceContainer.push_back({serviceIdentifier, instanceIdentifier});
         }
 
         return araServiceContainer;
     }
 
-    ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<HandleType> handler,
+    ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<com::ProxyHandleType> handler,
                                                  ara::com::ServiceIdentifier& serviceIdentifier,
                                                  ara::com::InstanceIdentifier& instanceIdentifier) noexcept
     {
@@ -123,7 +127,7 @@ class Runtime
   private:
     explicit Runtime() noexcept = default;
 
-    bool verifyThatServiceIsComplete(ara::com::ServiceHandleContainer<HandleType>& container)
+    bool verifyThatServiceIsComplete(ara::com::ServiceHandleContainer<com::ProxyHandleType>& container)
     {
         // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
         // considered as a service. A ara::com binding implementer would typically query the AUTOSAR meta model here, to
@@ -161,7 +165,7 @@ class Runtime
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
-    iox::cxx::vector<iox::cxx::pair<ara::com::FindServiceHandler<HandleType>, ara::com::FindServiceHandle>,
+    iox::cxx::vector<iox::cxx::pair<ara::com::FindServiceHandler<com::ProxyHandleType>, ara::com::FindServiceHandle>,
                      iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
         m_callbacks;
 };
