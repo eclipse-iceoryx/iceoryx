@@ -27,9 +27,9 @@ constexpr char APP_NAME[] = "iox-cpp-automotive-skeleton";
 
 int main()
 {
-    owl::Runtime::GetInstance(APP_NAME);
+    owl::Runtime<uint16_t>::GetInstance(APP_NAME);
 
-    owl::core::String instanceIdentifier{iox::cxx::TruncateToCapacity, "Instance"};
+    owl::core::String instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
     MinimalSkeleton skeleton{instanceIdentifier};
 
     skeleton.OfferService();

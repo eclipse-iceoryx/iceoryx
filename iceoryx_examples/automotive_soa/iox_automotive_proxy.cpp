@@ -29,75 +29,55 @@ constexpr char APP_NAME[] = "iox-cpp-automotive-proxy";
 
 int main()
 {
-    Runtime::GetInstance(APP_NAME);
+    Runtime<MinimalProxy::HandleType>::GetInstance(APP_NAME);
 
     iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
     optional<kom::FindServiceHandle> maybeHandle;
 
     // 1) Discover the available services
-    core::String searchString(TruncateToCapacity, "Instance");
-    std::cout << "Searching for instances called '" << searchString.c_str() << "':" << std::endl;
+    core::String searchString(TruncateToCapacity, "Example");
+    std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
+              << searchString.c_str() << "':" << std::endl;
     auto handleContainer = MinimalProxy::FindService(searchString);
 
     if (!handleContainer.empty())
     {
-        // 2a) If available, create proxy from handle
-        // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
-        uint32_t numberOfServices{0U};
-        constexpr uint32_t expectedNumberOfServices{3U};
+        // 2a) If available, create proxy from MinimalProxyHandle
         for (auto& handle : handleContainer)
         {
-            if (handle.getServiceIdentifier()
-                    == owl::core::String(TruncateToCapacity, MinimalProxy::m_serviceIdentifier)
-                && handle.getInstanceIdentifer() == owl::core::String(TruncateToCapacity, "Instance"))
-            {
-                numberOfServices++;
-            }
-            if (numberOfServices == expectedNumberOfServices)
-            {
-                std::cout << "  Found service: '" << handle.getServiceIdentifier().c_str() << "', '"
-                          << handle.getInstanceIdentifer().c_str() << "'" << std::endl;
-                maybeProxy->emplace(handle);
-            }
+            std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
+                      << handle.GetInstanceId().c_str() << "'" << std::endl;
+            maybeProxy->emplace(handle);
         }
     }
     else
     {
         // 2b) If not available yet, setup asychronous search to be notified when the service becomes available
         std::cout << "  Found no service(s), setting up asynchronous search with 'StartFindService'!" << std::endl;
-        auto callback = [&](kom::ServiceHandleContainer<kom::FindServiceHandle> container,
-                            kom::FindServiceHandle handle) -> void {
+        auto callback = [&](kom::ServiceHandleContainer<MinimalProxy::HandleType> container,
+                            kom::FindServiceHandle) -> void {
             if (container.empty())
             {
+                if (!maybeProxy->has_value())
+                {
+                    std::cout << "  No instance of service '" << MinimalProxy::m_serviceIdentifier
+                              << "' is available yet." << std::endl;
+                    return;
+                }
+                std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
+                          << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
+                maybeProxy->reset();
                 return;
             }
 
-            // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
-            uint32_t numberOfServices{0U};
-            constexpr uint32_t expectedNumberOfServices{3U};
-
-            for (auto& entry : container)
+            for (auto& proxyHandle : container)
             {
-                if (entry.getServiceIdentifier()
-                        == owl::core::String(TruncateToCapacity, MinimalProxy::m_serviceIdentifier)
-                    && entry.getInstanceIdentifer() == owl::core::String(TruncateToCapacity, "Instance"))
+                if (!maybeProxy->has_value())
                 {
-                    numberOfServices++;
+                    std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
+                              << proxyHandle.GetInstanceId().c_str() << "'" << std::endl;
+                    maybeProxy->emplace(proxyHandle);
                 }
-            }
-            if (!maybeProxy->has_value() && numberOfServices == expectedNumberOfServices)
-            {
-                std::cout << "  Found complete service: '" << handle.getServiceIdentifier().c_str() << "', '"
-                          << handle.getInstanceIdentifer().c_str() << "'" << std::endl;
-                maybeProxy->emplace(handle);
-            }
-            else
-            {
-                std::cout << "  Service not available yet/anymore: '" << handle.getServiceIdentifier().c_str() << "', '"
-                          << handle.getInstanceIdentifer().c_str() << "'" << std::endl;
-                /// @todo what to do if services are gone after being there for some time?
-                maybeProxy->reset();
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         };
 
@@ -137,7 +117,7 @@ int main()
                 }
                 catch (const std::future_error&)
                 {
-                    std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton'" << std::endl;
+                    std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton'." << std::endl;
                 }
 
                 addend1 += addend2 + addend2;

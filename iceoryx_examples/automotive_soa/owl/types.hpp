@@ -30,6 +30,7 @@
 
 namespace owl
 {
+template <typename HandleType>
 class Runtime;
 namespace core
 {
@@ -44,17 +45,22 @@ namespace kom
 template <typename T>
 using SamplePtr = iox::cxx::optional<iox::popo::Sample<const T>>;
 
+using InstanceIdentifier = core::String;
+using ServiceIdentifier = core::String;
+
 struct FindServiceHandle
 {
     // Only the Runtime shall be able to create handles, not the user
+    template <typename HandleType>
     friend class owl::Runtime;
 
-    core::String getServiceIdentifier() noexcept
+  public:
+    const ServiceIdentifier& GetServiceId() const noexcept
     {
         return m_serviceIdentifier;
     }
 
-    core::String getInstanceIdentifer() noexcept
+    const InstanceIdentifier& GetInstanceId() const noexcept
     {
         return m_instanceIdentifier;
     }
@@ -65,12 +71,12 @@ struct FindServiceHandle
         , m_instanceIdentifier(instanceIdentifier)
     {
     }
-    core::String m_serviceIdentifier;
-    core::String m_instanceIdentifier;
+    ServiceIdentifier m_serviceIdentifier;
+    InstanceIdentifier m_instanceIdentifier;
 };
 
 template <typename T>
-using ServiceHandleContainer = iox::cxx::vector<T, 50>;
+using ServiceHandleContainer = iox::cxx::vector<T, 50U>;
 
 template <typename T>
 using FindServiceHandler = iox::cxx::function<void(ServiceHandleContainer<T>, FindServiceHandle)>;

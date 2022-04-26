@@ -29,6 +29,7 @@
 
 namespace owl
 {
+template <typename HandleType>
 class Runtime
 {
   public:
@@ -45,36 +46,40 @@ class Runtime
         return runtime;
     }
 
-    owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle>
-    FindService(owl::core::String& serviceIdentifier, owl::core::String& instanceIdentifier) noexcept
+    owl::kom::ServiceHandleContainer<HandleType> FindService(owl::kom::ServiceIdentifier& serviceIdentifier,
+                                                             owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        owl::kom::ServiceHandleContainer<owl::kom::FindServiceHandle> serviceContainer;
+        owl::kom::ServiceHandleContainer<HandleType> iceoryxServiceContainer;
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
-            },
+            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
             iox::popo::MessagingPattern::PUB_SUB);
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
-            },
+            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
             iox::popo::MessagingPattern::REQ_RES);
 
-        return serviceContainer;
+        // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
+        owl::kom::ServiceHandleContainer<HandleType> autosarServiceContainer;
+        if (verifyThatServiceIsComplete(iceoryxServiceContainer))
+        {
+            autosarServiceContainer.push_back({instanceIdentifier});
+        }
+
+        return autosarServiceContainer;
     }
 
-    owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<owl::kom::FindServiceHandle> handler,
-                                                 owl::core::String& serviceIdentifier,
-                                                 owl::core::String& instanceIdentifier) noexcept
+    owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<HandleType> handler,
+                                                 owl::kom::ServiceIdentifier& serviceIdentifier,
+                                                 owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
+        /// @todo Are duplicate entries allowed?
         m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
 
         if (m_callbacks.size() == 1)
@@ -93,13 +98,12 @@ class Runtime
     void StopFindService(owl::kom::FindServiceHandle handle) noexcept
     {
         /// @todo use unique integer id in FindServiceHandle for easier adding/removal?
-        ///       it is necessary to delete both PUB_SUB and REQ_RES!
         /// auto iter = std::find(m_callbacks.begin(), m_callbacks.end(), handle);
         auto iter = m_callbacks.begin();
         for (; iter != m_callbacks.end(); iter++)
         {
-            if (iter->second.getServiceIdentifier() == handle.getInstanceIdentifer()
-                && iter->second.getInstanceIdentifer() == handle.getInstanceIdentifer())
+            if (iter->second.GetServiceId() == handle.GetServiceId()
+                && iter->second.GetInstanceId() == handle.GetInstanceId())
             {
                 break;
             }
@@ -112,13 +116,31 @@ class Runtime
         if (m_callbacks.empty())
         {
             m_listener.detachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
+            std::cout << "detached!" << std::endl;
         }
     }
 
   private:
     explicit Runtime() noexcept = default;
 
-    /// @todo why is this method not called when all services are removed?
+    bool verifyThatServiceIsComplete(owl::kom::ServiceHandleContainer<HandleType>& container)
+    {
+        // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
+        // considered as a service. A owl::kom binding implementer would typically query the AUTOSAR meta model here, to
+        // find out if all event, fields and methods of a service are available. For the example we assume that the
+        // 'MinimalSkeleton' service is complete when the container contains the three iceoryx services:
+        //
+        // 1. EventPublisher: MinimalSkeleton, Instance, Event
+        // 2. FieldPublisher: MinimalSkeleton, Instance, Field
+        // 3. MethodServer:   MinimalSkeleton, Instance, Method
+
+        if (container.size() == 3U)
+        {
+            return true;
+        }
+        return false;
+    }
+
     static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self)
     {
         // 1) Has the availability of one of the registered services changed?
@@ -127,10 +149,10 @@ class Runtime
         {
             auto container =
                 self->FindService(callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier);
-            if (container.empty())
-            {
-                continue;
-            }
+            // if (container.empty())
+            // {
+            //     continue;
+            // }
             (callback.first)(container,
                              owl::kom::FindServiceHandle(
                                  {callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
@@ -139,9 +161,8 @@ class Runtime
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
-    iox::cxx::vector<
-        iox::cxx::pair<owl::kom::FindServiceHandler<owl::kom::FindServiceHandle>, owl::kom::FindServiceHandle>,
-        100U>
+    iox::cxx::vector<iox::cxx::pair<owl::kom::FindServiceHandler<HandleType>, owl::kom::FindServiceHandle>,
+                     iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
         m_callbacks;
 };
 } // namespace owl
