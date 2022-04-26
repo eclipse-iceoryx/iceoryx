@@ -29,7 +29,6 @@
 
 namespace owl
 {
-template <typename HandleType>
 class Runtime
 {
   public:
@@ -46,36 +45,41 @@ class Runtime
         return runtime;
     }
 
-    owl::kom::ServiceHandleContainer<HandleType> FindService(owl::kom::ServiceIdentifier& serviceIdentifier,
-                                                             owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
+    owl::kom::ServiceHandleContainer<kom::ProxyHandleType>
+    FindService(owl::kom::ServiceIdentifier& serviceIdentifier,
+                owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        owl::kom::ServiceHandleContainer<HandleType> iceoryxServiceContainer;
+        owl::kom::ServiceHandleContainer<kom::ProxyHandleType> iceoryxServiceContainer;
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
+            [&](auto& service) {
+                iceoryxServiceContainer.push_back({service.getEventIDString(), service.getInstanceIDString()});
+            },
             iox::popo::MessagingPattern::PUB_SUB);
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
+            [&](auto& service) {
+                iceoryxServiceContainer.push_back({service.getEventIDString(), service.getInstanceIDString()});
+            },
             iox::popo::MessagingPattern::REQ_RES);
 
         // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
-        owl::kom::ServiceHandleContainer<HandleType> autosarServiceContainer;
+        owl::kom::ServiceHandleContainer<kom::ProxyHandleType> autosarServiceContainer;
         if (verifyThatServiceIsComplete(iceoryxServiceContainer))
         {
-            autosarServiceContainer.push_back({instanceIdentifier});
+            autosarServiceContainer.push_back({serviceIdentifier, instanceIdentifier});
         }
 
         return autosarServiceContainer;
     }
 
-    owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<HandleType> handler,
+    owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<kom::ProxyHandleType> handler,
                                                  owl::kom::ServiceIdentifier& serviceIdentifier,
                                                  owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
@@ -123,7 +127,7 @@ class Runtime
   private:
     explicit Runtime() noexcept = default;
 
-    bool verifyThatServiceIsComplete(owl::kom::ServiceHandleContainer<HandleType>& container)
+    bool verifyThatServiceIsComplete(owl::kom::ServiceHandleContainer<kom::ProxyHandleType>& container)
     {
         // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
         // considered as a service. A owl::kom binding implementer would typically query the AUTOSAR meta model here, to
@@ -161,7 +165,7 @@ class Runtime
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
-    iox::cxx::vector<iox::cxx::pair<owl::kom::FindServiceHandler<HandleType>, owl::kom::FindServiceHandle>,
+    iox::cxx::vector<iox::cxx::pair<owl::kom::FindServiceHandler<kom::ProxyHandleType>, owl::kom::FindServiceHandle>,
                      iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
         m_callbacks;
 };

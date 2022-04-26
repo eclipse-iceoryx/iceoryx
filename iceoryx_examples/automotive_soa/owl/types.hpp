@@ -30,7 +30,6 @@
 
 namespace owl
 {
-template <typename HandleType>
 class Runtime;
 namespace core
 {
@@ -51,7 +50,6 @@ using ServiceIdentifier = core::String;
 struct FindServiceHandle
 {
     // Only the Runtime shall be able to create handles, not the user
-    template <typename HandleType>
     friend class owl::Runtime;
 
   public:
@@ -59,14 +57,42 @@ struct FindServiceHandle
     {
         return m_serviceIdentifier;
     }
-
     const InstanceIdentifier& GetInstanceId() const noexcept
     {
         return m_instanceIdentifier;
     }
 
   private:
-    FindServiceHandle(core::String serviceIdentifier, core::String instanceIdentifier) noexcept
+    FindServiceHandle(ServiceIdentifier serviceIdentifier, InstanceIdentifier instanceIdentifier) noexcept
+        : m_serviceIdentifier(serviceIdentifier)
+        , m_instanceIdentifier(instanceIdentifier)
+    {
+    }
+    ServiceIdentifier m_serviceIdentifier;
+    InstanceIdentifier m_instanceIdentifier;
+};
+
+struct ProxyHandleType
+{
+    // Only the Runtime shall be able to create handles, not the user
+    friend class owl::Runtime;
+
+  public:
+    bool operator==(const ProxyHandleType& rhs) noexcept
+    {
+        return m_instanceIdentifier == rhs.m_instanceIdentifier;
+    }
+    const ServiceIdentifier& GetServiceId() const noexcept
+    {
+        return m_serviceIdentifier;
+    }
+    const InstanceIdentifier& GetInstanceId() const noexcept
+    {
+        return m_instanceIdentifier;
+    }
+
+  private:
+    ProxyHandleType(ServiceIdentifier serviceIdentifier, InstanceIdentifier instanceIdentifier) noexcept
         : m_serviceIdentifier(serviceIdentifier)
         , m_instanceIdentifier(instanceIdentifier)
     {

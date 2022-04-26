@@ -29,7 +29,7 @@ constexpr char APP_NAME[] = "iox-cpp-automotive-proxy";
 
 int main()
 {
-    Runtime<MinimalProxy::HandleType>::GetInstance(APP_NAME);
+    Runtime::GetInstance(APP_NAME);
 
     iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
     optional<kom::FindServiceHandle> maybeHandle;
@@ -54,7 +54,7 @@ int main()
     {
         // 2b) If not available yet, setup asychronous search to be notified when the service becomes available
         std::cout << "  Found no service(s), setting up asynchronous search with 'StartFindService'!" << std::endl;
-        auto callback = [&](kom::ServiceHandleContainer<MinimalProxy::HandleType> container,
+        auto callback = [&](kom::ServiceHandleContainer<owl::kom::ProxyHandleType> container,
                             kom::FindServiceHandle) -> void {
             if (container.empty())
             {
@@ -124,7 +124,7 @@ int main()
                 addend2++;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     if (maybeHandle.has_value())
