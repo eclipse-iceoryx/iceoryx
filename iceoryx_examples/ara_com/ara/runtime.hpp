@@ -29,6 +29,7 @@
 
 namespace ara
 {
+template <typename HandleType>
 class Runtime
 {
   public:
@@ -45,36 +46,40 @@ class Runtime
         return runtime;
     }
 
-    ara::com::ServiceHandleContainer<ara::com::FindServiceHandle>
-    FindService(ara::core::String& serviceIdentifier, ara::core::String& instanceIdentifier) noexcept
+    ara::com::ServiceHandleContainer<HandleType> FindService(ara::com::ServiceIdentifier& serviceIdentifier,
+                                                             ara::com::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        ara::com::ServiceHandleContainer<ara::com::FindServiceHandle> serviceContainer;
+        ara::com::ServiceHandleContainer<HandleType> iceoryxServiceContainer;
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
-            },
+            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
             iox::popo::MessagingPattern::PUB_SUB);
 
         m_discovery.findService(
             serviceIdentifier,
             instanceIdentifier,
             iox::cxx::nullopt,
-            [&](auto& service) {
-                serviceContainer.push_back({service.getServiceIDString(), service.getInstanceIDString()});
-            },
+            [&](auto& service) { iceoryxServiceContainer.push_back({service.getInstanceIDString()}); },
             iox::popo::MessagingPattern::REQ_RES);
 
-        return serviceContainer;
+        // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
+        ara::com::ServiceHandleContainer<HandleType> araServiceContainer;
+        if (verifyThatServiceIsComplete(iceoryxServiceContainer))
+        {
+            araServiceContainer.push_back({instanceIdentifier});
+        }
+
+        return araServiceContainer;
     }
 
-    ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<ara::com::FindServiceHandle> handler,
-                                                 ara::core::String& serviceIdentifier,
-                                                 ara::core::String& instanceIdentifier) noexcept
+    ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<HandleType> handler,
+                                                 ara::com::ServiceIdentifier& serviceIdentifier,
+                                                 ara::com::InstanceIdentifier& instanceIdentifier) noexcept
     {
+        /// @todo Are duplicate entries allowed?
         m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
 
         if (m_callbacks.size() == 1)
@@ -93,13 +98,12 @@ class Runtime
     void StopFindService(ara::com::FindServiceHandle handle) noexcept
     {
         /// @todo use unique integer id in FindServiceHandle for easier adding/removal?
-        ///       it is necessary to delete both PUB_SUB and REQ_RES!
         /// auto iter = std::find(m_callbacks.begin(), m_callbacks.end(), handle);
         auto iter = m_callbacks.begin();
         for (; iter != m_callbacks.end(); iter++)
         {
-            if (iter->second.getServiceIdentifier() == handle.getInstanceIdentifer()
-                && iter->second.getInstanceIdentifer() == handle.getInstanceIdentifer())
+            if (iter->second.GetServiceId() == handle.GetServiceId()
+                && iter->second.GetInstanceId() == handle.GetInstanceId())
             {
                 break;
             }
@@ -112,13 +116,31 @@ class Runtime
         if (m_callbacks.empty())
         {
             m_listener.detachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
+            std::cout << "detached!" << std::endl;
         }
     }
 
   private:
     explicit Runtime() noexcept = default;
 
-    /// @todo why is this method not called when all services are removed?
+    bool verifyThatServiceIsComplete(ara::com::ServiceHandleContainer<HandleType>& container)
+    {
+        // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
+        // considered as a service. A ara::com binding implementer would typically query the AUTOSAR meta model here, to
+        // find out if all event, fields and methods of a service are available. For the example we assume that the
+        // 'MinimalSkeleton' service is complete when the container contains the three iceoryx services:
+        //
+        // 1. EventPublisher: MinimalSkeleton, Instance, Event
+        // 2. FieldPublisher: MinimalSkeleton, Instance, Field
+        // 3. MethodServer:   MinimalSkeleton, Instance, Method
+
+        if (container.size() == 3U)
+        {
+            return true;
+        }
+        return false;
+    }
+
     static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self)
     {
         // 1) Has the availability of one of the registered services changed?
@@ -127,10 +149,10 @@ class Runtime
         {
             auto container =
                 self->FindService(callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier);
-            if (container.empty())
-            {
-                continue;
-            }
+            // if (container.empty())
+            // {
+            //     continue;
+            // }
             (callback.first)(container,
                              ara::com::FindServiceHandle(
                                  {callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
@@ -139,9 +161,8 @@ class Runtime
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
-    iox::cxx::vector<
-        iox::cxx::pair<ara::com::FindServiceHandler<ara::com::FindServiceHandle>, ara::com::FindServiceHandle>,
-        100U>
+    iox::cxx::vector<iox::cxx::pair<ara::com::FindServiceHandler<HandleType>, ara::com::FindServiceHandle>,
+                     iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
         m_callbacks;
 };
 } // namespace ara

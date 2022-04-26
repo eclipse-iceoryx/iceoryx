@@ -27,32 +27,55 @@ class MinimalProxy
   public:
     /// @todo make c'tor of cxx::string constexpr'able
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
-
-    MinimalProxy(ara::com::FindServiceHandle& handle)
-        : m_instanceIdentifier(handle.getInstanceIdentifer())
+    /// @todo abstract type to be used in the runtime to remove the template
+    struct HandleType // : public HandleBaseType
     {
+        // Only the Runtime shall be able to create handles, not the user
+        template <typename HandleType>
+        friend class ara::Runtime;
+
+      public:
+        bool operator==(const HandleType& rhs) noexcept
+        {
+            return m_instanceIdentifier == rhs.m_instanceIdentifier;
+        }
+        const ara::com::InstanceIdentifier& GetInstanceId() const noexcept
+        {
+            return m_instanceIdentifier;
+        }
+
+      private:
+        HandleType(ara::com::InstanceIdentifier instanceIdentifier) noexcept
+            : m_instanceIdentifier(instanceIdentifier)
+        {
+        }
+        ara::com::InstanceIdentifier m_instanceIdentifier;
+    };
+
+    MinimalProxy(HandleType& handle)
+        : m_instanceIdentifier(handle.GetInstanceId())
+    {
+        /// @todo sanity check on serviceIdentifier? not needed, ensured via type safety
     }
     MinimalProxy(const MinimalProxy&) = delete;
     MinimalProxy& operator=(const MinimalProxy&) = delete;
 
-    static ara::com::FindServiceHandle
-    StartFindService(ara::com::FindServiceHandler<ara::com::FindServiceHandle> handler,
-                     ara::core::String& instanceIdentifier) noexcept
+    static ara::com::FindServiceHandle StartFindService(ara::com::FindServiceHandler<HandleType> handler,
+                                                        ara::com::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        ara::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
-        return ara::Runtime::GetInstance().StartFindService(handler, serviceIdentifier, instanceIdentifier);
+        ara::com::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        return ara::Runtime<HandleType>::GetInstance().StartFindService(handler, serviceIdentifier, instanceIdentifier);
     }
 
     static void StopFindService(ara::com::FindServiceHandle handle) noexcept
     {
-        ara::Runtime::GetInstance().StopFindService(handle);
+        ara::Runtime<HandleType>::GetInstance().StopFindService(handle);
     }
 
-    static ara::com::ServiceHandleContainer<ara::com::FindServiceHandle>
-    FindService(ara::core::String& instanceIdentifier) noexcept
+    static ara::com::ServiceHandleContainer<HandleType> FindService(ara::core::String& instanceIdentifier) noexcept
     {
         ara::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
-        return ara::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
+        return ara::Runtime<HandleType>::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
     }
 
     const ara::core::String m_instanceIdentifier;
