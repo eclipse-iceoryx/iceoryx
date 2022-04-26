@@ -28,7 +28,6 @@ class MinimalProxy
     /// @todo make c'tor of cxx::string constexpr'able
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
-
     MinimalProxy(ara::com::ProxyHandleType& handle)
         : m_instanceIdentifier(handle.GetInstanceId())
     {
@@ -55,9 +54,9 @@ class MinimalProxy
     }
 
     static ara::com::ServiceHandleContainer<ara::com::ProxyHandleType>
-    FindService(ara::core::String& instanceIdentifier) noexcept
+    FindService(ara::com::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        ara::core::String serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
+        ara::com::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
         return ara::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
     }
 
