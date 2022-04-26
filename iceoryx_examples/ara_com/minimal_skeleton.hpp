@@ -36,13 +36,11 @@ class MinimalSkeleton
 
     void OfferService() noexcept
     {
-        /// @todo Should call PoshRuntime::OfferService, how to add the Service Registry entry instead?
         m_event.Offer();
     }
 
     void StopOfferService() noexcept
     {
-        /// @todo Should call PoshRuntime::StopOfferService, how to remove the Service Registry entry instead?
         m_event.StopOffer();
     }
 

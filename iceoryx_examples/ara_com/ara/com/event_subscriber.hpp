@@ -41,7 +41,7 @@ class EventSubscriber
 
     void Subscribe(std::size_t) noexcept
     {
-        /// @todo maxSampleCount shall not be ignored
+        /// @todo #1332 maxSampleCount shall not be ignored
         m_subscriber.subscribe();
     }
 
@@ -79,7 +79,7 @@ class EventSubscriber
         return m_subscriber.getServiceDescription();
     }
 
-    /// @todo SetReceiveHandler() needed?
+    /// @todo #1332 Implement SetReceiveHandler()
 
   private:
     iox::popo::Subscriber<T> m_subscriber;
