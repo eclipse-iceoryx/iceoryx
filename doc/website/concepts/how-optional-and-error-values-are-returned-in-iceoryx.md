@@ -10,7 +10,12 @@ introduce in the following sections.
 
 The type `iox::cxx::optional<T>` is used to indicate that there may or may not be a value of a specific type `T`
 available. This is essentially the 'maybe [monad](https://en.wikipedia.org/wiki/Monad_%28functional_programming%29)' in
-functional programming. Assuming we have some optional (usually the result of some computation)
+functional programming. 
+
+The `iox::cxx::optional` behaves like the [`std::optional`](https://en.cppreference.com/w/cpp/utility/optional),
+except that it terminates the application where `std::optional` would throw an exception or exhibit undefined behavior.
+
+Assuming we have some optional (usually the result of some computation)
 
 ```cpp
 optional<int> result = someComputation();
@@ -65,8 +70,6 @@ result = iox::cxx::nullopt;
 
 For a complete list of available functions see
 [`optional.hpp`](../../../iceoryx_hoofs/include/iceoryx_hoofs/cxx/optional.hpp).
-The `iox::cxx::optional` behaves like the [`std::optional`](https://en.cppreference.com/w/cpp/utility/optional)
-except that it does not throw exceptions and has no undefined behavior.
 
 ## Expected
 
