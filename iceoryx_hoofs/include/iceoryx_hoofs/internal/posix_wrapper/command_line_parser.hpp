@@ -29,6 +29,10 @@ namespace iox
 {
 namespace posix
 {
+namespace internal
+{
+class OptionManager;
+}
 class CommandLineParser;
 namespace internal
 {
@@ -185,7 +189,7 @@ class CommandLineParser
     };
 
   private:
-    friend void internal::handleError(const CommandLineParser&);
+    friend class internal::OptionManager;
 
     CommandLineParser& addOption(const Entry& option) noexcept;
     cxx::optional<Entry> getOption(const CommandLineOption::Name_t& name) const noexcept;

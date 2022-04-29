@@ -32,52 +32,47 @@ using CmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOption::MA
 using CmdAssignments_t =
     cxx::vector<cxx::function<void(CommandLineOption&)>, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
 
-void handleError(const CommandLineParser& parser);
+class OptionManager
+{
+  public:
+    void handleError() const;
 
-template <typename T>
-void extractOptionArgumentValue(const CommandLineParser& parser,
-                                T& referenceToMember,
-                                const CmdEntries_t& entries,
-                                const uint64_t index,
-                                const CommandLineOption& options);
+    template <typename T>
+    void extractOptionArgumentValue(T& referenceToMember, const uint64_t index, const CommandLineOption& options);
 
-template <typename T>
-T defineOption(const CommandLineParser& parser,
-               T& referenceToMember, // not a pointer since it must be always valid
-               const char shortName,
-               const CommandLineOption::Name_t& name,
-               const CommandLineParser::Description_t& description,
-               const OptionType optionType,
-               T defaultArgumentValue, // not const to enable RTVO
-               internal::CmdEntries_t& entries,
-               internal::CmdAssignments_t& assignments);
+    template <typename T>
+    T defineOption(T& referenceToMember, // not a pointer since it must be always valid
+                   const char shortName,
+                   const CommandLineOption::Name_t& name,
+                   const CommandLineParser::Description_t& description,
+                   const OptionType optionType,
+                   T defaultArgumentValue // not const to enable RTVO
+    );
 
-void populateEntries(CommandLineParser& parser,
-                     const CmdEntries_t& entries,
-                     const CmdAssignments_t& assignments,
-                     CommandLineOption::BinaryName_t& binaryName,
-                     int argc,
-                     char* argv[],
-                     const uint64_t argcOffset,
-                     const UnknownOption actionWhenOptionUnknown);
+    void populateEntries(const CommandLineParser::Description_t& programDescription,
+                         const cxx::function<void()> onFailureCallback,
+                         CommandLineOption::BinaryName_t& binaryName,
+                         int argc,
+                         char* argv[],
+                         const uint64_t argcOffset,
+                         const UnknownOption actionWhenOptionUnknown);
+
+  private:
+    cxx::optional<CommandLineParser> m_parser;
+    CmdEntries_t m_entries;
+    CmdAssignments_t m_assignments;
+};
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   private:                                                                                                             \
-    type m_##memberName = iox::posix::internal::defineOption<type>(this->m_parser,                                     \
-                                                                   this->m_##memberName,                               \
-                                                                   shortName,                                          \
-                                                                   longName,                                           \
-                                                                   description,                                        \
-                                                                   optionType,                                         \
-                                                                   defaultValue,                                       \
-                                                                   m_entries,                                          \
-                                                                   m_assignments);                                     \
+    type m_##memberName;                                                                                               \
                                                                                                                        \
   public:                                                                                                              \
     const type& memberName() const noexcept                                                                            \
     {                                                                                                                  \
         return m_##memberName;                                                                                         \
     }
+
 } // namespace internal
 
 /// @brief Adds an optional value to the command line
@@ -145,9 +140,7 @@ void populateEntries(CommandLineParser& parser,
 /// @endcode
 #define IOX_CLI_DEFINITION(Name, ProgramDescription)                                                                   \
   private:                                                                                                             \
-    ::iox::posix::CommandLineParser m_parser;                                                                          \
-    ::iox::posix::internal::CmdEntries_t m_entries;                                                                    \
-    ::iox::posix::internal::CmdAssignments_t m_assignments;                                                            \
+    ::iox::posix::internal::OptionManager m_optionManager;                                                             \
     ::iox::posix::CommandLineOption::BinaryName_t m_binaryName;                                                        \
                                                                                                                        \
   public:                                                                                                              \
@@ -157,10 +150,9 @@ void populateEntries(CommandLineParser& parser,
         const uint64_t argcOffset = 1U,                                                                                \
         const ::iox::posix::UnknownOption actionWhenOptionUnknown = ::iox::posix::UnknownOption::TERMINATE,            \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
-        : m_parser(ProgramDescription, onFailureCallback)                                                              \
     {                                                                                                                  \
-        ::iox::posix::internal::populateEntries(                                                                       \
-            m_parser, m_entries, m_assignments, m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);        \
+        m_optionManager.populateEntries(                                                                               \
+            ProgramDescription, onFailureCallback, m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);     \
     }                                                                                                                  \
                                                                                                                        \
     const ::iox::posix::CommandLineOption::BinaryName_t& binaryName() const noexcept                                   \

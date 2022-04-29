@@ -22,40 +22,41 @@ namespace posix
 {
 namespace internal
 {
-void handleError(const CommandLineParser& parser)
+void OptionManager::handleError() const
 {
-    parser.printHelpAndExit();
+    m_parser->printHelpAndExit();
 }
 
-void populateEntries(CommandLineParser& parser,
-                     const CmdEntries_t& entries,
-                     const CmdAssignments_t& assignments,
-                     CommandLineOption::BinaryName_t& binaryName,
-                     int argc,
-                     char* argv[],
-                     const uint64_t argcOffset,
-                     const UnknownOption actionWhenOptionUnknown)
+void OptionManager::populateEntries(const CommandLineParser::Description_t& programDescription,
+                                    const cxx::function<void()> onFailureCallback,
+                                    CommandLineOption::BinaryName_t& binaryName,
+                                    int argc,
+                                    char* argv[],
+                                    const uint64_t argcOffset,
+                                    const UnknownOption actionWhenOptionUnknown)
 {
-    for (const auto& entry : entries)
+    m_parser.emplace(programDescription, onFailureCallback);
+
+    for (const auto& entry : m_entries)
     {
         switch (entry.type)
         {
         case OptionType::SWITCH:
-            parser.addSwitch(entry.shortOption, entry.longOption, entry.description);
+            m_parser->addSwitch(entry.shortOption, entry.longOption, entry.description);
             break;
         case OptionType::REQUIRED:
-            parser.addMandatory(entry.shortOption, entry.longOption, entry.description, entry.typeName);
+            m_parser->addMandatory(entry.shortOption, entry.longOption, entry.description, entry.typeName);
             break;
         case OptionType::OPTIONAL:
-            parser.addOptional(
+            m_parser->addOptional(
                 entry.shortOption, entry.longOption, entry.description, entry.typeName, entry.defaultValue);
             break;
         }
     }
 
-    auto options = parser.parse(argc, argv, argcOffset, actionWhenOptionUnknown);
+    auto options = m_parser->parse(argc, argv, argcOffset, actionWhenOptionUnknown);
 
-    for (const auto& assignment : assignments)
+    for (const auto& assignment : m_assignments)
     {
         assignment(options);
     }
