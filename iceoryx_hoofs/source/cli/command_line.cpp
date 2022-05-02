@@ -22,7 +22,7 @@ namespace cli
 {
 namespace internal
 {
-OptionManager::OptionManager(const CommandLineOptionSet::Description_t& programDescription,
+OptionManager::OptionManager(const OptionDescription_t& programDescription,
                              const cxx::function<void()> onFailureCallback)
     : m_optionSet{programDescription, onFailureCallback}
 {
@@ -33,7 +33,7 @@ void OptionManager::handleError() const
     m_parser.printHelpAndExit();
 }
 
-void OptionManager::populateEntries(CommandLineOption::BinaryName_t& binaryName,
+void OptionManager::populateEntries(BinaryName_t& binaryName,
                                     int argc,
                                     char* argv[],
                                     const uint64_t argcOffset,

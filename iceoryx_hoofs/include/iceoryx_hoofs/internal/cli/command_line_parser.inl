@@ -23,8 +23,8 @@ namespace iox
 namespace cli
 {
 template <typename T>
-inline cxx::expected<T, CommandLineOption::Error>
-CommandLineOption::convertFromString(const Argument_t& stringValue) const noexcept
+inline cxx::expected<T, CommandLineOptionValue::Error>
+CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const noexcept
 {
     T value;
     if (!cxx::convert::fromString(stringValue.c_str(), value))
@@ -36,8 +36,8 @@ CommandLineOption::convertFromString(const Argument_t& stringValue) const noexce
 }
 
 template <>
-inline cxx::expected<bool, CommandLineOption::Error>
-CommandLineOption::convertFromString(const Argument_t& stringValue) const noexcept
+inline cxx::expected<bool, CommandLineOptionValue::Error>
+CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const noexcept
 {
     bool doesContainTrueAsString = (strncmp(stringValue.c_str(), "true", 5) == 0);
     if (!doesContainTrueAsString && (strncmp(stringValue.c_str(), "false", 6) != 0))
@@ -49,7 +49,8 @@ CommandLineOption::convertFromString(const Argument_t& stringValue) const noexce
 }
 
 template <typename T>
-inline cxx::expected<T, CommandLineOption::Error> CommandLineOption::get(const Name_t& optionName) const noexcept
+inline cxx::expected<T, CommandLineOptionValue::Error>
+CommandLineOptionValue::get(const OptionName_t& optionName) const noexcept
 {
     for (const auto& a : m_arguments)
     {

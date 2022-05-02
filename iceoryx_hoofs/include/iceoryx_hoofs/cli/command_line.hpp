@@ -29,31 +29,28 @@ namespace cli
 namespace internal
 {
 using CmdAssignments_t =
-    cxx::vector<cxx::function<void(CommandLineOption&)>, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
+    cxx::vector<cxx::function<void(CommandLineOptionValue&)>, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS>;
 
 class OptionManager
 {
   public:
-    OptionManager(const CommandLineOptionSet::Description_t& programDescription,
-                  const cxx::function<void()> onFailureCallback);
+    OptionManager(const OptionDescription_t& programDescription, const cxx::function<void()> onFailureCallback);
 
     void handleError() const;
 
     template <typename T>
-    T extractOptionArgumentValue(const CommandLineOption& options,
-                                 const char shortName,
-                                 const CommandLineOption::Name_t& name);
+    T extractOptionArgumentValue(const CommandLineOptionValue& options, const char shortName, const OptionName_t& name);
 
     template <typename T>
     T defineOption(T& referenceToMember, // not a pointer since it must be always valid
                    const char shortName,
-                   const CommandLineOption::Name_t& name,
-                   const CommandLineOptionSet::Description_t& description,
+                   const OptionName_t& name,
+                   const OptionDescription_t& description,
                    const OptionType optionType,
                    T defaultArgumentValue // not const to enable RTVO
     );
 
-    void populateEntries(CommandLineOption::BinaryName_t& binaryName,
+    void populateEntries(BinaryName_t& binaryName,
                          int argc,
                          char* argv[],
                          const uint64_t argcOffset,
@@ -145,7 +142,7 @@ class OptionManager
 #define IOX_CLI_DEFINITION(Name, ProgramDescription)                                                                   \
   private:                                                                                                             \
     ::iox::cli::internal::OptionManager m_optionManager;                                                               \
-    ::iox::cli::CommandLineOption::BinaryName_t m_binaryName;                                                          \
+    ::iox::cli::BinaryName_t m_binaryName;                                                                             \
                                                                                                                        \
   public:                                                                                                              \
     Name(                                                                                                              \
@@ -159,7 +156,7 @@ class OptionManager
         m_optionManager.populateEntries(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);                \
     }                                                                                                                  \
                                                                                                                        \
-    const ::iox::cli::CommandLineOption::BinaryName_t& binaryName() const noexcept                                     \
+    const ::iox::cli::BinaryName_t& binaryName() const noexcept                                                        \
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
     }

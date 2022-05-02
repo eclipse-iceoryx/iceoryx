@@ -52,24 +52,28 @@ enum class UnknownOption
     TERMINATE
 };
 
+static constexpr uint64_t MAX_OPTION_NAME_LENGTH = 32;
+using OptionName_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
+
+static constexpr uint64_t MAX_OPTION_DESCRIPTION_LENGTH = 1024;
+using OptionDescription_t = cxx::string<MAX_OPTION_DESCRIPTION_LENGTH>;
+
+static constexpr uint64_t MAX_OPTION_ARGUMENT_LENGTH = 128;
+using Argument_t = cxx::string<MAX_OPTION_ARGUMENT_LENGTH>;
+using BinaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+
+
 /// @brief This class provides access to the command line argument values.
 ///        When constructed with the default constructor it is empty. Calling
-///        CommandLineParser::parse creates and returns a populated CommandLineOption
+///        CommandLineParser::parse creates and returns a populated CommandLineOptionValue
 ///        object.
 ///        This class should never be used directly. Use the CommandLine builder
 ///        from `iceoryx_hoofs/cxx/command_line.hpp` to create a struct which contains
 ///        the values.
-class IOX_NO_DISCARD CommandLineOption
+class CommandLineOptionValue
 {
   public:
     static constexpr uint64_t MAX_NUMBER_OF_ARGUMENTS = 16;
-    static constexpr uint64_t MAX_OPTION_NAME_LENGTH = 32;
-    static constexpr uint64_t MAX_OPTION_ARGUMENT_LENGTH = 128;
-
-    using Name_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
-    using Argument_t = cxx::string<MAX_OPTION_ARGUMENT_LENGTH>;
-    using BinaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
-
     enum class Error
     {
         UNABLE_TO_CONVERT_VALUE,
@@ -82,11 +86,11 @@ class IOX_NO_DISCARD CommandLineOption
     /// @return the contained value if the value is present and convertable, otherwise an Error which describes the
     /// error
     template <typename T>
-    cxx::expected<T, Error> get(const Name_t& optionName) const noexcept;
+    cxx::expected<T, Error> get(const OptionName_t& optionName) const noexcept;
 
     /// @brief returns true if the specified switch was set, otherwise false
     /// @param[in] switchName either one letter for the shortOption or the whole longOption
-    bool has(const Name_t& switchName) const noexcept;
+    bool has(const OptionName_t& switchName) const noexcept;
 
     /// @brief returns the full path name of the binary
     const BinaryName_t& binaryName() const noexcept;
@@ -101,7 +105,7 @@ class IOX_NO_DISCARD CommandLineOption
     struct Option
     {
         char shortId;
-        Name_t id;
+        OptionName_t id;
         Argument_t value;
     };
 
@@ -112,11 +116,9 @@ class IOX_NO_DISCARD CommandLineOption
 class CommandLineOptionSet
 {
   public:
-    static constexpr uint64_t MAX_DESCRIPTION_LENGTH = 1024;
     static constexpr uint64_t MAX_TYPE_NAME_LENGTH = 16;
     static constexpr char NO_SHORT_OPTION = '\0';
 
-    using Description_t = cxx::string<MAX_DESCRIPTION_LENGTH>;
     using TypeName_t = cxx::string<MAX_TYPE_NAME_LENGTH>;
 
     /// @brief The constructor.
@@ -124,7 +126,7 @@ class CommandLineOptionSet
     /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is
     ///            defined std::exit(EXIT_FAILURE) is called
     explicit CommandLineOptionSet(
-        const Description_t& programDescription,
+        const OptionDescription_t& programDescription,
         const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
 
     /// @brief Adds a command line switch argument
@@ -132,9 +134,8 @@ class CommandLineOptionSet
     /// @param[in] shortOption a single letter as short option
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
-    CommandLineOptionSet& addSwitch(const char shortOption,
-                                    const CommandLineOption::Name_t& longOption,
-                                    const Description_t& description) noexcept;
+    CommandLineOptionSet&
+    addSwitch(const char shortOption, const OptionName_t& longOption, const OptionDescription_t& description) noexcept;
 
     /// @brief Adds a command line optional value argument.
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
@@ -144,10 +145,10 @@ class CommandLineOptionSet
     /// @param[in] typeName the name of the value type
     /// @param[in] defaultValue the value which will be set to the option when it is not set by the user
     CommandLineOptionSet& addOptional(const char shortOption,
-                                      const CommandLineOption::Name_t& longOption,
-                                      const Description_t& description,
+                                      const OptionName_t& longOption,
+                                      const OptionDescription_t& description,
                                       const TypeName_t& typeName,
-                                      const CommandLineOption::Argument_t& defaultValue) noexcept;
+                                      const Argument_t& defaultValue) noexcept;
 
     /// @brief Adds a command line required value argument
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
@@ -156,30 +157,32 @@ class CommandLineOptionSet
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
     CommandLineOptionSet& addMandatory(const char shortOption,
-                                       const CommandLineOption::Name_t& longOption,
-                                       const Description_t& description,
+                                       const OptionName_t& longOption,
+                                       const OptionDescription_t& description,
                                        const TypeName_t& typeName) noexcept;
 
-    struct Entry
+  private:
+    struct Value
     {
         char shortOption = NO_SHORT_OPTION;
-        CommandLineOption::Name_t longOption;
-        Description_t description;
+        OptionName_t longOption;
+        OptionDescription_t description;
         OptionType type = OptionType::SWITCH;
         TypeName_t typeName;
-        CommandLineOption::Argument_t defaultValue;
+        Argument_t defaultValue;
     };
 
-  private:
     friend class internal::OptionManager;
     friend class CommandLineParser;
+    friend std::ostream& operator<<(std::ostream&, const CommandLineOptionSet::Value&) noexcept;
+
     void sortAvailableOptions() noexcept;
+    CommandLineOptionSet& addOption(const Value& option) noexcept;
+    cxx::optional<Value> getOption(const OptionName_t& name) const noexcept;
 
-    CommandLineOptionSet& addOption(const Entry& option) noexcept;
-    cxx::optional<CommandLineOptionSet::Entry> getOption(const CommandLineOption::Name_t& name) const noexcept;
-
-    CommandLineOptionSet::Description_t m_programDescription;
-    cxx::vector<Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+  private:
+    OptionDescription_t m_programDescription;
+    cxx::vector<Value, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
     cxx::function<void()> m_onFailureCallback;
 };
 
@@ -200,11 +203,11 @@ class CommandLineParser
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
     /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
     ///             option/switch which is unknown
-    CommandLineOption parse(const CommandLineOptionSet& optionSet,
-                            int argc,
-                            char* argv[],
-                            const uint64_t argcOffset = 1U,
-                            const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+    CommandLineOptionValue parse(const CommandLineOptionSet& optionSet,
+                                 int argc,
+                                 char* argv[],
+                                 const uint64_t argcOffset = 1U,
+                                 const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
   private:
     friend class internal::OptionManager;
@@ -225,9 +228,9 @@ class CommandLineParser
     bool hasValidOptionName(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
-    bool isOptionSet(const CommandLineOptionSet::Entry& entry) const noexcept;
+    bool isOptionSet(const CommandLineOptionSet::Value& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
-    bool doesOptionHasSucceedingValue(const CommandLineOptionSet::Entry& entry, const uint64_t position) const noexcept;
+    bool doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& entry, const uint64_t position) const noexcept;
     /// END only used in parse to improve readability
 
     void setDefaultValuesToUnsetOptions() noexcept;
@@ -238,10 +241,10 @@ class CommandLineParser
     uint64_t m_argcOffset = 0;
 
     const CommandLineOptionSet* m_optionSet = nullptr;
-    CommandLineOption m_options;
+    CommandLineOptionValue m_optionValue;
 };
 
-std::ostream& operator<<(std::ostream& stream, const CommandLineOptionSet::Entry& entry) noexcept;
+std::ostream& operator<<(std::ostream& stream, const CommandLineOptionSet::Value& value) noexcept;
 
 } // namespace cli
 } // namespace iox
