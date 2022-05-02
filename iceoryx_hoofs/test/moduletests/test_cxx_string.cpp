@@ -2567,8 +2567,8 @@ TEST(String10, InsertTooLargeStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f11f387-f437-4a39-8207-259df4807c70");
     const string<10> expectedString("Ferdinand");
-    string<10> sut("Ferdinand");
-    ASSERT_FALSE(sut.insert(9, "Spitzschnueffler", 16));
+    string<10> sut(expectedString);
+    ASSERT_FALSE(sut.insert(sut.size(), "Spitzschnueffler", 16));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
 }
@@ -2595,7 +2595,7 @@ TEST(String10, InsertStringLiteralAtPositionGreaterStringSizeFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a3a30ea5-f228-48f4-9497-08502e4f2c9a");
     const string<10> expectedString("Muesli");
-    string<10> sut("Muesli");
+    string<10> sut(expectedString);
     ASSERT_FALSE(sut.insert(sut.size() + 1U, "s", 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -2666,9 +2666,9 @@ TEST(String10, InsertTooLargeCxxStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e9d88dd2-9da5-4f5f-a798-10b3931e6516");
     const string<10> expectedString("Ferdinand");
-    string<10> sut("Ferdinand");
+    string<10> sut(expectedString);
     string<16> string_to_insert("Spitzschnueffler");
-    ASSERT_FALSE(sut.insert(9, string_to_insert, 16));
+    ASSERT_FALSE(sut.insert(sut.size(), string_to_insert, 16));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
 }
@@ -2697,7 +2697,7 @@ TEST(String10, InsertCxxStringAtPositionGreaterStringSizeFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a2517ea0-2842-4f56-a89a-b7fd01c6c6ba");
     const string<10> expectedString("Muesli");
-    string<10> sut("Muesli");
+    string<10> sut(expectedString);
     string<1> string_to_insert("s");
     ASSERT_FALSE(sut.insert(sut.size() + 1U, string_to_insert, 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));

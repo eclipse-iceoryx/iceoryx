@@ -512,23 +512,20 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
         return false;
     }
     const auto new_size = m_rawstringSize + count;
-    if (new_size > Capacity)
-    {
-        return false;
-    }
-    if (Capacity < pos + count)
+    if (new_size > Capacity || new_size < m_rawstringSize)
     {
         return false;
     }
 
-    auto remainder = substr(pos);
-    if (!remainder)
+    if (pos > m_rawstringSize)
     {
         return false;
     }
-
-    std::memcpy(&(m_rawstring[pos]), internal::GetData<T>::call(str), count);
-    std::memcpy(&(m_rawstring[pos + count]), remainder->c_str(), remainder->size());
+    for (uint64_t i = 0U; i < m_rawstringSize - pos; i++)
+    {
+        m_rawstring[new_size - 1U - i] = m_rawstring[m_rawstringSize - 1U - i];
+    }
+    std::memcpy(&m_rawstring[pos], internal::GetData<T>::call(str), count);
 
     m_rawstring[new_size] = '\0';
     m_rawstringSize = new_size;
