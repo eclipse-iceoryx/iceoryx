@@ -13,18 +13,18 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_HPP
+#ifndef IOX_HOOFS_CLI_COMMAND_LINE_HPP
+#define IOX_HOOFS_CLI_COMMAND_LINE_HPP
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
 
 namespace iox
 {
-namespace posix
+namespace cli
 {
 namespace internal
 {
@@ -89,7 +89,7 @@ class OptionManager
 /// @param[in] description a description of the optional value
 #define IOX_CLI_OPTIONAL(type, memberName, defaultValue, shortName, longName, description)                             \
     IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
-        type, memberName, defaultValue, shortName, longName, description, iox::posix::OptionType::OPTIONAL)
+        type, memberName, defaultValue, shortName, longName, description, iox::cli::OptionType::OPTIONAL)
 
 /// @brief Adds a required value to the command line, if it is not provided the program will print the help and
 ///        terminate
@@ -100,7 +100,7 @@ class OptionManager
 /// @param[in] description a description of the required value
 #define IOX_CLI_REQUIRED(type, memberName, shortName, longName, description)                                           \
     IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
-        type, memberName, type(), shortName, longName, description, iox::posix::OptionType::REQUIRED)
+        type, memberName, type(), shortName, longName, description, iox::cli::OptionType::REQUIRED)
 
 /// @brief Adds a switch to the command line
 /// @param[in] memberName the name under which the switch is accessible
@@ -108,8 +108,7 @@ class OptionManager
 /// @param[in] longName a long option name under which this can be accessed like `--some-name` for instance
 /// @param[in] description a description of the switch
 #define IOX_CLI_SWITCH(memberName, shortName, longName, description)                                                   \
-    IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
-        bool, memberName, false, shortName, longName, description, iox::posix::OptionType::SWITCH)
+    IOX_INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::cli::OptionType::SWITCH)
 
 /// @brief Helper macro to create a struct with full command line parsing from argc, argv.
 /// @param[in] Name the name of the class/struct
@@ -145,27 +144,27 @@ class OptionManager
 /// @endcode
 #define IOX_CLI_DEFINITION(Name, ProgramDescription)                                                                   \
   private:                                                                                                             \
-    ::iox::posix::internal::OptionManager m_optionManager;                                                             \
-    ::iox::posix::CommandLineOption::BinaryName_t m_binaryName;                                                        \
+    ::iox::cli::internal::OptionManager m_optionManager;                                                               \
+    ::iox::cli::CommandLineOption::BinaryName_t m_binaryName;                                                          \
                                                                                                                        \
   public:                                                                                                              \
     Name(                                                                                                              \
         int argc,                                                                                                      \
         char* argv[],                                                                                                  \
         const uint64_t argcOffset = 1U,                                                                                \
-        const ::iox::posix::UnknownOption actionWhenOptionUnknown = ::iox::posix::UnknownOption::TERMINATE,            \
+        const ::iox::cli::UnknownOption actionWhenOptionUnknown = ::iox::cli::UnknownOption::TERMINATE,                \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
         : m_optionManager{ProgramDescription, onFailureCallback}                                                       \
     {                                                                                                                  \
         m_optionManager.populateEntries(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);                \
     }                                                                                                                  \
                                                                                                                        \
-    const ::iox::posix::CommandLineOption::BinaryName_t& binaryName() const noexcept                                   \
+    const ::iox::cli::CommandLineOption::BinaryName_t& binaryName() const noexcept                                     \
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
     }
-} // namespace posix
+} // namespace cli
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/posix_wrapper/command_line.inl"
+#include "iceoryx_hoofs/internal/cli/command_line.inl"
 #endif

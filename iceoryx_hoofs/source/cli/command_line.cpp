@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/command_line.hpp"
+#include "iceoryx_hoofs/cli/command_line.hpp"
 
 namespace iox
 {
-namespace posix
+namespace cli
 {
 namespace internal
 {
@@ -49,5 +49,5 @@ void OptionManager::populateEntries(CommandLineOption::BinaryName_t& binaryName,
     binaryName = options.binaryName();
 }
 } // namespace internal
-} // namespace posix
+} // namespace cli
 } // namespace iox

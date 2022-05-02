@@ -77,6 +77,8 @@ add_subdirectory(platform)
 #
 
 add_library(iceoryx_hoofs
+    source/cli/command_line.cpp
+    source/cli/command_line_parser.cpp
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
     source/cxx/deadline_timer.cpp
@@ -98,8 +100,6 @@ add_library(iceoryx_hoofs
     source/log/logmanager.cpp
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
-    source/posix_wrapper/command_line.cpp
-    source/posix_wrapper/command_line_parser.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/file_lock.cpp
     source/posix_wrapper/message_queue.cpp

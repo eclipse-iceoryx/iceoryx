@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_INL
-#define IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_INL
+#ifndef IOX_HOOFS_CLI_COMMAND_LINE_INL
+#define IOX_HOOFS_CLI_COMMAND_LINE_INL
 
-#include "iceoryx_hoofs/posix_wrapper/command_line.hpp"
+#include "iceoryx_hoofs/cli/command_line.hpp"
 
 namespace iox
 {
-namespace posix
+namespace cli
 {
 namespace internal
 {
@@ -101,7 +101,7 @@ inline bool OptionManager::defineOption(bool& referenceToMember,
     return defaultArgumentValue;
 }
 } // namespace internal
-} // namespace posix
+} // namespace cli
 } // namespace iox
 
 #endif

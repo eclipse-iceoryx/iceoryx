@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cli/command_line.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/posix_wrapper/command_line.hpp"
 #include "test.hpp"
-#include "test_posix_command_line_common.hpp"
+#include "test_cli_command_line_common.hpp"
 
 #include <cstdlib>
 #include <memory>

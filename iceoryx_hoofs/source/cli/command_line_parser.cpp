@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace posix
+namespace cli
 {
 bool CommandLineParser::hasArguments(const int argc) const noexcept
 {
@@ -559,5 +559,5 @@ CommandLineOptionSet& CommandLineOptionSet::addMandatory(const char shortOption,
 /// END CommandLineOptionSet
 //////////////////////////////
 
-} // namespace posix
+} // namespace cli
 } // namespace iox

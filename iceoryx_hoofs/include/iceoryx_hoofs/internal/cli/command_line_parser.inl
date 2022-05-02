@@ -13,14 +13,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_PARSER_INL
-#define IOX_HOOFS_POSIX_WRAPPER_COMMAND_LINE_PARSER_INL
+#ifndef IOX_HOOFS_CLI_COMMAND_LINE_PARSER_INL
+#define IOX_HOOFS_CLI_COMMAND_LINE_PARSER_INL
 
-#include "iceoryx_hoofs/internal/posix_wrapper/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
 
 namespace iox
 {
-namespace posix
+namespace cli
 {
 template <typename T>
 inline cxx::expected<T, CommandLineOption::Error>
@@ -61,7 +61,7 @@ inline cxx::expected<T, CommandLineOption::Error> CommandLineOption::get(const N
 
     return cxx::error<Error>(Error::NO_SUCH_VALUE);
 }
-} // namespace posix
+} // namespace cli
 } // namespace iox
 
 #endif
