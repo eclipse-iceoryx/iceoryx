@@ -25,7 +25,6 @@
 class MinimalProxy
 {
   public:
-    /// @todo make c'tor of cxx::string constexpr'able
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
     MinimalProxy(owl::kom::ProxyHandleType& handle)
@@ -61,7 +60,7 @@ class MinimalProxy
     }
 
     const owl::core::String m_instanceIdentifier;
-    owl::kom::EventSubscriber<Topic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    owl::kom::EventSubscriber<TimestampTopic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     owl::kom::FieldSubscriber<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field"};
     owl::kom::MethodClient computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };

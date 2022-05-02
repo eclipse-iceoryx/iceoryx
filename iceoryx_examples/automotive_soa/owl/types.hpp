@@ -107,6 +107,8 @@ using ServiceHandleContainer = iox::cxx::vector<T, 50U>;
 template <typename T>
 using FindServiceHandler = iox::cxx::function<void(ServiceHandleContainer<T>, FindServiceHandle)>;
 
+using EventReceiveHandler = iox::cxx::function<void()>;
+
 // We use the STL version as future is not available in hoofs
 template <typename T>
 using Future = std::future<T>;

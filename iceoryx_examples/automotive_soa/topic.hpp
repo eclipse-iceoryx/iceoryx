@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include <cstdint>
+#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_HPP
+#define IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_HPP
 
-#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_DATA_HPP
+#include <chrono>
+#include <cstdint>
 
 struct AddRequest
 {
@@ -32,8 +33,13 @@ struct AddResponse
 
 struct Topic
 {
-    Topic() noexcept = default;
     uint64_t counter{0};
 };
 
-#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_DATA_HPP
+struct TimestampTopic
+{
+    uint64_t counter{0};
+    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
+};
+
+#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_HPP

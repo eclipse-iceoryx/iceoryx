@@ -24,7 +24,6 @@
 class MinimalSkeleton
 {
   public:
-    /// @todo make c'tor of cxx::string constexpr'able
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
     MinimalSkeleton(owl::core::String& instanceIdentifier)
@@ -45,7 +44,7 @@ class MinimalSkeleton
     }
 
     const owl::core::String m_instanceIdentifier;
-    owl::kom::EventPublisher<Topic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    owl::kom::EventPublisher<TimestampTopic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     Topic initalFieldValue{4242};
     owl::kom::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
     owl::kom::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};

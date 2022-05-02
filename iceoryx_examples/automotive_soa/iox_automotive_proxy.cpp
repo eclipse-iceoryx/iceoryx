@@ -35,7 +35,7 @@ int main()
     optional<kom::FindServiceHandle> maybeHandle;
 
     // 1) Discover the available services
-    core::String searchString(TruncateToCapacity, "Example");
+    kom::InstanceIdentifier searchString(TruncateToCapacity, "Example");
     std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
               << searchString.c_str() << "':" << std::endl;
     auto handleContainer = MinimalProxy::FindService(searchString);
@@ -99,9 +99,21 @@ int main()
                 auto& proxy = proxyGuard->value();
                 proxy.m_event.Subscribe(10U);
 
-                // Event
-                proxy.m_event.GetNewSamples(
-                    [](const auto& topic) { std::cout << "Receiving event: " << topic->counter << std::endl; });
+                auto onReceive = [&]() -> void {
+                    // Event
+                    proxy.m_event.GetNewSamples([](const auto& topic) {
+                        auto finish = std::chrono::steady_clock::now();
+                        std::cout << "Receiving event: " << topic->counter << std::endl;
+                        auto duration =
+                            std::chrono::duration_cast<std::chrono::nanoseconds>(finish - topic->sendTimestamp);
+                        std::cout << "Latency of event (ns): " << duration.count() << std::endl;
+                    });
+                };
+
+                if (!proxy.m_event.HasReceiverHandler())
+                {
+                    proxy.m_event.SetReceiveHandler(onReceive);
+                }
 
                 // Field
                 proxy.m_field.GetNewSamples(

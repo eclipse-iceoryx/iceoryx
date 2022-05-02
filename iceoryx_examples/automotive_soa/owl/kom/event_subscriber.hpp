@@ -17,6 +17,8 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_EVENT_SUBSCRIBER_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_EVENT_SUBSCRIBER_HPP
 
+#include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
+#include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
 #include "owl/types.hpp"
@@ -79,10 +81,44 @@ class EventSubscriber
         return m_subscriber.getServiceDescription();
     }
 
-    /// @todo #1332 Implement SetReceiveHandler()
+    void SetReceiveHandler(EventReceiveHandler handler)
+    {
+        std::lock_guard<iox::posix::mutex> guard(m_mutex);
+        m_listener
+            .attachEvent(m_subscriber,
+                         iox::popo::SubscriberEvent::DATA_RECEIVED,
+                         iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
+            .or_else([](auto) {
+                std::cerr << "unable to attach subscriber" << std::endl;
+                std::exit(EXIT_FAILURE);
+            });
+        m_receiveHandler.emplace(handler);
+    }
+
+    void UnsetReceiveHandler()
+    {
+        std::lock_guard<iox::posix::mutex> guard(m_mutex);
+        m_listener.detachEvent(m_subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED);
+        m_receiveHandler.reset();
+    }
+
+    bool HasReceiverHandler() const
+    {
+        return m_receiveHandler.has_value();
+    }
+
 
   private:
+    static void onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self)
+    {
+        self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
+    }
+
     iox::popo::Subscriber<T> m_subscriber;
+    iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
+    static constexpr bool isRecursive{true};
+    iox::posix::mutex m_mutex{isRecursive};
+    iox::popo::Listener m_listener;
 };
 
 } // namespace kom
