@@ -28,38 +28,40 @@ namespace posix
 {
 namespace internal
 {
-using CmdEntries_t = cxx::vector<CommandLineParser::Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
 using CmdAssignments_t =
     cxx::vector<cxx::function<void(CommandLineOption&)>, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS>;
 
 class OptionManager
 {
   public:
+    OptionManager(const CommandLineOptionSet::Description_t& programDescription,
+                  const cxx::function<void()> onFailureCallback);
+
     void handleError() const;
 
     template <typename T>
-    void extractOptionArgumentValue(T& referenceToMember, const uint64_t index, const CommandLineOption& options);
+    T extractOptionArgumentValue(const CommandLineOption& options,
+                                 const char shortName,
+                                 const CommandLineOption::Name_t& name);
 
     template <typename T>
     T defineOption(T& referenceToMember, // not a pointer since it must be always valid
                    const char shortName,
                    const CommandLineOption::Name_t& name,
-                   const CommandLineParser::Description_t& description,
+                   const CommandLineOptionSet::Description_t& description,
                    const OptionType optionType,
                    T defaultArgumentValue // not const to enable RTVO
     );
 
-    void populateEntries(const CommandLineParser::Description_t& programDescription,
-                         const cxx::function<void()> onFailureCallback,
-                         CommandLineOption::BinaryName_t& binaryName,
+    void populateEntries(CommandLineOption::BinaryName_t& binaryName,
                          int argc,
                          char* argv[],
                          const uint64_t argcOffset,
                          const UnknownOption actionWhenOptionUnknown);
 
   private:
-    cxx::optional<CommandLineParser> m_parser;
-    CmdEntries_t m_entries;
+    CommandLineParser m_parser;
+    CommandLineOptionSet m_optionSet;
     CmdAssignments_t m_assignments;
 };
 
@@ -153,9 +155,9 @@ class OptionManager
         const uint64_t argcOffset = 1U,                                                                                \
         const ::iox::posix::UnknownOption actionWhenOptionUnknown = ::iox::posix::UnknownOption::TERMINATE,            \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
+        : m_optionManager{ProgramDescription, onFailureCallback}                                                       \
     {                                                                                                                  \
-        m_optionManager.populateEntries(                                                                               \
-            ProgramDescription, onFailureCallback, m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);     \
+        m_optionManager.populateEntries(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);                \
     }                                                                                                                  \
                                                                                                                        \
     const ::iox::posix::CommandLineOption::BinaryName_t& binaryName() const noexcept                                   \

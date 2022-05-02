@@ -109,15 +109,10 @@ class IOX_NO_DISCARD CommandLineOption
     cxx::vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };
 
-/// @brief Factory class for the CommandLineOption. First one has to register
-///        all switches and options before calling parse. This is required for
-///        the help page which is generated and printed on failure as well as
-///        for consistency and syntax checks.
-class CommandLineParser
+class CommandLineOptionSet
 {
   public:
     static constexpr uint64_t MAX_DESCRIPTION_LENGTH = 1024;
-    static constexpr uint64_t OPTION_OUTPUT_WIDTH = 45;
     static constexpr uint64_t MAX_TYPE_NAME_LENGTH = 16;
     static constexpr char NO_SHORT_OPTION = '\0';
 
@@ -128,7 +123,7 @@ class CommandLineParser
     /// @param[in] programDescription The description to the program. Will be printed in the help.
     /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is
     ///            defined std::exit(EXIT_FAILURE) is called
-    explicit CommandLineParser(
+    explicit CommandLineOptionSet(
         const Description_t& programDescription,
         const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
 
@@ -137,9 +132,9 @@ class CommandLineParser
     /// @param[in] shortOption a single letter as short option
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
-    CommandLineParser& addSwitch(const char shortOption,
-                                 const CommandLineOption::Name_t& longOption,
-                                 const Description_t& description) noexcept;
+    CommandLineOptionSet& addSwitch(const char shortOption,
+                                    const CommandLineOption::Name_t& longOption,
+                                    const Description_t& description) noexcept;
 
     /// @brief Adds a command line optional value argument.
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
@@ -148,11 +143,11 @@ class CommandLineParser
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
     /// @param[in] defaultValue the value which will be set to the option when it is not set by the user
-    CommandLineParser& addOptional(const char shortOption,
-                                   const CommandLineOption::Name_t& longOption,
-                                   const Description_t& description,
-                                   const TypeName_t& typeName,
-                                   const CommandLineOption::Argument_t& defaultValue) noexcept;
+    CommandLineOptionSet& addOptional(const char shortOption,
+                                      const CommandLineOption::Name_t& longOption,
+                                      const Description_t& description,
+                                      const TypeName_t& typeName,
+                                      const CommandLineOption::Argument_t& defaultValue) noexcept;
 
     /// @brief Adds a command line required value argument
     ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
@@ -160,23 +155,10 @@ class CommandLineParser
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
-    CommandLineParser& addMandatory(const char shortOption,
-                                    const CommandLineOption::Name_t& longOption,
-                                    const Description_t& description,
-                                    const TypeName_t& typeName) noexcept;
-
-    /// @brief Parses the arguments from the command line.
-    ///        Calls the error handler when the command line arguments contain illegal syntax or required values are
-    ///        not provided
-    /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
-    /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
-    /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
-    /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
-    ///             option/switch which is unknown
-    CommandLineOption parse(int argc,
-                            char* argv[],
-                            const uint64_t argcOffset = 1U,
-                            const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+    CommandLineOptionSet& addMandatory(const char shortOption,
+                                       const CommandLineOption::Name_t& longOption,
+                                       const Description_t& description,
+                                       const TypeName_t& typeName) noexcept;
 
     struct Entry
     {
@@ -190,9 +172,42 @@ class CommandLineParser
 
   private:
     friend class internal::OptionManager;
+    friend class CommandLineParser;
+    void sortAvailableOptions() noexcept;
 
-    CommandLineParser& addOption(const Entry& option) noexcept;
-    cxx::optional<Entry> getOption(const CommandLineOption::Name_t& name) const noexcept;
+    CommandLineOptionSet& addOption(const Entry& option) noexcept;
+    cxx::optional<CommandLineOptionSet::Entry> getOption(const CommandLineOption::Name_t& name) const noexcept;
+
+    CommandLineOptionSet::Description_t m_programDescription;
+    cxx::vector<Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    cxx::function<void()> m_onFailureCallback;
+};
+
+/// @brief Factory class for the CommandLineOption. First one has to register
+///        all switches and options before calling parse. This is required for
+///        the help page which is generated and printed on failure as well as
+///        for consistency and syntax checks.
+class CommandLineParser
+{
+  public:
+    static constexpr uint64_t OPTION_OUTPUT_WIDTH = 45;
+
+    /// @brief Parses the arguments from the command line.
+    ///        Calls the error handler when the command line arguments contain illegal syntax or required values are
+    ///        not provided
+    /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
+    /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
+    /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
+    /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
+    ///             option/switch which is unknown
+    CommandLineOption parse(const CommandLineOptionSet& optionSet,
+                            int argc,
+                            char* argv[],
+                            const uint64_t argcOffset = 1U,
+                            const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+
+  private:
+    friend class internal::OptionManager;
     void printHelpAndExit() const noexcept;
 
     /// BEGIN only used in parse to improve readability
@@ -210,12 +225,11 @@ class CommandLineParser
     bool hasValidOptionName(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
-    bool isOptionSet(const Entry& entry) const noexcept;
+    bool isOptionSet(const CommandLineOptionSet::Entry& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
-    bool doesOptionHasSucceedingValue(const Entry& entry, const uint64_t position) const noexcept;
+    bool doesOptionHasSucceedingValue(const CommandLineOptionSet::Entry& entry, const uint64_t position) const noexcept;
     /// END only used in parse to improve readability
 
-    void sortAvailableOptions() noexcept;
     void setDefaultValuesToUnsetOptions() noexcept;
 
   private:
@@ -223,13 +237,11 @@ class CommandLineParser
     char** m_argv = nullptr;
     uint64_t m_argcOffset = 0;
 
-    Description_t m_programDescription;
-    cxx::vector<Entry, CommandLineOption::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
-    cxx::function<void()> m_onFailureCallback;
+    const CommandLineOptionSet* m_optionSet = nullptr;
     CommandLineOption m_options;
 };
 
-std::ostream& operator<<(std::ostream& stream, const CommandLineParser::Entry& entry) noexcept;
+std::ostream& operator<<(std::ostream& stream, const CommandLineOptionSet::Entry& entry) noexcept;
 
 } // namespace posix
 } // namespace iox

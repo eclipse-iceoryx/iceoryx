@@ -26,54 +26,42 @@ namespace posix
 namespace internal
 {
 template <typename T>
-inline void
-OptionManager::extractOptionArgumentValue(T& referenceToMember, const uint64_t index, const CommandLineOption& options)
+inline T OptionManager::extractOptionArgumentValue(const CommandLineOption& options,
+                                                   const char shortName,
+                                                   const CommandLineOption::Name_t& name)
 {
-    auto result = options.get<T>(m_entries[index].longOption);
-    if (result.has_error())
+    if (shortName != CommandLineOptionSet::NO_SHORT_OPTION)
     {
-        std::cout << "It seems that the option value of \"";
-        const bool hasShortOption = (m_entries[index].shortOption != '\0');
-        const bool hasLongOption = (!m_entries[index].longOption.empty());
-        if (hasShortOption)
-        {
-            std::cout << "-" << m_entries[index].shortOption;
-        }
-        if (hasShortOption && hasLongOption)
-        {
-            std::cout << ", ";
-        }
-        if (hasLongOption)
-        {
-            std::cout << "--" << m_entries[index].longOption;
-        }
-
-        std::cout << "\" is not of type \"" << m_entries[index].typeName << "\"" << std::endl;
-
-        handleError();
+        return options.get<T>(CommandLineOption::Name_t{cxx::TruncateToCapacity, &shortName, 1})
+            .or_else([this](auto&) { handleError(); })
+            .value();
     }
-
-    referenceToMember = result.value();
+    else
+    {
+        return options.get<T>(name).or_else([this](auto&) { handleError(); }).value();
+    }
 }
 
 template <typename T>
 inline T OptionManager::defineOption(T& referenceToMember,
                                      const char shortName,
                                      const CommandLineOption::Name_t& name,
-                                     const CommandLineParser::Description_t& description,
+                                     const CommandLineOptionSet::Description_t& description,
                                      const OptionType optionType,
                                      T defaultArgumentValue)
 {
-    m_entries.emplace_back(CommandLineParser::Entry{
+    m_optionSet.addOption(CommandLineOptionSet::Entry{
         shortName,
         name,
         description,
         optionType,
         {cxx::TypeInfo<T>::NAME},
         CommandLineOption::Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))});
-    m_assignments.emplace_back([this, &referenceToMember, index = m_entries.size() - 1](CommandLineOption& options) {
-        this->extractOptionArgumentValue(referenceToMember, index, options);
+
+    m_assignments.emplace_back([this, &referenceToMember, shortName, name](CommandLineOption& options) {
+        referenceToMember = extractOptionArgumentValue<T>(options, shortName, name);
     });
+
     return defaultArgumentValue;
 }
 
@@ -81,25 +69,33 @@ template <>
 inline bool OptionManager::defineOption(bool& referenceToMember,
                                         const char shortName,
                                         const CommandLineOption::Name_t& name,
-                                        const CommandLineParser::Description_t& description,
+                                        const CommandLineOptionSet::Description_t& description,
                                         const OptionType optionType,
                                         bool defaultArgumentValue)
 {
-    m_entries.emplace_back(CommandLineParser::Entry{
+    m_optionSet.addOption(CommandLineOptionSet::Entry{
         shortName,
         name,
         description,
         optionType,
-        {"true|false"},
-        CommandLineOption::Argument_t(cxx::TruncateToCapacity, (defaultArgumentValue) ? "true" : "false")});
-    m_assignments.emplace_back([this, &referenceToMember, index = m_entries.size() - 1](CommandLineOption& options) {
-        if (m_entries[index].type == OptionType::SWITCH)
+        {cxx::TypeInfo<bool>::NAME},
+        CommandLineOption::Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))});
+
+    m_assignments.emplace_back([this, &referenceToMember, optionType, shortName, name](CommandLineOption& options) {
+        if (optionType == OptionType::SWITCH)
         {
-            referenceToMember = options.has(m_entries[index].longOption);
+            if (shortName != CommandLineOptionSet::NO_SHORT_OPTION)
+            {
+                referenceToMember = options.has(CommandLineOption::Name_t{cxx::TruncateToCapacity, &shortName, 1});
+            }
+            else
+            {
+                referenceToMember = options.has(name);
+            }
         }
         else
         {
-            this->extractOptionArgumentValue(referenceToMember, index, options);
+            referenceToMember = extractOptionArgumentValue<bool>(options, shortName, name);
         }
     });
     return defaultArgumentValue;

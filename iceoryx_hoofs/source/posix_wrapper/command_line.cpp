@@ -22,39 +22,24 @@ namespace posix
 {
 namespace internal
 {
-void OptionManager::handleError() const
+OptionManager::OptionManager(const CommandLineOptionSet::Description_t& programDescription,
+                             const cxx::function<void()> onFailureCallback)
+    : m_optionSet{programDescription, onFailureCallback}
 {
-    m_parser->printHelpAndExit();
 }
 
-void OptionManager::populateEntries(const CommandLineParser::Description_t& programDescription,
-                                    const cxx::function<void()> onFailureCallback,
-                                    CommandLineOption::BinaryName_t& binaryName,
+void OptionManager::handleError() const
+{
+    m_parser.printHelpAndExit();
+}
+
+void OptionManager::populateEntries(CommandLineOption::BinaryName_t& binaryName,
                                     int argc,
                                     char* argv[],
                                     const uint64_t argcOffset,
                                     const UnknownOption actionWhenOptionUnknown)
 {
-    m_parser.emplace(programDescription, onFailureCallback);
-
-    for (const auto& entry : m_entries)
-    {
-        switch (entry.type)
-        {
-        case OptionType::SWITCH:
-            m_parser->addSwitch(entry.shortOption, entry.longOption, entry.description);
-            break;
-        case OptionType::REQUIRED:
-            m_parser->addMandatory(entry.shortOption, entry.longOption, entry.description, entry.typeName);
-            break;
-        case OptionType::OPTIONAL:
-            m_parser->addOptional(
-                entry.shortOption, entry.longOption, entry.description, entry.typeName, entry.defaultValue);
-            break;
-        }
-    }
-
-    auto options = m_parser->parse(argc, argv, argcOffset, actionWhenOptionUnknown);
+    auto options = m_parser.parse(m_optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
 
     for (const auto& assignment : m_assignments)
     {
