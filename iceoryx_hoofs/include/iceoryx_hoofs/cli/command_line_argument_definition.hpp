@@ -13,54 +13,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CLI_COMMAND_LINE_HPP
-#define IOX_HOOFS_CLI_COMMAND_LINE_HPP
+#ifndef IOX_HOOFS_CLI_COMMAND_LINE_ARGUMENT_DEFINITION_HPP
+#define IOX_HOOFS_CLI_COMMAND_LINE_ARGUMENT_DEFINITION_HPP
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
-
-namespace iox
-{
-namespace cli
-{
-namespace internal
-{
-using CmdAssignments_t =
-    cxx::vector<cxx::function<void(CommandLineOptionValue&)>, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS>;
-
-class OptionManager
-{
-  public:
-    OptionManager(const OptionDescription_t& programDescription, const cxx::function<void()> onFailureCallback);
-
-    void handleError() const;
-
-    template <typename T>
-    T extractOptionArgumentValue(const CommandLineOptionValue& options, const char shortName, const OptionName_t& name);
-
-    template <typename T>
-    T defineOption(T& referenceToMember, // not a pointer since it must be always valid
-                   const char shortName,
-                   const OptionName_t& name,
-                   const OptionDescription_t& description,
-                   const OptionType optionType,
-                   T defaultArgumentValue // not const to enable RTVO
-    );
-
-    void populateEntries(BinaryName_t& binaryName,
-                         int argc,
-                         char* argv[],
-                         const uint64_t argcOffset,
-                         const UnknownOption actionWhenOptionUnknown);
-
-  private:
-    CommandLineParser m_parser;
-    CommandLineOptionSet m_optionSet;
-    CmdAssignments_t m_assignments;
-};
+#include "iceoryx_hoofs/internal/cli/option_manager.hpp"
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   private:                                                                                                             \
@@ -74,8 +30,6 @@ class OptionManager
     {                                                                                                                  \
         return m_##memberName;                                                                                         \
     }
-
-} // namespace internal
 
 /// @brief Adds an optional value to the command line
 /// @param[in] type the type of the optional value
@@ -160,8 +114,5 @@ class OptionManager
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
     }
-} // namespace cli
-} // namespace iox
 
-#include "iceoryx_hoofs/internal/cli/command_line.inl"
 #endif

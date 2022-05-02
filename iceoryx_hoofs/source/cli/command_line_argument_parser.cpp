@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/cli/command_line_argument_parser.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
@@ -24,7 +24,9 @@ namespace iox
 {
 namespace cli
 {
-bool CommandLineParser::hasArguments(const int argc) const noexcept
+namespace internal
+{
+bool CommandLineArgumentParser::hasArguments(const int argc) const noexcept
 {
     const bool hasArguments = (argc > 0);
     if (!hasArguments)
@@ -34,7 +36,7 @@ bool CommandLineParser::hasArguments(const int argc) const noexcept
     return hasArguments;
 }
 
-bool CommandLineParser::assignBinaryName(const char* name) noexcept
+bool CommandLineArgumentParser::assignBinaryName(const char* name) noexcept
 {
     const bool binaryNameFitsIntoString =
         (strnlen(name, platform::IOX_MAX_PATH_LENGTH + 1) <= platform::IOX_MAX_PATH_LENGTH);
@@ -48,7 +50,7 @@ bool CommandLineParser::assignBinaryName(const char* name) noexcept
     return binaryNameFitsIntoString;
 }
 
-bool CommandLineParser::doesOptionStartWithMinus(const char* option) const noexcept
+bool CommandLineArgumentParser::doesOptionStartWithMinus(const char* option) const noexcept
 {
     const bool doesOptionStartWithMinus = (strnlen(option, MAX_OPTION_NAME_LENGTH) > 0 && option[0] == '-');
 
@@ -60,7 +62,7 @@ bool CommandLineParser::doesOptionStartWithMinus(const char* option) const noexc
     return doesOptionStartWithMinus;
 }
 
-bool CommandLineParser::hasOptionName(const char* option) const noexcept
+bool CommandLineArgumentParser::hasOptionName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH);
     const bool hasOptionName = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
@@ -74,7 +76,7 @@ bool CommandLineParser::hasOptionName(const char* option) const noexcept
     return hasOptionName;
 }
 
-bool CommandLineParser::hasValidSwitchName(const char* option) const noexcept
+bool CommandLineArgumentParser::hasValidSwitchName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH);
     const bool hasValidSwitchName = !(argIdentifierLength > 2 && option[1] != '-');
@@ -88,7 +90,7 @@ bool CommandLineParser::hasValidSwitchName(const char* option) const noexcept
     return hasValidSwitchName;
 }
 
-bool CommandLineParser::hasValidOptionName(const char* option) const noexcept
+bool CommandLineArgumentParser::hasValidOptionName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH + 1);
     const bool hasValidOptionName = !(argIdentifierLength > 2 && option[2] == '-');
@@ -102,7 +104,7 @@ bool CommandLineParser::hasValidOptionName(const char* option) const noexcept
     return hasValidOptionName;
 }
 
-bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const noexcept
+bool CommandLineArgumentParser::doesOptionNameFitIntoString(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH + 1);
     const bool doesOptionNameFitIntoString = (argIdentifierLength <= MAX_OPTION_NAME_LENGTH);
@@ -116,13 +118,13 @@ bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const no
     return doesOptionNameFitIntoString;
 }
 
-bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noexcept
+bool CommandLineArgumentParser::isNextArgumentAValue(const uint64_t position) const noexcept
 {
     return (m_argc > 0 && static_cast<uint64_t>(m_argc) > position + 1
             && (strnlen(m_argv[position + 1], MAX_OPTION_NAME_LENGTH) > 0 && m_argv[position + 1][0] != '-'));
 }
 
-bool CommandLineParser::isOptionSet(const CommandLineOptionSet::Value& value) const noexcept
+bool CommandLineArgumentParser::isOptionSet(const CommandLineOptionSet::Value& value) const noexcept
 {
     bool isOptionSet = false;
     for (const auto& option : m_optionValue.m_arguments)
@@ -144,7 +146,7 @@ bool CommandLineParser::isOptionSet(const CommandLineOptionSet::Value& value) co
     return isOptionSet;
 }
 
-bool CommandLineParser::doesOptionValueFitIntoString(const char* value) const noexcept
+bool CommandLineArgumentParser::doesOptionValueFitIntoString(const char* value) const noexcept
 {
     const bool doesOptionValueFitIntoString =
         strnlen(value, MAX_OPTION_ARGUMENT_LENGTH + 1) <= MAX_OPTION_ARGUMENT_LENGTH;
@@ -179,11 +181,11 @@ void CommandLineOptionSet::sortAvailableOptions() noexcept
     });
 }
 
-CommandLineOptionValue CommandLineParser::parse(const CommandLineOptionSet& optionSet,
-                                                int argc,
-                                                char* argv[],
-                                                const uint64_t argcOffset,
-                                                const UnknownOption actionWhenOptionUnknown) noexcept
+CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionSet& optionSet,
+                                                        int argc,
+                                                        char* argv[],
+                                                        const uint64_t argcOffset,
+                                                        const UnknownOption actionWhenOptionUnknown) noexcept
 {
     m_optionSet = &optionSet;
 
@@ -275,8 +277,8 @@ CommandLineOptionValue CommandLineParser::parse(const CommandLineOptionSet& opti
     return m_optionValue;
 }
 
-bool CommandLineParser::doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& value,
-                                                     const uint64_t position) const noexcept
+bool CommandLineArgumentParser::doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& value,
+                                                             const uint64_t position) const noexcept
 {
     bool doesOptionHasSucceedingValue = (position + 1 < static_cast<uint64_t>(m_argc));
     if (!doesOptionHasSucceedingValue)
@@ -288,7 +290,7 @@ bool CommandLineParser::doesOptionHasSucceedingValue(const CommandLineOptionSet:
 }
 
 
-void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
+void CommandLineArgumentParser::setDefaultValuesToUnsetOptions() noexcept
 {
     for (const auto& r : m_optionSet->m_availableOptions)
     {
@@ -317,7 +319,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept
     }
 }
 
-bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
+bool CommandLineArgumentParser::areAllRequiredValuesPresent() const noexcept
 {
     bool areAllRequiredValuesPresent = true;
     for (const auto& r : m_optionSet->m_availableOptions)
@@ -344,7 +346,7 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
     return areAllRequiredValuesPresent;
 }
 
-void CommandLineParser::printHelpAndExit() const noexcept
+void CommandLineArgumentParser::printHelpAndExit() const noexcept
 {
     std::cout << "\n" << m_optionSet->m_programDescription << "\n" << std::endl;
     std::cout << "Usage: ";
@@ -410,150 +412,6 @@ void CommandLineParser::printHelpAndExit() const noexcept
     m_optionSet->m_onFailureCallback();
 }
 
-
-const BinaryName_t& CommandLineOptionValue::binaryName() const noexcept
-{
-    return m_binaryName;
-}
-
-bool CommandLineOptionValue::has(const OptionName_t& switchName) const noexcept
-{
-    for (const auto& a : m_arguments)
-    {
-        if (a.value.empty() && (a.id == switchName || (switchName.size() == 1 && a.shortId == switchName.c_str()[0])))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-std::ostream& operator<<(std::ostream& stream, const CommandLineOptionSet::Value& value) noexcept
-{
-    if (value.shortOption != CommandLineOptionSet::NO_SHORT_OPTION)
-    {
-        stream << "-" << value.shortOption;
-    }
-    if (value.shortOption != CommandLineOptionSet::NO_SHORT_OPTION && !value.longOption.empty())
-    {
-        stream << ", ";
-    }
-    if (!value.longOption.empty())
-    {
-        stream << "--" << value.longOption;
-    }
-
-    return stream;
-}
-
-
-//////////////////////////////
-/// BEGIN CommandLineOptionSet
-//////////////////////////////
-CommandLineOptionSet::CommandLineOptionSet(const OptionDescription_t& programDescription,
-                                           const cxx::function<void()> onFailureCallback) noexcept
-    : m_programDescription{programDescription}
-    , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
-{
-    std::move(*this).addOption({'h', {"help"}, {"Display help."}, OptionType::SWITCH, {""}, {""}});
-}
-
-cxx::optional<CommandLineOptionSet::Value> CommandLineOptionSet::getOption(const OptionName_t& name) const noexcept
-{
-    const auto nameSize = name.size();
-    for (const auto& r : m_availableOptions)
-    {
-        if (name == r.longOption || (nameSize == 1 && name.c_str()[0] == r.shortOption))
-        {
-            return r;
-        }
-    }
-    return cxx::nullopt;
-}
-
-CommandLineOptionSet& CommandLineOptionSet::addOption(const Value& option) noexcept
-{
-    if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
-    {
-        std::cout << "Unable to add option with empty short and long option." << std::endl;
-        m_onFailureCallback();
-        return *this;
-    }
-
-    if (!option.longOption.empty() && option.longOption.c_str()[0] == '-')
-    {
-        std::cout << "The first character of a long option cannot start with minus \"-\" but the option \""
-                  << option.longOption << "\" starts with minus." << std::endl;
-        m_onFailureCallback();
-        return *this;
-    }
-
-    if (option.shortOption == '-')
-    {
-        std::cout << "Minus \"-\" is not a valid character for a short option." << std::endl;
-        m_onFailureCallback();
-        return *this;
-    }
-
-    for (const auto& registeredOption : m_availableOptions)
-    {
-        bool isLongOrShortOptionRegistered = false;
-        if (registeredOption.longOption == option.longOption)
-        {
-            std::cout << "The longOption \"--" << registeredOption.longOption << "\" is already registered for option "
-                      << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
-            isLongOrShortOptionRegistered = true;
-        }
-
-        if (registeredOption.shortOption == option.shortOption)
-        {
-            std::cout << "The shortOption \"-" << registeredOption.shortOption << "\" is already registered for option "
-                      << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
-            isLongOrShortOptionRegistered = true;
-        }
-
-        if (isLongOrShortOptionRegistered)
-        {
-            m_onFailureCallback();
-            return *this;
-        }
-    }
-
-    m_availableOptions.emplace_back(option);
-
-    /// sort options so that they are alphabetically sorted in help output
-    sortAvailableOptions();
-
-    return *this;
-}
-
-CommandLineOptionSet& CommandLineOptionSet::addSwitch(const char shortOption,
-                                                      const OptionName_t& longOption,
-                                                      const OptionDescription_t& description) noexcept
-{
-    return addOption({shortOption, longOption, description, OptionType::SWITCH, {""}, {""}});
-}
-
-CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
-                                                        const OptionName_t& longOption,
-                                                        const OptionDescription_t& description,
-                                                        const TypeName_t& typeName,
-                                                        const Argument_t& defaultValue) noexcept
-{
-    return addOption({shortOption, longOption, description, OptionType::OPTIONAL, typeName, defaultValue});
-}
-CommandLineOptionSet& CommandLineOptionSet::addMandatory(const char shortOption,
-                                                         const OptionName_t& longOption,
-                                                         const OptionDescription_t& description,
-                                                         const TypeName_t& typeName) noexcept
-{
-    return addOption({shortOption, longOption, description, OptionType::REQUIRED, typeName, {""}});
-}
-
-
-//////////////////////////////
-/// END CommandLineOptionSet
-//////////////////////////////
-
+} // namespace internal
 } // namespace cli
 } // namespace iox

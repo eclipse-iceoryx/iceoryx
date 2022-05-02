@@ -77,8 +77,10 @@ add_subdirectory(platform)
 #
 
 add_library(iceoryx_hoofs
-    source/cli/command_line.cpp
-    source/cli/command_line_parser.cpp
+    source/cli/command_line_argument_parser.cpp
+    source/cli/command_line_option_set.cpp
+    source/cli/command_line_option_value.cpp
+    source/cli/option_manager.cpp
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
     source/cxx/deadline_timer.cpp
