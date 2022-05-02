@@ -26,13 +26,18 @@ namespace iox
 {
 namespace cli
 {
+/// @brief defines the type of command line argument option
 enum class OptionType
 {
+    /// @brief option when provided is true
     SWITCH,
+    /// @brief option with value which has to be provided
     REQUIRED,
+    /// @brief option with value which can be provided
     OPTIONAL
 };
 
+/// @brief defines the action when an unknown option is encountered
 enum class UnknownOption
 {
     IGNORE,

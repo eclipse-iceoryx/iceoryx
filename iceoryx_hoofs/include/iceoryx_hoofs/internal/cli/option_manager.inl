@@ -33,12 +33,12 @@ inline T OptionManager::extractOptionArgumentValue(const CommandLineOptionValue&
     if (shortName != CommandLineOptionSet::NO_SHORT_OPTION)
     {
         return options.get<T>(OptionName_t{cxx::TruncateToCapacity, &shortName, 1})
-            .or_else([this](auto&) { handleError(); })
+            .or_else([this](auto&) { m_parser.printHelpAndExit(); })
             .value();
     }
     else
     {
-        return options.get<T>(name).or_else([this](auto&) { handleError(); }).value();
+        return options.get<T>(name).or_else([this](auto&) { m_parser.printHelpAndExit(); }).value();
     }
 }
 

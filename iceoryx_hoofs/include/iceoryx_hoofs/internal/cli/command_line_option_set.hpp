@@ -29,6 +29,10 @@ namespace cli
 {
 namespace internal
 {
+/// @brief A set of options which is provided to the CommandLineArgumentParser.
+///     Description, short and long name as well as type and value can be defined for every
+///     command line option which the application provides.
+///     The parser uses this set to populate the CommandLineOptionValue.
 class CommandLineOptionSet
 {
   public:

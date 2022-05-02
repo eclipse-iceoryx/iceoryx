@@ -28,16 +28,11 @@ OptionManager::OptionManager(const OptionDescription_t& programDescription,
 {
 }
 
-void OptionManager::handleError() const
-{
-    m_parser.printHelpAndExit();
-}
-
-void OptionManager::populateEntries(BinaryName_t& binaryName,
-                                    int argc,
-                                    char* argv[],
-                                    const uint64_t argcOffset,
-                                    const UnknownOption actionWhenOptionUnknown)
+void OptionManager::populateDefinedOptions(BinaryName_t& binaryName,
+                                           int argc,
+                                           char* argv[],
+                                           const uint64_t argcOffset,
+                                           const UnknownOption actionWhenOptionUnknown)
 {
     auto options = m_parser.parse(m_optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
 

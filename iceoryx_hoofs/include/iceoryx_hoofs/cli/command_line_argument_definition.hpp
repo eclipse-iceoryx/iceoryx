@@ -107,7 +107,7 @@
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
         : m_optionManager{ProgramDescription, onFailureCallback}                                                       \
     {                                                                                                                  \
-        m_optionManager.populateEntries(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);                \
+        m_optionManager.populateDefinedOptions(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);         \
     }                                                                                                                  \
                                                                                                                        \
     const ::iox::cli::BinaryName_t& binaryName() const noexcept                                                        \

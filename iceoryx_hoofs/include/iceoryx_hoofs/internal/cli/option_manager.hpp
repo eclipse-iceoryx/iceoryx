@@ -30,16 +30,27 @@ namespace internal
 using CmdAssignments_t =
     cxx::vector<cxx::function<void(CommandLineOptionValue&)>, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS>;
 
+/// @brief Manages command line options which were defined via the IOX_CLI_ macros in a
+///        user defined struct.
+///        This class ensures that the option values are assigned to the member variables
+///        of the struct when the constructor of the IOX_CLI_DEFINITION struct is called.
 class OptionManager
 {
   public:
+    /// @brief Create OptionManager
+    /// @param[in] programDescription the description of the application
+    /// @param[in] onFailureCallback callback which is called when a syntax error, a required option is missing
+    /// or the wrong type as argument value is provided
     OptionManager(const OptionDescription_t& programDescription, const cxx::function<void()> onFailureCallback);
 
-    void handleError() const;
-
-    template <typename T>
-    T extractOptionArgumentValue(const CommandLineOptionValue& options, const char shortName, const OptionName_t& name);
-
+    /// @brief Defines a new option
+    /// @param[in] referenceToMember an uninitialized piece of memory where later the content is stored when
+    ///            populateEntries is called
+    /// @param[in] shortName the short option name
+    /// @param[in] name the long option name
+    /// @param[in] description the description of the option
+    /// @param[in] optionType the type of option
+    /// @param[in] defaultArgumentValue the default value of the option
     template <typename T>
     T defineOption(T& referenceToMember, // not a pointer since it must be always valid
                    const char shortName,
@@ -49,16 +60,26 @@ class OptionManager
                    T defaultArgumentValue // not const to enable RTVO
     );
 
-    void populateEntries(BinaryName_t& binaryName,
-                         int argc,
-                         char* argv[],
-                         const uint64_t argcOffset,
-                         const UnknownOption actionWhenOptionUnknown);
+    /// @brief populates all defined options
+    /// @param[in] binaryName the name of the binary
+    /// @param[in] argc the argument count taken from int main(int argc, char*argv[])
+    /// @param[in] argv the argument array ptr taken from int main(int argc, char*argv[])
+    /// @param[in] argcOffset the offset from which the arguments should be parsed
+    /// @param[in] actionWhenOptionUnknown the action which should be performed when an unknown option is encountered
+    void populateDefinedOptions(BinaryName_t& binaryName,
+                                int argc,
+                                char* argv[],
+                                const uint64_t argcOffset,
+                                const UnknownOption actionWhenOptionUnknown);
 
   private:
     CommandLineArgumentParser m_parser;
     CommandLineOptionSet m_optionSet;
     CmdAssignments_t m_assignments;
+
+  private:
+    template <typename T>
+    T extractOptionArgumentValue(const CommandLineOptionValue& options, const char shortName, const OptionName_t& name);
 };
 
 } // namespace internal
