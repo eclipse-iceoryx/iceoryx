@@ -26,21 +26,18 @@ namespace posix
 namespace internal
 {
 template <typename T>
-inline void extractOptionArgumentValue(const CommandLineParser& parser,
-                                       T& referenceToMember,
-                                       const CmdEntries_t& entries,
-                                       const uint64_t index,
-                                       const CommandLineOption& options)
+inline void
+OptionManager::extractOptionArgumentValue(T& referenceToMember, const uint64_t index, const CommandLineOption& options)
 {
-    auto result = options.get<T>(entries[index].longOption);
+    auto result = options.get<T>(m_entries[index].longOption);
     if (result.has_error())
     {
         std::cout << "It seems that the option value of \"";
-        const bool hasShortOption = (entries[index].shortOption != '\0');
-        const bool hasLongOption = (!entries[index].longOption.empty());
+        const bool hasShortOption = (m_entries[index].shortOption != '\0');
+        const bool hasLongOption = (!m_entries[index].longOption.empty());
         if (hasShortOption)
         {
-            std::cout << "-" << entries[index].shortOption;
+            std::cout << "-" << m_entries[index].shortOption;
         }
         if (hasShortOption && hasLongOption)
         {
@@ -48,71 +45,63 @@ inline void extractOptionArgumentValue(const CommandLineParser& parser,
         }
         if (hasLongOption)
         {
-            std::cout << "--" << entries[index].longOption;
+            std::cout << "--" << m_entries[index].longOption;
         }
 
-        std::cout << "\" is not of type \"" << entries[index].typeName << "\"" << std::endl;
+        std::cout << "\" is not of type \"" << m_entries[index].typeName << "\"" << std::endl;
 
-        handleError(parser);
+        handleError();
     }
 
     referenceToMember = result.value();
 }
 
 template <typename T>
-inline T defineOption(const CommandLineParser& parser,
-                      T& referenceToMember,
-                      const char shortName,
-                      const CommandLineOption::Name_t& name,
-                      const CommandLineParser::Description_t& description,
-                      const OptionType optionType,
-                      T defaultArgumentValue,
-                      internal::CmdEntries_t& entries,
-                      internal::CmdAssignments_t& assignments)
+inline T OptionManager::defineOption(T& referenceToMember,
+                                     const char shortName,
+                                     const CommandLineOption::Name_t& name,
+                                     const CommandLineParser::Description_t& description,
+                                     const OptionType optionType,
+                                     T defaultArgumentValue)
 {
-    entries.emplace_back(CommandLineParser::Entry{
+    m_entries.emplace_back(CommandLineParser::Entry{
         shortName,
         name,
         description,
         optionType,
         {cxx::TypeInfo<T>::NAME},
         CommandLineOption::Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))});
-    assignments.emplace_back(
-        [&parser, &referenceToMember, &entries, index = entries.size() - 1](CommandLineOption& options) {
-            extractOptionArgumentValue(parser, referenceToMember, entries, index, options);
-        });
+    m_assignments.emplace_back([this, &referenceToMember, index = m_entries.size() - 1](CommandLineOption& options) {
+        this->extractOptionArgumentValue(referenceToMember, index, options);
+    });
     return defaultArgumentValue;
 }
 
 template <>
-inline bool defineOption(const CommandLineParser& parser,
-                         bool& referenceToMember,
-                         const char shortName,
-                         const CommandLineOption::Name_t& name,
-                         const CommandLineParser::Description_t& description,
-                         const OptionType optionType,
-                         bool defaultArgumentValue,
-                         internal::CmdEntries_t& entries,
-                         internal::CmdAssignments_t& assignments)
+inline bool OptionManager::defineOption(bool& referenceToMember,
+                                        const char shortName,
+                                        const CommandLineOption::Name_t& name,
+                                        const CommandLineParser::Description_t& description,
+                                        const OptionType optionType,
+                                        bool defaultArgumentValue)
 {
-    entries.emplace_back(CommandLineParser::Entry{
+    m_entries.emplace_back(CommandLineParser::Entry{
         shortName,
         name,
         description,
         optionType,
         {"true|false"},
         CommandLineOption::Argument_t(cxx::TruncateToCapacity, (defaultArgumentValue) ? "true" : "false")});
-    assignments.emplace_back(
-        [&parser, &referenceToMember, &entries, index = entries.size() - 1](CommandLineOption& options) {
-            if (entries[index].type == OptionType::SWITCH)
-            {
-                referenceToMember = options.has(entries[index].longOption);
-            }
-            else
-            {
-                extractOptionArgumentValue(parser, referenceToMember, entries, index, options);
-            }
-        });
+    m_assignments.emplace_back([this, &referenceToMember, index = m_entries.size() - 1](CommandLineOption& options) {
+        if (m_entries[index].type == OptionType::SWITCH)
+        {
+            referenceToMember = options.has(m_entries[index].longOption);
+        }
+        else
+        {
+            this->extractOptionArgumentValue(referenceToMember, index, options);
+        }
+    });
     return defaultArgumentValue;
 }
 } // namespace internal

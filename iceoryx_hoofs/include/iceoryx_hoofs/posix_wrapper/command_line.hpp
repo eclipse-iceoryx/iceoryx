@@ -65,7 +65,10 @@ class OptionManager
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   private:                                                                                                             \
-    type m_##memberName;                                                                                               \
+    type m_##memberName = [this] {                                                                                     \
+        return this->m_optionManager.defineOption<type>(                                                               \
+            this->m_##memberName, shortName, longName, description, optionType, defaultValue);                         \
+    }();                                                                                                               \
                                                                                                                        \
   public:                                                                                                              \
     const type& memberName() const noexcept                                                                            \
