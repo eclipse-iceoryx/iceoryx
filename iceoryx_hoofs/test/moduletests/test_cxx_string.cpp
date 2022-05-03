@@ -1093,111 +1093,119 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCap
 /// constexpr int64_t compare(const char (&other)[N]) const noexcept
 TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayResultsInZero)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "13a0f1a3-b006-4686-a5a0-3c6a2c7113e0");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
+    char foo[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
-        fuu[i] = 'M';
+        foo[i] = 'M';
     }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
+    foo[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(foo), Eq(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "df4a32d0-72b1-4c65-86f3-15b007ab003c");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'L');
     ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
+    char foo[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
-        fuu[i] = 'M';
+        foo[i] = 'M';
     }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
+    foo[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "d315afbc-558d-474a-8ae5-f53451526c73");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
+    char foo[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
-        fuu[i] = 'L';
+        foo[i] = 'L';
     }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
+    foo[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(foo), Gt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "a871dfe3-4acd-437c-b315-de3c43ece19b");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
-    char fuu[STRINGCAP + 1U] = {'\0'};
-    EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
+    char foo[STRINGCAP + 1U] = {'\0'};
+    EXPECT_THAT(this->testSubject.compare(foo), Gt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResultsInZero)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "d0e86a0c-f68d-4d88-8e8b-f65f82a1e7aa");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 2U];
+    char foo[STRINGCAP + 2U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
-        fuu[i] = 'M';
+        foo[i] = 'M';
     }
-    fuu[STRINGCAP] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
+    foo[STRINGCAP] = '\0';
+    EXPECT_THAT(this->testSubject.compare(foo), Eq(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "3efb771d-88e5-4775-8ce8-ba14a4158930");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 2U];
+    char foo[STRINGCAP + 2U];
     for (uint64_t i = 0U; i < STRINGCAP + 1U; ++i)
     {
-        fuu[i] = 'M';
+        foo[i] = 'M';
     }
-    fuu[STRINGCAP + 1U] = '\0';
-    EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
+    foo[STRINGCAP + 1U] = '\0';
+    EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "c2c627d5-c633-4368-b7dc-f674315553f7");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP + 1U, 'M');
     string<STRINGCAP + 1U> sut;
     ASSERT_THAT(sut.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP];
+    char foo[STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; ++i)
     {
-        fuu[i] = 'M';
+        foo[i] = 'M';
     }
-    fuu[STRINGCAP - 1U] = '\0';
-    EXPECT_THAT(sut.compare(fuu), Gt(0));
+    foo[STRINGCAP - 1U] = '\0';
+    EXPECT_THAT(sut.compare(foo), Gt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPositive)
 {
+  ::testing::Test::RecordProperty("TEST_ID", "7fe1a772-6004-470e-8355-e54156571fa0");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 1U> testSubject1("M");
-    char testSubject2[STRINGCAP] = {'\0'};
-    EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
+    string<STRINGCAP + 1U> sut("M");
+    char foo[STRINGCAP] = {'\0'};
+    EXPECT_THAT(sut.compare(foo), Gt(0));
 }
 
 /// @note template <uint64_t N>
@@ -1213,64 +1221,61 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
 /// inline bool operator!=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "38d8e0ca-97c5-4e3f-9cb7-589bb7de3b71");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> foo("M");
     char bar[STRINGCAP + 1U] = {'M'};
-    EXPECT_THAT(fuu == bar, Eq(true));
-    EXPECT_THAT(bar == fuu, Eq(true));
-    EXPECT_THAT(fuu != bar, Eq(false));
-    EXPECT_THAT(bar != fuu, Eq(false));
-
-    // using namespace std::string_literals;
-    //  EXPECT_THAT(fuu == "M"s, Eq(true));
+    EXPECT_THAT(foo == bar, Eq(true));
+    EXPECT_THAT(bar == foo, Eq(true));
+    EXPECT_THAT(foo != bar, Eq(false));
+    EXPECT_THAT(bar != foo, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "129d4f55-71cd-4b6a-b07e-1f53069c117b");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> foo("M");
     char bar[STRINGCAP + 1U] = {'L'};
-    EXPECT_THAT(fuu == bar, Eq(false));
-    EXPECT_THAT(bar == fuu, Eq(false));
-    EXPECT_THAT(fuu != bar, Eq(true));
-    EXPECT_THAT(bar != fuu, Eq(true));
+    EXPECT_THAT(foo == bar, Eq(false));
+    EXPECT_THAT(bar == foo, Eq(false));
+    EXPECT_THAT(foo != bar, Eq(true));
+    EXPECT_THAT(bar != foo, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWithDifferentCapaWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "a01cc09b-fe94-42db-bcbd-4f813f4acd62");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> testString1("M");
-    char testString2[STRINGCAP + 5U] = {'M'};
-    EXPECT_THAT(testString1 == testString2, Eq(true));
-    EXPECT_THAT(testString2 == testString1, Eq(true));
-    EXPECT_THAT(testString1 != testString2, Eq(false));
-    EXPECT_THAT(testString2 != testString1, Eq(false));
+    string<STRINGCAP> foo("M");
+    char bar[STRINGCAP + 5U] = {'M'};
+    EXPECT_THAT(foo == bar, Eq(true));
+    EXPECT_THAT(bar == foo, Eq(true));
+    EXPECT_THAT(foo != bar, Eq(false));
+    EXPECT_THAT(bar != foo, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCapaWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "d678927a-f629-433c-ad10-1d62338c816b");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 2U> testString1("M");
-    char testString2[STRINGCAP + 1U] = {'L'};
-    string<STRINGCAP + 2U> testString3;
+    string<STRINGCAP + 2U> foo("M");
+    char bar[STRINGCAP + 1U] = {'L'};
+    string<STRINGCAP + 2U> bla;
     std::string testStdString(STRINGCAP + 2U, 'L');
-    EXPECT_THAT(testString3.unsafe_assign(testStdString), Eq(true));
-    EXPECT_THAT(testString1 == testString2, Eq(false));
-    EXPECT_THAT(testString3 == testString2, Eq(false));
-    EXPECT_THAT(testString2 == testString1, Eq(false));
-    EXPECT_THAT(testString2 == testString3, Eq(false));
-    EXPECT_THAT(testString1 != testString2, Eq(true));
-    EXPECT_THAT(testString3 != testString2, Eq(true));
-    EXPECT_THAT(testString2 != testString1, Eq(true));
-    EXPECT_THAT(testString2 != testString3, Eq(true));
+    EXPECT_THAT(bla.unsafe_assign(testStdString), Eq(true));
+    EXPECT_THAT(foo == bar, Eq(false));
+    EXPECT_THAT(bla == bar, Eq(false));
+    EXPECT_THAT(bar == foo, Eq(false));
+    EXPECT_THAT(bar == bla, Eq(false));
+    EXPECT_THAT(foo != bar, Eq(true));
+    EXPECT_THAT(bla != bar, Eq(true));
+    EXPECT_THAT(bar != foo, Eq(true));
+    EXPECT_THAT(bar != bla, Eq(true));
 }
 
 /// @note template <uint64_t N>
@@ -1297,52 +1302,52 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCa
 /// inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "9dcd5cce-ce7d-4cf9-8c36-edca46d09ff7");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> foo("M");
     string<STRINGCAP> bla("F");
     char bar[STRINGCAP + 1U] = {'L'};
-    EXPECT_THAT(fuu < bar, Eq(false));
-    EXPECT_THAT(fuu <= bar, Eq(false));
+    EXPECT_THAT(foo < bar, Eq(false));
+    EXPECT_THAT(foo <= bar, Eq(false));
     EXPECT_THAT(bla < bar, Eq(true));
     EXPECT_THAT(bla <= bar, Eq(true));
-    EXPECT_THAT(fuu > bar, Eq(true));
-    EXPECT_THAT(fuu >= bar, Eq(true));
+    EXPECT_THAT(foo > bar, Eq(true));
+    EXPECT_THAT(foo >= bar, Eq(true));
     EXPECT_THAT(bla > bar, Eq(false));
     EXPECT_THAT(bla >= bar, Eq(false));
 
-    EXPECT_THAT(bar < fuu, Eq(true));
-    EXPECT_THAT(bar <= fuu, Eq(true));
+    EXPECT_THAT(bar < foo, Eq(true));
+    EXPECT_THAT(bar <= foo, Eq(true));
     EXPECT_THAT(bar < bla, Eq(false));
     EXPECT_THAT(bar <= bla, Eq(false));
-    EXPECT_THAT(bar > fuu, Eq(false));
-    EXPECT_THAT(bar >= fuu, Eq(false));
+    EXPECT_THAT(bar > foo, Eq(false));
+    EXPECT_THAT(bar >= foo, Eq(false));
     EXPECT_THAT(bar > bla, Eq(true));
     EXPECT_THAT(bar >= bla, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArrays)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "6a07445e-8d0b-43f6-92b7-70a390ad6a27");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> foo("M");
     char bar[STRINGCAP + 1U] = {'M'};
-    EXPECT_THAT(fuu < bar, Eq(false));
-    EXPECT_THAT(fuu <= bar, Eq(true));
-    EXPECT_THAT(fuu > bar, Eq(false));
-    EXPECT_THAT(fuu >= bar, Eq(true));
+    EXPECT_THAT(foo < bar, Eq(false));
+    EXPECT_THAT(foo <= bar, Eq(true));
+    EXPECT_THAT(foo > bar, Eq(false));
+    EXPECT_THAT(foo >= bar, Eq(true));
 
-    EXPECT_THAT(bar < fuu, Eq(false));
-    EXPECT_THAT(bar <= fuu, Eq(true));
-    EXPECT_THAT(bar > fuu, Eq(false));
-    EXPECT_THAT(bar >= fuu, Eq(true));
+    EXPECT_THAT(bar < foo, Eq(false));
+    EXPECT_THAT(bar <= foo, Eq(true));
+    EXPECT_THAT(bar > foo, Eq(false));
+    EXPECT_THAT(bar >= foo, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferentCapa)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "6ee0d514-12b8-48e5-b19b-997af585fc95");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
@@ -1352,57 +1357,57 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferent
     std::string testString2(STRINGCAP + 5U, 'F');
     string<STRINGCAP + 5U> bla;
     ASSERT_THAT(bla.unsafe_assign(testString2), Eq(true));
-    char fuu[STRINGCAP + 1U];
+    char foo[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
-        fuu[i] = 'L';
+        foo[i] = 'L';
     }
-    fuu[STRINGCAP] = '\0';
+    foo[STRINGCAP] = '\0';
 
-    EXPECT_THAT(bar < fuu, Eq(false));
-    EXPECT_THAT(bar <= fuu, Eq(false));
-    EXPECT_THAT(bla < fuu, Eq(true));
-    EXPECT_THAT(bla <= fuu, Eq(true));
-    EXPECT_THAT(bar > fuu, Eq(true));
-    EXPECT_THAT(bar >= fuu, Eq(true));
-    EXPECT_THAT(bla > fuu, Eq(false));
-    EXPECT_THAT(bla >= fuu, Eq(false));
+    EXPECT_THAT(bar < foo, Eq(false));
+    EXPECT_THAT(bar <= foo, Eq(false));
+    EXPECT_THAT(bla < foo, Eq(true));
+    EXPECT_THAT(bla <= foo, Eq(true));
+    EXPECT_THAT(bar > foo, Eq(true));
+    EXPECT_THAT(bar >= foo, Eq(true));
+    EXPECT_THAT(bla > foo, Eq(false));
+    EXPECT_THAT(bla >= foo, Eq(false));
 
-    EXPECT_THAT(fuu < bar, Eq(true));
-    EXPECT_THAT(fuu <= bar, Eq(true));
-    EXPECT_THAT(fuu < bla, Eq(false));
-    EXPECT_THAT(fuu <= bla, Eq(false));
-    EXPECT_THAT(fuu > bar, Eq(false));
-    EXPECT_THAT(fuu >= bar, Eq(false));
-    EXPECT_THAT(fuu > bla, Eq(true));
-    EXPECT_THAT(fuu >= bla, Eq(true));
+    EXPECT_THAT(foo < bar, Eq(true));
+    EXPECT_THAT(foo <= bar, Eq(true));
+    EXPECT_THAT(foo < bla, Eq(false));
+    EXPECT_THAT(foo <= bla, Eq(false));
+    EXPECT_THAT(foo > bar, Eq(false));
+    EXPECT_THAT(foo >= bar, Eq(false));
+    EXPECT_THAT(foo > bla, Eq(true));
+    EXPECT_THAT(foo >= bla, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArraysWithDifferentCapa)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "");
+  ::testing::Test::RecordProperty("TEST_ID", "7ccedecd-215c-4bd7-89ff-d0bb25c206bb");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
     std::string testString(STRINGCAP, 'M');
     string<STRINGCAP + 6U> bar;
     ASSERT_THAT(bar.unsafe_assign(testString), Eq(true));
-    char fuu[STRINGCAP + 1U];
+    char foo[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
-        fuu[i] = 'M';
+        foo[i] = 'M';
     }
-    fuu[STRINGCAP] = '\0';
+    foo[STRINGCAP] = '\0';
 
-    EXPECT_THAT(bar < fuu, Eq(false));
-    EXPECT_THAT(bar <= fuu, Eq(true));
-    EXPECT_THAT(bar > fuu, Eq(false));
-    EXPECT_THAT(bar >= fuu, Eq(true));
+    EXPECT_THAT(bar < foo, Eq(false));
+    EXPECT_THAT(bar <= foo, Eq(true));
+    EXPECT_THAT(bar > foo, Eq(false));
+    EXPECT_THAT(bar >= foo, Eq(true));
 
-    EXPECT_THAT(fuu < bar, Eq(false));
-    EXPECT_THAT(fuu <= bar, Eq(true));
-    EXPECT_THAT(fuu > bar, Eq(false));
-    EXPECT_THAT(fuu >= bar, Eq(true));
+    EXPECT_THAT(foo < bar, Eq(false));
+    EXPECT_THAT(foo <= bar, Eq(true));
+    EXPECT_THAT(foo > bar, Eq(false));
+    EXPECT_THAT(foo >= bar, Eq(true));
 }
 
 /// @note explicit operator std::string() const noexcept

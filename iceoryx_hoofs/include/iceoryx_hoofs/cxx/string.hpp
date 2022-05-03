@@ -664,21 +664,57 @@ inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noex
 template <uint64_t Capacity>
 inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs) noexcept;
 
+/// @brief checks if a rhs string is equal to a lhs char array
+///
+/// @param [in] lhs is the char array
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if the contents of lhs and rhs are equal, otherwise false
 template <uint64_t N, uint64_t Capacity>
 inline bool operator==(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 
+/// @brief checks if a rhs string is not equal to a lhs char array
+///
+/// @param [in] lhs is the char array
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if the contents of lhs and rhs are not equal, otherwise false
 template <uint64_t N, uint64_t Capacity>
 inline bool operator!=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 
+/// @brief checks if a lhs char array is less than a rhs string
+///
+/// @param [in] lhs is the char array
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is less than rhs, otherwise false
 template <uint64_t N, uint64_t Capacity>
 inline bool operator<(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 
+/// @brief checks if a lhs char array is less than or equal to a rhs string
+///
+/// @param [in] lhs is the char array
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is less than or equal to rhs, otherwise false
 template <uint64_t N, uint64_t Capacity>
 inline bool operator<=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 
+/// @brief checks if a lhs char array is greater than a rhs string
+///
+/// @param [in] lhs is the char array
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is greater than rhs, otherwise false
 template <uint64_t N, uint64_t Capacity>
 inline bool operator>(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 
+/// @brief checks if a lhs char array is greater than or equal to a rhs string
+///
+/// @param [in] lhs is the char array
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is greater than or equal to rhs, otherwise false
 template <uint64_t N, uint64_t Capacity>
 inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 

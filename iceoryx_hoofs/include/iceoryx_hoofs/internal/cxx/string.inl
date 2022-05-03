@@ -487,7 +487,7 @@ inline bool string<Capacity>::operator==(const char* const) const noexcept
                   "The equality operator for fixed string and char pointer is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
-                  "before comparing it to a fixed string.");
+                  "before comparing it to a fixed string or use a non-const char array.");
     return false;
 }
 
@@ -498,7 +498,7 @@ inline bool string<Capacity>::operator!=(const char* const) const noexcept
                   "The inequality operator for fixed string and char pointer is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
-                  "before comparing it to a fixed string.");
+                  "before comparing it to a fixed string or use a non-const char array.");
     return false;
 }
 
@@ -509,7 +509,7 @@ inline bool operator==(const char* const, const string<Capacity>&) noexcept
                   "The equality operator for char pointer and fixed string is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
-                  "before comparing it to a fixed string.");
+                  "before comparing it to a fixed string or use a non-const char array.");
     return false;
 }
 
@@ -520,7 +520,7 @@ inline bool operator!=(const char* const, const string<Capacity>&) noexcept
                   "The inequality operator for char pointer and fixed string is disabled, because it may lead to "
                   "undefined behavior if the char array is not null-terminated. Please convert the char array to a "
                   "fixed string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) "
-                  "before comparing it to a fixed string.");
+                  "before comparing it to a fixed string or use a non-const char array.");
     return false;
 }
 
