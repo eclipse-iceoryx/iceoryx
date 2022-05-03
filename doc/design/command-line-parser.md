@@ -69,79 +69,24 @@ The solution shall be:
 
 #### Class Diagram
 
-```
-+----------------------------------------------+  Task:
-| CommandLineParser                            |     * extract user defined values as string from command line
-|                                              |     * "parse" creates a CommandLineOptions object through
-|  - CommandLineParser & addSwitch(...)        |         which those values can be accessed
-|  - CommandLineParser & addOptional(...)      |     * it generates the help output based on the provided user
-|  - CommandLineParser & addRequired(...)      |         arguments and prints it on syntax failure or user
-|                                              |         request (-h or --help)
-|  - CommandLineOptions parse(argc, argv, ...) |
-+----------------------------------------------+
-                      |
-                      | creates CommandLineOptions
-                     \ /
-+----------------------------------------------+  Task:
-| CommandLineOptions                           |     * provides a type safe access to the user defined command
-|                                              |         line values with `get`, `has` or `binaryName`
-|  +----------------------------+              |
-|  | Error [enum class]        |              |
-|  |  # UNABLE_TO_CONVERT_VALUE |              |
-|  |  # NO_SUCH_VALUE           |              |
-|  +----------------------------+              |
-|                                              |
-|  - template<typename T>                      |
-|    cxx::expected<T, Error> get(optionName)  |
-|  - bool has(switchName)                      |
-|  - binaryName_t binaryName()                 |
-|                                              |
-+----------------------------------------------+
-```
+![class diagram](../website/images/command_line_parser_class_overview.svg)
 
 #### Sequence Diagram
 
 Lets assume we would like to add a switch, an optional and a required option, parse
 them and print them on the console.
 
-```
-  User
-   |  CommandLineParser()    CommandLineParser
-   | ------------------------------> |
-   |                                 |
-   |    addSwitch()                  |
-   | ------------------------------> |
-   |                                 |
-   |    addOptional()                |
-   | ------------------------------> |
-   |                                 |
-   |    addRequired()                |
-   | ------------------------------> |
-   |                                 |
-   |    parse()                      |
-   | ------------------------------> |
-   |    CommandLineOptions                    CommandLineOptions
-   |                                                   |
-   |                has(switchName)                    |
-   | ------------------------------------------------> |
-   |                bool                               |
-   |                                                   |
-   |                get<TypeName>(optionalOptionName)  |
-   | ------------------------------------------------> |
-   |                TypeName                           |
-   |                                                   |
-   |                get<TypeName>(requiredOptionName) |
-   | ------------------------------------------------> |
-   |                TypeName                           |
-```
+![sequence diagram](../website/images/command_line_parser_usage.svg)
 
 #### Macro Based Code Generator
 
 The macros `IOX_CLI_DEFINITION`, `IOX_CLI_SWITCH`, `IOX_CLI_OPTIONAL` and `IOX_CLI_MANDATORY`
 provide building blocks so that the user can generate a struct. The members of that
 struct are defined via the macros and set in the constructor of that struct which
-will use `CommandLineParser` and `CommandLineOptions` to parse and extract the
+will use the `OptionManager` to parse and extract the
 values safely.
+
+![macro sequence diagram](../website/images/command_line_parser_macro_usage.svg)
 
 The struct constructor can be called with `argc` and `argv` as arguments from 
 `int main(int argc, char* argv[])`.

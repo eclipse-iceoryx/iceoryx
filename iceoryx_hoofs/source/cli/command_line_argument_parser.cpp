@@ -26,6 +26,15 @@ namespace cli
 {
 namespace internal
 {
+CommandLineOptionValue parseCommandLineArguments(const CommandLineOptionSet& optionSet,
+                                                 int argc,
+                                                 char* argv[],
+                                                 const uint64_t argcOffset,
+                                                 const UnknownOption actionWhenOptionUnknown) noexcept
+{
+    return CommandLineArgumentParser().parse(optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
+}
+
 bool CommandLineArgumentParser::hasArguments(const int argc) const noexcept
 {
     const bool hasArguments = (argc > 0);

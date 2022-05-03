@@ -114,10 +114,10 @@ CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
 {
     return addOption({shortOption, longOption, description, OptionType::OPTIONAL, typeName, defaultValue});
 }
-CommandLineOptionSet& CommandLineOptionSet::addMandatory(const char shortOption,
-                                                         const OptionName_t& longOption,
-                                                         const OptionDescription_t& description,
-                                                         const TypeName_t& typeName) noexcept
+CommandLineOptionSet& CommandLineOptionSet::addRequired(const char shortOption,
+                                                        const OptionName_t& longOption,
+                                                        const OptionDescription_t& description,
+                                                        const TypeName_t& typeName) noexcept
 {
     return addOption({shortOption, longOption, description, OptionType::REQUIRED, typeName, {""}});
 }

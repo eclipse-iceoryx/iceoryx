@@ -108,7 +108,7 @@ TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithMinusAsShortOptionLeads
 {
     ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addMandatory('-', "", "", "");
+    optionSet.addRequired('-', "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -135,7 +135,7 @@ TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithMinusStartingLongOption
 {
     ::testing::Test::RecordProperty("TEST_ID", "43929047-1051-45cd-8a13-ebf8ea8c4e26");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addMandatory('b', "-minus-is-all-i-need", "", "");
+    optionSet.addRequired('b', "-minus-is-all-i-need", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }

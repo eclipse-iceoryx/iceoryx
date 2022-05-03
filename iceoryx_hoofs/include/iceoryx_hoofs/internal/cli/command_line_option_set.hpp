@@ -76,10 +76,10 @@ class CommandLineOptionSet
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
-    CommandLineOptionSet& addMandatory(const char shortOption,
-                                       const OptionName_t& longOption,
-                                       const OptionDescription_t& description,
-                                       const TypeName_t& typeName) noexcept;
+    CommandLineOptionSet& addRequired(const char shortOption,
+                                      const OptionName_t& longOption,
+                                      const OptionDescription_t& description,
+                                      const TypeName_t& typeName) noexcept;
 
   private:
     struct Value

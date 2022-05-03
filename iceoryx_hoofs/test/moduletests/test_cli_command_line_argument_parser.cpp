@@ -61,7 +61,7 @@ TEST_F(CommandLineArgumentParser_test, SettingBinaryNameWorks)
     ::testing::Test::RecordProperty("TEST_ID", "bb5e0199-c061-4fa4-be14-c797f996fff6");
     const BinaryName_t binaryName("AllHailHypnotoad");
     CmdArgs args({binaryName.c_str()});
-    auto options = CommandLineArgumentParser().parse(CommandLineOptionSet(""), args.argc, args.argv);
+    auto options = parseCommandLineArguments(CommandLineOptionSet(""), args.argc, args.argv);
 
     EXPECT_THAT(options.binaryName(), Eq(binaryName));
 }
@@ -69,7 +69,7 @@ TEST_F(CommandLineArgumentParser_test, SettingBinaryNameWorks)
 TEST_F(CommandLineArgumentParser_test, EmptyArgcLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "627e7d26-7ba8-466f-8160-61dbff7f3a4d");
-    IOX_DISCARD_RESULT(CommandLineArgumentParser().parse(CommandLineOptionSet("", errorCallback), 0, nullptr));
+    IOX_DISCARD_RESULT(parseCommandLineArguments(CommandLineOptionSet("", errorCallback), 0, nullptr));
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -78,92 +78,7 @@ TEST_F(CommandLineArgumentParser_test, TooLargeBinaryNameLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a1000e2-6dbd-404b-ba6f-0287e5ffeb46");
     CmdArgs args({std::string(BinaryName_t::capacity() + 1, 'a')});
-    IOX_DISCARD_RESULT(
-        CommandLineArgumentParser().parse(CommandLineOptionSet("", errorCallback), args.argc, args.argv));
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingTheSameShortOptionLeadsToExit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('c', "firstEntry", "", "", "");
-
-    optionSet.addOptional('c', "duplicateShortOption", "", "", "");
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingTheSameLongOptionLeadsToExit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "076b8877-e3fc-46f7-851b-d3e7953f67d6");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('c', "duplicate", "", "", "");
-
-    optionSet.addOptional('x', "duplicate", "", "", "");
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingOptionWithSameShortAndLongNameLeadsToExit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4e01ed47-473d-4915-aed2-60aacce37de8");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('d', "duplicate", "", "", "");
-
-    optionSet.addOptional('d', "duplicate", "", "", "");
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingSwitchWithMinusAsShortOptionLeadsToFailure)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5c6558ec-ecd9-47e9-b396-593445cef68f");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addSwitch('-', "", "");
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingOptionalValueWithMinusAsShortOptionLeadsToFailure)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8afd403b-9a77-4bde-92df-0200d4fb661b");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('-', "", "", "", "");
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingRequiredValueWithMinusAsShortOptionLeadsToFailure)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addMandatory('-', "", "", "");
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingSwitchWithMinusStartingLongOptionLeadsToFailure)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "62c0882a-7055-4a74-9dd9-8505d72da1e0");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addSwitch('a', "-oh-no-i-start-with-minus", "");
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingOptionalValueWithMinusStartingLongOptionLeadsToFailure)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "69c975d1-57d3-429a-b894-7ff1efa9f473");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('c', "-whoopsie-there-is-a-minus", "", "", "");
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
-TEST_F(CommandLineArgumentParser_test, AddingRequiredValueWithMinusStartingLongOptionLeadsToFailure)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "43929047-1051-45cd-8a13-ebf8ea8c4e26");
-    CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addMandatory('b', "-minus-is-all-i-need", "", "");
+    IOX_DISCARD_RESULT(parseCommandLineArguments(CommandLineOptionSet("", errorCallback), args.argc, args.argv));
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -192,11 +107,10 @@ void FailureTest(const std::vector<std::string>& options,
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            optionSet.addMandatory(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
+            optionSet.addRequired(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
         }
 
-        IOX_DISCARD_RESULT(
-            CommandLineArgumentParser().parse(optionSet, args.argc, args.argv, 1U, actionWhenOptionUnknown));
+        IOX_DISCARD_RESULT(parseCommandLineArguments(optionSet, args.argc, args.argv, 1U, actionWhenOptionUnknown));
     }
 
     switch (actionWhenOptionUnknown)
@@ -975,14 +889,13 @@ CommandLineOptionValue SuccessTest(const std::vector<std::string>& options,
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            optionSet.addMandatory(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
+            optionSet.addRequired(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
         }
 
         {
             auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
                 [&](const iox::HoofsError, const iox::ErrorLevel) { wasErrorHandlerCalled = true; });
-            retVal =
-                CommandLineArgumentParser().parse(optionSet, args.argc, args.argv, argcOffset, UnknownOption::IGNORE);
+            retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, argcOffset, UnknownOption::IGNORE);
         }
     }
     EXPECT_FALSE(wasErrorHandlerCalled);

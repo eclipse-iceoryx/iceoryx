@@ -26,7 +26,6 @@ namespace cli
 {
 namespace internal
 {
-
 /// @brief Factory class for the CommandLineOption. First one has to register
 ///        all switches and options before calling parse. This is required for
 ///        the help page which is generated and printed on failure as well as
@@ -35,6 +34,11 @@ class CommandLineArgumentParser
 {
   public:
     static constexpr uint64_t OPTION_OUTPUT_WIDTH = 45;
+
+  private:
+    friend class OptionManager;
+    friend CommandLineOptionValue
+    parseCommandLineArguments(const CommandLineOptionSet&, int, char*[], const uint64_t, const UnknownOption) noexcept;
 
     /// @brief Parses the arguments from the command line.
     ///        Calls the error handler when the command line arguments contain illegal syntax or required values are
@@ -50,8 +54,6 @@ class CommandLineArgumentParser
                                  const uint64_t argcOffset = 1U,
                                  const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
-  private:
-    friend class OptionManager;
     void printHelpAndExit() const noexcept;
 
     /// BEGIN only used in parse to improve readability
@@ -84,6 +86,13 @@ class CommandLineArgumentParser
     const CommandLineOptionSet* m_optionSet = nullptr;
     CommandLineOptionValue m_optionValue;
 };
+
+CommandLineOptionValue
+parseCommandLineArguments(const CommandLineOptionSet& optionSet,
+                          int argc,
+                          char* argv[],
+                          const uint64_t argcOffset = 1U,
+                          const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
 } // namespace internal
 } // namespace cli

@@ -1,0 +1,29 @@
+@startuml
+
+class CommandLineOptionSet {
+    +CommandLineOptionSet(programDescription, onFailureCallback)
+    +addSwitch(..)
+    +addOption(..)
+    +addRequired(..)
+}
+
+class CommandLineValue {
+    +T get(optionName)
+    +bool has(optionName)
+    +BinaryName_t binaryName()
+}
+
+class CommandLineArgumentParser {
+    +CommandLineValue parse(CommandLineOptionSet, ..)
+}
+
+CommandLineOptionSet <|--- CommandLineArgumentParser
+CommandLineValue <|--- CommandLineArgumentParser
+
+class OptionManager {
+    +OptionManager(programDescription, onFailureCallback)
+    +T defineOption(..)
+    +populateDefinedOptions(..)
+}
+
+@enduml
