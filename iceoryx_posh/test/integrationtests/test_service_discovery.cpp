@@ -100,33 +100,41 @@ class ServiceDiscovery_test : public ServiceDiscoveryPubSub_test
         ServiceDiscoveryPubSub_test::findService(service, instance, event, CommunicationKind::PATTERN);
     }
 
-    void findService(const ServiceDescription& s) noexcept // search for specific services we inserted at various times
-                                                           // (includes wildcard searches etc.):
-        // find first offered service, last offered service and some service offered inbetween
-        if (serviceContainer.size() == 1)
+    void findService(const ServiceDescription& s) noexcept
     {
-        if (serviceContainer[0] == s)
-        {
-            break;
-        }
+        findService(s.getServiceIDString(), s.getInstanceIDString(), s.getEventIDString());
     }
-} while (true);
-}
 
-void waitUntilEventuallyNotFound(const ServiceDescription& s)
-{
-    do
+    void waitUntilServiceChange()
     {
-        waitUntilServiceChange();
-        findService(s);
-    } while (!serviceContainer.empty());
-}
+        m_waitset.wait();
+    }
 
-iox::popo::WaitSet<1U> m_waitset;
-const iox::units::Duration m_fatalTimeout = 10_s;
-Watchdog m_watchdog{m_fatalTimeout};
-}
-;
+    void waitUntilEventuallyFound(const ServiceDescription& s)
+    {
+        do
+        {
+            waitUntilServiceChange();
+            findService(s);
+        } while (serviceContainer.empty());
+    }
+
+    void waitUntilEventuallyNotFound(const ServiceDescription& s)
+    {
+        do
+        {
+            waitUntilServiceChange();
+            findService(s);
+        } while (!serviceContainer.empty());
+    }
+
+    // Used to avoid sleeps in tests if the system behaves correctly.
+    // The watchdog ensures that the test will fail if it takes too long, due to
+    // timeouts or potential deadlocks.
+    iox::popo::WaitSet<1U> m_waitset;
+    const iox::units::Duration m_fatalTimeout = 10_s;
+    Watchdog m_watchdog{m_fatalTimeout};
+};
 
 class ServiceDiscoveryNotification_test : public ServiceDiscoveryPubSub_test
 {
@@ -161,14 +169,12 @@ struct PubSub
 {
     using Producer = iox::popo::UntypedPublisher;
     static constexpr MessagingPattern PATTERN{MessagingPattern::PUB_SUB};
-    static constexpr uint32_t MAX_PRODUCERS{iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS};
 };
 
 struct ReqRes
 {
     using Producer = iox::popo::UntypedServer;
     static constexpr MessagingPattern PATTERN{MessagingPattern::REQ_RES};
-    static constexpr auto MAX_PRODUCERS{iox::MAX_SERVERS};
 };
 
 using CommunicationKind = Types<PubSub, ReqRes>;
@@ -964,7 +970,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, OtherServiceKindWithMatchingNameIsN
 //    e.g. same service with many instances, same instance with many events etc.
 // As such, the tests check whether service discovery works at system limits,
 // i.e. findService works for a full service registry in a general case scenario
-TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
+TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e0b292c2-49ce-47b4-b38e-456732240c41");
     // maximum number of producers to generate
