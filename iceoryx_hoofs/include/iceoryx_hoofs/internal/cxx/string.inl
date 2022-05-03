@@ -512,6 +512,7 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
         return false;
     }
     const auto new_size = m_rawstringSize + count;
+    // check if the new size would exceed capacity or a size overflow occured
     if (new_size > Capacity || new_size < m_rawstringSize)
     {
         return false;
@@ -521,10 +522,7 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
     {
         return false;
     }
-    for (uint64_t i = 0U; i < m_rawstringSize - pos; i++)
-    {
-        m_rawstring[new_size - 1U - i] = m_rawstring[m_rawstringSize - 1U - i];
-    }
+    std::memmove(&m_rawstring[pos + count], &m_rawstring[pos], m_rawstringSize - pos);
     std::memcpy(&m_rawstring[pos], internal::GetData<T>::call(str), count);
 
     m_rawstring[new_size] = '\0';

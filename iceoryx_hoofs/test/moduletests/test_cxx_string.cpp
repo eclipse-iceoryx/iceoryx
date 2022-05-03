@@ -2607,7 +2607,7 @@ TEST(String10, InsertCxxStringAtTheBeginningOfTheStringSucceeds)
     const string<10> expectedString("Hypnotoad");
     string<10> sut("toad");
     string<10> string_to_insert("Hypno");
-    ASSERT_TRUE(sut.insert(0, string_to_insert, 5));
+    ASSERT_TRUE(sut.insert(0, string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
 }
@@ -2618,7 +2618,7 @@ TEST(String10, InsertCxxStringInTheMiddleOfTheStringSucceeds)
     const string<10> expectedString("Hypnotoad");
     string<10> sut("Hypoad");
     string<10> string_to_insert("not");
-    ASSERT_TRUE(sut.insert(3, string_to_insert, 3));
+    ASSERT_TRUE(sut.insert(3, string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
 }
@@ -2629,7 +2629,7 @@ TEST(String10, InsertCxxStringAtTheEndOfTheStringSucceeds)
     const string<10> expectedString("Hypnotoad");
     string<10> sut("Hypno");
     string<10> string_to_insert("toad");
-    ASSERT_TRUE(sut.insert(sut.size(), string_to_insert, 4));
+    ASSERT_TRUE(sut.insert(sut.size(), string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
 }
@@ -2638,7 +2638,7 @@ TYPED_TEST(stringTyped_test, InsertCxxStringToEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ce194c-62a7-420c-9f37-9a2d7c5b17b2");
     string<1> string_to_insert("M");
-    ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, 1));
+    ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, string_to_insert.size()));
     EXPECT_THAT(this->testSubject.size(), Eq(string_to_insert.size()));
     EXPECT_THAT(this->testSubject, Eq(string_to_insert));
 }
@@ -2648,7 +2648,7 @@ TYPED_TEST(stringTyped_test, InsertEmptyCxxStringDoesNotChangeTheString)
     ::testing::Test::RecordProperty("TEST_ID", "b566efaf-4a32-41a1-970f-4d51675e594f");
     this->testSubject = "M";
     string<1> string_to_insert("");
-    ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, 0));
+    ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, string_to_insert.size()));
     EXPECT_THAT(this->testSubject.size(), Eq(1));
     EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
 }
@@ -2657,7 +2657,7 @@ TYPED_TEST(stringTyped_test, InsertCxxStringWithCountGreaterThanSizeOfStringLite
 {
     ::testing::Test::RecordProperty("TEST_ID", "9bd29af2-12c8-4dc1-8ee8-82610f1bb9a6");
     string<1> string_to_insert("M");
-    ASSERT_FALSE(this->testSubject.insert(0, string_to_insert, 2));
+    ASSERT_FALSE(this->testSubject.insert(0, string_to_insert, string_to_insert.size() + 1));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
 }
@@ -2668,7 +2668,7 @@ TEST(String10, InsertTooLargeCxxStringFails)
     const string<10> expectedString("Ferdinand");
     string<10> sut(expectedString);
     string<16> string_to_insert("Spitzschnueffler");
-    ASSERT_FALSE(sut.insert(sut.size(), string_to_insert, 16));
+    ASSERT_FALSE(sut.insert(sut.size(), string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
 }
