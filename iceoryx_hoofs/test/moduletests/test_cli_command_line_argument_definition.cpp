@@ -32,7 +32,7 @@ using namespace iox::cxx;
 /// This test is only some kind of compilation test to verify that the
 /// command line parser macros are working and connecting everything together correctly
 /// The actual test of the command line parser can be found in test_cxx_command_line_parser.cpp
-class CommandLine_test : public Test
+class CommandLineArgumentDefinition_test : public Test
 {
   public:
     void SetUp() override
@@ -51,9 +51,9 @@ class CommandLine_test : public Test
     }
 };
 
-struct CommandLineSut
+struct CommandLineArgumentDefinitionSut
 {
-    IOX_CLI_DEFINITION(CommandLineSut, {"My program description"});
+    IOX_CLI_DEFINITION(CommandLineArgumentDefinitionSut, {"My program description"});
 
     IOX_CLI_OPTIONAL(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});
     IOX_CLI_OPTIONAL(string<100>, stringValue2, {"some other value"}, 't', {"string-value-2"}, {"some description"});
@@ -70,12 +70,12 @@ struct CommandLineSut
     IOX_CLI_REQUIRED(uint16_t, requiredUint, 'c', "required-uint", "some description");
 };
 
-TEST_F(CommandLine_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
+TEST_F(CommandLineArgumentDefinition_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
 {
     ::testing::Test::RecordProperty("TEST_ID", "451701b8-061f-4e30-9beb-1c09c7e6bc1b");
     CmdArgs args(
         {"myBinaryName", "--required-string", "bluubb", "--required-float", "123.456", "--required-uint", "12"});
-    CommandLineSut sut(args.argc, args.argv);
+    CommandLineArgumentDefinitionSut sut(args.argc, args.argv);
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("myBinaryName"));
 
@@ -94,7 +94,7 @@ TEST_F(CommandLine_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
     EXPECT_THAT(sut.requiredUint(), Eq(12));
 }
 
-TEST_F(CommandLine_test, AllValuesViaCommandLineAreSetCorrectly)
+TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefinitionAreSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0478575e-8eb4-4983-93bd-199d222e706e");
     CmdArgs args({"anotherOneBitesTheDust",
@@ -118,7 +118,7 @@ TEST_F(CommandLine_test, AllValuesViaCommandLineAreSetCorrectly)
                   "31",
                   "--light-switch-1",
                   "--light-switch-2"});
-    CommandLineSut sut(args.argc, args.argv);
+    CommandLineArgumentDefinitionSut sut(args.argc, args.argv);
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("anotherOneBitesTheDust"));
 
@@ -136,7 +136,7 @@ TEST_F(CommandLine_test, AllValuesViaCommandLineAreSetCorrectly)
     EXPECT_THAT(sut.requiredUint(), Eq(1212));
 }
 
-TEST_F(CommandLine_test, AllValuesViaCommandLineAndShortcutAreSetCorrectly)
+TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefinitionAndShortcutAreSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0c9abe4d-47ab-469a-a0fe-eff03a7aff37");
     CmdArgs args({"noOneBitesHypnotoad",
@@ -160,7 +160,7 @@ TEST_F(CommandLine_test, AllValuesViaCommandLineAndShortcutAreSetCorrectly)
                   "25",
                   "-l",
                   "-m"});
-    CommandLineSut sut(args.argc, args.argv);
+    CommandLineArgumentDefinitionSut sut(args.argc, args.argv);
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("noOneBitesHypnotoad"));
 
