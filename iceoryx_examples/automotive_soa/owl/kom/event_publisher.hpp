@@ -37,7 +37,7 @@ class EventPublisher
   public:
     using SampleType = T;
 
-    // Deleted because of Allocate() capturing 'this'
+    // Deleted because of SampleAllocateePtr implementation capturing 'this' in Allocate()
     EventPublisher(const EventPublisher&) = delete;
     EventPublisher(EventPublisher&&) = delete;
     EventPublisher& operator=(const EventPublisher&) = delete;
@@ -58,7 +58,7 @@ class EventPublisher
             return;
         }
 
-        auto sample = std::move(maybeSample.value());
+        auto& sample = maybeSample.value();
         *(sample.get()) = userSample;
         sample.publish();
     }

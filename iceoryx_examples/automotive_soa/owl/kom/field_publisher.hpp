@@ -66,7 +66,7 @@ class FieldPublisher
             return;
         }
 
-        auto field = std::move(maybeField.value());
+        auto& field = maybeField.value();
         *(field.get()) = userField;
         field.publish();
     }
