@@ -36,8 +36,12 @@ class EventSubscriber
   public:
     using SampleType = T;
 
+    static constexpr uint64_t QUEUE_CAPACITY{10U};
+    static constexpr uint64_t HISTORY_REQUEST{1U};
+    static constexpr bool NOT_OFFERED_ON_CREATE{false};
+
     EventSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_subscriber({service, instance, event}, {10U, 1U, "", false})
+        : m_subscriber({service, instance, event}, {QUEUE_CAPACITY, HISTORY_REQUEST, "", NOT_OFFERED_ON_CREATE})
     {
     }
 

@@ -32,8 +32,11 @@ template <typename T>
 class FieldSubscriber
 {
   public:
+    static constexpr uint64_t QUEUE_CAPACITY{1U};
+    static constexpr uint64_t HISTORY_REQUEST{1U};
+
     FieldSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_subscriber({service, instance, event}, {10U, 1U})
+        : m_subscriber({service, instance, event}, {QUEUE_CAPACITY, HISTORY_REQUEST})
     {
     }
 

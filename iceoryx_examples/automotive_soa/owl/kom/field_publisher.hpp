@@ -37,11 +37,13 @@ class FieldPublisher
     FieldPublisher& operator=(const FieldPublisher&) = delete;
     FieldPublisher& operator=(FieldPublisher&&) = delete;
 
+    static constexpr uint64_t HISTORY_CAPACITY{1U};
+
     FieldPublisher(const core::String& service,
                    const core::String& instance,
                    const core::String& event,
                    FieldType& field) noexcept
-        : m_publisher({service, instance, event}, {1U})
+        : m_publisher({service, instance, event}, {HISTORY_CAPACITY})
     {
         // publisher is automatically offered
         Update(field);

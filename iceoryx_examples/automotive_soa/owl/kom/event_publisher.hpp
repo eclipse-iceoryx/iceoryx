@@ -43,8 +43,11 @@ class EventPublisher
     EventPublisher& operator=(const EventPublisher&) = delete;
     EventPublisher& operator=(EventPublisher&&) = delete;
 
+    static constexpr uint64_t HISTORY_CAPACITY{1U};
+    static constexpr bool NOT_OFFERED_ON_CREATE{false};
+
     EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_publisher({service, instance, event}, {1U, "", false})
+        : m_publisher({service, instance, event}, {HISTORY_CAPACITY, "", NOT_OFFERED_ON_CREATE})
     {
     }
 
