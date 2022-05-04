@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_UNITS_DURATION_INL
 #define IOX_HOOFS_UNITS_DURATION_INL
 
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+
 namespace iox
 {
 namespace units
@@ -397,7 +399,7 @@ inline constexpr bool Duration::wouldCastFromFloatingPointProbablyOverflow(const
     // or the first one which causes an overflow;
     // to be safe, this is handled like causing an overflow which would result in undefined behavior when casting to
     // Seconds_t
-    constexpr To SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<To>(std::numeric_limits<Seconds_t>::max());
+    constexpr From SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<From>(std::numeric_limits<Seconds_t>::max());
     return floatingPoint >= SECONDS_BEFORE_LIKELY_OVERFLOW;
 }
 
@@ -411,8 +413,8 @@ inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPoi
         return Duration::max();
     }
 
-    double secondsFull{0.0};
-    double secondsFraction = modf(floatingPointSeconds, &secondsFull);
+    T secondsFull{0};
+    T secondsFraction = std::modf(floatingPointSeconds, &secondsFull);
 
     if (wouldCastFromFloatingPointProbablyOverflow<T, Seconds_t>(secondsFull))
     {
@@ -434,9 +436,9 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
         return Duration::max();
     }
 
-    auto durationFromSeconds = fromFloatingPointSeconds(m_seconds * rhs);
+    auto durationFromSeconds = fromFloatingPointSeconds<T>(static_cast<T>(m_seconds) * rhs);
 
-    auto resultNanoseconds = m_nanoseconds * rhs;
+    auto resultNanoseconds = static_cast<T>(m_nanoseconds) * rhs;
 
     if (!wouldCastFromFloatingPointProbablyOverflow<T, uint64_t>(resultNanoseconds))
     {
@@ -445,7 +447,7 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
 
     // the multiplication result of nanoseconds would exceed the value an uint64_t can represent
     // -> convert result to seconds and and calculate duration
-    auto durationFromNanoseconds = fromFloatingPointSeconds(resultNanoseconds /= NANOSECS_PER_SEC);
+    auto durationFromNanoseconds = fromFloatingPointSeconds<T>(resultNanoseconds /= NANOSECS_PER_SEC);
 
     return durationFromSeconds + durationFromNanoseconds;
 }
