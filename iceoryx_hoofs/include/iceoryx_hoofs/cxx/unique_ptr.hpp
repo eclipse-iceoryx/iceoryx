@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CXX_UNIQUE_PTR_HPP
 #define IOX_HOOFS_CXX_UNIQUE_PTR_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 
 namespace iox
 {
@@ -26,8 +26,6 @@ namespace cxx
 {
 ///
 /// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
-/// @details To avoid using the heap, deleters are not managed by the pointer itself, and instead must be provided as
-/// function references ('cxx:function_ref'). The functions must exist at least as long as the pointers that use them.
 ///
 /// Also unlike the STL implementation, the deleters are not encoded in the unique_ptr type, allowing unique_ptr
 /// instances with different deleters to be stored in the same containers.
@@ -41,7 +39,7 @@ class unique_ptr
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
-    unique_ptr(function_ref<void(T*)>&& deleter) noexcept;
+    unique_ptr(const function<void(T*)>& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
@@ -51,7 +49,7 @@ class unique_ptr
     /// @param deleter The deleter function for cleaning up the managed object. As cxx:function_ref used for the deleter
     ///                is non-owning the user needs to care about the lifetime of the callable!
     ///
-    unique_ptr(T* const ptr, function_ref<void(T*)>&& deleter) noexcept;
+    unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -118,7 +116,7 @@ class unique_ptr
 
   private:
     T* m_ptr = nullptr;
-    function_ref<void(T* const)> m_deleter;
+    function<void(T* const)> m_deleter;
 };
 
 } // namespace cxx

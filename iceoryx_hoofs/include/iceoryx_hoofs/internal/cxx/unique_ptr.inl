@@ -18,19 +18,21 @@
 #ifndef IOX_HOOFS_CXX_UNIQUE_PTR_INL
 #define IOX_HOOFS_CXX_UNIQUE_PTR_INL
 
+#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+
 namespace iox
 {
 namespace cxx
 {
 template <typename T>
-unique_ptr<T>::unique_ptr(T* const ptr, function_ref<void(T*)>&& deleter) noexcept
+unique_ptr<T>::unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexcept
     : m_ptr(ptr)
     , m_deleter(std::move(deleter))
 {
 }
 
 template <typename T>
-unique_ptr<T>::unique_ptr(function_ref<void(T*)>&& deleter) noexcept
+unique_ptr<T>::unique_ptr(const function<void(T*)>& deleter) noexcept
     : unique_ptr(nullptr, std::move(deleter))
 {
 }
