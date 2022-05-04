@@ -27,13 +27,16 @@ namespace internal
 spinator::spinator(const spinator_properties& properties) noexcept
     : m_properties{properties}
     , m_currentWaitingTime{properties.initialWaitingTime}
-    , m_increasePerStep{units::Duration::fromNanoseconds(
-          (properties.maxWaitingTime - properties.initialWaitingTime).toNanoseconds() / properties.stepCount)}
+    , m_increasePerStep{
+          units::Duration::fromNanoseconds((properties.maxWaitingTime - properties.initialWaitingTime).toNanoseconds()
+                                           / std::max(properties.stepCount, static_cast<uint64_t>(1U)))}
 {
 }
 
 void spinator::yield() noexcept
 {
+    std::this_thread::sleep_for(std::chrono::nanoseconds(m_currentWaitingTime.toNanoseconds()));
+
     ++m_yieldCount;
 
     if (m_yieldCount % m_properties.repetitionsPerStep == 0)
@@ -43,8 +46,6 @@ void spinator::yield() noexcept
             m_currentWaitingTime = m_currentWaitingTime + m_increasePerStep;
         }
     }
-
-    std::this_thread::sleep_for(std::chrono::nanoseconds(m_currentWaitingTime.toNanoseconds()));
 }
 
 } // namespace internal
