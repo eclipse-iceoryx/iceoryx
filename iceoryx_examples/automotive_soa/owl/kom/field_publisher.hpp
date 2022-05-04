@@ -22,10 +22,6 @@
 
 #include "owl/types.hpp"
 
-#include <memory>
-#include <utility>
-
-
 namespace owl
 {
 namespace kom
@@ -71,12 +67,14 @@ class FieldPublisher
         field.publish();
     }
 
-    void RegisterGetHandler(std::function<void()> getHandler) noexcept
+    void RegisterGetHandler(iox::cxx::function<void()> getHandler) noexcept
     {
+        /// @todo #1332 implement
     }
 
-    void RegisterSetHandler(std::function<void()> setHandler) noexcept
+    void RegisterSetHandler(iox::cxx::function<void()> setHandler) noexcept
     {
+        /// @todo #1332 implement
     }
 
   private:

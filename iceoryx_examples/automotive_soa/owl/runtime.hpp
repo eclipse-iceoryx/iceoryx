@@ -43,11 +43,10 @@ class Runtime
         return runtime;
     }
 
-    owl::kom::ServiceHandleContainer<kom::ProxyHandleType>
-    FindService(owl::kom::ServiceIdentifier& serviceIdentifier,
-                owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
+    kom::ServiceHandleContainer<kom::ProxyHandleType> FindService(kom::ServiceIdentifier& serviceIdentifier,
+                                                                  kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        owl::kom::ServiceHandleContainer<kom::ProxyHandleType> iceoryxServiceContainer;
+        kom::ServiceHandleContainer<kom::ProxyHandleType> iceoryxServiceContainer;
 
         m_discovery.findService(
             serviceIdentifier,
@@ -68,7 +67,7 @@ class Runtime
             iox::popo::MessagingPattern::REQ_RES);
 
         // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
-        owl::kom::ServiceHandleContainer<kom::ProxyHandleType> autosarServiceContainer;
+        kom::ServiceHandleContainer<kom::ProxyHandleType> autosarServiceContainer;
         if (verifyThatServiceIsComplete(iceoryxServiceContainer))
         {
             autosarServiceContainer.push_back({serviceIdentifier, instanceIdentifier});
@@ -77,9 +76,9 @@ class Runtime
         return autosarServiceContainer;
     }
 
-    owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<kom::ProxyHandleType> handler,
-                                                 owl::kom::ServiceIdentifier& serviceIdentifier,
-                                                 owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
+    kom::FindServiceHandle StartFindService(kom::FindServiceHandler<kom::ProxyHandleType> handler,
+                                            kom::ServiceIdentifier& serviceIdentifier,
+                                            kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
         /// @todo #1332 Are duplicate entries allowed?
         m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
@@ -94,10 +93,10 @@ class Runtime
                 });
         }
 
-        return owl::kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
+        return kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
     }
 
-    void StopFindService(owl::kom::FindServiceHandle handle) noexcept
+    void StopFindService(kom::FindServiceHandle handle) noexcept
     {
         auto iter = m_callbacks.begin();
         for (; iter != m_callbacks.end(); iter++)
@@ -122,7 +121,7 @@ class Runtime
   private:
     explicit Runtime() noexcept = default;
 
-    bool verifyThatServiceIsComplete(owl::kom::ServiceHandleContainer<kom::ProxyHandleType>& container)
+    bool verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::ProxyHandleType>& container)
     {
         // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
         // considered as a service. A owl::kom binding implementer would typically query the AUTOSAR meta model here, to
@@ -142,25 +141,27 @@ class Runtime
 
     static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self)
     {
+        // Requirements (not implemented, see below)
         // 1) Has the availability of one of the registered services changed?
         // 2) If yes, call the user-defined callback
+
         for (auto& callback : self->m_callbacks)
         {
             auto container =
                 self->FindService(callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier);
-            // if (container.empty())
-            // {
-            //     continue;
-            // }
-            (callback.first)(container,
-                             owl::kom::FindServiceHandle(
-                                 {callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
+            // Typically there should be a check for container.empty() and the callback should only be called when the
+            // availability of the specific service has changed. However, to notify the user in the ara::com example
+            // about a service, which has disappeared we call the callback on ANY change of the service registry
+            (callback.first)(
+                container,
+                kom::FindServiceHandle({callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
         }
     }
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
-    iox::cxx::vector<iox::cxx::pair<owl::kom::FindServiceHandler<kom::ProxyHandleType>, owl::kom::FindServiceHandle>,
+    // A vector is not the optimal data structure but used here for simplicity
+    iox::cxx::vector<iox::cxx::pair<kom::FindServiceHandler<kom::ProxyHandleType>, kom::FindServiceHandle>,
                      iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
         m_callbacks;
 };
