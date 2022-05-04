@@ -80,7 +80,7 @@ struct ProxyHandleType
   public:
     bool operator==(const ProxyHandleType& rhs) noexcept
     {
-        return m_instanceIdentifier == rhs.m_instanceIdentifier;
+        return (m_serviceIdentifier == rhs.m_serviceIdentifier) && (m_instanceIdentifier == rhs.m_instanceIdentifier);
     }
     const ServiceIdentifier& GetServiceId() const noexcept
     {
