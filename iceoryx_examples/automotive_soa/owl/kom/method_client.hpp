@@ -45,6 +45,7 @@ class MethodClient
     ~MethodClient()
     {
         m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
+        /// @todo #1332 wait for mutex
     }
 
     MethodClient(const MethodClient&) = delete;
@@ -54,6 +55,8 @@ class MethodClient
 
     owl::kom::Future<AddResponse> operator()(uint64_t addend1, uint64_t addend2)
     {
+        // If we call the operator() twice shortly after each other, once the response of the first request has not yet
+        // arrived, we have a problem
         bool requestSuccessfullySend{false};
         m_client.loan()
             .and_then([&](auto& request) {
@@ -79,6 +82,11 @@ class MethodClient
         // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
         std::thread(
             [&](Promise<AddResponse>&& promise) {
+                /// @todo #1332 we are working on a proxy object that can be destroyed during runtime
+                /// How to ensure safe operation?
+
+                /// @todo #1332 add and lock mutex to wait in d'tor
+
                 auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
                 for (auto& notification : notificationVector)

@@ -35,10 +35,10 @@ int main()
     optional<kom::FindServiceHandle> maybeHandle;
 
     // 1) Discover the available services
-    kom::InstanceIdentifier searchString(TruncateToCapacity, "Example");
+    kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "Example");
     std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
-              << searchString.c_str() << "':" << std::endl;
-    auto handleContainer = MinimalProxy::FindService(searchString);
+              << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
+    auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
 
     if (!handleContainer.empty())
     {
@@ -82,10 +82,10 @@ int main()
             }
         };
 
-        auto handle = MinimalProxy::StartFindService(callback, searchString);
+        auto handle = MinimalProxy::StartFindService(callback, exampleInstanceSearchQuery);
         maybeHandle.emplace(handle);
-        std::cout << "  Waiting for instance called '" << searchString.c_str() << "' to become available.."
-                  << std::endl;
+        std::cout << "  Waiting for instance called '" << exampleInstanceSearchQuery.c_str()
+                  << "' to become available.." << std::endl;
     }
 
     uint64_t addend1{0};
@@ -98,7 +98,6 @@ int main()
             if (proxyGuard->has_value())
             {
                 auto& proxy = proxyGuard->value();
-                proxy.m_event.Subscribe(10U);
 
                 auto onReceive = [&]() -> void {
                     // Event
@@ -113,6 +112,7 @@ int main()
 
                 if (!proxy.m_event.HasReceiverHandler())
                 {
+                    proxy.m_event.Subscribe(10U);
                     proxy.m_event.SetReceiveHandler(onReceive);
                 }
 

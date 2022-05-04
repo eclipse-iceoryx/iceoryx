@@ -36,6 +36,11 @@ class MinimalSkeleton
     MinimalSkeleton(const MinimalSkeleton&) = delete;
     MinimalSkeleton& operator=(const MinimalSkeleton&) = delete;
 
+    ~MinimalSkeleton()
+    {
+        StopOfferService();
+    }
+
     void OfferService() noexcept
     {
         m_event.Offer();
@@ -47,7 +52,7 @@ class MinimalSkeleton
     }
 
     const owl::core::String m_instanceIdentifier;
-    owl::kom::EventPublisher<TimestampTopic1Kb> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    owl::kom::EventPublisher<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     Topic initalFieldValue{4242};
     owl::kom::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
     owl::kom::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};

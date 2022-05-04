@@ -40,7 +40,7 @@ struct Topic
     uint32_t counter{0};
 };
 
-struct TimestampTopic1Kb
+struct TimestampTopic1Byte
 {
     // Printed to console
     uint32_t counter{0};
