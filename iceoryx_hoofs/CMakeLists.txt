@@ -84,6 +84,7 @@ add_library(iceoryx_hoofs
     source/cxx/generic_raii.cpp
     source/cxx/helplets.cpp
     source/cxx/requires.cpp
+    source/cxx/spinator.cpp
     source/cxx/unique_id.cpp
     source/error_handling/error_handler.cpp
     source/error_handling/error_handling.cpp
