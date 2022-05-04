@@ -47,6 +47,11 @@ class MethodClient
         m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
     }
 
+    MethodClient(const MethodClient&) = delete;
+    MethodClient(MethodClient&&) = delete;
+    MethodClient& operator=(const MethodClient&) = delete;
+    MethodClient& operator=(MethodClient&&) = delete;
+
     owl::kom::Future<AddResponse> operator()(uint64_t addend1, uint64_t addend2)
     {
         bool requestSuccessfullySend{false};

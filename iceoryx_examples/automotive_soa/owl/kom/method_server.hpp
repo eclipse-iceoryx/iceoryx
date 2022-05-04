@@ -51,6 +51,11 @@ class MethodServer
         m_listener.detachEvent(m_server, iox::popo::ServerEvent::REQUEST_RECEIVED);
     }
 
+    MethodServer(const MethodServer&) = delete;
+    MethodServer(MethodServer&&) = delete;
+    MethodServer& operator=(const MethodServer&) = delete;
+    MethodServer& operator=(MethodServer&&) = delete;
+
     owl::kom::Future<AddResponse> computeSum(uint64_t addend1, uint64_t addend2)
     {
         // for simplicity we don't create thread here and make the call sychronous
