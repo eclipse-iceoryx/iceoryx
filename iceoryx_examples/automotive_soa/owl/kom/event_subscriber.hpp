@@ -76,11 +76,6 @@ class EventSubscriber
         return numberOfSamples;
     }
 
-    iox::capro::ServiceDescription GetServiceDescription() noexcept
-    {
-        return m_subscriber.getServiceDescription();
-    }
-
     void SetReceiveHandler(EventReceiveHandler handler)
     {
         std::lock_guard<iox::posix::mutex> guard(m_mutex);
