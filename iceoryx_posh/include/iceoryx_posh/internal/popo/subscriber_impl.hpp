@@ -19,7 +19,6 @@
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_IMPL_HPP
 
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
-#include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 
 namespace iox
@@ -54,13 +53,9 @@ class SubscriberImpl : public BaseSubscriberType
     cxx::expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
 
     using PortType = typename BaseSubscriberType::PortType;
-    using SubscriberSampleDeleter = SampleDeleter<PortType>;
 
   protected:
     using BaseSubscriberType::port;
-
-  private:
-    SubscriberSampleDeleter m_sampleDeleter{port()};
 };
 
 } // namespace popo
