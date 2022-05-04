@@ -25,14 +25,12 @@
 
 #include "types.hpp"
 
-#include <string>
-
 namespace owl
 {
 class Runtime
 {
   public:
-    static Runtime& GetInstance(const std::string& name) noexcept
+    static Runtime& GetInstance(const core::String& name) noexcept
     {
         iox::runtime::PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, name));
         static Runtime runtime;
