@@ -23,67 +23,12 @@ using namespace iox::cxx::internal;
 
 namespace
 {
-class SpinatorTest : public Test
+TEST(SpinatorTest, yieldWaitsAtLeastTheInitialWaitingTime)
 {
-  public:
-    static constexpr iox::units::Duration MAX_WAITING_TIME = iox::units::Duration::fromMilliseconds(40);
-    static constexpr iox::units::Duration INITIAL_WAITING_TIME = iox::units::Duration::fromMilliseconds(20);
-    static constexpr uint64_t STEPS = 1;
-    static constexpr uint64_t REPETITIONS_PER_STEP = 1;
-
-    spinator_properties sutProperties{MAX_WAITING_TIME, INITIAL_WAITING_TIME, STEPS, REPETITIONS_PER_STEP};
-};
-
-constexpr iox::units::Duration SpinatorTest::MAX_WAITING_TIME;
-constexpr iox::units::Duration SpinatorTest::INITIAL_WAITING_TIME;
-constexpr uint64_t SpinatorTest::STEPS;
-constexpr uint64_t SpinatorTest::REPETITIONS_PER_STEP;
-
-TEST_F(SpinatorTest, yieldWaitsAtLeastTheInitialWaitingTime)
-{
-    spinator sut{sutProperties};
+    spinator sut;
 
     auto start = std::chrono::steady_clock::now();
     sut.yield();
     auto end = std::chrono::steady_clock::now();
-
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(INITIAL_WAITING_TIME.toNanoseconds()));
-}
-
-TEST_F(SpinatorTest, secondYieldWaitsAAtLeastMaxWaitingTime)
-{
-    spinator sut{sutProperties};
-
-    sut.yield();
-
-    auto start = std::chrono::steady_clock::now();
-    sut.yield();
-    auto end = std::chrono::steady_clock::now();
-
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(MAX_WAITING_TIME.toNanoseconds()));
-}
-
-TEST_F(SpinatorTest, whenStepCountIsZeroWaitAtLeastInitialWaitingTime)
-{
-    sutProperties.stepCount = 0U;
-    spinator sut{sutProperties};
-
-    auto start = std::chrono::steady_clock::now();
-    sut.yield();
-    auto end = std::chrono::steady_clock::now();
-
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(INITIAL_WAITING_TIME.toNanoseconds()));
-}
-
-TEST_F(SpinatorTest, whenInitialWaitingTimeIsGreaterThenMaxWaitingTimeWaitAtLeastInitialWaitingTime)
-{
-    sutProperties.initialWaitingTime = sutProperties.maxWaitingTime * 2U;
-    spinator sut{sutProperties};
-
-    auto start = std::chrono::steady_clock::now();
-    sut.yield();
-    auto end = std::chrono::steady_clock::now();
-
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(sutProperties.initialWaitingTime.toNanoseconds()));
 }
 } // namespace

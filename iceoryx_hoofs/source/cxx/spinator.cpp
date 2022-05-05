@@ -24,30 +24,36 @@ namespace cxx
 {
 namespace internal
 {
-spinator::spinator(const spinator_properties& properties) noexcept
-    : m_properties{properties}
-    , m_currentWaitingTime{properties.initialWaitingTime}
-    , m_increasePerStep{
-          units::Duration::fromNanoseconds((properties.maxWaitingTime - properties.initialWaitingTime).toNanoseconds()
-                                           / std::max(properties.stepCount, static_cast<uint64_t>(1U)))}
-{
-}
-
 void spinator::yield() noexcept
 {
-    std::this_thread::sleep_for(std::chrono::nanoseconds(m_currentWaitingTime.toNanoseconds()));
-
-    ++m_yieldCount;
-
-    if (m_yieldCount % m_properties.repetitionsPerStep == 0)
+    if (m_performYield)
     {
-        if (m_currentWaitingTime + m_increasePerStep <= m_properties.maxWaitingTime)
+        std::this_thread::yield();
+    }
+    else
+    {
+        std::this_thread::sleep_for(std::chrono::nanoseconds(m_current.waitingTime.toNanoseconds()));
+    }
+
+    if (!m_timeoutSaturated)
+    {
+        ++m_current.yieldCount;
+
+        if (m_current.repetitionsPerStep <= m_current.yieldCount)
         {
-            m_currentWaitingTime = m_currentWaitingTime + m_increasePerStep;
+            if (m_performYield)
+            {
+                m_performYield = false;
+            }
+            else
+            {
+                m_current.waitingTime = m_current.waitingTime * WAIT_STRATEGY.factor;
+                m_current.repetitionsPerStep = m_current.repetitionsPerStep / WAIT_STRATEGY.factor;
+                m_timeoutSaturated = (m_current.repetitionsPerStep <= 1U);
+            }
         }
     }
 }
-
 } // namespace internal
 } // namespace cxx
 } // namespace iox

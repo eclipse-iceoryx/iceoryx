@@ -27,26 +27,37 @@ namespace cxx
 {
 namespace internal
 {
-struct spinator_properties
-{
-    units::Duration maxWaitingTime = units::Duration::fromMilliseconds(10U);
-    units::Duration initialWaitingTime = units::Duration::fromMilliseconds(0U);
-    uint64_t stepCount = 10U;
-    uint64_t repetitionsPerStep = 1000U;
-};
-
 class spinator
 {
   public:
-    explicit spinator(const spinator_properties& properties = spinator_properties()) noexcept;
     void yield() noexcept;
 
   private:
-    spinator_properties m_properties;
+    struct wait_strategy
+    {
+        uint64_t factor = 1U;
+        uint64_t repetitionsPerStep = 1U;
+    };
 
-    uint64_t m_yieldCount = 0U;
-    units::Duration m_currentWaitingTime;
-    units::Duration m_increasePerStep;
+    // max waiting time: ~8ms, reached after: ~106ms, steps: 13
+    static constexpr wait_strategy LOW_LATENCY_HIGH_CPU_LOAD = {2U, 1U << 13U};
+    // max waiting time: ~4ms, reached after: ~25ms, steps: 6
+    static constexpr wait_strategy MEDIUM_LATENCY_LOW_CPU_LOAD = {4U, 1U << 12U};
+    // max waiting time: ~4ms, reached after: ~16ms, steps: 4
+    static constexpr wait_strategy HIGH_LATENCY_LOW_CPU_LOAD = {8U, 1U << 12U};
+
+    // static constexpr wait_strategy WAIT_STRATEGY = HIGH_LATENCY_LOW_CPU_LOAD;
+    static constexpr wait_strategy WAIT_STRATEGY = LOW_LATENCY_HIGH_CPU_LOAD;
+
+    struct
+    {
+        units::Duration waitingTime = units::Duration::fromMicroseconds(1U);
+        uint64_t repetitionsPerStep = WAIT_STRATEGY.repetitionsPerStep;
+        uint64_t yieldCount = 0U;
+    } m_current;
+
+    bool m_performYield = true;
+    bool m_timeoutSaturated = false;
 };
 } // namespace internal
 } // namespace cxx
