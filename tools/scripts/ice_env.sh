@@ -20,21 +20,30 @@ CONTAINER_NAME="ice_env"
 CONTAINER_MEMORY_SIZE="4g"
 CONTAINER_SHM_MEMORY_SIZE="2g"
 DEFAULT_OS_VERSION="ubuntu:20.04"
+CMAKE_VERSION="cmake-3.23.1-linux-x86_64"
+
+install_cmake() {
+    cd /
+    wget https://github.com/Kitware/CMake/releases/download/v3.23.1/${CMAKE_VERSION}.tar.gz
+    tar xf ${CMAKE_VERSION}.tar.gz
+}
 
 setup_docker_image() {
     echo "Europe/Berlin" > /etc/timezone
     ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
-    local BASE_OS_VERSION=$(echo $OS_VERSION | sed -n "s/\([^\:]*\).*/\1/p")
-
-    if [[ $BASE_OS_VERSION == "ubuntu" ]]; then
+    # ubuntu/debian and derivatives
+    if command -v apt &>/dev/null; then
         apt update
-        apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
-    elif [[ $BASE_OS_VERSION == "archlinux" ]]; then
-        pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm
+        apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format wget libncurses5-dev libacl1-dev
+        install_cmake
+    # archlinux based ones
+    elif command -v pacman &>/dev/null; then
+        pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm wget ncurses
+        install_cmake
     else
         echo Please install the following packages to have a working iceoryx environment
-        echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format
+        echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
     fi
 
     mkdir -p /root/.config/fish
@@ -67,6 +76,7 @@ help() {
     echo "  A string which will be forwarded to \"-t\" in the docker command."
     echo "  The version of operating system to load. Default value is ${DEFAULT_OS_VERSION}."
     echo "  Other possibilities (not all) are:"
+    echo "    ros:rolling"
     echo "    ubuntu:18.04"
     echo "    archlinux"
     echo
@@ -103,6 +113,9 @@ start_docker() {
     echo "    shared memory...........: ${CONTAINER_SHM_MEMORY_SIZE}"
     echo "    iceoryx-path............: ${ICEORYX_PATH}"
     echo
+    echo "  A custom cmake version was installed in ${CMAKE_VERSION}/bin/cmake."
+    echo "  This can be used when the cmake version in the image is out-of-date."
+    echo
 }
 
 stop_docker() {
@@ -116,10 +129,10 @@ enter_docker() {
         start_docker
     fi
 
-    docker exec -it $CONTAINER_NAME fish -c "
-    echo
     # we use eval here since we would like to evaluate the expression inside of the docker
     # container and not right away in this script
+    docker exec -it $CONTAINER_NAME fish -c "
+    echo
     eval 'echo \"  gcc version..............: \"(gcc --version | head -1 )'
     eval 'echo \"  g++ version..............: \"(g++ --version | head -1 )'
     eval 'echo \"  clang version............: \"(clang --version | head -1 )'
@@ -128,6 +141,22 @@ enter_docker() {
     echo
     cd /iceoryx
     fish"
+
+    # we use eval here since we would like to evaluate the expression inside of the docker
+    # container and not right away in this script
+    if [[ $? -ne 0 ]]; then
+        docker exec -it $CONTAINER_NAME bash -c "
+        echo
+        eval 'echo \"  gcc version..............: \"\$(gcc --version | head -1 )'
+        eval 'echo \"  g++ version..............: \"\$(g++ --version | head -1 )'
+        eval 'echo \"  clang version............: \"\$(clang --version | head -1 )'
+        eval 'echo \"  clang++ version..........: \"\$(clang++ --version | head -1 )'
+        eval 'echo \"  cmake version............: \"\$(cmake --version | head -1 )'
+        echo
+        cd /iceoryx
+        bash
+        "
+    fi
 }
 
 ACTION=$1
