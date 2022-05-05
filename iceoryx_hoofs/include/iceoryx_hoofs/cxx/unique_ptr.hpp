@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ class unique_ptr
     /// @details A deleter must always be provided as no default can be provided given that no heap is used.
     /// The unique_ptr must know how to delete the managed object when the pointer goes out of scope.
     /// @param ptr The raw pointer to the object to be managed.
-    /// @param deleter The deleter function for cleaning up the managed object. As cxx:function_ref used for the deleter
-    ///                is non-owning the user needs to care about the lifetime of the callable!
+    /// @param deleter The deleter function for cleaning up the managed object.
     ///
     unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexcept;
 
