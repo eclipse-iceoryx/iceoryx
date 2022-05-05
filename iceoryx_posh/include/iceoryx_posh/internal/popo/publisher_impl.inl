@@ -98,7 +98,7 @@ PublisherImpl<T, H, BasePublisherType>::convertChunkHeaderToSample(mepoo::ChunkH
     return Sample<T, H>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->userPayload()),
                                            [this](auto* userPayload) {
                                                auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
-                                               port().releaseChunk(chunkHeader);
+                                               this->port().releaseChunk(chunkHeader);
                                            }),
                         *this);
 }

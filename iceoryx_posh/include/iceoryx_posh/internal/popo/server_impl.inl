@@ -48,7 +48,7 @@ cxx::expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, Base
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
     auto request = cxx::unique_ptr<const Req>(static_cast<const Req*>(payload), [this](auto* payload) {
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
-        port().releaseRequest(requestHeader);
+        this->port().releaseRequest(requestHeader);
     });
     return cxx::success<Request<const Req>>(Request<const Req>{std::move(request)});
 }
@@ -67,7 +67,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
     auto response = cxx::unique_ptr<Res>(reinterpret_cast<Res*>(payload), [this](auto* payload) {
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
-        port().releaseResponse(responseHeader);
+        this->port().releaseResponse(responseHeader);
     });
     return cxx::success<Response<Res>>(Response<Res>{std::move(response), *this});
 }
