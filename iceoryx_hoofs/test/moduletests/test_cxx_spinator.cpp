@@ -23,12 +23,21 @@ using namespace iox::cxx::internal;
 
 namespace
 {
-TEST(SpinatorTest, yieldWaitsAtLeastTheInitialWaitingTime)
+TEST(SpinatorTest, callingYield4096TimesTakesAtLeast10ms)
 {
     spinator sut;
 
+    constexpr uint64_t REPETITIONS = 1U << 12U;
+
     auto start = std::chrono::steady_clock::now();
-    sut.yield();
+    for (uint64_t i = 0U; i < REPETITIONS; ++i)
+    {
+        sut.yield();
+    }
     auto end = std::chrono::steady_clock::now();
+
+    constexpr iox::units::Duration MIN_RUNTIME = iox::units::Duration::fromMilliseconds(10);
+
+    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(MIN_RUNTIME.toNanoseconds()));
 }
 } // namespace

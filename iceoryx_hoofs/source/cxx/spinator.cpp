@@ -24,6 +24,11 @@ namespace cxx
 {
 namespace internal
 {
+constexpr spinator::wait_strategy spinator::LOW_LATENCY_HIGH_CPU_LOAD;
+constexpr spinator::wait_strategy spinator::MEDIUM_LATENCY_MEDIUM_CPU_LOAD;
+constexpr spinator::wait_strategy spinator::HIGH_LATENCY_LOW_CPU_LOAD;
+constexpr spinator::wait_strategy spinator::WAIT_STRATEGY;
+
 void spinator::yield() noexcept
 {
     if (m_performYield)
@@ -57,4 +62,3 @@ void spinator::yield() noexcept
 } // namespace internal
 } // namespace cxx
 } // namespace iox
-

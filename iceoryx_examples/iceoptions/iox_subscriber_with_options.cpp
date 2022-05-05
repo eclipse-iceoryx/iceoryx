@@ -78,8 +78,8 @@ int main()
     // run until interrupted by Ctrl-C
     while (!iox::posix::hasTerminationRequested())
     {
-        // subscriber.take().and_then(
-        //     [](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; });
+        subscriber.take().and_then(
+            [](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

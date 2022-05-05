@@ -64,6 +64,7 @@ class should be used.
 |`scoped_static`      |   |   | Helper function to limit lifetime of static or global variables to a scope  |
 |`serialization`      |   | X | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format). |
 |`set`                | i | X | Templated helper functions to create a fake `std::set` from a vector. |
+|`spinator`           | i |   | Building block to realize busy waiting loops with low cpu load. |
 |`stack`              |   |   | Stack implementation with simple push/pop interface. |
 |`static_storage`     | i |   | Untyped aligned static storage. |
 |`storable_function`  | i |   | A `std::function` alternative with configurable backend for memory storage. |
