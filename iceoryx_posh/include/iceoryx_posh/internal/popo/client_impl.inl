@@ -46,7 +46,10 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
-    auto request = cxx::unique_ptr<Req>(reinterpret_cast<Req*>(payload), m_requestDeleter);
+    auto request = cxx::unique_ptr<Req>(reinterpret_cast<Req*>(payload), [this](auto* payload) {
+        auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
+        this->port().releaseRequest(requestHeader);
+    });
     return cxx::success<Request<Req>>(Request<Req>{std::move(request), *this});
 }
 
@@ -77,7 +80,10 @@ cxx::expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, Base
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
-    auto response = cxx::unique_ptr<const Res>(static_cast<const Res*>(payload), m_responseDeleter);
+    auto response = cxx::unique_ptr<const Res>(static_cast<const Res*>(payload), [this](auto* payload) {
+        auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
+        this->port().releaseResponse(responseHeader);
+    });
     return cxx::success<Response<const Res>>(Response<const Res>{std::move(response)});
 }
 

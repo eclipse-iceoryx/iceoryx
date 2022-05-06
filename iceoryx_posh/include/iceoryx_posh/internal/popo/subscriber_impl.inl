@@ -41,7 +41,10 @@ SubscriberImpl<T, H, BaseSubscriberType>::take() noexcept
         return cxx::error<ChunkReceiveResult>(result.get_error());
     }
     auto userPayloadPtr = static_cast<const T*>(result.value()->userPayload());
-    auto samplePtr = cxx::unique_ptr<const T>(userPayloadPtr, m_sampleDeleter);
+    auto samplePtr = cxx::unique_ptr<const T>(userPayloadPtr, [this](auto* userPayload) {
+        auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+        this->port().releaseChunk(chunkHeader);
+    });
     return cxx::success<Sample<const T, const H>>(std::move(samplePtr));
 }
 

@@ -31,7 +31,19 @@ struct DummyData
     uint64_t val = 42;
 };
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
+class TestUntypedSubscriber : public iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>
+{
+  public:
+    using SubscriberParent = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
+
+    TestUntypedSubscriber(const iox::capro::ServiceDescription& service,
+                          const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
+        : SubscriberParent(service, subscriberOptions)
+    {
+    }
+
+    using SubscriberParent::port;
+};
 
 class UntypedSubscriberTest : public Test
 {
@@ -138,6 +150,7 @@ TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
         .Times(1)
         .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+    EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
     // ===== Test ===== //
     auto maybeChunk = sut.take();
     // ===== Verify ===== //

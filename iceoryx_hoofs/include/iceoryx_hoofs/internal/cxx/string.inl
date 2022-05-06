@@ -503,6 +503,35 @@ string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
 }
 
 template <uint64_t Capacity>
+template <typename T>
+inline constexpr typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
+string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
+{
+    if (count > internal::GetSize<T>::call(str))
+    {
+        return false;
+    }
+    const auto new_size = m_rawstringSize + count;
+    // check if the new size would exceed capacity or a size overflow occured
+    if (new_size > Capacity || new_size < m_rawstringSize)
+    {
+        return false;
+    }
+
+    if (pos > m_rawstringSize)
+    {
+        return false;
+    }
+    std::memmove(&m_rawstring[pos + count], &m_rawstring[pos], m_rawstringSize - pos);
+    std::memcpy(&m_rawstring[pos], internal::GetData<T>::call(str), count);
+
+    m_rawstring[new_size] = '\0';
+    m_rawstringSize = new_size;
+
+    return true;
+}
+
+template <uint64_t Capacity>
 inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, const uint64_t count) const noexcept
 {
     if (pos > m_rawstringSize)

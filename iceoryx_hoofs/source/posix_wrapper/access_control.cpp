@@ -91,7 +91,7 @@ AccessController::createACL(const int32_t f_numEntries) noexcept
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
-    std::function<void(acl_t)> freeACL = [&](acl_t acl) {
+    cxx::function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = posixCall(acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
         cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");

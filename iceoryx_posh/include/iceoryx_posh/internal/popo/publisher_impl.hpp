@@ -83,9 +83,6 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     Sample<T, H> convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept;
 
     cxx::expected<Sample<T, H>, AllocationError> loanSample() noexcept;
-
-    using PublisherSampleDeleter = SampleDeleter<typename BasePublisherType::PortType>;
-    PublisherSampleDeleter m_sampleDeleter{port()};
 };
 
 } // namespace popo

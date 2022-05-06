@@ -95,6 +95,7 @@ class BaseClient_test : public Test
         EXPECT_CALL(*mockRuntime, getMiddlewareClient(sd, options, portInfo)).WillOnce(Return(&portData));
 
         sut.emplace(sd, options);
+        EXPECT_CALL(this->sut->m_trigger, reset).WillRepeatedly(Return());
     }
 
     void TearDown() override

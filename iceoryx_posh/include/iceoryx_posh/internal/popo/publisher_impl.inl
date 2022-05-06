@@ -95,7 +95,12 @@ template <typename T, typename H, typename BasePublisherType>
 inline Sample<T, H>
 PublisherImpl<T, H, BasePublisherType>::convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept
 {
-    return Sample<T, H>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->userPayload()), m_sampleDeleter), *this);
+    return Sample<T, H>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->userPayload()),
+                                           [this](auto* userPayload) {
+                                               auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+                                               this->port().releaseChunk(chunkHeader);
+                                           }),
+                        *this);
 }
 
 } // namespace popo

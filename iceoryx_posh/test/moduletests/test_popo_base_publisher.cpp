@@ -46,6 +46,7 @@ class BasePublisherTest : public Test
 
     void SetUp()
     {
+        EXPECT_CALL(sut.port(), destroy).WillRepeatedly(Return());
     }
 
     void TearDown()
