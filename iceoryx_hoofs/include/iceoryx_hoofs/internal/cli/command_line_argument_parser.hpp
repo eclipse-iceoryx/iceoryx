@@ -26,7 +26,7 @@ namespace cli
 {
 namespace internal
 {
-/// @brief Factory class for the CommandLineOption. First one has to register
+/// @brief Factory class for the CommandLineOption. First, one has to register
 ///        all switches and options before calling parse. This is required for
 ///        the help page which is generated and printed on failure as well as
 ///        for consistency and syntax checks.
@@ -41,8 +41,10 @@ class CommandLineArgumentParser
     parseCommandLineArguments(const CommandLineOptionSet&, int, char*[], const uint64_t, const UnknownOption) noexcept;
 
     /// @brief Parses the arguments from the command line.
-    ///        Calls the error handler when the command line arguments contain illegal syntax or required values are
-    ///        not provided
+    ///        Calls onFailureCallback in optionSet when the command line arguments contain illegal syntax or required
+    ///        values are not provided and prints the help.
+    /// @param[in] optionSet the user defined options, based on those options the CommandLineOptionValue object is
+    ///            generated
     /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
     /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.

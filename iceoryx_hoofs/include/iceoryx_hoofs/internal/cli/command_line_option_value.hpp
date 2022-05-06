@@ -32,7 +32,7 @@ namespace internal
 ///        CommandLineParser::parse creates and returns a populated CommandLineOptionValue
 ///        object.
 ///        This class should never be used directly. Use the CommandLine builder
-///        from `iceoryx_hoofs/cxx/command_line.hpp` to create a struct which contains
+///        from `iceoryx_hoofs/cxx/command_line_argument_definition.hpp` to create a struct which contains
 ///        the values.
 class CommandLineOptionValue
 {

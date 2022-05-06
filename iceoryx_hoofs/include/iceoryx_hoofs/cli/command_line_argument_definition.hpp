@@ -71,7 +71,7 @@
 ///     IOX_CLI_DEFINITION(CommandLine, "My program description");
 ///
 ///     IOX_CLI_OPTIONAL(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
-///     IOX_CLI_MANDATORY(string<100>, anotherString, 'a', "another-string", "some description");
+///     IOX_CLI_REQUIRED(string<100>, anotherString, 'a', "another-string", "some description");
 ///     IOX_CLI_SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
 ///     IOX_CLI_OPTIONAL(uint64_t, version, 0, 'v', "version", "some description");
 /// };

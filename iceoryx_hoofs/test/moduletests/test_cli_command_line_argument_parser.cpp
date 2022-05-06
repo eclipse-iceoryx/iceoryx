@@ -130,8 +130,8 @@ TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus
 {
     ::testing::Test::RecordProperty("TEST_ID", "e463c987-a908-4cd5-b268-05a2cbda5be2");
     std::vector<std::string> optionsToRegister{"i-have-no-minus"};
-    FailureTest({"i-have-no-minus"});
-    FailureTest({"i-have-no-minus", "someValue"});
+    FailureTest({"i-have-no-minus"}, optionsToRegister);
+    FailureTest({"i-have-no-minus", "someValue"}, optionsToRegister);
 }
 
 TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument)

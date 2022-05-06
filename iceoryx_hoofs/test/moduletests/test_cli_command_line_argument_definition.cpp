@@ -31,7 +31,8 @@ using namespace iox::cxx;
 
 /// This test is only some kind of compilation test to verify that the
 /// command line parser macros are working and connecting everything together correctly
-/// The actual test of the command line parser can be found in test_cxx_command_line_parser.cpp
+/// The actual test of the command line parser can be found in
+/// test_cli_command_line_argument_parser.cpp
 class CommandLineArgumentDefinition_test : public Test
 {
   public:

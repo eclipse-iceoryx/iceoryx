@@ -50,7 +50,8 @@ class CommandLineOptionSet
         const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
 
     /// @brief Adds a command line switch argument
-    ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
+    ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
+    ///        empty.
     /// @param[in] shortOption a single letter as short option
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
@@ -58,7 +59,8 @@ class CommandLineOptionSet
     addSwitch(const char shortOption, const OptionName_t& longOption, const OptionDescription_t& description) noexcept;
 
     /// @brief Adds a command line optional value argument.
-    ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
+    ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
+    ///        empty.
     /// @param[in] shortOption a single letter as short option
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument
@@ -71,7 +73,8 @@ class CommandLineOptionSet
                                       const Argument_t& defaultValue) noexcept;
 
     /// @brief Adds a command line required value argument
-    ///        Calls the error handler when the option was already added or the shortOption and longOption are empty.
+    ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
+    ///        empty.
     /// @param[in] shortOption a single letter as short option
     /// @param[in] longOption a multi letter word which does not start with minus as long option name
     /// @param[in] description the description to the argument

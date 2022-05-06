@@ -80,7 +80,7 @@ them and print them on the console.
 
 #### Macro Based Code Generator
 
-The macros `IOX_CLI_DEFINITION`, `IOX_CLI_SWITCH`, `IOX_CLI_OPTIONAL` and `IOX_CLI_MANDATORY`
+The macros `IOX_CLI_DEFINITION`, `IOX_CLI_SWITCH`, `IOX_CLI_OPTIONAL` and `IOX_CLI_REQUIRED`
 provide building blocks so that the user can generate a struct. The members of that
 struct are defined via the macros and set in the constructor of that struct which
 will use the `OptionManager` to parse and extract the

@@ -47,15 +47,13 @@ bool CommandLineArgumentParser::hasArguments(const int argc) const noexcept
 
 bool CommandLineArgumentParser::assignBinaryName(const char* name) noexcept
 {
-    const bool binaryNameFitsIntoString =
-        (strnlen(name, platform::IOX_MAX_PATH_LENGTH + 1) <= platform::IOX_MAX_PATH_LENGTH);
+    const bool binaryNameFitsIntoString = m_optionValue.m_binaryName.unsafe_assign(name);
     if (!binaryNameFitsIntoString)
     {
         std::cout << "The \"" << name << "\" binary path is too long" << std::endl;
         printHelpAndExit();
         return binaryNameFitsIntoString;
     }
-    m_optionValue.m_binaryName.unsafe_assign(name);
     return binaryNameFitsIntoString;
 }
 
@@ -101,7 +99,7 @@ bool CommandLineArgumentParser::hasValidSwitchName(const char* option) const noe
 
 bool CommandLineArgumentParser::hasValidOptionName(const char* option) const noexcept
 {
-    const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH + 1);
+    const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH);
     const bool hasValidOptionName = !(argIdentifierLength > 2 && option[2] == '-');
 
     if (!hasValidOptionName)

@@ -32,6 +32,8 @@ using namespace iox::cli;
 using namespace iox::cli::internal;
 using namespace iox::cxx;
 
+/// All the success tests are handled indirectly in the CommandLineArgumentParser_test
+/// where every combination of short and long option is parsed and verified
 class CommandLineOptionSet_test : public Test
 {
   public:
@@ -56,34 +58,52 @@ class CommandLineOptionSet_test : public Test
 };
 Argument_t CommandLineOptionSet_test::defaultValue = "DEFAULT VALUE";
 
-TEST_F(CommandLineOptionSet_test, AddingTheSameShortOptionLeadsToExit)
+TEST_F(CommandLineOptionSet_test, AddingTheSameShortOptionForOptionalLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
     CommandLineOptionSet optionSet("", errorCallback);
     optionSet.addOptional('c', "firstEntry", "", "", "");
 
-    optionSet.addOptional('c', "duplicateShortOption", "", "", "");
+    optionSet.addSwitch('c', "duplicateShortOption", "");
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+
+    optionSet.addOptional('c', "duplicateShortOption", "", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(2));
+
+    optionSet.addRequired('c', "duplicateShortOption", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(3));
 }
 
 TEST_F(CommandLineOptionSet_test, AddingTheSameLongOptionLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "076b8877-e3fc-46f7-851b-d3e7953f67d6");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('c', "duplicate", "", "", "");
+    optionSet.addSwitch('c', "duplicate", "");
+
+    optionSet.addSwitch('x', "duplicate", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 
     optionSet.addOptional('x', "duplicate", "", "", "");
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(2));
+
+    optionSet.addRequired('x', "duplicate", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(3));
 }
 
 TEST_F(CommandLineOptionSet_test, AddingOptionWithSameShortAndLongNameLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4e01ed47-473d-4915-aed2-60aacce37de8");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('d', "duplicate", "", "", "");
+    optionSet.addRequired('d', "duplicate", "", "");
+
+    optionSet.addSwitch('d', "duplicate", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 
     optionSet.addOptional('d', "duplicate", "", "", "");
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(2));
+
+    optionSet.addRequired('d', "duplicate", "", "");
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(3));
 }
 
 TEST_F(CommandLineOptionSet_test, AddingSwitchWithMinusAsShortOptionLeadsToFailure)
@@ -139,4 +159,33 @@ TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithMinusStartingLongOption
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
+
+TEST_F(CommandLineOptionSet_test, AddingSwitchWithEmptyShortAndLongOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f1aa3314-0355-43d8-85b3-b2e7d604440e");
+    CommandLineOptionSet optionSet("", errorCallback);
+    optionSet.addSwitch(CommandLineOptionSet::NO_SHORT_OPTION, "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineOptionSet_test, AddingOptionalWithEmptyShortAndLongOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ee6866b7-a4f8-4406-ab50-ba0d1b798696");
+    CommandLineOptionSet optionSet("", errorCallback);
+    optionSet.addOptional(CommandLineOptionSet::NO_SHORT_OPTION, "", "", "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithEmptyShortAndLongOptionLeadsToFailure)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
+    CommandLineOptionSet optionSet("", errorCallback);
+    optionSet.addRequired(CommandLineOptionSet::NO_SHORT_OPTION, "", "", "");
+
+    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
+}
+
+
 } // namespace

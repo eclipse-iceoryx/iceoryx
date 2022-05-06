@@ -88,7 +88,6 @@ add_library(iceoryx_hoofs
     source/cxx/generic_raii.cpp
     source/cxx/helplets.cpp
     source/cxx/requires.cpp
-    source/cxx/generic_raii.cpp
     source/cxx/type_traits.cpp
     source/cxx/unique_id.cpp
     source/error_handling/error_handler.cpp
@@ -102,7 +101,6 @@ add_library(iceoryx_hoofs
     source/log/logmanager.cpp
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
-    source/posix_wrapper/mutex.cpp
     source/posix_wrapper/file_lock.cpp
     source/posix_wrapper/message_queue.cpp
     source/posix_wrapper/mutex.cpp

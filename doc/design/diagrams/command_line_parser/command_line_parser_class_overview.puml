@@ -7,18 +7,18 @@ class CommandLineOptionSet {
     +addRequired(..)
 }
 
-class CommandLineValue {
+class CommandLineOptionValue {
     +T get(optionName)
     +bool has(optionName)
     +BinaryName_t binaryName()
 }
 
 class CommandLineArgumentParser {
-    +CommandLineValue parse(CommandLineOptionSet, ..)
+    +CommandLineOptionValue parse(CommandLineOptionSet, ..)
 }
 
 CommandLineOptionSet <|--- CommandLineArgumentParser
-CommandLineValue <|--- CommandLineArgumentParser
+CommandLineOptionValue <|--- CommandLineArgumentParser
 
 class OptionManager {
     +OptionManager(programDescription, onFailureCallback)

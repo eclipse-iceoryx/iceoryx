@@ -14,20 +14,20 @@ User -> CommandLineOptionSet ++ : addRequired()
 == Parse command line arguments ==
 
 User -> CommandLineArgumentParser ++ : parse(CommandLineOptionSet)
-return CommandLineValue
+return CommandLineOptionValue
 
 == Acquire command line option values ==
 
-User -> CommandLineValue ++ : has(switchName)
+User -> CommandLineOptionValue ++ : has(switchName)
 return bool
 
-User -> CommandLineValue ++ : get<TypeName>(optionalOptionName)
+User -> CommandLineOptionValue ++ : get<TypeName>(optionalOptionName)
 return TypeName
 
-User -> CommandLineValue ++ : get<TypeName>(requiredOptionName)
+User -> CommandLineOptionValue ++ : get<TypeName>(requiredOptionName)
 return TypeName
 
-User -> CommandLineValue ++ : binaryName()
+User -> CommandLineOptionValue ++ : binaryName()
 return BinaryName_t
 
 @enduml

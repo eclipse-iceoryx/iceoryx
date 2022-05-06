@@ -39,13 +39,13 @@ class OptionManager
   public:
     /// @brief Create OptionManager
     /// @param[in] programDescription the description of the application
-    /// @param[in] onFailureCallback callback which is called when a syntax error, a required option is missing
+    /// @param[in] onFailureCallback callback which is called when a syntax error occurs, a required option is missing
     /// or the wrong type as argument value is provided
     OptionManager(const OptionDescription_t& programDescription, const cxx::function<void()> onFailureCallback);
 
     /// @brief Defines a new option
     /// @param[in] referenceToMember an uninitialized piece of memory where later the content is stored when
-    ///            populateEntries is called
+    ///            populateDefinedOptions is called
     /// @param[in] shortName the short option name
     /// @param[in] name the long option name
     /// @param[in] description the description of the option
