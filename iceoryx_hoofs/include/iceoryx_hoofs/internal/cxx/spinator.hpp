@@ -30,7 +30,7 @@ namespace internal
 /// @brief Building block to implement a busy waiting loop efficiently. It
 ///        pursues a strategy where in the beginning the behavior is like a
 ///        busy loop but after some iteration some waiting time is introduced
-///        and exponentially increased.
+///        and increased over time.
 ///        So we have a low latency if the event one is waiting for is happening
 ///        soon but the CPU load is low when one waits for a long time.
 /// @code
@@ -47,57 +47,46 @@ class spinator
     ///        with exponential waiting times is pursued.
     void yield() noexcept;
 
-  private:
-    /// @brief defines the waiting strategy of the spinator
-    /// 1. First, spinator::yield() will call std::thread::yield for
-    ///    repetitionsPerStep times
-    /// 2. Then it will wait for 1 microsecond for repetitionsPerStep times
-    /// 3. After that the waiting time will be multiplied by factor and the
-    ///    repetitionsPerStep divided by factor until repetitionsPerStep are
-    ///    less or equal to one.
-    /// 4. When repetitionsPerStep is less or equal one the waiting time will be
-    ///    no longer increased and yield will wait a constant time.
+  protected:
+    /// @brief std::thread::sleep_for causes a lot of overhead. 100us was
+    /// choosen with the experiment below. The overhead of sleep_for is around
+    /// 50% of the actual waitingTime (100us). When the waitingTime is lower the
+    /// overhead of sleep_for makes up the majority of the time yield is waiting.
+    /// @code
+    ///   auto start = std::chrono::steady_clock::now();
+    ///   for (uint64_t i = 0; i < repetition; ++i) {
+    ///       std::this_thread::sleep_for(sleepingTime);
+    ///   }
+    ///   auto end = std::chrono::steady_clock::now();
     ///
-    /// Example:
-    ///   Assume factor == 2 and repetitionsPerStep == 1024 = 2 ^ 10.
-    ///   1. In the first step we have a busy wait repeated 1024 times
-    ///   2. Then we wait 1024 times for 1 microsecond, so we wait in total
-    ///      ~1 milliseconds = 1 microsecond * 1024
-    ///   3. Next the waiting times is multiplied by 2 and the
-    ///      repetitionsPerStep are devided by 2.
-    ///      We wait again for ~1 milliseconds = 2 microsecond * 512
-    ///   4. This is repeated 10 times (2^10 = 1024) until
-    ///      repetitionsPerStep == 1 and the waitingTime == 1 milliseconds.
-    ///      So we have 10 steps, the max waiting time is 1ms and the time
-    ///      required until the final waiting time is reached is
-    ///      repetitionsPerStep * step = 1024 * 10 = 10 ms.
-    struct wait_strategy
-    {
-        uint64_t factor = 1U;
-        uint64_t repetitionsPerStep = 1U;
-    };
+    ///   auto minimalDuration = repetition * sleepingTime;
+    ///   auto actualDuration = end - start;
+    ///   // actualDuration ~= 1.5 minimalDuration
+    /// @endcode
+    static constexpr std::chrono::microseconds INITIAL_WAITING_TIME{100};
 
-    /// @note The difference in CPU load betweed HIGH and LOW_CPU_LOAD seems to
-    ///       be around 0.3% on a i7-10875H CPU @ 2.30GHz
+    /// @brief with 10ms a busy loop is around 0.1% in top. when decreasing it
+    ///        to 5ms we get around 0.7% and then it starts to raise fast.
+    static constexpr std::chrono::milliseconds FINAL_WAITING_TIME{10};
 
-    // max waiting time: ~8ms, reached after: ~106ms, steps: 13
-    static constexpr wait_strategy LOW_LATENCY_HIGH_CPU_LOAD = {2U, 1U << 13U};
-    // max waiting time: ~4ms, reached after: ~25ms, steps: 6
-    static constexpr wait_strategy MEDIUM_LATENCY_MEDIUM_CPU_LOAD = {4U, 1U << 12U};
-    // max waiting time: ~4ms, reached after: ~16ms, steps: 4
-    static constexpr wait_strategy HIGH_LATENCY_LOW_CPU_LOAD = {8U, 1U << 12U};
+    /// @brief std::thread::yield cause not much overhead. 10000U was chosen
+    /// since the code below requires around 1ms to run on a standard pc.
+    /// @code
+    ///   auto start = std::chrono::steady_clock::now();
+    ///   for (uint64_t i = 0; i < repetition; ++i) {
+    ///       std::this_thread::yield();
+    ///   }
+    ///   auto end = std::chrono::steady_clock::now();
+    ///   std::cout << (end - start).count() << std::endl; // prints around 1ms
+    /// @endcode
+    static constexpr uint64_t YIELD_REPETITIONS = 10000U;
 
-    static constexpr wait_strategy WAIT_STRATEGY = LOW_LATENCY_HIGH_CPU_LOAD;
+    /// @brief The initial repetition is choosen in a way that
+    ///        INITIAL_WAITING_TIME * 100U equals roughly FINAL_WAITING_TIME
+    static constexpr uint64_t INITIAL_REPETITIONS = 100U + YIELD_REPETITIONS;
 
-    struct
-    {
-        units::Duration waitingTime = units::Duration::fromMicroseconds(1U);
-        uint64_t repetitionsPerStep = WAIT_STRATEGY.repetitionsPerStep;
-        uint64_t yieldCount = 0U;
-    } m_current;
-
-    bool m_performYield = true;
-    bool m_timeoutSaturated = false;
+  private:
+    uint64_t m_yieldCount = 0U;
 };
 } // namespace internal
 } // namespace cxx

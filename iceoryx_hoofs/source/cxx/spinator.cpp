@@ -24,39 +24,26 @@ namespace cxx
 {
 namespace internal
 {
-constexpr spinator::wait_strategy spinator::LOW_LATENCY_HIGH_CPU_LOAD;
-constexpr spinator::wait_strategy spinator::MEDIUM_LATENCY_MEDIUM_CPU_LOAD;
-constexpr spinator::wait_strategy spinator::HIGH_LATENCY_LOW_CPU_LOAD;
-constexpr spinator::wait_strategy spinator::WAIT_STRATEGY;
+constexpr std::chrono::microseconds spinator::INITIAL_WAITING_TIME;
+constexpr std::chrono::milliseconds spinator::FINAL_WAITING_TIME;
+constexpr uint64_t spinator::YIELD_REPETITIONS;
+constexpr uint64_t spinator::INITIAL_REPETITIONS;
 
 void spinator::yield() noexcept
 {
-    if (m_performYield)
+    ++m_yieldCount;
+
+    if (m_yieldCount <= YIELD_REPETITIONS)
     {
         std::this_thread::yield();
     }
+    else if (m_yieldCount <= INITIAL_REPETITIONS)
+    {
+        std::this_thread::sleep_for(INITIAL_WAITING_TIME);
+    }
     else
     {
-        std::this_thread::sleep_for(std::chrono::nanoseconds(m_current.waitingTime.toNanoseconds()));
-    }
-
-    if (!m_timeoutSaturated)
-    {
-        ++m_current.yieldCount;
-
-        if (m_current.repetitionsPerStep <= m_current.yieldCount)
-        {
-            if (m_performYield)
-            {
-                m_performYield = false;
-            }
-            else
-            {
-                m_current.waitingTime = m_current.waitingTime * WAIT_STRATEGY.factor;
-                m_current.repetitionsPerStep = m_current.repetitionsPerStep / WAIT_STRATEGY.factor;
-                m_timeoutSaturated = (m_current.repetitionsPerStep <= 1U);
-            }
-        }
+        std::this_thread::sleep_for(FINAL_WAITING_TIME);
     }
 }
 } // namespace internal

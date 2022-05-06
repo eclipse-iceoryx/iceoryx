@@ -23,11 +23,16 @@ using namespace iox::cxx::internal;
 
 namespace
 {
-TEST(SpinatorTest, callingYield4096TimesTakesAtLeast10ms)
+TEST(SpinatorTest, repeatCallingYieldTheUntilItSaturatesTakesAtLeast10ms)
 {
-    spinator sut;
+    class SpinatorSut : public spinator
+    {
+      public:
+        using spinator::INITIAL_REPETITIONS;
+    };
 
-    constexpr uint64_t REPETITIONS = 1U << 12U;
+    constexpr uint64_t REPETITIONS = SpinatorSut::INITIAL_REPETITIONS;
+    spinator sut;
 
     auto start = std::chrono::steady_clock::now();
     for (uint64_t i = 0U; i < REPETITIONS; ++i)
