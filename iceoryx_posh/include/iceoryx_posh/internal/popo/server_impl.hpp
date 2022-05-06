@@ -19,8 +19,6 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/base_server.hpp"
-#include "iceoryx_posh/internal/popo/request_deleter.hpp"
-#include "iceoryx_posh/internal/popo/response_deleter.hpp"
 #include "iceoryx_posh/internal/popo/rpc_interface.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/request.hpp"
@@ -78,11 +76,6 @@ class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, Serve
 
   private:
     cxx::expected<Response<Res>, AllocationError> loanUninitialized(const Request<const Req>& request) noexcept;
-
-    using RequestSampleDeleter = RequestDeleter<typename BaseServerT::PortType>;
-    RequestSampleDeleter m_requestDeleter{port()};
-    using ResponseSampleDeleter = ResponseDeleter<typename BaseServerT::PortType>;
-    ResponseSampleDeleter m_responseDeleter{port()};
 };
 } // namespace popo
 } // namespace iox
