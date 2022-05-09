@@ -113,7 +113,10 @@ Macro(install_package_files_and_export)
 endMacro()
 
 Macro(iox_add_library)
-    set(arguments TARGET RPATH FILES PUBLIC_LINKS PRIVATE_LINKS PRIVATE_LINKS_LINUX ALIAS)
+    set(arguments TARGET RPATH FILES PUBLIC_LINKS PRIVATE_LINKS ALIAS INSTALL_INTERFACE
+        PUBLIC_LINKS_LINUX PRIVATE_LINKS_LINUX PUBLIC_LINKS_QNX PRIVATE_LINKS_QNX
+        PUBLIC_LINKS_UNIX PRIVATE_LINKS_UNIX PUBLIC_LINKS_WIN32 PRIVATE_LINKS_WIN32
+        PUBLIC_LINKS_APPLE PRIVATE_LINKS_APPLE)
     cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
 
     add_library( ${IOX_TARGET} ${IOX_FILES} )
@@ -136,7 +139,15 @@ Macro(iox_add_library)
         )
 
     if ( LINUX )
-        target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_PRIVATE_LINKS_LINUX})
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_LINUX} PRIVATE ${IOX_PRIVATE_LINKS_LINUX})
+    elseif ( QNX )
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_QNX} PRIVATE ${IOX_PRIVATE_LINKS_QNX})
+    elseif ( UNIX )
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_UNIX} PRIVATE ${IOX_PRIVATE_LINKS_UNIX})
+    elseif ( WIN32 )
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_WIN32} PRIVATE ${IOX_PRIVATE_LINKS_WIN32})
+    elseif ( APPLE )
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_APPLE} PRIVATE ${IOX_PRIVATE_LINKS_APPLE})
     endif ( LINUX )
 
     if ( LINUX OR UNIX )
@@ -165,7 +176,7 @@ Macro(iox_add_library)
 
     target_include_directories(${IOX_TARGET}
         PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${IOX_INSTALL_INTERFACE}>
         $<INSTALL_INTERFACE:include/${PREFIX}>
     )
 endMacro()

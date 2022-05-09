@@ -39,40 +39,13 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
     ${ICEORYX_PLATFORM}/source/*.cpp
 )
 
-add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
-add_library(iceoryx_hoofs::iceoryx_platform ALIAS iceoryx_platform)
-target_include_directories(iceoryx_platform
-    PUBLIC
-    $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-set_target_properties(iceoryx_platform PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
-
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-if(LINUX)
-    target_link_libraries(iceoryx_platform
-        PUBLIC
-        rt
-        pthread
+iox_add_library(
+    TARGET                      iceoryx_platform
+    ALIAS                       iceoryx_hoofs::iceoryx_platform
+    INSTALL_INTERFACE           ${ICEORYX_PLATFORM}/include
+    PRIVATE_LINKS               ${ICEORYX_SANITIZER_FLAGS}
+    PUBLIC_LINKS_LINUX          rt pthread
+    PUBLIC_LINKS_UNIX           rt pthread
+    PRIVATE_LINKS_QNX           socket
+    FILES                       ${ICEORYX_PLATFORM_FILES}
     )
-elseif(QNX)
-    target_link_libraries(iceoryx_platform
-        PRIVATE
-        socket
-    )
-elseif(APPLE)
-elseif(WIN32)
-elseif(UNIX)
-    target_link_libraries(iceoryx_platform
-        PUBLIC
-        rt
-        pthread
-    )
-endif()

@@ -77,15 +77,13 @@ add_subdirectory(platform)
 #
 
 iox_add_library(
-    TARGET iceoryx_hoofs
-    ALIAS iceoryx_hoofs::iceoryx_hoofs
-    RPATH "${CMAKE_INSTALL_PREFIX}/lib123"
-    PUBLIC_LINKS
-        iceoryx_hoofs::iceoryx_platform
-    PRIVATE_LINKS
-        ${ICEORYX_SANITIZER_FLAGS}
-    PRIVATE_LINKS_LINUX
-        acl atomic ${CODE_COVERAGE_LIBS}
+    TARGET                  iceoryx_hoofs
+    ALIAS                   iceoryx_hoofs::iceoryx_hoofs
+    RPATH                   "${CMAKE_INSTALL_PREFIX}/lib123"
+    PUBLIC_LINKS            iceoryx_hoofs::iceoryx_platform
+    PRIVATE_LINKS           ${ICEORYX_SANITIZER_FLAGS}
+    PRIVATE_LINKS_LINUX     acl atomic ${CODE_COVERAGE_LIBS}
+    INSTALL_INTERFACE       ${PROJECT_SOURCE_DIR}/include
     FILES
         source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp
