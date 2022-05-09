@@ -111,3 +111,61 @@ Macro(install_package_files_and_export)
     DESTINATION ${DESTINATION_CONFIGDIR}
     )
 endMacro()
+
+Macro(iox_add_library)
+    set(arguments TARGET RPATH FILES PUBLIC_LINKS PRIVATE_LINKS PRIVATE_LINKS_LINUX ALIAS)
+    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+
+    add_library( ${IOX_TARGET} ${IOX_FILES} )
+    add_library( ${IOX_ALIAS} ALIAS ${IOX_TARGET})
+
+    set_target_properties(${IOX_TARGET} PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+
+    target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+    target_link_libraries(${IOX_TARGET}
+        PUBLIC
+        ${IOX_PUBLIC_LINKS}
+        PRIVATE
+        ${IOX_PRIVATE_LINKS}
+        )
+
+    if ( LINUX )
+        target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_PRIVATE_LINKS_LINUX})
+    endif ( LINUX )
+
+    if ( LINUX OR UNIX )
+        set_target_properties(
+            ${IOX_TARGET}
+            PROPERTIES
+            BUILD_RPATH ${IOX_RPATH}
+            INSTALL_RPATH ${IOX_RPATH}
+        )
+    elseif( APPLE )
+        set_target_properties(
+                    ${IOX_TARGET}
+                    PROPERTIES
+                    BUILD_RPATH ${IOX_RPATH}
+                    INSTALL_RPATH ${IOX_RPATH}
+                )
+    endif( LINUX OR UNIX )
+
+    if(PERFORM_CLANG_TIDY)
+        set_target_properties(
+            ${IOX_TARGET}
+            PROPERTIES 
+            CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+        )
+    endif(PERFORM_CLANG_TIDY)
+
+    target_include_directories(${IOX_TARGET}
+        PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
+endMacro()
