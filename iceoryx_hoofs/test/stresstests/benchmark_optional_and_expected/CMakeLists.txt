@@ -15,7 +15,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build icedelivery example
 cmake_minimum_required(VERSION 3.16)
 project(benchmark_optional_and_expected)
 
@@ -29,12 +28,6 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(iox-bm-optional-and-expected ./benchmark_optional_and_expected.cpp)
-target_link_libraries(iox-bm-optional-and-expected
-    iceoryx_hoofs::iceoryx_hoofs
-    Threads::Threads
-)
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
@@ -43,12 +36,11 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 endif()
 
-target_compile_options(iox-bm-optional-and-expected PRIVATE ${TEST_CXX_FLAGS})
-
-set_target_properties(iox-bm-optional-and-expected PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_test(
+    TARGET      iox-bm-optional-and-expected 
+    FILES       ./benchmark_optional_and_expected.cpp
+    LIBS        iceoryx_hoofs::iceoryx_hoofs Threads::Threads
+    FLAGS       ${TEST_CXX_FLAGS}
 )
 
 install(

@@ -112,6 +112,44 @@ Macro(install_package_files_and_export)
     )
 endMacro()
 
+Macro(iox_set_rpath)
+    set(arguments TARGET RPATH )
+    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+
+    if ( LINUX OR UNIX )
+        set_target_properties(
+            ${IOX_TARGET}
+            PROPERTIES
+            BUILD_RPATH ${IOX_RPATH}
+            INSTALL_RPATH ${IOX_RPATH}
+        )
+    elseif( APPLE )
+        set_target_properties(
+                    ${IOX_TARGET}
+                    PROPERTIES
+                    BUILD_RPATH ${IOX_RPATH}
+                    INSTALL_RPATH ${IOX_RPATH}
+                )
+    endif( LINUX OR UNIX )
+endMacro()
+
+Macro(iox_add_test)
+    set(arguments TARGET RPATH FILES FLAGS LIBS )
+    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+
+    add_executable(${IOX_TARGET} ${IOX_FILES})
+    target_include_directories(${IOX_TARGET} PRIVATE .)
+    target_compile_options(${IOX_TARGET} PRIVATE ${IOX_FLAGS})
+    target_link_libraries(${IOX_TARGET} ${IOX_LIBS})
+    set_target_properties(${IOX_TARGET} PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+    )
+
+    iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
+endMacro()
+
 Macro(iox_add_library)
     set(arguments TARGET RPATH FILES PUBLIC_LINKS PRIVATE_LINKS ALIAS INSTALL_INTERFACE
         PUBLIC_LINKS_LINUX PRIVATE_LINKS_LINUX PUBLIC_LINKS_QNX PRIVATE_LINKS_QNX
@@ -130,13 +168,7 @@ Macro(iox_add_library)
     )
 
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-    target_link_libraries(${IOX_TARGET}
-        PUBLIC
-        ${IOX_PUBLIC_LINKS}
-        PRIVATE
-        ${IOX_PRIVATE_LINKS}
-        )
+    target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS} PRIVATE ${IOX_PRIVATE_LINKS})
 
     if ( LINUX )
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_LINUX} PRIVATE ${IOX_PRIVATE_LINKS_LINUX})
@@ -150,21 +182,7 @@ Macro(iox_add_library)
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_APPLE} PRIVATE ${IOX_PRIVATE_LINKS_APPLE})
     endif ( LINUX )
 
-    if ( LINUX OR UNIX )
-        set_target_properties(
-            ${IOX_TARGET}
-            PROPERTIES
-            BUILD_RPATH ${IOX_RPATH}
-            INSTALL_RPATH ${IOX_RPATH}
-        )
-    elseif( APPLE )
-        set_target_properties(
-                    ${IOX_TARGET}
-                    PROPERTIES
-                    BUILD_RPATH ${IOX_RPATH}
-                    INSTALL_RPATH ${IOX_RPATH}
-                )
-    endif( LINUX OR UNIX )
+    iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
 
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
