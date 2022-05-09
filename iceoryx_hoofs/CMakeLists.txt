@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.16)
 set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
-
+ 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
@@ -76,81 +76,54 @@ add_subdirectory(platform)
 ########## build iceoryx hoofs lib ##########
 #
 
-add_library(iceoryx_hoofs
-    source/concurrent/active_object.cpp
-    source/concurrent/loffli.cpp
-    source/cxx/adaptive_wait.cpp
-    source/cxx/deadline_timer.cpp
-    source/cxx/filesystem.cpp
-    source/cxx/generic_raii.cpp
-    source/cxx/helplets.cpp
-    source/cxx/requires.cpp
-    source/cxx/unique_id.cpp
-    source/error_handling/error_handler.cpp
-    source/error_handling/error_handling.cpp
-    source/file_reader/file_reader.cpp
-    source/log/hoofs_logging.cpp
-    source/log/logcommon.cpp
-    source/log/logger.cpp
-    source/log/logging_internal.cpp
-    source/log/logging.cpp
-    source/log/logmanager.cpp
-    source/log/logstream.cpp
-    source/posix_wrapper/access_control.cpp
-    source/posix_wrapper/file_lock.cpp
-    source/posix_wrapper/message_queue.cpp
-    source/posix_wrapper/mutex.cpp
-    source/posix_wrapper/named_pipe.cpp
-    source/posix_wrapper/posix_access_rights.cpp
-    source/posix_wrapper/semaphore.cpp
-    source/posix_wrapper/semaphore_interface.cpp
-    source/posix_wrapper/shared_memory_object.cpp
-    source/posix_wrapper/shared_memory_object/allocator.cpp
-    source/posix_wrapper/shared_memory_object/memory_map.cpp
-    source/posix_wrapper/shared_memory_object/shared_memory.cpp
-    source/posix_wrapper/signal_handler.cpp
-    source/posix_wrapper/signal_watcher.cpp
-    source/posix_wrapper/system_configuration.cpp
-    source/posix_wrapper/thread.cpp
-    source/posix_wrapper/unnamed_semaphore.cpp
-    source/posix_wrapper/unix_domain_socket.cpp
-    source/relocatable_pointer/base_relative_pointer.cpp
-    source/relocatable_pointer/relative_pointer_data.cpp
-    source/units/duration.cpp
-)
-
-add_library(iceoryx_hoofs::iceoryx_hoofs ALIAS iceoryx_hoofs)
-set_target_properties(iceoryx_hoofs PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_hoofs PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
-
-target_link_libraries(iceoryx_hoofs
-    PUBLIC
-    iceoryx_hoofs::iceoryx_platform
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}
-)
-
-if(LINUX)
-    target_link_libraries(iceoryx_hoofs PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
-endif()
-
-target_compile_options(iceoryx_hoofs PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-# TODO: Make ICEORYX::UTILS private???
-target_include_directories(iceoryx_hoofs
-    PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
+iox_add_library(
+    TARGET iceoryx_hoofs
+    ALIAS iceoryx_hoofs::iceoryx_hoofs
+    RPATH "${CMAKE_INSTALL_PREFIX}/lib123"
+    PUBLIC_LINKS
+        iceoryx_hoofs::iceoryx_platform
+    PRIVATE_LINKS
+        ${ICEORYX_SANITIZER_FLAGS}
+    PRIVATE_LINKS_LINUX
+        acl atomic ${CODE_COVERAGE_LIBS}
+    FILES
+        source/concurrent/active_object.cpp
+        source/concurrent/loffli.cpp
+        source/cxx/deadline_timer.cpp
+        source/cxx/filesystem.cpp
+        source/cxx/generic_raii.cpp
+        source/cxx/helplets.cpp
+        source/cxx/requires.cpp
+        source/cxx/unique_id.cpp
+        source/error_handling/error_handler.cpp
+        source/error_handling/error_handling.cpp
+        source/file_reader/file_reader.cpp
+        source/log/hoofs_logging.cpp
+        source/log/logcommon.cpp
+        source/log/logger.cpp
+        source/log/logging_internal.cpp
+        source/log/logging.cpp
+        source/log/logmanager.cpp
+        source/log/logstream.cpp
+        source/posix_wrapper/access_control.cpp
+        source/posix_wrapper/file_lock.cpp
+        source/posix_wrapper/message_queue.cpp
+        source/posix_wrapper/mutex.cpp
+        source/posix_wrapper/named_pipe.cpp
+        source/posix_wrapper/posix_access_rights.cpp
+        source/posix_wrapper/semaphore.cpp
+        source/posix_wrapper/shared_memory_object.cpp
+        source/posix_wrapper/shared_memory_object/allocator.cpp
+        source/posix_wrapper/shared_memory_object/memory_map.cpp
+        source/posix_wrapper/shared_memory_object/shared_memory.cpp
+        source/posix_wrapper/signal_handler.cpp
+        source/posix_wrapper/signal_watcher.cpp
+        source/posix_wrapper/system_configuration.cpp
+        source/posix_wrapper/thread.cpp
+        source/posix_wrapper/unix_domain_socket.cpp
+        source/relocatable_pointer/base_relative_pointer.cpp
+        source/relocatable_pointer/relative_pointer_data.cpp
+        source/units/duration.cpp
 )
 
 #
