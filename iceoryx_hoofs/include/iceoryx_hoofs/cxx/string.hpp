@@ -469,25 +469,56 @@ class string
     template <uint64_t N>
     bool operator>=(const char (&rhs)[N]) const noexcept;
 
-    /// @brief The equality operator for fixed string and char pointer is disabled via a static_assert, because it may
-    /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
-    /// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
-    /// fixed string.
+    /// @brief compares a string and a const char pointer
     ///
-    /// @param [in] rhs is the char pointer to the array to compare
+    /// @param [in] other is the char pointer to compare with self
     ///
-    /// @return false
+    /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
+    /// the contents of self and other are equal, an integer > 0 if the first character that does not match has a
+    /// greater value in self than in other
+    constexpr int64_t compare(const char* const other) const noexcept;
+
+    /// @brief checks if self is equal to rhs
+    ///
+    /// @param [in] rhs is the char pointer to compare with self
+    ///
+    /// @return true if the contents of self and rhs are equal, otherwise false
     bool operator==(const char* const rhs) const noexcept;
 
-    /// @brief The inequality operator for fixed string and char pointer is disabled via a static_assert, because it may
-    /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
-    /// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
-    /// fixed string.
+    /// @brief checks if self is not equal to rhs
     ///
-    /// @param [in] rhs is the char pointer to the array to compare
+    /// @param [in] rhs is the char pointer to compare with self
     ///
-    /// @return false
+    /// @return true if the contents of self and rhs are not equal, otherwise false
     bool operator!=(const char* const rhs) const noexcept;
+
+    /// @brief checks if self is less than rhs
+    ///
+    /// @param [in] rhs is the char pointer to compare with self
+    ///
+    /// @return true if the contents of self is less than rhs, otherwise false
+    bool operator<(const char* const rhs) const noexcept;
+
+    /// @brief checks if self is less than or equal to rhs
+    ///
+    /// @param [in] rhs is the char pointer to compare with self
+    ///
+    /// @return true if the contents of self is less than or equal to rhs, otherwise false
+    bool operator<=(const char* const rhs) const noexcept;
+
+    /// @brief checks if self is greater than rhs
+    ///
+    /// @param [in] rhs is the char pointer to compare with self
+    ///
+    /// @return true if the contents of self is greater than rhs, otherwise false
+    bool operator>(const char* const rhs) const noexcept;
+
+    /// @brief checks if self is greater than or equal to rhs
+    ///
+    /// @param [in] rhs is the char pointer to compare with self
+    ///
+    /// @return true if the contents of self is greater than or equal to rhs, otherwise false
+    bool operator>=(const char* const rhs) const noexcept;
 
     /// @brief returns a pointer to the char array of self
     ///
@@ -787,29 +818,59 @@ inline bool operator>(const char (&lhs)[N], const string<Capacity>& rhs) noexcep
 template <uint64_t N, uint64_t Capacity>
 inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept;
 
-/// @brief The equality operator for char pointer and fixed string is disabled via a static_assert, because it may
-/// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
-/// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
-/// fixed string.
+/// @brief checks if a rhs string is equal to a lhs char pointer
 ///
-/// @param [in] lhs is the char pointer to the array to compare
-/// @param [in] rhs is the fixed string
+/// @param [in] lhs is the char pointer
+/// @param [in] rhs is the iox::cxx::string
 ///
-/// @return false
+/// @return true if the contents of lhs and rhs are equal, otherwise false
 template <uint64_t Capacity>
 inline bool operator==(const char* const lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief The inequality operator for char pointer and fixed string is disabled via a static_assert, because it may
-/// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
-/// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
-/// fixed string.
+/// @brief checks if a rhs string is not equal to a lhs char pointer
 ///
-/// @param [in] lhs is the char pointer to the array to compare
-/// @param [in] rhs is the fixed string
+/// @param [in] lhs is the char pointer
+/// @param [in] rhs is the iox::cxx::string
 ///
-/// @return false
+/// @return true if the contents of lhs and rhs are not equal, otherwise false
 template <uint64_t Capacity>
 inline bool operator!=(const char* const lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a rhs string is less than a lhs char pointer
+///
+/// @param [in] lhs is the char pointer
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is less than rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator<(const char* const lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a rhs string is less than or equal to a lhs char pointer
+///
+/// @param [in] lhs is the char pointer
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is less than or equal to rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator<=(const char* const lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a rhs string is greater than a lhs char pointer
+///
+/// @param [in] lhs is the char pointer
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is greater than rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator>(const char* const lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a rhs string is greater than or equal to a lhs char pointer
+///
+/// @param [in] lhs is the char pointer
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is greater than or equal to rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator>=(const char* const lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief outputs the fixed string on stream
 ///

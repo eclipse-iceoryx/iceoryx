@@ -1091,7 +1091,9 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCap
 
 /// @note template <uint64_t N>
 /// constexpr int64_t compare(const char (&other)[N]) const noexcept
-TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayResultsInZero)
+/// and
+/// constexpr int64_t compare(const char* const other) const noexcept
+TYPED_TEST(stringTyped_test, CompareEqStringAndCharResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "13a0f1a3-b006-4686-a5a0-3c6a2c7113e0");
     using MyString = typename TestFixture::stringType;
@@ -1105,9 +1107,12 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayResultsInZero)
     }
     foo[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(foo), Eq(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(this->testSubject.compare(bar), Eq(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
+TYPED_TEST(stringTyped_test, CompareWithCharResultNegative)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df4a32d0-72b1-4c65-86f3-15b007ab003c");
     using MyString = typename TestFixture::stringType;
@@ -1121,9 +1126,12 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
     }
     foo[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(this->testSubject.compare(bar), Lt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
+TYPED_TEST(stringTyped_test, CompareWithCharResultPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d315afbc-558d-474a-8ae5-f53451526c73");
     using MyString = typename TestFixture::stringType;
@@ -1137,9 +1145,12 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
     }
     foo[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(foo), Gt(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(this->testSubject.compare(bar), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
+TYPED_TEST(stringTyped_test, CompareWithEmptyCharResultsInPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a871dfe3-4acd-437c-b315-de3c43ece19b");
     using MyString = typename TestFixture::stringType;
@@ -1147,9 +1158,12 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
     this->testSubject = "M";
     char foo[STRINGCAP + 1U] = {'\0'};
     EXPECT_THAT(this->testSubject.compare(foo), Gt(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(this->testSubject.compare(bar), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResultsInZero)
+TYPED_TEST(stringTyped_test, CompareEqStringAndCharWithDifferentCapaResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0e86a0c-f68d-4d88-8e8b-f65f82a1e7aa");
     using MyString = typename TestFixture::stringType;
@@ -1163,9 +1177,12 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResults
     }
     foo[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(foo), Eq(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(this->testSubject.compare(bar), Eq(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa)
+TYPED_TEST(stringTyped_test, CompareWithCharResultNegativeWithDifferentCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3efb771d-88e5-4775-8ce8-ba14a4158930");
     using MyString = typename TestFixture::stringType;
@@ -1179,9 +1196,12 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa
     }
     foo[STRINGCAP + 1U] = '\0';
     EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(this->testSubject.compare(bar), Lt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa)
+TYPED_TEST(stringTyped_test, CompareWithCharResultPositiveWithDifferentCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c2c627d5-c633-4368-b7dc-f674315553f7");
     using MyString = typename TestFixture::stringType;
@@ -1196,9 +1216,12 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa
     }
     foo[STRINGCAP - 1U] = '\0';
     EXPECT_THAT(sut.compare(foo), Gt(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(sut.compare(bar), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPositive)
+TYPED_TEST(stringTyped_test, CompareWithEmptyCharOfDifferentCapaResultsInPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7fe1a772-6004-470e-8355-e54156571fa0");
     using MyString = typename TestFixture::stringType;
@@ -1206,6 +1229,9 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
     string<STRINGCAP + 1U> sut("M");
     char foo[STRINGCAP] = {'\0'};
     EXPECT_THAT(sut.compare(foo), Gt(0));
+
+    const char* const bar = foo;
+    EXPECT_THAT(sut.compare(bar), Gt(0));
 }
 
 /// @note template <uint64_t N>
@@ -1219,7 +1245,17 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
 /// and
 /// template <uint64_t N, uint64_t Capacity>
 /// inline bool operator!=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
-TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWorks)
+/// and
+/// bool operator==(const char* const rhs) const noexcept
+/// and
+/// bool operator!=(const char* const rhs) const noexcept
+/// and
+/// template <uint64_t Capacity>
+/// inline bool operator==(const char* const lhs, const string<Capacity>& rhs) noexcept
+/// and
+/// template <uint64_t Capacity>
+/// inline bool operator!=(const char* const lhs, const string<Capacity>& rhs) noexcept
+TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38d8e0ca-97c5-4e3f-9cb7-589bb7de3b71");
     using MyString = typename TestFixture::stringType;
@@ -1230,9 +1266,15 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWorks)
     EXPECT_THAT(bar == foo, Eq(true));
     EXPECT_THAT(foo != bar, Eq(false));
     EXPECT_THAT(bar != foo, Eq(false));
+
+    const char* const bla = bar;
+    EXPECT_THAT(foo == bla, Eq(true));
+    EXPECT_THAT(bla == foo, Eq(true));
+    EXPECT_THAT(foo != bla, Eq(false));
+    EXPECT_THAT(bla != foo, Eq(false));
 }
 
-TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWorks)
+TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "129d4f55-71cd-4b6a-b07e-1f53069c117b");
     using MyString = typename TestFixture::stringType;
@@ -1243,9 +1285,15 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWorks)
     EXPECT_THAT(bar == foo, Eq(false));
     EXPECT_THAT(foo != bar, Eq(true));
     EXPECT_THAT(bar != foo, Eq(true));
+
+    const char* const bla = bar;
+    EXPECT_THAT(foo == bla, Eq(false));
+    EXPECT_THAT(bla == foo, Eq(false));
+    EXPECT_THAT(foo != bla, Eq(true));
+    EXPECT_THAT(bla != foo, Eq(true));
 }
 
-TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWithDifferentCapaWorks)
+TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharWithDifferentCapaWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a01cc09b-fe94-42db-bcbd-4f813f4acd62");
     using MyString = typename TestFixture::stringType;
@@ -1256,9 +1304,15 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharArrayWithDifferentCapa
     EXPECT_THAT(bar == foo, Eq(true));
     EXPECT_THAT(foo != bar, Eq(false));
     EXPECT_THAT(bar != foo, Eq(false));
+
+    const char* const bla = bar;
+    EXPECT_THAT(foo == bla, Eq(true));
+    EXPECT_THAT(bla == foo, Eq(true));
+    EXPECT_THAT(foo != bla, Eq(false));
+    EXPECT_THAT(bla != foo, Eq(false));
 }
 
-TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCapaWorks)
+TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharWithDifferentCapaWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d678927a-f629-433c-ad10-1d62338c816b");
     using MyString = typename TestFixture::stringType;
@@ -1276,6 +1330,16 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCa
     EXPECT_THAT(bla != bar, Eq(true));
     EXPECT_THAT(bar != foo, Eq(true));
     EXPECT_THAT(bar != bla, Eq(true));
+
+    const char* const blub = bar;
+    EXPECT_THAT(foo == blub, Eq(false));
+    EXPECT_THAT(bla == blub, Eq(false));
+    EXPECT_THAT(blub == foo, Eq(false));
+    EXPECT_THAT(blub == bla, Eq(false));
+    EXPECT_THAT(foo != blub, Eq(true));
+    EXPECT_THAT(bla != blub, Eq(true));
+    EXPECT_THAT(blub != foo, Eq(true));
+    EXPECT_THAT(blub != bla, Eq(true));
 }
 
 /// @note template <uint64_t N>
@@ -1301,7 +1365,27 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharArrayWithDifferentCa
 /// and
 /// template <uint64_t N, uint64_t Capacity>
 /// inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexcept
-TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
+/// and
+/// bool operator<(const char* const rhs) const noexcept
+/// and
+/// bool operator<=(const char* const rhs) const noexcept
+/// and
+/// bool operator>(const char* const rhs) const noexcept
+/// and
+/// bool operator>=(const char* const rhs) const noexcept
+/// and
+/// template <uint64_t Capacity>
+/// inline bool operator<(const char* const lhs, const string<Capacity>& rhs) const noexcept
+/// and
+/// template <uint64_t Capacity>
+/// inline bool operator<=(const char* const lhs, const string<Capacity>& rhs) const noexcept
+/// and
+/// template <uint64_t Capacity>
+/// inline bool operator>(const char* const lhs, const string<Capacity>& rhs) const noexcept
+/// and
+/// template <uint64_t Capacity>
+/// inline bool operator>=(const char* const lhs, const string<Capacity>& rhs) const noexcept
+TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentChar)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9dcd5cce-ce7d-4cf9-8c36-edca46d09ff7");
     using MyString = typename TestFixture::stringType;
@@ -1326,9 +1410,28 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArray)
     EXPECT_THAT(bar >= foo, Eq(false));
     EXPECT_THAT(bar > bla, Eq(true));
     EXPECT_THAT(bar >= bla, Eq(true));
+
+    const char* const blub = bar;
+    EXPECT_THAT(foo < blub, Eq(false));
+    EXPECT_THAT(foo <= blub, Eq(false));
+    EXPECT_THAT(bla < blub, Eq(true));
+    EXPECT_THAT(bla <= blub, Eq(true));
+    EXPECT_THAT(foo > blub, Eq(true));
+    EXPECT_THAT(foo >= blub, Eq(true));
+    EXPECT_THAT(bla > blub, Eq(false));
+    EXPECT_THAT(bla >= blub, Eq(false));
+
+    EXPECT_THAT(blub < foo, Eq(true));
+    EXPECT_THAT(blub <= foo, Eq(true));
+    EXPECT_THAT(blub < bla, Eq(false));
+    EXPECT_THAT(blub <= bla, Eq(false));
+    EXPECT_THAT(blub > foo, Eq(false));
+    EXPECT_THAT(blub >= foo, Eq(false));
+    EXPECT_THAT(blub > bla, Eq(true));
+    EXPECT_THAT(blub >= bla, Eq(true));
 }
 
-TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArrays)
+TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualChar)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a07445e-8d0b-43f6-92b7-70a390ad6a27");
     using MyString = typename TestFixture::stringType;
@@ -1344,9 +1447,20 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArrays)
     EXPECT_THAT(bar <= foo, Eq(true));
     EXPECT_THAT(bar > foo, Eq(false));
     EXPECT_THAT(bar >= foo, Eq(true));
+
+    const char* const bla = bar;
+    EXPECT_THAT(foo < bla, Eq(false));
+    EXPECT_THAT(foo <= bla, Eq(true));
+    EXPECT_THAT(foo > bla, Eq(false));
+    EXPECT_THAT(foo >= bla, Eq(true));
+
+    EXPECT_THAT(bla < foo, Eq(false));
+    EXPECT_THAT(bla <= foo, Eq(true));
+    EXPECT_THAT(bla > foo, Eq(false));
+    EXPECT_THAT(bla >= foo, Eq(true));
 }
 
-TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferentCapa)
+TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ee0d514-12b8-48e5-b19b-997af585fc95");
     using MyString = typename TestFixture::stringType;
@@ -1382,9 +1496,29 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharArrayWithDifferent
     EXPECT_THAT(foo >= bar, Eq(false));
     EXPECT_THAT(foo > bla, Eq(true));
     EXPECT_THAT(foo >= bla, Eq(true));
+
+    const char* const blub = foo;
+
+    EXPECT_THAT(bar < blub, Eq(false));
+    EXPECT_THAT(bar <= blub, Eq(false));
+    EXPECT_THAT(bla < blub, Eq(true));
+    EXPECT_THAT(bla <= blub, Eq(true));
+    EXPECT_THAT(bar > blub, Eq(true));
+    EXPECT_THAT(bar >= blub, Eq(true));
+    EXPECT_THAT(bla > blub, Eq(false));
+    EXPECT_THAT(bla >= blub, Eq(false));
+
+    EXPECT_THAT(blub < bar, Eq(true));
+    EXPECT_THAT(blub <= bar, Eq(true));
+    EXPECT_THAT(blub < bla, Eq(false));
+    EXPECT_THAT(blub <= bla, Eq(false));
+    EXPECT_THAT(blub > bar, Eq(false));
+    EXPECT_THAT(blub >= bar, Eq(false));
+    EXPECT_THAT(blub > bla, Eq(true));
+    EXPECT_THAT(blub >= bla, Eq(true));
 }
 
-TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArraysWithDifferentCapa)
+TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharWithDifferentCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7ccedecd-215c-4bd7-89ff-d0bb25c206bb");
     using MyString = typename TestFixture::stringType;
@@ -1409,6 +1543,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualCharArraysWithDifferentCap
     EXPECT_THAT(foo <= bar, Eq(true));
     EXPECT_THAT(foo > bar, Eq(false));
     EXPECT_THAT(foo >= bar, Eq(true));
+
+    const char* const bla = foo;
+
+    EXPECT_THAT(bar < bla, Eq(false));
+    EXPECT_THAT(bar <= bla, Eq(true));
+    EXPECT_THAT(bar > bla, Eq(false));
+    EXPECT_THAT(bar >= bla, Eq(true));
+
+    EXPECT_THAT(bla < bar, Eq(false));
+    EXPECT_THAT(bla <= bar, Eq(true));
+    EXPECT_THAT(bla > bar, Eq(false));
+    EXPECT_THAT(bla >= bar, Eq(true));
 }
 
 /// @note explicit operator std::string() const noexcept
