@@ -25,37 +25,20 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-callbacks-publisher ./ice_callbacks_publisher.cpp)
-target_link_libraries(iox-cpp-callbacks-publisher
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-callbacks-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-callbacks-subscriber ./ice_callbacks_subscriber.cpp)
-target_link_libraries(iox-cpp-callbacks-subscriber
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-callbacks-listener-as-class-member ./ice_callbacks_listener_as_class_member.cpp)
-target_link_libraries(iox-cpp-callbacks-listener-as-class-member
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-callbacks-listener-as-class-member PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-
-
-set_target_properties(
-    iox-cpp-callbacks-listener-as-class-member
-    iox-cpp-callbacks-subscriber
-    iox-cpp-callbacks-publisher
-  PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET      iox-cpp-callbacks-publisher
+    FILES       ./ice_callbacks_publisher.cpp
+    LIBS        iceoryx_posh::iceoryx_posh
 )
 
-install(
-    TARGETS iox-cpp-callbacks-publisher iox-cpp-callbacks-subscriber iox-cpp-callbacks-listener-as-class-member
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    TARGET      iox-cpp-callbacks-subscriber
+    FILES       ./ice_callbacks_subscriber.cpp
+    LIBS        iceoryx_posh::iceoryx_posh
+)
+
+iox_add_executable(
+    TARGET      iox-cpp-callbacks-listener-as-class-member
+    FILES       ./ice_callbacks_listener_as_class_member.cpp
+    LIBS        iceoryx_posh::iceoryx_posh
 )

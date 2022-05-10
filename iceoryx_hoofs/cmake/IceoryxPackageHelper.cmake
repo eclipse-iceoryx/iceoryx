@@ -150,6 +150,25 @@ Macro(iox_add_test)
     iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
 endMacro()
 
+Macro(iox_add_executable)
+    set(arguments TARGET FILES LIBS )
+    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+
+    add_executable(${IOX_TARGET} ${IOX_FILES})
+    target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_LIBS})
+    target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER})
+
+    set_target_properties(
+        ${IOX_TARGET}
+      PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+    )
+
+    install( TARGETS ${IOX_TARGET} RUNTIME DESTINATION bin)
+endMacro()
+
 Macro(iox_add_library)
     set(arguments TARGET RPATH FILES PUBLIC_LINKS PRIVATE_LINKS ALIAS INSTALL_INTERFACE
         PUBLIC_LINKS_LINUX PRIVATE_LINKS_LINUX PUBLIC_LINKS_QNX PRIVATE_LINKS_QNX
