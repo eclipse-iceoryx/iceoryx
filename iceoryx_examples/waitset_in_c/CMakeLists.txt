@@ -26,61 +26,37 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
-    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
-endif()
-
-add_executable(iox-c-waitset-publisher ./ice_c_waitset_publisher.c)
-target_link_libraries(iox-c-waitset-publisher
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-waitset-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-waitset-gateway ./ice_c_waitset_gateway.c)
-target_link_libraries(iox-c-waitset-gateway
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-waitset-gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-waitset-grouping ./ice_c_waitset_grouping.c)
-target_link_libraries(iox-c-waitset-grouping
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-waitset-grouping PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-waitset-individual ./ice_c_waitset_individual.c)
-target_link_libraries(iox-c-waitset-individual
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-waitset-individual PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-waitset-timer-driven-execution ./ice_c_waitset_timer_driven_execution.c)
-target_link_libraries(iox-c-waitset-timer-driven-execution
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-waitset-timer-driven-execution PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_source_files_properties(
-    ./ice_c_waitset_timer_driven_execution.c
-    ./ice_c_waitset_individual.c
-    ./ice_c_waitset_grouping.c
-    ./ice_c_waitset_gateway.c
-    ./ice_c_waitset_publisher.c
-  PROPERTIES 
-    LANGUAGE C
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-waitset-publisher
+    FILES   ./ice_c_waitset_publisher.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )
 
-set_target_properties(
-    iox-c-waitset-timer-driven-execution
-    iox-c-waitset-individual
-    iox-c-waitset-grouping
-    iox-c-waitset-gateway
-    iox-c-waitset-publisher
-  PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-waitset-gateway
+    FILES   ./ice_c_waitset_gateway.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )
 
-install(
-    TARGETS iox-c-waitset-publisher iox-c-waitset-gateway iox-c-waitset-grouping iox-c-waitset-individual iox-c-waitset-timer-driven-execution
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-waitset-grouping
+    FILES   ./ice_c_waitset_grouping.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
+)
+
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-waitset-individual
+    FILES   ./ice_c_waitset_individual.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
+)
+
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-waitset-timer-driven-execution
+    FILES   ./ice_c_waitset_timer_driven_execution.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )

@@ -28,31 +28,16 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
-    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
-endif()
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-publisher
+    FILES   ./ice_c_publisher.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
+)
 
-add_executable(iox-c-publisher ./ice_c_publisher.c)
-set_source_files_properties(./ice_c_publisher.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-publisher
-    iceoryx_binding_c::iceoryx_binding_c
-)
-set_target_properties(iox-c-publisher PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
-target_compile_options(iox-c-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-subscriber ./ice_c_subscriber.c)
-set_source_files_properties(./ice_c_subscriber.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-subscriber
-    iceoryx_binding_c::iceoryx_binding_c
-)
-set_target_properties(iox-c-subscriber PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
-target_compile_options(iox-c-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-install(
-    TARGETS iox-c-publisher iox-c-subscriber
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-subscriber
+    FILES   ./ice_c_subscriber.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )

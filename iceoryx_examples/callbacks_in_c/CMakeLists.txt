@@ -26,44 +26,23 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
-    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
-endif()
-
-add_executable(iox-c-callbacks-publisher ./ice_c_callbacks_publisher.c)
-set_source_files_properties(./ice_c_callbacks_publisher.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-callbacks-publisher
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-callbacks-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-callbacks-subscriber ./ice_c_callbacks_subscriber.c)
-set_source_files_properties(./ice_c_callbacks_subscriber.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-callbacks-subscriber
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-callbacks-with-context-data ./ice_c_callbacks_with_context_data.c)
-set_source_files_properties(./ice_c_callbacks_with_context_data.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-callbacks-with-context-data
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-callbacks-with-context-data PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-
-
-set_target_properties(
-    iox-c-callbacks-with-context-data
-    iox-c-callbacks-subscriber
-    iox-c-callbacks-publisher
-  PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-callbacks-publisher
+    FILES   ./ice_c_callbacks_publisher.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )
 
-install(
-    TARGETS iox-c-callbacks-publisher iox-c-callbacks-subscriber iox-c-callbacks-with-context-data
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-callbacks-subscriber
+    FILES   ./ice_c_callbacks_subscriber.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
+)
+
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-callbacks-with-context-data
+    FILES   ./ice_c_callbacks_with_context_data.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )

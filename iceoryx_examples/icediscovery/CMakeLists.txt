@@ -26,49 +26,28 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-offer-service ./iox_offer_service.cpp)
-target_link_libraries(iox-cpp-offer-service
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-offer-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-find-service ./iox_find_service.cpp)
-target_link_libraries(iox-cpp-find-service
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-wait-for-service ./iox_wait_for_service.cpp ./src/discovery_blocking.cpp)
-target_link_libraries(iox-cpp-wait-for-service
-    iceoryx_posh::iceoryx_posh
+iox_add_executable(
+    TARGET  iox-cpp-offer-service
+    FILES   ./iox_offer_service.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-add_executable(iox-cpp-discovery-monitor ./iox_discovery_monitor.cpp ./src/discovery_monitor.cpp)
-target_link_libraries(iox-cpp-discovery-monitor
-    iceoryx_posh::iceoryx_posh
+iox_add_executable(
+    TARGET  iox-cpp-find-service
+    FILES   ./iox_find_service.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-target_include_directories(iox-cpp-wait-for-service PRIVATE include)
-target_include_directories(iox-cpp-discovery-monitor PRIVATE include)
-
-target_compile_options(iox-cpp-wait-for-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-target_compile_options(iox-cpp-discovery-monitor PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-target_compile_options(iox-cpp-offer-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-cpp-offer-service
-                      iox-cpp-find-service
-                      iox-cpp-wait-for-service
-                      iox-cpp-discovery-monitor
-                      PROPERTIES
-                      CXX_STANDARD_REQUIRED ON
-                      CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-                      POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET              iox-cpp-wait-for-service
+    FILES               ./iox_wait_for_service.cpp ./src/discovery_blocking.cpp
+    LIBS                iceoryx_posh::iceoryx_posh
+    INCLUDE_DIRECTORY   include
 )
 
-# ========================================================== //
-
-install(TARGETS iox-cpp-offer-service
-                iox-cpp-find-service
-                iox-cpp-wait-for-service
-                iox-cpp-discovery-monitor
-        RUNTIME DESTINATION bin)
+iox_add_executable(
+    TARGET              iox-cpp-discovery-monitor
+    FILES               ./iox_discovery_monitor.cpp ./src/discovery_monitor.cpp
+    LIBS                iceoryx_posh::iceoryx_posh
+    INCLUDE_DIRECTORY   include
+)

@@ -151,20 +151,54 @@ Macro(iox_add_test)
 endMacro()
 
 Macro(iox_add_executable)
-    set(arguments TARGET FILES LIBS )
-    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+    set(switches USE_C_LANGUAGE)
+    set(arguments TARGET STACK_SIZE)
+    set(multiArguments FILES LIBS INCLUDE_DIRECTORY LIBS_QNX)
+    cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     add_executable(${IOX_TARGET} ${IOX_FILES})
+    target_include_directories(${IOX_TARGET} PRIVATE ${IOX_INCLUDE_DIRECTORY})
     target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_LIBS})
-    target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER})
 
-    set_target_properties(
-        ${IOX_TARGET}
-      PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-    )
+    if ( QNX )
+        target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_LIBS_QNX})
+    endif()
+
+    set(IOX_WARNINGS ${ICEORYX_WARNINGS})
+
+    if (${IOX_USE_C_LANGUAGE})
+        set_source_files_properties(${IOX_FILES} PROPERTIES LANGUAGE C)
+        set_target_properties(
+            ${IOX_TARGET}
+          PROPERTIES
+            C_STANDARD_REQUIRED ON
+            C_STANDARD 11
+        )
+
+        if("-Wno-noexcept-type" IN_LIST IOX_WARNINGS)
+            list(REMOVE_ITEM IOX_WARNINGS "-Wno-noexcept-type")
+        endif()
+    else()
+        set_source_files_properties(${IOX_FILES} PROPERTIES LANGUAGE CXX)
+        set_target_properties(
+            ${IOX_TARGET}
+          PROPERTIES
+            CXX_STANDARD_REQUIRED ON
+            CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        )
+    endif()
+
+    target_compile_options(${IOX_TARGET} PRIVATE ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
+
+    if (${IOX_STACK_SIZE})
+        if(WIN32)
+            target_link_options(single_process BEFORE PRIVATE /STACK:${IOX_STACK_SIZE})
+        else()
+            target_link_options(single_process BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
+        endif()
+    endif()
+
+    set_target_properties( ${IOX_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
     install( TARGETS ${IOX_TARGET} RUNTIME DESTINATION bin)
 endMacro()
@@ -206,7 +240,7 @@ Macro(iox_add_library)
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
             ${IOX_TARGET}
-            PROPERTIES 
+            PROPERTIES
             CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)

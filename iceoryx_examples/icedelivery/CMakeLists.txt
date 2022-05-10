@@ -27,40 +27,26 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-publisher ./iox_publisher.cpp)
-target_link_libraries(iox-cpp-publisher
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-publisher-untyped ./iox_publisher_untyped.cpp)
-target_link_libraries(iox-cpp-publisher-untyped
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-subscriber ./iox_subscriber.cpp)
-target_link_libraries(iox-cpp-subscriber
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-subscriber-untyped ./iox_subscriber_untyped.cpp)
-target_link_libraries(iox-cpp-subscriber-untyped
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-cpp-subscriber iox-cpp-subscriber-untyped
-                      iox-cpp-publisher iox-cpp-publisher-untyped
-                      PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET  iox-cpp-publisher
+    FILES   ./iox_publisher.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-# ========================================================== //
+iox_add_executable(
+    TARGET  iox-cpp-publisher-untyped
+    FILES   ./iox_publisher_untyped.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)
 
-install(TARGETS iox-cpp-publisher-untyped iox-cpp-publisher
-                iox-cpp-subscriber-untyped iox-cpp-subscriber
-        RUNTIME DESTINATION bin)
+iox_add_executable(
+    TARGET  iox-cpp-subscriber
+    FILES   ./iox_subscriber.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)
+
+iox_add_executable(
+    TARGET  iox-cpp-subscriber-untyped
+    FILES   ./iox_subscriber_untyped.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)

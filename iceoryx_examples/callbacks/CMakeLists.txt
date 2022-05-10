@@ -26,19 +26,19 @@ get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD
 include(IceoryxPlatform)
 
 iox_add_executable(
-    TARGET      iox-cpp-callbacks-publisher
-    FILES       ./ice_callbacks_publisher.cpp
-    LIBS        iceoryx_posh::iceoryx_posh
+    TARGET  iox-cpp-callbacks-publisher
+    FILES   ./ice_callbacks_publisher.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
 iox_add_executable(
-    TARGET      iox-cpp-callbacks-subscriber
-    FILES       ./ice_callbacks_subscriber.cpp
-    LIBS        iceoryx_posh::iceoryx_posh
+    TARGET  iox-cpp-callbacks-subscriber
+    FILES   ./ice_callbacks_subscriber.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
 iox_add_executable(
-    TARGET      iox-cpp-callbacks-listener-as-class-member
-    FILES       ./ice_callbacks_listener_as_class_member.cpp
-    LIBS        iceoryx_posh::iceoryx_posh
+    TARGET  iox-cpp-callbacks-listener-as-class-member
+    FILES   ./ice_callbacks_listener_as_class_member.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
