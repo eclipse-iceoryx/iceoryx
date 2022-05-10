@@ -49,24 +49,24 @@ elseif(WIN32)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
 endif()
 
-iox_add_test(   TARGET          ${PROJECT_PREFIX}_moduletests
-                FILES           ${MODULETESTS_SRC}
-                FLAGS           ${TEST_CXX_FLAGS}
-                LIBS            ${TEST_LINK_LIBS})
+iox_add_executable( TARGET          ${PROJECT_PREFIX}_moduletests
+                    FILES           ${MODULETESTS_SRC}
+                    FLAGS           ${TEST_CXX_FLAGS}
+                    LIBS            ${TEST_LINK_LIBS})
 
-iox_add_test(   TARGET          ${PROJECT_PREFIX}_mocktests
-                FILES           ${MOCKTESTS_SRC}
-                FLAGS           ${TEST_CXX_FLAGS}
-                LIBS            ${TEST_LINK_LIBS})
+iox_add_executable( TARGET          ${PROJECT_PREFIX}_mocktests
+                    FILES           ${MOCKTESTS_SRC}
+                    FLAGS           ${TEST_CXX_FLAGS}
+                    LIBS            ${TEST_LINK_LIBS})
 
-iox_add_test(   TARGET          ${PROJECT_PREFIX}_integrationtests
-                FILES           ${INTEGRATIONTESTS_SRC}
-                FLAGS           ${TEST_CXX_FLAGS}
-                LIBS            ${TEST_LINK_LIBS})
+iox_add_executable( TARGET          ${PROJECT_PREFIX}_integrationtests
+                    FILES           ${INTEGRATIONTESTS_SRC}
+                    FLAGS           ${TEST_CXX_FLAGS}
+                    LIBS            ${TEST_LINK_LIBS})
 
-iox_add_test(   TARGET          test_stress_sofi
-                FILES           stresstests/test_stress_sofi.cpp
-                FLAGS           ${TEST_CXX_FLAGS}
-                LIBS            ${TEST_LINK_LIBS})
+iox_add_executable( TARGET          test_stress_sofi
+                    FILES           stresstests/test_stress_sofi.cpp
+                    FLAGS           ${TEST_CXX_FLAGS}
+                    LIBS            ${TEST_LINK_LIBS})
 
 add_subdirectory(stresstests/benchmark_optional_and_expected)

@@ -133,23 +133,6 @@ Macro(iox_set_rpath)
     endif( LINUX OR UNIX )
 endMacro()
 
-Macro(iox_add_test)
-    set(arguments TARGET RPATH FILES FLAGS LIBS )
-    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
-
-    add_executable(${IOX_TARGET} ${IOX_FILES})
-    target_include_directories(${IOX_TARGET} PRIVATE .)
-    target_compile_options(${IOX_TARGET} PRIVATE ${IOX_FLAGS})
-    target_link_libraries(${IOX_TARGET} ${IOX_LIBS})
-    set_target_properties(${IOX_TARGET} PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-    )
-
-    iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
-endMacro()
-
 Macro(iox_add_executable)
     set(switches USE_C_LANGUAGE)
     set(arguments TARGET STACK_SIZE)
