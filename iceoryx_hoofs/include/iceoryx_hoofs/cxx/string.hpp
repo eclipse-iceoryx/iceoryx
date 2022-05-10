@@ -359,6 +359,57 @@ class string
     template <uint64_t N>
     bool operator>=(const string<N>& rhs) const noexcept;
 
+    /// @brief compares a string and a std::string
+    ///
+    /// @param [in] other is the std::string to compare with self
+    ///
+    /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
+    /// the contents of self and other are equal, an integer > 0 if the first character that does not match has a
+    /// greater value in self than in other
+    constexpr int64_t compare(const std::string& other) const noexcept;
+
+    /// @brief checks if self is equal to rhs
+    ///
+    /// @param[in] rhs is the std::string to compare with self
+    ///
+    /// @return true if the contents of self and rhs are equal, otherwise false
+    bool operator==(const std::string& rhs) const noexcept;
+
+    /// @brief checks if self is not equal to rhs
+    ///
+    /// @param [in] rhs is the std::string to compare with self
+    ///
+    /// @return true if the contents of self and rhs are not equal, otherwise false
+    bool operator!=(const std::string& rhs) const noexcept;
+
+    /// @brief checks if self is less than rhs, in lexicographical order
+    ///
+    /// @param [in] rhs is the std::string to compare with self
+    ///
+    /// @return true if self is less than rhs, otherwise false
+    bool operator<(const std::string& rhs) const noexcept;
+
+    /// @brief checks if self is less than or equal to rhs, in lexicographical order
+    ///
+    /// @param [in] rhs is the std::string to compare with self
+    ///
+    /// @return true if self is less than or equal to rhs, otherwise false
+    bool operator<=(const std::string& rhs) const noexcept;
+
+    /// @brief checks if self is greater than rhs, in lexicographical order
+    ///
+    /// @param [in] rhs is the std::string to compare with self
+    ///
+    /// @return true if self is greater than rhs, otherwise false
+    bool operator>(const std::string& rhs) const noexcept;
+
+    /// @brief checks if self is greater than or equal to rhs, in lexicographical order
+    ///
+    /// @param [in] rhs is the std::string to compare with self
+    ///
+    /// @return true if self is greater than or equal to rhs, otherwise false
+    bool operator>=(const std::string& rhs) const noexcept;
+
     /// @brief compares a string and a char array
     ///
     /// @tparam [in] N is the implicit template parameter for the char array size
@@ -628,41 +679,59 @@ class string
     uint64_t m_rawstringSize{0U};
 };
 
-/// @brief checks if a rhs fixed string is equal to a lhs std::string
+/// @brief checks if a rhs iox::cxx::string is equal to a lhs std::string
 ///
 /// @param [in] lhs is the std::string
-/// @param [in] rhs is the fixed string
+/// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if both strings are equal, otherwise false
 template <uint64_t Capacity>
 inline bool operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a rhs std::string is equal to a lhs fixed string
-///
-/// @param [in] lhs is the fixed string
-/// @param [in] rhs is the std::string
-///
-/// @return true if both strings are equal, otherwise false
-template <uint64_t Capacity>
-inline bool operator==(const string<Capacity>& lhs, const std::string& rhs) noexcept;
-
-/// @brief checks if a rhs fixed string is not equal to a lhs std::string
+/// @brief checks if a rhs iox::cxx::string is not equal to a lhs std::string
 ///
 /// @param [in] lhs is the std::string
-/// @param [in] rhs is the fixed string
+/// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if both strings are not equal, otherwise false
 template <uint64_t Capacity>
 inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a rhs std::string is not equal to a lhs fixed string
+/// @brief checks if a lhs std::string is less than a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the fixed string
-/// @param [in] rhs is the std::string
+/// @param [in] lhs is the std::string
+/// @param [in] rhs is the iox::cxx::string
 ///
-/// @return true if both strings are not equal, otherwise false
+/// @return true if lhs is less than rhs, otherwise false
 template <uint64_t Capacity>
-inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs) noexcept;
+inline bool operator<(const std::string& lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a lhs std::string is less than or equal to a rhs iox::cxx::string
+///
+/// @param [in] lhs is the std::string
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is less than or equal to rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator<=(const std::string& lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a lhs std::string is greater than a rhs iox::cxx::string
+///
+/// @param [in] lhs is the std::string
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is greater than rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator>(const std::string& lhs, const string<Capacity>& rhs) noexcept;
+
+/// @brief checks if a lhs std::string is greater than or equal to a rhs iox::cxx::string
+///
+/// @param [in] lhs is the std::string
+/// @param [in] rhs is the iox::cxx::string
+///
+/// @return true if lhs is greater than or equal to rhs, otherwise false
+template <uint64_t Capacity>
+inline bool operator>=(const std::string& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a rhs string is equal to a lhs char array
 ///

@@ -446,31 +446,97 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
 }
 
 template <uint64_t Capacity>
-inline bool operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept
+inline constexpr int64_t string<Capacity>::compare(const std::string& other) const noexcept
 {
-    if (lhs.size() != rhs.size())
+    uint64_t otherSize = other.size();
+    auto result = memcmp(c_str(), other.c_str(), std::min(m_rawstringSize, otherSize));
+    if (result == 0)
     {
-        return false;
+        if (m_rawstringSize < otherSize)
+        {
+            return -1;
+        }
+        else if (m_rawstringSize > otherSize)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
-    return (memcmp(lhs.c_str(), rhs.c_str(), rhs.size()) == 0);
+    return result;
 }
 
 template <uint64_t Capacity>
-inline bool operator==(const string<Capacity>& lhs, const std::string& rhs) noexcept
+inline bool string<Capacity>::operator==(const std::string& rhs) const noexcept
 {
-    return (rhs == lhs);
+    return (compare(rhs) == 0);
+}
+
+template <uint64_t Capacity>
+inline bool string<Capacity>::operator!=(const std::string& rhs) const noexcept
+{
+    return (compare(rhs) != 0);
+}
+
+template <uint64_t Capacity>
+inline bool string<Capacity>::operator<(const std::string& rhs) const noexcept
+{
+    return (compare(rhs) < 0);
+}
+
+template <uint64_t Capacity>
+inline bool string<Capacity>::operator<=(const std::string& rhs) const noexcept
+{
+    return !(compare(rhs) > 0);
+}
+template <uint64_t Capacity>
+inline bool string<Capacity>::operator>(const std::string& rhs) const noexcept
+{
+    return (compare(rhs) > 0);
+}
+
+template <uint64_t Capacity>
+inline bool string<Capacity>::operator>=(const std::string& rhs) const noexcept
+{
+    return !(compare(rhs) < 0);
+}
+
+template <uint64_t Capacity>
+inline bool operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) == 0);
 }
 
 template <uint64_t Capacity>
 inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noexcept
 {
-    return !(lhs == rhs);
+    return (rhs.compare(lhs) != 0);
 }
 
 template <uint64_t Capacity>
-inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs) noexcept
+inline bool operator<(const std::string& lhs, const string<Capacity>& rhs) noexcept
 {
-    return (rhs != lhs);
+    return (rhs.compare(lhs) > 0);
+}
+
+template <uint64_t Capacity>
+inline bool operator<=(const std::string& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) >= 0);
+}
+
+template <uint64_t Capacity>
+inline bool operator>(const std::string& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) < 0);
+}
+
+template <uint64_t Capacity>
+inline bool operator>=(const std::string& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) <= 0);
 }
 
 template <uint64_t Capacity>
