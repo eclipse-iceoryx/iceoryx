@@ -39,25 +39,10 @@ set(TEST_LINK_LIBS
     iceoryx_posh_testing::iceoryx_posh_testing
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-unused -Wno-pedantic)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-unused -Wno-pedantic)
-endif()
-
-if(LINUX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
-elseif(QNX)
-elseif(APPLE)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
-elseif(WIN32)
-endif()
-
-# unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
-set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD ${ICEORYX_CXX_STANDARD})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
-target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
-target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
+                    INCLUDE_DIRECTORIES     .
+                    FILES                   ${MODULETESTS_SRC}
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_APPLE              dl
+                    LIBS_LINUX              dl
+)

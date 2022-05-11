@@ -226,7 +226,7 @@ Macro(iox_add_executable)
 endMacro()
 
 Macro(iox_add_library)
-    set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT)
+    set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT STATIC)
     set(arguments TARGET NAMESPACE PROJECT_PREFIX)
     set(multiArguments FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
@@ -246,14 +246,18 @@ Macro(iox_add_library)
 
     if ( NOT IOX_NO_FIND_PACKAGE_SUPPORT )
         ########## find_package in source tree ##########
-        set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
+        set(${IOX_TARGET}_DIR ${PROJECT_SOURCE_DIR}/cmake
             CACHE FILEPATH
-            "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
+            "${IOX_TARGET}Config.cmake to make find_package(${IO_TARGET}) work in source tree!"
             FORCE
         )
     endif()
 
-    add_library( ${IOX_TARGET} ${IOX_FILES} )
+    if ( IOX_STATIC )
+        add_library( ${IOX_TARGET} STATIC ${IOX_FILES} )
+    else()
+        add_library( ${IOX_TARGET} ${IOX_FILES} )
+    endif()
 
     if ( IOX_NAMESPACE )
         add_library( ${IOX_NAMESPACE}::${IOX_TARGET} ALIAS ${IOX_TARGET})
@@ -271,7 +275,11 @@ Macro(iox_add_library)
         endif()
     endif()
 
-    set_target_properties(${IOX_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    set_target_properties(${IOX_TARGET} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        VERSION ${PROJECT_VERSION}
+    )
+
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
     target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})
     target_include_directories(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_INCLUDES} PRIVATE ${IOX_PRIVATE_INCLUDES})

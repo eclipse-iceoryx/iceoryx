@@ -20,65 +20,26 @@
 # TODO: we need something like internal public for internal build dependencies
 # instead of making the whole source folder public for internal dependency resolution
 
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}_testing
-    NAMESPACE iceoryx_hoofs_testing
-    PROJECT_PREFIX ${PREFIX}
-)
-
-add_library(iceoryx_hoofs_testing
+iox_add_library(
     STATIC
-    mocks/time_mock.cpp
-    mocks/error_handler_mock.cpp
-    timing_test.cpp
-    compile_test.cpp
-)
-
-add_library(iceoryx_hoofs_testing::iceoryx_hoofs_testing ALIAS iceoryx_hoofs_testing)
-
-set_target_properties(iceoryx_hoofs_testing PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(iceoryx_hoofs_testing PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+    TARGET                  ${PROJECT_NAME}_testing
+    NAMESPACE               iceoryx_hoofs_testing
+    PROJECT_PREFIX          ${PREFIX}
+    PUBLIC_LIBS             GTest::gtest
+                            GTest::gmock
+    PRIVATE_LIBS            ${CODE_COVERAGE_LIBS}
+                            iceoryx_hoofs
+                            ${CMAKE_DL_LIBS}
+    PRIVATE_LIBS_LINUX      rt
+    BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    INSTALL_INTERFACE       include/${PREFIX}
+    FILES
+        mocks/time_mock.cpp
+        mocks/error_handler_mock.cpp
+        timing_test.cpp
+        compile_test.cpp
 )
 
 if(TEST_WITH_ADDITIONAL_USER)
     target_compile_definitions(iceoryx_hoofs_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
 endif(TEST_WITH_ADDITIONAL_USER)
-
-target_include_directories(iceoryx_hoofs_testing
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-
-target_link_libraries(iceoryx_hoofs_testing
-    PUBLIC
-        GTest::gtest
-        GTest::gmock
-    PRIVATE
-        ${CODE_COVERAGE_LIBS}
-        iceoryx_hoofs
-        ${CMAKE_DL_LIBS}
-)
-
-if(LINUX)
-    target_link_libraries(iceoryx_hoofs_testing PRIVATE rt)
-endif()
-
-target_compile_options(iceoryx_hoofs_testing PRIVATE ${ICEORYX_WARNINGS})
-
-setup_install_directories_and_export_package(
-    TARGETS iceoryx_hoofs_testing
-    INCLUDE_DIRECTORY include/
-)
-
-#
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_testing_DIR ${PROJECT_SOURCE_DIR}/cmake
-CACHE FILEPATH
-"${PROJECT_NAME}_testingConfig.cmake to make find_package(${PROJECT_NAME}_testing) work in source tree!"
-FORCE
-)
