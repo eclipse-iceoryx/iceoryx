@@ -215,9 +215,9 @@ Macro(iox_add_executable)
 
     if ( IOX_STACK_SIZE )
         if(WIN32)
-            target_link_options(single_process BEFORE PRIVATE /STACK:${IOX_STACK_SIZE})
+            target_link_options(${IOX_TARGET} BEFORE PRIVATE /STACK:${IOX_STACK_SIZE})
         else()
-            target_link_options(single_process BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
+            target_link_options(${IOX_TARGET} BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
         endif()
     endif()
 

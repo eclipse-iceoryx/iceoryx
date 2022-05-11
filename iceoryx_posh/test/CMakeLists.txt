@@ -58,13 +58,30 @@ set(TEST_LINK_LIBS
     iceoryx_posh_testing::iceoryx_posh_testing
 )
 
-if(LINUX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
-    set(TEST_LINKER_FLAGS -Wl,-z,stack-size=${ICEORYX_POSH_TEST_STACK_SIZE})
-elseif(WIN32)
-    set(TEST_LINKER_FLAGS /STACK:${ICEORYX_POSH_TEST_STACK_SIZE})
-endif()
+# unittests
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
+                    INCLUDE_DIRECTORIES     .
+                                            ${CMAKE_BINARY_DIR}/generated
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              dl
+                    STACK_SIZE              ${ICEORYX_POSH_TEST_STACK_SIZE}
+                    FILES
+                        ${MODULETESTS_SRC}
+                        ${MOCKS_SRC}
+    )
 
+# integration tests
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              dl
+                    STACK_SIZE              ${ICEORYX_POSH_TEST_STACK_SIZE}
+                    FILES
+                        ${INTEGRATIONTESTS_SRC}
+                        ${TESTUTILS_SRC}
+    )
+
+# TODO: iox-#1287 fix conversion warnings
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
@@ -73,27 +90,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 endif()
 
-# unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${MOCKS_SRC})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
-# TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
-target_link_options(${PROJECT_PREFIX}_moduletests BEFORE PRIVATE ${TEST_LINKER_FLAGS})
-target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-# integration tests
-add_executable( ${PROJECT_PREFIX}_integrationtests ${INTEGRATIONTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
 target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
-target_link_options(${PROJECT_PREFIX}_integrationtests BEFORE PRIVATE ${TEST_LINKER_FLAGS})
-target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
-target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+# TODO: END iox-#1287 fix conversion warnings

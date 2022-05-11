@@ -51,9 +51,16 @@ include(cmake/iceoryxversions.cmake)
 #
 ########## posh core lib ##########
 #
+# TODO: iox-#1287 cleanup this, it sets DESTINATION_INCLUDEDIR and
+# DESTINATION_CONFIGDIR which are used later in this scope
+setup_package_name_and_create_files(
+    NAME ${PROJECT_NAME}
+    NAMESPACE iceoryx_posh
+    PROJECT_PREFIX ${PREFIX}
+)
+
 iox_add_library(
     NO_EXPORT
-    NO_PACKAGE_SETUP
     TARGET                  iceoryx_posh    # @todo iox-#590 Rename this to iceoryx_posh_core
     NAMESPACE               iceoryx_posh    # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
                                             # and include both iceoryx_posh_core and iceoryx_posh_runtime
@@ -265,8 +272,9 @@ install(
 )
 
 # install deployment file to make posh config accessible by other packages
+
 install(
-    FILES
+    FILES 
         cmake/IceoryxPoshDeployment.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
