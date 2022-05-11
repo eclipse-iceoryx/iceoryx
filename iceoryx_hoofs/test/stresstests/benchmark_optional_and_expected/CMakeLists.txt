@@ -28,17 +28,8 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-endif()
-
 iox_add_executable(
-    TARGET      iox-bm-optional-and-expected 
+    TARGET      iox-bm-optional-and-expected
     FILES       ./benchmark_optional_and_expected.cpp
     LIBS        iceoryx_hoofs::iceoryx_hoofs Threads::Threads
-    FLAGS       ${TEST_CXX_FLAGS}
 )

@@ -177,15 +177,23 @@ endMacro()
 Macro(iox_add_executable)
     set(switches USE_C_LANGUAGE)
     set(arguments TARGET STACK_SIZE)
-    set(multiArguments FILES LIBS INCLUDE_DIRECTORY LIBS_QNX)
+    set(multiArguments FILES LIBS INCLUDE_DIRECTORIES LIBS_QNX LIBS_LINUX LIBS_UNIX LIBS_WIN32 LIBS_APPLE)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     add_executable(${IOX_TARGET} ${IOX_FILES})
-    target_include_directories(${IOX_TARGET} PRIVATE ${IOX_INCLUDE_DIRECTORY})
-    target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_LIBS})
+    target_include_directories(${IOX_TARGET} PRIVATE ${IOX_INCLUDE_DIRECTORIES})
+    target_link_libraries(${IOX_TARGET} ${IOX_LIBS})
 
     if ( QNX )
-        target_link_libraries(${IOX_TARGET} PRIVATE ${IOX_LIBS_QNX})
+        target_link_libraries(${IOX_TARGET} ${IOX_LIBS_QNX})
+    elseif ( LINUX )
+        target_link_libraries(${IOX_TARGET} ${IOX_LIBS_LINUX})
+    elseif ( APPLE )
+        target_link_libraries(${IOX_TARGET} ${IOX_LIBS_APPLE})
+    elseif ( WIN32 )
+        target_link_libraries(${IOX_TARGET} ${IOX_LIBS_WIN32})
+    elseif ( UNIX )
+        target_link_libraries(${IOX_TARGET} ${IOX_LIBS_UNIX})
     endif()
 
     set(IOX_WARNINGS ${ICEORYX_WARNINGS})
@@ -202,7 +210,7 @@ Macro(iox_add_executable)
         endif()
     endif()
 
-    target_compile_options(${IOX_TARGET} PRIVATE ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
+    target_compile_options(${IOX_TARGET} ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
 
     if ( IOX_STACK_SIZE )
         if(WIN32)
@@ -220,8 +228,9 @@ endMacro()
 Macro(iox_add_library)
     set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT)
     set(arguments TARGET NAMESPACE PROJECT_PREFIX)
-    set(multiArguments RPATH FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
+    set(multiArguments FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
+        PUBLIC_INCLUDES PRIVATE_INCLUDES
         PUBLIC_LIBS_LINUX PRIVATE_LIBS_LINUX PUBLIC_LIBS_QNX PRIVATE_LIBS_QNX
         PUBLIC_LIBS_UNIX PRIVATE_LIBS_UNIX PUBLIC_LIBS_WIN32 PRIVATE_LIBS_WIN32
         PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE)
@@ -262,8 +271,10 @@ Macro(iox_add_library)
         endif()
     endif()
 
+    set_target_properties(${IOX_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
     target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})
+    target_include_directories(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_INCLUDES} PRIVATE ${IOX_PRIVATE_INCLUDES})
 
     if ( LINUX )
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_LINUX} PRIVATE ${IOX_PRIVATE_LIBS_LINUX})

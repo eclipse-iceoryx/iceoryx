@@ -27,20 +27,7 @@ find_package(iceoryx_posh REQUIRED)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
-option(MAKE_UNIQUE_INCLUDEDIR
-  "When ON headers are installed to a path ending with folders called \
-  iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
-  overriding this package from a merged catkin, ament, or colcon workspace."
-  ON)
-
-if(MAKE_UNIQUE_INCLUDEDIR)
-  set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
-  if(PREFIX STREQUAL "")
-    set(PREFIX "${_unique_dir}")
-  else()
-    set(PREFIX "${PREFIX}/${_unique_dir}")
-  endif()
-endif()
+iox_make_unique_includedir()
 
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
 if(NOT QNX)
@@ -51,85 +38,25 @@ if(NOT QNX)
     endif(${CURSES_HAVE_NCURSES_H} MATCHES ".*-NOTFOUND")
 endif()
 
-#
-########## set variables for library export ##########
-#
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_introspection
-    PROJECT_PREFIX ${PREFIX}
+iox_add_library(
+    TARGET                      iceoryx_introspection
+    NAMESPACE                   iceoryx_introspection
+    PROJECT_PREFIX              ${PREFIX}
+    PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
+                                iceoryx_posh::iceoryx_posh
+                                ncurses
+    PUBLIC_LIBS_LINUX           tinfo
+    BUILD_INTERFACE             ${CMAKE_CURRENT_SOURCE_DIR}/include
+    INSTALL_INTERFACE           include/${PREFIX}
+    PRIVATE_INCLUDES            ${CURSES_INCLUDE_DIR}
+    FILES
+        source/iceoryx_introspection_app.cpp
+        source/introspection_app.cpp
 )
 
-#
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
-    FORCE
+iox_add_executable(
+    TARGET                      iox-introspection-client
+    LIBS                        iceoryx_introspection::iceoryx_introspection
+    FILES
+        source/introspection_main.cpp
 )
-
-add_library(iceoryx_introspection
-    source/iceoryx_introspection_app.cpp
-    source/introspection_app.cpp
-)
-
-add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
-
-set_target_properties(iceoryx_introspection PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-target_include_directories(iceoryx_introspection
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-    PRIVATE
-    ${CURSES_INCLUDE_DIR}
-)
-
-target_link_libraries(iceoryx_introspection
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-    ncurses
-)
-
-target_compile_options(iceoryx_introspection PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-if(LINUX)
-    set(LIB_TINFO tinfo)
-elseif(WIN32)
-    message(WARNING "Introspection not supported for windows." )
-else()
-    set(LIB_TINFO "")
-endif()
-
-target_link_libraries(iceoryx_introspection ${LIB_TINFO})
-
-add_executable(iox-introspection-client source/introspection_main.cpp)
-
-set_target_properties(iox-introspection-client PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-target_link_libraries(iox-introspection-client
-    PRIVATE
-    ${PROJECT_NAMESPACE}::iceoryx_introspection
-)
-
-target_compile_options(iox-introspection-client PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-#
-########## exporting library ##########
-#
-setup_install_directories_and_export_package(
-    TARGETS iceoryx_introspection iox-introspection-client
-    INCLUDE_DIRECTORY include/
-)
-

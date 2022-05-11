@@ -42,12 +42,12 @@ iox_add_executable(
     TARGET              iox-cpp-wait-for-service
     FILES               ./iox_wait_for_service.cpp ./src/discovery_blocking.cpp
     LIBS                iceoryx_posh::iceoryx_posh
-    INCLUDE_DIRECTORY   include
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 iox_add_executable(
     TARGET              iox-cpp-discovery-monitor
     FILES               ./iox_discovery_monitor.cpp ./src/discovery_monitor.cpp
     LIBS                iceoryx_posh::iceoryx_posh
-    INCLUDE_DIRECTORY   include
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

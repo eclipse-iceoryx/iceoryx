@@ -38,6 +38,37 @@ set(TEST_LINK_LIBS
     iceoryx_hoofs_testing::iceoryx_hoofs_testing
 )
 
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl pthread rt
+                    FILES                   ${MODULETESTS_SRC}
+)
+
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_mocktests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl pthread rt
+                    FILES                   ${MOCKTESTS_SRC}
+)
+
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl pthread rt
+                    FILES                   ${INTEGRATIONTESTS_SRC}
+)
+
+iox_add_executable( TARGET                  test_stress_sofi
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl pthread rt
+                    FILES                   stresstests/test_stress_sofi.cpp
+)
+
+add_subdirectory(stresstests/benchmark_optional_and_expected)
+
+## TODO: iox-#1287 remove those compiler warning exceptions
 if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} acl dl pthread rt)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
@@ -49,24 +80,10 @@ elseif(WIN32)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
 endif()
 
-iox_add_executable( TARGET          ${PROJECT_PREFIX}_moduletests
-                    FILES           ${MODULETESTS_SRC}
-                    FLAGS           ${TEST_CXX_FLAGS}
-                    LIBS            ${TEST_LINK_LIBS})
+target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_mocktests PRIVATE ${TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
+target_compile_options(test_stress_sofi PRIVATE ${TEST_CXX_FLAGS})
+## TODO: END iox-#1287 remove those compiler warning exceptions
 
-iox_add_executable( TARGET          ${PROJECT_PREFIX}_mocktests
-                    FILES           ${MOCKTESTS_SRC}
-                    FLAGS           ${TEST_CXX_FLAGS}
-                    LIBS            ${TEST_LINK_LIBS})
 
-iox_add_executable( TARGET          ${PROJECT_PREFIX}_integrationtests
-                    FILES           ${INTEGRATIONTESTS_SRC}
-                    FLAGS           ${TEST_CXX_FLAGS}
-                    LIBS            ${TEST_LINK_LIBS})
-
-iox_add_executable( TARGET          test_stress_sofi
-                    FILES           stresstests/test_stress_sofi.cpp
-                    FLAGS           ${TEST_CXX_FLAGS}
-                    LIBS            ${TEST_LINK_LIBS})
-
-add_subdirectory(stresstests/benchmark_optional_and_expected)
