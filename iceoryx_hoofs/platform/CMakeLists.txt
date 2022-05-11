@@ -41,7 +41,7 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
 
 iox_add_library(
     TARGET                      iceoryx_platform
-    ALIAS                       iceoryx_hoofs::iceoryx_platform
+    NAMESPACE                   iceoryx_hoofs
     INSTALL_INTERFACE           ${ICEORYX_PLATFORM}/include
     PRIVATE_LINKS               ${ICEORYX_SANITIZER_FLAGS}
     PUBLIC_LINKS_LINUX          rt pthread

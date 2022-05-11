@@ -173,7 +173,7 @@ Macro(iox_add_executable)
 
     target_compile_options(${IOX_TARGET} PRIVATE ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
 
-    if (${IOX_STACK_SIZE})
+    if ( IOX_STACK_SIZE )
         if(WIN32)
             target_link_options(single_process BEFORE PRIVATE /STACK:${IOX_STACK_SIZE})
         else()
@@ -187,14 +187,20 @@ Macro(iox_add_executable)
 endMacro()
 
 Macro(iox_add_library)
-    set(arguments TARGET RPATH FILES PUBLIC_LINKS PRIVATE_LINKS ALIAS INSTALL_INTERFACE
-        PUBLIC_LINKS_LINUX PRIVATE_LINKS_LINUX PUBLIC_LINKS_QNX PRIVATE_LINKS_QNX
-        PUBLIC_LINKS_UNIX PRIVATE_LINKS_UNIX PUBLIC_LINKS_WIN32 PRIVATE_LINKS_WIN32
-        PUBLIC_LINKS_APPLE PRIVATE_LINKS_APPLE)
-    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+    set(switches USE_C_LANGUAGE)
+    set(arguments TARGET NAMESPACE)
+    set(multiArguments RPATH FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
+        INSTALL_INTERFACE
+        PUBLIC_LIBS_LINUX PRIVATE_LIBS_LINUX PUBLIC_LIBS_QNX PRIVATE_LIBS_QNX
+        PUBLIC_LIBS_UNIX PRIVATE_LIBS_UNIX PUBLIC_LIBS_WIN32 PRIVATE_LIBS_WIN32
+        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE)
+    cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     add_library( ${IOX_TARGET} ${IOX_FILES} )
-    add_library( ${IOX_ALIAS} ALIAS ${IOX_TARGET})
+
+    if ( IOX_NAMESPACE )
+        add_library( ${IOX_NAMESPACE}::${IOX_TARGET} ALIAS ${IOX_TARGET})
+    endif()
 
     set_target_properties(${IOX_TARGET} PROPERTIES
         CXX_STANDARD_REQUIRED ON
@@ -204,18 +210,18 @@ Macro(iox_add_library)
     )
 
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-    target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS} PRIVATE ${IOX_PRIVATE_LINKS})
+    target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})
 
     if ( LINUX )
-        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_LINUX} PRIVATE ${IOX_PRIVATE_LINKS_LINUX})
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_LINUX} PRIVATE ${IOX_PRIVATE_LIBS_LINUX})
     elseif ( QNX )
-        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_QNX} PRIVATE ${IOX_PRIVATE_LINKS_QNX})
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_QNX} PRIVATE ${IOX_PRIVATE_LIBS_QNX})
     elseif ( UNIX )
-        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_UNIX} PRIVATE ${IOX_PRIVATE_LINKS_UNIX})
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_UNIX} PRIVATE ${IOX_PRIVATE_LIBS_UNIX})
     elseif ( WIN32 )
-        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_WIN32} PRIVATE ${IOX_PRIVATE_LINKS_WIN32})
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_WIN32} PRIVATE ${IOX_PRIVATE_LIBS_WIN32})
     elseif ( APPLE )
-        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LINKS_APPLE} PRIVATE ${IOX_PRIVATE_LINKS_APPLE})
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_APPLE} PRIVATE ${IOX_PRIVATE_LIBS_APPLE})
     endif ( LINUX )
 
     iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
@@ -230,7 +236,9 @@ Macro(iox_add_library)
 
     target_include_directories(${IOX_TARGET}
         PUBLIC
-        $<BUILD_INTERFACE:${IOX_INSTALL_INTERFACE}>
-        $<INSTALL_INTERFACE:include/${PREFIX}>
+        $<BUILD_INTERFACE:${IOX_BUILD_INTERFACE}>
+        $<INSTALL_INTERFACE:${IOX_INSTALL_INTERFACE}>
     )
+
+    
 endMacro()
