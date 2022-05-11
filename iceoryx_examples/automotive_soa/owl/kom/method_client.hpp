@@ -45,7 +45,8 @@ class MethodClient
     ~MethodClient()
     {
         m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
-        /// @todo #1332 wait for mutex
+        // Wait here if a callback is still running
+        std::lock_guard<iox::posix::mutex> guard(m_mutex);
     }
 
     MethodClient(const MethodClient&) = delete;
@@ -82,10 +83,8 @@ class MethodClient
         // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
         std::thread(
             [&](Promise<AddResponse>&& promise) {
-                /// @todo #1332 we are working on a proxy object that can be destroyed during runtime
-                /// How to ensure safe operation?
-
-                /// @todo #1332 add and lock mutex to wait in d'tor
+                // Avoid race if MethodClient d'tor is called while this thread is still running
+                std::lock_guard<iox::posix::mutex> guard(m_mutex);
 
                 auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
@@ -122,6 +121,8 @@ class MethodClient
     iox::popo::Client<AddRequest, AddResponse> m_client;
     std::atomic<int64_t> m_sequenceId{0};
     iox::popo::WaitSet<> m_waitset;
+    static constexpr bool isRecursive{true};
+    iox::posix::mutex m_mutex{isRecursive};
 };
 } // namespace kom
 } // namespace owl
