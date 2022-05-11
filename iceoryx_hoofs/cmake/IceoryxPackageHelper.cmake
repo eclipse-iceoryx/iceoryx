@@ -177,7 +177,8 @@ endMacro()
 Macro(iox_add_executable)
     set(switches USE_C_LANGUAGE)
     set(arguments TARGET STACK_SIZE)
-    set(multiArguments FILES LIBS INCLUDE_DIRECTORIES LIBS_QNX LIBS_LINUX LIBS_UNIX LIBS_WIN32 LIBS_APPLE)
+    set(multiArguments FILES LIBS INCLUDE_DIRECTORIES LIBS_QNX LIBS_LINUX LIBS_UNIX LIBS_WIN32 LIBS_APPLE 
+        BUILD_INTERFACE INSTALL_INTERFACE)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     add_executable(${IOX_TARGET} ${IOX_FILES})
@@ -221,6 +222,20 @@ Macro(iox_add_executable)
     endif()
 
     set_target_properties( ${IOX_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
+
+    foreach(INTERFACE ${IOX_BUILD_INTERFACE})
+        target_include_directories(${IOX_TARGET}
+            PUBLIC
+            $<BUILD_INTERFACE:${INTERFACE}>
+        )
+    endforeach()
+
+    foreach(INTERFACE ${IOX_INSTALL_INTERFACE})
+        target_include_directories(${IOX_TARGET}
+            PUBLIC
+            $<INSTALL_INTERFACE:${INTERFACE}>
+        )
+    endforeach()
 
     install( TARGETS ${IOX_TARGET} RUNTIME DESTINATION bin)
 endMacro()
@@ -312,11 +327,20 @@ Macro(iox_add_library)
         )
     endforeach()
 
-    install(
-        FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-        DESTINATION share/doc/${IOX_TARGET}
-        COMPONENT dev
-    )
+    if ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE )
+        install(
+            FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+            DESTINATION share/doc/${IOX_TARGET}
+            COMPONENT dev
+        )
+    endif()
+
+    if ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses )
+        install(
+          DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses
+          DESTINATION share/doc/${IOX_TARGET}
+          COMPONENT dev)
+    endif()
 
     if ( NOT IOX_NO_EXPORT )
         setup_install_directories_and_export_package(

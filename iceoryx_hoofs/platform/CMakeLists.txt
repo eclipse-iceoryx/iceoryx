@@ -47,10 +47,9 @@ iox_add_library(
     NAMESPACE                   iceoryx_hoofs
     BUILD_INTERFACE             ${ICEORYX_PLATFORM}/include/
     INSTALL_INTERFACE           include/${PREFIX}
-    PRIVATE_LINKS               ${ICEORYX_SANITIZER_FLAGS}
-    PUBLIC_LINKS_LINUX          rt pthread
-    PUBLIC_LINKS_UNIX           rt pthread
-    PRIVATE_LINKS_QNX           socket
+    PUBLIC_LIBS_LINUX           rt pthread
+    PUBLIC_LIBS_UNIX            rt pthread
+    PRIVATE_LIBS_QNX            socket
     FILES                       ${ICEORYX_PLATFORM_FILES}
 )
 
