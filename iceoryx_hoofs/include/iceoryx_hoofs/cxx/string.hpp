@@ -301,114 +301,70 @@ class string
     /// @return true if the assignment succeeds, otherwise false
     bool unsafe_assign(const std::string& str) noexcept;
 
-    /// @brief compares two strings
+    /// @brief compares self and an iox::cxx::string or std::string
     ///
     /// @param [in] other is the string to compare with self
     ///
     /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
     /// the contents of both strings are equal, an integer > 0 if the first character that does not match has a greater
     /// value in self than in other
-    template <uint64_t N>
-    int64_t compare(const string<N>& other) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), int64_t>::type
+    compare(const T& other) const noexcept;
 
     /// @brief checks if self is equal to rhs
     ///
-    /// @param [in] rhs is the string to compare with self
+    /// @param [in] rhs is the iox::cxx::string or std::string to compare with self
     ///
     /// @return true if both strings are equal, otherwise false
-    template <uint64_t N>
-    bool operator==(const string<N>& rhs) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+    operator==(const T& rhs) const noexcept;
 
     /// @brief checks if self is not equal to rhs
     ///
-    /// @param [in] rhs is the string to compare with self
+    /// @param [in] rhs is the iox::cxx::string or std::string to compare with self
     ///
     /// @return true if both strings are not equal, otherwise false
-    template <uint64_t N>
-    bool operator!=(const string<N>& rhs) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+    operator!=(const T& rhs) const noexcept;
 
     /// @brief checks if self is less than rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the string to compare with self
+    /// @param [in] rhs is the iox::cxx::string or std::string to compare with self
     ///
     /// @return true if self is less than rhs, otherwise false
-    template <uint64_t N>
-    bool operator<(const string<N>& rhs) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+    operator<(const T& rhs) const noexcept;
 
     /// @brief checks if self is less than or equal to rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the string to compare with self
+    /// @param [in] rhs is the iox::cxx::string or std::string to compare with self
     ///
     /// @return true if self is less than or equal to rhs, otherwise false
-    template <uint64_t N>
-    bool operator<=(const string<N>& rhs) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+    operator<=(const T& rhs) const noexcept;
 
     /// @brief checks if self is greater than rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the string to compare with self
+    /// @param [in] rhs is the iox::cxx::string or std::string to compare with self
     ///
     /// @return true if self is greater than rhs, otherwise false
-    template <uint64_t N>
-    bool operator>(const string<N>& rhs) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+    operator>(const T& rhs) const noexcept;
 
     /// @brief checks if self is greater than or equal to rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the string to compare with self
+    /// @param [in] rhs is the iox::cxx::string or std::string to compare with self
     ///
     /// @return true if self is greater than or equal to rhs, otherwise false
-    template <uint64_t N>
-    bool operator>=(const string<N>& rhs) const noexcept;
-
-    /// @brief compares a string and a std::string
-    ///
-    /// @param [in] other is the std::string to compare with self
-    ///
-    /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
-    /// the contents of self and other are equal, an integer > 0 if the first character that does not match has a
-    /// greater value in self than in other
-    constexpr int64_t compare(const std::string& other) const noexcept;
-
-    /// @brief checks if self is equal to rhs
-    ///
-    /// @param[in] rhs is the std::string to compare with self
-    ///
-    /// @return true if the contents of self and rhs are equal, otherwise false
-    bool operator==(const std::string& rhs) const noexcept;
-
-    /// @brief checks if self is not equal to rhs
-    ///
-    /// @param [in] rhs is the std::string to compare with self
-    ///
-    /// @return true if the contents of self and rhs are not equal, otherwise false
-    bool operator!=(const std::string& rhs) const noexcept;
-
-    /// @brief checks if self is less than rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the std::string to compare with self
-    ///
-    /// @return true if self is less than rhs, otherwise false
-    bool operator<(const std::string& rhs) const noexcept;
-
-    /// @brief checks if self is less than or equal to rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the std::string to compare with self
-    ///
-    /// @return true if self is less than or equal to rhs, otherwise false
-    bool operator<=(const std::string& rhs) const noexcept;
-
-    /// @brief checks if self is greater than rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the std::string to compare with self
-    ///
-    /// @return true if self is greater than rhs, otherwise false
-    bool operator>(const std::string& rhs) const noexcept;
-
-    /// @brief checks if self is greater than or equal to rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the std::string to compare with self
-    ///
-    /// @return true if self is greater than or equal to rhs, otherwise false
-    bool operator>=(const std::string& rhs) const noexcept;
+    template <typename T>
+    typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+    operator>=(const T& rhs) const noexcept;
 
     /// @brief compares a string and a char array
     ///

@@ -214,10 +214,11 @@ inline bool string<Capacity>::unsafe_assign(const std::string& str) noexcept
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline int64_t string<Capacity>::compare(const string<N>& other) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), int64_t>::type
+string<Capacity>::compare(const T& other) const noexcept
 {
-    uint64_t otherSize = other.size();
+    auto otherSize = other.size();
     auto result = memcmp(c_str(), other.c_str(), std::min(m_rawstringSize, otherSize));
     if (result == 0)
     {
@@ -238,45 +239,51 @@ inline int64_t string<Capacity>::compare(const string<N>& other) const noexcept
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline bool string<Capacity>::operator==(const string<N>& rhs) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+string<Capacity>::operator==(const T& rhs) const noexcept
 {
-    return (compare(rhs) == 0);
+    return (compare<T>(rhs) == 0);
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline bool string<Capacity>::operator!=(const string<N>& rhs) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+string<Capacity>::operator!=(const T& rhs) const noexcept
 {
-    return (compare(rhs) != 0);
+    return (compare<T>(rhs) != 0);
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline bool string<Capacity>::operator<(const string<N>& rhs) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+string<Capacity>::operator<(const T& rhs) const noexcept
 {
-    return (compare(rhs) < 0);
+    return (compare<T>(rhs) < 0);
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline bool string<Capacity>::operator<=(const string<N>& rhs) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+string<Capacity>::operator<=(const T& rhs) const noexcept
 {
-    return !(compare(rhs) > 0);
+    return !(compare<T>(rhs) > 0);
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline bool string<Capacity>::operator>(const string<N>& rhs) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+string<Capacity>::operator>(const T& rhs) const noexcept
 {
-    return (compare(rhs) > 0);
+    return (compare<T>(rhs) > 0);
 }
 
 template <uint64_t Capacity>
-template <uint64_t N>
-inline bool string<Capacity>::operator>=(const string<N>& rhs) const noexcept
+template <typename T>
+inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), bool>::type
+string<Capacity>::operator>=(const T& rhs) const noexcept
 {
-    return !(compare(rhs) < 0);
+    return !(compare<T>(rhs) < 0);
 }
 
 template <uint64_t Capacity>
@@ -384,7 +391,6 @@ inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexce
 template <uint64_t Capacity>
 inline constexpr int64_t string<Capacity>::compare(const char* const other) const noexcept
 {
-    std::cout << "const char*" << std::endl;
     auto otherSize = strnlen(other, Capacity);
     auto result = memcmp(c_str(), other, std::min(m_rawstringSize, otherSize));
     if (result == 0)
@@ -543,64 +549,6 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     m_rawstringSize = strSize;
     rhs.clear();
     return *this;
-}
-
-template <uint64_t Capacity>
-inline constexpr int64_t string<Capacity>::compare(const std::string& other) const noexcept
-{
-    uint64_t otherSize = other.size();
-    auto result = memcmp(c_str(), other.c_str(), std::min(m_rawstringSize, otherSize));
-    if (result == 0)
-    {
-        if (m_rawstringSize < otherSize)
-        {
-            return -1;
-        }
-        else if (m_rawstringSize > otherSize)
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    return result;
-}
-
-template <uint64_t Capacity>
-inline bool string<Capacity>::operator==(const std::string& rhs) const noexcept
-{
-    return (compare(rhs) == 0);
-}
-
-template <uint64_t Capacity>
-inline bool string<Capacity>::operator!=(const std::string& rhs) const noexcept
-{
-    return (compare(rhs) != 0);
-}
-
-template <uint64_t Capacity>
-inline bool string<Capacity>::operator<(const std::string& rhs) const noexcept
-{
-    return (compare(rhs) < 0);
-}
-
-template <uint64_t Capacity>
-inline bool string<Capacity>::operator<=(const std::string& rhs) const noexcept
-{
-    return !(compare(rhs) > 0);
-}
-template <uint64_t Capacity>
-inline bool string<Capacity>::operator>(const std::string& rhs) const noexcept
-{
-    return (compare(rhs) > 0);
-}
-
-template <uint64_t Capacity>
-inline bool string<Capacity>::operator>=(const std::string& rhs) const noexcept
-{
-    return !(compare(rhs) < 0);
 }
 
 template <uint64_t Capacity>
