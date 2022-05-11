@@ -154,8 +154,8 @@ class Runtime
             // {
 
             // Typically there should be a check for container.empty() and the callback should only be called when the
-            // availability of the specific service has changed. However, to notify the user in the ara::com example
-            // about a service, which has disappeared we call the callback on ANY change of the service registry
+            // availability of the specific service has changed. However, to notify the user in the automotive_soa
+            // example about a service, which has disappeared we call the callback on ANY change of the service registry
             (callback.first)(
                 container,
                 kom::FindServiceHandle({callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
