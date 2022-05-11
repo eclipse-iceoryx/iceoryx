@@ -240,5 +240,9 @@ Macro(iox_add_library)
         $<INSTALL_INTERFACE:${IOX_INSTALL_INTERFACE}>
     )
 
-    
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+        DESTINATION share/doc/${IOX_TARGET}
+        COMPONENT dev
+    )
 endMacro()

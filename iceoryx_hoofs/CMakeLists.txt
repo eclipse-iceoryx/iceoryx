@@ -167,8 +167,3 @@ install(
         cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
-
-install(
-  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-  DESTINATION share/doc/${PROJECT_NAME}
-  COMPONENT dev)

@@ -116,8 +116,3 @@ setup_install_directories_and_export_package(
     TARGETS ${PROJECT_NAME}
     INCLUDE_DIRECTORY include/
 )
-
-install(
-  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-  DESTINATION share/doc/${PROJECT_NAME}
-  COMPONENT dev)

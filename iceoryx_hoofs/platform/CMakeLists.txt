@@ -48,4 +48,4 @@ iox_add_library(
     PUBLIC_LINKS_UNIX           rt pthread
     PRIVATE_LINKS_QNX           socket
     FILES                       ${ICEORYX_PLATFORM_FILES}
-    )
+)
