@@ -28,6 +28,12 @@ jobs:
           fail: true
           args: --verbose --no-progress './**/*.md'
 
+  cmake-lint-check:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./tools/ci/cmake-linter.sh
+
   build-test-ubuntu:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
