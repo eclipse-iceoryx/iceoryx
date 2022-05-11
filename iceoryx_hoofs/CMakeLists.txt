@@ -43,27 +43,6 @@ if(MAKE_UNIQUE_INCLUDEDIR)
   endif()
 endif()
 
-if(CLANG_TIDY)
-    find_program(
-        CLANG_TIDY_EXE
-        NAMES "clang-tidy"
-    )
-
-    if(CLANG_TIDY_EXE)
-        set(PERFORM_CLANG_TIDY "${CLANG_TIDY_EXE}")
-    else(CLANG_TIDY_EXE)
-        message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
-    endif(CLANG_TIDY_EXE)
-endif(CLANG_TIDY)
-
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
-    FORCE
-)
-
 add_subdirectory(platform)
 
 #
@@ -139,18 +118,6 @@ if(GTest_FOUND)
     endif()
 endif()
 
-#
-########## exporting library ##########
-#
-
-#TODO add support for multiple include directories to setup_install_directories_and_export_package
-install(
-    DIRECTORY ${ICEORYX_PLATFORM}/include/
-    DESTINATION include/${PREFIX}
-    COMPONENT dev
-)
-
-# header
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake

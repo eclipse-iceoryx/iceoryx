@@ -47,15 +47,6 @@ if(MAKE_UNIQUE_INCLUDEDIR)
 endif()
 
 #
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
-    FORCE
-)
-
-#
 ########## build building-block library ##########
 #
 iox_add_library(

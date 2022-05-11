@@ -61,19 +61,6 @@ endif()
 
 include(cmake/iceoryxversions.cmake)
 
-if(CLANG_TIDY)
-    find_program(
-        CLANG_TIDY_EXE
-        NAMES "clang-tidy"
-    )
-
-    if(CLANG_TIDY_EXE)
-        set(PERFORM_CLANG_TIDY "${CLANG_TIDY_EXE}")
-    else(CLANG_TIDY_EXE)
-        message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
-    endif()
-endif()
-
 #
 ########## set variables for library export ##########
 #
@@ -172,12 +159,6 @@ set_target_properties(iceoryx_posh PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
-
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_posh PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
 
 target_include_directories(iceoryx_posh
     PUBLIC
@@ -292,12 +273,6 @@ set_target_properties(iceoryx_posh_roudi PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_posh_roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif()
-
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
     source/version
@@ -390,12 +365,6 @@ if(TOML_CONFIG)
     )
 
     target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
-
-    if(PERFORM_CLANG_TIDY)
-        set_target_properties(
-            iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-        )
-    endif()
 
 endif()
 

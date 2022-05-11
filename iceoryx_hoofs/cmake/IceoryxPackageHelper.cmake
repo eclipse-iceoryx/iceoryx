@@ -201,7 +201,7 @@ Macro(iox_add_executable)
 endMacro()
 
 Macro(iox_add_library)
-    set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP)
+    set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT)
     set(arguments TARGET NAMESPACE PROJECT_PREFIX)
     set(multiArguments RPATH FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
@@ -216,6 +216,15 @@ Macro(iox_add_library)
             NAME ${IOX_TARGET}
             NAMESPACE ${IOX_NAMESPACE}
             PROJECT_PREFIX ${IOX_PROJECT_PREFIX}
+        )
+    endif()
+
+    if ( NOT IOX_NO_FIND_PACKAGE_SUPPORT )
+        ########## find_package in source tree ##########
+        set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
+            CACHE FILEPATH
+            "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
+            FORCE
         )
     endif()
 
@@ -253,14 +262,6 @@ Macro(iox_add_library)
     endif ( LINUX )
 
     iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
-
-    if(PERFORM_CLANG_TIDY)
-        set_target_properties(
-            ${IOX_TARGET}
-            PROPERTIES
-            CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-        )
-    endif(PERFORM_CLANG_TIDY)
 
     foreach(INTERFACE ${IOX_BUILD_INTERFACE})
         target_include_directories(${IOX_TARGET}

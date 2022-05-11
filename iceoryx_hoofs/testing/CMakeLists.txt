@@ -37,11 +37,6 @@ add_library(iceoryx_hoofs_testing
 add_library(iceoryx_hoofs_testing::iceoryx_hoofs_testing ALIAS iceoryx_hoofs_testing)
 
 set_target_properties(iceoryx_hoofs_testing PROPERTIES VERSION ${PROJECT_VERSION})
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_hoofs_testing PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
 set_target_properties(iceoryx_hoofs_testing PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
