@@ -64,12 +64,6 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_hoofs
-    PROJECT_PREFIX ${PREFIX}
-)
-
 add_subdirectory(platform)
 
 #
@@ -77,14 +71,16 @@ add_subdirectory(platform)
 #
 
 iox_add_library(
-    TARGET                  iceoryx_hoofs
-    NAMESPACE               iceoryx_hoofs
-    RPATH                   "${CMAKE_INSTALL_PREFIX}/lib123"
-    PUBLIC_LIBS             iceoryx_hoofs::iceoryx_platform
-    PRIVATE_LIBS            ${ICEORYX_SANITIZER_FLAGS}
-    PRIVATE_LIBS_LINUX      acl atomic ${CODE_COVERAGE_LIBS}
-    BUILD_INTERFACE         ${PROJECT_SOURCE_DIR}/include
-    INSTALL_INTERFACE       include/${PREFIX}
+    TARGET                      iceoryx_hoofs
+    NAMESPACE                   iceoryx_hoofs
+    ADDITIONAL_EXPORT_TARGETS   iceoryx_platform
+    PROJECT_PREFIX              ${PREFIX}
+    RPATH                       "${CMAKE_INSTALL_PREFIX}/lib123"
+    PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_platform
+    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
+    PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+    INSTALL_INTERFACE           include/${PREFIX}
     FILES
         source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp
@@ -152,11 +148,6 @@ install(
     DIRECTORY ${ICEORYX_PLATFORM}/include/
     DESTINATION include/${PREFIX}
     COMPONENT dev
-)
-
-setup_install_directories_and_export_package(
-    TARGETS iceoryx_hoofs iceoryx_platform
-    INCLUDE_DIRECTORY include/
 )
 
 # header

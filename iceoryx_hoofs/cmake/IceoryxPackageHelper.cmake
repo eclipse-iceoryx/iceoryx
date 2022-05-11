@@ -133,6 +133,30 @@ Macro(iox_set_rpath)
     endif( LINUX OR UNIX )
 endMacro()
 
+Macro(iox_set_file_language)
+    set(switches USE_C_LANGUAGE)
+    set(multiArguments FILES)
+    cmake_parse_arguments(IOX "${switches}" "" "${multiArguments}" ${ARGN} )
+
+    if ( IOX_USE_C_LANGUAGE )
+        set_source_files_properties(${IOX_FILES} PROPERTIES LANGUAGE C)
+        set_target_properties(
+            ${IOX_TARGET}
+          PROPERTIES
+            C_STANDARD_REQUIRED ON
+            C_STANDARD 11
+        )
+    else()
+        set_source_files_properties(${IOX_FILES} PROPERTIES LANGUAGE CXX)
+        set_target_properties(
+            ${IOX_TARGET}
+          PROPERTIES
+            CXX_STANDARD_REQUIRED ON
+            CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        )
+    endif()
+endMacro()
+
 Macro(iox_add_executable)
     set(switches USE_C_LANGUAGE)
     set(arguments TARGET STACK_SIZE)
@@ -149,26 +173,16 @@ Macro(iox_add_executable)
 
     set(IOX_WARNINGS ${ICEORYX_WARNINGS})
 
-    if (${IOX_USE_C_LANGUAGE})
-        set_source_files_properties(${IOX_FILES} PROPERTIES LANGUAGE C)
-        set_target_properties(
-            ${IOX_TARGET}
-          PROPERTIES
-            C_STANDARD_REQUIRED ON
-            C_STANDARD 11
-        )
+    if ( IOX_USE_C_LANGUAGE )
+        iox_set_file_language( USE_C_LANGUAGE FILES ${IOX_FILES} )
+    else()
+        iox_set_file_language( FILES ${IOX_FILES} )
+    endif()
 
+    if ( IOX_USE_C_LANGUAGE )
         if("-Wno-noexcept-type" IN_LIST IOX_WARNINGS)
             list(REMOVE_ITEM IOX_WARNINGS "-Wno-noexcept-type")
         endif()
-    else()
-        set_source_files_properties(${IOX_FILES} PROPERTIES LANGUAGE CXX)
-        set_target_properties(
-            ${IOX_TARGET}
-          PROPERTIES
-            CXX_STANDARD_REQUIRED ON
-            CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        )
     endif()
 
     target_compile_options(${IOX_TARGET} PRIVATE ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
@@ -187,14 +201,23 @@ Macro(iox_add_executable)
 endMacro()
 
 Macro(iox_add_library)
-    set(switches USE_C_LANGUAGE)
-    set(arguments TARGET NAMESPACE)
+    set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP)
+    set(arguments TARGET NAMESPACE PROJECT_PREFIX)
     set(multiArguments RPATH FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
-        INSTALL_INTERFACE
+        INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
         PUBLIC_LIBS_LINUX PRIVATE_LIBS_LINUX PUBLIC_LIBS_QNX PRIVATE_LIBS_QNX
         PUBLIC_LIBS_UNIX PRIVATE_LIBS_UNIX PUBLIC_LIBS_WIN32 PRIVATE_LIBS_WIN32
         PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
+
+    if ( NOT IOX_NO_PACKAGE_SETUP )
+        message("setup ${IOX_TARGET}")
+        setup_package_name_and_create_files(
+            NAME ${IOX_TARGET}
+            NAMESPACE ${IOX_NAMESPACE}
+            PROJECT_PREFIX ${IOX_PROJECT_PREFIX}
+        )
+    endif()
 
     add_library( ${IOX_TARGET} ${IOX_FILES} )
 
@@ -202,12 +225,17 @@ Macro(iox_add_library)
         add_library( ${IOX_NAMESPACE}::${IOX_TARGET} ALIAS ${IOX_TARGET})
     endif()
 
-    set_target_properties(${IOX_TARGET} PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    )
+    if ( IOX_USE_C_LANGUAGE )
+        iox_set_file_language( USE_C_LANGUAGE FILES ${IOX_FILES} )
+    else()
+        iox_set_file_language( FILES ${IOX_FILES} )
+    endif()
+
+    if ( IOX_USE_C_LANGUAGE )
+        if("-Wno-noexcept-type" IN_LIST IOX_WARNINGS)
+            list(REMOVE_ITEM IOX_WARNINGS "-Wno-noexcept-type")
+        endif()
+    endif()
 
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
     target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})
@@ -234,15 +262,30 @@ Macro(iox_add_library)
         )
     endif(PERFORM_CLANG_TIDY)
 
-    target_include_directories(${IOX_TARGET}
-        PUBLIC
-        $<BUILD_INTERFACE:${IOX_BUILD_INTERFACE}>
-        $<INSTALL_INTERFACE:${IOX_INSTALL_INTERFACE}>
-    )
+    foreach(INTERFACE ${IOX_BUILD_INTERFACE})
+        target_include_directories(${IOX_TARGET}
+            PUBLIC
+            $<BUILD_INTERFACE:${INTERFACE}>
+        )
+    endforeach()
+
+    foreach(INTERFACE ${IOX_INSTALL_INTERFACE})
+        target_include_directories(${IOX_TARGET}
+            PUBLIC
+            $<INSTALL_INTERFACE:${INTERFACE}>
+        )
+    endforeach()
 
     install(
         FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
         DESTINATION share/doc/${IOX_TARGET}
         COMPONENT dev
     )
+
+    if ( NOT IOX_NO_EXPORT )
+        setup_install_directories_and_export_package(
+            TARGETS ${IOX_TARGET} ${IOX_ADDITIONAL_EXPORT_TARGETS}
+            INCLUDE_DIRECTORY include/
+        )
+    endif()
 endMacro()

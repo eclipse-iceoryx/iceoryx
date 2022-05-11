@@ -47,15 +47,6 @@ if(MAKE_UNIQUE_INCLUDEDIR)
 endif()
 
 #
-########## set variables for export ##########
-#
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_binding_c
-    PROJECT_PREFIX ${PREFIX}
-)
-
-#
 ########## find_package in source tree ##########
 #
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
@@ -68,8 +59,9 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 iox_add_library(
-    TARGET              ${PROJECT_NAME}
-    NAMESPACE           ${PROJECT_NAMESPACE}
+    TARGET              iceoryx_binding_c
+    NAMESPACE           iceoryx_binding_c
+    PROJECT_PREFIX      ${PREFIX}
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
                         ${CMAKE_BINARY_DIR}/generated/iceoryx/include
     INSTALL_INTERFACE   include/${PREFIX}
@@ -108,11 +100,3 @@ iox_add_library(
 if(BUILD_TEST)
     add_subdirectory(test)
 endif()
-
-#
-########## export library ##########
-#
-setup_install_directories_and_export_package(
-    TARGETS ${PROJECT_NAME}
-    INCLUDE_DIRECTORY include/
-)

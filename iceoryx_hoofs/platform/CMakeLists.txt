@@ -40,9 +40,12 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
 )
 
 iox_add_library(
+    NO_EXPORT
+    NO_PACKAGE_SETUP
     TARGET                      iceoryx_platform
     NAMESPACE                   iceoryx_hoofs
-    INSTALL_INTERFACE           ${ICEORYX_PLATFORM}/include
+    BUILD_INTERFACE             ${ICEORYX_PLATFORM}/include/
+    INSTALL_INTERFACE           include/${PREFIX}
     PRIVATE_LINKS               ${ICEORYX_SANITIZER_FLAGS}
     PUBLIC_LINKS_LINUX          rt pthread
     PUBLIC_LINKS_UNIX           rt pthread
