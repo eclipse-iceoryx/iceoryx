@@ -33,12 +33,7 @@ target_link_libraries(iox-cpp-automotive-skeleton
 )
 target_compile_options(iox-cpp-automotive-skeleton PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-target_include_directories(iox-cpp-automotive-skeleton
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
+target_include_directories(iox-cpp-automotive-skeleton PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(iox-cpp-automotive-proxy ./iox_automotive_proxy.cpp ./minimal_proxy.cpp)
 target_link_libraries(iox-cpp-automotive-proxy
@@ -46,12 +41,7 @@ target_link_libraries(iox-cpp-automotive-proxy
 )
 target_compile_options(iox-cpp-automotive-proxy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-target_include_directories(iox-cpp-automotive-proxy
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
+target_include_directories(iox-cpp-automotive-proxy PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(iox-cpp-automotive-proxy
                       iox-cpp-automotive-skeleton
