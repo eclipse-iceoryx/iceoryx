@@ -218,7 +218,7 @@ template <typename T>
 inline typename std::enable_if<(is_cxx_string<T>::value || std::is_same<T, std::string>::value), int64_t>::type
 string<Capacity>::compare(const T& other) const noexcept
 {
-    auto otherSize = other.size();
+    uint64_t otherSize = other.size();
     auto result = memcmp(c_str(), other.c_str(), std::min(m_rawstringSize, otherSize));
     if (result == 0)
     {
@@ -290,7 +290,7 @@ template <uint64_t Capacity>
 template <uint64_t N>
 inline constexpr int64_t string<Capacity>::compare(const char (&other)[N]) const noexcept
 {
-    auto otherSize = strnlen(other, N);
+    uint64_t otherSize = strnlen(other, N);
     auto result = memcmp(c_str(), other, std::min(m_rawstringSize, otherSize));
     if (result == 0)
     {
@@ -391,7 +391,7 @@ inline bool operator>=(const char (&lhs)[N], const string<Capacity>& rhs) noexce
 template <uint64_t Capacity>
 inline constexpr int64_t string<Capacity>::compare(const char* const other) const noexcept
 {
-    auto otherSize = strnlen(other, Capacity);
+    uint64_t otherSize = strnlen(other, Capacity);
     auto result = memcmp(c_str(), other, std::min(m_rawstringSize, otherSize));
     if (result == 0)
     {
