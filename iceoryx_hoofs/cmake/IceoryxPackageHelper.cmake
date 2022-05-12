@@ -34,7 +34,6 @@ Macro(setup_package_name_and_create_files)
     set(PROJECT_NAMESPACE ${PARAMS_NAMESPACE} )
 
     set(DESTINATION_BINDIR ${CMAKE_INSTALL_BINDIR})
-    set(DESTINATION_LIBDIR ${CMAKE_INSTALL_LIBDIR})
     set(DESTINATION_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/${PARAMS_PROJECT_PREFIX})
     set(DESTINATION_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PARAMS_NAME})
 
@@ -82,8 +81,8 @@ Macro(install_target_directories_and_header)
     TARGETS ${INSTALL_TARGETS}
     EXPORT ${TARGETS_EXPORT_NAME}
     RUNTIME DESTINATION ${DESTINATION_BINDIR} COMPONENT bin
-    LIBRARY DESTINATION ${DESTINATION_LIBDIR} COMPONENT bin
-    ARCHIVE DESTINATION ${DESTINATION_LIBDIR} COMPONENT bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT bin
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT bin
     )
 
     # header
@@ -130,24 +129,30 @@ Macro(iox_make_unique_includedir)
 endMacro()
 
 Macro(iox_set_rpath)
-    set(arguments TARGET RPATH )
-    cmake_parse_arguments(IOX "" "" "${arguments}" ${ARGN} )
+    set(arguments TARGET)
+    cmake_parse_arguments(IOX "" "${arguments}" "" ${ARGN} )
 
     if ( LINUX OR UNIX )
-        set_target_properties(
-            ${IOX_TARGET}
-            PROPERTIES
-            BUILD_RPATH ${IOX_RPATH}
-            INSTALL_RPATH ${IOX_RPATH}
-        )
+        set(IOX_RPATH_PREFIX "\$ORIGIN")
     elseif( APPLE )
-        set_target_properties(
-                    ${IOX_TARGET}
-                    PROPERTIES
-                    BUILD_RPATH ${IOX_RPATH}
-                    INSTALL_RPATH ${IOX_RPATH}
-                )
-    endif( LINUX OR UNIX )
+        set(IOX_RPATH_PREFIX "@loader_path")
+    endif()
+
+    set(IOX_BUILD_RPATH ${IOX_RPATH_PREFIX}/../iceoryx_hoofs:${IOX_RPATH_PREFIX}/../iceoryx_posh:${IOX_RPATH_PREFIX}/../iceoryx_hoofs/platform:${IOX_RPATH_PREFIX}/../iceoryx_binding_c)
+    set(IOX_INSTALL_RPATH ${IOX_RPATH_PREFIX}/../${CMAKE_INSTALL_LIBDIR})
+
+    # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
+    set(IOX_BUILD_RPATH ${IOX_BUILD_RPATH}:${IOX_RPATH_PREFIX}/../hoofs:${IOX_RPATH_PREFIX}/../posh:${IOX_RPATH_PREFIX}/../hoofs/platform:${IOX_RPATH_PREFIX}/../binding_c)
+    # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
+    set(IOX_BUILD_RPATH ${IOX_BUILD_RPATH}:${IOX_RPATH_PREFIX}/../../hoofs:${IOX_RPATH_PREFIX}/../../posh:${IOX_RPATH_PREFIX}/../../hoofs/platform:${IOX_RPATH_PREFIX}/../../binding_c)
+    # TODO: END iox-#1287
+
+    set_target_properties(
+        ${IOX_TARGET}
+        PROPERTIES
+        BUILD_RPATH ${IOX_BUILD_RPATH}
+        INSTALL_RPATH ${IOX_INSTALL_RPATH}
+    )
 endMacro()
 
 Macro(iox_set_file_language)
@@ -197,18 +202,19 @@ Macro(iox_add_executable)
         target_link_libraries(${IOX_TARGET} ${IOX_LIBS_UNIX})
     endif()
 
+    iox_set_rpath( TARGET ${IOX_TARGET} )
+
     set(IOX_WARNINGS ${ICEORYX_WARNINGS})
+    if ( IOX_USE_C_LANGUAGE )
+        if("-Wno-noexcept-type" IN_LIST IOX_WARNINGS)
+            list(REMOVE_ITEM IOX_WARNINGS "-Wno-noexcept-type")
+        endif()
+    endif()
 
     if ( IOX_USE_C_LANGUAGE )
         iox_set_file_language( USE_C_LANGUAGE FILES ${IOX_FILES} )
     else()
         iox_set_file_language( FILES ${IOX_FILES} )
-    endif()
-
-    if ( IOX_USE_C_LANGUAGE )
-        if("-Wno-noexcept-type" IN_LIST IOX_WARNINGS)
-            list(REMOVE_ITEM IOX_WARNINGS "-Wno-noexcept-type")
-        endif()
     endif()
 
     target_compile_options(${IOX_TARGET} ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
@@ -311,7 +317,7 @@ Macro(iox_add_library)
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_APPLE} PRIVATE ${IOX_PRIVATE_LIBS_APPLE})
     endif ( LINUX )
 
-    iox_set_rpath( TARGET ${IOX_TARGET} RPATH ${IOX_RPATH} )
+    iox_set_rpath( TARGET ${IOX_TARGET} )
 
     foreach(INTERFACE ${IOX_BUILD_INTERFACE})
         target_include_directories(${IOX_TARGET}
