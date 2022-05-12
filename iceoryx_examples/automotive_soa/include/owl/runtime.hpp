@@ -135,13 +135,14 @@ class Runtime
         // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
         // considered as a service. A ara::com binding implementer would typically query the AUTOSAR meta model here, to
         // find out if all event, fields and methods of a service are available. For the example we assume that the
-        // 'MinimalSkeleton' service is complete when the container contains the three iceoryx services:
+        // 'MinimalSkeleton' service is complete when the container contains the four iceoryx services:
         //
-        // 1. EventPublisher: MinimalSkeleton, Instance, Event
-        // 2. FieldPublisher: MinimalSkeleton, Instance, Field
-        // 3. MethodServer:   MinimalSkeleton, Instance, Method
+        // 1.    EventPublisher: MinimalSkeleton, Instance, Event
+        // 2. a) FieldPublisher: MinimalSkeleton, Instance, Field (Publisher)
+        // 2. b) FieldPublisher: MinimalSkeleton, Instance, Field (Server)
+        // 3.    MethodServer:   MinimalSkeleton, Instance, Method
 
-        if (container.size() == 3U)
+        if (container.size() == 4U)
         {
             return true;
         }

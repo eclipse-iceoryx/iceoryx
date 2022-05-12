@@ -117,20 +117,37 @@ int main()
                 }
 
                 // Field
-                proxy.m_field.GetNewSamples(
-                    [](const auto& field) { std::cout << "Receiving field: " << field->counter << std::endl; });
-
-                // Method
-                auto future = proxy.computeSum(addend1, addend2);
+                auto fieldFuture = proxy.m_field.Get();
                 try
                 {
-                    auto result = future.get();
+                    auto result = fieldFuture.get();
+                    std::cout << "Value of field is " << result.counter << std::endl;
+
+                    if (result.counter >= 4242)
+                    {
+                        result.counter++;
+                        proxy.m_field.Set(result);
+                        std::cout << "Value of field set to " << result.counter << std::endl;
+                    }
+                }
+                catch (const std::future_error&)
+                {
+                    std::cout << "Empty future from field received, please start the 'iox-cpp-automotive-skeleton'."
+                              << std::endl;
+                }
+
+                // Method
+                auto methodFuture = proxy.computeSum(addend1, addend2);
+                try
+                {
+                    auto result = methodFuture.get();
                     std::cout << "Result of " << std::to_string(addend1) << " + " << std::to_string(addend2) << " is "
                               << result.sum << std::endl;
                 }
                 catch (const std::future_error&)
                 {
-                    std::cout << "Empty future received, please start the 'iox-cpp-automotive-skeleton'." << std::endl;
+                    std::cout << "Empty future from method received, please start the 'iox-cpp-automotive-skeleton'."
+                              << std::endl;
                 }
 
                 addend1 += addend2 + addend2;
