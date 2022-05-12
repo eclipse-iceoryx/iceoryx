@@ -238,6 +238,7 @@ if(TOML_CONFIG)
     ######### posh roudi daemon ##########
     #
     iox_add_executable(
+        PLACE_IN_BUILD_ROOT
         TARGET              iox-roudi
         LIBS                iceoryx_hoofs::iceoryx_hoofs
                             iceoryx_posh::iceoryx_posh_roudi

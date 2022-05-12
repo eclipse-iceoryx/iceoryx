@@ -180,7 +180,7 @@ Macro(iox_set_file_language)
 endMacro()
 
 Macro(iox_add_executable)
-    set(switches USE_C_LANGUAGE)
+    set(switches USE_C_LANGUAGE PLACE_IN_BUILD_ROOT)
     set(arguments TARGET STACK_SIZE)
     set(multiArguments FILES LIBS INCLUDE_DIRECTORIES LIBS_QNX LIBS_LINUX LIBS_UNIX LIBS_WIN32 LIBS_APPLE 
         BUILD_INTERFACE INSTALL_INTERFACE)
@@ -203,6 +203,12 @@ Macro(iox_add_executable)
     endif()
 
     iox_set_rpath( TARGET ${IOX_TARGET} )
+
+    if ( IOX_PLACE_IN_BUILD_ROOT )
+        set_target_properties(${IOX_TARGET} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        )
+    endif()
 
     set(IOX_WARNINGS ${ICEORYX_WARNINGS})
     if ( IOX_USE_C_LANGUAGE )
