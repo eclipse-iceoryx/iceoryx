@@ -33,6 +33,9 @@ class Runtime
 {
   private:
     using NumberOfAvailableServicesOnLastSearch = iox::cxx::optional<uint64_t>;
+    using CallbackEntryType = std::tuple<kom::FindServiceHandler<kom::ProxyHandleType>,
+                                         kom::FindServiceHandle,
+                                         NumberOfAvailableServicesOnLastSearch>;
 
   public:
     static Runtime& GetInstance(const core::String& name) noexcept
@@ -86,8 +89,8 @@ class Runtime
                                             kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
         // Duplicate entries for the same service are allowed
-        m_callbacks.push_back(
-            {handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch()});
+        m_callbacks.push_back(CallbackEntryType(
+            handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch()));
 
         if (m_callbacks.size() == 1)
         {
@@ -181,11 +184,7 @@ class Runtime
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
     // A vector is not the optimal data structure but used here for simplicity
-    iox::cxx::vector<std::tuple<kom::FindServiceHandler<kom::ProxyHandleType>,
-                                kom::FindServiceHandle,
-                                NumberOfAvailableServicesOnLastSearch>,
-                     iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
-        m_callbacks;
+    iox::cxx::vector<CallbackEntryType, iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER> m_callbacks;
 };
 } // namespace owl
 
