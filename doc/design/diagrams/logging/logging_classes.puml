@@ -1,0 +1,85 @@
+@startuml
+
+package platform_building_blocks {
+
+enum LogLevel {
+    OFF = 0,
+    FATAL,
+    ERROR,
+    WARN,
+    INFO,
+    DEBUG,
+    TRACE,
+}
+
+class Logger {
+  + {static} void init(constLogLevel logLevel = LogLevelFromEnvOr(LogLevel::Info))
+  + {static} LogLevel minimalLogLevel()
+  + {static} bool ignoreLogLevel()
+  + {static} LogLevel getLogLevel()
+  + void setLogLevel(LogLevel logLevel)
+  # {abstract} void initLoggerHook(LogLevel logLevel)
+  # {abstract} void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+  # {abstract} void flush()
+  # void LogString(const char* message)
+  # void logI64Dec(const int64_t value)
+  # void logU64Dec(const uint64_t value)
+  # void logU64Hex(const uint64_t value)
+  # void logU64Oct(const uint64_t value)
+  # void logBool(const bool value)
+  # void logFloat(const float value)
+  # void logDouble(const double value)
+  # void logLongDouble(const long double value)
+  - void initLogger(LogLevel logLevel)
+  - {static} Logger& get<T>()
+  - {static} Logger* activeLogger<T>(Logger* newLogger = nullptr)
+}
+
+class ConsoleLogger {
+  # ConsoleLogger()
+  # void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+  # void flush()
+}
+
+}
+
+package iceoryx_hoofs_testing {
+
+class TestingLogger {
+  + {static} void init()
+  + {static} uint64_t getNumberOfLogMessages()
+  + {static} std::vector<std::string> getLogMessages()
+  + void clearLogBuffer()
+  + void printLogBuffer()
+  - void TestingLogger()
+  - void flush()
+}
+
+}
+
+package iceoryx_hoofs {
+
+class LogHex <T> {}
+
+class LogOct <T> {}
+
+class LogStream {
+  + LogStream(const char* file, const int line, const char* function, LogLevel logLevel)
+  + void flush()
+  + LogStream& self()
+  + LogStream& operator<<(const char* cstr)
+  + LogStream& operator<<(const T value)
+  + LogStream& operator<<(const LogHex<T>&& value)
+  + LogStream& operator<<(const LogOct<T>&& value)
+  + LogStream& operator<<(const Callable&& c)
+}
+
+}
+
+ConsoleLogger --|> Logger
+TestingLogger --|> ConsoleLogger
+Logger <.. LogStream : <<friend>>
+LogStream .> LogHex : <<friend>>
+LogStream .> LogOct : <<friend>>
+
+@enduml

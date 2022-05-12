@@ -1,0 +1,31 @@
+@startuml
+
+package "platform and platform_building_blocks" {
+class Logger {
+}
+class TestingLoggerBase {
+}
+}
+
+package iceoryx_hoofs_testing {
+class TestingLogger {
+}
+class LogPrinter {
+  + void OnTestStart(const ::testing::TestInfo&)
+  + void OnTestPartResult(const ::testing::TestPartResult& result)
+}
+}
+
+package gTest {
+class ::testing::EmptyTestEventListener {
+}
+class ::testing::UnitTest {
+}
+}
+
+TestingLoggerBase --|> Logger
+TestingLogger --|> TestingLoggerBase
+LogPrinter .> TestingLogger : <<uses>>
+LogPrinter --|> ::testing::EmptyTestEventListener
+
+@enduml

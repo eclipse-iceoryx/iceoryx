@@ -1,0 +1,50 @@
+@startuml
+
+participant User
+participant MyLogger << static >>
+participant "iox::log" as logFreeFunction << free function >>
+participant Logger
+participant "myLogger : MyLogger" as myLoggerInstance
+participant "logger : DefaultLogger" as DefaultLogger
+
+User -> MyLogger ++ : init
+MyLogger -> myLoggerInstance **
+MyLogger -> logFreeFunction ++ : setActiveLogger(&myLogger)
+logFreeFunction -> Logger ++ : activeLogger(&myLogger)
+note left Logger
+  the static pointer
+  to the active logger
+  will be set to
+  myLogger
+end note
+
+Logger -> DefaultLogger **
+note over DefaultLogger
+  calling activeLogger
+  without parameter
+  will create this anyway
+  (e.g. by logging before
+  calling initLogger)
+  so there is no need
+  to to make it more
+  complicated by
+  branching
+end note
+
+return
+return
+
+MyLogger -> logFreeFunction ++ : initLogger
+logFreeFunction -> Logger ++ : getLogger <<private>>
+Logger -> Logger ++ : activeLogger()
+return
+return
+logFreeFunction -> myLoggerInstance ++ : Logger::initLogger <<private>>
+myLoggerInstance -> myLoggerInstance ++ : initiLoggerHook
+return
+return
+return
+
+return
+
+@enduml

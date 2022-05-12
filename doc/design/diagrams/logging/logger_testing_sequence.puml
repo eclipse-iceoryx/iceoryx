@@ -1,0 +1,42 @@
+@startuml
+
+participant User
+participant TestingLogger << static >>
+participant "iox::log" as logFreeFunction << free function >>
+participant "logger : TestingLogger" as testingLoggerInstance
+participant LogPrinter
+participant gTest
+participant UnitTest
+participant TestEventListener
+
+User -> TestingLogger ++ : init
+TestingLogger -> testingLoggerInstance **
+TestingLogger -> logFreeFunction ++: setActiveLogger
+return
+TestingLogger -> logFreeFunction ++: initLogger
+return
+TestingLogger -> UnitTest ++ : listeners
+return
+TestingLogger -> TestEventListener ++ : Append(LogPrinter*)
+return
+return
+
+User -> gTest ++ : RUN_ALL_TESTS
+
+gTest -> LogPrinter ++ : OnTestStart
+LogPrinter -> logFreeFunction ++: getLogger
+return
+LogPrinter -> testingLoggerInstance ++ : clearLogBuffer
+return
+return
+
+gTest -> LogPrinter ++ : OnTestPartResult
+LogPrinter -> logFreeFunction ++: getLogger
+return
+LogPrinter -> testingLoggerInstance ++ : printLogBuffer
+return
+return
+
+return
+
+@enduml
