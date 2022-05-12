@@ -1503,6 +1503,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
 /// @note int64_t compare(const char& other) const noexcept
 TYPED_TEST(stringTyped_test, CompareEqCharResultsInZero)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "94837615-8171-4da4-8157-19b4f8f170d1");
     this->testSubject = "M";
     const char testChar = 'M';
     EXPECT_THAT(this->testSubject.compare(testChar), Eq(0));
@@ -1510,6 +1511,7 @@ TYPED_TEST(stringTyped_test, CompareEqCharResultsInZero)
 
 TYPED_TEST(stringTyped_test, CompareWithCharResultNegative)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b84785ae-3162-4ff1-a9b0-24405c4b381e");
     this->testSubject = "L";
     const char testChar = 'M';
     EXPECT_THAT(this->testSubject.compare(testChar), Lt(0));
@@ -1517,6 +1519,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharResultNegative)
 
 TYPED_TEST(stringTyped_test, CompareWithCharResultPositive)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3339c92d-a45e-4f95-9825-d9699e2bc734");
     this->testSubject = "M";
     const char testChar = 'L';
     EXPECT_THAT(this->testSubject.compare(testChar), Gt(0));
@@ -1524,6 +1527,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharResultPositive)
 
 TYPED_TEST(stringTyped_test, CompareWithCharResultPositiveWithDifferentSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "93e57b3b-0c17-4314-bcfb-26f776519d44");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string temp(STRINGCAP + 3U, 'M');
@@ -1540,6 +1544,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharResultPositiveWithDifferentSize)
 /// bool operator!=(const char& rhs) const noexcept
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d4e79679-939f-4aa9-9db1-4b3ba38b5dc7");
     this->testSubject = "M";
 
     const char testChar = 'M';
@@ -1551,6 +1556,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualCharWorks)
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1547d1dd-bf34-45ec-be4e-64fdc7164404");
     this->testSubject = "M";
 
     char testChar = 'L';
@@ -1562,6 +1568,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalCharWorks)
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithCharWithDifferentSizeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c49cc0a3-b31c-49ec-90e2-707216df5eaa");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string temp(STRINGCAP + 4U, 'M');
@@ -1581,6 +1588,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithCharWithDifferentSizeWorks)
 /// bool operator>=(const char& rhs) const noexcept
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentChar)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c818b150-b926-4f3c-8405-6327303f12f6");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP> sut1("M");
@@ -1608,6 +1616,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentChar)
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualChar)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6d6344a8-d8d6-426d-b288-b429eb9a6eca");
     this->testSubject = "M";
 
     char testChar = 'M';
@@ -1624,6 +1633,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualChar)
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c9f2e472-3fbf-4e08-a0ee-6bb725e7c0d7");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
