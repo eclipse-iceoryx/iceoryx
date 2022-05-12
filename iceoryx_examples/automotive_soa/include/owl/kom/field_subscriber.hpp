@@ -104,44 +104,7 @@ class FieldSubscriber
         {
             return Future<FieldType>();
         }
-
-        Promise<FieldType> promise;
-        auto future = promise.get_future();
-        // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
-        std::thread(
-            [&](Promise<FieldType>&& promise) {
-                // Avoid race if MethodClient d'tor is called while this thread is still running
-                std::lock_guard<iox::posix::mutex> guard(m_mutex);
-
-                auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
-
-                for (auto& notification : notificationVector)
-                {
-                    if (notification->doesOriginateFrom(&m_client))
-                    {
-                        while (m_client.take().and_then([&](const auto& response) {
-                            auto receivedSequenceId = response.getResponseHeader().getSequenceId();
-                            if (receivedSequenceId == m_sequenceId)
-                            {
-                                FieldType result = *response;
-                                m_sequenceId++;
-                                promise.set_value_at_thread_exit(result);
-                            }
-                            else
-                            {
-                                std::cerr << "Got Response with outdated sequence ID! Expected = " << m_sequenceId
-                                          << "; Actual = " << receivedSequenceId << "!" << std::endl;
-                                std::terminate();
-                            }
-                        }))
-                        {
-                        }
-                    }
-                }
-            },
-            std::move(promise))
-            .detach();
-        return future;
+        return receiveResponse();
     }
 
     Future<FieldType> Set(const FieldType& value)
@@ -166,7 +129,12 @@ class FieldSubscriber
         {
             return Future<FieldType>();
         }
+        return receiveResponse();
+    }
 
+  private:
+    Future<FieldType> receiveResponse()
+    {
         Promise<FieldType> promise;
         auto future = promise.get_future();
         // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
@@ -205,8 +173,6 @@ class FieldSubscriber
             .detach();
         return future;
     }
-
-  private:
     iox::popo::Subscriber<FieldType> m_subscriber;
     iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;
     std::atomic<int64_t> m_sequenceId{0};
