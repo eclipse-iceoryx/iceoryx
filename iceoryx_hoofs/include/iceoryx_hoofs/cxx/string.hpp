@@ -30,6 +30,27 @@ namespace iox
 {
 namespace cxx
 {
+template <typename T, typename ReturnType>
+using IsStringOrCharArrayOrChar =
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value
+                             || std::is_same<T, char>::value),
+                            ReturnType>::type;
+
+template <typename T, typename ReturnType>
+using IsStringOrCharArray =
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
+                            ReturnType>::type;
+
+template <typename T, typename ReturnType>
+using IsStdStringOrCharArrayOrChar =
+    typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value
+                             || std::is_same<T, char>::value),
+                            ReturnType>::type;
+
+template <typename T, typename ReturnType>
+using IsCxxStringOrCharArray =
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
+
 /// @brief concatenates two fixed strings/string literals
 ///
 /// @param [in] fixed strings/string literals to concatenate
@@ -309,69 +330,55 @@ class string
     /// the contents of both strings are equal, an integer > 0 if the first character that does not match has a greater
     /// value in self than in other
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            int64_t>::type
-    compare(const T& other) const noexcept;
+    IsStringOrCharArray<T, int64_t> compare(const T& other) const noexcept;
 
     /// @brief checks if self is equal to rhs
     ///
-    /// @param [in] rhs is the iox::cxx::string, std::string or char array to compare with self
+    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
     ///
     /// @return true if both strings are equal, otherwise false
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            bool>::type
-    operator==(const T& rhs) const noexcept;
+    IsStringOrCharArrayOrChar<T, bool> operator==(const T& rhs) const noexcept;
 
     /// @brief checks if self is not equal to rhs
     ///
-    /// @param [in] rhs is the iox::cxx::string, std::string or char array to compare with self
+    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
     ///
     /// @return true if both strings are not equal, otherwise false
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            bool>::type
-    operator!=(const T& rhs) const noexcept;
+    IsStringOrCharArrayOrChar<T, bool> operator!=(const T& rhs) const noexcept;
 
     /// @brief checks if self is less than rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the iox::cxx::string, std::string or char array to compare with self
+    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
     ///
     /// @return true if self is less than rhs, otherwise false
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            bool>::type
-    operator<(const T& rhs) const noexcept;
+    IsStringOrCharArrayOrChar<T, bool> operator<(const T& rhs) const noexcept;
 
     /// @brief checks if self is less than or equal to rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the iox::cxx::string, std::string or char array to compare with self
+    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
     ///
     /// @return true if self is less than or equal to rhs, otherwise false
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            bool>::type
-    operator<=(const T& rhs) const noexcept;
+    IsStringOrCharArrayOrChar<T, bool> operator<=(const T& rhs) const noexcept;
 
     /// @brief checks if self is greater than rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the iox::cxx::string, std::string or char array to compare with self
+    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
     ///
     /// @return true if self is greater than rhs, otherwise false
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            bool>::type
-    operator>(const T& rhs) const noexcept;
+    IsStringOrCharArrayOrChar<T, bool> operator>(const T& rhs) const noexcept;
 
     /// @brief checks if self is greater than or equal to rhs, in lexicographical order
     ///
-    /// @param [in] rhs is the iox::cxx::string, std::string or char array to compare with self
+    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
     ///
     /// @return true if self is greater than or equal to rhs, otherwise false
     template <typename T>
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            bool>::type
-    operator>=(const T& rhs) const noexcept;
+    IsStringOrCharArrayOrChar<T, bool> operator>=(const T& rhs) const noexcept;
 
     /// @brief compares self and a char
     ///
@@ -380,49 +387,9 @@ class string
     /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
     /// the contents of both strings are equal, an integer > 0 if the first character that does not match has a greater
     /// value in self than in other
-    int64_t compare(const char& other) const noexcept;
-
-    /// @brief checks if self is equal to rhs
     ///
-    /// @param [in] rhs is a char to compare with self
-    ///
-    /// @return true if both strings are equal, otherwise false
-    bool operator==(const char& rhs) const noexcept;
-
-    /// @brief checks if self is not equal to rhs
-    ///
-    /// @param [in] rhs is a char to compare with self
-    ///
-    /// @return true if both strings are not equal, otherwise false
-    bool operator!=(const char& rhs) const noexcept;
-
-    /// @brief checks if self is less than rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is a char to compare with self
-    ///
-    /// @return true if self is less than rhs, otherwise false
-    bool operator<(const char& rhs) const noexcept;
-
-    /// @brief checks if self is less than or equal to rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is a char to compare with self
-    ///
-    /// @return true if self is less than or equal to rhs, otherwise false
-    bool operator<=(const char& rhs) const noexcept;
-
-    /// @brief checks if self is greater than rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is a char to compare with self
-    ///
-    /// @return true if self is greater than rhs, otherwise false
-    bool operator>(const char& rhs) const noexcept;
-
-    /// @brief checks if self is greater than or equal to rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is a char to compare with self
-    ///
-    /// @return true if self is greater than or equal to rhs, otherwise false
-    bool operator>=(const char& rhs) const noexcept;
+    /// @note the logic is the same as in the other compare method with other treated as a string with size 1
+    int64_t compare(char other) const noexcept;
 
     /// @brief returns a pointer to the char array of self
     ///
@@ -472,8 +439,7 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, string&>::type
-    append(TruncateToCapacity_t, const T& t) noexcept;
+    IsCxxStringOrCharArray<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
 
     /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
     /// is greater than this' capacity.
@@ -482,8 +448,7 @@ class string
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
-    unsafe_append(const T& t) noexcept;
+    IsCxxStringOrCharArray<T, bool> unsafe_append(const T& t) noexcept;
 
     /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
     /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
@@ -495,8 +460,7 @@ class string
     ///
     /// @return true if the insertion was successful, otherwise false
     template <typename T>
-    constexpr typename std::enable_if<is_char_array<T>::value || is_cxx_string<T>::value, bool>::type
-    insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
+    IsCxxStringOrCharArray<T, bool> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
 
     /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size
     /// of the original string the returned substring only contains the characters from pos until size();
@@ -527,9 +491,7 @@ class string
     /// @return an optional containing the position of the first character of the found substring, iox::cxx::nullopt if
     /// no substring is found
     template <typename T>
-    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
-                            optional<uint64_t>>::type
-    find(const T& t, const uint64_t pos = 0U) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find(const T& t, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
@@ -541,9 +503,7 @@ class string
     /// @return an optional containing the position of the first character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
-                            optional<uint64_t>>::type
-    find_first_of(const T& t, const uint64_t pos = 0U) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find_first_of(const T& t, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found
@@ -554,9 +514,7 @@ class string
     /// @return an optional containing the position of the last character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    typename std::enable_if<std::is_same<T, std::string>::value || is_char_array<T>::value || is_cxx_string<T>::value,
-                            optional<uint64_t>>::type
-    find_last_of(const T& t, const uint64_t pos = Capacity) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find_last_of(const T& t, const uint64_t pos = Capacity) const noexcept;
 
     /// @brief returns a reference to the character stored at pos
     /// @param[in] pos position of character to return
@@ -614,119 +572,58 @@ class string
     uint64_t m_rawstringSize{0U};
 };
 
-/// @brief checks if a lhs std::string or char array is equal to a rhs iox::cxx::string
+/// @brief checks if a lhs std::string, char array or char is equal to a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the std::string or char array
 /// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if the contents of lhs and rhs are equal, otherwise false
 template <typename T, uint64_t Capacity>
-typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value), bool>::type
-operator==(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsStdStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a lhs std::string or char array is not equal to a rhs iox::cxx::string
+/// @brief checks if a lhs std::string, char array or char is not equal to a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the std::string or char array
+/// @param [in] lhs is the std::string, char array or char
 /// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if the contents of lhs and rhs are not equal, otherwise false
 template <typename T, uint64_t Capacity>
-typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value), bool>::type
-operator!=(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsStdStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a lhs std::string or char array is less than a rhs iox::cxx::string
+/// @brief checks if a lhs std::string, char array or char is less than a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the std::string or char array
+/// @param [in] lhs is the std::string, char array or char
 /// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if lhs is less than rhs, otherwise false
 template <typename T, uint64_t Capacity>
-typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value), bool>::type
-operator<(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsStdStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a lhs std::string or char array is less than or equal to a rhs iox::cxx::string
+/// @brief checks if a lhs std::string, char array or char is less than or equal to a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the std::string or char array
+/// @param [in] lhs is the std::string, char array or char
 /// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if lhs is less than or equal to rhs, otherwise false
 template <typename T, uint64_t Capacity>
-typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value), bool>::type
-operator<=(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsStdStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a lhs std::string or char array is greater than a rhs iox::cxx::string
+/// @brief checks if a lhs std::string, char array or char is greater than a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the std::string or char array
+/// @param [in] lhs is the std::string, char array or char
 /// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if lhs is greater than rhs, otherwise false
 template <typename T, uint64_t Capacity>
-typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value), bool>::type
-operator>(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a lhs std::string or char array is greater than or equal to a rhs iox::cxx::string
+/// @brief checks if a lhs std::string, char array or char is greater than or equal to a rhs iox::cxx::string
 ///
-/// @param [in] lhs is the std::string or char array
+/// @param [in] lhs is the std::string, char array or char
 /// @param [in] rhs is the iox::cxx::string
 ///
 /// @return true if lhs is greater than or equal to rhs, otherwise false
 template <typename T, uint64_t Capacity>
-typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value), bool>::type
-operator>=(const T& lhs, const string<Capacity>& rhs) noexcept;
-
-/// @brief checks if a lhs char is equal to a rhs iox::cxx::string
-///
-/// @param [in] lhs is the char
-/// @param [in] rhs is the iox::cxx::string
-///
-/// @return true if the contents of lhs and rhs are equal, otherwise false
-template <uint64_t Capacity>
-bool operator==(const char& lhs, const string<Capacity>& rhs) noexcept;
-
-/// @brief checks if a lhs char is not equal to a rhs iox::cxx::string
-///
-/// @param [in] lhs is the char
-/// @param [in] rhs is the iox::cxx::string
-///
-/// @return true if the contents of lhs and rhs are not equal, otherwise false
-template <uint64_t Capacity>
-bool operator!=(const char& lhs, const string<Capacity>& rhs) noexcept;
-
-/// @brief checks if a lhs char is less than a rhs iox::cxx::string
-///
-/// @param [in] lhs is the char
-/// @param [in] rhs is the iox::cxx::string
-///
-/// @return true if lhs is less than rhs, otherwise false
-template <uint64_t Capacity>
-bool operator<(const char& lhs, const string<Capacity>& rhs) noexcept;
-
-/// @brief checks if a lhs char is less than or equal to a rhs iox::cxx::string
-///
-/// @param [in] lhs is the char
-/// @param [in] rhs is the iox::cxx::string
-///
-/// @return true if lhs is less than or equal to rhs, otherwise false
-template <uint64_t Capacity>
-bool operator<=(const char& lhs, const string<Capacity>& rhs) noexcept;
-
-/// @brief checks if a lhs char is greater than a rhs iox::cxx::string
-///
-/// @param [in] lhs is the char
-/// @param [in] rhs is the iox::cxx::string
-///
-/// @return true if lhs is greater than rhs, otherwise false
-template <uint64_t Capacity>
-bool operator>(const char& lhs, const string<Capacity>& rhs) noexcept;
-
-/// @brief checks if a lhs char is greater than or equal to a rhs iox::cxx::string
-///
-/// @param [in] lhs is the char
-/// @param [in] rhs is the iox::cxx::string
-///
-/// @return true if lhs is greater than or equal to rhs, otherwise false
-template <uint64_t Capacity>
-bool operator>=(const char& lhs, const string<Capacity>& rhs) noexcept;
+IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief outputs the fixed string on stream
 ///

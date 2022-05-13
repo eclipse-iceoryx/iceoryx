@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
 #include "test.hpp"
 
 namespace
@@ -1335,46 +1334,51 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     ::testing::Test::RecordProperty("TEST_ID", "9dcd5cce-ce7d-4cf9-8c36-edca46d09ff7");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> sut1("M");
-    string<STRINGCAP> sut2("F");
 
     char testCharArray[STRINGCAP + 1U] = {'L'};
-    EXPECT_THAT(sut1 < testCharArray, Eq(false));
-    EXPECT_THAT(sut1 <= testCharArray, Eq(false));
-    EXPECT_THAT(sut2 < testCharArray, Eq(true));
-    EXPECT_THAT(sut2 <= testCharArray, Eq(true));
-    EXPECT_THAT(sut1 > testCharArray, Eq(true));
-    EXPECT_THAT(sut1 >= testCharArray, Eq(true));
-    EXPECT_THAT(sut2 > testCharArray, Eq(false));
-    EXPECT_THAT(sut2 >= testCharArray, Eq(false));
-
-    EXPECT_THAT(testCharArray < sut1, Eq(true));
-    EXPECT_THAT(testCharArray <= sut1, Eq(true));
-    EXPECT_THAT(testCharArray < sut2, Eq(false));
-    EXPECT_THAT(testCharArray <= sut2, Eq(false));
-    EXPECT_THAT(testCharArray > sut1, Eq(false));
-    EXPECT_THAT(testCharArray >= sut1, Eq(false));
-    EXPECT_THAT(testCharArray > sut2, Eq(true));
-    EXPECT_THAT(testCharArray >= sut2, Eq(true));
-
     std::string testStdString = testCharArray;
-    EXPECT_THAT(sut1 < testStdString, Eq(false));
-    EXPECT_THAT(sut1 <= testStdString, Eq(false));
-    EXPECT_THAT(sut2 < testStdString, Eq(true));
-    EXPECT_THAT(sut2 <= testStdString, Eq(true));
-    EXPECT_THAT(sut1 > testStdString, Eq(true));
-    EXPECT_THAT(sut1 >= testStdString, Eq(true));
-    EXPECT_THAT(sut2 > testStdString, Eq(false));
-    EXPECT_THAT(sut2 >= testStdString, Eq(false));
 
-    EXPECT_THAT(testStdString < sut1, Eq(true));
-    EXPECT_THAT(testStdString <= sut1, Eq(true));
-    EXPECT_THAT(testStdString < sut2, Eq(false));
-    EXPECT_THAT(testStdString <= sut2, Eq(false));
-    EXPECT_THAT(testStdString > sut1, Eq(false));
-    EXPECT_THAT(testStdString >= sut1, Eq(false));
-    EXPECT_THAT(testStdString > sut2, Eq(true));
-    EXPECT_THAT(testStdString >= sut2, Eq(true));
+    // compare with greater string
+    string<STRINGCAP> sutGreater("M");
+
+    EXPECT_THAT(sutGreater < testCharArray, Eq(false));
+    EXPECT_THAT(sutGreater <= testCharArray, Eq(false));
+    EXPECT_THAT(sutGreater > testCharArray, Eq(true));
+    EXPECT_THAT(sutGreater >= testCharArray, Eq(true));
+    EXPECT_THAT(testCharArray < sutGreater, Eq(true));
+    EXPECT_THAT(testCharArray <= sutGreater, Eq(true));
+    EXPECT_THAT(testCharArray > sutGreater, Eq(false));
+    EXPECT_THAT(testCharArray >= sutGreater, Eq(false));
+
+    EXPECT_THAT(sutGreater < testStdString, Eq(false));
+    EXPECT_THAT(sutGreater <= testStdString, Eq(false));
+    EXPECT_THAT(sutGreater > testStdString, Eq(true));
+    EXPECT_THAT(sutGreater >= testStdString, Eq(true));
+    EXPECT_THAT(testStdString < sutGreater, Eq(true));
+    EXPECT_THAT(testStdString <= sutGreater, Eq(true));
+    EXPECT_THAT(testStdString > sutGreater, Eq(false));
+    EXPECT_THAT(testStdString >= sutGreater, Eq(false));
+
+    // compare with less string
+    string<STRINGCAP> sutLess("F");
+
+    EXPECT_THAT(sutLess < testCharArray, Eq(true));
+    EXPECT_THAT(sutLess <= testCharArray, Eq(true));
+    EXPECT_THAT(sutLess > testCharArray, Eq(false));
+    EXPECT_THAT(sutLess >= testCharArray, Eq(false));
+    EXPECT_THAT(testCharArray < sutLess, Eq(false));
+    EXPECT_THAT(testCharArray <= sutLess, Eq(false));
+    EXPECT_THAT(testCharArray > sutLess, Eq(true));
+    EXPECT_THAT(testCharArray >= sutLess, Eq(true));
+
+    EXPECT_THAT(sutLess < testStdString, Eq(true));
+    EXPECT_THAT(sutLess <= testStdString, Eq(true));
+    EXPECT_THAT(sutLess > testStdString, Eq(false));
+    EXPECT_THAT(sutLess >= testStdString, Eq(false));
+    EXPECT_THAT(testStdString < sutLess, Eq(false));
+    EXPECT_THAT(testStdString <= sutLess, Eq(false));
+    EXPECT_THAT(testStdString > sutLess, Eq(true));
+    EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
@@ -1413,55 +1417,60 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
-    std::string temp1(STRINGCAP + 5U, 'M');
-    string<STRINGCAP + 5U> sut1;
-    ASSERT_THAT(sut1.unsafe_assign(temp1), Eq(true));
-    std::string temp2(STRINGCAP + 5U, 'F');
-    string<STRINGCAP + 5U> sut2;
-    ASSERT_THAT(sut2.unsafe_assign(temp2), Eq(true));
-
     char testCharArray[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         testCharArray[i] = 'L';
     }
     testCharArray[STRINGCAP] = '\0';
-    EXPECT_THAT(sut1 < testCharArray, Eq(false));
-    EXPECT_THAT(sut1 <= testCharArray, Eq(false));
-    EXPECT_THAT(sut2 < testCharArray, Eq(true));
-    EXPECT_THAT(sut2 <= testCharArray, Eq(true));
-    EXPECT_THAT(sut1 > testCharArray, Eq(true));
-    EXPECT_THAT(sut1 >= testCharArray, Eq(true));
-    EXPECT_THAT(sut2 > testCharArray, Eq(false));
-    EXPECT_THAT(sut2 >= testCharArray, Eq(false));
-
-    EXPECT_THAT(testCharArray < sut1, Eq(true));
-    EXPECT_THAT(testCharArray <= sut1, Eq(true));
-    EXPECT_THAT(testCharArray < sut2, Eq(false));
-    EXPECT_THAT(testCharArray <= sut2, Eq(false));
-    EXPECT_THAT(testCharArray > sut1, Eq(false));
-    EXPECT_THAT(testCharArray >= sut1, Eq(false));
-    EXPECT_THAT(testCharArray > sut2, Eq(true));
-    EXPECT_THAT(testCharArray >= sut2, Eq(true));
 
     const std::string testStdString = testCharArray;
-    EXPECT_THAT(sut1 < testStdString, Eq(false));
-    EXPECT_THAT(sut1 <= testStdString, Eq(false));
-    EXPECT_THAT(sut2 < testStdString, Eq(true));
-    EXPECT_THAT(sut2 <= testStdString, Eq(true));
-    EXPECT_THAT(sut1 > testStdString, Eq(true));
-    EXPECT_THAT(sut1 >= testStdString, Eq(true));
-    EXPECT_THAT(sut2 > testStdString, Eq(false));
-    EXPECT_THAT(sut2 >= testStdString, Eq(false));
 
-    EXPECT_THAT(testStdString < sut1, Eq(true));
-    EXPECT_THAT(testStdString <= sut1, Eq(true));
-    EXPECT_THAT(testStdString < sut2, Eq(false));
-    EXPECT_THAT(testStdString <= sut2, Eq(false));
-    EXPECT_THAT(testStdString > sut1, Eq(false));
-    EXPECT_THAT(testStdString >= sut1, Eq(false));
-    EXPECT_THAT(testStdString > sut2, Eq(true));
-    EXPECT_THAT(testStdString >= sut2, Eq(true));
+    // compare with greater string
+    std::string temp1(STRINGCAP + 5U, 'M');
+    string<STRINGCAP + 5U> sutGreater;
+    ASSERT_THAT(sutGreater.unsafe_assign(temp1), Eq(true));
+
+    EXPECT_THAT(sutGreater < testCharArray, Eq(false));
+    EXPECT_THAT(sutGreater <= testCharArray, Eq(false));
+    EXPECT_THAT(sutGreater > testCharArray, Eq(true));
+    EXPECT_THAT(sutGreater >= testCharArray, Eq(true));
+    EXPECT_THAT(testCharArray < sutGreater, Eq(true));
+    EXPECT_THAT(testCharArray <= sutGreater, Eq(true));
+    EXPECT_THAT(testCharArray > sutGreater, Eq(false));
+    EXPECT_THAT(testCharArray >= sutGreater, Eq(false));
+
+    EXPECT_THAT(sutGreater < testStdString, Eq(false));
+    EXPECT_THAT(sutGreater <= testStdString, Eq(false));
+    EXPECT_THAT(sutGreater > testStdString, Eq(true));
+    EXPECT_THAT(sutGreater >= testStdString, Eq(true));
+    EXPECT_THAT(testStdString < sutGreater, Eq(true));
+    EXPECT_THAT(testStdString <= sutGreater, Eq(true));
+    EXPECT_THAT(testStdString > sutGreater, Eq(false));
+    EXPECT_THAT(testStdString >= sutGreater, Eq(false));
+
+    // compare with less string
+    std::string temp2(STRINGCAP + 5U, 'F');
+    string<STRINGCAP + 5U> sutLess;
+    ASSERT_THAT(sutLess.unsafe_assign(temp2), Eq(true));
+
+    EXPECT_THAT(sutLess < testCharArray, Eq(true));
+    EXPECT_THAT(sutLess <= testCharArray, Eq(true));
+    EXPECT_THAT(sutLess > testCharArray, Eq(false));
+    EXPECT_THAT(sutLess >= testCharArray, Eq(false));
+    EXPECT_THAT(testCharArray < sutLess, Eq(false));
+    EXPECT_THAT(testCharArray <= sutLess, Eq(false));
+    EXPECT_THAT(testCharArray > sutLess, Eq(true));
+    EXPECT_THAT(testCharArray >= sutLess, Eq(true));
+
+    EXPECT_THAT(sutLess < testStdString, Eq(true));
+    EXPECT_THAT(sutLess <= testStdString, Eq(true));
+    EXPECT_THAT(sutLess > testStdString, Eq(false));
+    EXPECT_THAT(sutLess >= testStdString, Eq(false));
+    EXPECT_THAT(testStdString < sutLess, Eq(false));
+    EXPECT_THAT(testStdString <= sutLess, Eq(false));
+    EXPECT_THAT(testStdString > sutLess, Eq(true));
+    EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
@@ -1500,7 +1509,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
 }
 
-/// @note int64_t compare(const char& other) const noexcept
+/// @note int64_t compare(char other) const noexcept
 TYPED_TEST(stringTyped_test, CompareEqCharResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "94837615-8171-4da4-8157-19b4f8f170d1");
@@ -1538,6 +1547,13 @@ TYPED_TEST(stringTyped_test, CompareWithCharResultPositiveWithDifferentSize)
     EXPECT_THAT(sut.compare(testChar1), Gt(0));
     char testChar2 = 'M';
     EXPECT_THAT(sut.compare(testChar2), Gt(0));
+}
+
+TYPED_TEST(stringTyped_test, CompareEmptyStringWithCharWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d0857725-4f4a-4052-a957-71fc906d535e");
+    EXPECT_THAT(this->testSubject.compare('A'), Lt(0));
+    EXPECT_THAT(this->testSubject.compare('\0'), Eq(0));
 }
 
 /// @note bool operator==(const char& rhs) const noexcept
@@ -1591,27 +1607,33 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentChar)
     ::testing::Test::RecordProperty("TEST_ID", "c818b150-b926-4f3c-8405-6327303f12f6");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> sut1("M");
-    string<STRINGCAP> sut2("F");
 
     char testChar = 'L';
-    EXPECT_THAT(sut1 < testChar, Eq(false));
-    EXPECT_THAT(sut1 <= testChar, Eq(false));
-    EXPECT_THAT(sut2 < testChar, Eq(true));
-    EXPECT_THAT(sut2 <= testChar, Eq(true));
-    EXPECT_THAT(sut1 > testChar, Eq(true));
-    EXPECT_THAT(sut1 >= testChar, Eq(true));
-    EXPECT_THAT(sut2 > testChar, Eq(false));
-    EXPECT_THAT(sut2 >= testChar, Eq(false));
 
-    EXPECT_THAT(testChar < sut1, Eq(true));
-    EXPECT_THAT(testChar <= sut1, Eq(true));
-    EXPECT_THAT(testChar < sut2, Eq(false));
-    EXPECT_THAT(testChar <= sut2, Eq(false));
-    EXPECT_THAT(testChar > sut1, Eq(false));
-    EXPECT_THAT(testChar >= sut1, Eq(false));
-    EXPECT_THAT(testChar > sut2, Eq(true));
-    EXPECT_THAT(testChar >= sut2, Eq(true));
+    // compare testChar with greater string
+    string<STRINGCAP> sutGreaterTestChar("M");
+
+    EXPECT_THAT(sutGreaterTestChar < testChar, Eq(false));
+    EXPECT_THAT(sutGreaterTestChar <= testChar, Eq(false));
+    EXPECT_THAT(sutGreaterTestChar > testChar, Eq(true));
+    EXPECT_THAT(sutGreaterTestChar >= testChar, Eq(true));
+    EXPECT_THAT(testChar < sutGreaterTestChar, Eq(true));
+    EXPECT_THAT(testChar <= sutGreaterTestChar, Eq(true));
+    EXPECT_THAT(testChar > sutGreaterTestChar, Eq(false));
+    EXPECT_THAT(testChar >= sutGreaterTestChar, Eq(false));
+
+
+    // compare testChar with less string
+    string<STRINGCAP> sutLessTestChar("F");
+
+    EXPECT_THAT(sutLessTestChar < testChar, Eq(true));
+    EXPECT_THAT(sutLessTestChar <= testChar, Eq(true));
+    EXPECT_THAT(sutLessTestChar > testChar, Eq(false));
+    EXPECT_THAT(sutLessTestChar >= testChar, Eq(false));
+    EXPECT_THAT(testChar < sutLessTestChar, Eq(false));
+    EXPECT_THAT(testChar <= sutLessTestChar, Eq(false));
+    EXPECT_THAT(testChar > sutLessTestChar, Eq(true));
+    EXPECT_THAT(testChar >= sutLessTestChar, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualChar)
@@ -1637,42 +1659,49 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
-    std::string temp1(STRINGCAP + 5U, 'M');
-    string<STRINGCAP + 5U> sut1;
-    ASSERT_THAT(sut1.unsafe_assign(temp1), Eq(true));
-    std::string temp2(STRINGCAP + 5U, 'F');
-    string<STRINGCAP + 5U> sut2;
-    ASSERT_THAT(sut2.unsafe_assign(temp2), Eq(true));
-    std::string temp3(STRINGCAP + 5U, 'L');
-    string<STRINGCAP + 5U> sut3;
-    ASSERT_THAT(sut3.unsafe_assign(temp3), Eq(true));
-
     char testChar = 'L';
-    EXPECT_THAT(sut1 < testChar, Eq(false));
-    EXPECT_THAT(sut1 <= testChar, Eq(false));
-    EXPECT_THAT(sut2 < testChar, Eq(true));
-    EXPECT_THAT(sut2 <= testChar, Eq(true));
-    EXPECT_THAT(sut3 < testChar, Eq(false));
-    EXPECT_THAT(sut3 <= testChar, Eq(false));
-    EXPECT_THAT(sut1 > testChar, Eq(true));
-    EXPECT_THAT(sut1 >= testChar, Eq(true));
-    EXPECT_THAT(sut2 > testChar, Eq(false));
-    EXPECT_THAT(sut2 >= testChar, Eq(false));
-    EXPECT_THAT(sut3 > testChar, Eq(true));
-    EXPECT_THAT(sut3 >= testChar, Eq(true));
 
-    EXPECT_THAT(testChar < sut1, Eq(true));
-    EXPECT_THAT(testChar <= sut1, Eq(true));
-    EXPECT_THAT(testChar < sut2, Eq(false));
-    EXPECT_THAT(testChar <= sut2, Eq(false));
-    EXPECT_THAT(testChar < sut3, Eq(true));
-    EXPECT_THAT(testChar <= sut3, Eq(true));
-    EXPECT_THAT(testChar > sut1, Eq(false));
-    EXPECT_THAT(testChar >= sut1, Eq(false));
-    EXPECT_THAT(testChar > sut2, Eq(true));
-    EXPECT_THAT(testChar >= sut2, Eq(true));
-    EXPECT_THAT(testChar > sut3, Eq(false));
-    EXPECT_THAT(testChar >= sut3, Eq(false));
+    // compare testChar with greater string
+    std::string temp1(STRINGCAP + 5U, 'M');
+    string<STRINGCAP + 5U> sutGreaterTestChar;
+    ASSERT_THAT(sutGreaterTestChar.unsafe_assign(temp1), Eq(true));
+
+    EXPECT_THAT(sutGreaterTestChar < testChar, Eq(false));
+    EXPECT_THAT(sutGreaterTestChar <= testChar, Eq(false));
+    EXPECT_THAT(sutGreaterTestChar > testChar, Eq(true));
+    EXPECT_THAT(sutGreaterTestChar >= testChar, Eq(true));
+    EXPECT_THAT(testChar < sutGreaterTestChar, Eq(true));
+    EXPECT_THAT(testChar <= sutGreaterTestChar, Eq(true));
+    EXPECT_THAT(testChar > sutGreaterTestChar, Eq(false));
+    EXPECT_THAT(testChar >= sutGreaterTestChar, Eq(false));
+
+    // compare testChar with less string
+    std::string temp2(STRINGCAP + 5U, 'F');
+    string<STRINGCAP + 5U> sutLessTestChar;
+    ASSERT_THAT(sutLessTestChar.unsafe_assign(temp2), Eq(true));
+
+    EXPECT_THAT(sutLessTestChar < testChar, Eq(true));
+    EXPECT_THAT(sutLessTestChar <= testChar, Eq(true));
+    EXPECT_THAT(sutLessTestChar > testChar, Eq(false));
+    EXPECT_THAT(sutLessTestChar >= testChar, Eq(false));
+    EXPECT_THAT(testChar < sutLessTestChar, Eq(false));
+    EXPECT_THAT(testChar <= sutLessTestChar, Eq(false));
+    EXPECT_THAT(testChar > sutLessTestChar, Eq(true));
+    EXPECT_THAT(testChar >= sutLessTestChar, Eq(true));
+
+    // compare testChar with equal string
+    std::string temp3(STRINGCAP + 5U, 'L');
+    string<STRINGCAP + 5U> sutEqualTestChar;
+    ASSERT_THAT(sutEqualTestChar.unsafe_assign(temp3), Eq(true));
+
+    EXPECT_THAT(sutEqualTestChar < testChar, Eq(false));
+    EXPECT_THAT(sutEqualTestChar <= testChar, Eq(false));
+    EXPECT_THAT(sutEqualTestChar > testChar, Eq(true));
+    EXPECT_THAT(sutEqualTestChar >= testChar, Eq(true));
+    EXPECT_THAT(testChar < sutEqualTestChar, Eq(true));
+    EXPECT_THAT(testChar <= sutEqualTestChar, Eq(true));
+    EXPECT_THAT(testChar > sutEqualTestChar, Eq(false));
+    EXPECT_THAT(testChar >= sutEqualTestChar, Eq(false));
 }
 
 /// @note explicit operator std::string() const noexcept
