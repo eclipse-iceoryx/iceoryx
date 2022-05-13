@@ -46,12 +46,14 @@ int main()
         (*sample).counter = counter;
         (*sample).sendTimestamp = std::chrono::steady_clock::now();
         skeleton.m_event.Send(std::move(sample));
+        std::cout << "Event: value " << counter << " sent" << std::endl;
 
         // Field
         if (counter > 30)
         {
             Topic field{counter};
             skeleton.m_field.Update(field);
+            std::cout << "Field: updated value to " << counter << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(1));

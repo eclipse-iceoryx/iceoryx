@@ -34,7 +34,7 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-cpp-automotive-publisher', 'iox-cpp-automotive-subscriber']
+    executable_list = ['iox-cpp-automotive-skeleton', 'iox-cpp-automotive-proxy']
     process_list = []
 
     for exec in executable_list:
@@ -64,36 +64,34 @@ def generate_test_description():
         process_list[1],
         roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-cpp-automotive-publisher': process_list[0], 'iox-cpp-automotive-subscriber': process_list[1],
+    ]), {'iox-cpp-automotive-skeleton': process_list[0], 'iox-cpp-automotive-proxy': process_list[1],
          'roudi_process': roudi_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
 
 
-class TestAraComExample(unittest.TestCase):
+class TestAutomotiveSoaExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_publisher_subscriber_data_exchange(self, proc_output):
+    def test_skeleton_proxy_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-cpp-automotive-publisher sent values: 104, 159, 248, 15, 392', timeout=45, stream='stdout')
+            'Event: value 5 sent', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-cpp-automotive-subscriber got value: 104', timeout=45, stream='stdout')
+            'Event: value is 5', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-cpp-automotive-subscriber got value: 159', timeout=45, stream='stdout')
+            'Field: value is 4245', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-cpp-automotive-subscriber got value: 248', timeout=45, stream='stdout')
+            'Field: value set to 4246', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-cpp-automotive-subscriber got value: 392', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'iox-cpp-automotive-asubscriber got value: 15', timeout=45, stream='stdout')
+            'Method: result of 6 + 3 = 9', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @ launch_testing.post_shutdown_test()
-class TestAraComExampleExitCodes(unittest.TestCase):
+class TestAutomotiveSoaExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

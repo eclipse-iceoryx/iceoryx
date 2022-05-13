@@ -42,6 +42,7 @@ if(BUILD_TESTING)
   add_ros_test(iceoryx_integrationtest/test_request_response_listener.py)
   add_ros_test(iceoryx_integrationtest/test_request_response_untyped.py)
   add_ros_test(iceoryx_integrationtest/test_icediscovery_in_c_example.py)
+  add_ros_test(iceoryx_integrationtest/test_automotive_soa_example.py)
 
 endif()
 
