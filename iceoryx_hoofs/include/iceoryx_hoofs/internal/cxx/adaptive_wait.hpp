@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_SPINATOR_HPP
-#define IOX_HOOFS_CXX_SPINATOR_HPP
+#ifndef IOX_HOOFS_CXX_ADAPTIVE_WAIT_HPP
+#define IOX_HOOFS_CXX_ADAPTIVE_WAIT_HPP
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 
@@ -34,22 +34,32 @@ namespace internal
 ///        So we have a low latency if the event one is waiting for is happening
 ///        soon but the CPU load is low when one waits for a long time.
 /// @code
-///   spinator spinator; // must be defined outside of the loop to track the calls
+///   // must be defined outside of the loop to track the calls
+///   adaptive_wait adaptive_wait;
 ///   while(hasMyEventOccurred) {
-///       spinator.yield();
+///       // will wait time until a defined max waiting time is reached
+///       adaptive_wait.wait();
+///
+///       // if the wait should be resetted so that one starts with yield again
+///       // one can recreate the class and assign it via the copy constructor
+///       if ( waitResetConditionOccurred ) adaptive_wait = adaptive_wait();
 ///   }
 /// @endcode
-class spinator
+class adaptive_wait
 {
   public:
-    /// @brief Waits in a smart wait. The first times yield is called
-    ///        std::thread::yield() is called and after then a waiting strategy
+    /// @brief Waits in a smart wait. The first times it calls
+    ///        std::thread::yield() after a waiting strategy
     ///        with exponential waiting times is pursued.
-    void yield() noexcept;
+    void wait() noexcept;
 
   protected:
-    /// @brief std::thread::sleep_for causes a lot of overhead. 100us was
-    /// choosen with the experiment below. The overhead of sleep_for is around
+    /// @note All numbers are not accurate and are just rough estimates
+    ///       acquired by the experiments described below.
+
+    /// @brief The value was choosen by educated guess.
+    /// std::thread::sleep_for causes a lot of overhead. 100us was
+    /// choosen with the experiment below. The overhead of sleep_for is roughly around
     /// 50% of the actual waitingTime (100us). When the waitingTime is lower the
     /// overhead of sleep_for makes up the majority of the time yield is waiting.
     /// @code
@@ -65,7 +75,8 @@ class spinator
     /// @endcode
     static constexpr std::chrono::microseconds INITIAL_WAITING_TIME{100};
 
-    /// @brief with 10ms a busy loop is around 0.1% in top. when decreasing it
+    /// @brief The value was choosen by educated guess.
+    ///        With 10ms a busy loop is around 0.1% in top. when decreasing it
     ///        to 5ms we get around 0.7% and then it starts to raise fast.
     static constexpr std::chrono::milliseconds FINAL_WAITING_TIME{10};
 

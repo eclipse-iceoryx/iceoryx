@@ -15,7 +15,7 @@
 **Bugfixes:**
 
 - FreeBSD CI build is broken [\#1338](https://github.com/eclipse-iceoryx/iceoryx/issues/1338)
-- High CPU load in blocked publisher by introduce smart busy loop waiting (spinator) [\#1347](https://github.com/eclipse-iceoryx/iceoryx/issues/1347)
+- High CPU load in blocked publisher is reduced by introducing smart busy loop waiting (adaptive_wait) [\#1347](https://github.com/eclipse-iceoryx/iceoryx/issues/1347)
 
 **Refactoring:**
 

@@ -399,7 +399,7 @@ inline constexpr bool Duration::wouldCastFromFloatingPointProbablyOverflow(const
     // or the first one which causes an overflow;
     // to be safe, this is handled like causing an overflow which would result in undefined behavior when casting to
     // Seconds_t
-    constexpr From SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<From>(std::numeric_limits<Seconds_t>::max());
+    constexpr From SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<From>(std::numeric_limits<To>::max());
     return floatingPoint >= SECONDS_BEFORE_LIKELY_OVERFLOW;
 }
 

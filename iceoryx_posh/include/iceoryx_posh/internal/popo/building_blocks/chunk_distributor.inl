@@ -166,10 +166,10 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
     }
 
     // busy waiting until every queue is served
-    cxx::internal::spinator spinator;
+    cxx::internal::adaptive_wait adaptiveWait;
     while (!remainingQueues.empty())
     {
-        spinator.yield();
+        adaptiveWait.wait();
         {
             // create intersection of current queues and remainingQueues
             // reason: it is possible that since the last iteration some subscriber have already unsubscribed

@@ -211,18 +211,20 @@ class Duration
 
     // BEGIN ARITHMETIC
 
-    /// @brief Creates Duration object by addition
+    /// @brief Creates Duration object by addition. On overflow duration
+    ///        saturates to Duration::max().
     /// @param[in] rhs is the second summand
     /// @return a new Duration object
     constexpr Duration operator+(const Duration& rhs) const noexcept;
 
-    /// @brief Creates Duration object by subtraction
+    /// @brief Creates Duration object by subtraction. On underflow duration
+    ///        saturates to Duration::zero().
     /// @param[in] rhs is the subtrahend
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     constexpr Duration operator-(const Duration& rhs) const noexcept;
 
-    /// @brief Creates Duration object by multiplication
+    /// @brief Creates Duration object by multiplication.
     /// @tparam T is an arithmetic type for the multiplicator
     /// @param[in] rhs is the multiplicator
     /// @return a new Duration object
@@ -339,7 +341,8 @@ class Duration
     Nanoseconds_t m_nanoseconds{0U};
 };
 
-/// @brief creates Duration object by multiplying object T with a duration
+/// @brief creates Duration object by multiplying object T with a duration. On overflow
+///        duration will saturate to Duration::max()
 /// @tparam T is an arithmetic type for the multiplicator
 /// @param[in] lhs is the multiplicator
 /// @param[in] rhs is the multiplicant

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/spinator.hpp"
+#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
 
 #include <thread>
 
@@ -24,12 +24,12 @@ namespace cxx
 {
 namespace internal
 {
-constexpr std::chrono::microseconds spinator::INITIAL_WAITING_TIME;
-constexpr std::chrono::milliseconds spinator::FINAL_WAITING_TIME;
-constexpr uint64_t spinator::YIELD_REPETITIONS;
-constexpr uint64_t spinator::INITIAL_REPETITIONS;
+constexpr std::chrono::microseconds adaptive_wait::INITIAL_WAITING_TIME;
+constexpr std::chrono::milliseconds adaptive_wait::FINAL_WAITING_TIME;
+constexpr uint64_t adaptive_wait::YIELD_REPETITIONS;
+constexpr uint64_t adaptive_wait::INITIAL_REPETITIONS;
 
-void spinator::yield() noexcept
+void adaptive_wait::wait() noexcept
 {
     ++m_yieldCount;
 
