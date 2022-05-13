@@ -34,6 +34,7 @@ Runtime& Runtime::GetInstance() noexcept
 kom::ServiceHandleContainer<kom::ProxyHandleType>
 Runtime::FindService(kom::ServiceIdentifier& serviceIdentifier, kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
+    //! [searching for iceoryx services]
     kom::ServiceHandleContainer<kom::ProxyHandleType> iceoryxServiceContainer;
 
     m_discovery.findService(
@@ -53,8 +54,10 @@ Runtime::FindService(kom::ServiceIdentifier& serviceIdentifier, kom::InstanceIde
             iceoryxServiceContainer.push_back({service.getEventIDString(), service.getInstanceIDString()});
         },
         iox::popo::MessagingPattern::REQ_RES);
+    //! [searching for iceoryx services]
 
-    // We need to make sure that all three internal services representing 'MinimalSkeleton' are available
+    // We need to make sure that all four internal services representing 'MinimalSkeleton' are available
+    //! [verify iceoryx mapping]
     kom::ServiceHandleContainer<kom::ProxyHandleType> autosarServiceContainer;
     if (verifyThatServiceIsComplete(iceoryxServiceContainer))
     {
@@ -62,6 +65,7 @@ Runtime::FindService(kom::ServiceIdentifier& serviceIdentifier, kom::InstanceIde
     }
 
     return autosarServiceContainer;
+    //! [verify iceoryx mapping]
 }
 
 kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::ProxyHandleType> handler,
@@ -72,6 +76,7 @@ kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::Pr
     m_callbacks.push_back(
         CallbackEntryType(handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch()));
 
+    //! [attach discovery to listener]
     if (m_callbacks.size() == 1)
     {
         auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
@@ -81,6 +86,7 @@ kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::Pr
                 std::exit(EXIT_FAILURE);
             });
     }
+    //! [attach discovery to listener]
 
     return kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
 }
@@ -129,6 +135,7 @@ bool Runtime::verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::Proxy
 void Runtime::invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noexcept
 {
     // Has the availability of one of the registered services changed?
+    //! [perform FindService]
     for (auto& callback : self->m_callbacks)
     {
         auto container =
@@ -136,6 +143,7 @@ void Runtime::invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noe
 
         auto numberOfAvailableServicesOnCurrentSearch = container.size();
         auto& numberOfAvailableServicesOnLastSearch = std::get<2>(callback);
+        //! [perform FindService]
 
         auto executeCallback = [&]() {
             (std::get<0>(callback))(container,
@@ -145,17 +153,21 @@ void Runtime::invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noe
         };
 
         // If the service is available for the first time
+        //! [first execution conditions]
         if (!numberOfAvailableServicesOnLastSearch.has_value() && numberOfAvailableServicesOnCurrentSearch != 0)
         {
             executeCallback();
         }
+        //! [first execution conditions]
 
         // If the service was available before and current number of services has changed
+        //! [second execution conditions]
         if (numberOfAvailableServicesOnLastSearch.has_value()
             && numberOfAvailableServicesOnLastSearch.value() != numberOfAvailableServicesOnCurrentSearch)
         {
             executeCallback();
         }
+        //! [second execution conditions]
     }
 }
 } // namespace owl

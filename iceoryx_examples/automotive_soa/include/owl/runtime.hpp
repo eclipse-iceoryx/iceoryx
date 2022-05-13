@@ -39,16 +39,27 @@ class Runtime
 
   public:
     static Runtime& GetInstance(const core::String& name) noexcept;
-
     static Runtime& GetInstance() noexcept;
 
+    /// @brief Performs sychronous search for specific instance of a service
+    /// @param[in] serviceIdentifier string of service to search for
+    /// @param[in] instanceIdentifier string of instance to search for
+    /// @return Container with an entry for each found instance
     kom::ServiceHandleContainer<kom::ProxyHandleType> FindService(kom::ServiceIdentifier& serviceIdentifier,
                                                                   kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
+    /// @brief Sets up an asychronous search for specific instance of a service
+    /// @param[in] handler callback which shall be executed when the availabilty of the specific instance of a service
+    /// has changed
+    /// @param[in] serviceIdentifier string of service to search for
+    /// @param[in] instanceIdentifier string of instance to search for
+    /// @return Handle which can be used to stop an ongoing search
     kom::FindServiceHandle StartFindService(kom::FindServiceHandler<kom::ProxyHandleType> handler,
                                             kom::ServiceIdentifier& serviceIdentifier,
                                             kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
+    /// @brief Stops an asychronous search for specific instance of a service
+    /// @param[in] handle instance of service which shall be stopped
     void StopFindService(kom::FindServiceHandle handle) noexcept;
 
   private:

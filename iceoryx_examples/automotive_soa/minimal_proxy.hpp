@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_EXAMPLES_ARA_COM_MINIMAL_PROXY_HPP
-#define IOX_EXAMPLES_ARA_COM_MINIMAL_PROXY_HPP
+#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_PROXY_HPP
+#define IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_PROXY_HPP
 
 #include "topic.hpp"
 
@@ -68,4 +68,4 @@ class MinimalProxy
     owl::kom::MethodClient computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };
 
-#endif // IOX_EXAMPLES_ARA_COM_MINIMAL_PROXY_HPP
+#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_PROXY_HPP

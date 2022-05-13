@@ -18,5 +18,6 @@ nav:
   - icediscovery.md
   - icediscovery_in_c.md
   - ice_access_control.md
+  - automotive_soa.md
   - iceperf.md
   - icecrystal.md

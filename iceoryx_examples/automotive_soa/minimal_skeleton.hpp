@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_EXAMPLES_ARA_COM_MINIMAL_SKELETON_HPP
-#define IOX_EXAMPLES_ARA_COM_MINIMAL_SKELETON_HPP
+#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_SKELETON_HPP
+#define IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_SKELETON_HPP
 
 #include "topic.hpp"
 
@@ -58,4 +58,4 @@ class MinimalSkeleton
     owl::kom::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };
 
-#endif // IOX_EXAMPLES_ARA_COM_MINIMAL_SKELETON_HPP
+#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_SKELETON_HPP

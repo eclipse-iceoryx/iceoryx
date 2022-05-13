@@ -40,7 +40,7 @@ class MethodServer
     MethodServer& operator=(const MethodServer&) = delete;
     MethodServer& operator=(MethodServer&&) = delete;
 
-    owl::kom::Future<AddResponse> computeSum(uint64_t addend1, uint64_t addend2);
+    Future<AddResponse> computeSum(uint64_t addend1, uint64_t addend2);
 
   private:
     static void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept;
