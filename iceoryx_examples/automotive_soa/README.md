@@ -22,10 +22,9 @@ The example shows three different ways of communication between a skeleton and a
 
 ## Code walkthrough
 
-The following sections discusses the different classes in detail:
+The following sections discuss the different classes in detail:
 
-* `MinimalProxy` and `MinimalSkeleton`, typically generated
-* `main()` of proxy and skeleton application
+* `MinimalSkeleton` and `MinimalProxy`, typically generated
 * `Runtime`
 * `EventPublisher` and `EventSubscriber`, transfering arbitrary types
 * `FieldPublisher` and `FieldSubscriber`, transfering arbitrary types, which always have a value
@@ -34,19 +33,50 @@ and can be changed from subscriber side
 
 ### Skeleton `main()`
 
-* Create runtime
-* Create `MinimalSkeleton`
-* Event
-  * Increasing counter
-  * Used to measure latency
-  * Topics with different sizes are available
-  * Also available as UNIX domain socket implementation
-* Field
-  * Sends inital value on creation
-  * After 30 loop iteration the value is updated
-* Method
-  * Works in the background, in its own thread
-  * Receives requests, computes answer and sends back response
+The skeleton application uses the `MinimalSkeleton`. Consequently, the header is included
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [include skeleton] -->
+```cpp
+#include "minimal_skeleton.hpp"
+```
+
+After both `Runtime`
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [create runtime] -->
+```cpp
+Runtime::GetInstance(APP_NAME);
+```
+
+and `MinimalSkeleton` are created on the stack. The skeleton is offered
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [create skeleton] -->
+```cpp
+kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
+MinimalSkeleton skeleton{instanceIdentifier};
+
+skeleton.OfferService();
+```
+
+Every second an event with a counter and timestamp is send to the proxy application
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send event] -->
+```cpp
+auto sample = skeleton.m_event.Allocate();
+(*sample).counter = counter;
+(*sample).sendTimestamp = std::chrono::steady_clock::now();
+skeleton.m_event.Send(std::move(sample));
+```
+
+The counter is incremented with every iteration of the loop.
+After 30 iterations the skeleton starts to `Update` the value of the field
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send event] -->
+```cpp
+auto sample = skeleton.m_event.Allocate();
+(*sample).counter = counter;
+(*sample).sendTimestamp = std::chrono::steady_clock::now();
+skeleton.m_event.Send(std::move(sample));
+```
 
 ### Proxy `main()`
 
@@ -58,6 +88,7 @@ and can be changed from subscriber side
   * Field is received every second
   * Remote-procedure call `computeSum()` is executed every second
   * Receiving the data on the event is done in an asynchronous manner by setting up a receiver handler, which is callted instantly once data has arrived
+
 ### Runtime
 
 The `Runtime` is implemented as singleton, meaning each applications holds only one instance.
@@ -177,7 +208,7 @@ if (numberOfAvailableServicesOnLastSearch.has_value()
 
 ### Minimal skeleton
 
-* Contains all three communication patterns from `ara::com`
+* Contains three communication patterns
   * Event
   * Field
   * Method
@@ -187,10 +218,21 @@ if (numberOfAvailableServicesOnLastSearch.has_value()
 
 #### `EventPublisher`
 
+* Topics with different sizes are available
+* Also available as UNIX domain socket implementation to compare to iceoryx's shared memory
+implementation
+
 #### `FieldPublisher`
+
+* Field
+  * Sends inital value on creation
+  * After 30 loop iteration the value is updated
 
 #### `MethodServer`
 
+* Method
+  * Works in the background, in its own thread
+  * Receives requests, computes answer and sends back response
 
 ### Minimal proxy
 
@@ -202,8 +244,6 @@ if (numberOfAvailableServicesOnLastSearch.has_value()
 #### `FieldSubscriber`
 
 #### `MethodClient`
-
-
 
 <center>
 [Check out automotive_soa on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/automotive_soa){ .md-button } <!--NOLINT github url for website-->

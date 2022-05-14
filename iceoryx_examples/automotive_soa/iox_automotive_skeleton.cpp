@@ -16,9 +16,10 @@
 
 
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
-
-//#include "owl/com/event_publisher.hpp"
+//! [include skeleton]
 #include "minimal_skeleton.hpp"
+//! [include skeleton]
+
 #include "owl/runtime.hpp"
 
 #include <iostream>
@@ -29,32 +30,38 @@ constexpr char APP_NAME[] = "iox-cpp-automotive-skeleton";
 
 int main()
 {
+    //! [create runtime]
     Runtime::GetInstance(APP_NAME);
+    //! [create runtime]
 
+    //! [create skeleton]
     kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
     MinimalSkeleton skeleton{instanceIdentifier};
 
     skeleton.OfferService();
+    //! [create skeleton]
 
     uint32_t counter = 0;
     while (!iox::posix::hasTerminationRequested())
     {
         ++counter;
 
-        // Event
+        //! [send event]
         auto sample = skeleton.m_event.Allocate();
         (*sample).counter = counter;
         (*sample).sendTimestamp = std::chrono::steady_clock::now();
         skeleton.m_event.Send(std::move(sample));
+        //! [send event]
         std::cout << "Event: value " << counter << " sent" << std::endl;
 
-        // Field
+        //! [send field]
         if (counter > 30)
         {
             Topic field{counter};
             skeleton.m_field.Update(field);
             std::cout << "Field: updated value to " << counter << std::endl;
         }
+        //! [send field]
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
