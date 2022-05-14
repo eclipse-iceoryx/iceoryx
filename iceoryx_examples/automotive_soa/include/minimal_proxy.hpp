@@ -30,37 +30,21 @@ class MinimalProxy
   public:
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
-    MinimalProxy(owl::kom::ProxyHandleType& handle)
-        : m_instanceIdentifier(handle.GetInstanceId())
-    {
-        if (handle.GetServiceId() != owl::kom::ServiceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier})
-        {
-            std::cout << "Handle does not match MinimalProxy class. Can't construct MinimalProxy, terminating!"
-                      << std::endl;
-            std::terminate();
-        }
-    }
+    MinimalProxy(owl::kom::ProxyHandleType& handle) noexcept;
+    ~MinimalProxy() noexcept = default;
+
     MinimalProxy(const MinimalProxy&) = delete;
+    MinimalProxy(MinimalProxy&&) = delete;
     MinimalProxy& operator=(const MinimalProxy&) = delete;
+    MinimalProxy& operator=(MinimalProxy&&) = delete;
 
     static owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<owl::kom::ProxyHandleType> handler,
-                                                        owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
-    {
-        owl::kom::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
-        return owl::Runtime::GetInstance().StartFindService(handler, serviceIdentifier, instanceIdentifier);
-    }
+                                                        owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
-    static void StopFindService(owl::kom::FindServiceHandle handle) noexcept
-    {
-        owl::Runtime::GetInstance().StopFindService(handle);
-    }
+    static void StopFindService(owl::kom::FindServiceHandle handle) noexcept;
 
     static owl::kom::ServiceHandleContainer<owl::kom::ProxyHandleType>
-    FindService(owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
-    {
-        owl::kom::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
-        return owl::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);
-    }
+    FindService(owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
     const owl::core::String m_instanceIdentifier;
     owl::kom::EventSubscriber<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};

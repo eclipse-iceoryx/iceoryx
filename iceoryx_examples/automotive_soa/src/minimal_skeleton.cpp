@@ -17,3 +17,23 @@
 #include "minimal_skeleton.hpp"
 
 constexpr char MinimalSkeleton::m_serviceIdentifier[];
+
+MinimalSkeleton::MinimalSkeleton(owl::core::String& instanceIdentifier) noexcept
+    : m_instanceIdentifier(instanceIdentifier)
+{
+}
+
+MinimalSkeleton::~MinimalSkeleton() noexcept
+{
+    StopOfferService();
+}
+
+void MinimalSkeleton::OfferService() noexcept
+{
+    m_event.Offer();
+}
+
+void MinimalSkeleton::StopOfferService() noexcept
+{
+    m_event.StopOffer();
+}

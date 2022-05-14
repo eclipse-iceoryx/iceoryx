@@ -28,7 +28,7 @@ include(IceoryxPlatform)
 # @todo #1332 enable 1:N communication cmake switch
 
 add_executable(iox-cpp-automotive-skeleton  ./iox_automotive_skeleton.cpp
-                                            ./minimal_skeleton.cpp
+                                            ./src/minimal_skeleton.cpp
                                             ./src/runtime.cpp
                                             ./src/owl/kom/method_server.cpp
 )
@@ -40,7 +40,7 @@ target_compile_options(iox-cpp-automotive-skeleton PRIVATE ${ICEORYX_WARNINGS} $
 target_include_directories(iox-cpp-automotive-skeleton PRIVATE include)
 
 add_executable(iox-cpp-automotive-proxy ./iox_automotive_proxy.cpp
-                                        ./minimal_proxy.cpp
+                                        ./src/minimal_proxy.cpp
                                         ./src/runtime.cpp
                                         ./src/owl/kom/method_client.cpp
 )

@@ -34,6 +34,8 @@ class EventPublisher
   public:
     using SampleType = T;
 
+    EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+
     // Deleted because of SampleAllocateePtr implementation capturing 'this' in Allocate()
     EventPublisher(const EventPublisher&) = delete;
     EventPublisher(EventPublisher&&) = delete;
@@ -42,8 +44,6 @@ class EventPublisher
 
     static constexpr uint64_t HISTORY_CAPACITY{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
-
-    EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept;
 
     void Send(const SampleType& userSample) noexcept;
     void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
