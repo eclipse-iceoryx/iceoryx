@@ -2187,6 +2187,41 @@ TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWo
     EXPECT_THAT(testString.c_str(), StrEq("AdmTasse"));
 }
 
+TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndCharWithOperatorPlusWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<2U * STRINGCAP> testString = this->testSubject + 'M';
+    EXPECT_THAT(testString.capacity(), Eq(2U * STRINGCAP));
+    EXPECT_THAT(testString.size(), Eq(1U));
+    EXPECT_THAT(testString.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateCharAndStringWithOperatorPlusWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject = "S";
+    string<STRINGCAP + 7U> testString = 'F' + this->testSubject;
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 7U));
+    EXPECT_THAT(testString.size(), Eq(2U));
+    EXPECT_THAT(testString.c_str(), StrEq("FS"));
+}
+
+TEST(String10, ConcatenateSeveralCharsAndStringsWithOperatorPlusWorks)
+{
+    const string<10U> testString1("Hyp");
+    const char testChar1 = 'n';
+    const string<10U> testString2("ot");
+    const char testChar2 = 'o';
+    const string<10U> testString3("ad");
+    auto result = testString1 + testChar1 + testString2 + testChar2 + testString3;
+
+    EXPECT_THAT(result.capacity(), Eq(32));
+    EXPECT_THAT(result.size(), Eq(9U));
+    EXPECT_THAT(result.c_str(), StrEq("Hypnotoad"));
+}
+
 /// @note template <typename T>
 /// bool unsafe_append(const T& t) noexcept;
 TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStringWorks)
