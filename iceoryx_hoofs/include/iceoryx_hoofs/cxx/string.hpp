@@ -51,6 +51,11 @@ template <typename T, typename ReturnType>
 using IsCxxStringOrCharArray =
     typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
+template <typename T, typename ReturnType>
+using IsCxxStringOrCharArrayOrChar =
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, char>::value),
+                            ReturnType>::type;
+
 /// @brief concatenates two iox::cxx::strings/string literals/chars
 ///
 /// @param [in] iox::cxx::strings/string literals/chars to concatenate
@@ -442,14 +447,15 @@ class string
     template <typename T>
     IsCxxStringOrCharArray<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
 
-    /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
-    /// is greater than this' capacity.
+    /// @brief appends a iox::cxx::string/string literal/char to the end of this. The appending fails if the sum of both
+    /// sizes is greater than this' capacity.
     ///
-    /// @param [in] fixed string/string literal to append
+    /// @param [in] iox::cxx::string/string literal/char to append
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    IsCxxStringOrCharArray<T, bool> unsafe_append(const T& t) noexcept;
+    IsCxxStringOrCharArrayOrChar<T, bool> unsafe_append(const T& t) noexcept;
+    // std::string?
 
     /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
     /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
