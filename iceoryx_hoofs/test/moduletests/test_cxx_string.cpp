@@ -2560,6 +2560,56 @@ TYPED_TEST(stringTyped_test, AppendTooLargeStdStringResultsInTruncatedString)
     EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.substr(0, STRINGCAP)));
 }
 
+/// @note string& append(TruncateToCapacity_t, char c) noexcept
+TYPED_TEST(stringTyped_test, AppendNullCharWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c20f1797-2797-4f4a-9acf-7bd1b9518c3d");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP + 1U> sut = "M";
+    sut.append(TruncateToCapacity, '\0');
+    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP + 1U));
+    EXPECT_THAT(sut.size(), Eq(2U));
+    EXPECT_THAT(sut.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendCharToEmptyStringResultsInConcatenatedString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7cf74a7a-a468-4efa-b54a-61d265de8808");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject.append(TruncateToCapacity, 'M');
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendCharResultsInConcatenatedString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "853b6d2f-4e48-43f4-b167-53f076747ab2");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP + 5U> testString("Picar");
+    testString.append(TruncateToCapacity, 'd');
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 5U));
+    EXPECT_THAT(testString.size(), Eq(6U));
+    EXPECT_THAT(testString.c_str(), StrEq("Picard"));
+}
+
+TYPED_TEST(stringTyped_test, AppendCharDoesNotChangeStringWhenCapacityIsExceeded)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3005b5af-28b5-452a-98dc-603f6973230f");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string temp(STRINGCAP, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
+
+    this->testSubject.append(TruncateToCapacity, 'L');
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.substr(0, STRINGCAP)));
+}
+
 /// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
 TYPED_TEST(stringTyped_test, SubstrWithDefaultPosAndSizeResultsInWholeString)
 {

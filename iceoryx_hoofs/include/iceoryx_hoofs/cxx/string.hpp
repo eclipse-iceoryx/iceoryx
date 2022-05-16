@@ -430,8 +430,8 @@ class string
     template <typename T>
     string& operator+=(const T&) noexcept;
 
-    /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too small
-    /// for appending the whole string (literal), the remainder of the characters are truncated.
+    /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too
+    /// small for appending the whole string (literal), the remainder of the characters are truncated.
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
@@ -445,6 +445,13 @@ class string
     /// @endcode
     template <typename T>
     IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
+
+    /// @brief appends a char to the end of this if this' capacity is large enough.
+    ///
+    /// @param [in] c is the char to append
+    ///
+    /// @return reference to self
+    string& append(TruncateToCapacity_t, char c) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/char/std::string to the end of this. The appending fails if the
     /// sum of both sizes is greater than this' capacity.

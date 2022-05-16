@@ -16,7 +16,7 @@
 - Add compare method for `iox::cxx::string` and chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Refactor semaphore [\#751](https://github.com/eclipse-iceoryx/iceoryx/issues/751)
     - Introduce `UnnamedSemaphore`
-- Extend `concatenate`, `operator+` and `unsafe_append` of `iox::cxx::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::cxx::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Extend `unsafe_append` and `append` methods of `iox::cxx::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 
 **Bugfixes:**

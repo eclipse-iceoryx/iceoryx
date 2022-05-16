@@ -479,7 +479,8 @@ inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const 
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
+inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t,
+                                                                                const T& t) noexcept
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);
@@ -493,6 +494,20 @@ inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(
     }
 
     m_rawstringSize += clampedTSize;
+    m_rawstring[m_rawstringSize] = '\0';
+    return *this;
+}
+
+template <uint64_t Capacity>
+inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char c) noexcept
+{
+    if (m_rawstringSize == Capacity)
+    {
+        std::cerr << "Appending of " << c << " failed because this' capacity would be exceeded." << std::endl;
+        return *this;
+    }
+    m_rawstring[m_rawstringSize] = c;
+    m_rawstringSize += 1U;
     m_rawstring[m_rawstringSize] = '\0';
     return *this;
 }
