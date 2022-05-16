@@ -83,6 +83,10 @@ combination with the error handler.
 
 ![logging class diagram](../website/images/logging_classes.svg)
 
+#### Logging with LogStream
+
+![logging with logstream](../website/images/logging_with_logstream.svg)
+
 #### Macro with lazy evaluation
 
 The buildup of the log message is only done when the log level is above the output

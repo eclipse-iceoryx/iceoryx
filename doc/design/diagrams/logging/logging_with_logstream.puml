@@ -1,0 +1,44 @@
+@startuml
+
+participant User
+participant LogStream
+participant "iox::log" as logFreeFunction << free function >>
+participant Logger << static >>
+participant "logger : DefaultLogger" as DefaultLogger
+
+User -> LogStream ** : IOX_LOG(...)
+activate LogStream
+LogStream -> logFreeFunction ++ : getLogger
+logFreeFunction -> Logger ++ : get <<private>>
+Logger -> Logger ++ : activeLogger()
+note right
+  activeLogger is only called
+  to initialize the thread local
+  logger pointer or when the
+  active flag of the logger is false
+end note
+
+Logger -> Logger : std::lock
+Logger -> DefaultLogger **
+
+return
+return
+return
+
+LogStream -> DefaultLogger ++ : setupNewLogMessage
+return
+
+return
+
+User -> LogStream ++ : << Hello World
+LogStream -> DefaultLogger ++ : logString
+return
+return
+
+User -> LogStream ++ : dTor via ; on temporary
+LogStream -> DefaultLogger ++ : flush
+return
+return
+destroy LogStream
+
+@enduml
