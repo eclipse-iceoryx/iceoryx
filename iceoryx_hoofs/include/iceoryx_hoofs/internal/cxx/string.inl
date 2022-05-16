@@ -459,7 +459,7 @@ operator+(const T1& t1, const T2& t2) noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsCxxStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& t) noexcept
+inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& t) noexcept
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);
@@ -479,7 +479,7 @@ inline IsCxxStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(con
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsCxxStringOrCharArray<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
+inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
 {
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);

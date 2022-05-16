@@ -2339,6 +2339,42 @@ TYPED_TEST(stringTyped_test, UnsafeAppendWithCharFailsWhenCapacityIsExceeded)
     EXPECT_THAT(this->testSubject.c_str(), StrEq(temp));
 }
 
+TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStdStringWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject = "M";
+    std::string testStdString;
+    EXPECT_THAT(this->testSubject.unsafe_append(testStdString), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendFittingStdStringWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<5U * STRINGCAP> sut("R2-D");
+    std::string testStdString = "2";
+    EXPECT_THAT(sut.unsafe_append(testStdString), Eq(true));
+    EXPECT_THAT(sut.capacity(), Eq(5U * STRINGCAP));
+    EXPECT_THAT(sut.size(), Eq(5));
+    EXPECT_THAT(sut.c_str(), StrEq("R2-D2"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendTooLargeStdStringFails)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testStdString(STRINGCAP + 1U, 'M');
+
+    EXPECT_THAT(this->testSubject.unsafe_append(testStdString), Eq(false));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(0U));
+    EXPECT_THAT(this->testSubject.empty(), Eq(true));
+}
+
 /// @note template <typename T>
 /// string& append(TruncateToCapacity_t, const T& t) noexcept
 TYPED_TEST(stringTyped_test, AppendEmptyStringWorks)
@@ -2435,6 +2471,53 @@ TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
     EXPECT_THAT(testString.capacity(), Eq(10U));
     EXPECT_THAT(testString.size(), Eq(10U));
     EXPECT_THAT(testString.c_str(), StrEq("Live long "));
+}
+
+TYPED_TEST(stringTyped_test, AppendEmptyStdStringWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject = "M";
+    std::string testStdString;
+    this->testSubject.append(TruncateToCapacity, testStdString);
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendStdStringToEmptyStringResultsInConcatenatedString)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testStdString = "M";
+    this->testSubject.append(TruncateToCapacity, testStdString);
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendStdStringResultsInConcatenatedString)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<STRINGCAP + 5U> sut = "P";
+    std::string testStdString("icard");
+    sut.append(TruncateToCapacity, testStdString);
+    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP + 5U));
+    EXPECT_THAT(sut.size(), Eq(6U));
+    EXPECT_THAT(sut.c_str(), StrEq("Picard"));
+}
+
+TYPED_TEST(stringTyped_test, AppendTooLargeStdStringResultsInTruncatedString)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject = "M";
+    std::string testStdString(STRINGCAP + 1U, 'M');
+    this->testSubject.append(TruncateToCapacity, testStdString);
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.substr(0, STRINGCAP)));
 }
 
 /// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;

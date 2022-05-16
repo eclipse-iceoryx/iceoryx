@@ -100,7 +100,6 @@ typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::va
                             || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
                         string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
 operator+(const T1& t1, const T2& t2) noexcept;
-// std::string?
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
@@ -431,12 +430,12 @@ class string
     template <typename T>
     string& operator+=(const T&) noexcept;
 
-    /// @brief appends a fixed string or string literal to the end of this. If this' capacity is too small for appending
-    /// the whole string (literal) the remainder of the characters are truncated.
+    /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too small
+    /// for appending the whole string (literal) the remainder of the characters are truncated.
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] t is the fixed string/string literal to append
+    /// @param [in] t is the iox::cxx::string/string literal/std::string to append
     ///
     /// @return reference to self
     ///
@@ -445,17 +444,16 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    IsCxxStringOrCharArray<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
+    IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
 
-    /// @brief appends a iox::cxx::string/string literal/char to the end of this. The appending fails if the sum of both
-    /// sizes is greater than this' capacity.
+    /// @brief appends a iox::cxx::string/string literal/char/std::string to the end of this. The appending fails if the
+    /// sum of both sizes is greater than this' capacity.
     ///
-    /// @param [in] iox::cxx::string/string literal/char to append
+    /// @param [in] iox::cxx::string/string literal/char/std::string to append
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    IsCxxStringOrCharArrayOrChar<T, bool> unsafe_append(const T& t) noexcept;
-    // std::string?
+    IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& t) noexcept;
 
     /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
     /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
@@ -550,7 +548,6 @@ class string
     template <uint64_t N>
     friend class string;
 
-    // std::string??
     template <typename T1, typename T2>
     friend
         typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
