@@ -24,7 +24,9 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
 iox_add_executable(
     TARGET  iox-cpp-request-response-untyped-client
