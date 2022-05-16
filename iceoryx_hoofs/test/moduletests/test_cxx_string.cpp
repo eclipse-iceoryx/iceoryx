@@ -1974,7 +1974,7 @@ TYPED_TEST(stringTyped_test, ConcatenateTwoEmptyStringsReturnsEmptyStringWithTot
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP + 1U> testString1;
-    auto testString2 = iox::cxx::concatenate(this->testSubject, testString1);
+    auto testString2 = concatenate(this->testSubject, testString1);
 
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
@@ -2059,10 +2059,59 @@ TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWorks)
 TEST(StringLiteralConcatenation, ConcatenateOnlyStringLiteralsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f591fb69-a8fa-4d8e-b42d-29573b4a20f7");
-    auto testString = iox::cxx::concatenate("Ferdi", "nandSpitzschnu", "ef", "fler");
+    auto testString = concatenate("Ferdi", "nandSpitzschnu", "ef", "fler");
     EXPECT_THAT(testString.capacity(), Eq(25U));
     EXPECT_THAT(testString.size(), Eq(25U));
     EXPECT_THAT(testString.c_str(), StrEq("FerdinandSpitzschnueffler"));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndNullCharReturnsStringWithSizeOne)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    auto result = concatenate(this->testSubject, '\0');
+
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(0U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+    EXPECT_THAT(result.capacity(), Eq(STRINGCAP + 1U));
+    EXPECT_THAT(result.size(), Eq(1U));
+    EXPECT_THAT(result.empty(), Eq(false));
+    EXPECT_THAT(result[0U], Eq('\0'));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndCharWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    auto result = concatenate('M', this->testSubject);
+
+    EXPECT_THAT(result.capacity(), Eq(STRINGCAP + 1U));
+    EXPECT_THAT(result.size(), Eq(1U));
+    EXPECT_THAT(result.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateStringAndCharWorks)
+{
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    const string<STRINGCAP + 26U> expectedString("FerdinandSpitzschnueffler");
+    string<STRINGCAP + 10> testString1("Ferdinand");
+    const char testChar = 'S';
+    string<15> testString2("pitzschnueffler");
+    auto result = concatenate(testString1, testChar, testString2);
+
+    EXPECT_THAT(result.capacity(), Eq(expectedString.capacity()));
+    EXPECT_THAT(result.size(), Eq(expectedString.size()));
+    EXPECT_THAT(result.c_str(), StrEq(expectedString.c_str()));
+}
+
+TEST(CharConcatenation, ConcatenateOnlyCharsWorks)
+{
+    auto testString = concatenate('W', 'o', 'o', 'h', 'o', 'o');
+    EXPECT_THAT(testString.capacity(), Eq(6U));
+    EXPECT_THAT(testString.size(), Eq(6U));
+    EXPECT_THAT(testString.c_str(), StrEq("Woohoo"));
 }
 
 /// @note template <typename T1, typename T2>

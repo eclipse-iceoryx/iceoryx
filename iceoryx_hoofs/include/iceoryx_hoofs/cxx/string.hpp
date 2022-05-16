@@ -51,35 +51,35 @@ template <typename T, typename ReturnType>
 using IsCxxStringOrCharArray =
     typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
-/// @brief concatenates two fixed strings/string literals
+/// @brief concatenates two iox::cxx::strings/string literals/chars
 ///
-/// @param [in] fixed strings/string literals to concatenate
+/// @param [in] iox::cxx::strings/string literals/chars to concatenate
 ///
-/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings/chars
 ///
 /// @code
 ///     string<5> fuu("cdefg");
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
-                            && (is_char_array<T2>::value || is_cxx_string<T2>::value),
+typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
+                            && (is_char_array<T2>::value || is_cxx_string<T2>::value || std::is_same<T2, char>::value),
                         string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
 concatenate(const T1& t1, const T2& t2) noexcept;
 
-/// @brief concatenates an arbitrary number of fixed strings or string literals
+/// @brief concatenates an arbitrary number of iox::cxx::strings, string literals or chars
 ///
-/// @param [in] fixed strings/string literals to concatenate
+/// @param [in] fixed strings/string literals/chars to concatenate
 ///
-/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings/chars
 ///
 /// @code
 ///     string<4> fuu("cdef");
 ///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
-typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
-                            && (is_char_array<T2>::value || is_cxx_string<T2>::value),
+typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
+                            && (is_char_array<T2>::value || is_cxx_string<T2>::value || std::is_same<T2, char>::value),
                         string<internal::SumCapa<T1, T2, Targs...>::value>>::type
 concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 
@@ -543,11 +543,14 @@ class string
     template <uint64_t N>
     friend class string;
 
+    // std::string??
     template <typename T1, typename T2>
-    friend typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
-                                       && (is_char_array<T2>::value || is_cxx_string<T2>::value),
-                                   string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-    concatenate(const T1& t1, const T2& t2) noexcept;
+    friend
+        typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
+                                    && (is_char_array<T2>::value || is_cxx_string<T2>::value
+                                        || std::is_same<T2, char>::value),
+                                string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+        concatenate(const T1& t1, const T2& t2) noexcept;
 
   private:
     /// @brief copies rhs fixed string to this with compile time check whether rhs capacity is less than or equal to

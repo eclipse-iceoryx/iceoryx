@@ -33,7 +33,7 @@ namespace internal
 template <uint64_t N>
 using charArray = char[N];
 
-/// @brief struct to get capacity of fixed string/string literal
+/// @brief struct to get capacity of iox::cxx::string/char array/char
 /// @note capa is a dummy value for any type other than cxx::string and char
 template <typename T>
 struct GetCapa
@@ -53,7 +53,13 @@ struct GetCapa<char[N]>
     static constexpr uint64_t capa = N - 1U;
 };
 
-/// @brief struct to get size of fixed string/string literal/std::string
+template <>
+struct GetCapa<char>
+{
+    static constexpr uint64_t capa = 1U;
+};
+
+/// @brief struct to get size of iox::cxx::string/std::string/char array/char
 template <typename T>
 struct GetSize;
 
@@ -81,6 +87,15 @@ struct GetSize<std::string>
     static uint64_t call(const std::string& data) noexcept
     {
         return data.size();
+    }
+};
+
+template <>
+struct GetSize<char>
+{
+    static uint64_t call(char) noexcept
+    {
+        return 1U;
     }
 };
 
@@ -115,7 +130,16 @@ struct GetData<std::string>
     }
 };
 
-/// @brief struct to get the sum of the capacities of fixed strings/string literals
+template <>
+struct GetData<char>
+{
+    static const char* call(const char& data) noexcept
+    {
+        return &data;
+    }
+};
+
+/// @brief struct to get the sum of the capacities of iox::cxx::strings/char arrays/chars
 template <typename... Targs>
 struct SumCapa;
 
