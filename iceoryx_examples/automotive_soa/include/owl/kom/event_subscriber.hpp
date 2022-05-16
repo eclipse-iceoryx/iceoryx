@@ -48,7 +48,7 @@ class EventSubscriber
 
     void SetReceiveHandler(EventReceiveHandler handler) noexcept;
     void UnsetReceiveHandler() noexcept;
-    bool HasReceiverHandler() noexcept;
+    bool HasReceiveHandler() noexcept;
 
 
   private:

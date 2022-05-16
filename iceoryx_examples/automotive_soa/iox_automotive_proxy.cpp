@@ -17,7 +17,9 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+//! [include proxy]
 #include "minimal_proxy.hpp"
+//! [include proxy]
 #include "owl/runtime.hpp"
 
 #include <iostream>
@@ -29,48 +31,51 @@ constexpr char APP_NAME[] = "iox-cpp-automotive-proxy";
 
 int main()
 {
+    //! [create runtime]
     Runtime::GetInstance(APP_NAME);
+    //! [create runtime]
 
+    //! [wrap proxy]
     iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
+    //! [wrap proxy]
+
     optional<kom::FindServiceHandle> maybeHandle;
 
-    // 1) Discover the available services
+    //! [sychronous discovery]
     kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "Example");
     std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
               << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
     auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
+    //! [sychronous discovery]
 
     if (!handleContainer.empty())
     {
-        // 2a) If available, create proxy from MinimalProxyHandle
+        //! [create proxy]
         for (auto& handle : handleContainer)
         {
             std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
                       << handle.GetInstanceId().c_str() << "'" << std::endl;
             maybeProxy->emplace(handle);
         }
+        //! [create proxy]
     }
     else
     {
-        // 2b) If not available yet, setup asychronous search to be notified when the service becomes available
         std::cout << "  Found no service(s), setting up asynchronous search with 'StartFindService'!" << std::endl;
         auto callback = [&](kom::ServiceHandleContainer<owl::kom::ProxyHandleType> container,
                             kom::FindServiceHandle) -> void {
+            //! [destroy proxy asynchronously]
             if (container.empty())
             {
-                if (!maybeProxy->has_value())
-                {
-                    std::cout << "  No instance of service '" << MinimalProxy::m_serviceIdentifier
-                              << "' is available yet." << std::endl;
-                    return;
-                }
                 std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
                           << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
                 maybeProxy->value().m_event.UnsetReceiveHandler();
                 maybeProxy->reset();
                 return;
             }
+            //! [destroy proxy asynchronously]
 
+            //! [create proxy asynchronously]
             for (auto& proxyHandle : container)
             {
                 if (!maybeProxy->has_value())
@@ -80,27 +85,33 @@ int main()
                     maybeProxy->emplace(proxyHandle);
                 }
             }
+            //! [create proxy asynchronously]
         };
 
+        //! [set up asynchronous search]
         auto handle = MinimalProxy::StartFindService(callback, exampleInstanceSearchQuery);
+        //! [set up asynchronous search]
         maybeHandle.emplace(handle);
         std::cout << "  Waiting for instance called '" << exampleInstanceSearchQuery.c_str()
                   << "' to become available.." << std::endl;
     }
-
+    //! [Field: create ints for computeSum]
     uint64_t addend1{0};
     uint64_t addend2{0};
+    //! [Field: create ints for computeSum]
 
     while (!iox::posix::hasTerminationRequested())
     {
         {
+            //! [gain exclusive access to proxy]
             auto proxyGuard = maybeProxy.getScopeGuard();
             if (proxyGuard->has_value())
             {
                 auto& proxy = proxyGuard->value();
+                //! [gain exclusive access to proxy]
 
+                //! [Event: receiveHandler callback]
                 auto onReceive = [&]() -> void {
-                    // Event
                     proxy.m_event.GetNewSamples([](const auto& topic) {
                         auto finish = std::chrono::steady_clock::now();
                         std::cout << "Event: value is " << topic->counter << std::endl;
@@ -109,14 +120,17 @@ int main()
                         std::cout << "Event: latency (ns) is " << duration.count() << std::endl;
                     });
                 };
+                //! [Event: receiveHandler callback]
 
-                if (!proxy.m_event.HasReceiverHandler())
+                //! [Event: set receiveHandler]
+                if (!proxy.m_event.HasReceiveHandler())
                 {
                     proxy.m_event.Subscribe(10U);
                     proxy.m_event.SetReceiveHandler(onReceive);
                 }
+                //! [Event: set receiveHandler]
 
-                // Field
+                //! [Field: get data]
                 auto fieldFuture = proxy.m_field.Get();
                 try
                 {
@@ -135,8 +149,9 @@ int main()
                     std::cout << "Empty future from field received, please start the 'iox-cpp-automotive-skeleton'."
                               << std::endl;
                 }
+                //! [Field: get data]
 
-                // Method
+                //! [Method: call computeSum remotely]
                 auto methodFuture = proxy.computeSum(addend1, addend2);
                 try
                 {
@@ -149,6 +164,7 @@ int main()
                     std::cout << "Empty future from method received, please start the 'iox-cpp-automotive-skeleton'."
                               << std::endl;
                 }
+                //! [Method: call computeSum remotely]
 
                 addend1 += addend2 + addend2;
                 addend2++;
@@ -159,9 +175,11 @@ int main()
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
+    //! [stop find service]
     if (maybeHandle.has_value())
     {
         MinimalProxy::StopFindService(maybeHandle.value());
     }
+    //! [stop find service]
     return (EXIT_SUCCESS);
 }

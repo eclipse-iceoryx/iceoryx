@@ -93,7 +93,7 @@ inline void EventSubscriber<T>::UnsetReceiveHandler() noexcept
 }
 
 template <typename T>
-inline bool EventSubscriber<T>::HasReceiverHandler() noexcept
+inline bool EventSubscriber<T>::HasReceiveHandler() noexcept
 {
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
     return m_receiveHandler.has_value();
