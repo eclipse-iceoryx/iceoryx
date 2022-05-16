@@ -130,8 +130,8 @@ constexpr const char iox_client_test::EVENT[];
 TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "347f3a6d-8659-4ac3-81be-720e8a444d5e");
-    iox_client_options_t uninitializedOptions;
 #if !defined(__clang__)
+    iox_client_options_t uninitializedOptions;
     // ignore the warning since we would like to test the behavior of an uninitialized option
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
