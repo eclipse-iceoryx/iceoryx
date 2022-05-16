@@ -25,6 +25,7 @@ namespace
 {
 TEST(AdaptiveWaitTest, repeatCallingWaitUntilItSaturatesTakesAtLeastCorrectAmountOfTime)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5bf15f13-dc22-45f4-a957-d07c5beeb31c");
     class AdaptiveWaitSut : public adaptive_wait
     {
       public:
@@ -50,6 +51,7 @@ TEST(AdaptiveWaitTest, repeatCallingWaitUntilItSaturatesTakesAtLeastCorrectAmoun
 
 TEST(AdaptiveWaitTest, waitWaitsAtLeastFINAL_WAITING_TIMEafterINITIAL_REPETITIONS)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "34bc814c-0565-40ef-a5ef-93f994d024d1");
     class AdaptiveWaitSut : public adaptive_wait
     {
       public:
