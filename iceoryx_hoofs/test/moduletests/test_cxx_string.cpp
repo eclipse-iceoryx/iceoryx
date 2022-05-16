@@ -2067,6 +2067,7 @@ TEST(StringLiteralConcatenation, ConcatenateOnlyStringLiteralsWorks)
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndNullCharReturnsStringWithSizeOne)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6a4374fb-b21f-4465-95dc-22b898079c81");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     auto result = concatenate(this->testSubject, '\0');
@@ -2082,6 +2083,7 @@ TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndNullCharReturnsStringWithS
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndCharWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f99022c0-1ea9-4c63-bb18-d0ec53020e66");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     auto result = concatenate('M', this->testSubject);
@@ -2093,6 +2095,7 @@ TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndCharWorks)
 
 TYPED_TEST(stringTyped_test, ConcatenateStringAndCharWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d8cf335a-4fa2-4dc5-a98d-8b34f3b47464");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     const string<STRINGCAP + 26U> expectedString("FerdinandSpitzschnueffler");
@@ -2108,6 +2111,7 @@ TYPED_TEST(stringTyped_test, ConcatenateStringAndCharWorks)
 
 TEST(CharConcatenation, ConcatenateOnlyCharsWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "32900bfd-69c9-4116-b702-9d2165bd54b0");
     auto testString = concatenate('W', 'o', 'o', 'h', 'o', 'o');
     EXPECT_THAT(testString.capacity(), Eq(6U));
     EXPECT_THAT(testString.size(), Eq(6U));
@@ -2189,6 +2193,7 @@ TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWo
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndCharWithOperatorPlusWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "09efee5c-985f-4852-aa3c-5c67fc61071b");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<2U * STRINGCAP> testString = this->testSubject + 'M';
@@ -2199,6 +2204,7 @@ TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndCharWithOperatorPlusWorks)
 
 TYPED_TEST(stringTyped_test, ConcatenateCharAndStringWithOperatorPlusWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7d25ab82-48f9-4000-9764-e14522fd4ecc");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "S";
@@ -2210,6 +2216,7 @@ TYPED_TEST(stringTyped_test, ConcatenateCharAndStringWithOperatorPlusWorks)
 
 TEST(String10, ConcatenateSeveralCharsAndStringsWithOperatorPlusWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68e69585-fe83-497c-9249-59644501abd1");
     const string<10U> testString1("Hyp");
     const char testChar1 = 'n';
     const string<10U> testString2("ot");
@@ -2217,7 +2224,7 @@ TEST(String10, ConcatenateSeveralCharsAndStringsWithOperatorPlusWorks)
     const string<10U> testString3("ad");
     auto result = testString1 + testChar1 + testString2 + testChar2 + testString3;
 
-    EXPECT_THAT(result.capacity(), Eq(32));
+    EXPECT_THAT(result.capacity(), Eq(32U));
     EXPECT_THAT(result.size(), Eq(9U));
     EXPECT_THAT(result.c_str(), StrEq("Hypnotoad"));
 }
@@ -2300,6 +2307,7 @@ TEST(String10, UnsafeAppendTooLargeStringLiteralFails)
 
 TYPED_TEST(stringTyped_test, UnsafeAppendNullCharWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1a6743f-1146-4269-9c13-0baa1e14fbe4");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP + 1U> testString("M");
@@ -2312,17 +2320,19 @@ TYPED_TEST(stringTyped_test, UnsafeAppendNullCharWorks)
 
 TYPED_TEST(stringTyped_test, UnsafeAppendCharWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4243b52a-fe02-45ec-b201-dde2a0dca5b8");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP + 5U> testString("R2-D");
     EXPECT_THAT(testString.unsafe_append('2'), Eq(true));
     EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 5U));
-    EXPECT_THAT(testString.size(), Eq(5));
+    EXPECT_THAT(testString.size(), Eq(5U));
     EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAppendWithCharFailsWhenCapacityIsExceeded)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8e92266b-d9dc-4751-a4e6-3be772a1855d");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string temp(STRINGCAP, 'M');
@@ -2339,8 +2349,20 @@ TYPED_TEST(stringTyped_test, UnsafeAppendWithCharFailsWhenCapacityIsExceeded)
     EXPECT_THAT(this->testSubject.c_str(), StrEq(temp));
 }
 
+TYPED_TEST(stringTyped_test, UnsafeAppendWithCharToEmptyStringWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0d6965c7-b0f1-45d4-989a-c7349a53f8f7");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    EXPECT_THAT(this->testSubject.unsafe_append('v'), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("v"));
+}
+
 TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStdStringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d2da56ce-c68b-4d66-9fc6-25564776b3a4");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
@@ -2353,18 +2375,20 @@ TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStdStringWorks)
 
 TYPED_TEST(stringTyped_test, UnsafeAppendFittingStdStringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "32beaa61-3282-4964-af1f-b185b7cc50ee");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<5U * STRINGCAP> sut("R2-D");
     std::string testStdString = "2";
     EXPECT_THAT(sut.unsafe_append(testStdString), Eq(true));
     EXPECT_THAT(sut.capacity(), Eq(5U * STRINGCAP));
-    EXPECT_THAT(sut.size(), Eq(5));
+    EXPECT_THAT(sut.size(), Eq(5U));
     EXPECT_THAT(sut.c_str(), StrEq("R2-D2"));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAppendTooLargeStdStringFails)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ea5ed2f4-e7a5-4417-af30-8cec5af2d8d4");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testStdString(STRINGCAP + 1U, 'M');
@@ -2373,6 +2397,18 @@ TYPED_TEST(stringTyped_test, UnsafeAppendTooLargeStdStringFails)
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
     EXPECT_THAT(this->testSubject.empty(), Eq(true));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendWithStdStringToEmptyStringWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8f30ed18-c15c-4252-91b2-9506ca5a998c");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testStdString = "d";
+    EXPECT_THAT(this->testSubject.unsafe_append(testStdString), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString));
 }
 
 /// @note template <typename T>
@@ -2475,6 +2511,7 @@ TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
 
 TYPED_TEST(stringTyped_test, AppendEmptyStdStringWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6b3fb31a-a92b-4013-ba61-12b4846e8593");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
@@ -2487,6 +2524,7 @@ TYPED_TEST(stringTyped_test, AppendEmptyStdStringWorks)
 
 TYPED_TEST(stringTyped_test, AppendStdStringToEmptyStringResultsInConcatenatedString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "2eebdc68-c495-4531-bb66-ee4ede8d86e3");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testStdString = "M";
@@ -2498,6 +2536,7 @@ TYPED_TEST(stringTyped_test, AppendStdStringToEmptyStringResultsInConcatenatedSt
 
 TYPED_TEST(stringTyped_test, AppendStdStringResultsInConcatenatedString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "7159ef46-f441-4cc7-8eff-46b5f3d33597");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP + 5U> sut = "P";
@@ -2510,6 +2549,7 @@ TYPED_TEST(stringTyped_test, AppendStdStringResultsInConcatenatedString)
 
 TYPED_TEST(stringTyped_test, AppendTooLargeStdStringResultsInTruncatedString)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "76a4752d-282f-47ad-87eb-7c8aab982c0c");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";

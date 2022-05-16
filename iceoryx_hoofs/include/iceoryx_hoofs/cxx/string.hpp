@@ -74,7 +74,7 @@ concatenate(const T1& t1, const T2& t2) noexcept;
 
 /// @brief concatenates an arbitrary number of iox::cxx::strings, string literals or chars
 ///
-/// @param [in] fixed strings/string literals/chars to concatenate
+/// @param [in] iox::cxx::strings/string literals/chars to concatenate
 ///
 /// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 ///
@@ -91,9 +91,9 @@ concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 /// @brief concatenates two iox::cxx::strings or one iox::cxx::string and one string literal/char; concatenation of two
 /// string literals/chars is not possible
 ///
-/// @param [in] fixed strings/string literal to concatenate
+/// @param [in] iox::cxx::strings/string literal/char to concatenate
 ///
-/// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings
+/// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 template <typename T1, typename T2>
 typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
                             || (is_cxx_string<T1>::value && (is_char_array<T2>::value || std::is_same<T2, char>::value))
@@ -431,7 +431,7 @@ class string
     string& operator+=(const T&) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too small
-    /// for appending the whole string (literal) the remainder of the characters are truncated.
+    /// for appending the whole string (literal), the remainder of the characters are truncated.
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
