@@ -46,17 +46,22 @@ class EventPublisher
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
     void Send(const SampleType& userSample) noexcept;
+    //! [EventPublisher zero-copy send]
     void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
+    //! [EventPublisher zero-copy send]
 
+    //! [EventPublisher allocate]
     SampleAllocateePtr<SampleType> Allocate() noexcept;
+    //! [EventPublisher allocate]
 
     friend class ::MinimalSkeleton;
 
   private:
     void Offer() noexcept;
     void StopOffer() noexcept;
-
+    //! [EventPublisher members]
     iox::popo::Publisher<T> m_publisher;
+    //! [EventPublisher members]
 };
 } // namespace kom
 } // namespace owl

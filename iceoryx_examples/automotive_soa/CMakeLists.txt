@@ -25,8 +25,6 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-# @todo #1332 enable 1:N communication cmake switch
-
 add_executable(iox-cpp-automotive-skeleton  ./iox_automotive_skeleton.cpp
                                             ./src/minimal_skeleton.cpp
                                             ./src/runtime.cpp

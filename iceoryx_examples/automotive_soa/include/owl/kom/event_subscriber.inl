@@ -35,7 +35,9 @@ inline EventSubscriber<T>::EventSubscriber(const core::String& service,
 template <typename T>
 inline void EventSubscriber<T>::Subscribe(std::size_t) noexcept
 {
-    /// @todo #1332 maxSampleCount shall not be ignored, implement getOptions() for user ports?
+    // maxSampleCount is ignored, because it is an argument to the c'tor of m_subscriber as part of SubscriberOptions.
+    // Utilizing late initalization by wrapping m_subscriber in an cxx::optional and calling the c'tor here would be an
+    // option
     m_subscriber.subscribe();
 }
 
@@ -69,6 +71,7 @@ inline core::Result<size_t> EventSubscriber<T>::GetNewSamples(Callable&& callabl
     return numberOfSamples;
 }
 
+//! [EventSubscriber setReceiveHandler]
 template <typename T>
 inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) noexcept
 {
@@ -83,6 +86,7 @@ inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) n
         });
     m_receiveHandler.emplace(handler);
 }
+//! [EventSubscriber setReceiveHandler]
 
 template <typename T>
 inline void EventSubscriber<T>::UnsetReceiveHandler() noexcept
@@ -99,12 +103,15 @@ inline bool EventSubscriber<T>::HasReceiveHandler() noexcept
     return m_receiveHandler.has_value();
 }
 
+//! [EventSubscriber invoke callback]
 template <typename T>
 inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept
 {
     std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
     self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
 }
+//! [EventSubscriber invoke callback]
+
 } // namespace kom
 } // namespace owl
 

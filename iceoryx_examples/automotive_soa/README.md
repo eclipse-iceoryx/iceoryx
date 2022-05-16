@@ -22,14 +22,20 @@ The example shows three different ways of communication between a skeleton and a
 
 ## Code walkthrough
 
+!!! note
+    The example should be built with the 1:n communication option (`ONE_TO_MANY_ONLY`).
+
 The following sections discuss the different classes in detail:
 
-* `MinimalSkeleton` and `MinimalProxy`, typically generated
+* `MinimalSkeleton` and `MinimalProxy`
+    * Typically generated from a meta model
 * `Runtime`
-* `EventPublisher` and `EventSubscriber`, transfering arbitrary types
-* `FieldPublisher` and `FieldSubscriber`, transfering arbitrary types, which always have a value
-and can be changed from subscriber side
-* `MethodServer` and `MethodClient`, calling methods from the client on the server
+* `EventPublisher` and `EventSubscriber`
+    * Transfering arbitrary types
+* `FieldPublisher` and `FieldSubscriber`
+    * Transfering arbitrary types, which always have a value and can be changed from subscriber side
+* `MethodServer` and `MethodClient`
+    * Calling methods from the client on the server
 
 ### Skeleton `main()`
 
@@ -315,9 +321,11 @@ m_discovery.findService(
 ```
 
 The AUTOSAR Adaptive service model is different than the iceoryx one. Hence, as the next step it
-needs to be determined whether a service can be considered as complete. Typically, someone writing
-a binding would query a database with e.g. the AUTOSAR meta model here. If the service is complete
-the result in form of a container is passed to the caller.
+needs to be determined whether a service can be considered as complete. Unlike in AUTOSAR, in
+iceoryx a service is represented by the individual `Publisher` or `Server`. The `MinimalSkeleton`
+service is considered as available as soon as all members are available. Typically, someone
+writing a binding would query a database with e.g. the AUTOSAR meta model here. If the service is
+complete the result in form of a container is passed to the caller.
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [verify iceoryx mapping] -->
 ```cpp
@@ -398,37 +406,337 @@ Contains three members which use a different communication pattern:
 * `FieldPublisher m_field`
 * `MethodServer computeSum`
 
-* Unlike in AUTOSAR, in iceoryx a service is represented by the individual `Publisher` or `Server`
-* AUTOSAR service is considered as available as soon as all members are available
+!!! info
+    `EventPublisher` and `EventSubscriber` are also available as UNIX domain socket implementation
+    to compare iceoryx's shared memory implementation. Available topic sizes are:
+    1 Byte, 4 kB, 16 kB, 64 kB, 256 kB, 1 MB, 4 MB
 
 #### `EventPublisher`
 
-* Topics with different sizes are available
-* Also available as UNIX domain socket implementation to compare to iceoryx's shared memory
-implementation
+A `EventPublisher` contains a single member.
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher members] -->
+```cpp
+iox::popo::Publisher<T> m_publisher;
+```
+
+Its API provides a `Send()` method which performes a copy and a zero-copy one where the user needs
+to call `Allocate()` before and acquire a piece of memory in the shared memory.
+
+The onwership to the piece of memeory is represented by a `SampleAllocateePtr`. It behaves like a
+`std::unique_ptr`.
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher allocate] -->
+```cpp
+SampleAllocateePtr<SampleType> Allocate() noexcept;
+```
+
+Afterwards data can be written directly to shared memory by dereferencing the `SampleAllocateePtr`
+object. It is implemented using `cxx::optional` and `popo::Sample` and, in line with the iceoryx
+philosophy for defined behaviour, terminates if an empty object is dereferenced.
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/sample_allocatee_ptr.inl] [SampleAllocateePtr dereferencing] -->
+```cpp
+template <typename SampleType>
+inline SampleType& SampleAllocateePtr<SampleType>::operator*() noexcept
+{
+    if (!this->has_value())
+    {
+        // We don't allow undefined behaviour
+        std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
+        std::terminate();
+    }
+    return *(this->value().get());
+}
+```
+
+Finially, the memory can be send to subscribers by calling
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher zero-copy send] -->
+```cpp
+void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
+```
 
 #### `FieldPublisher`
 
-* Field
-  * Sends inital value on creation
-  * After 30 loop iteration the value is updated
+A `FieldPublisher` contains four members.
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.hpp] [FieldPublisher members] -->
+```cpp
+iox::popo::Publisher<FieldType> m_publisher;
+iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
+iox::popo::Listener m_listener;
+T m_latestValue;
+```
+
+The `Publisher` is used for event-like communication. The `Server` for enabling the user to set
+the field value from subscriber side. The `Listener` is used to instantly react on new requests
+being send to the `Server`. Additionally, the latest value is stored if the users queries the
+value again.
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.hpp] [FieldPublisher members] -->
+```cpp
+iox::popo::Publisher<FieldType> m_publisher;
+iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
+iox::popo::Listener m_listener;
+T m_latestValue;
+```
+
+`Update()` is very similar to `Send()` in the `EventPublisher`. The `Server` needs to be attached
+in the constructor
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.inl] [FieldPublisher attach] -->
+```cpp
+m_listener
+    .attachEvent(m_server,
+                 iox::popo::ServerEvent::REQUEST_RECEIVED,
+                 iox::popo::createNotificationCallback(onRequestReceived, *this))
+    .or_else([](auto) {
+        std::cerr << "unable to attach server" << std::endl;
+        std::exit(EXIT_FAILURE);
+    });
+```
+
+Once a new request is received the following callback will be called. It receives the request,
+reserves new memory for the response and writes the current value to shared memory.
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.inl] [FieldPublisher callback] -->
+```cpp
+template <typename T>
+inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
+                                                 FieldPublisher<FieldType>* self) noexcept
+{
+    while (server->take().and_then([&](const auto& request) {
+        server->loan(request)
+            .and_then([&](auto& response) {
+                if (request->has_value())
+                {
+                    self->m_latestValue = request->value();
+                }
+                *response = self->m_latestValue;
+                response.send().or_else(
+                    [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
+            })
+            .or_else([](auto& error) { std::cerr << "Could not allocate Response! Error: " << error << std::endl; });
+    }))
+    {
+    }
+}
+```
 
 #### `MethodServer`
 
-* Method
-  * Works in the background, in its own thread
-  * Receives requests, computes answer and sends back response
+The `MethodServer` is similar to the request-response part of the `FieldPublisher`.
+
+It is implemented with two members
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/method_server.hpp] [MethodServer members] -->
+```cpp
+iox::popo::Server<AddRequest, AddResponse> m_server;
+iox::popo::Listener m_listener;
+```
+
+The attachment of the `Server` to the `Listener` and the callback are very similar to the `FieldPublisher`. However, as `MethodServer` task is to add two numbers the response is calculated by calling
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/owl/kom/method_server.cpp] [MethodServer calc response] -->
+```cpp
+.and_then([&](auto& response) {
+    response->sum = self->computeSumInternal(request->addend1, request->addend2);
+```
 
 ### Minimal proxy
 
-* Contains the respective counterparts to be able to consume the
-`MinimalSkeleton` service with all its three elements aka iceoryx services
+`MinimalProxy` contains the respective counterparts to be able to consume the `MinimalSkeleton`
+service with all its three elements:
+
+* `EventSubscriber m_event`
+* `FieldSubscriber m_field`
+* `MethodClient computeSum`
 
 #### `EventSubscriber`
 
+The `EventSubscriber` class is implemented with the following members
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.hpp] [EventSubscriber members] -->
+```cpp
+iox::popo::Subscriber<T> m_subscriber;
+iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
+static constexpr bool isRecursive{true};
+iox::posix::mutex m_mutex{isRecursive};
+iox::popo::Listener m_listener;
+```
+
+Again, a `Listener` is used to instantly react on a new topic send by a `EventPublisher`.
+This time, the `Listener` executes the callback which was stored with
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber setReceiveHandler] -->
+```cpp
+template <typename T>
+inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) noexcept
+{
+    std::lock_guard<iox::posix::mutex> guard(m_mutex);
+    m_listener
+        .attachEvent(m_subscriber,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriber" << std::endl;
+            std::exit(EXIT_FAILURE);
+        });
+    m_receiveHandler.emplace(handler);
+}
+```
+
+and once invoked the callback gets executed
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber invoke callback] -->
+```cpp
+template <typename T>
+inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept
+{
+    std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
+    self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
+}
+```
+
+The mutex is used to provide thread-safety and protect `m_receiveHandler` because it is accessed
+concurrently.
+
+If a receive handler is not needed `GetNewSamples()` can be used in a polling manner.
+
 #### `FieldSubscriber`
 
+The `FieldSubscriber` class is implemented with help of the following members
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.hpp] [FieldSubscriber members] -->
+```cpp
+iox::popo::Subscriber<FieldType> m_subscriber;
+iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;
+std::atomic<int64_t> m_sequenceId{0};
+iox::popo::WaitSet<> m_waitset;
+static constexpr bool isRecursive{true};
+iox::posix::mutex m_mutex{isRecursive};
+```
+
+The `Get()` method allows the receive the value from a `FieldPublisher`
+object on demand by sending an empty request
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber get] -->
+```cpp
+bool requestSuccessfullySend{false};
+m_client.loan()
+    .and_then([&](auto& request) {
+        request.getRequestHeader().setSequenceId(m_sequenceId);
+        request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
+            std::cerr << "Could not send Request! Error: " << error << std::endl;
+        });
+    })
+    .or_else([&](auto& error) {
+        std::cerr << "Could not allocate Request! Error: " << error << std::endl;
+        requestSuccessfullySend = false;
+    });
+
+if (!requestSuccessfullySend)
+{
+    return Future<FieldType>();
+}
+return receiveResponse();
+```
+
+A sequence number is set to ensure monotonic order.
+
+The `Set()` method is implemented in a similar manner but writes the value to the request
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber set] -->
+```cpp
+.and_then([&](auto& request) {
+    request.getRequestHeader().setSequenceId(m_sequenceId);
+    request->emplace(value);
+```
+
+Both methods call `receiveResponse()` at the very end, which will receive the response `Future` by using the `WaitSet`
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber receive response] -->
+```cpp
+std::lock_guard<iox::posix::mutex> guard(m_mutex);
+
+auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
+
+for (auto& notification : notificationVector)
+{
+    if (notification->doesOriginateFrom(&m_client))
+    {
+        while (m_client.take().and_then([&](const auto& response) {
+            auto receivedSequenceId = response.getResponseHeader().getSequenceId();
+            if (receivedSequenceId == m_sequenceId)
+            {
+                FieldType result = *response;
+                m_sequenceId++;
+                promise.set_value_at_thread_exit(result);
+            }
+            else
+            {
+                std::cerr << "Got Response with outdated sequence ID! Expected = " << m_sequenceId
+                          << "; Actual = " << receivedSequenceId << "!" << std::endl;
+                std::terminate();
+            }
+        }))
+        {
+        }
+    }
+}
+```
+
+Here, the expected sequence identifier is compared with the received one. In the end, the response
+is copied into the `std::promise`.
+
+Alternatively, the value can also be received in a polling manner with `GetNewSamples()`.
+
 #### `MethodClient`
+
+Every `MethodClient` object contains the following members
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/method_client.hpp] [MethodClient members] -->
+```cpp
+iox::popo::Client<AddRequest, AddResponse> m_client;
+std::atomic<int64_t> m_sequenceId{0};
+iox::popo::WaitSet<> m_waitset;
+static constexpr bool isRecursive{true};
+iox::posix::mutex m_mutex{isRecursive};
+```
+
+Receiving the result of the addition of the two numbers is similar to receiving the value in the
+`FieldSubscriber`. However, as the `MethodClient` acts a functor providing an `operator()()`,
+unlike the `FieldPublisher`, it is not templated but takes and fixed number of arguments.
+
+The request part of `operator()()` is implemted as follows
+
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/owl/kom/method_client.cpp] [MethodClient send request] -->
+```cpp
+Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
+{
+    bool requestSuccessfullySend{false};
+    m_client.loan()
+        .and_then([&](auto& request) {
+            request.getRequestHeader().setSequenceId(m_sequenceId);
+            request->addend1 = addend1;
+            request->addend2 = addend2;
+            request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
+                std::cerr << "Could not send Request! Error: " << error << std::endl;
+            });
+        })
+        .or_else([&](auto& error) {
+            std::cerr << "Could not allocate Request! Error: " << error << std::endl;
+            requestSuccessfullySend = false;
+        });
+
+    if (!requestSuccessfullySend)
+    {
+        return Future<AddResponse>();
+    }
+```
+
+The response is received in a similar manner to receiving the response in the `FieldSubscriber`, again, wrapping the result in a `std::future`.
 
 <center>
 [Check out automotive_soa on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/automotive_soa){ .md-button } <!--NOLINT github url for website-->

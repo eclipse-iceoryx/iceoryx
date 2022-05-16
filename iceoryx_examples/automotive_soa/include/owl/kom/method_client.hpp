@@ -42,11 +42,13 @@ class MethodClient
     Future<AddResponse> operator()(uint64_t addend1, uint64_t addend2);
 
   private:
+    //! [MethodClient members]
     iox::popo::Client<AddRequest, AddResponse> m_client;
     std::atomic<int64_t> m_sequenceId{0};
     iox::popo::WaitSet<> m_waitset;
     static constexpr bool isRecursive{true};
     iox::posix::mutex m_mutex{isRecursive};
+    //! [MethodClient members]
 };
 } // namespace kom
 } // namespace owl

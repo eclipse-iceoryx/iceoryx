@@ -54,11 +54,13 @@ class EventSubscriber
   private:
     static void onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept;
 
+    //! [EventSubscriber members]
     iox::popo::Subscriber<T> m_subscriber;
     iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
     static constexpr bool isRecursive{true};
     iox::posix::mutex m_mutex{isRecursive};
     iox::popo::Listener m_listener;
+    //! [EventSubscriber members]
 };
 
 } // namespace kom

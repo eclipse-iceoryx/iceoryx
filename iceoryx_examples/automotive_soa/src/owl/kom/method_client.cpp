@@ -38,10 +38,11 @@ MethodClient::~MethodClient() noexcept
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
 }
 
+// If we call the operator() twice shortly after each other, once the response of the first request has not yet
+// arrived, we have a problem
+//! [MethodClient send request]
 Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
 {
-    // If we call the operator() twice shortly after each other, once the response of the first request has not yet
-    // arrived, we have a problem
     bool requestSuccessfullySend{false};
     m_client.loan()
         .and_then([&](auto& request) {
@@ -61,6 +62,7 @@ Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
     {
         return Future<AddResponse>();
     }
+    //! [MethodClient send request]
 
     Promise<AddResponse> promise;
     auto future = promise.get_future();

@@ -41,6 +41,7 @@ inline const SampleType* SampleAllocateePtr<SampleType>::operator->() const noex
     const_cast<const SampleType*>(const_cast<SampleAllocateePtr<SampleType>*>(this)->operator->());
 }
 
+//! [SampleAllocateePtr dereferencing]
 template <typename SampleType>
 inline SampleType& SampleAllocateePtr<SampleType>::operator*() noexcept
 {
@@ -52,6 +53,7 @@ inline SampleType& SampleAllocateePtr<SampleType>::operator*() noexcept
     }
     return *(this->value().get());
 }
+//! [SampleAllocateePtr dereferencing]
 
 template <typename SampleType>
 inline const SampleType& SampleAllocateePtr<SampleType>::operator*() const noexcept

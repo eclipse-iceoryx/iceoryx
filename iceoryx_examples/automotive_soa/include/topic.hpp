@@ -50,28 +50,6 @@ struct TimestampTopic1Byte
     static constexpr uint32_t payloadSizeInBytes{1};
     char data[payloadSizeInBytes];
     uint32_t subPackets{0};
-
-    /// @todo #1332 Use cxx::Serialization and implement serialization for std::chrono::time_point?
-    // iox::cxx::Serialization serialize() const noexcept
-    // {
-    //     return iox::cxx::Serialization::create(counter, sendTimestamp, payloadSizeInBytes, data, subPackets);
-    // }
-    // static iox::cxx::expected<TimestampTopic, iox::cxx::Serialization::Error>
-    // deserialize(const iox::cxx::Serialization& serialized) noexcept
-    // {
-    //     TimestampTopic topic;
-
-    //     auto deserializationSuccessful = serialized.extract(
-    //         topic.counter, topic.sendTimestamp, topic.payloadSizeInBytes, topic.data, topic.subPackets);
-
-    //     if (!deserializationSuccessful)
-    //     {
-    //         return iox::cxx::error<iox::cxx::Serialization::Error>(
-    //             iox::cxx::Serialization::Error::DESERIALIZATION_FAILED);
-    //     }
-
-    //     return iox::cxx::success<TimestampTopic>(topic);
-    // }
 };
 
 struct TimestampTopic4Kb

@@ -54,10 +54,12 @@ class FieldPublisher
   private:
     static void onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
                                   FieldPublisher<FieldType>* self) noexcept;
+    //! [FieldPublisher members]
     iox::popo::Publisher<FieldType> m_publisher;
     iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
     iox::popo::Listener m_listener;
     T m_latestValue;
+    //! [FieldPublisher members]
 };
 } // namespace kom
 } // namespace owl

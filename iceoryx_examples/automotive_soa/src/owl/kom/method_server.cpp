@@ -51,9 +51,12 @@ Future<AddResponse> MethodServer::computeSum(uint64_t addend1, uint64_t addend2)
 void MethodServer::onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept
 {
     while (server->take().and_then([&](const auto& request) {
-        server->loan(request)
+        server
+            ->loan(request)
+            //! [MethodServer calc response]
             .and_then([&](auto& response) {
                 response->sum = self->computeSumInternal(request->addend1, request->addend2);
+                //! [MethodServer calc response]
                 response.send().or_else(
                     [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
             })

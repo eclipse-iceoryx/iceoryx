@@ -73,6 +73,7 @@ inline Future<T> FieldSubscriber<T>::Get()
 {
     // If we call Get() twice shortly after each other, once the response of the first request has not yet
     // arrived, we have a problem
+    //! [FieldSubscriber get]
     bool requestSuccessfullySend{false};
     m_client.loan()
         .and_then([&](auto& request) {
@@ -91,6 +92,7 @@ inline Future<T> FieldSubscriber<T>::Get()
         return Future<FieldType>();
     }
     return receiveResponse();
+    //! [FieldSubscriber get]
 }
 
 template <typename T>
@@ -99,10 +101,13 @@ inline Future<T> FieldSubscriber<T>::Set(const FieldType& value)
     // If we call Set() twice shortly after each other, once the response of the first request has not yet
     // arrived, we have a problem
     bool requestSuccessfullySend{false};
-    m_client.loan()
+    m_client
+        .loan()
+        //! [FieldSubscriber set]
         .and_then([&](auto& request) {
             request.getRequestHeader().setSequenceId(m_sequenceId);
             request->emplace(value);
+            //! [FieldSubscriber set]
             request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
                 std::cerr << "Could not send Request! Error: " << error << std::endl;
             });
@@ -128,6 +133,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
     std::thread(
         [&](Promise<FieldType>&& promise) {
             // Avoid race if MethodClient d'tor is called while this thread is still running
+            //! [FieldSubscriber receive response]
             std::lock_guard<iox::posix::mutex> guard(m_mutex);
 
             auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
@@ -155,6 +161,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
                     }
                 }
             }
+            //! [FieldSubscriber receive response]
         },
         std::move(promise))
         .detach();

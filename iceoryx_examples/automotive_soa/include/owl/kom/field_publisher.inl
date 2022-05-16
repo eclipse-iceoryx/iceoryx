@@ -35,6 +35,7 @@ inline FieldPublisher<T>::FieldPublisher(const core::String& service,
     // publisher is automatically offered
     Update(field);
 
+    //! [FieldPublisher attach]
     m_listener
         .attachEvent(m_server,
                      iox::popo::ServerEvent::REQUEST_RECEIVED,
@@ -43,6 +44,7 @@ inline FieldPublisher<T>::FieldPublisher(const core::String& service,
             std::cerr << "unable to attach server" << std::endl;
             std::exit(EXIT_FAILURE);
         });
+    //! [FieldPublisher attach]
 }
 
 template <typename T>
@@ -81,6 +83,7 @@ inline void FieldPublisher<T>::RegisterSetHandler(iox::cxx::function<void()>) no
     std::cerr << "'RegisterSetHandler' not implemented." << std::endl;
 }
 
+//! [FieldPublisher callback]
 template <typename T>
 inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
                                                  FieldPublisher<FieldType>* self) noexcept
@@ -101,6 +104,7 @@ inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::opt
     {
     }
 }
+//! [FieldPublisher callback]
 } // namespace kom
 } // namespace owl
 

@@ -47,8 +47,10 @@ class MethodServer
 
     uint64_t computeSumInternal(uint64_t addend1, uint64_t addend2) noexcept;
 
+    //! [MethodServer members]
     iox::popo::Server<AddRequest, AddResponse> m_server;
     iox::popo::Listener m_listener;
+    //! [MethodServer members]
 };
 } // namespace kom
 } // namespace owl

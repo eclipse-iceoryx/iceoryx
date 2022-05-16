@@ -54,12 +54,14 @@ class FieldSubscriber
   private:
     Future<FieldType> receiveResponse();
 
+    //! [FieldSubscriber members]
     iox::popo::Subscriber<FieldType> m_subscriber;
     iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;
     std::atomic<int64_t> m_sequenceId{0};
     iox::popo::WaitSet<> m_waitset;
     static constexpr bool isRecursive{true};
     iox::posix::mutex m_mutex{isRecursive};
+    //! [FieldSubscriber members]
 };
 
 } // namespace kom
