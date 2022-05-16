@@ -70,7 +70,7 @@ jobs:
          ./tools/ci/build-test-freebsd.sh
 
   build-test-windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v3
