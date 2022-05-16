@@ -37,10 +37,10 @@ namespace internal
 ///   // must be defined outside of the loop to track the calls
 ///   adaptive_wait adaptive_wait;
 ///   while(hasMyEventOccurred) {
-///       // will wait time until a defined max waiting time is reached
+///       // will wait until a defined max waiting time is reached
 ///       adaptive_wait.wait();
 ///
-///       // if the wait should be resetted so that one starts with yield again
+///       // if the wait should be reset so that one starts with yield again
 ///       // one can recreate the class and assign it via the copy constructor
 ///       if ( waitResetConditionOccurred ) adaptive_wait = adaptive_wait();
 ///   }
