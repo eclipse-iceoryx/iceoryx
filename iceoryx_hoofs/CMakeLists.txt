@@ -40,7 +40,6 @@ iox_add_library(
     NAMESPACE                   iceoryx_hoofs
     ADDITIONAL_EXPORT_TARGETS   iceoryx_platform
     PROJECT_PREFIX              ${PREFIX}
-    RPATH                       "${CMAKE_INSTALL_PREFIX}/lib123"
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_platform
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}

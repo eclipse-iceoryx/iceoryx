@@ -44,12 +44,11 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     FILES                   ${MODULETESTS_SRC}
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_APPLE              dl
-                    LIBS_LINUX              dl
+                    LIBS_LINUX              acl dl pthread rt
 )
 
 ## TODO: iox-#1287 remove those compiler warning exceptions
 if(LINUX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} acl dl pthread rt)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
 elseif(QNX)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
