@@ -45,6 +45,9 @@ class EventPublisher
     static constexpr uint64_t HISTORY_CAPACITY{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
+    void Offer() noexcept;
+    void StopOffer() noexcept;
+
     void Send(const SampleType& userSample) noexcept;
     //! [EventPublisher zero-copy send]
     void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
@@ -53,12 +56,8 @@ class EventPublisher
     //! [EventPublisher allocate]
     SampleAllocateePtr<SampleType> Allocate() noexcept;
     //! [EventPublisher allocate]
-
-    friend class ::MinimalSkeleton;
-
+  
   private:
-    void Offer() noexcept;
-    void StopOffer() noexcept;
     //! [EventPublisher members]
     iox::popo::Publisher<T> m_publisher;
     //! [EventPublisher members]

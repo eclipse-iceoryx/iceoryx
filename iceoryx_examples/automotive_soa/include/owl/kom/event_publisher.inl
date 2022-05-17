@@ -50,7 +50,6 @@ inline void EventPublisher<T>::Send(const SampleType& userSample) noexcept
 template <typename T>
 inline void EventPublisher<T>::Send(SampleAllocateePtr<T> userSamplePtr) noexcept
 {
-    /// @todo #1332 how to verify that this sample belongs to me?
     userSamplePtr.value().publish();
 }
 
