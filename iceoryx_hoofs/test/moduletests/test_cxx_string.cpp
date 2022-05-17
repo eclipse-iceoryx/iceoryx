@@ -1553,7 +1553,7 @@ TYPED_TEST(stringTyped_test, CompareEmptyStringWithCharWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0857725-4f4a-4052-a957-71fc906d535e");
     EXPECT_THAT(this->testSubject.compare('A'), Lt(0));
-    EXPECT_THAT(this->testSubject.compare('\0'), Eq(0));
+    EXPECT_THAT(this->testSubject.compare('\0'), Lt(0));
 }
 
 /// @note bool operator==(const char& rhs) const noexcept

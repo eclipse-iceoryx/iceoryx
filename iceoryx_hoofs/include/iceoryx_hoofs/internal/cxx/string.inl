@@ -321,7 +321,11 @@ inline int64_t string<Capacity>::compare(char other) const noexcept
     auto result = memcmp(c_str(), &other, 1U);
     if (result == 0)
     {
-        if (m_rawstringSize > 1U)
+        if (empty())
+        {
+            return -1;
+        }
+        else if (m_rawstringSize > 1U)
         {
             return 1;
         }
