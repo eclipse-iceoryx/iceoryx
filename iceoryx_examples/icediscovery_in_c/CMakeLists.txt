@@ -39,6 +39,6 @@ iox_add_executable(
 iox_add_executable(
     USE_C_LANGUAGE
     TARGET  iox-c-find-service
-    FILES   ./iox_c_offer_service.c
+    FILES   ./iox_c_find_service.c
     LIBS    iceoryx_binding_c::iceoryx_binding_c
 )

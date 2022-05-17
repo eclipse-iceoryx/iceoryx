@@ -228,8 +228,14 @@ Macro(iox_add_executable)
     if ( IOX_STACK_SIZE )
         if(WIN32)
             target_link_options(${IOX_TARGET} BEFORE PRIVATE /STACK:${IOX_STACK_SIZE})
-        else()
+        elseif(QNX OR LINUX )
             target_link_options(${IOX_TARGET} BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
+        elseif(APPLE)
+            # TODO iox-#1287
+            # not yet supported
+        elseif(UNIX)
+            target_link_options(${IOX_TARGET} BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
+        else()
         endif()
     endif()
 

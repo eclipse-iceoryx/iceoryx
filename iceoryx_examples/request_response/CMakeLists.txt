@@ -47,7 +47,7 @@ iox_add_executable(
 )
 
 iox_add_executable(
-    TARGET  iox-cpp-request-response-basic-waitset-client
+    TARGET  iox-cpp-request-response-waitset-client
     FILES   ./client_cxx_waitset.cpp
     LIBS    iceoryx_posh::iceoryx_posh
 )

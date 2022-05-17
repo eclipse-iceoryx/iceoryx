@@ -48,7 +48,7 @@ iox_add_executable(
 
 iox_add_executable(
     TARGET  iox-cpp-user-header-untyped-subscriber
-    FILES   ./publisher_untyped_cxx_api.cpp
+    FILES   ./subscriber_untyped_cxx_api.cpp
     LIBS    iceoryx_posh::iceoryx_posh
 )
 
