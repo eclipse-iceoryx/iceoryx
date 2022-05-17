@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.16)
 set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
- 
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
