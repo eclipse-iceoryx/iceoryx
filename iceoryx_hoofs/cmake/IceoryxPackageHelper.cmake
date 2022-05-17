@@ -129,29 +129,50 @@ Macro(iox_make_unique_includedir)
 endMacro()
 
 Macro(iox_set_rpath)
+    set(switches IS_EXECUTABLE)
     set(arguments TARGET)
-    cmake_parse_arguments(IOX "" "${arguments}" "" ${ARGN} )
+    cmake_parse_arguments(IOX "${switches}" "${arguments}" "" ${ARGN} )
 
     if( APPLE )
-        set(IOX_RPATH_PREFIX "@loader_path")
+        if ( IOX_IS_EXECUTABLE )
+            set(IOX_RPATH_PREFIX "@executable_path")
+        else()
+            set(IOX_RPATH_PREFIX "@loader_path")
+        endif()
     elseif ( LINUX OR UNIX )
         set(IOX_RPATH_PREFIX "\$ORIGIN")
     endif()
 
-    set(IOX_BUILD_RPATH ${IOX_RPATH_PREFIX}/../iceoryx_hoofs:${IOX_RPATH_PREFIX}/../iceoryx_posh:${IOX_RPATH_PREFIX}/../iceoryx_hoofs/platform:${IOX_RPATH_PREFIX}/../iceoryx_binding_c)
-    set(IOX_INSTALL_RPATH ${IOX_RPATH_PREFIX}/../${CMAKE_INSTALL_LIBDIR})
+    set_property(
+        TARGET ${IOX_TARGET}
+        PROPERTY INSTALL_RPATH
+        "${IOX_RPATH_PREFIX}/../${CMAKE_INSTALL_LIBDIR}"
+    )
 
-    # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
-    set(IOX_BUILD_RPATH ${IOX_BUILD_RPATH}:${IOX_RPATH_PREFIX}/../hoofs:${IOX_RPATH_PREFIX}/../posh:${IOX_RPATH_PREFIX}/../hoofs/platform:${IOX_RPATH_PREFIX}/../binding_c)
-    # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
-    set(IOX_BUILD_RPATH ${IOX_BUILD_RPATH}:${IOX_RPATH_PREFIX}/../../hoofs:${IOX_RPATH_PREFIX}/../../posh:${IOX_RPATH_PREFIX}/../../hoofs/platform:${IOX_RPATH_PREFIX}/../../binding_c)
-    # TODO: END iox-#1287
+    set_property(
+        TARGET ${IOX_TARGET}
+        PROPERTY BUILD_RPATH
+            "${IOX_RPATH_PREFIX}/../iceoryx_hoofs"
+            "${IOX_RPATH_PREFIX}/../iceoryx_posh"
+            "${IOX_RPATH_PREFIX}/../iceoryx_hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../iceoryx_binding_c"
 
-    set_target_properties(
-        ${IOX_TARGET}
-        PROPERTIES
-        BUILD_RPATH ${IOX_BUILD_RPATH}
-        INSTALL_RPATH ${IOX_INSTALL_RPATH}
+            # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
+            "${IOX_RPATH_PREFIX}/../hoofs"
+            "${IOX_RPATH_PREFIX}/../posh"
+            "${IOX_RPATH_PREFIX}/../hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../binding_c"
+            # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
+            "${IOX_RPATH_PREFIX}/../../hoofs"
+            "${IOX_RPATH_PREFIX}/../../posh"
+            "${IOX_RPATH_PREFIX}/../../hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../../binding_c"
+            # TODO: iox-#1287 iox-roudi is stored directly in build, despite it should be stored in iceoryx_posh, adjust paths so that this works too
+            "${IOX_RPATH_PREFIX}/hoofs"
+            "${IOX_RPATH_PREFIX}/posh"
+            "${IOX_RPATH_PREFIX}/hoofs/platform"
+            "${IOX_RPATH_PREFIX}/binding_c"
+            # TODO: END iox-#1287
     )
 endMacro()
 
@@ -202,7 +223,7 @@ Macro(iox_add_executable)
         target_link_libraries(${IOX_TARGET} ${IOX_LIBS_UNIX})
     endif()
 
-    iox_set_rpath( TARGET ${IOX_TARGET} )
+    iox_set_rpath( IS_EXECUTABLE TARGET ${IOX_TARGET} )
 
     if ( IOX_PLACE_IN_BUILD_ROOT )
         set_target_properties(${IOX_TARGET} PROPERTIES
