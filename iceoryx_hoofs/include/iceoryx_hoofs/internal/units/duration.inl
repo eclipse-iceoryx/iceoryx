@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_UNITS_DURATION_INL
 #define IOX_HOOFS_UNITS_DURATION_INL
 
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+
 namespace iox
 {
 namespace units
@@ -30,8 +32,6 @@ inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t
         auto additionalSeconds = nanoseconds / NANOSECS_PER_SEC;
         if (std::numeric_limits<Seconds_t>::max() - additionalSeconds < m_seconds)
         {
-            /// @todo #607 issue warning or fail
-
             m_seconds = std::numeric_limits<Seconds_t>::max();
             m_nanoseconds = NANOSECS_PER_SEC - 1U;
         }
@@ -65,8 +65,6 @@ inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(con
 
     if (value < 0)
     {
-        /// @todo #607 issue warning or fail
-
         return 0U;
     }
 
@@ -106,8 +104,6 @@ inline constexpr Duration Duration::fromSeconds(const T value) noexcept
     constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
     if (clampedValue > MAX_SECONDS_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
     return Duration{static_cast<Duration::Seconds_t>(clampedValue), 0U};
@@ -119,8 +115,6 @@ inline constexpr Duration Duration::fromMinutes(const T value) noexcept
     constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_MINUTE};
     if (clampedValue > MAX_MINUTES_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
     return Duration{static_cast<Duration::Seconds_t>(clampedValue * Duration::SECS_PER_MINUTE), 0U};
@@ -132,8 +126,6 @@ inline constexpr Duration Duration::fromHours(const T value) noexcept
     constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_HOUR};
     if (clampedValue > MAX_HOURS_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
     return Duration{static_cast<Duration::Seconds_t>(clampedValue * Duration::SECS_PER_HOUR), 0U};
@@ -146,8 +138,6 @@ inline constexpr Duration Duration::fromDays(const T value) noexcept
     constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / SECS_PER_DAY};
     if (clampedValue > MAX_DAYS_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
     return Duration{static_cast<Duration::Seconds_t>(clampedValue * SECS_PER_DAY), 0U};
@@ -193,8 +183,6 @@ inline constexpr uint64_t Duration::toNanoseconds() const noexcept
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return std::numeric_limits<uint64_t>::max();
     }
 
@@ -211,8 +199,6 @@ inline constexpr uint64_t Duration::toMicroseconds() const noexcept
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return std::numeric_limits<uint64_t>::max();
     }
 
@@ -229,8 +215,6 @@ inline constexpr uint64_t Duration::toMilliseconds() const noexcept
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
-        /// @todo #607 issue warning or fail
-
         return std::numeric_limits<uint64_t>::max();
     }
 
@@ -264,8 +248,6 @@ inline constexpr Duration::operator timeval() const noexcept
     static_assert(sizeof(Seconds_t) >= sizeof(SEC_TYPE), "casting might alter result");
     if (m_seconds > static_cast<Seconds_t>(std::numeric_limits<SEC_TYPE>::max()))
     {
-        /// @todo #607 issue warning or fail
-
         return {std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U};
     }
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
@@ -314,8 +296,6 @@ inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcep
     auto sum = Duration{seconds, nanoseconds};
     if (sum < *this)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
     return sum;
@@ -325,8 +305,6 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
 {
     if (*this < rhs)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::zero();
     }
     auto seconds = m_seconds - rhs.m_seconds;
@@ -358,8 +336,6 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     // check if the result of the m_seconds multiplication would already overflow
     if (m_seconds > maxBeforeOverflow)
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
     auto durationFromSeconds = Duration(m_seconds * multiplicator, 0U);
@@ -423,7 +399,7 @@ inline constexpr bool Duration::wouldCastFromFloatingPointProbablyOverflow(const
     // or the first one which causes an overflow;
     // to be safe, this is handled like causing an overflow which would result in undefined behavior when casting to
     // Seconds_t
-    constexpr To SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<To>(std::numeric_limits<Seconds_t>::max());
+    constexpr From SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<From>(std::numeric_limits<To>::max());
     return floatingPoint >= SECONDS_BEFORE_LIKELY_OVERFLOW;
 }
 
@@ -434,18 +410,14 @@ inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPoi
 
     if (std::isinf(floatingPointSeconds))
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
 
-    double secondsFull{0.0};
-    double secondsFraction = modf(floatingPointSeconds, &secondsFull);
+    T secondsFull{0};
+    T secondsFraction = std::modf(floatingPointSeconds, &secondsFull);
 
     if (wouldCastFromFloatingPointProbablyOverflow<T, Seconds_t>(secondsFull))
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
 
@@ -461,14 +433,12 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
 
     if (std::isnan(rhs))
     {
-        /// @todo #607 issue warning or fail
-
         return Duration::max();
     }
 
-    auto durationFromSeconds = fromFloatingPointSeconds(m_seconds * rhs);
+    auto durationFromSeconds = fromFloatingPointSeconds<T>(static_cast<T>(m_seconds) * rhs);
 
-    auto resultNanoseconds = m_nanoseconds * rhs;
+    auto resultNanoseconds = static_cast<T>(m_nanoseconds) * rhs;
 
     if (!wouldCastFromFloatingPointProbablyOverflow<T, uint64_t>(resultNanoseconds))
     {
@@ -477,7 +447,7 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
 
     // the multiplication result of nanoseconds would exceed the value an uint64_t can represent
     // -> convert result to seconds and and calculate duration
-    auto durationFromNanoseconds = fromFloatingPointSeconds(resultNanoseconds /= NANOSECS_PER_SEC);
+    auto durationFromNanoseconds = fromFloatingPointSeconds<T>(resultNanoseconds /= NANOSECS_PER_SEC);
 
     return durationFromSeconds + durationFromNanoseconds;
 }
@@ -489,10 +459,6 @@ inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
 
     if (rhs <= static_cast<T>(0) || *this == Duration::zero())
     {
-        if (rhs < static_cast<T>(0))
-        {
-            /// @todo #607 issue warning or fail
-        }
         return Duration::zero();
     }
 
