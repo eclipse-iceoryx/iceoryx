@@ -623,20 +623,20 @@ object on demand by sending an empty request
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber get] -->
 ```cpp
-bool requestSuccessfullySend{false};
+bool requestSuccessfullySent{false};
 m_client.loan()
     .and_then([&](auto& request) {
         request.getRequestHeader().setSequenceId(m_sequenceId);
-        request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
+        request.send().and_then([&]() { requestSuccessfullySent = true; }).or_else([](auto& error) {
             std::cerr << "Could not send Request! Error: " << error << std::endl;
         });
     })
     .or_else([&](auto& error) {
         std::cerr << "Could not allocate Request! Error: " << error << std::endl;
-        requestSuccessfullySend = false;
+        requestSuccessfullySent = false;
     });
 
-if (!requestSuccessfullySend)
+if (!requestSuccessfullySent)
 {
     return Future<FieldType>();
 }
@@ -715,22 +715,22 @@ The request part of `operator()()` is implemted as follows
 ```cpp
 Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
 {
-    bool requestSuccessfullySend{false};
+    bool requestSuccessfullySent{false};
     m_client.loan()
         .and_then([&](auto& request) {
             request.getRequestHeader().setSequenceId(m_sequenceId);
             request->addend1 = addend1;
             request->addend2 = addend2;
-            request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
+            request.send().and_then([&]() { requestSuccessfullySent = true; }).or_else([](auto& error) {
                 std::cerr << "Could not send Request! Error: " << error << std::endl;
             });
         })
         .or_else([&](auto& error) {
             std::cerr << "Could not allocate Request! Error: " << error << std::endl;
-            requestSuccessfullySend = false;
+            requestSuccessfullySent = false;
         });
 
-    if (!requestSuccessfullySend)
+    if (!requestSuccessfullySent)
     {
         return Future<AddResponse>();
     }

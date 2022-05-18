@@ -48,8 +48,6 @@ template <typename T>
 template <typename Callable>
 inline core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
-    IOX_DISCARD_RESULT(maxNumberOfSamples);
-
     core::Result<size_t> numberOfSamples{0};
 
     while (m_subscriber.take()
@@ -62,7 +60,8 @@ inline core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& callabl
                    {
                        std::cerr << "Error receiving chunk!" << std::endl;
                    }
-               }))
+               })
+           && numberOfSamples < maxNumberOfSamples)
     {
     }
     return numberOfSamples;
@@ -74,20 +73,20 @@ inline Future<T> FieldSubscriber<T>::Get()
     // If we call Get() twice shortly after each other, once the response of the first request has not yet
     // arrived, we have a problem
     //! [FieldSubscriber get]
-    bool requestSuccessfullySend{false};
+    bool requestSuccessfullySent{false};
     m_client.loan()
         .and_then([&](auto& request) {
             request.getRequestHeader().setSequenceId(m_sequenceId);
-            request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
+            request.send().and_then([&]() { requestSuccessfullySent = true; }).or_else([](auto& error) {
                 std::cerr << "Could not send Request! Error: " << error << std::endl;
             });
         })
         .or_else([&](auto& error) {
             std::cerr << "Could not allocate Request! Error: " << error << std::endl;
-            requestSuccessfullySend = false;
+            requestSuccessfullySent = false;
         });
 
-    if (!requestSuccessfullySend)
+    if (!requestSuccessfullySent)
     {
         return Future<FieldType>();
     }
@@ -100,7 +99,7 @@ inline Future<T> FieldSubscriber<T>::Set(const FieldType& value)
 {
     // If we call Set() twice shortly after each other, once the response of the first request has not yet
     // arrived, we have a problem
-    bool requestSuccessfullySend{false};
+    bool requestSuccessfullySent{false};
     m_client
         .loan()
         //! [FieldSubscriber set]
@@ -108,16 +107,16 @@ inline Future<T> FieldSubscriber<T>::Set(const FieldType& value)
             request.getRequestHeader().setSequenceId(m_sequenceId);
             request->emplace(value);
             //! [FieldSubscriber set]
-            request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
+            request.send().and_then([&]() { requestSuccessfullySent = true; }).or_else([](auto& error) {
                 std::cerr << "Could not send Request! Error: " << error << std::endl;
             });
         })
         .or_else([&](auto& error) {
             std::cerr << "Could not allocate Request! Error: " << error << std::endl;
-            requestSuccessfullySend = false;
+            requestSuccessfullySent = false;
         });
 
-    if (!requestSuccessfullySend)
+    if (!requestSuccessfullySent)
     {
         return Future<FieldType>();
     }

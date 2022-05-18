@@ -58,7 +58,9 @@ class FieldPublisher
     iox::popo::Publisher<FieldType> m_publisher;
     iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
     iox::popo::Listener m_listener;
-    T m_latestValue;
+    // latestValue is written concurrently by Listener and needs exclusive write access, alternatively a
+    // concurrent::smart_lock could be used
+    std::atomic<T> m_latestValue;
     //! [FieldPublisher members]
 };
 } // namespace kom
