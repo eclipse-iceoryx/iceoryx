@@ -418,15 +418,12 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 }
 
 template <typename T1, typename T2>
-inline typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
-                                   && (is_char_array<T2>::value || is_cxx_string<T2>::value
-                                       || std::is_same<T2, char>::value),
-                               string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-concatenate(const T1& t1, const T2& t2) noexcept
+inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
+                                                                                                  const T2& t2) noexcept
 {
     uint64_t size1 = internal::GetSize<T1>::call(t1);
     uint64_t size2 = internal::GetSize<T2>::call(t2);
-    using NewStringType = string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>;
+    using NewStringType = string<internal::SumCapa<T1, T2>::value>;
     NewStringType newString;
     std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(t1), size1);
     std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(t2), size2);
@@ -437,21 +434,14 @@ concatenate(const T1& t1, const T2& t2) noexcept
 }
 
 template <typename T1, typename T2, typename... Targs>
-inline typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
-                                   && (is_char_array<T2>::value || is_cxx_string<T2>::value
-                                       || std::is_same<T2, char>::value),
-                               string<internal::SumCapa<T1, T2, Targs...>::value>>::type
+inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept
 {
     return concatenate(concatenate(t1, t2), targs...);
 }
 
 template <typename T1, typename T2>
-inline typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
-                                   || (is_cxx_string<T1>::value
-                                       && (is_char_array<T2>::value || std::is_same<T2, char>::value))
-                                   || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
-                               string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& t1, const T2& t2) noexcept
 {
     return concatenate(t1, t2);

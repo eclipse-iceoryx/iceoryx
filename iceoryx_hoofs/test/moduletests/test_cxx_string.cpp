@@ -2316,6 +2316,7 @@ TYPED_TEST(stringTyped_test, UnsafeAppendNullCharWorks)
     EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 1U));
     EXPECT_THAT(testString.size(), Eq(2U));
     EXPECT_THAT(testString.c_str(), StrEq("M"));
+    EXPECT_THAT(testString[1U], Eq(testChar));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAppendCharWorks)
@@ -2571,6 +2572,7 @@ TYPED_TEST(stringTyped_test, AppendNullCharWorks)
     EXPECT_THAT(sut.capacity(), Eq(STRINGCAP + 1U));
     EXPECT_THAT(sut.size(), Eq(2U));
     EXPECT_THAT(sut.c_str(), StrEq("M"));
+    EXPECT_THAT(sut[1U], Eq('\0'));
 }
 
 TYPED_TEST(stringTyped_test, AppendCharToEmptyStringResultsInConcatenatedString)

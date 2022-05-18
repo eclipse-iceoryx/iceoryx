@@ -51,9 +51,19 @@ template <typename T, typename ReturnType>
 using IsCxxStringOrCharArray =
     typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
-template <typename T, typename ReturnType>
+template <typename T1, typename T2, typename ReturnType>
 using IsCxxStringOrCharArrayOrChar =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, char>::value),
+    typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
+                                && (is_char_array<T2>::value || is_cxx_string<T2>::value
+                                    || std::is_same<T2, char>::value),
+                            ReturnType>::type;
+
+template <typename T1, typename T2, typename ReturnType>
+using IsCxxStringAndCxxStringOrCharArrayOrChar =
+    typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
+                                || (is_cxx_string<T1>::value
+                                    && (is_char_array<T2>::value || std::is_same<T2, char>::value))
+                                || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
                             ReturnType>::type;
 
 /// @brief concatenates two iox::cxx::strings/string literals/chars
@@ -67,10 +77,8 @@ using IsCxxStringOrCharArrayOrChar =
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
-                            && (is_char_array<T2>::value || is_cxx_string<T2>::value || std::is_same<T2, char>::value),
-                        string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-concatenate(const T1& t1, const T2& t2) noexcept;
+IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
+                                                                                           const T2& t2) noexcept;
 
 /// @brief concatenates an arbitrary number of iox::cxx::strings, string literals or chars
 ///
@@ -83,9 +91,7 @@ concatenate(const T1& t1, const T2& t2) noexcept;
 ///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
-typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
-                            && (is_char_array<T2>::value || is_cxx_string<T2>::value || std::is_same<T2, char>::value),
-                        string<internal::SumCapa<T1, T2, Targs...>::value>>::type
+IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 
 /// @brief concatenates two iox::cxx::strings or one iox::cxx::string and one string literal/char; concatenation of two
@@ -95,10 +101,7 @@ concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 ///
 /// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 template <typename T1, typename T2>
-typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
-                            || (is_cxx_string<T1>::value && (is_char_array<T2>::value || std::is_same<T2, char>::value))
-                            || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
-                        string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& t1, const T2& t2) noexcept;
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
@@ -556,12 +559,8 @@ class string
     friend class string;
 
     template <typename T1, typename T2>
-    friend
-        typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
-                                    && (is_char_array<T2>::value || is_cxx_string<T2>::value
-                                        || std::is_same<T2, char>::value),
-                                string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-        concatenate(const T1& t1, const T2& t2) noexcept;
+    friend IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+    concatenate(const T1& t1, const T2& t2) noexcept;
 
   private:
     /// @brief copies rhs fixed string to this with compile time check whether rhs capacity is less than or equal to
