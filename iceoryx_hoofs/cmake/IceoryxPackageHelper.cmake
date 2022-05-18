@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 # Copyright (c) 2021 by Timo Röhling. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,10 +152,12 @@ Macro(iox_set_rpath)
     set_property(
         TARGET ${IOX_TARGET}
         PROPERTY BUILD_RPATH
+            # TODO: iox-#1287 implement rpath auto detection to have no dependency on posh at this level.
             "${IOX_RPATH_PREFIX}/../iceoryx_hoofs"
             "${IOX_RPATH_PREFIX}/../iceoryx_posh"
             "${IOX_RPATH_PREFIX}/../iceoryx_hoofs/platform"
             "${IOX_RPATH_PREFIX}/../iceoryx_binding_c"
+            #TODO: end iox-#1287
 
             # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
             "${IOX_RPATH_PREFIX}/../hoofs"
