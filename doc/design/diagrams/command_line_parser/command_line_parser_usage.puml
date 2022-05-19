@@ -6,10 +6,13 @@ User -> CommandLineOptionSet ++ : CommandLineOptionSet(programName, onFailureCal
 return CommandLineOptionSet
 
 User -> CommandLineOptionSet ++ : addSwitch()
+return
 
 User -> CommandLineOptionSet ++ : addOptional()
+return
 
 User -> CommandLineOptionSet ++ : addRequired()
+return
 
 == Parse command line arguments ==
 

@@ -58,7 +58,7 @@ class CommandLineOptionSet_test : public Test
 };
 Argument_t CommandLineOptionSet_test::defaultValue = "DEFAULT VALUE";
 
-TEST_F(CommandLineOptionSet_test, AddingTheSameShortOptionForOptionalLeadsToExit)
+TEST_F(CommandLineOptionSet_test, AddingTheSameShortOptionLeadsToExit)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1340876-e3f6-4f62-b0f3-4e9551a5f67a");
     CommandLineOptionSet optionSet("", errorCallback);

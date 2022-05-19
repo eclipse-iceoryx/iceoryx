@@ -80,6 +80,32 @@ them and print them on the console.
 
 #### Macro Based Code Generator
 
+```cpp
+struct UserCLIStruct
+{
+    IOX_CLI_DEFINITION(UserCLIStruct, "My program description");
+
+    IOX_CLI_OPTIONAL(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
+    IOX_CLI_REQUIRED(string<100>, anotherString, 'a', "another-string", "some description");
+    IOX_CLI_SWITCH(uint64_t, version, 0, 'v', "version", "print app version");
+};
+
+// This struct parses all command line arguments and stores them. In
+// the example above the struct provides access to
+//   .stringValue()
+//   .anotherString()
+//   .version()
+// Via the command line parameters
+//   -s or --string-value
+//   -a or --another-string
+//   -v or --version
+
+int main(int argc, char* argv[]) {
+  UserCLIStruct cmd(argc, argv);
+  std::cout << cmd.stringValue() << " " << cmd.anotherString() << std::endl;
+}
+```
+
 The macros `IOX_CLI_DEFINITION`, `IOX_CLI_SWITCH`, `IOX_CLI_OPTIONAL` and `IOX_CLI_REQUIRED`
 provide building blocks so that the user can generate a struct. The members of that
 struct are defined via the macros and set in the constructor of that struct which
@@ -91,36 +117,6 @@ values safely.
 The struct constructor can be called with `argc` and `argv` as arguments from 
 `int main(int argc, char* argv[])`.
 
-### Code example
-
-```cpp
-struct CommandLine
-{
-    IOX_CLI_DEFINITION(CommandLine, "My program description");
-
-    IOX_CLI_OPTIONAL(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
-    IOX_CLI_REQUIRED(string<100>, anotherString, 'a', "another-string", "some description");
-    IOX_CLI_SWITCH(doStuff, 'd', "do-stuff", "do some stuff - some description");
-    IOX_CLI_OPTIONAL(uint64_t, version, 0, 'v', "version", "some description");
-};
-
-// This struct parses all command line arguments and stores them. In
-// the example above the struct provides access to
-//   .stringValue()
-//   .anotherString()
-//   .doStuff()
-//   .version()
-// Via the command line parameters
-//   -s or --string-value
-//   -a or --another-string
-//   -d or --do-stuff
-//   -v or --version
-
-int main(int argc, char* argv[]) {
-  CommandLine cmd(argc, argv);
-  std::cout << cmd.stringValue() << " " << cmd.anotherString() << std::endl;
-}
-```
 
 ## Open issues
 
