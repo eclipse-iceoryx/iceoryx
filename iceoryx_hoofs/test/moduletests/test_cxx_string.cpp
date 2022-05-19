@@ -2561,6 +2561,32 @@ TYPED_TEST(stringTyped_test, AppendTooLargeStdStringResultsInTruncatedString)
     EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.substr(0, STRINGCAP)));
 }
 
+TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ed16b243-ddb3-46be-8bd8-2ed93fc7184d");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto RESULT_CAPACITY = STRINGCAP + 10U;
+    const std::string expectedString{"ice\0ryx", 7};
+
+    string<RESULT_CAPACITY> sut("i");
+    const string<RESULT_CAPACITY> testCxxString(TruncateToCapacity, expectedString.substr(1).c_str(), 6U);
+    const std::string testStdString = expectedString.substr(1);
+
+    // append iox::cxx::string
+    sut.append(TruncateToCapacity, testCxxString);
+    EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
+    EXPECT_THAT(sut.size(), Eq(7U));
+    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
+
+    // append std::string
+    sut = "i";
+    sut.append(TruncateToCapacity, testStdString);
+    EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
+    EXPECT_THAT(sut.size(), Eq(7U));
+    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
+}
+
 /// @note string& append(TruncateToCapacity_t, char c) noexcept
 TYPED_TEST(stringTyped_test, AppendNullCharWorks)
 {
