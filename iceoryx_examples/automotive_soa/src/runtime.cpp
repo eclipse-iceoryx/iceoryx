@@ -134,6 +134,11 @@ bool Runtime::verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::Proxy
 
 void Runtime::invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noexcept
 {
+    if (self == nullptr)
+    {
+        std::cerr << "Callback was invoked with Runtime* being a nullptr!" << std::endl;
+        return;
+    }
     // Has the availability of one of the registered services changed?
     //! [perform FindService]
     for (auto& callback : self->m_callbacks)
