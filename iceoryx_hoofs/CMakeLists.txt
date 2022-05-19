@@ -83,6 +83,7 @@ add_library(iceoryx_hoofs
     source/cli/option_manager.cpp
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
+    source/cxx/adaptive_wait.cpp
     source/cxx/deadline_timer.cpp
     source/cxx/filesystem.cpp
     source/cxx/generic_raii.cpp

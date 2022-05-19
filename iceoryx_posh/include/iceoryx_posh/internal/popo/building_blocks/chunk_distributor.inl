@@ -85,8 +85,8 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
         }
         else
         {
-            // that's not the fault of the chunk distributor user, we report a moderate error and indicate that adding
-            // the queue was not possible
+            // that's not the fault of the chunk distributor user, we report a moderate error and indicate that
+            // adding the queue was not possible
             errorHandler(PoshError::POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, ErrorLevel::MODERATE);
 
             return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW);
@@ -166,9 +166,10 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
     }
 
     // busy waiting until every queue is served
+    cxx::internal::adaptive_wait adaptiveWait;
     while (!remainingQueues.empty())
     {
-        std::this_thread::yield();
+        adaptiveWait.wait();
         {
             // create intersection of current queues and remainingQueues
             // reason: it is possible that since the last iteration some subscriber have already unsubscribed

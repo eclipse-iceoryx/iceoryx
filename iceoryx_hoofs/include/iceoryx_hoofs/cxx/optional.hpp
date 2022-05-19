@@ -72,13 +72,13 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     using type = T;
 
     /// @brief Creates an optional which has no value. If you access such an
-    ///         optional via .value() or the arrow operator the behavior is
-    ///         undefined.
+    ///         optional via .value() or the arrow operator the application
+    ///         terminates.
     optional() noexcept;
 
     /// @brief Creates an optional which has no value. If you access such an
-    ///         optional via .value() or the arrow operator the behavior is
-    ///         defined in the cxx::Expects handling.
+    ///         optional via .value() or the arrow operator the application
+    ///         terminates.
     optional(const nullopt_t&) noexcept;
 
     /// @brief Creates an optional by forwarding value to the constructor of
@@ -154,25 +154,25 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional>::type& operator=(U&& value) noexcept;
 
     /// @brief Returns a pointer to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return pointer of type const T to the underlying type
     const T* operator->() const noexcept;
 
     /// @brief Returns a reference to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return reference of type const T to the underlying type
     const T& operator*() const noexcept;
 
     /// @brief Returns a pointer to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return pointer of type T to the underlying type
     T* operator->() noexcept;
 
     /// @brief Returns a reference to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return reference of type T to the underlying type
     T& operator*() noexcept;
