@@ -81,12 +81,5 @@ iox_sem_t* UnnamedSemaphore::getHandle() noexcept
 {
     return &m_handle;
 }
-
-const iox_sem_t* UnnamedSemaphore::getHandle() const noexcept
-{
-    return &m_handle;
-}
-
-
 } // namespace posix
 } // namespace iox

@@ -19,39 +19,13 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 
 namespace iox
 {
 namespace posix
 {
-template <typename SemaphoreChild>
-class SemaphoreInterface
-{
-  public:
-    SemaphoreInterface(const SemaphoreInterface&) noexcept = delete;
-    SemaphoreInterface(SemaphoreInterface&&) noexcept = delete;
-    SemaphoreInterface& operator=(const SemaphoreInterface&) noexcept = delete;
-    SemaphoreInterface& operator=(SemaphoreInterface&&) noexcept = delete;
-    ~SemaphoreInterface() noexcept = default;
-
-    void post() noexcept;
-    cxx::expected<SemaphoreError> postUnsafe() noexcept;
-
-    uint32_t getValue() const noexcept;
-    cxx::expected<uint32_t, SemaphoreError> getValueUnsafe() const noexcept;
-
-    void timedWait() noexcept;
-    cxx::expected<SemaphoreError> timedWaitUnsafe() noexcept;
-
-    void tryWait() noexcept;
-    cxx::expected<SemaphoreError> tryWaitUnsafe() noexcept;
-
-  protected:
-    SemaphoreInterface() noexcept = default;
-};
-
-class UnnamedSemaphore : SemaphoreInterface<UnnamedSemaphore>
+class UnnamedSemaphore final : internal::SemaphoreInterface<UnnamedSemaphore>
 {
   public:
     UnnamedSemaphore(const UnnamedSemaphore&) noexcept = delete;
@@ -67,7 +41,6 @@ class UnnamedSemaphore : SemaphoreInterface<UnnamedSemaphore>
   private:
     UnnamedSemaphore() noexcept = default;
     iox_sem_t* getHandle() noexcept;
-    const iox_sem_t* getHandle() const noexcept;
 
     iox_sem_t m_handle;
     bool m_destroyHandle = true;
