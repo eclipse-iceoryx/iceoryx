@@ -118,6 +118,8 @@ if(USE_CYCLONE_DDS)
 
     add_custom_target(mempool_header ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Mempool.hpp)
 
+    add_dependencies(iceoryx_dds mempool_header)
+
     target_include_directories(iceoryx_dds PUBLIC
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
         $<INSTALL_INTERFACE:include/${PREFIX}>
