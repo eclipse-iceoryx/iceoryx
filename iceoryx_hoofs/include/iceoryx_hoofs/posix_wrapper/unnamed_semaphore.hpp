@@ -34,11 +34,11 @@ class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaph
     UnnamedSemaphore& operator=(UnnamedSemaphore&&) noexcept = delete;
     ~UnnamedSemaphore() noexcept;
 
+  private:
     friend class UnnamedSemaphoreBuilder;
     friend class iox::cxx::optional<UnnamedSemaphore>;
     friend class SemaphoreInterface<UnnamedSemaphore>;
 
-  private:
     UnnamedSemaphore() noexcept = default;
     iox_sem_t* getHandle() noexcept;
 

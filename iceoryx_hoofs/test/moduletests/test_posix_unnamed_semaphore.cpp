@@ -38,8 +38,19 @@ class UnnamedSemaphoreTest : public Test
     optional<UnnamedSemaphore> sut;
 };
 
-TEST_F(UnnamedSemaphoreTest, asd)
+TEST_F(UnnamedSemaphoreTest, DefaultInitialValueIsZero)
 {
+    ASSERT_FALSE(UnnamedSemaphoreBuilder().create(sut).has_error());
+    EXPECT_THAT(0U, sut->getState().expect("Failed to access semaphore").value);
+}
+
+TEST_F(UnnamedSemaphoreTest, InitialValueIsSetOnCreation)
+{
+    for (uint32_t initialValue = 313; initialValue < 10000; initialValue *= 3)
+    {
+        ASSERT_FALSE(UnnamedSemaphoreBuilder().initialValue(initialValue).create(sut).has_error());
+        EXPECT_THAT(initialValue, sut->getState().expect("Failed to access semaphore").value);
+    }
 }
 } // namespace
 
