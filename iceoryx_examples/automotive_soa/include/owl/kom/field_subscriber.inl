@@ -31,7 +31,7 @@ inline FieldSubscriber<T>::FieldSubscriber(const core::String& service,
     , m_client({service, instance, event})
 {
     m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
-        std::cerr << "failed to attach client" << std::endl;
+        std::cerr << "Failed to attach client!" << std::endl;
         std::exit(EXIT_FAILURE);
     });
 }
@@ -53,6 +53,8 @@ template <typename Callable>
 inline core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
     core::Result<size_t> numberOfSamples{0};
+
+    // Hint: Depending on the type of callable, it needs to be checked for null or restricting to lambdas
 
     while (m_subscriber.take()
                .and_then([&](const auto& sample) {

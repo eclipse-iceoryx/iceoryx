@@ -41,7 +41,7 @@ inline FieldPublisher<T>::FieldPublisher(const core::String& service,
                      iox::popo::ServerEvent::REQUEST_RECEIVED,
                      iox::popo::createNotificationCallback(onRequestReceived, *this))
         .or_else([](auto) {
-            std::cerr << "unable to attach server" << std::endl;
+            std::cerr << "Unable to attach server!" << std::endl;
             std::exit(EXIT_FAILURE);
         });
     //! [FieldPublisher attach]
@@ -97,9 +97,9 @@ inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::opt
                 }
                 *response = self->m_latestValue;
                 response.send().or_else(
-                    [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
+                    [&](auto& error) { std::cerr << "Could not send response! Error: " << error << std::endl; });
             })
-            .or_else([](auto& error) { std::cerr << "Could not allocate Response! Error: " << error << std::endl; });
+            .or_else([](auto& error) { std::cerr << "Could not allocate response! Error: " << error << std::endl; });
     }))
     {
     }

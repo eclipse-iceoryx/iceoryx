@@ -52,9 +52,9 @@ template <typename Callable>
 inline core::Result<size_t>
 EventSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
-    IOX_DISCARD_RESULT(maxNumberOfSamples);
-
     core::Result<size_t> numberOfSamples{0};
+
+    // Hint: Depending on the type of callable, it needs to be checked for null or restricting to lambdas
 
     while (m_subscriber.take()
                .and_then([&](const auto& sample) {
@@ -66,7 +66,8 @@ EventSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples
                    {
                        std::cerr << "Error receiving chunk!" << std::endl;
                    }
-               }))
+               })
+           && numberOfSamples < maxNumberOfSamples)
     {
     }
     return numberOfSamples;
@@ -76,15 +77,20 @@ EventSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples
 template <typename T>
 inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) noexcept
 {
-    std::lock_guard<iox::posix::mutex> guard(m_mutex);
+    if (!handler)
+    {
+        std::cerr << "Can't attach empty receive handler!" << std::endl;
+        return;
+    }
     m_listener
         .attachEvent(m_subscriber,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
                      iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
         .or_else([](auto) {
-            std::cerr << "unable to attach subscriber" << std::endl;
+            std::cerr << "Unable to attach subscriber!" << std::endl;
             std::exit(EXIT_FAILURE);
         });
+    std::lock_guard<iox::posix::mutex> guard(m_mutex);
     m_receiveHandler.emplace(handler);
 }
 //! [EventSubscriber setReceiveHandler]
@@ -92,8 +98,8 @@ inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) n
 template <typename T>
 inline void EventSubscriber<T>::UnsetReceiveHandler() noexcept
 {
-    std::lock_guard<iox::posix::mutex> guard(m_mutex);
     m_listener.detachEvent(m_subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED);
+    std::lock_guard<iox::posix::mutex> guard(m_mutex);
     m_receiveHandler.reset();
 }
 
@@ -101,7 +107,7 @@ template <typename T>
 inline bool EventSubscriber<T>::HasReceiveHandler() noexcept
 {
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
-    return m_receiveHandler.has_value();
+    return m_receiveHandler.has_value() && m_receiveHandler.value();
 }
 
 //! [EventSubscriber invoke callback]
@@ -110,7 +116,14 @@ inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T
                                                                                  EventSubscriber* self) noexcept
 {
     std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
-    self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
+    self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) {
+        if (!userCallable)
+        {
+            std::cerr << "Tried to call an empty receive handler!" << std::endl;
+            return;
+        }
+        userCallable();
+    });
 }
 //! [EventSubscriber invoke callback]
 

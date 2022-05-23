@@ -82,7 +82,7 @@ kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::Pr
         auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
         m_listener.attachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
             .or_else([](auto) {
-                std::cerr << "unable to attach discovery" << std::endl;
+                std::cerr << "Unable to attach discovery!" << std::endl;
                 std::exit(EXIT_FAILURE);
             });
     }

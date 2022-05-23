@@ -26,7 +26,7 @@ MethodClient::MethodClient(const core::String& service,
     : m_client({service, instance, event})
 {
     m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
-        std::cerr << "failed to attach client" << std::endl;
+        std::cerr << "Failed to attach client!" << std::endl;
         std::exit(EXIT_FAILURE);
     });
 }
@@ -54,11 +54,11 @@ Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
             request->addend1 = addend1;
             request->addend2 = addend2;
             request.send().and_then([&]() { requestSuccessfullySent = true; }).or_else([](auto& error) {
-                std::cerr << "Could not send Request! Error: " << error << std::endl;
+                std::cerr << "Could not send request! Error: " << error << std::endl;
             });
         })
         .or_else([&](auto& error) {
-            std::cerr << "Could not allocate Request! Error: " << error << std::endl;
+            std::cerr << "Could not allocate request! Error: " << error << std::endl;
             requestSuccessfullySent = false;
         });
 

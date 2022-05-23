@@ -354,7 +354,7 @@ if (m_callbacks.size() == 1)
     auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
     m_listener.attachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
         .or_else([](auto) {
-            std::cerr << "unable to attach discovery" << std::endl;
+            std::cerr << "Unable to attach discovery!" << std::endl;
             std::exit(EXIT_FAILURE);
         });
 }
@@ -466,7 +466,9 @@ A `FieldPublisher` contains four members.
 iox::popo::Publisher<FieldType> m_publisher;
 iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
 iox::popo::Listener m_listener;
-T m_latestValue;
+// latestValue is written concurrently by Listener and needs exclusive write access, alternatively a
+// concurrent::smart_lock could be used
+std::atomic<T> m_latestValue;
 ```
 
 The `Publisher` is used for event-like communication. The `Server` for enabling the user to set
@@ -479,7 +481,9 @@ value again.
 iox::popo::Publisher<FieldType> m_publisher;
 iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
 iox::popo::Listener m_listener;
-T m_latestValue;
+// latestValue is written concurrently by Listener and needs exclusive write access, alternatively a
+// concurrent::smart_lock could be used
+std::atomic<T> m_latestValue;
 ```
 
 `Update()` is very similar to `Send()` in the `EventPublisher`. The `Server` needs to be attached
@@ -492,7 +496,7 @@ m_listener
                  iox::popo::ServerEvent::REQUEST_RECEIVED,
                  iox::popo::createNotificationCallback(onRequestReceived, *this))
     .or_else([](auto) {
-        std::cerr << "unable to attach server" << std::endl;
+        std::cerr << "Unable to attach server!" << std::endl;
         std::exit(EXIT_FAILURE);
     });
 ```
@@ -515,9 +519,9 @@ inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::opt
                 }
                 *response = self->m_latestValue;
                 response.send().or_else(
-                    [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
+                    [&](auto& error) { std::cerr << "Could not send response! Error: " << error << std::endl; });
             })
-            .or_else([](auto& error) { std::cerr << "Could not allocate Response! Error: " << error << std::endl; });
+            .or_else([](auto& error) { std::cerr << "Could not allocate response! Error: " << error << std::endl; });
     }))
     {
     }
@@ -572,17 +576,22 @@ This time, the `Listener` executes the callback which was stored with
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber setReceiveHandler] -->
 ```cpp
 template <typename T>
-inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) noexcept
+inline void EventSubscriber<T, EventTransmission::IOX>::SetReceiveHandler(EventReceiveHandler handler) noexcept
 {
-    std::lock_guard<iox::posix::mutex> guard(m_mutex);
+    if (!handler)
+    {
+        std::cerr << "Can't attach empty receive handler!" << std::endl;
+        return;
+    }
     m_listener
         .attachEvent(m_subscriber,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
                      iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
         .or_else([](auto) {
-            std::cerr << "unable to attach subscriber" << std::endl;
+            std::cerr << "Unable to attach subscriber!" << std::endl;
             std::exit(EXIT_FAILURE);
         });
+    std::lock_guard<iox::posix::mutex> guard(m_mutex);
     m_receiveHandler.emplace(handler);
 }
 ```
@@ -592,7 +601,8 @@ and once invoked the callback gets executed
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber invoke callback] -->
 ```cpp
 template <typename T>
-inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept
+inline void EventSubscriber<T, EventTransmission::IOX>::onSampleReceivedCallback(iox::popo::Subscriber<T>*,
+                                                                                 EventSubscriber* self) noexcept
 {
     std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
     self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
@@ -616,6 +626,7 @@ std::atomic<int64_t> m_sequenceId{0};
 iox::popo::WaitSet<> m_waitset;
 static constexpr bool IS_RECURSIVE{true};
 iox::posix::mutex m_mutex{IS_RECURSIVE};
+std::atomic<uint32_t> m_threadsRunning{0};
 ```
 
 The `Get()` method allows the receive the value from a `FieldPublisher`
@@ -662,6 +673,11 @@ std::lock_guard<iox::posix::mutex> guard(m_mutex);
 
 auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
+if (notificationVector.empty())
+{
+    std::cerr << "WaitSet ran into timeout when trying to receive response!" << std::endl;
+}
+
 for (auto& notification : notificationVector)
 {
     if (notification->doesOriginateFrom(&m_client))
@@ -685,6 +701,7 @@ for (auto& notification : notificationVector)
         }
     }
 }
+m_threadsRunning--;
 ```
 
 Here, the expected sequence identifier is compared with the received one. In the end, the response
@@ -703,6 +720,7 @@ std::atomic<int64_t> m_sequenceId{0};
 iox::popo::WaitSet<> m_waitset;
 static constexpr bool IS_RECURSIVE{true};
 iox::posix::mutex m_mutex{IS_RECURSIVE};
+std::atomic<uint32_t> m_threadsRunning{0};
 ```
 
 Receiving the result of the addition of the two numbers is similar to receiving the value in the
@@ -722,11 +740,11 @@ Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
             request->addend1 = addend1;
             request->addend2 = addend2;
             request.send().and_then([&]() { requestSuccessfullySent = true; }).or_else([](auto& error) {
-                std::cerr << "Could not send Request! Error: " << error << std::endl;
+                std::cerr << "Could not send request! Error: " << error << std::endl;
             });
         })
         .or_else([&](auto& error) {
-            std::cerr << "Could not allocate Request! Error: " << error << std::endl;
+            std::cerr << "Could not allocate request! Error: " << error << std::endl;
             requestSuccessfullySent = false;
         });
 
