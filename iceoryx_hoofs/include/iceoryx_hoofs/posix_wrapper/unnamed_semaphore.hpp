@@ -25,7 +25,7 @@ namespace iox
 {
 namespace posix
 {
-class UnnamedSemaphore final : internal::SemaphoreInterface<UnnamedSemaphore>
+class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaphore>
 {
   public:
     UnnamedSemaphore(const UnnamedSemaphore&) noexcept = delete;

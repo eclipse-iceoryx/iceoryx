@@ -42,17 +42,11 @@ class SemaphoreInterface
     SemaphoreInterface& operator=(SemaphoreInterface&&) noexcept = delete;
     ~SemaphoreInterface() noexcept = default;
 
-    void post() noexcept;
-    cxx::expected<SemaphoreError> postUnsafe() noexcept;
-
-    SemaphoreState getState() noexcept;
-    cxx::expected<SemaphoreState, SemaphoreError> getStateUnsafe() noexcept;
-
-    SemaphoreWaitState timedWait(const units::Duration& timeout) noexcept;
-    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWaitUnsafe(const units::Duration& timeout) noexcept;
-
-    bool tryWait() noexcept;
-    cxx::expected<bool, SemaphoreError> tryWaitUnsafe() noexcept;
+    cxx::expected<SemaphoreError> post() noexcept;
+    cxx::expected<SemaphoreState, SemaphoreError> getState() noexcept;
+    cxx::expected<SemaphoreError> wait() noexcept;
+    cxx::expected<bool, SemaphoreError> tryWait() noexcept;
+    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration& timeout) noexcept;
 
   protected:
     SemaphoreInterface() noexcept = default;

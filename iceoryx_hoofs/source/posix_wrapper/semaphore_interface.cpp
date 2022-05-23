@@ -33,13 +33,7 @@ iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
 }
 
 template <typename SemaphoreChild>
-void SemaphoreInterface<SemaphoreChild>::post() noexcept
-{
-    postUnsafe().expect("Fatal semaphore failure occurred.");
-}
-
-template <typename SemaphoreChild>
-cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::postUnsafe() noexcept
+cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
 {
     auto result = posixCall(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
 
@@ -64,13 +58,7 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::postUnsafe() n
 }
 
 template <typename SemaphoreChild>
-SemaphoreState SemaphoreInterface<SemaphoreChild>::getState() noexcept
-{
-    return getStateUnsafe().expect("Fatal semaphore failure occurred.");
-}
-
-template <typename SemaphoreChild>
-cxx::expected<SemaphoreState, SemaphoreError> SemaphoreInterface<SemaphoreChild>::getStateUnsafe() noexcept
+cxx::expected<SemaphoreState, SemaphoreError> SemaphoreInterface<SemaphoreChild>::getState() noexcept
 {
     int value = 0;
     auto result = posixCall(iox_sem_getvalue)(getHandle(), &value).failureReturnValue(-1).evaluate();
@@ -96,14 +84,8 @@ cxx::expected<SemaphoreState, SemaphoreError> SemaphoreInterface<SemaphoreChild>
 }
 
 template <typename SemaphoreChild>
-SemaphoreWaitState SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) noexcept
-{
-    return timedWaitUnsafe(timeout).expect("Fatal semaphore failure occurred.");
-}
-
-template <typename SemaphoreChild>
 cxx::expected<SemaphoreWaitState, SemaphoreError>
-SemaphoreInterface<SemaphoreChild>::timedWaitUnsafe(const units::Duration& timeout) noexcept
+SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) noexcept
 {
     const timespec timeoutAsTimespec = timeout.timespec(units::TimeSpecReference::Epoch);
     auto result = posixCall(iox_sem_timedwait)(getHandle(), &timeoutAsTimespec)
@@ -115,8 +97,6 @@ SemaphoreInterface<SemaphoreChild>::timedWaitUnsafe(const units::Duration& timeo
     {
         switch (result.get_error().errnum)
         {
-        case ETIMEDOUT:
-            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
         case EINVAL:
             LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
             return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
@@ -130,17 +110,12 @@ SemaphoreInterface<SemaphoreChild>::timedWaitUnsafe(const units::Duration& timeo
         return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
     }
 
-    return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
+    return cxx::success<SemaphoreWaitState>((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT
+                                                                                 : SemaphoreWaitState::NO_TIMEOUT);
 }
 
 template <typename SemaphoreChild>
-bool SemaphoreInterface<SemaphoreChild>::tryWait() noexcept
-{
-    return tryWaitUnsafe().expect("Fatal semaphore failure occurred.");
-}
-
-template <typename SemaphoreChild>
-cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWaitUnsafe() noexcept
+cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noexcept
 {
     auto result = posixCall(iox_sem_trywait)(getHandle()).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
@@ -148,8 +123,6 @@ cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWaitU
     {
         switch (result.get_error().errnum)
         {
-        case EAGAIN:
-            return cxx::success<bool>(false);
         case EINVAL:
             LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
             return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
@@ -163,8 +136,34 @@ cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWaitU
         return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
     }
 
-    return cxx::success<bool>(true);
+    return cxx::success<bool>(result.value().errnum != EAGAIN);
 }
+
+template <typename SemaphoreChild>
+cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
+{
+    auto result = posixCall(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
+
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EINVAL:
+            LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
+            return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
+        case EINTR:
+            LogError() << "The sem_wait was interrupted multiple times by the operating system. Abort operation!";
+            return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
+        default:
+            LogError() << "This should never happen. An unknown error occurred.";
+            break;
+        }
+        return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+    }
+
+    return cxx::success<>();
+}
+
 
 template class SemaphoreInterface<UnnamedSemaphore>;
 } // namespace internal
