@@ -295,7 +295,10 @@ TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedUntilTriggeredAn
     auto start = std::chrono::steady_clock::now();
     counter = 2;
 
-    auto result = this->sut->timedWait(iox::units::Duration::max());
+    /// As time units::Duration::max() would be a better fit but this causes an overflow
+    /// in the internal MacOS semaphore platform implementation. This is a good compromise
+    /// for a long wait time which will be interrupted by sut->post in thread t1
+    auto result = this->sut->timedWait(this->TIMING_TEST_WAIT_TIME * 100);
     auto end = std::chrono::steady_clock::now();
 
     ASSERT_FALSE(result.has_error());
