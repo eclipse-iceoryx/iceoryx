@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
@@ -35,19 +36,14 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              RoudiStartupParameters roudiStartupParameters) noexcept
     : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
-    , m_runMonitoringAndDiscoveryThread(true)
     , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(concurrent::ForwardArgsToCTor,
-               *m_roudiMemoryInterface,
-               portManager,
-               roudiStartupParameters.m_compatibilityCheckLevel)
-    , m_mempoolIntrospection(
-          *m_roudiMemoryInterface->introspectionMemoryManager()
-               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
-          *m_roudiMemoryInterface->segmentManager().value(),
-          PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService)))
+    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
+    , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
+                                  .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+                             *m_roudiMemoryInterface->segmentManager().value(),
+                             PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
@@ -56,8 +52,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
         LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
     }
     m_processIntrospection.registerPublisherPort(
-        PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionProcessService)));
-    m_prcMgr->initIntrospection(&m_processIntrospection);
+        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService)));
+    m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.run();
 
@@ -65,8 +61,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
+    //    m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
+    //    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -90,24 +86,58 @@ void RouDi::shutdown() noexcept
     m_processIntrospection.stop();
     m_portManager->stopPortIntrospection();
 
-    // stop the process management thread in order to prevent application to register while shutting down
-    m_runMonitoringAndDiscoveryThread = false;
-    if (m_monitoringAndDiscoveryThread.joinable())
+    // Postpone the IpcChannelThread in order to receive TERMINATION
+    m_runHandleRuntimeMessageThread = false;
+
+    if (m_handleRuntimeMessageThread.joinable())
     {
-        LogDebug() << "Joining 'Mon+Discover' thread...";
-        m_monitoringAndDiscoveryThread.join();
-        LogDebug() << "...'Mon+Discover' thread joined.";
+        LogDebug() << "Joining 'IPC-msg-process' thread...";
+        m_handleRuntimeMessageThread.join();
+        LogDebug() << "...'IPC-msg-process' thread joined.";
+    }
+}
+
+void RouDi::processRuntimeMessages() noexcept
+{
+    runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
+
+    // the logger is intentionally not used, to ensure that this message is always printed
+    std::cout << "RouDi is ready for clients" << std::endl;
+
+    cxx::DeadlineTimer discoveryTimer(DISCOVERY_INTERVAL);
+    while (m_runHandleRuntimeMessageThread)
+    {
+        LogVerbose() << "discovery / process manager loop iteration";
+        // read RouDi's IPC channel
+        runtime::IpcMessage message;
+        while (!discoveryTimer.hasExpired() && roudiIpcInterface.timedReceive(discoveryTimer.remainingTime(), message))
+        {
+            auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
+            std::string runtimeName = message.getElementAtIndex(1);
+
+            processMessage(message, cmd, RuntimeName_t(cxx::TruncateToCapacity, runtimeName));
+        }
+
+        if (discoveryTimer.hasExpired())
+        {
+            if (m_monitoringMode == MonitoringMode::ON)
+            {
+                m_prcMgr.monitorProcesses();
+            }
+            m_prcMgr.discoveryUpdate();
+            discoveryTimer.reset(DISCOVERY_INTERVAL);
+        }
     }
 
     if (m_killProcessesInDestructor)
     {
         cxx::DeadlineTimer finalKillTimer(m_processKillDelay);
 
-        m_prcMgr->requestShutdownOfAllProcesses();
+        m_prcMgr.requestShutdownOfAllProcesses();
 
         using namespace units::duration_literals;
         auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
-        while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
+        while (m_prcMgr.isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
         {
             if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
             {
@@ -120,63 +150,15 @@ void RouDi::shutdown() noexcept
         }
 
         // Is any processes still alive?
-        if (m_prcMgr->isAnyRegisteredProcessStillRunning() && finalKillTimer.hasExpired())
+        if (m_prcMgr.isAnyRegisteredProcessStillRunning() && finalKillTimer.hasExpired())
         {
             // Time to kill them
-            m_prcMgr->killAllProcesses();
+            m_prcMgr.killAllProcesses();
         }
 
-        if (m_prcMgr->isAnyRegisteredProcessStillRunning())
+        if (m_prcMgr.isAnyRegisteredProcessStillRunning())
         {
-            m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
-        }
-    }
-
-    // Postpone the IpcChannelThread in order to receive TERMINATION
-    m_runHandleRuntimeMessageThread = false;
-
-    if (m_handleRuntimeMessageThread.joinable())
-    {
-        LogDebug() << "Joining 'IPC-msg-process' thread...";
-        m_handleRuntimeMessageThread.join();
-        LogDebug() << "...'IPC-msg-process' thread joined.";
-    }
-}
-
-void RouDi::cyclicUpdateHook() noexcept
-{
-    // default implementation; do nothing
-}
-
-void RouDi::monitorAndDiscoveryUpdate() noexcept
-{
-    while (m_runMonitoringAndDiscoveryThread)
-    {
-        m_prcMgr->run();
-
-        cyclicUpdateHook();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.toMilliseconds()));
-    }
-}
-
-void RouDi::processRuntimeMessages() noexcept
-{
-    runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
-
-    // the logger is intentionally not used, to ensure that this message is always printed
-    std::cout << "RouDi is ready for clients" << std::endl;
-
-    while (m_runHandleRuntimeMessageThread)
-    {
-        // read RouDi's IPC channel
-        runtime::IpcMessage message;
-        if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
-        {
-            auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
-            std::string runtimeName = message.getElementAtIndex(1);
-
-            processMessage(message, cmd, RuntimeName_t(cxx::TruncateToCapacity, runtimeName));
+            m_prcMgr.printWarningForRegisteredProcessesAndClearProcessList();
         }
     }
 }
@@ -253,7 +235,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
-            m_prcMgr->addPublisherForProcess(
+            m_prcMgr.addPublisherForProcess(
                 runtimeName, service, publisherOptions, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -290,7 +272,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
-            m_prcMgr->addSubscriberForProcess(
+            m_prcMgr.addSubscriberForProcess(
                 runtimeName, service, subscriberOptions, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -327,7 +309,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             runtime::PortConfigInfo portConfigInfo{cxx::Serialization(message.getElementAtIndex(4))};
 
-            m_prcMgr->addClientForProcess(runtimeName, service, clientOptions, portConfigInfo);
+            m_prcMgr.addClientForProcess(runtimeName, service, clientOptions, portConfigInfo);
         }
         break;
     }
@@ -363,7 +345,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             runtime::PortConfigInfo portConfigInfo{cxx::Serialization(message.getElementAtIndex(4))};
 
-            m_prcMgr->addServerForProcess(runtimeName, service, serverOptions, portConfigInfo);
+            m_prcMgr.addServerForProcess(runtimeName, service, serverOptions, portConfigInfo);
         }
         break;
     }
@@ -376,7 +358,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            m_prcMgr->addConditionVariableForProcess(runtimeName);
+            m_prcMgr.addConditionVariableForProcess(runtimeName);
         }
         break;
     }
@@ -392,7 +374,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             capro::Interfaces interface =
                 StringToCaProInterface(capro::IdString_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
-            m_prcMgr->addInterfaceForProcess(
+            m_prcMgr.addInterfaceForProcess(
                 runtimeName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
         }
         break;
@@ -407,13 +389,13 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             runtime::NodeProperty nodeProperty(cxx::Serialization(message.getElementAtIndex(2)));
-            m_prcMgr->addNodeForProcess(runtimeName, nodeProperty.m_name);
+            m_prcMgr.addNodeForProcess(runtimeName, nodeProperty.m_name);
         }
         break;
     }
     case runtime::IpcMessageType::KEEPALIVE:
     {
-        m_prcMgr->updateLivelinessOfProcess(runtimeName);
+        m_prcMgr.updateLivelinessOfProcess(runtimeName);
         break;
     }
     case runtime::IpcMessageType::PREPARE_APP_TERMINATION:
@@ -426,7 +408,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             // this is used to unblock a potentially block application by blocking publisher
-            m_prcMgr->handleProcessShutdownPreparationRequest(runtimeName);
+            m_prcMgr.handleProcessShutdownPreparationRequest(runtimeName);
         }
         break;
     }
@@ -439,7 +421,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            IOX_DISCARD_RESULT(m_prcMgr->unregisterProcess(runtimeName));
+            IOX_DISCARD_RESULT(m_prcMgr.unregisterProcess(runtimeName));
         }
         break;
     }
@@ -447,7 +429,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         LogError() << "Unknown IPC message command [" << runtime::IpcMessageTypeToString(cmd) << "]";
 
-        m_prcMgr->sendMessageNotSupportedToRuntime(runtimeName);
+        m_prcMgr.sendMessageNotSupportedToRuntime(runtimeName);
         break;
     }
     }
@@ -460,9 +442,7 @@ void RouDi::registerProcess(const RuntimeName_t& name,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo) noexcept
 {
-    bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
-    IOX_DISCARD_RESULT(
-        m_prcMgr->registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo));
+    IOX_DISCARD_RESULT(m_prcMgr.registerProcess(name, pid, user, transmissionTimestamp, sessionId, versionInfo));
 }
 
 uint64_t RouDi::getUniqueSessionIdForProcess() noexcept

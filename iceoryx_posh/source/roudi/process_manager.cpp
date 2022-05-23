@@ -192,7 +192,6 @@ void ProcessManager::evaluateKillError(const Process& process,
 bool ProcessManager::registerProcess(const RuntimeName_t& name,
                                      const uint32_t pid,
                                      const posix::PosixUser user,
-                                     const bool isMonitored,
                                      const int64_t transmissionTimestamp,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
@@ -200,16 +199,11 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
     bool returnValue{false};
 
     findProcess(name)
-        .and_then([&](auto& process) {
+        .and_then([&](auto&) {
             // process is already in list (i.e. registered)
             // depending on the mode we clean up the process resources and register it again
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
-
-            if (process->isMonitored())
-            {
-                LogWarn() << "Received register request, but termination of " << name << " not detected yet";
-            }
 
             // process exists, we expect that the existing process crashed
             LogWarn() << "Application " << name << " crashed. Re-registering application";
@@ -224,13 +218,12 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             else
             {
                 // try registration again, should succeed since removal was successful
-                returnValue =
-                    this->addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
+                returnValue = this->addProcess(name, pid, user, transmissionTimestamp, sessionId, versionInfo);
             }
         })
         .or_else([&]() {
             // process does not exist in list and can be added
-            returnValue = this->addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
+            returnValue = this->addProcess(name, pid, user, transmissionTimestamp, sessionId, versionInfo);
         });
 
     return returnValue;
@@ -239,7 +232,6 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
                                 const posix::PosixUser& user,
-                                const bool isMonitored,
                                 const int64_t transmissionTimestamp,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
@@ -259,7 +251,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-    m_processList.emplace_back(name, pid, user, isMonitored, sessionId);
+    m_processList.emplace_back(name, pid, user, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
@@ -662,12 +654,6 @@ void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospe
     m_processIntrospection = processIntrospection;
 }
 
-void ProcessManager::run() noexcept
-{
-    monitorProcesses();
-    discoveryUpdate();
-}
-
 popo::PublisherPortData*
 ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service) noexcept
 {
@@ -697,31 +683,28 @@ void ProcessManager::monitorProcesses() noexcept
     auto processIterator = m_processList.begin();
     while (processIterator != m_processList.end())
     {
-        if (processIterator->isMonitored())
+        auto timediff = units::Duration(currentTimestamp - processIterator->getTimestamp());
+
+        static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
+                      "keep alive timeout too small");
+        if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
         {
-            auto timediff = units::Duration(currentTimestamp - processIterator->getTimestamp());
+            LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
+                      << timediff.toMilliseconds() << " milliseconds ago) --> removing it";
 
-            static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
-                          "keep alive timeout too small");
-            if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
-            {
-                LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
-                          << timediff.toMilliseconds() << " milliseconds ago) --> removing it";
+            // note: if we would want to use the removeProcess function, it would search for the process again
+            // (but we already found it and have an iterator to remove it)
 
-                // note: if we would want to use the removeProcess function, it would search for the process again
-                // (but we already found it and have an iterator to remove it)
+            // delete all associated subscriber and publisher ports in shared
+            // memory and the associated RouDi discovery ports
+            // @todo Check if ShmManager and Process Manager end up in unintended condition
+            m_portManager.deletePortsOfProcess(processIterator->getName());
 
-                // delete all associated subscriber and publisher ports in shared
-                // memory and the associated RouDi discovery ports
-                // @todo Check if ShmManager and Process Manager end up in unintended condition
-                m_portManager.deletePortsOfProcess(processIterator->getName());
+            m_processIntrospection->removeProcess(static_cast<int32_t>(processIterator->getPid()));
 
-                m_processIntrospection->removeProcess(static_cast<int32_t>(processIterator->getPid()));
-
-                // delete application
-                processIterator = m_processList.erase(processIterator);
-                continue; // erase returns first element after the removed one --> skip iterator increment
-            }
+            // delete application
+            processIterator = m_processList.erase(processIterator);
+            continue; // erase returns first element after the removed one --> skip iterator increment
         }
         ++processIterator;
     }

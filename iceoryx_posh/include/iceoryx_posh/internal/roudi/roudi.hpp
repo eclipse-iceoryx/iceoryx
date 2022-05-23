@@ -98,7 +98,6 @@ class RouDi
     virtual void processMessage(const runtime::IpcMessage& message,
                                 const iox::runtime::IpcMessageType& cmd,
                                 const RuntimeName_t& runtimeName) noexcept;
-    virtual void cyclicUpdateHook() noexcept;
     void IpcMessageErrorHandler() noexcept;
 
     version::VersionInfo parseRegisterMessage(const runtime::IpcMessage& message,
@@ -127,14 +126,9 @@ class RouDi
   private:
     void processRuntimeMessages() noexcept;
 
-    void monitorAndDiscoveryUpdate() noexcept;
-
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
-    std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
-
-    const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
@@ -149,10 +143,10 @@ class RouDi
                                                      };
                                                  }};
     PortManager* m_portManager{nullptr};
-    concurrent::smart_lock<ProcessManager> m_prcMgr;
+    // concurrent::smart_lock<ProcessManager> m_prcMgr;
+    ProcessManager m_prcMgr;
 
   private:
-    std::thread m_monitoringAndDiscoveryThread;
     std::thread m_handleRuntimeMessageThread;
 
   protected:

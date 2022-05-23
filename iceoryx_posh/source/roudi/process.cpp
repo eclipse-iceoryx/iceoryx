@@ -28,13 +28,11 @@ namespace roudi
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
                  const posix::PosixUser& user,
-                 const bool isMonitored,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
     , m_ipcChannel(name)
     , m_timestamp(mepoo::BaseClock_t::now())
     , m_user(user)
-    , m_isMonitored(isMonitored)
     , m_sessionId(sessionId)
 {
 }
@@ -77,11 +75,6 @@ mepoo::TimePointNs_t Process::getTimestamp() noexcept
 posix::PosixUser Process::getUser() const noexcept
 {
     return m_user;
-}
-
-bool Process::isMonitored() const noexcept
-{
-    return m_isMonitored;
 }
 
 } // namespace roudi
