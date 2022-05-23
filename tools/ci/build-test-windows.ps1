@@ -19,7 +19,7 @@
 $ErrorActionPreference = "Stop"
 
 if ($?) { Write-Host "building sources" }
-if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" }
+if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION=10.0.18362.0 }
 
 if ($?) { cmake --build build }
 
