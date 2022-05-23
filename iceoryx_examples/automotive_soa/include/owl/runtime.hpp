@@ -42,6 +42,11 @@ class Runtime
     static Runtime& GetInstance(const core::String& name) noexcept;
     static Runtime& GetInstance() noexcept;
 
+    Runtime(const Runtime&) = delete;
+    Runtime(Runtime&&) = delete;
+    Runtime& operator=(const Runtime&) = delete;
+    Runtime& operator=(Runtime&&) = delete;
+
     /// @brief Performs sychronous search for specific instance of a service
     /// @param[in] serviceIdentifier string of service to search for
     /// @param[in] instanceIdentifier string of instance to search for
@@ -55,6 +60,7 @@ class Runtime
     /// @param[in] serviceIdentifier string of service to search for
     /// @param[in] instanceIdentifier string of instance to search for
     /// @return Handle which can be used to stop an ongoing search
+    /// @note ABA problem might occur: Available service which becomes unavailable during search and hence is not found
     kom::FindServiceHandle StartFindService(kom::FindServiceHandler<kom::ProxyHandleType> handler,
                                             kom::ServiceIdentifier& serviceIdentifier,
                                             kom::InstanceIdentifier& instanceIdentifier) noexcept;

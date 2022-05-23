@@ -135,7 +135,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
     // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
     std::thread(
         [&](Promise<FieldType>&& promise) {
-            // Avoid race if MethodClient d'tor is called while this thread is still running
+            // Avoid race if FieldSubscriber d'tor is called while this thread is still running
             //! [FieldSubscriber receive response]
             std::lock_guard<iox::posix::mutex> guard(m_mutex);
 

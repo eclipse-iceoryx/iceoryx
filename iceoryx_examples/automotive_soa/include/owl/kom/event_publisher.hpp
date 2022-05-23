@@ -21,8 +21,6 @@
 
 #include "owl/types.hpp"
 
-class MinimalSkeleton;
-
 namespace owl
 {
 namespace kom
