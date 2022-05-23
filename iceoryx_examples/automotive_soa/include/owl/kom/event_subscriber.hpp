@@ -27,6 +27,10 @@ namespace owl
 {
 namespace kom
 {
+/// @note Once a receive handler has been set, calling the following methods not be thread-safe:
+///           - Subscribe()
+///           - Unsubscribe()
+///           - GetNewSamples()
 template <typename T>
 class EventSubscriber
 {

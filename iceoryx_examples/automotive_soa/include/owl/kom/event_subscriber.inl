@@ -86,10 +86,7 @@ inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) n
         .attachEvent(m_subscriber,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
                      iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
-        .or_else([](auto) {
-            std::cerr << "Unable to attach subscriber!" << std::endl;
-            std::exit(EXIT_FAILURE);
-        });
+        .expect("Unable to attach subscriber!");
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
     m_receiveHandler.emplace(handler);
 }

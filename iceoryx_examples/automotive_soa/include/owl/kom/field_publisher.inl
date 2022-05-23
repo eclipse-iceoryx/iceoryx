@@ -40,10 +40,7 @@ inline FieldPublisher<T>::FieldPublisher(const core::String& service,
         .attachEvent(m_server,
                      iox::popo::ServerEvent::REQUEST_RECEIVED,
                      iox::popo::createNotificationCallback(onRequestReceived, *this))
-        .or_else([](auto) {
-            std::cerr << "Unable to attach server!" << std::endl;
-            std::exit(EXIT_FAILURE);
-        });
+        .expect("Unable to attach server!");
     //! [FieldPublisher attach]
 }
 

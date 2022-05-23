@@ -30,10 +30,7 @@ inline FieldSubscriber<T>::FieldSubscriber(const core::String& service,
     : m_subscriber({service, instance, event}, {QUEUE_CAPACITY, HISTORY_REQUEST})
     , m_client({service, instance, event})
 {
-    m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
-        std::cerr << "Failed to attach client!" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).expect("Failed to attach client!");
 }
 
 template <typename T>

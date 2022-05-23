@@ -25,10 +25,7 @@ MethodClient::MethodClient(const core::String& service,
                            const core::String& event) noexcept
     : m_client({service, instance, event})
 {
-    m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
-        std::cerr << "Failed to attach client!" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).expect("Failed to attach client!");
 }
 
 MethodClient::~MethodClient() noexcept
