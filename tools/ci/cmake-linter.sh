@@ -24,7 +24,7 @@ performCmakeLinting()
     NUMBER_OF_FILES=$(find $ICEORYX_ROOT_PATH -type f -name "CMakeLists.txt" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | grep -v ${ICEORYX_ROOT_PATH}/.git | wc -l)
 
     CURRENT_FILE=0
-    for FILE in $(find $ICEORYX_ROOT_PATH -type f -iname "CMakeLists.txt" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | grep -v ${ICEORYX_ROOT_PATH}/.git | grep -v ${ICEORYX_ROOT_PATH}/doc)
+    for FILE in $(find $ICEORYX_ROOT_PATH -type f -iname "CMakeLists.txt" | grep -v ${ICEORYX_ROOT_PATH}/build | grep -v ${ICEORYX_ROOT_PATH}/.github | grep -v ${ICEORYX_ROOT_PATH}/.git)
     do
         let CURRENT_FILE=$CURRENT_FILE+1
         echo -e "[$CURRENT_FILE/$NUMBER_OF_FILES] $FILE"

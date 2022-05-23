@@ -37,8 +37,8 @@ iox_make_unique_includedir()
 ########## build building-block library ##########
 #
 iox_add_library(
-    TARGET              iceoryx_binding_c
-    NAMESPACE           iceoryx_binding_c
+    TARGET              ${PROJECT_NAME}
+    NAMESPACE           ${PROJECT_NAME}
     PROJECT_PREFIX      ${PREFIX}
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
                         ${CMAKE_BINARY_DIR}/generated/iceoryx/include

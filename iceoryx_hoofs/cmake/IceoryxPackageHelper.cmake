@@ -246,7 +246,7 @@ Macro(iox_add_executable)
         iox_set_file_language( FILES ${IOX_FILES} )
     endif()
 
-    target_compile_options(${IOX_TARGET} ${IOX_WARNINGS} ${ICEORYX_SANITIZER})
+    target_compile_options(${IOX_TARGET} ${IOX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
     if ( IOX_STACK_SIZE )
         if(WIN32)
