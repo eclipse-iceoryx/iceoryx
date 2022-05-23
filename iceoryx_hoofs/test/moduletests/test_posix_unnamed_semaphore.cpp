@@ -53,4 +53,3 @@ TEST_F(UnnamedSemaphoreTest, InitialValueIsSetOnCreation)
     }
 }
 } // namespace
-

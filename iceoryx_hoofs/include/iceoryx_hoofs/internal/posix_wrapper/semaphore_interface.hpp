@@ -26,12 +26,17 @@ namespace posix
 {
 namespace internal
 {
+/// @brief Represent the state of a semaphore
 struct SemaphoreState
 {
+    /// @brief current value of the semaphore
     uint32_t value = 0U;
+
+    /// @brief states the number of threads waiting in wait, or timedWait
     uint32_t numberOfBlockedWait = 0U;
 };
 
+/// @brief Defines the interface of a named and unnamed semaphore.
 template <typename SemaphoreChild>
 class SemaphoreInterface
 {
@@ -42,10 +47,30 @@ class SemaphoreInterface
     SemaphoreInterface& operator=(SemaphoreInterface&&) noexcept = delete;
     ~SemaphoreInterface() noexcept = default;
 
+    /// @brief Increments the semaphore by one
+    /// @return Fails when the value of the semaphore overflows or when the
+    ///         semaphore was removed from outside the process
     cxx::expected<SemaphoreError> post() noexcept;
+
+    /// @brief Returns the state of the semaphore
+    /// @return Fails when semaphore was removed from outside the process
     cxx::expected<SemaphoreState, SemaphoreError> getState() noexcept;
+
+    /// @brief Decrements the semaphore by one. When the semaphore value is zero
+    ///        it blocks until the semaphore value is greater zero
+    /// @return Fails when semaphore was removed from outside the process
     cxx::expected<SemaphoreError> wait() noexcept;
+
+    /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
+    ///        it returns false otherwise it returns true and decrement the value by one.
+    /// @return Fails when semaphore was removed from outside the process
     cxx::expected<bool, SemaphoreError> tryWait() noexcept;
+
+    /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
+    ///        it waits until the timeout has passed.
+    /// @return If during the timeout time the semaphore value increases to non zero
+    ///         it returns SemaphoreWaitState::NO_TIMEOUT and decreases the semaphore by one
+    ///         otherwise returns SemaphoreWaitState::TIMEOUT
     cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration& timeout) noexcept;
 
   protected:

@@ -25,7 +25,6 @@ namespace posix
 {
 namespace internal
 {
-
 template <typename SemaphoreChild>
 iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
 {
@@ -163,7 +162,6 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcep
 
     return cxx::success<>();
 }
-
 
 template class SemaphoreInterface<UnnamedSemaphore>;
 } // namespace internal

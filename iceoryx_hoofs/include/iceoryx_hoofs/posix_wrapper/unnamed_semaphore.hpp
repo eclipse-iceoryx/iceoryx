@@ -25,6 +25,7 @@ namespace iox
 {
 namespace posix
 {
+/// @brief A unnamed posix semaphore.
 class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaphore>
 {
   public:
@@ -48,7 +49,11 @@ class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaph
 
 class UnnamedSemaphoreBuilder
 {
+    /// @brief Set the initial value of the unnamed posix semaphore
     IOX_BUILDER_PARAMETER(uint32_t, initialValue, 0U)
+
+    /// @brief Set if the unnamed semaphore can be stored in the shared memory
+    ///        for inter process usage
     IOX_BUILDER_PARAMETER(bool, isInterProcessCapable, true)
 
   public:
