@@ -29,6 +29,7 @@
 
 namespace owl
 {
+/// @note Once a handler has been set with 'StartFindService', calling 'FindService' is not thread-safe!
 class Runtime
 {
   private:

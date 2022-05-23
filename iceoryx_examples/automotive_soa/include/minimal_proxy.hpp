@@ -25,6 +25,7 @@
 #include "owl/runtime.hpp"
 #include "owl/types.hpp"
 
+/// @note Once a handler has been set with 'StartFindService', calling 'FindService' is not thread-safe!
 class MinimalProxy
 {
   public:

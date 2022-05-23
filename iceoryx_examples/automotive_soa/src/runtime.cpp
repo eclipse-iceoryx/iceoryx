@@ -96,12 +96,9 @@ void Runtime::StopFindService(kom::FindServiceHandle handle) noexcept
         if (std::get<1>(*iter).GetServiceId() == handle.GetServiceId()
             && std::get<1>(*iter).GetInstanceId() == handle.GetInstanceId())
         {
+            m_callbacks.erase(iter);
             break;
         }
-    }
-    if (iter != m_callbacks.end())
-    {
-        m_callbacks.erase(iter);
     }
 
     if (m_callbacks.empty())

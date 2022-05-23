@@ -39,6 +39,8 @@ class SampleAllocateePtr : private iox::cxx::optional<iox::popo::Sample<SampleTy
     SampleType& operator*() noexcept;
     const SampleType& operator*() const noexcept;
 
+    explicit operator bool() const noexcept;
+
     // Only the Publisher shall be allowed to access the cxx::optional not the user
     template <typename T>
     friend class EventPublisher;

@@ -48,8 +48,12 @@ int main()
 
         //! [send event]
         auto sample = skeleton.m_event.Allocate();
-        (*sample).counter = counter;
-        (*sample).sendTimestamp = std::chrono::steady_clock::now();
+        if (!sample)
+        {
+            std::exit(EXIT_FAILURE);
+        }
+        sample->counter = counter;
+        sample->sendTimestamp = std::chrono::steady_clock::now();
         skeleton.m_event.Send(std::move(sample));
         //! [send event]
         std::cout << "Event: value " << counter << " sent" << std::endl;

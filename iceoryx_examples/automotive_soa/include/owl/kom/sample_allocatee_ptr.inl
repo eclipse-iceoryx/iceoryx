@@ -60,6 +60,12 @@ inline const SampleType& SampleAllocateePtr<SampleType>::operator*() const noexc
 {
     const_cast<const SampleType*>(const_cast<SampleAllocateePtr<SampleType>*>(this)->operator->());
 }
+
+template <typename SampleType>
+inline SampleAllocateePtr<SampleType>::operator bool() const noexcept
+{
+    return this->has_value();
+}
 } // namespace kom
 } // namespace owl
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP

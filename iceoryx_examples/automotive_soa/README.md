@@ -68,8 +68,12 @@ Every second an event with a counter and timestamp is send to the proxy applicat
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send event] -->
 ```cpp
 auto sample = skeleton.m_event.Allocate();
-(*sample).counter = counter;
-(*sample).sendTimestamp = std::chrono::steady_clock::now();
+if (!sample)
+{
+    std::exit(EXIT_FAILURE);
+}
+sample->counter = counter;
+sample->sendTimestamp = std::chrono::steady_clock::now();
 skeleton.m_event.Send(std::move(sample));
 ```
 
@@ -79,8 +83,12 @@ After 30 iterations the skeleton starts to `Update` the value of the field
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send event] -->
 ```cpp
 auto sample = skeleton.m_event.Allocate();
-(*sample).counter = counter;
-(*sample).sendTimestamp = std::chrono::steady_clock::now();
+if (!sample)
+{
+    std::exit(EXIT_FAILURE);
+}
+sample->counter = counter;
+sample->sendTimestamp = std::chrono::steady_clock::now();
 skeleton.m_event.Send(std::move(sample));
 ```
 
@@ -353,10 +361,7 @@ if (m_callbacks.size() == 1)
 {
     auto invoker = iox::popo::createNotificationCallback(invokeCallback, *this);
     m_listener.attachEvent(m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
-        .or_else([](auto) {
-            std::cerr << "Unable to attach discovery!" << std::endl;
-            std::exit(EXIT_FAILURE);
-        });
+        .expect("Unable to attach discovery!");
 }
 ```
 
@@ -495,10 +500,7 @@ m_listener
     .attachEvent(m_server,
                  iox::popo::ServerEvent::REQUEST_RECEIVED,
                  iox::popo::createNotificationCallback(onRequestReceived, *this))
-    .or_else([](auto) {
-        std::cerr << "Unable to attach server!" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    .expect("Unable to attach server!");
 ```
 
 Once a new request is received the following callback will be called. It receives the request,
@@ -510,6 +512,12 @@ template <typename T>
 inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
                                                  FieldPublisher<FieldType>* self) noexcept
 {
+    if (self == nullptr)
+    {
+        std::cerr << "Callback was invoked with FieldPublisher* being a nullptr!" << std::endl;
+        return;
+    }
+
     while (server->take().and_then([&](const auto& request) {
         server->loan(request)
             .and_then([&](auto& response) {
@@ -587,10 +595,7 @@ inline void EventSubscriber<T, EventTransmission::IOX>::SetReceiveHandler(EventR
         .attachEvent(m_subscriber,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
                      iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
-        .or_else([](auto) {
-            std::cerr << "Unable to attach subscriber!" << std::endl;
-            std::exit(EXIT_FAILURE);
-        });
+        .expect("Unable to attach subscriber!");
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
     m_receiveHandler.emplace(handler);
 }
@@ -604,8 +609,21 @@ template <typename T>
 inline void EventSubscriber<T, EventTransmission::IOX>::onSampleReceivedCallback(iox::popo::Subscriber<T>*,
                                                                                  EventSubscriber* self) noexcept
 {
+    if (self == nullptr)
+    {
+        std::cerr << "Callback was invoked with EventSubscriber* being a nullptr!" << std::endl;
+        return;
+    }
+
     std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
-    self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
+    self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) {
+        if (!userCallable)
+        {
+            std::cerr << "Tried to call an empty receive handler!" << std::endl;
+            return;
+        }
+        userCallable();
+    });
 }
 ```
 
