@@ -18,6 +18,7 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/platform/semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 namespace iox

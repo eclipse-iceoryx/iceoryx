@@ -38,7 +38,7 @@ class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaph
   private:
     friend class UnnamedSemaphoreBuilder;
     friend class iox::cxx::optional<UnnamedSemaphore>;
-    friend class SemaphoreInterface<UnnamedSemaphore>;
+    friend class internal::SemaphoreInterface<UnnamedSemaphore>;
 
     UnnamedSemaphore() noexcept = default;
     iox_sem_t* getHandle() noexcept;
