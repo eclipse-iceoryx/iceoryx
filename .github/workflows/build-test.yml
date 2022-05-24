@@ -27,8 +27,6 @@ jobs:
         with:
           fail: true
           args: --verbose --no-progress './**/*.md'
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   build-test-ubuntu:
     runs-on: ubuntu-20.04
