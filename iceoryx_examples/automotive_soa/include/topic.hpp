@@ -18,6 +18,7 @@
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_HPP
 
 #include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -67,11 +68,11 @@ struct is_supported_topic : std::false_type
 
 template <typename T>
 struct is_supported_topic<T,
-                          std::void_t<decltype(T::counter)>,
-                          std::void_t<decltype(T::sendTimestamp)>,
-                          std::void_t<decltype(T::payloadSizeInBytes)>,
-                          std::void_t<decltype(T::data)>,
-                          std::void_t<decltype(T::subPackets)>> : std::true_type
+                          iox::cxx::void_t<decltype(T::counter)>,
+                          iox::cxx::void_t<decltype(T::sendTimestamp)>,
+                          iox::cxx::void_t<decltype(T::payloadSizeInBytes)>,
+                          iox::cxx::void_t<decltype(T::data)>,
+                          iox::cxx::void_t<decltype(T::subPackets)>> : std::true_type
 {
 };
 
