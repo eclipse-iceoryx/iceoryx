@@ -1,2 +1,8 @@
 https://github.com/eclipse-iceoryx/iceoryx/issues/.*
 https://github.com/eclipse-iceoryx/iceoryx/pull/.*
+
+https://github.com/eclipse-iceoryx/iceoryx/compare/vx.x.x...vx.x.x
+https://github.com/eclipse-iceoryx/iceoryx/tree/vx.x.x
+
+max.mustermann@mustercompany.com
+john.doe@doecompany.com
