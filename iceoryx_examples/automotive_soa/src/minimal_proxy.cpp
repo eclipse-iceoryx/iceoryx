@@ -23,7 +23,7 @@ MinimalProxy::MinimalProxy(owl::kom::ProxyHandleType& handle) noexcept
 {
     if (handle.GetServiceId() != owl::kom::ServiceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier})
     {
-        std::cout << "Handle does not match MinimalProxy class. Can't construct MinimalProxy, terminating!"
+        std::cerr << "Handle does not match MinimalProxy class. Can't construct MinimalProxy, terminating!"
                   << std::endl;
         std::terminate();
     }

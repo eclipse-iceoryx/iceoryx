@@ -21,8 +21,7 @@ namespace owl
 Runtime& Runtime::GetInstance(const core::String& name) noexcept
 {
     iox::runtime::PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, name));
-    static Runtime runtime;
-    return runtime;
+    return GetInstance();
 }
 
 Runtime& Runtime::GetInstance() noexcept

@@ -56,6 +56,7 @@ int main()
             std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
                       << handle.GetInstanceId().c_str() << "'" << std::endl;
             maybeProxy->emplace(handle);
+            break;
         }
         //! [create proxy]
     }
@@ -83,6 +84,7 @@ int main()
                     std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
                               << proxyHandle.GetInstanceId().c_str() << "'" << std::endl;
                     maybeProxy->emplace(proxyHandle);
+                    break;
                 }
             }
             //! [create proxy asynchronously]
