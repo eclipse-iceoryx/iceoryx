@@ -244,25 +244,9 @@ TYPED_TEST(SemaphoreInterfaceTest, WaitBlocksAtLeastDefinedSleepTime)
 
 TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedSleepTimeAndSignalsTimeout)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "5869a475-6be3-4b55-aa58-2ebf11d46081");
-    std::atomic<int> counter{0};
-
-    std::thread t1([&] {
-        counter = 1;
-        while (counter.load() != 2)
-        {
-        }
-        std::this_thread::sleep_for(std::chrono::nanoseconds(this->TIMING_TEST_WAIT_TIME.toNanoseconds() * 2));
-        ASSERT_FALSE(this->sut->post().has_error());
-    });
-
-    while (counter.load() != 1)
-    {
-    }
+    ::testing::Test::RecordProperty("TEST_ID", "71ca9773-f724-4625-8550-6c56ef135ad7");
 
     auto start = std::chrono::steady_clock::now();
-    counter = 2;
-
     auto result = this->sut->timedWait(this->TIMING_TEST_WAIT_TIME);
     auto end = std::chrono::steady_clock::now();
 
@@ -270,43 +254,5 @@ TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedSleepTimeAndSign
     EXPECT_THAT(*result, Eq(iox::posix::SemaphoreWaitState::TIMEOUT));
 
     EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
-
-    t1.join();
 }
-
-TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedUntilTriggeredAndSignalsNoTimeout)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5869a475-6be3-4b55-aa58-2ebf11d46081");
-    std::atomic<int> counter{0};
-
-    std::thread t1([&] {
-        counter = 1;
-        while (counter.load() != 2)
-        {
-        }
-        std::this_thread::sleep_for(std::chrono::nanoseconds(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
-        ASSERT_FALSE(this->sut->post().has_error());
-    });
-
-    while (counter.load() != 1)
-    {
-    }
-
-    auto start = std::chrono::steady_clock::now();
-    counter = 2;
-
-    /// As time units::Duration::max() would be a better fit but this causes an overflow
-    /// in the internal MacOS semaphore platform implementation. This is a good compromise
-    /// for a long wait time which will be interrupted by sut->post in thread t1
-    auto result = this->sut->timedWait(this->TIMING_TEST_WAIT_TIME * 100);
-    auto end = std::chrono::steady_clock::now();
-
-    ASSERT_FALSE(result.has_error());
-    EXPECT_THAT(*result, Eq(iox::posix::SemaphoreWaitState::NO_TIMEOUT));
-
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
-
-    t1.join();
-}
-
 } // namespace
