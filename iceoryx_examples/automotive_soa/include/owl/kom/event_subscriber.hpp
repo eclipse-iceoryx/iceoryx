@@ -37,7 +37,6 @@ class EventSubscriber
   public:
     using SampleType = T;
 
-    static constexpr uint64_t QUEUE_CAPACITY{10U};
     static constexpr uint64_t HISTORY_REQUEST{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
@@ -59,7 +58,8 @@ class EventSubscriber
     static void onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept;
 
     //! [EventSubscriber members]
-    iox::popo::Subscriber<T> m_subscriber;
+    iox::capro::ServiceDescription m_serviceDescription;
+    iox::cxx::optional<iox::popo::Subscriber<T>> m_subscriber;
     iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
     static constexpr bool IS_RECURSIVE{true};
     iox::posix::mutex m_mutex{IS_RECURSIVE};
