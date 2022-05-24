@@ -795,12 +795,24 @@ using TestVariations = Types<PS_SIE,
 // of a search setup, i.e. the existing services in the system
 TYPED_TEST_SUITE(ServiceDiscoveryFindService_test, TestVariations);
 
+// *************************************************************************************************
 // All tests run for publishers and servers as well as all 8 search variations.
-// Each test sets up the discovery state, runs a search and compares the result
-// against a (trivial brute force) reference implementation.
+
+// Each test works as follows:
+// 1) Set up the discovery state by adding services.
+// 2) Run the search for specific services using discovery.
+// 3) Run the search for the same services using the simple brute force reference implementation.
+// 4) Compare results of 2) and 3) (set comparison).
+//    If the result sets differ, the entire test fails.
+
+// For brevity, the steps 2), 3) and 4) are always performed by
+// calling this->testFindService(SERVICE, INSTANCE, EVENT);
+// It is important that for each setup in 1) (i.e. test case)
+// each testFindService call is performed with each possible combination of wildcards.
+
 // There is some overlap/redundancy in the tests due to the generative scheme
 // that can be considered the price for elegance and structure.
-
+//**************************************************************************************************
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenNothingOffered)
 {
@@ -869,22 +881,53 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f953d0d-bae3-45a1-82e7-c78a32b6d365");
     this->add({"a", "b", "c"});
-    this->add({"a", "b", "aa"});
-    this->add({"aa", "a", "c"});
-    this->add({"a", "ab", "a"});
 
-    this->testFindService({"x"}, {"y"}, {"z"});
-
-    this->testFindService({"x"}, {"y"}, {"aa"});
-    this->testFindService({"x"}, {"b"}, {"z"});
-    this->testFindService({"a"}, {"y"}, {"z"});
-
-    this->testFindService({"a"}, {"b"}, {"z"});
-    this->testFindService({"a"}, {"y"}, {"aa"});
-    this->testFindService({"x"}, {"b"}, {"aa"});
+    // those are all representatives of equivalence classes of mismatches
+    // that hould not be found
+    this->testFindService({"x"}, {"b"}, {"c"});
+    this->testFindService({"a"}, {"x"}, {"c"});
+    this->testFindService({"a"}, {"b"}, {"x"});
+    this->testFindService({"x"}, {"x"}, {"c"});
+    this->testFindService({"a"}, {"x"}, {"x"});
+    this->testFindService({"x"}, {"b"}, {"x"});
+    this->testFindService({"x"}, {"x"}, {"x"});
 }
 
-// Limit test of one kind (MessagingPattern) of service
+TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingServiceAmongMultipleNearMatches)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "86b4977f-53c6-495c-add3-524c9f3e0f27");
+    // add multiple near matches
+    this->add({"x", "b", "c"});
+    this->add({"a", "x", "c"});
+    this->add({"a", "b", "x"});
+    this->add({"x", "x", "c"});
+    this->add({"a", "x", "x"});
+    this->add({"x", "b", "x"});
+    this->add({"x", "x", "x"});
+
+    this->testFindService({"a"}, {"b"}, {"c"});
+}
+
+TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSameInstanceWithDifferentServiceAndEventExists)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    this->add({"a", "b", "c"});
+    this->add({"x", "b", "y"});
+
+    this->testFindService({"a"}, {"b"}, {"c"});
+}
+
+TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSameEventWithDifferentServiceAndEventExists)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    this->add({"a", "b", "c"});
+    this->add({"x", "b", "y"});
+
+    this->testFindService({"a"}, {"b"}, {"c"});
+}
+
+// Limit test of one kind (MessagingPattern) of service:
+// Fill the registry to the maximum (limit) and search for specific services.
 TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ecdcf06a-c5fa-4e9e-956d-ec40f3d8eaae");
