@@ -35,8 +35,9 @@ combination with the error handler.
 
 ### Considerations
 
-1. Similar to other iceoryx constructs, heap usage is forbidden. This also means
-   that `std::string` and `std::stringstream` cannot be used.
+1. Similar to other iceoryx constructs, heap usage, exceptions and recursive
+   calls are forbidden. This also means that `std::string` and
+   `std::stringstream` cannot be used.
 
 2. Since the logger shall be used by the `iceoryx_hoofs` itself, the base
    implementation can also not make use of functionality in e.g. `iox::cxx` or
@@ -141,7 +142,7 @@ than a streaming operator or semicolon is used.
 In order to have log messages before `initLogger` is called, the default logger
 is used with `LogLevel::INFO`. It is up to the implementation of the default
 logger what to do with these messages. For iceoryx the default logger is the
-`ConsoleLoger` (this can be changed via the platform abstraction) which will
+`ConsoleLogger` (this can be changed via the platform abstraction) which will
 print the log messages to the console.
 
 #### Replacing the logger at runtime
@@ -153,7 +154,7 @@ This is done by deriving from the base `Logger` class and implementing the pure
 virtual `setupNewLogMessage` and `flush` methods. Finally, the derived logger
 must be activated by calling the static `Logger::activeLogger` function and
 passing the new logger as argument to the function. The logger must have a static
-lifetime and should therefore be place in the data segment.
+lifetime and should therefore be placed in the data segment.
 
 The call to `iox::log::initLogger` will finalize the option to replace the logger
 at runtime. Further efforts to replace the logger will call the error handler
