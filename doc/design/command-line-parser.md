@@ -32,10 +32,10 @@ iox_tool -a --bla -c 123 --dr_dotter blubb
 | Name              | Description                                              |
 | :---------------- | :------------------------------------------------------- |
 | argument          | A chain of arbitrary symbols after the command. Arguments are separated by space. Examples: `-a`, `--bla` |
-| options           | Arguments which start with minus `-` or `--`, like `-a` or `--bla`. |
-| short option      | Argument which starts with a single minus followed by a non-minus symbol, like `-a` or `-c` |
-| long option       | Argument which starts with two minus followed by at least another non-minus symbol, like `--bla` or `--dr_dotter` |
-| option name       | The symbols after the leading minus of an option, for instance `a` or `dr_dotter`. |
+| options           | Arguments which start with a single dash `-` or double dash `--`, like `-a` or `--bla`. |
+| short option      | Argument which starts with a single dash followed by a non-dash symbol, like `-a` or `-c` |
+| long option       | Argument which starts with double dash followed by at least another non-dash symbol, like `--bla` or `--dr_dotter` |
+| option name       | The symbols after the leading dash of an option, for instance `a` or `dr_dotter`. |
 | option argument   | Argument which is separated by a space from an option, like `123` or `blubb`. |
 | argc & argv       | Taken from `int main(int argc, char* argv[])`. Provides access to the command line arguments. |
 

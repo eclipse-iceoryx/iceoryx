@@ -83,32 +83,32 @@ bool CommandLineArgumentParser::hasOptionName(const char* option) const noexcept
     return hasOptionName;
 }
 
-bool CommandLineArgumentParser::hasValidSwitchName(const char* option) const noexcept
+bool CommandLineArgumentParser::hasValidShortOptionDashCount(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH);
-    const bool hasValidSwitchName = !(argIdentifierLength > 2 && option[1] != '-');
+    const bool hasValidShortOptionDashCount = !(argIdentifierLength > 2 && option[1] != '-');
 
-    if (!hasValidSwitchName)
+    if (!hasValidShortOptionDashCount)
     {
         std::cout << "Only one letter allowed when using a short option name. The switch \"" << option
                   << "\" is not valid." << std::endl;
         printHelpAndExit();
     }
-    return hasValidSwitchName;
+    return hasValidShortOptionDashCount;
 }
 
-bool CommandLineArgumentParser::hasValidOptionName(const char* option) const noexcept
+bool CommandLineArgumentParser::hasValidOptionDashCount(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH);
-    const bool hasValidOptionName = !(argIdentifierLength > 2 && option[2] == '-');
+    const bool hasValidOptionDashCount = !(argIdentifierLength > 2 && option[2] == '-');
 
-    if (!hasValidOptionName)
+    if (!hasValidOptionDashCount)
     {
         std::cout << "A long option name should start after \"--\". This \"" << option << "\" is not valid."
                   << std::endl;
         printHelpAndExit();
     }
-    return hasValidOptionName;
+    return hasValidOptionDashCount;
 }
 
 bool CommandLineArgumentParser::doesOptionNameFitIntoString(const char* option) const noexcept
@@ -211,8 +211,8 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 
-        if (!doesOptionStartWithMinus(argv[i]) || !hasOptionName(argv[i]) || !hasValidSwitchName(argv[i])
-            || !hasValidOptionName(argv[i]) || !doesOptionNameFitIntoString(argv[i]))
+        if (!doesOptionStartWithMinus(argv[i]) || !hasOptionName(argv[i]) || !hasValidShortOptionDashCount(argv[i])
+            || !hasValidOptionDashCount(argv[i]) || !doesOptionNameFitIntoString(argv[i]))
         {
             return m_optionValue;
         }

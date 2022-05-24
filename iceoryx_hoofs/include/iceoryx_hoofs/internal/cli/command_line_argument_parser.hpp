@@ -69,8 +69,8 @@ class CommandLineArgumentParser
     bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithMinus(const char* option) const noexcept;
     bool hasOptionName(const char* option) const noexcept;
-    bool hasValidSwitchName(const char* option) const noexcept;
-    bool hasValidOptionName(const char* option) const noexcept;
+    bool hasValidShortOptionDashCount(const char* option) const noexcept;
+    bool hasValidOptionDashCount(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
     bool isOptionSet(const CommandLineOptionSet::Value& entry) const noexcept;
@@ -89,6 +89,7 @@ class CommandLineArgumentParser
     CommandLineOptionValue m_optionValue;
 };
 
+/// @copydoc CommandLineArgumentParser::parse()
 CommandLineOptionValue
 parseCommandLineArguments(const CommandLineOptionSet& optionSet,
                           int argc,
