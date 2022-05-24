@@ -18,10 +18,17 @@ jobs:
       - run: ./tools/scripts/list_stl_dependencies.sh check
 
   verify-links-in-markdown-documentation:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: ./tools/ci/markdown-link-verificator.sh
+
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.4.1
+        with:
+          fail: true
+          args: --verbose --no-progress './**/*.md'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   build-test-ubuntu:
     runs-on: ubuntu-20.04
