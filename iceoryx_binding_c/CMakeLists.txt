@@ -46,7 +46,7 @@ iox_add_library(
     PUBLIC_LIBS_LINUX   stdc++ pthread
     PUBLIC_LIBS_UNIX    stdc++ pthread
     PUBLIC_LIBS_APPLE   stdc++ pthread
-    PRIVATE_LIBS        iceoryx_posh::iceoryx_posh iceoryx_hoofs::iceoryx_hoofs
+    PRIVATE_LIBS        iceoryx_posh::iceoryx_posh
     FILES
         source/c_client.cpp
         source/c_config.cpp

@@ -60,5 +60,3 @@ endif()
 
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 ## TODO: END iox-#1287 remove those compiler warning exceptions
-
-

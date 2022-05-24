@@ -90,7 +90,7 @@ Either `VS Code` or `Developer Command Prompt` can be used to build iceoryx with
 Alternatively, `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat` can be executed in any shell to setup all the paths for compilation.
 
 !!! attention
-    We require a Windows SDK Version of at least 10.0.18362.0.
+    A Windows SDK Version of at least `10.0.18362.0` is required.
 
 ## Build with CMake
 
@@ -126,7 +126,8 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```
 
     If the compilation fails it is possible that the compilation failure originates
-    inside the Windows SDK and is not caused by iceoryx, see https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.
+    inside the Windows SDK and is not caused by iceoryx, see 
+    [Windows vcpkg-issue \#15035](https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.)
     In this case try to rebuild the cmake files with:
     ```bash
     cmake -Bbuild -Hiceoryx_meta -DCMAKE_SYSTEM_VERSION=10.0.18362.0

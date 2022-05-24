@@ -34,5 +34,5 @@ iox_add_executable(
     # Since we have one process where multiple threads are created we need to increase the stack size
     STACK_SIZE  3500000
     FILES       ./single_process.cpp
-    LIBS        iceoryx_posh::iceoryx_posh iceoryx_posh::iceoryx_posh_roudi
+    LIBS        iceoryx_posh::iceoryx_posh_roudi
 )
