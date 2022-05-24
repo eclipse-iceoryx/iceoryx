@@ -33,8 +33,8 @@
 
 #define SEM_FAILED 0
 // win32 API page talks about maximum allowed value without defining it or how to obtain.
-// We use the SEM_VALUE_MAX from linux which is 2^31 - 1
-#define SEM_VALUE_MAX 2147483647
+// We use the SEM_VALUE_MAX from linux which is INT_MAX
+#define SEM_VALUE_MAX INT_MAX
 
 struct iox_sem_t
 {

@@ -200,13 +200,13 @@ struct OrElseDoesNotCrashWithNullFunction_Const<TYPE_HAS_GET_ERROR_METHOD>
 
 TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_LValueCase)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "661a087d-90ee-4b27-9af4-b4d4b211adeb");
+    ::testing::Test::RecordProperty("TEST_ID", "d61adb35-0324-4e8e-9a36-0ee6f0cb0436");
     IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction, sut);
 }
 
 TYPED_TEST(FunctionalInterface_test, OrElseDoesNotCrashWithNullFunction_ConstLValueCase)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "5913ed24-cb6e-47e6-a0af-c0650cc642a0");
+    ::testing::Test::RecordProperty("TEST_ID", "814fa9d6-d1d6-4bbf-a3a4-ee5665a3eb3f");
     IOX_TEST_FUNCTIONAL_INTERFACE(OrElseDoesNotCrashWithNullFunction_Const, const_cast<const SutType&>(sut));
 }
 

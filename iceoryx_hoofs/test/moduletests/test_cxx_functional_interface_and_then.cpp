@@ -217,13 +217,13 @@ TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_ConstLV
 
 TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_RValueCase)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    ::testing::Test::RecordProperty("TEST_ID", "d121b82a-de11-4ef4-a182-14c075066688");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction, std::move(sut));
 }
 
 TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_ConstRValueCase)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "38ee906c-1314-440a-9328-976362555db0");
+    ::testing::Test::RecordProperty("TEST_ID", "42061fc8-963b-4b41-9016-1a3bde8706e7");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction_Const,
                                   std::move(const_cast<const SutType&>(sut)));
 }

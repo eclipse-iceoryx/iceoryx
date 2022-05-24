@@ -87,42 +87,50 @@ TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations);
 
 TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "af3013ef-683e-4ad4-874f-5c7e1a3f41fd");
-    for (int i = 0; i < 12; ++i)
+    ::testing::Test::RecordProperty("TEST_ID", "728c70a7-dca3-4f09-a7bf-c347106dab0c");
+    constexpr uint64_t NUMBER_OF_INCREMENTS = 12U;
+
+    for (uint64_t i = 0U; i < NUMBER_OF_INCREMENTS; ++i)
     {
         ASSERT_FALSE(this->sut->post().has_error());
     }
 
     auto result = this->sut->getState();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(12));
+    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "29a63157-caee-4d28-a477-c4fa7048911c");
-    for (int i = 0; i < 18; ++i)
+    ::testing::Test::RecordProperty("TEST_ID", "ae40f4b2-1997-41ab-afe1-7927d5269a36");
+    constexpr uint64_t NUMBER_OF_INCREMENTS = 18U;
+    constexpr uint64_t NUMBER_OF_DECREMENTS = 7U;
+
+    for (uint64_t i = 0; i < NUMBER_OF_INCREMENTS; ++i)
     {
         ASSERT_FALSE(this->sut->post().has_error());
     }
-    for (int i = 0; i < 7; ++i)
+    for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
     {
         ASSERT_FALSE(this->sut->wait().has_error());
     }
 
     auto result = this->sut->getState();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(11));
+    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "a98d1c45-d538-4abc-9633-f4868163785d");
-    for (int i = 0; i < 15; ++i)
+    ::testing::Test::RecordProperty("TEST_ID", "977ee162-a233-4e42-9abd-8faa996b6a5c");
+    constexpr uint64_t NUMBER_OF_INCREMENTS = 15U;
+    constexpr uint64_t NUMBER_OF_DECREMENTS = 9U;
+
+    for (uint64_t i = 0; i < NUMBER_OF_INCREMENTS; ++i)
     {
         ASSERT_FALSE(this->sut->post().has_error());
     }
-    for (int i = 0; i < 9; ++i)
+    for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
     {
         auto call = this->sut->tryWait();
         ASSERT_THAT(call.has_error(), Eq(false));
@@ -131,13 +139,15 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
 
     auto result = this->sut->getState();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(6));
+    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "8bad3784-888b-44cd-ad5d-1c4662b26b17");
-    for (int i = 0; i < 4; ++i)
+    ::testing::Test::RecordProperty("TEST_ID", "c5eff306-7b73-425a-a4d8-9d1af4d5d345");
+    constexpr uint64_t NUMBER_OF_DECREMENTS = 4U;
+
+    for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
     {
         auto call = this->sut->tryWait();
         ASSERT_THAT(call.has_error(), Eq(false));
@@ -151,14 +161,17 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "e3bd3f5d-967c-4a5b-9f22-a8f92f73b3c3");
-    const iox::units::Duration timeToWait = 2_ms;
-    for (int i = 0; i < 19; ++i)
+    ::testing::Test::RecordProperty("TEST_ID", "6bee4652-4eac-4d70-908a-f3be954185de");
+    constexpr uint64_t NUMBER_OF_INCREMENTS = 19U;
+    constexpr uint64_t NUMBER_OF_DECREMENTS = 12U;
+    constexpr iox::units::Duration timeToWait = 2_ms;
+
+    for (uint64_t i = 0; i < NUMBER_OF_INCREMENTS; ++i)
     {
         ASSERT_FALSE(this->sut->post().has_error());
     }
 
-    for (int i = 0; i < 12; ++i)
+    for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
     {
         auto call = this->sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
@@ -167,14 +180,16 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
 
     auto result = this->sut->getState();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(7));
+    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "5a630be5-aef6-493e-a8ee-4dfabe642258");
-    const iox::units::Duration timeToWait = 2_us;
-    for (int i = 0; i < 4; ++i)
+    ::testing::Test::RecordProperty("TEST_ID", "cb2f5ded-7c04-4e2d-ab41-bbe231a520c7");
+    constexpr uint64_t NUMBER_OF_DECREMENTS = 4U;
+    constexpr iox::units::Duration timeToWait = 2_us;
+
+    for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
     {
         auto call = this->sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
@@ -189,7 +204,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
 
 TYPED_TEST(SemaphoreInterfaceTest, TryWaitAfterPostIsSuccessful)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "22354447-c44d-443c-97a5-f5fdffb09748");
+    ::testing::Test::RecordProperty("TEST_ID", "df5d32f5-9417-419e-b36e-93a0502ed6e7");
     ASSERT_FALSE(this->sut->post().has_error());
     auto call = this->sut->tryWait();
     ASSERT_THAT(call.has_error(), Eq(false));
@@ -198,7 +213,7 @@ TYPED_TEST(SemaphoreInterfaceTest, TryWaitAfterPostIsSuccessful)
 
 TYPED_TEST(SemaphoreInterfaceTest, TryWaitWithNoPostIsNotSuccessful)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "0e5d6817-88a9-4fca-889e-4dbfe2c30e48");
+    ::testing::Test::RecordProperty("TEST_ID", "8d0eebcd-11e3-456f-8d19-3fdb6fc70241");
     ASSERT_FALSE(this->sut->post().has_error());
     auto call = this->sut->tryWait();
     ASSERT_THAT(call.has_error(), Eq(false));
@@ -207,7 +222,7 @@ TYPED_TEST(SemaphoreInterfaceTest, TryWaitWithNoPostIsNotSuccessful)
 
 TYPED_TEST(SemaphoreInterfaceTest, WaitValidAfterPostIsNonBlocking)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "d4b1de28-89c4-4dfa-a465-8c7cfc652d67");
+    ::testing::Test::RecordProperty("TEST_ID", "c08220e3-c368-43d5-85d2-cbf7e1659017");
     ASSERT_FALSE(this->sut->post().has_error());
     // this call should not block and should be successful
     EXPECT_THAT(this->sut->wait().has_error(), Eq(false));
@@ -215,24 +230,15 @@ TYPED_TEST(SemaphoreInterfaceTest, WaitValidAfterPostIsNonBlocking)
 
 TYPED_TEST(SemaphoreInterfaceTest, WaitBlocksAtLeastDefinedSleepTime)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "5869a475-6be3-4b55-aa58-2ebf11d46081");
-    std::atomic<int> counter{0};
+    ::testing::Test::RecordProperty("TEST_ID", "9fb454db-2d1d-43a5-b0a5-d9de7f1886e0");
 
+    std::chrono::steady_clock::time_point start;
     std::thread t1([&] {
-        counter = 1;
-        while (counter.load() != 2)
-        {
-        }
+        start = std::chrono::steady_clock::now();
         std::this_thread::sleep_for(std::chrono::nanoseconds(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
         ASSERT_FALSE(this->sut->post().has_error());
     });
 
-    while (counter.load() != 1)
-    {
-    }
-
-    auto start = std::chrono::steady_clock::now();
-    counter = 2;
 
     ASSERT_FALSE(this->sut->wait().has_error());
     auto end = std::chrono::steady_clock::now();
