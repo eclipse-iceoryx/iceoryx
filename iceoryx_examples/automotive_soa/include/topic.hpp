@@ -40,89 +40,25 @@ struct Topic
     uint32_t counter{0};
 };
 
-struct TimestampTopic1Byte
+template <uint32_t NumberOfBytes>
+struct TimestampTopic
 {
     // Printed to console
     uint32_t counter{0};
     std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
 
     // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{1};
-    char data[payloadSizeInBytes];
+    char data[NumberOfBytes];
     uint32_t subPackets{0};
 };
 
-struct TimestampTopic4Kb
-{
-    // Printed to console
-    uint32_t counter{0};
-    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
-
-    // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{4 * ONE_KILOBYTE};
-    char data[payloadSizeInBytes];
-    uint32_t subPackets{0};
-};
-
-struct TimestampTopic16Kb
-{
-    // Printed to console
-    uint32_t counter{0};
-    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
-
-    // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{16 * ONE_KILOBYTE};
-    char data[payloadSizeInBytes];
-    uint32_t subPackets{0};
-};
-
-struct TimestampTopic64Kb
-{
-    // Printed to console
-    uint32_t counter{0};
-    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
-
-    // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{64 * ONE_KILOBYTE};
-    char data[payloadSizeInBytes];
-    uint32_t subPackets{0};
-};
-
-struct TimestampTopic256Kb
-{
-    // Printed to console
-    uint32_t counter{0};
-    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
-
-    // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{256 * ONE_KILOBYTE};
-    char data[payloadSizeInBytes];
-    uint32_t subPackets{0};
-};
-
-struct TimestampTopic1Mb
-{
-    // Printed to console
-    uint32_t counter{0};
-    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
-
-    // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{1024 * ONE_KILOBYTE};
-    char data[payloadSizeInBytes];
-    uint32_t subPackets{0};
-};
-
-struct TimestampTopic4Mb
-{
-    // Printed to console
-    uint32_t counter{0};
-    std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
-
-    // Not printed to console
-    static constexpr uint32_t payloadSizeInBytes{4096 * ONE_KILOBYTE};
-    char data[payloadSizeInBytes];
-    uint32_t subPackets{0};
-};
+using TimestampTopic1Byte = TimestampTopic<1>;
+using TimestampTopic4Kb = TimestampTopic<4 * ONE_KILOBYTE>;
+using TimestampTopic16Kb = TimestampTopic<16 * ONE_KILOBYTE>;
+using TimestampTopic64Kb = TimestampTopic<64 * ONE_KILOBYTE>;
+using TimestampTopic256Kb = TimestampTopic<256 * ONE_KILOBYTE>;
+using TimestampTopic1Mb = TimestampTopic<1024 * ONE_KILOBYTE>;
+using TimestampTopic4Mb = TimestampTopic<4096 * ONE_KILOBYTE>;
 
 template <typename T, typename = void, typename = void, typename = void, typename = void, typename = void>
 struct is_supported_topic : std::false_type
