@@ -73,8 +73,12 @@ kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::Pr
                                                  kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     // Duplicate entries for the same service are allowed
-    m_callbacks.push_back(
-        CallbackEntryType(handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch()));
+    if (!m_callbacks.push_back(CallbackEntryType(
+            handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch())))
+    {
+        std::cerr << "Callback vector capacity exceeded, did not StartFindService!" << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
     //! [attach discovery to listener]
     if (m_callbacks.size() == 1)
