@@ -127,7 +127,7 @@ bool CommandLineArgumentParser::doesOptionNameFitIntoString(const char* option) 
 
 bool CommandLineArgumentParser::isNextArgumentAValue(const uint64_t position) const noexcept
 {
-    return (m_argc > 0 && static_cast<uint64_t>(m_argc) > position + 1
+    return (m_argc > 0 && m_argc > position + 1
             && (strnlen(m_argv[position + 1], MAX_OPTION_NAME_LENGTH) > 0 && m_argv[position + 1][0] != '-'));
 }
 
@@ -196,29 +196,30 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
 {
     m_optionSet = &optionSet;
 
-    m_argc = argc;
+    m_argc = static_cast<uint64_t>(algorithm::max(0, argc));
     m_argv = argv;
     m_argcOffset = argcOffset;
     // reset options otherwise multiple parse calls work on already parsed options
     m_optionValue = CommandLineOptionValue();
 
-    if (!hasArguments(argc) || !assignBinaryName(argv[0]))
+    if (!hasArguments(m_argc) || !assignBinaryName(m_argv[0]))
     {
         return m_optionValue;
     }
 
-    for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < static_cast<uint64_t>(argc); ++i)
+    for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < m_argc; ++i)
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 
-        if (!doesOptionStartWithMinus(argv[i]) || !hasOptionName(argv[i]) || !hasValidShortOptionDashCount(argv[i])
-            || !hasValidOptionDashCount(argv[i]) || !doesOptionNameFitIntoString(argv[i]))
+        if (!doesOptionStartWithMinus(m_argv[i]) || !hasOptionName(m_argv[i])
+            || !hasValidShortOptionDashCount(m_argv[i]) || !hasValidOptionDashCount(m_argv[i])
+            || !doesOptionNameFitIntoString(m_argv[i]))
         {
             return m_optionValue;
         }
 
-        uint64_t optionNameStart = (argv[i][1] == '-') ? 2 : 1;
-        auto optionEntry = m_optionSet->getOption(OptionName_t(cxx::TruncateToCapacity, argv[i] + optionNameStart));
+        uint64_t optionNameStart = (m_argv[i][1] == '-') ? 2 : 1;
+        auto optionEntry = m_optionSet->getOption(OptionName_t(cxx::TruncateToCapacity, m_argv[i] + optionNameStart));
 
         if (!optionEntry)
         {
@@ -226,7 +227,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
             {
             case UnknownOption::TERMINATE:
             {
-                std::cout << "Unknown option \"" << argv[i] << "\"" << std::endl;
+                std::cout << "Unknown option \"" << m_argv[i] << "\"" << std::endl;
                 printHelpAndExit();
                 return m_optionValue;
             }
@@ -260,7 +261,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
                 return m_optionValue;
             }
 
-            if (!doesOptionValueFitIntoString(argv[i + 1]))
+            if (!doesOptionValueFitIntoString(m_argv[i + 1]))
             {
                 return m_optionValue;
             }
@@ -268,7 +269,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
             m_optionValue.m_arguments.emplace_back();
             m_optionValue.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
             m_optionValue.m_arguments.back().shortId = optionEntry->shortOption;
-            m_optionValue.m_arguments.back().value.unsafe_assign(argv[i + 1]);
+            m_optionValue.m_arguments.back().value.unsafe_assign(m_argv[i + 1]);
             skipCommandLineArgument();
         }
     }
@@ -287,7 +288,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
 bool CommandLineArgumentParser::doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& value,
                                                              const uint64_t position) const noexcept
 {
-    bool doesOptionHasSucceedingValue = (position + 1 < static_cast<uint64_t>(m_argc));
+    bool doesOptionHasSucceedingValue = (position + 1 < m_argc);
     if (!doesOptionHasSucceedingValue)
     {
         std::cout << "The option \"" << value << "\" must be followed by a value!" << std::endl;
@@ -357,7 +358,7 @@ void CommandLineArgumentParser::printHelpAndExit() const noexcept
 {
     std::cout << "\n" << m_optionSet->m_programDescription << "\n" << std::endl;
     std::cout << "Usage: ";
-    for (uint64_t i = 0; i < m_argcOffset && i < static_cast<uint64_t>(m_argc); ++i)
+    for (uint64_t i = 0; i < m_argcOffset && i < m_argc; ++i)
     {
         std::cout << m_argv[i] << " ";
     }

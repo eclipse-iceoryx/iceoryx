@@ -81,7 +81,7 @@ class CommandLineArgumentParser
     void setDefaultValuesToUnsetOptions() noexcept;
 
   private:
-    int m_argc = 0;
+    uint64_t m_argc = 0;
     char** m_argv = nullptr;
     uint64_t m_argcOffset = 0;
 
