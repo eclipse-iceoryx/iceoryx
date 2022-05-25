@@ -125,7 +125,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     cmake --build build
     ```
 
-    If the compilation fails it is possible that the compilation failure originates
+    If the compilation fails, it is possible that the compilation failure originates
     inside the Windows SDK and is not caused by iceoryx, see 
     [Windows vcpkg-issue \#15035](https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.)
     In this case try to rebuild the cmake files with:
