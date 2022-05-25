@@ -96,5 +96,12 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
+
+/////////////////
+TEST(pthreadWrapper_test, CreateThread)
+{
+    auto t = ThreadBuilder().create([]() { std::cout << "fffff" << std::endl; }).expect("");
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
 #endif
 } // namespace
