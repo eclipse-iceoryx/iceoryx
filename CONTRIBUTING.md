@@ -273,6 +273,9 @@ If you want to report a vulnerability, please use the [Eclipse process](https://
 
 #### Static code analysis
 
+The iceoryx maintainers have a partnership with [Axivion](https://www.axivion.com/en/) and use their
+[Axivion Suite](https://www.axivion.com/en/products/static-code-analysis/) to run a static code analysis.
+
 Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label | Priority |
