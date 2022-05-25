@@ -77,7 +77,7 @@ cxx::expected<uint32_t, SemaphoreError> SemaphoreInterface<SemaphoreChild>::getV
         return createErrorFromErrno(result.get_error().errnum);
     }
 
-    return cxx::success<uint32_t>(std::max(0, value));
+    return cxx::success<uint32_t>(static_cast<uint32_t>(std::max(0, value)));
 }
 
 template <typename SemaphoreChild>

@@ -156,7 +156,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
 
     auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(0));
+    EXPECT_THAT(*result, Eq(0U));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
@@ -198,7 +198,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
 
     auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(0));
+    EXPECT_THAT(*result, Eq(0U));
 }
 
 
