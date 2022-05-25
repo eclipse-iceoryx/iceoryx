@@ -42,7 +42,7 @@ TEST_F(UnnamedSemaphoreTest, DefaultInitialValueIsZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "33b6c6b9-ef33-4c62-a03b-f4405cfa2414");
     ASSERT_FALSE(UnnamedSemaphoreBuilder().create(sut).has_error());
-    EXPECT_THAT(sut->getState().expect("Failed to access semaphore").value, Eq(0U));
+    EXPECT_THAT(sut->getValue().expect("Failed to access semaphore"), Eq(0U));
 }
 
 TEST_F(UnnamedSemaphoreTest, InitialValueIsSetOnCreation)
@@ -51,7 +51,7 @@ TEST_F(UnnamedSemaphoreTest, InitialValueIsSetOnCreation)
     for (uint32_t initialValue = 313U; initialValue < 10000U; initialValue *= 3U)
     {
         ASSERT_FALSE(UnnamedSemaphoreBuilder().initialValue(initialValue).create(sut).has_error());
-        EXPECT_THAT(sut->getState().expect("Failed to access semaphore").value, Eq(initialValue));
+        EXPECT_THAT(sut->getValue().expect("Failed to access semaphore"), Eq(initialValue));
     }
 }
 } // namespace

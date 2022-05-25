@@ -19,12 +19,34 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
+#include <algorithm>
+
 namespace iox
 {
 namespace posix
 {
 namespace internal
 {
+cxx::error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
+{
+    switch (errnum)
+    {
+    case EINVAL:
+        LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
+        return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
+    case EOVERFLOW:
+        LogError() << "Semaphore overflow.";
+        return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+    case EINTR:
+        LogError() << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
+        return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
+    default:
+        LogError() << "This should never happen. An unknown error occurred.";
+        break;
+    }
+    return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+}
+
 template <typename SemaphoreChild>
 iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
 {
@@ -38,48 +60,24 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcep
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
-        {
-        case EINVAL:
-            LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-            return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
-        case EOVERFLOW:
-            LogError() << "Semaphore overflow.";
-            return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
-        default:
-            LogError() << "This should never happen. An unknown error occurred.";
-            break;
-        }
-        return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     return cxx::success<>();
 }
 
 template <typename SemaphoreChild>
-cxx::expected<SemaphoreState, SemaphoreError> SemaphoreInterface<SemaphoreChild>::getState() noexcept
+cxx::expected<uint32_t, SemaphoreError> SemaphoreInterface<SemaphoreChild>::getValue() noexcept
 {
     int value = 0;
     auto result = posixCall(iox_sem_getvalue)(getHandle(), &value).failureReturnValue(-1).evaluate();
+
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
-        {
-        case EINVAL:
-            LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-            return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
-        default:
-            LogError() << "This should never happen. An unknown error occurred.";
-            break;
-        }
-        return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
-    SemaphoreState state;
-    state.value = (value > 0) ? static_cast<uint32_t>(value) : 0U;
-    state.numberOfBlockedWait = (value < 0) ? static_cast<uint32_t>(-value) : 0U;
-
-    return cxx::success<SemaphoreState>(state);
+    return cxx::success<uint32_t>(std::max(0, value));
 }
 
 template <typename SemaphoreChild>
@@ -94,19 +92,7 @@ SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) no
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
-        {
-        case EINVAL:
-            LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-            return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
-        case EINTR:
-            LogError() << "The sem_timedwait was interrupted multiple times by the operating system. Abort operation!";
-            return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
-        default:
-            LogError() << "This should never happen. An unknown error occurred.";
-            break;
-        }
-        return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     return cxx::success<SemaphoreWaitState>((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT
@@ -120,19 +106,7 @@ cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait(
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
-        {
-        case EINVAL:
-            LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-            return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
-        case EINTR:
-            LogError() << "The sem_trywait was interrupted multiple times by the operating system. Abort operation!";
-            return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
-        default:
-            LogError() << "This should never happen. An unknown error occurred.";
-            break;
-        }
-        return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     return cxx::success<bool>(result.value().errnum != EAGAIN);
@@ -145,19 +119,7 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcep
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
-        {
-        case EINVAL:
-            LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-            return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
-        case EINTR:
-            LogError() << "The sem_wait was interrupted multiple times by the operating system. Abort operation!";
-            return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
-        default:
-            LogError() << "This should never happen. An unknown error occurred.";
-            break;
-        }
-        return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        return createErrorFromErrno(result.get_error().errnum);
     }
 
     return cxx::success<>();

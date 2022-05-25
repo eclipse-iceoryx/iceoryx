@@ -95,9 +95,9 @@ TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)
         ASSERT_FALSE(this->sut->post().has_error());
     }
 
-    auto result = this->sut->getState();
+    auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS));
+    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
@@ -115,9 +115,9 @@ TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
         ASSERT_FALSE(this->sut->wait().has_error());
     }
 
-    auto result = this->sut->getState();
+    auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
@@ -137,9 +137,9 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
         ASSERT_THAT(*call, Eq(true));
     }
 
-    auto result = this->sut->getState();
+    auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
@@ -154,9 +154,9 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
         ASSERT_THAT(*call, Eq(false));
     }
 
-    auto result = this->sut->getState();
+    auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(0));
+    EXPECT_THAT(*result, Eq(0));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
@@ -178,9 +178,9 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
 
-    auto result = this->sut->getState();
+    auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
@@ -196,9 +196,9 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
     }
 
-    auto result = this->sut->getState();
+    auto result = this->sut->getValue();
     ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result->value, Eq(0));
+    EXPECT_THAT(*result, Eq(0));
 }
 
 
@@ -243,9 +243,8 @@ TYPED_TEST(SemaphoreInterfaceTest, WaitBlocksAtLeastDefinedSleepTime)
     ASSERT_FALSE(this->sut->wait().has_error());
     auto end = std::chrono::steady_clock::now();
 
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
-
     t1.join();
+    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedSleepTimeAndSignalsTimeout)

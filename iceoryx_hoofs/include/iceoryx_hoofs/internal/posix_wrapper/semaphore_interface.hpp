@@ -27,16 +27,6 @@ namespace posix
 {
 namespace internal
 {
-/// @brief Represent the state of a semaphore
-struct SemaphoreState
-{
-    /// @brief current value of the semaphore
-    uint32_t value = 0U;
-
-    /// @brief states the number of threads waiting in wait, or timedWait
-    uint32_t numberOfBlockedWait = 0U;
-};
-
 /// @brief Defines the interface of a named and unnamed semaphore.
 template <typename SemaphoreChild>
 class SemaphoreInterface
@@ -53,9 +43,9 @@ class SemaphoreInterface
     ///         semaphore was removed from outside the process
     cxx::expected<SemaphoreError> post() noexcept;
 
-    /// @brief Returns the state of the semaphore
+    /// @brief Returns the value of the semaphore
     /// @return Fails when semaphore was removed from outside the process
-    cxx::expected<SemaphoreState, SemaphoreError> getState() noexcept;
+    cxx::expected<uint32_t, SemaphoreError> getValue() noexcept;
 
     /// @brief Decrements the semaphore by one. When the semaphore value is zero
     ///        it blocks until the semaphore value is greater zero
