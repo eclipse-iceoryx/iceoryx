@@ -17,16 +17,6 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_TYPES_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_TYPES_HPP
 
-/// @brief Used only for benchmarking iceoryx against UNIX domain sockets
-enum class EventTransmission : uint8_t
-{
-    UDS,
-    IOX,
-};
-
-/// @brief Used only for benchmarking iceoryx against UNIX domain sockets
-constexpr EventTransmission EVENT_IPC_MECHANISM = USED_IPC_MECHANISM_FOR_EVENTS;
-
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
@@ -54,8 +44,12 @@ namespace kom
 template <typename T>
 using SamplePtr = iox::cxx::optional<iox::popo::Sample<const T>>;
 
-using InstanceIdentifier = core::String;
 using ServiceIdentifier = core::String;
+using InstanceIdentifier = core::String;
+
+using EventIdentifier = core::String;
+using FieldIdentifier = core::String;
+using MethodIdentifier = core::String;
 
 struct FindServiceHandle
 {

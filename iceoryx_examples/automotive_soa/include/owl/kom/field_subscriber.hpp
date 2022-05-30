@@ -36,7 +36,7 @@ class FieldSubscriber
     static constexpr uint64_t QUEUE_CAPACITY{1U};
     static constexpr uint64_t HISTORY_REQUEST{1U};
 
-    FieldSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+    FieldSubscriber(const ServiceIdentifier& service, const InstanceIdentifier& instance, const FieldIdentifier& field) noexcept;
     ~FieldSubscriber() noexcept;
 
     FieldSubscriber(const FieldSubscriber&) = delete;

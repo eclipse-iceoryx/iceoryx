@@ -27,7 +27,7 @@ namespace owl
 {
 namespace kom
 {
-/// @note Once a receive handler has been set, calling the following methods not be thread-safe:
+/// @note Once a receive handler has been set, calling the following methods is not thread-safe:
 ///           - Subscribe()
 ///           - Unsubscribe()
 ///           - GetNewSamples()
@@ -40,10 +40,12 @@ class EventSubscriber
     static constexpr uint64_t HISTORY_REQUEST{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
-    EventSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+    EventSubscriber(const ServiceIdentifier& service,
+                    const InstanceIdentifier& instance,
+                    const EventIdentifier& event) noexcept;
 
     /// @note Will disable the receive handler if active
-    void Subscribe(std::size_t) noexcept;
+    void Subscribe(std::size_t queueCapacity) noexcept;
     /// @note Will disable the receive handler if active
     void Unsubscribe() noexcept;
 
@@ -53,7 +55,7 @@ class EventSubscriber
 
     void SetReceiveHandler(EventReceiveHandler handler) noexcept;
     void UnsetReceiveHandler() noexcept;
-    bool HasReceiveHandler() noexcept;
+    bool HasReceiveHandler() const noexcept;
 
 
   private:

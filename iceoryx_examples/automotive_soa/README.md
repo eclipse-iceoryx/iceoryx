@@ -411,11 +411,6 @@ Contains three members which use a different communication pattern:
 * `FieldPublisher m_field`
 * `MethodServer computeSum`
 
-!!! info
-    `EventPublisher` and `EventSubscriber` are also available as UNIX domain socket implementation
-    to compare iceoryx's shared memory implementation. Available topic sizes are:
-    1 Byte, 4 kB, 16 kB, 64 kB, 256 kB, 1 MB, 4 MB
-
 #### `EventPublisher`
 
 A `EventPublisher` contains a single member.

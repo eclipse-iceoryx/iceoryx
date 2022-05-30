@@ -20,10 +20,10 @@ namespace owl
 {
 namespace kom
 {
-MethodServer::MethodServer(const core::String& service,
-                           const core::String& instance,
-                           const core::String& event) noexcept
-    : m_server({service, instance, event})
+MethodServer::MethodServer(const ServiceIdentifier& service,
+                           const InstanceIdentifier& instance,
+                           const MethodIdentifier& method) noexcept
+    : m_server({service, instance, method})
 {
     m_listener
         .attachEvent(m_server,

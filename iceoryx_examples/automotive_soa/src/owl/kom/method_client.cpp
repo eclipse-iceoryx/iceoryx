@@ -20,10 +20,10 @@ namespace owl
 {
 namespace kom
 {
-MethodClient::MethodClient(const core::String& service,
-                           const core::String& instance,
-                           const core::String& event) noexcept
-    : m_client({service, instance, event})
+MethodClient::MethodClient(const ServiceIdentifier& service,
+                           const InstanceIdentifier& instance,
+                           const MethodIdentifier& method) noexcept
+    : m_client({service, instance, method})
 {
     m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).expect("Failed to attach client!");
 }

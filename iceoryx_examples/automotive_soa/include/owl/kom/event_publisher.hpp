@@ -31,7 +31,9 @@ class EventPublisher
   public:
     using SampleType = T;
 
-    EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+    EventPublisher(const ServiceIdentifier& service,
+                   const InstanceIdentifier& instance,
+                   const EventIdentifier& event) noexcept;
 
     // Deleted because of SampleAllocateePtr implementation capturing 'this' in Allocate()
     EventPublisher(const EventPublisher&) = delete;

@@ -24,11 +24,11 @@ namespace owl
 namespace kom
 {
 template <typename T>
-inline FieldSubscriber<T>::FieldSubscriber(const core::String& service,
-                                           const core::String& instance,
-                                           const core::String& event) noexcept
-    : m_subscriber({service, instance, event}, {QUEUE_CAPACITY, HISTORY_REQUEST})
-    , m_client({service, instance, event})
+inline FieldSubscriber<T>::FieldSubscriber(const ServiceIdentifier& service,
+                                           const InstanceIdentifier& instance,
+                                           const FieldIdentifier& field) noexcept
+    : m_subscriber({service, instance, field}, {QUEUE_CAPACITY, HISTORY_REQUEST})
+    , m_client({service, instance, field})
 {
     m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).expect("Failed to attach client!");
 }

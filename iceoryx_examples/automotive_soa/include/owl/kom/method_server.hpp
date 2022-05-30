@@ -31,7 +31,9 @@ namespace kom
 class MethodServer
 {
   public:
-    MethodServer(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+    MethodServer(const ServiceIdentifier& service,
+                 const InstanceIdentifier& instance,
+                 const MethodIdentifier& method) noexcept;
 
     ~MethodServer() noexcept;
 

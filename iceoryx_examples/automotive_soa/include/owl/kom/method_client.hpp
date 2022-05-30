@@ -31,7 +31,9 @@ namespace kom
 class MethodClient
 {
   public:
-    MethodClient(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+    MethodClient(const ServiceIdentifier& service,
+                 const InstanceIdentifier& instance,
+                 const MethodIdentifier& method) noexcept;
     ~MethodClient() noexcept;
 
     MethodClient(const MethodClient&) = delete;

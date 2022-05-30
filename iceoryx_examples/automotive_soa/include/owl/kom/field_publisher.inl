@@ -24,16 +24,16 @@ namespace owl
 namespace kom
 {
 template <typename T>
-inline FieldPublisher<T>::FieldPublisher(const core::String& service,
-                                         const core::String& instance,
-                                         const core::String& event,
-                                         const FieldType& field) noexcept
-    : m_publisher({service, instance, event}, {HISTORY_CAPACITY})
-    , m_server({service, instance, event})
-    , m_latestValue(field)
+inline FieldPublisher<T>::FieldPublisher(const ServiceIdentifier& service,
+                                         const InstanceIdentifier& instance,
+                                         const FieldIdentifier& field,
+                                         const FieldType& fieldValue) noexcept
+    : m_publisher({service, instance, field}, {HISTORY_CAPACITY})
+    , m_server({service, instance, field})
+    , m_latestValue(fieldValue)
 {
     // publisher is automatically offered
-    Update(field);
+    Update(m_latestValue);
 
     //! [FieldPublisher attach]
     m_listener

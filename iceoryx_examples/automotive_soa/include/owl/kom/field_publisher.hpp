@@ -35,10 +35,10 @@ class FieldPublisher
     using FieldType = T;
     static constexpr uint64_t HISTORY_CAPACITY{1U};
 
-    FieldPublisher(const core::String& service,
-                   const core::String& instance,
-                   const core::String& event,
-                   const FieldType& field) noexcept;
+    FieldPublisher(const ServiceIdentifier& service,
+                   const InstanceIdentifier& instance,
+                   const FieldIdentifier& field,
+                   const FieldType& fieldValue) noexcept;
     ~FieldPublisher() noexcept;
 
     FieldPublisher(const FieldPublisher&) = delete;
