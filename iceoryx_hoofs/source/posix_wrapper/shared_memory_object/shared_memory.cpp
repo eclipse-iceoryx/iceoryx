@@ -24,6 +24,7 @@
 #include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 
 #include <bitset>
 #include <cassert>
@@ -33,15 +34,6 @@ namespace iox
 {
 namespace posix
 {
-static int getOflagsFor(const AccessMode accessMode, const OpenMode openMode) noexcept
-{
-    int oflags = 0;
-    oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
-    oflags |= (openMode != OpenMode::OPEN_EXISTING) ? O_CREAT : 0;
-    oflags |= (openMode == OpenMode::EXCLUSIVE_CREATE) ? O_EXCL : 0;
-    return oflags;
-}
-
 cxx::string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory::Name_t& name) noexcept
 {
     cxx::string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
@@ -93,8 +85,8 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
         auto result =
             posixCall(iox_shm_open)(
                 nameWithLeadingSlash.c_str(),
-                getOflagsFor(m_accessMode,
-                             (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
+                convertToOflags(m_accessMode,
+                                (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
                 static_cast<mode_t>(m_filePermissions))
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
@@ -106,7 +98,7 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
             if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
             {
                 result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
-                                                 getOflagsFor(m_accessMode, OpenMode::OPEN_EXISTING),
+                                                 convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
                                                  static_cast<mode_t>(m_filePermissions))
                              .failureReturnValue(SharedMemory::INVALID_HANDLE)
                              .evaluate();
