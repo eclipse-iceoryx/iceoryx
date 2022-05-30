@@ -29,7 +29,7 @@ namespace iox
 {
 namespace posix
 {
-/// @brief A unnamed posix semaphore.
+/// @brief A named posix semaphore.
 class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
 {
   public:

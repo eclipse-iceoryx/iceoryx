@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/time.hpp"
+#include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
@@ -50,7 +51,13 @@ class SemaphoreInterfaceTest : public Test
     void SetUp()
     {
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
-        ASSERT_TRUE(SutFactory::create(sut));
+        ASSERT_TRUE(SutFactory::create(sut, 0U));
+    }
+
+    iox::cxx::expected<iox::posix::SemaphoreError> createSutWithInitialValue(const uint32_t value)
+    {
+        sut.reset();
+        return SutFactory::create(sut, value);
     }
 
     void TearDown()
@@ -72,18 +79,67 @@ constexpr iox::units::Duration SemaphoreInterfaceTest<T>::TIMING_TEST_WAIT_TIME;
 struct UnnamedSemaphoreTest
 {
     using SutType = iox::cxx::optional<iox::posix::UnnamedSemaphore>;
-    static bool create(SutType& sut)
+    static iox::cxx::expected<iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
     {
-        return !iox::posix::UnnamedSemaphoreBuilder()
-                    .initialValue(0U)
-                    .isInterProcessCapable(false)
-                    .create(sut)
-                    .has_error();
+        return iox::posix::UnnamedSemaphoreBuilder()
+            .initialValue(initialValue)
+            .isInterProcessCapable(false)
+            .create(sut);
     }
 };
 
-using Implementations = Types<UnnamedSemaphoreTest>;
+struct NamedSemaphoreTest
+{
+    using SutType = iox::cxx::optional<iox::posix::NamedSemaphore>;
+    static iox::cxx::expected<iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
+    {
+        return iox::posix::NamedSemaphoreBuilder()
+            .initialValue(initialValue)
+            .name("TestSemaphore")
+            .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+            .permissions(iox::cxx::perms::owner_all)
+            .create(sut);
+    }
+};
+
+
+using Implementations = Types<UnnamedSemaphoreTest, NamedSemaphoreTest>;
 TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations);
+
+TYPED_TEST(SemaphoreInterfaceTest, InitialValueIsSetCorrect)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "51f8fa91-cbab-41c4-90b5-363cf267422f");
+    constexpr uint32_t INITIAL_VALUE = 11232U;
+
+    ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
+
+    auto result = this->sut->getValue();
+    ASSERT_THAT(result.has_error(), Eq(false));
+    EXPECT_THAT(*result, Eq(INITIAL_VALUE));
+}
+
+TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "02e478ba-9197-4007-b19b-2f570a836707");
+    uint32_t INITIAL_VALUE = static_cast<uint32_t>(SEM_VALUE_MAX) + 1;
+
+    auto result = this->createSutWithInitialValue(INITIAL_VALUE);
+
+    ASSERT_THAT(result.has_error(), Eq(true));
+    EXPECT_THAT(result.get_error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
+}
+
+TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "02e478ba-9197-4007-b19b-2f570a836707");
+    uint32_t INITIAL_VALUE = static_cast<uint32_t>(SEM_VALUE_MAX);
+
+    ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
+
+    auto result = this->sut->post();
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
+}
 
 TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)
 {

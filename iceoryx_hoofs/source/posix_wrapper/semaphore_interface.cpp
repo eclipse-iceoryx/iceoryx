@@ -36,7 +36,7 @@ cxx::error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
         LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
         return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
     case EOVERFLOW:
-        LogError() << "Semaphore overflow.";
+        LogError() << "Semaphore overflow. The maximum value of " << SEM_VALUE_MAX << " would be exceeded.";
         return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     case EINTR:
         LogError() << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
