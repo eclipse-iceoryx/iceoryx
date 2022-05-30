@@ -40,7 +40,11 @@ template <typename T>
 inline FieldSubscriber<T>::~FieldSubscriber() noexcept
 {
     m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
-    // Wait here if a callback is still running
+
+    // Wait here if a thread or callback is still running
+    while (m_threadsRunning > 0)
+    {
+    }
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
 }
 
@@ -128,6 +132,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
 {
     Promise<FieldType> promise;
     auto future = promise.get_future();
+    m_threadsRunning++;
     // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
     std::thread(
         [&](Promise<FieldType>&& promise) {
@@ -136,6 +141,11 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
             std::lock_guard<iox::posix::mutex> guard(m_mutex);
 
             auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
+
+            if (notificationVector.empty())
+            {
+                std::cerr << "WaitSet ran into timeout when trying to receive response!" << std::endl;
+            }
 
             for (auto& notification : notificationVector)
             {
@@ -160,6 +170,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
                     }
                 }
             }
+            m_threadsRunning--;
             //! [FieldSubscriber receive response]
         },
         std::move(promise))

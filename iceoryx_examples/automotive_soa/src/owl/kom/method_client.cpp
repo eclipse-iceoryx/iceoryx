@@ -35,10 +35,10 @@ MethodClient::~MethodClient() noexcept
 {
     m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
 
+    // Wait here if a thread or callback is still running
     while (m_threadsRunning > 0)
     {
     }
-    // Wait here if a callback is still running
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
 }
 
@@ -79,6 +79,11 @@ Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
             std::lock_guard<iox::posix::mutex> guard(m_mutex);
 
             auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
+
+            if (notificationVector.empty())
+            {
+                std::cerr << "WaitSet ran into timeout when trying to receive response!" << std::endl;
+            }
 
             for (auto& notification : notificationVector)
             {

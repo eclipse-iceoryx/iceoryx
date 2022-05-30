@@ -18,6 +18,7 @@
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP
 
 #include "iceoryx_posh/popo/sample.hpp"
+#include "owl/types.hpp"
 
 namespace owl
 {
@@ -38,6 +39,7 @@ class SampleAllocateePtr : private iox::cxx::optional<iox::popo::Sample<SampleTy
     SampleType& operator*() noexcept;
     const SampleType& operator*() const noexcept;
 
+    // Only the Publisher shall be allowed to access the cxx::optional not the user
     template <typename T>
     friend class EventPublisher;
 };

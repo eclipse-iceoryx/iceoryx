@@ -25,8 +25,8 @@ namespace kom
 {
 template <typename T>
 inline EventPublisher<T>::EventPublisher(const core::String& service,
-                                         const core::String& instance,
-                                         const core::String& event) noexcept
+                                                                 const core::String& instance,
+                                                                 const core::String& event) noexcept
     : m_publisher({service, instance, event}, {HISTORY_CAPACITY, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
 {
 }
