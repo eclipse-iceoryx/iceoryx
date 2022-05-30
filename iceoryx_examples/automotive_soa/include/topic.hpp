@@ -124,5 +124,20 @@ struct TimestampTopic4Mb
     uint32_t subPackets{0};
 };
 
+template <typename T, typename = void, typename = void, typename = void, typename = void, typename = void>
+struct is_supported_topic : std::false_type
+{
+};
+
+template <typename T>
+struct is_supported_topic<T,
+                          std::void_t<decltype(T::counter)>,
+                          std::void_t<decltype(T::sendTimestamp)>,
+                          std::void_t<decltype(T::payloadSizeInBytes)>,
+                          std::void_t<decltype(T::data)>,
+                          std::void_t<decltype(T::subPackets)>> : std::true_type
+{
+};
+
 
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_TOPIC_HPP

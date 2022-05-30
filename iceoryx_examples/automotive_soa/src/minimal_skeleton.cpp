@@ -18,7 +18,7 @@
 
 constexpr char MinimalSkeleton::m_serviceIdentifier[];
 
-MinimalSkeleton::MinimalSkeleton(owl::core::String& instanceIdentifier) noexcept
+MinimalSkeleton::MinimalSkeleton(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     : m_instanceIdentifier(instanceIdentifier)
 {
 }

@@ -17,7 +17,6 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_EVENT_PUBLISHER_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_EVENT_PUBLISHER_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 
 #include "owl/types.hpp"

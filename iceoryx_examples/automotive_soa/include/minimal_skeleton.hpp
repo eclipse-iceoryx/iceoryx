@@ -29,7 +29,7 @@ class MinimalSkeleton
   public:
     static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
 
-    MinimalSkeleton(owl::core::String& instanceIdentifier) noexcept;
+    MinimalSkeleton(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
     ~MinimalSkeleton() noexcept;
 
     MinimalSkeleton(const MinimalSkeleton&) = delete;
@@ -40,7 +40,7 @@ class MinimalSkeleton
     void OfferService() noexcept;
     void StopOfferService() noexcept;
 
-    const owl::core::String m_instanceIdentifier;
+    const owl::kom::InstanceIdentifier m_instanceIdentifier;
     owl::kom::EventPublisher<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     Topic initalFieldValue{4242};
     owl::kom::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
