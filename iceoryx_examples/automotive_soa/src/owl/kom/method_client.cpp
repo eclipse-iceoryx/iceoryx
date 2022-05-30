@@ -34,6 +34,10 @@ MethodClient::MethodClient(const core::String& service,
 MethodClient::~MethodClient() noexcept
 {
     m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
+
+    while (m_threadsRunning > 0)
+    {
+    }
     // Wait here if a callback is still running
     std::lock_guard<iox::posix::mutex> guard(m_mutex);
 }
@@ -66,6 +70,8 @@ Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
 
     Promise<AddResponse> promise;
     auto future = promise.get_future();
+
+    m_threadsRunning++;
     // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
     std::thread(
         [&](Promise<AddResponse>&& promise) {
@@ -97,6 +103,7 @@ Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
                     }
                 }
             }
+            m_threadsRunning--;
         },
         std::move(promise))
         .detach();
