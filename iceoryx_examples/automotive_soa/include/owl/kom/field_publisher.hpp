@@ -38,7 +38,7 @@ class FieldPublisher
     FieldPublisher(const core::String& service,
                    const core::String& instance,
                    const core::String& event,
-                   FieldType& field) noexcept;
+                   const FieldType& field) noexcept;
     ~FieldPublisher() noexcept;
 
     FieldPublisher(const FieldPublisher&) = delete;

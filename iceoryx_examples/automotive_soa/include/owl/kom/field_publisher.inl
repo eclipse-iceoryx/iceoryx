@@ -27,7 +27,7 @@ template <typename T>
 inline FieldPublisher<T>::FieldPublisher(const core::String& service,
                                          const core::String& instance,
                                          const core::String& event,
-                                         FieldType& field) noexcept
+                                         const FieldType& field) noexcept
     : m_publisher({service, instance, event}, {HISTORY_CAPACITY})
     , m_server({service, instance, event})
     , m_latestValue(field)
