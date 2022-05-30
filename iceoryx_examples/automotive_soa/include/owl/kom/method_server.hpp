@@ -22,9 +22,7 @@
 #include "iceoryx_posh/popo/server.hpp"
 
 #include "owl/types.hpp"
-
-#include <memory>
-#include <utility>
+#include "topic.hpp"
 
 namespace owl
 {
@@ -33,58 +31,21 @@ namespace kom
 class MethodServer
 {
   public:
-    MethodServer(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_server({service, instance, event})
-    {
-        m_listener
-            .attachEvent(m_server,
-                         iox::popo::ServerEvent::REQUEST_RECEIVED,
-                         iox::popo::createNotificationCallback(onRequestReceived, *this))
-            .or_else([](auto) {
-                std::cerr << "unable to attach server" << std::endl;
-                std::exit(EXIT_FAILURE);
-            });
-    }
+    MethodServer(const core::String& service, const core::String& instance, const core::String& event) noexcept;
 
-    ~MethodServer() noexcept
-    {
-        m_listener.detachEvent(m_server, iox::popo::ServerEvent::REQUEST_RECEIVED);
-    }
+    ~MethodServer() noexcept;
 
     MethodServer(const MethodServer&) = delete;
     MethodServer(MethodServer&&) = delete;
     MethodServer& operator=(const MethodServer&) = delete;
     MethodServer& operator=(MethodServer&&) = delete;
 
-    owl::kom::Future<AddResponse> computeSum(uint64_t addend1, uint64_t addend2)
-    {
-        // for simplicity we don't create thread here and make the call sychronous
-        Promise<AddResponse> promise;
-        promise.set_value({computeSumInternal(addend1, addend2)});
-        return promise.get_future();
-    }
+    owl::kom::Future<AddResponse> computeSum(uint64_t addend1, uint64_t addend2);
 
   private:
-    static void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept
-    {
-        while (server->take().and_then([&](const auto& request) {
-            server->loan(request)
-                .and_then([&](auto& response) {
-                    response->sum = self->computeSumInternal(request->addend1, request->addend2);
-                    response.send().or_else(
-                        [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
-                })
-                .or_else(
-                    [](auto& error) { std::cerr << "Could not allocate Response! Error: " << error << std::endl; });
-        }))
-        {
-        }
-    }
+    static void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept;
 
-    uint64_t computeSumInternal(uint64_t addend1, uint64_t addend2) noexcept
-    {
-        return addend1 + addend2;
-    }
+    uint64_t computeSumInternal(uint64_t addend1, uint64_t addend2) noexcept;
 
     iox::popo::Server<AddRequest, AddResponse> m_server;
     iox::popo::Listener m_listener;

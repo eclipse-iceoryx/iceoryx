@@ -23,9 +23,6 @@
 
 #include "owl/types.hpp"
 
-#include <limits>
-#include <memory>
-
 namespace owl
 {
 namespace kom
@@ -40,81 +37,22 @@ class EventSubscriber
     static constexpr uint64_t HISTORY_REQUEST{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
-    EventSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_subscriber({service, instance, event},
-                       {QUEUE_CAPACITY, HISTORY_REQUEST, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
-    {
-    }
+    EventSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept;
 
-    void Subscribe(std::size_t) noexcept
-    {
-        /// @todo #1332 maxSampleCount shall not be ignored, implement getOptions() for user ports?
-        m_subscriber.subscribe();
-    }
-
-    void Unsubscribe() noexcept
-    {
-        m_subscriber.unsubscribe();
-    }
+    void Subscribe(std::size_t) noexcept;
+    void Unsubscribe() noexcept;
 
     template <typename Callable>
     owl::core::Result<size_t> GetNewSamples(Callable&& callable,
-                                            size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept
-    {
-        IOX_DISCARD_RESULT(maxNumberOfSamples);
+                                            size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
 
-        owl::core::Result<size_t> numberOfSamples{0};
-
-        while (m_subscriber.take()
-                   .and_then([&](const auto& sample) {
-                       callable(sample.get());
-                       numberOfSamples++;
-                   })
-                   .or_else([](auto& result) {
-                       if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                       {
-                           std::cerr << "Error receiving chunk!" << std::endl;
-                       }
-                   }))
-        {
-        }
-        return numberOfSamples;
-    }
-
-    void SetReceiveHandler(EventReceiveHandler handler)
-    {
-        std::lock_guard<iox::posix::mutex> guard(m_mutex);
-        m_listener
-            .attachEvent(m_subscriber,
-                         iox::popo::SubscriberEvent::DATA_RECEIVED,
-                         iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
-            .or_else([](auto) {
-                std::cerr << "unable to attach subscriber" << std::endl;
-                std::exit(EXIT_FAILURE);
-            });
-        m_receiveHandler.emplace(handler);
-    }
-
-    void UnsetReceiveHandler()
-    {
-        std::lock_guard<iox::posix::mutex> guard(m_mutex);
-        m_listener.detachEvent(m_subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED);
-        m_receiveHandler.reset();
-    }
-
-    bool HasReceiverHandler()
-    {
-        std::lock_guard<iox::posix::mutex> guard(m_mutex);
-        return m_receiveHandler.has_value();
-    }
+    void SetReceiveHandler(EventReceiveHandler handler) noexcept;
+    void UnsetReceiveHandler() noexcept;
+    bool HasReceiverHandler() noexcept;
 
 
   private:
-    static void onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self)
-    {
-        std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
-        self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
-    }
+    static void onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept;
 
     iox::popo::Subscriber<T> m_subscriber;
     iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
@@ -123,7 +61,10 @@ class EventSubscriber
     iox::popo::Listener m_listener;
 };
 
+
 } // namespace kom
 } // namespace owl
+
+#include "owl/kom/event_subscriber.inl"
 
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_EVENT_SUBSCRIBER_HPP

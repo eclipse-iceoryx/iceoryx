@@ -22,9 +22,6 @@
 
 #include "owl/types.hpp"
 
-#include <memory>
-#include <utility>
-
 class MinimalSkeleton;
 
 namespace owl
@@ -46,60 +43,24 @@ class EventPublisher
     static constexpr uint64_t HISTORY_CAPACITY{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
-    EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_publisher({service, instance, event}, {HISTORY_CAPACITY, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
-    {
-    }
+    EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept;
 
-    void Send(const SampleType& userSample) noexcept
-    {
-        auto maybeSample = m_publisher.loan();
+    void Send(const SampleType& userSample) noexcept;
+    void Send(owl::kom::SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
 
-        if (maybeSample.has_error())
-        {
-            std::cerr << "Error occured during allocation, couldn't send sample!" << std::endl;
-            return;
-        }
-
-        auto& sample = maybeSample.value();
-        *(sample.get()) = userSample;
-        sample.publish();
-    }
-
-    owl::kom::SampleAllocateePtr<SampleType> Allocate() noexcept
-    {
-        auto maybeSample = m_publisher.loan();
-
-        if (maybeSample.has_error())
-        {
-            return iox::cxx::nullopt;
-        }
-
-        return owl::kom::SampleAllocateePtr<SampleType>(std::move(maybeSample.value()));
-    }
-
-    void Send(owl::kom::SampleAllocateePtr<SampleType> userSamplePtr) noexcept
-    {
-        /// @todo #1332 how to verify that this sample belongs to me?
-        userSamplePtr.value().publish();
-    }
+    owl::kom::SampleAllocateePtr<SampleType> Allocate() noexcept;
 
     friend class ::MinimalSkeleton;
 
   private:
-    void Offer() noexcept
-    {
-        m_publisher.offer();
-    }
-
-    void StopOffer() noexcept
-    {
-        m_publisher.stopOffer();
-    }
+    void Offer() noexcept;
+    void StopOffer() noexcept;
 
     iox::popo::Publisher<T> m_publisher;
 };
 } // namespace kom
 } // namespace owl
+
+#include "owl/kom/event_publisher.inl"
 
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_EVENT_PUBLISHER_HPP

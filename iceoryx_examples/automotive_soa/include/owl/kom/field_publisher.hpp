@@ -38,82 +38,22 @@ class FieldPublisher
     FieldPublisher(const core::String& service,
                    const core::String& instance,
                    const core::String& event,
-                   FieldType& field) noexcept
-        : m_publisher({service, instance, event}, {HISTORY_CAPACITY})
-        , m_server({service, instance, event})
-        , m_latestValue(field)
-    {
-        // publisher is automatically offered
-        Update(field);
-
-        m_listener
-            .attachEvent(m_server,
-                         iox::popo::ServerEvent::REQUEST_RECEIVED,
-                         iox::popo::createNotificationCallback(onRequestReceived, *this))
-            .or_else([](auto) {
-                std::cerr << "unable to attach server" << std::endl;
-                std::exit(EXIT_FAILURE);
-            });
-    }
-
-    ~FieldPublisher() noexcept
-    {
-        m_listener.detachEvent(m_server, iox::popo::ServerEvent::REQUEST_RECEIVED);
-        m_publisher.stopOffer();
-    }
+                   FieldType& field) noexcept;
+    ~FieldPublisher() noexcept;
 
     FieldPublisher(const FieldPublisher&) = delete;
     FieldPublisher(FieldPublisher&&) = delete;
     FieldPublisher& operator=(const FieldPublisher&) = delete;
     FieldPublisher& operator=(FieldPublisher&&) = delete;
 
-    void Update(const FieldType& userField) noexcept
-    {
-        auto maybeField = m_publisher.loan();
+    void Update(const FieldType& userField) noexcept;
 
-        if (maybeField.has_error())
-        {
-            std::cerr << "Error occured during allocation, couldn't send sample!" << std::endl;
-            return;
-        }
-
-        auto& field = maybeField.value();
-        *(field.get()) = userField;
-        m_latestValue = userField;
-        field.publish();
-    }
-
-    void RegisterGetHandler(iox::cxx::function<void()>) noexcept
-    {
-        std::cerr << "'RegisterGetHandler' not implemented." << std::endl;
-    }
-
-    void RegisterSetHandler(iox::cxx::function<void()>) noexcept
-    {
-        std::cerr << "'RegisterSetHandler' not implemented." << std::endl;
-    }
+    void RegisterGetHandler(iox::cxx::function<void()>) noexcept;
+    void RegisterSetHandler(iox::cxx::function<void()>) noexcept;
 
   private:
     static void onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
-                                  FieldPublisher<FieldType>* self) noexcept
-    {
-        while (server->take().and_then([&](const auto& request) {
-            server->loan(request)
-                .and_then([&](auto& response) {
-                    if (request->has_value())
-                    {
-                        self->m_latestValue = request->value();
-                    }
-                    *response = self->m_latestValue;
-                    response.send().or_else(
-                        [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
-                })
-                .or_else(
-                    [](auto& error) { std::cerr << "Could not allocate Response! Error: " << error << std::endl; });
-        }))
-        {
-        }
-    }
+                                  FieldPublisher<FieldType>* self) noexcept;
     iox::popo::Publisher<FieldType> m_publisher;
     iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
     iox::popo::Listener m_listener;
@@ -121,5 +61,7 @@ class FieldPublisher
 };
 } // namespace kom
 } // namespace owl
+
+#include "owl/kom/field_publisher.inl"
 
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_FIELD_PUBLISHER_HPP

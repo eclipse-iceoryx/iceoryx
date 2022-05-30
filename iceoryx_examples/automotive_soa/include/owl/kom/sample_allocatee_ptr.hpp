@@ -32,41 +32,18 @@ class SampleAllocateePtr : private iox::cxx::optional<iox::popo::Sample<SampleTy
 
     using ParentType::ParentType;
 
-    SampleType* operator->() noexcept
-    {
-        if (!this->has_value())
-        {
-            // We don't allow undefined behaviour
-            std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
-            std::terminate();
-        }
-        return this->value().get();
-    }
+    SampleType* operator->() noexcept;
+    const SampleType* operator->() const noexcept;
 
-    const SampleType* operator->() const noexcept
-    {
-        const_cast<const SampleType*>(const_cast<SampleAllocateePtr<SampleType>*>(this)->operator->());
-    }
-
-    SampleType& operator*() noexcept
-    {
-        if (!this->has_value())
-        {
-            // We don't allow undefined behaviour
-            std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
-            std::terminate();
-        }
-        return *(this->value().get());
-    }
-
-    const SampleType& operator*() const noexcept
-    {
-        const_cast<const SampleType*>(const_cast<SampleAllocateePtr<SampleType>*>(this)->operator->());
-    }
+    SampleType& operator*() noexcept;
+    const SampleType& operator*() const noexcept;
 
     template <typename T>
     friend class EventPublisher;
 };
 } // namespace kom
 } // namespace owl
+
+#include "owl/kom/sample_allocatee_ptr.inl"
+
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP

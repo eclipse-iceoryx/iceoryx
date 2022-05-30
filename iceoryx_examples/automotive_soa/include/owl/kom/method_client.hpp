@@ -19,12 +19,10 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/popo/client.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 
 #include "owl/types.hpp"
-
-#include <memory>
-#include <thread>
-#include <utility>
+#include "topic.hpp"
 
 namespace owl
 {
@@ -33,89 +31,15 @@ namespace kom
 class MethodClient
 {
   public:
-    MethodClient(const core::String& service, const core::String& instance, const core::String& event)
-        : m_client({service, instance, event})
-    {
-        m_waitset.attachState(m_client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
-            std::cerr << "failed to attach client" << std::endl;
-            std::exit(EXIT_FAILURE);
-        });
-    }
-
-    ~MethodClient()
-    {
-        m_waitset.detachState(m_client, iox::popo::ClientState::HAS_RESPONSE);
-        // Wait here if a callback is still running
-        std::lock_guard<iox::posix::mutex> guard(m_mutex);
-    }
+    MethodClient(const core::String& service, const core::String& instance, const core::String& event) noexcept;
+    ~MethodClient() noexcept;
 
     MethodClient(const MethodClient&) = delete;
     MethodClient(MethodClient&&) = delete;
     MethodClient& operator=(const MethodClient&) = delete;
     MethodClient& operator=(MethodClient&&) = delete;
 
-    owl::kom::Future<AddResponse> operator()(uint64_t addend1, uint64_t addend2)
-    {
-        // If we call the operator() twice shortly after each other, once the response of the first request has not yet
-        // arrived, we have a problem
-        bool requestSuccessfullySend{false};
-        m_client.loan()
-            .and_then([&](auto& request) {
-                request.getRequestHeader().setSequenceId(m_sequenceId);
-                request->addend1 = addend1;
-                request->addend2 = addend2;
-                request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
-                    std::cerr << "Could not send Request! Error: " << error << std::endl;
-                });
-            })
-            .or_else([&](auto& error) {
-                std::cerr << "Could not allocate Request! Error: " << error << std::endl;
-                requestSuccessfullySend = false;
-            });
-
-        if (!requestSuccessfullySend)
-        {
-            return owl::kom::Future<AddResponse>();
-        }
-
-        Promise<AddResponse> promise;
-        auto future = promise.get_future();
-        // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
-        std::thread(
-            [&](Promise<AddResponse>&& promise) {
-                // Avoid race if MethodClient d'tor is called while this thread is still running
-                std::lock_guard<iox::posix::mutex> guard(m_mutex);
-
-                auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
-
-                for (auto& notification : notificationVector)
-                {
-                    if (notification->doesOriginateFrom(&m_client))
-                    {
-                        while (m_client.take().and_then([&](const auto& response) {
-                            auto receivedSequenceId = response.getResponseHeader().getSequenceId();
-                            if (receivedSequenceId == m_sequenceId)
-                            {
-                                AddResponse result{response->sum};
-                                m_sequenceId++;
-                                promise.set_value_at_thread_exit(result);
-                            }
-                            else
-                            {
-                                std::cerr << "Got Response with outdated sequence ID! Expected = " << m_sequenceId
-                                          << "; Actual = " << receivedSequenceId << "!" << std::endl;
-                                std::terminate();
-                            }
-                        }))
-                        {
-                        }
-                    }
-                }
-            },
-            std::move(promise))
-            .detach();
-        return future;
-    }
+    Future<AddResponse> operator()(uint64_t addend1, uint64_t addend2);
 
   private:
     iox::popo::Client<AddRequest, AddResponse> m_client;
