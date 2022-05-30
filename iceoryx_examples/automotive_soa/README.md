@@ -561,8 +561,8 @@ The `EventSubscriber` class is implemented with the following members
 ```cpp
 iox::popo::Subscriber<T> m_subscriber;
 iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
-static constexpr bool isRecursive{true};
-iox::posix::mutex m_mutex{isRecursive};
+static constexpr bool IS_RECURSIVE{true};
+iox::posix::mutex m_mutex{IS_RECURSIVE};
 iox::popo::Listener m_listener;
 ```
 
@@ -614,8 +614,8 @@ iox::popo::Subscriber<FieldType> m_subscriber;
 iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;
 std::atomic<int64_t> m_sequenceId{0};
 iox::popo::WaitSet<> m_waitset;
-static constexpr bool isRecursive{true};
-iox::posix::mutex m_mutex{isRecursive};
+static constexpr bool IS_RECURSIVE{true};
+iox::posix::mutex m_mutex{IS_RECURSIVE};
 ```
 
 The `Get()` method allows the receive the value from a `FieldPublisher`
@@ -701,8 +701,8 @@ Every `MethodClient` object contains the following members
 iox::popo::Client<AddRequest, AddResponse> m_client;
 std::atomic<int64_t> m_sequenceId{0};
 iox::popo::WaitSet<> m_waitset;
-static constexpr bool isRecursive{true};
-iox::posix::mutex m_mutex{isRecursive};
+static constexpr bool IS_RECURSIVE{true};
+iox::posix::mutex m_mutex{IS_RECURSIVE};
 ```
 
 Receiving the result of the addition of the two numbers is similar to receiving the value in the

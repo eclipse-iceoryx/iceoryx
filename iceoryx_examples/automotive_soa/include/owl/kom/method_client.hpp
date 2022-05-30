@@ -46,8 +46,8 @@ class MethodClient
     iox::popo::Client<AddRequest, AddResponse> m_client;
     std::atomic<int64_t> m_sequenceId{0};
     iox::popo::WaitSet<> m_waitset;
-    static constexpr bool isRecursive{true};
-    iox::posix::mutex m_mutex{isRecursive};
+    static constexpr bool IS_RECURSIVE{true};
+    iox::posix::mutex m_mutex{IS_RECURSIVE};
     //! [MethodClient members]
 };
 } // namespace kom

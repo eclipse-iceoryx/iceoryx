@@ -57,8 +57,8 @@ class EventSubscriber
     //! [EventSubscriber members]
     iox::popo::Subscriber<T> m_subscriber;
     iox::cxx::optional<iox::cxx::function<void()>> m_receiveHandler;
-    static constexpr bool isRecursive{true};
-    iox::posix::mutex m_mutex{isRecursive};
+    static constexpr bool IS_RECURSIVE{true};
+    iox::posix::mutex m_mutex{IS_RECURSIVE};
     iox::popo::Listener m_listener;
     //! [EventSubscriber members]
 };

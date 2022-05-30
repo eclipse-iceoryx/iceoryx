@@ -56,7 +56,7 @@ class EventPublisher
     //! [EventPublisher allocate]
     SampleAllocateePtr<SampleType> Allocate() noexcept;
     //! [EventPublisher allocate]
-  
+
   private:
     //! [EventPublisher members]
     iox::popo::Publisher<T> m_publisher;
