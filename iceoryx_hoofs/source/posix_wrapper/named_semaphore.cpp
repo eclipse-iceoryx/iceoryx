@@ -23,35 +23,98 @@ namespace iox
 {
 namespace posix
 {
+static cxx::expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
+{
+    auto result = posixCall(iox_sem_unlink)(name.c_str()).failureReturnValue(-1).ignoreErrnos(ENOENT).evaluate();
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EACCES:
+            LogError() << "You don't have permission to remove to remove the semaphore \"" << name << "\"";
+            return cxx::error<SemaphoreError>(SemaphoreError::PERMISSION_DENIED);
+        default:
+            LogError() << "This should never happen. An unknown error occurred while creating the semaphore \"" << name
+                       << "\".";
+            return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        }
+    }
+    return cxx::success<>();
+}
+
 cxx::expected<SemaphoreError>
 NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaphore) noexcept
 {
     if (!cxx::isValidFilePath(m_name))
     {
+        LogError() << "The name \"" << m_name << "\" is not a valid semaphore name.";
         return cxx::error<SemaphoreError>(SemaphoreError::INVALID_NAME);
+    }
+
+    if (m_initialValue > SEM_VALUE_MAX)
+    {
+        LogError() << "The semaphores \"" << m_name << "\" initial value of " << m_initialValue
+                   << " exceeds the maximum semaphore value " << SEM_VALUE_MAX;
+        return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
     if (m_openMode == OpenMode::PURGE_AND_CREATE)
     {
-        auto result = posixCall(iox_sem_unlink)(m_name.c_str()).failureReturnValue(-1).ignoreErrnos(ENOENT).evaluate();
+        auto result = unlink(m_name);
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
-            {
-            case EACCES:
-                LogError() << "You don't have permission to remove to remove the semaphore \"" << m_name << "\"";
-                return cxx::error<SemaphoreError>(SemaphoreError::PERMISSION_DENIED);
-            default:
-                LogError() << "This should never happen. An unknown error occurred.";
-                return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
-            }
+            return result;
         }
     }
 
     auto result = posixCall(iox_sem_open_ext)(m_name.c_str(),
                                               convertToOflags(m_openMode),
                                               static_cast<mode_t>(m_permissions),
-                                              static_cast<unsigned int>(m_initialValue));
+                                              static_cast<unsigned int>(m_initialValue))
+                      .failureReturnValue(SEM_FAILED)
+                      .evaluate();
+
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EEXIST:
+            LogError() << "A semaphore with the name \"" << m_name << "\" does already exist.";
+            return cxx::error<SemaphoreError>(SemaphoreError::ALREADY_EXIST);
+        case EMFILE:
+            LogError() << "The per-process limit of file descriptor exceeded while creating the semaphore \"" << m_name
+                       << "\"";
+            return cxx::error<SemaphoreError>(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
+        case ENFILE:
+            LogError() << "The system wide limit of file descriptor exceeded while creating the semaphore \"" << m_name
+                       << "\"";
+            return cxx::error<SemaphoreError>(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
+        case ENOENT:
+            LogError() << "Unable to open semaphore since no semaphore with the name \"" << m_name << "\" exists.";
+            return cxx::error<SemaphoreError>(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS);
+        case ENOMEM:
+            LogError() << "Insufficient memory to create the semaphore \"" << m_name << "\".";
+            return cxx::error<SemaphoreError>(SemaphoreError::OUT_OF_MEMORY);
+        default:
+            LogError() << "This should never happen. An unknown error occurred while creating the semaphore \""
+                       << m_name << "\".";
+            return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+        }
+    }
+
+    uninitializedSemaphore.emplace(result.value().value, m_name);
+    return cxx::success<>();
+}
+
+NamedSemaphore::NamedSemaphore(iox_sem_t* handle, const Name_t& name) noexcept
+    : m_handle{handle}
+    , m_name{name}
+{
+}
+
+NamedSemaphore::~NamedSemaphore() noexcept
+{
+    IOX_DISCARD_RESULT(unlink(m_name));
 }
 
 iox_sem_t* NamedSemaphore::getHandle() noexcept

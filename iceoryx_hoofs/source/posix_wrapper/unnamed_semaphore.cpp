@@ -27,6 +27,13 @@ namespace posix
 cxx::expected<SemaphoreError>
 UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) noexcept
 {
+    if (m_initialValue > SEM_VALUE_MAX)
+    {
+        LogError() << "The unnamed semaphore initial value of " << m_initialValue
+                   << " exceeds the maximum semaphore value " << SEM_VALUE_MAX;
+        return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+    }
+
     uninitializedSemaphore.emplace();
 
     auto result = posixCall(iox_sem_init)(&uninitializedSemaphore.value().m_handle,

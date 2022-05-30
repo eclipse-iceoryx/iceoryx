@@ -46,7 +46,7 @@ class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
     friend class iox::cxx::optional<NamedSemaphore>;
     friend class internal::SemaphoreInterface<NamedSemaphore>;
 
-    explicit NamedSemaphore(iox_sem_t& handle) noexcept;
+    NamedSemaphore(iox_sem_t* handle, const Name_t& name) noexcept;
     iox_sem_t* getHandle() noexcept;
 
     iox_sem_t* m_handle = nullptr;
