@@ -68,6 +68,10 @@ class NamedSemaphoreBuilder
     IOX_BUILDER_PARAMETER(uint32_t, initialValue, 0U)
 
   public:
+    /// @brief create a named semaphore
+    /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
+    ///            memory to store the semaphore into - packed in an optional
+    /// @return an error describing the failure or success
     cxx::expected<SemaphoreError> create(cxx::optional<NamedSemaphore>& uninitializedSemaphore) noexcept;
 };
 } // namespace posix
