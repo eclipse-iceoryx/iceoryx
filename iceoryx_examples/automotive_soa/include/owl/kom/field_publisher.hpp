@@ -48,8 +48,8 @@ class FieldPublisher
 
     void Update(const FieldType& userField) noexcept;
 
-    void RegisterGetHandler(iox::cxx::function<void()>) noexcept;
-    void RegisterSetHandler(iox::cxx::function<void()>) noexcept;
+    void RegisterGetHandler(const iox::cxx::function<void()>) noexcept;
+    void RegisterSetHandler(const iox::cxx::function<void()>) noexcept;
 
   private:
     static void onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,

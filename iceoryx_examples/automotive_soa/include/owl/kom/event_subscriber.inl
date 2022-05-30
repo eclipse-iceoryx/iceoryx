@@ -115,6 +115,12 @@ template <typename T>
 inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T>*,
                                                                                  EventSubscriber* self) noexcept
 {
+    if (self == nullptr)
+    {
+        std::cerr << "Callback was invoked with EventSubscriber* being a nullptr!" << std::endl;
+        return;
+    }
+
     std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
     self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) {
         if (!userCallable)

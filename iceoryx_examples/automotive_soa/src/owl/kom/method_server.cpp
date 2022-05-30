@@ -50,6 +50,12 @@ Future<AddResponse> MethodServer::computeSum(uint64_t addend1, uint64_t addend2)
 
 void MethodServer::onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept
 {
+    if (self == nullptr)
+    {
+        std::cerr << "Callback was invoked with MethodServer* being a nullptr!" << std::endl;
+        return;
+    }
+
     while (server->take().and_then([&](const auto& request) {
         server
             ->loan(request)

@@ -88,6 +88,12 @@ template <typename T>
 inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
                                                  FieldPublisher<FieldType>* self) noexcept
 {
+    if (self == nullptr)
+    {
+        std::cerr << "Callback was invoked with FieldPublisher* being a nullptr!" << std::endl;
+        return;
+    }
+
     while (server->take().and_then([&](const auto& request) {
         server->loan(request)
             .and_then([&](auto& response) {
