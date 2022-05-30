@@ -1,0 +1,85 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+
+#include <climits>
+
+namespace iox
+{
+namespace posix
+{
+cxx::expected<SemaphoreError>
+UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) noexcept
+{
+    uninitializedSemaphore.emplace();
+
+    auto result = posixCall(iox_sem_init)(&uninitializedSemaphore.value().m_handle,
+                                          (m_isInterProcessCapable) ? 0 : 1,
+                                          static_cast<unsigned int>(m_initialValue))
+                      .failureReturnValue(-1)
+                      .evaluate();
+
+    if (result.has_error())
+    {
+        uninitializedSemaphore.value().m_destroyHandle = false;
+        uninitializedSemaphore.reset();
+
+        switch (result.get_error().errnum)
+        {
+        case EINVAL:
+            LogError() << "The initial value of " << m_initialValue << " exceeds " << SEM_VALUE_MAX;
+            break;
+        case ENOSYS:
+            LogError() << "The system does not support process-shared semaphores";
+            break;
+        default:
+            LogError() << "This should never happen. An unknown error occurred.";
+            break;
+        }
+    }
+
+    return cxx::success<>();
+}
+
+UnnamedSemaphore::~UnnamedSemaphore() noexcept
+{
+    if (m_destroyHandle)
+    {
+        auto result = posixCall(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate();
+        if (result.has_error())
+        {
+            switch (result.get_error().errnum)
+            {
+            case EINVAL:
+                LogError() << "The semaphore handle was no longer valid. This can indicate a corrupted system.";
+                break;
+            default:
+                LogError() << "This should never happen. An unknown error occurred.";
+                break;
+            }
+        }
+    }
+}
+
+iox_sem_t* UnnamedSemaphore::getHandle() noexcept
+{
+    return &m_handle;
+}
+} // namespace posix
+} // namespace iox

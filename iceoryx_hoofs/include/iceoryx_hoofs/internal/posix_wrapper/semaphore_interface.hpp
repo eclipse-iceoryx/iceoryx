@@ -1,0 +1,77 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_POSIX_WRAPPER_SEMAPHORE_INTERFACE_HPP
+#define IOX_HOOFS_POSIX_WRAPPER_SEMAPHORE_INTERFACE_HPP
+
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/platform/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+
+namespace iox
+{
+namespace posix
+{
+namespace internal
+{
+/// @brief Defines the interface of a named and unnamed semaphore.
+template <typename SemaphoreChild>
+class SemaphoreInterface
+{
+  public:
+    SemaphoreInterface(const SemaphoreInterface&) noexcept = delete;
+    SemaphoreInterface(SemaphoreInterface&&) noexcept = delete;
+    SemaphoreInterface& operator=(const SemaphoreInterface&) noexcept = delete;
+    SemaphoreInterface& operator=(SemaphoreInterface&&) noexcept = delete;
+    ~SemaphoreInterface() noexcept = default;
+
+    /// @brief Increments the semaphore by one
+    /// @return Fails when the value of the semaphore overflows or when the
+    ///         semaphore was removed from outside the process
+    cxx::expected<SemaphoreError> post() noexcept;
+
+    /// @brief Returns the value of the semaphore
+    /// @return Fails when semaphore was removed from outside the process
+    cxx::expected<uint32_t, SemaphoreError> getValue() noexcept;
+
+    /// @brief Decrements the semaphore by one. When the semaphore value is zero
+    ///        it blocks until the semaphore value is greater zero
+    /// @return Fails when semaphore was removed from outside the process
+    cxx::expected<SemaphoreError> wait() noexcept;
+
+    /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
+    ///        it returns false otherwise it returns true and decrement the value by one.
+    /// @return Fails when semaphore was removed from outside the process
+    cxx::expected<bool, SemaphoreError> tryWait() noexcept;
+
+    /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
+    ///        it waits until the timeout has passed.
+    /// @return If during the timeout time the semaphore value increases to non zero
+    ///         it returns SemaphoreWaitState::NO_TIMEOUT and decreases the semaphore by one
+    ///         otherwise returns SemaphoreWaitState::TIMEOUT
+    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration& timeout) noexcept;
+
+  protected:
+    SemaphoreInterface() noexcept = default;
+
+  private:
+    iox_sem_t* getHandle() noexcept;
+};
+} // namespace internal
+} // namespace posix
+} // namespace iox
+
+#endif
