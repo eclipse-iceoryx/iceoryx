@@ -60,7 +60,7 @@ class FieldPublisher
 
         if (maybeField.has_error())
         {
-            std::cout << "Error occured during allocation, couldn't send sample!" << std::endl;
+            std::cerr << "Error occured during allocation, couldn't send sample!" << std::endl;
             return;
         }
 

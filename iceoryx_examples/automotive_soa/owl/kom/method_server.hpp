@@ -72,10 +72,10 @@ class MethodServer
                 .and_then([&](auto& response) {
                     response->sum = self->computeSumInternal(request->addend1, request->addend2);
                     response.send().or_else(
-                        [&](auto& error) { std::cout << "Could not send Response! Error: " << error << std::endl; });
+                        [&](auto& error) { std::cerr << "Could not send Response! Error: " << error << std::endl; });
                 })
                 .or_else(
-                    [](auto& error) { std::cout << "Could not allocate Response! Error: " << error << std::endl; });
+                    [](auto& error) { std::cerr << "Could not allocate Response! Error: " << error << std::endl; });
         }))
         {
         }

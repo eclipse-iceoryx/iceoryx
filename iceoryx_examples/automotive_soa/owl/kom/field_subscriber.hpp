@@ -56,7 +56,7 @@ class FieldSubscriber
                    .or_else([](auto& result) {
                        if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                        {
-                           std::cout << "Error receiving chunk!" << std::endl;
+                           std::cerr << "Error receiving chunk!" << std::endl;
                        }
                    }))
         {

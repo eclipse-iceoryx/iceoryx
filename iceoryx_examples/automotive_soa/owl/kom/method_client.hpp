@@ -61,11 +61,11 @@ class MethodClient
                 request->addend1 = addend1;
                 request->addend2 = addend2;
                 request.send().and_then([&]() { requestSuccessfullySend = true; }).or_else([](auto& error) {
-                    std::cout << "Could not send Request! Error: " << error << std::endl;
+                    std::cerr << "Could not send Request! Error: " << error << std::endl;
                 });
             })
             .or_else([&](auto& error) {
-                std::cout << "Could not allocate Request! Error: " << error << std::endl;
+                std::cerr << "Could not allocate Request! Error: " << error << std::endl;
                 requestSuccessfullySend = false;
             });
 
@@ -76,6 +76,7 @@ class MethodClient
 
         Promise<AddResponse> promise;
         auto future = promise.get_future();
+        // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
         std::thread(
             [&](Promise<AddResponse>&& promise) {
                 auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
@@ -94,7 +95,7 @@ class MethodClient
                             }
                             else
                             {
-                                std::cout << "Got Response with outdated sequence ID! Expected = " << m_sequenceId
+                                std::cerr << "Got Response with outdated sequence ID! Expected = " << m_sequenceId
                                           << "; Actual = " << receivedSequenceId << "!" << std::endl;
                                 std::terminate();
                             }
