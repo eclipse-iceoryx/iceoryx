@@ -47,7 +47,7 @@ class EventPublisher
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
     EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_publisher({service, instance, event}, {HISTORY_CAPACITY, "", NOT_OFFERED_ON_CREATE})
+        : m_publisher({service, instance, event}, {HISTORY_CAPACITY, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
     {
     }
 

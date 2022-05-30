@@ -17,18 +17,23 @@
 #ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_RUNTIME_HPP
 #define IOX_EXAMPLES_AUTOMOTIVE_SOA_RUNTIME_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cxx/pair.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "types.hpp"
 
+#include <tuple>
+
 namespace owl
 {
 class Runtime
 {
+  private:
+    using NumberOfAvailableServicesOnLastSearch = iox::cxx::optional<uint64_t>;
+
   public:
     static Runtime& GetInstance(const core::String& name) noexcept
     {
@@ -80,8 +85,9 @@ class Runtime
                                             kom::ServiceIdentifier& serviceIdentifier,
                                             kom::InstanceIdentifier& instanceIdentifier) noexcept
     {
-        /// @todo #1332 Are duplicate entries allowed?
-        m_callbacks.push_back({handler, {serviceIdentifier, instanceIdentifier}});
+        // Duplicate entries for the same service are allowed
+        m_callbacks.push_back(
+            {handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch()});
 
         if (m_callbacks.size() == 1)
         {
@@ -101,8 +107,8 @@ class Runtime
         auto iter = m_callbacks.begin();
         for (; iter != m_callbacks.end(); iter++)
         {
-            if (iter->second.GetServiceId() == handle.GetServiceId()
-                && iter->second.GetInstanceId() == handle.GetInstanceId())
+            if (std::get<1>(*iter).GetServiceId() == handle.GetServiceId()
+                && std::get<1>(*iter).GetInstanceId() == handle.GetInstanceId())
             {
                 break;
             }
@@ -124,7 +130,7 @@ class Runtime
     bool verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::ProxyHandleType>& container)
     {
         // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
-        // considered as a service. A owl::kom binding implementer would typically query the AUTOSAR meta model here, to
+        // considered as a service. A ara::com binding implementer would typically query the AUTOSAR meta model here, to
         // find out if all event, fields and methods of a service are available. For the example we assume that the
         // 'MinimalSkeleton' service is complete when the container contains the three iceoryx services:
         //
@@ -141,33 +147,43 @@ class Runtime
 
     static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self)
     {
-        // Requirements (not implemented, see below)
-        // 1) Has the availability of one of the registered services changed?
-        // 2) If yes, call the user-defined callback
-
+        // Has the availability of one of the registered services changed?
         for (auto& callback : self->m_callbacks)
         {
-            auto container =
-                self->FindService(callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier);
-            /// @todo #1332 Save number of available services in vector
-            // if(callback.third != containter.size())
-            // {
+            auto container = self->FindService(std::get<1>(callback).m_serviceIdentifier,
+                                               std::get<1>(callback).m_instanceIdentifier);
 
-            // Typically there should be a check for container.empty() and the callback should only be called when the
-            // availability of the specific service has changed. However, to notify the user in the automotive_soa
-            // example about a service, which has disappeared we call the callback on ANY change of the service registry
-            (callback.first)(
-                container,
-                kom::FindServiceHandle({callback.second.m_serviceIdentifier, callback.second.m_instanceIdentifier}));
-            // callback.third = containter.size();
-            // }
+            auto numberOfAvailableServicesOnCurrentSearch = container.size();
+            auto& numberOfAvailableServicesOnLastSearch = std::get<2>(callback);
+
+            auto executeCallback = [&]() {
+                (std::get<0>(callback))(container,
+                                        kom::FindServiceHandle({std::get<1>(callback).m_serviceIdentifier,
+                                                                std::get<1>(callback).m_instanceIdentifier}));
+                numberOfAvailableServicesOnLastSearch.emplace(numberOfAvailableServicesOnCurrentSearch);
+            };
+
+            // If the service is available for the first time
+            if (!numberOfAvailableServicesOnLastSearch.has_value() && numberOfAvailableServicesOnCurrentSearch != 0)
+            {
+                executeCallback();
+            }
+
+            // If the service was available before and current number of services has changed
+            if (numberOfAvailableServicesOnLastSearch.has_value()
+                && numberOfAvailableServicesOnLastSearch.value() != numberOfAvailableServicesOnCurrentSearch)
+            {
+                executeCallback();
+            }
         }
     }
 
     iox::runtime::ServiceDiscovery m_discovery;
     iox::popo::Listener m_listener;
     // A vector is not the optimal data structure but used here for simplicity
-    iox::cxx::vector<iox::cxx::pair<kom::FindServiceHandler<kom::ProxyHandleType>, kom::FindServiceHandle>,
+    iox::cxx::vector<std::tuple<kom::FindServiceHandler<kom::ProxyHandleType>,
+                                kom::FindServiceHandle,
+                                NumberOfAvailableServicesOnLastSearch>,
                      iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>
         m_callbacks;
 };

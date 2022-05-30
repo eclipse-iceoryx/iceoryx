@@ -41,7 +41,8 @@ class EventSubscriber
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
     EventSubscriber(const core::String& service, const core::String& instance, const core::String& event) noexcept
-        : m_subscriber({service, instance, event}, {QUEUE_CAPACITY, HISTORY_REQUEST, "", NOT_OFFERED_ON_CREATE})
+        : m_subscriber({service, instance, event},
+                       {QUEUE_CAPACITY, HISTORY_REQUEST, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
     {
     }
 
