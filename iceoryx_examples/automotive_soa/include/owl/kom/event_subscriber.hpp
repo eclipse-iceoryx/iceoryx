@@ -48,7 +48,7 @@ class EventSubscriber
 
     void Subscribe(std::size_t) noexcept
     {
-        /// @todo #1332 maxSampleCount shall not be ignored
+        /// @todo #1332 maxSampleCount shall not be ignored, implement getOptions() for user ports?
         m_subscriber.subscribe();
     }
 
