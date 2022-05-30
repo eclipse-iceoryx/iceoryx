@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/timer.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -40,8 +39,6 @@ using namespace ::testing;
 using namespace iox::units::duration_literals;
 using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
-
-using iox::posix::Timer;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -449,18 +446,18 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
 
-    auto start = Timer::now();
+    auto start = std::chrono::steady_clock::now();
 
     SetUp(memPoolTestContainer, testMempoolConfig, configType::DEFAULT);
 
-    auto stop = Timer::now();
+    auto stop = std::chrono::steady_clock::now();
 
     // Calc the difference
-    iox::units::Duration timediff = stop.value() - start.value();
+    auto timediff = iox::units::Duration(stop - start);
 
     PrintTiming(timediff);
 
-    /// Currently we expect that the RouDi is ready at least after 2 seconds
+    // Currently we expect that the RouDi is ready at least after 2 seconds
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
 });
