@@ -45,14 +45,14 @@ class FieldSubscriber
     FieldSubscriber& operator=(FieldSubscriber&&) = delete;
 
     template <typename Callable>
-    owl::core::Result<size_t> GetNewSamples(Callable&& callable,
-                                            size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
+    core::Result<size_t> GetNewSamples(Callable&& callable,
+                                       size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
 
-    Future<FieldType> Get() noexcept;
-    Future<FieldType> Set(const FieldType& value) noexcept;
+    Future<FieldType> Get();
+    Future<FieldType> Set(const FieldType& value);
 
   private:
-    Future<FieldType> receiveResponse() noexcept;
+    Future<FieldType> receiveResponse();
 
     iox::popo::Subscriber<FieldType> m_subscriber;
     iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;

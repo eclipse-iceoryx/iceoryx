@@ -46,9 +46,9 @@ class EventPublisher
     EventPublisher(const core::String& service, const core::String& instance, const core::String& event) noexcept;
 
     void Send(const SampleType& userSample) noexcept;
-    void Send(owl::kom::SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
+    void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
 
-    owl::kom::SampleAllocateePtr<SampleType> Allocate() noexcept;
+    SampleAllocateePtr<SampleType> Allocate() noexcept;
 
     friend class ::MinimalSkeleton;
 

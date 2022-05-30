@@ -48,14 +48,14 @@ inline void EventPublisher<T>::Send(const SampleType& userSample) noexcept
 }
 
 template <typename T>
-inline void EventPublisher<T>::Send(owl::kom::SampleAllocateePtr<T> userSamplePtr) noexcept
+inline void EventPublisher<T>::Send(SampleAllocateePtr<T> userSamplePtr) noexcept
 {
     /// @todo #1332 how to verify that this sample belongs to me?
     userSamplePtr.value().publish();
 }
 
 template <typename T>
-inline owl::kom::SampleAllocateePtr<T> EventPublisher<T>::Allocate() noexcept
+inline SampleAllocateePtr<T> EventPublisher<T>::Allocate() noexcept
 {
     auto maybeSample = m_publisher.loan();
 
@@ -64,7 +64,7 @@ inline owl::kom::SampleAllocateePtr<T> EventPublisher<T>::Allocate() noexcept
         return iox::cxx::nullopt;
     }
 
-    return owl::kom::SampleAllocateePtr<T>(std::move(maybeSample.value()));
+    return SampleAllocateePtr<T>(std::move(maybeSample.value()));
 }
 
 template <typename T>

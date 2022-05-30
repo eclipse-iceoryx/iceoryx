@@ -46,12 +46,11 @@ inline FieldSubscriber<T>::~FieldSubscriber() noexcept
 
 template <typename T>
 template <typename Callable>
-inline owl::core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& callable,
-                                                                   size_t maxNumberOfSamples) noexcept
+inline core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
     IOX_DISCARD_RESULT(maxNumberOfSamples);
 
-    owl::core::Result<size_t> numberOfSamples{0};
+    core::Result<size_t> numberOfSamples{0};
 
     while (m_subscriber.take()
                .and_then([&](const auto& sample) {
@@ -70,7 +69,7 @@ inline owl::core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& ca
 }
 
 template <typename T>
-inline Future<T> FieldSubscriber<T>::Get() noexcept
+inline Future<T> FieldSubscriber<T>::Get()
 {
     // If we call Get() twice shortly after each other, once the response of the first request has not yet
     // arrived, we have a problem
@@ -95,7 +94,7 @@ inline Future<T> FieldSubscriber<T>::Get() noexcept
 }
 
 template <typename T>
-inline Future<T> FieldSubscriber<T>::Set(const FieldType& value) noexcept
+inline Future<T> FieldSubscriber<T>::Set(const FieldType& value)
 {
     // If we call Set() twice shortly after each other, once the response of the first request has not yet
     // arrived, we have a problem
@@ -121,7 +120,7 @@ inline Future<T> FieldSubscriber<T>::Set(const FieldType& value) noexcept
 }
 
 template <typename T>
-inline Future<T> FieldSubscriber<T>::receiveResponse() noexcept
+inline Future<T> FieldSubscriber<T>::receiveResponse()
 {
     Promise<FieldType> promise;
     auto future = promise.get_future();

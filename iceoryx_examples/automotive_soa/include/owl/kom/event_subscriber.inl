@@ -47,12 +47,11 @@ inline void EventSubscriber<T>::Unsubscribe() noexcept
 
 template <typename T>
 template <typename Callable>
-inline owl::core::Result<size_t> EventSubscriber<T>::GetNewSamples(Callable&& callable,
-                                                                   size_t maxNumberOfSamples) noexcept
+inline core::Result<size_t> EventSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
     IOX_DISCARD_RESULT(maxNumberOfSamples);
 
-    owl::core::Result<size_t> numberOfSamples{0};
+    core::Result<size_t> numberOfSamples{0};
 
     while (m_subscriber.take()
                .and_then([&](const auto& sample) {

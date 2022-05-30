@@ -328,6 +328,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     EXAMPLES=${EXAMPLES/icediscovery\/src/""}
     EXAMPLES=${EXAMPLES/icediscovery\/include/""}
     EXAMPLES=${EXAMPLES/automotive_soa\/include/""}
+    EXAMPLES=${EXAMPLES/automotive_soa\/src/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo "${EXAMPLES}"
     mkdir -p build_out_of_tree && cd build_out_of_tree

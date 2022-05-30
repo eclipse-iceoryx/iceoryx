@@ -43,8 +43,8 @@ class EventSubscriber
     void Unsubscribe() noexcept;
 
     template <typename Callable>
-    owl::core::Result<size_t> GetNewSamples(Callable&& callable,
-                                            size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
+    core::Result<size_t> GetNewSamples(Callable&& callable,
+                                       size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
 
     void SetReceiveHandler(EventReceiveHandler handler) noexcept;
     void UnsetReceiveHandler() noexcept;
@@ -60,7 +60,6 @@ class EventSubscriber
     iox::posix::mutex m_mutex{isRecursive};
     iox::popo::Listener m_listener;
 };
-
 
 } // namespace kom
 } // namespace owl
