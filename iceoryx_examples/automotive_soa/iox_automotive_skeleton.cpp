@@ -36,7 +36,7 @@ int main()
 
     skeleton.OfferService();
 
-    uint64_t counter = 0;
+    uint32_t counter = 0;
     while (!iox::posix::hasTerminationRequested())
     {
         ++counter;

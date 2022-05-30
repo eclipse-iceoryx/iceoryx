@@ -102,8 +102,9 @@ class EventSubscriber
         m_receiveHandler.reset();
     }
 
-    bool HasReceiverHandler() const
+    bool HasReceiverHandler()
     {
+        std::lock_guard<iox::posix::mutex> guard(m_mutex);
         return m_receiveHandler.has_value();
     }
 
@@ -111,6 +112,7 @@ class EventSubscriber
   private:
     static void onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self)
     {
+        std::lock_guard<iox::posix::mutex> guard(self->m_mutex);
         self->m_receiveHandler.and_then([](iox::cxx::function<void()>& userCallable) { userCallable(); });
     }
 

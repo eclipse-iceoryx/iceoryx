@@ -14,6 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_EXAMPLES_ARA_COM_MINIMAL_SKELETON_HPP
+#define IOX_EXAMPLES_ARA_COM_MINIMAL_SKELETON_HPP
+
 #include "topic.hpp"
 
 #include "owl/kom/event_publisher.hpp"
@@ -44,8 +47,10 @@ class MinimalSkeleton
     }
 
     const owl::core::String m_instanceIdentifier;
-    owl::kom::EventPublisher<TimestampTopic> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    owl::kom::EventPublisher<TimestampTopic1Kb> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
     Topic initalFieldValue{4242};
     owl::kom::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
     owl::kom::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
 };
+
+#endif // IOX_EXAMPLES_ARA_COM_MINIMAL_SKELETON_HPP

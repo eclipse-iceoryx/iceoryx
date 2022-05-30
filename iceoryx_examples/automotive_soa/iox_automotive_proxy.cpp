@@ -66,6 +66,7 @@ int main()
                 }
                 std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
                           << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
+                maybeProxy->value().m_event.UnsetReceiveHandler();
                 maybeProxy->reset();
                 return;
             }
