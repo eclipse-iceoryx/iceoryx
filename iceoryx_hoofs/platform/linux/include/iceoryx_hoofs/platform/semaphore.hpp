@@ -61,10 +61,14 @@ inline int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
     return sem_init(sem, pshared, value);
 }
 
-template <typename... Targs>
-inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+inline iox_sem_t* iox_sem_open(const char* name, int oflag)
 {
-    return sem_open(name, oflag, args...);
+    return sem_open(name, oflag);
+}
+
+inline iox_sem_t* iox_sem_open_ext(const char* name, int oflag, mode_t mode, unsigned int value)
+{
+    return sem_open(name, oflag, mode, value);
 }
 
 inline int iox_sem_unlink(const char* name)

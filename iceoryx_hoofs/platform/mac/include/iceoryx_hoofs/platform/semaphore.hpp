@@ -57,10 +57,14 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value);
 int iox_sem_unlink(const char* name);
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...);
 
-template <typename... Targs>
-inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+inline iox_sem_t* iox_sem_open(const char* name, int oflag)
 {
-    return iox_sem_open_impl(name, oflag, args...);
+    return iox_sem_open_impl(name, oflag);
+}
+
+inline iox_sem_t* iox_sem_open_ext(const char* name, int oflag, mode_t mode, unsigned int value)
+{
+    return iox_sem_open_impl(name, oflag, mode, value);
 }
 
 #endif // IOX_HOOFS_MAC_PLATFORM_SEMAPHORE_HPP

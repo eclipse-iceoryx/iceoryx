@@ -48,8 +48,7 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
         }
     }
 
-    auto iox_sem_open_ptr = iox_sem_open<mode_t, unsigned int>;
-    auto result = posixCall(iox_sem_open_ptr)(m_name.c_str(),
+    auto result = posixCall(iox_sem_open_ext)(m_name.c_str(),
                                               convertToOflags(m_openMode),
                                               static_cast<mode_t>(m_permissions),
                                               static_cast<unsigned int>(m_initialValue));
