@@ -52,20 +52,21 @@ inline FieldPublisher<T>::~FieldPublisher() noexcept
 }
 
 template <typename T>
-inline void FieldPublisher<T>::Update(const FieldType& userField) noexcept
+inline bool FieldPublisher<T>::Update(const FieldType& userField) noexcept
 {
     auto maybeField = m_publisher.loan();
 
     if (maybeField.has_error())
     {
         std::cerr << "Error occured during allocation, couldn't send sample!" << std::endl;
-        return;
+        return false;
     }
 
     auto& field = maybeField.value();
     *(field.get()) = userField;
     m_latestValue = userField;
     field.publish();
+    return true;
 }
 
 template <typename T>

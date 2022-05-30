@@ -32,19 +32,20 @@ inline EventPublisher<T>::EventPublisher(const ServiceIdentifier& service,
 }
 
 template <typename T>
-inline void EventPublisher<T>::Send(const SampleType& userSample) noexcept
+inline bool EventPublisher<T>::Send(const SampleType& userSample) noexcept
 {
     auto maybeSample = m_publisher.loan();
 
     if (maybeSample.has_error())
     {
         std::cerr << "Error occured during allocation, couldn't send sample!" << std::endl;
-        return;
+        return false;
     }
 
     auto& sample = maybeSample.value();
     *(sample.get()) = userSample;
     sample.publish();
+    return true;
 }
 
 template <typename T>

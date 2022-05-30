@@ -49,6 +49,7 @@ struct TimestampTopic
     std::chrono::time_point<std::chrono::steady_clock> sendTimestamp;
 
     // Not printed to console
+    static constexpr uint32_t payloadSizeInBytes{NumberOfBytes};
     char data[NumberOfBytes];
     uint32_t subPackets{0};
 };

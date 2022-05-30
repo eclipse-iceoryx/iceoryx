@@ -47,7 +47,7 @@ class Runtime
     Runtime& operator=(const Runtime&) = delete;
     Runtime& operator=(Runtime&&) = delete;
 
-    /// @brief Performs sychronous search for specific instance of a service
+    /// @brief Performs synchronous search for specific instance of a service
     /// @param[in] serviceIdentifier string of service to search for
     /// @param[in] instanceIdentifier string of instance to search for
     /// @return Container with an entry for each found instance

@@ -47,7 +47,7 @@ class EventPublisher
     void Offer() noexcept;
     void StopOffer() noexcept;
 
-    void Send(const SampleType& userSample) noexcept;
+    bool Send(const SampleType& userSample) noexcept;
     //! [EventPublisher zero-copy send]
     void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
     //! [EventPublisher zero-copy send]

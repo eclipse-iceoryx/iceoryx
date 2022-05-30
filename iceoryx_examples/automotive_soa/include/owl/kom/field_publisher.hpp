@@ -46,7 +46,7 @@ class FieldPublisher
     FieldPublisher& operator=(const FieldPublisher&) = delete;
     FieldPublisher& operator=(FieldPublisher&&) = delete;
 
-    void Update(const FieldType& userField) noexcept;
+    bool Update(const FieldType& userField) noexcept;
 
     void RegisterGetHandler(const iox::cxx::function<void()>) noexcept;
     void RegisterSetHandler(const iox::cxx::function<void()>) noexcept;

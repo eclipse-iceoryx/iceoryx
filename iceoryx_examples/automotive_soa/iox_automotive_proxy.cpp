@@ -41,12 +41,12 @@ int main()
 
     optional<kom::FindServiceHandle> maybeHandle;
 
-    //! [sychronous discovery]
+    //! [synchronous discovery]
     kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "Example");
     std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
               << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
     auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
-    //! [sychronous discovery]
+    //! [synchronous discovery]
 
     if (!handleContainer.empty())
     {

@@ -62,7 +62,10 @@ int main()
         if (counter > 30)
         {
             Topic field{counter};
-            skeleton.m_field.Update(field);
+            if (!skeleton.m_field.Update(field))
+            {
+                std::exit(EXIT_FAILURE);
+            }
             std::cout << "Field: updated value to " << counter << std::endl;
         }
         //! [send field]

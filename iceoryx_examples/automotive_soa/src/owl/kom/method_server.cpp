@@ -39,7 +39,7 @@ MethodServer::~MethodServer() noexcept
 
 Future<AddResponse> MethodServer::computeSum(uint64_t addend1, uint64_t addend2)
 {
-    // for simplicity we don't create thread here and make the call sychronous
+    // for simplicity we don't create thread here and make the call synchronous
     Promise<AddResponse> promise;
     promise.set_value({computeSumInternal(addend1, addend2)});
     return promise.get_future();
