@@ -48,6 +48,7 @@ iox_add_library(
     FILES
         source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp
+        source/cxx/adaptive_wait.cpp
         source/cxx/deadline_timer.cpp
         source/cxx/filesystem.cpp
         source/cxx/generic_raii.cpp
@@ -71,6 +72,7 @@ iox_add_library(
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/posix_access_rights.cpp
         source/posix_wrapper/semaphore.cpp
+        source/posix_wrapper/semaphore_interface.cpp
         source/posix_wrapper/shared_memory_object.cpp
         source/posix_wrapper/shared_memory_object/allocator.cpp
         source/posix_wrapper/shared_memory_object/memory_map.cpp
@@ -80,6 +82,7 @@ iox_add_library(
         source/posix_wrapper/system_configuration.cpp
         source/posix_wrapper/thread.cpp
         source/posix_wrapper/unix_domain_socket.cpp
+        source/posix_wrapper/unnamed_semaphore.cpp
         source/relocatable_pointer/base_relative_pointer.cpp
         source/relocatable_pointer/relative_pointer_data.cpp
         source/units/duration.cpp
