@@ -1,4 +1,4 @@
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -24,7 +24,6 @@ option(BUILD_SHARED_LIBS "Build iceoryx as shared libraries" OFF)
 option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(BUILD_TEST "Build all tests" OFF)
 option(CCACHE "Use ccache when it's available" ON)
-option(CLANG_TIDY "Execute Clang-Tidy" OFF)
 option(COVERAGE "Build iceoryx with gcov flags" OFF)
 option(DDS_GATEWAY "Builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 option(DOWNLOAD_TOML_LIB "Download cpptoml via the CMake ExternalProject module" ON)
@@ -81,7 +80,6 @@ function(show_config_options)
   message("          BUILD_STRICT.........................: " ${BUILD_STRICT})
   message("          BUILD_TEST...........................: " ${BUILD_TEST} ${BUILD_TEST_HINT})
   message("          CCACHE...............................: " ${CCACHE} ${CCACHE_HINT})
-  message("          CLANG_TIDY...........................: " ${CLANG_TIDY})
   message("          COVERAGE.............................: " ${COVERAGE})
   message("          DDS_GATEWAY..........................: " ${DDS_GATEWAY})
   message("          DOWNLOAD_TOML_LIB....................: " ${DOWNLOAD_TOML_LIB})

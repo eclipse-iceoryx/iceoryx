@@ -24,137 +24,42 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-## C++ untyped API client
-add_executable(
-    iox-cpp-request-response-untyped-client
-    client_cxx_untyped.cpp
-)
-target_link_libraries(
-    iox-cpp-request-response-untyped-client
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(
-    iox-cpp-request-response-untyped-client
-    PRIVATE
-    ${ICEORYX_WARNINGS}
-    ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-request-response-untyped-client
+    FILES   ./client_cxx_untyped.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ untyped API server
-add_executable(
-    iox-cpp-request-response-untyped-server
-    server_cxx_untyped.cpp
-)
-target_link_libraries(
-    iox-cpp-request-response-untyped-server
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(
-    iox-cpp-request-response-untyped-server
-    PRIVATE
-    ${ICEORYX_WARNINGS}
-    ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-request-response-untyped-server
+    FILES   ./server_cxx_untyped.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ typed API client
-add_executable(
-    iox-cpp-request-response-basic-client
-    client_cxx_basic.cpp
-)
-target_link_libraries(
-    iox-cpp-request-response-basic-client
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(
-    iox-cpp-request-response-basic-client
-    PRIVATE
-    ${ICEORYX_WARNINGS}
-    ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-request-response-basic-client
+    FILES   ./client_cxx_basic.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ typed API client with WaitSet
-add_executable(
-    iox-cpp-request-response-waitset-client
-    client_cxx_waitset.cpp
-)
-target_link_libraries(
-    iox-cpp-request-response-waitset-client
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(
-    iox-cpp-request-response-waitset-client
-    PRIVATE
-    ${ICEORYX_WARNINGS}
-    ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-request-response-waitset-client
+    FILES   ./client_cxx_waitset.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ typed API server
-add_executable(
-    iox-cpp-request-response-basic-server
-    server_cxx_basic.cpp
-)
-target_link_libraries(
-    iox-cpp-request-response-basic-server
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(
-    iox-cpp-request-response-basic-server
-    PRIVATE
-    ${ICEORYX_WARNINGS}
-    ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-request-response-basic-server
+    FILES   ./server_cxx_basic.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ typed API server with Listener
-add_executable(
-    iox-cpp-request-response-listener-server
-    server_cxx_listener.cpp
-)
-target_link_libraries(
-    iox-cpp-request-response-listener-server
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(
-    iox-cpp-request-response-listener-server
-    PRIVATE
-    ${ICEORYX_WARNINGS}
-    ${ICEORYX_SANITIZER_FLAGS}
-)
-
-## additional properties
-set_target_properties(
-    iox-cpp-request-response-untyped-client
-    iox-cpp-request-response-untyped-server
-    iox-cpp-request-response-basic-client
-    iox-cpp-request-response-basic-server
-    iox-cpp-request-response-waitset-client
-    iox-cpp-request-response-listener-server
-    PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-install(
-    TARGETS
-    iox-cpp-request-response-untyped-client
-    iox-cpp-request-response-untyped-server
-    iox-cpp-request-response-basic-client
-    iox-cpp-request-response-basic-server
-    iox-cpp-request-response-waitset-client
-    iox-cpp-request-response-listener-server
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    TARGET  iox-cpp-request-response-listener-server
+    FILES   ./server_cxx_listener.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )

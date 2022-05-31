@@ -24,56 +24,34 @@ find_package(iceoryx_binding_c CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
-    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
-endif()
-
-add_executable(iox-c-request-response-client-basic ./client_c_basic.c)
-set_source_files_properties(./client_c_basic.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-request-response-client-basic
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-request-response-client-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-request-response-client-waitset ./client_c_waitset.c)
-set_source_files_properties(./client_c_waitset.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-request-response-client-waitset
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-request-response-client-waitset PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-request-response-server-basic ./server_c_basic.c)
-set_source_files_properties(./server_c_basic.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-request-response-server-basic
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-request-response-server-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-c-request-response-server-listener ./server_c_listener.c)
-set_source_files_properties(./server_c_listener.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-request-response-server-listener
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-c-request-response-server-listener PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(
-    iox-c-request-response-client-basic
-    iox-c-request-response-client-waitset
-    iox-c-request-response-server-basic
-    iox-c-request-response-server-listener
-  PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-request-response-client-basic
+    FILES   ./client_c_basic.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )
 
-install(
-    TARGETS 
-      iox-c-request-response-client-basic
-      iox-c-request-response-client-waitset
-      iox-c-request-response-server-basic
-      iox-c-request-response-server-listener
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-request-response-client-waitset
+    FILES   ./client_c_waitset.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
+)
+
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-request-response-server-basic
+    FILES   ./server_c_basic.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
+)
+
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-request-response-server-listener
+    FILES   ./server_c_listener.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )

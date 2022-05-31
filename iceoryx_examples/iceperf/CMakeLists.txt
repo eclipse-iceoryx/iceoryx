@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,49 +26,26 @@ find_package(iceoryx_binding_c CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-add_executable(iceperf-bench-leader main_leader.cpp iceperf_leader.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
-
-target_link_libraries(iceperf-bench-leader
-    iceoryx_posh::iceoryx_posh
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iceperf-bench-leader PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceperf-bench-leader socket)
-endif()
-
-add_executable(iceperf-bench-follower main_follower.cpp iceperf_follower.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
-
-target_link_libraries(iceperf-bench-follower
-    iceoryx_posh::iceoryx_posh
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iceperf-bench-follower PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceperf-bench-follower socket)
-endif()
-
-add_executable(iceperf-roudi
-    roudi_main_static_config.cpp
+iox_add_executable(
+    TARGET      iceperf-bench-leader
+    FILES       main_leader.cpp iceperf_leader.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp
+    LIBS        iceoryx_posh::iceoryx_posh iceoryx_binding_c::iceoryx_binding_c
+    LIBS_QNX    socket
 )
 
-target_link_libraries(iceperf-roudi
-    PRIVATE
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh_roudi
+iox_add_executable(
+    TARGET      iceperf-bench-follower
+    FILES       main_follower.cpp iceperf_follower.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp
+    LIBS        iceoryx_posh::iceoryx_posh iceoryx_binding_c::iceoryx_binding_c
+    LIBS_QNX    socket
 )
 
-target_compile_options(iceperf-roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iceperf-bench-leader iceperf-bench-follower iceperf-roudi PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-install(
-    TARGETS iceperf-bench-follower iceperf-bench-leader iceperf-roudi
-    RUNTIME DESTINATION bin
+iox_add_executable(
+    TARGET      iceperf-roudi
+    FILES       ./roudi_main_static_config.cpp
+    LIBS        iceoryx_hoofs::iceoryx_hoofs iceoryx_posh::iceoryx_posh_roudi
 )

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,140 +24,47 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-## C++ typed API publisher
-add_executable(iox-cpp-user-header-publisher
-               publisher_cxx_api.cpp
-)
-target_link_libraries(iox-cpp-user-header-publisher
-                      PRIVATE
-                      iceoryx_hoofs::iceoryx_hoofs
-                      iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-user-header-publisher
-                       PRIVATE
-                       ${ICEORYX_WARNINGS}
-                       ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-user-header-publisher
+    FILES   ./publisher_cxx_api.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ untyped API publisher
-add_executable(iox-cpp-user-header-untyped-publisher
-               publisher_untyped_cxx_api.cpp
-)
-target_link_libraries(iox-cpp-user-header-untyped-publisher
-                      PRIVATE
-                      iceoryx_hoofs::iceoryx_hoofs
-                      iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-user-header-untyped-publisher
-                       PRIVATE
-                       ${ICEORYX_WARNINGS}
-                       ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-user-header-untyped-publisher
+    FILES   ./publisher_untyped_cxx_api.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ typed API subscriber
-add_executable(iox-cpp-user-header-subscriber
-               subscriber_cxx_api.cpp
-)
-target_link_libraries(iox-cpp-user-header-subscriber
-                      PRIVATE
-                      iceoryx_hoofs::iceoryx_hoofs
-                      iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-user-header-subscriber
-                       PRIVATE
-                       ${ICEORYX_WARNINGS}
-                       ${ICEORYX_SANITIZER_FLAGS}
+iox_add_executable(
+    TARGET  iox-cpp-user-header-subscriber
+    FILES   ./subscriber_cxx_api.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-## C++ untyped API subscriber
-add_executable(iox-cpp-user-header-untyped-subscriber
-               subscriber_untyped_cxx_api.cpp
-)
-target_link_libraries(iox-cpp-user-header-untyped-subscriber
-                      PRIVATE
-                      iceoryx_hoofs::iceoryx_hoofs
-                      iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-user-header-untyped-subscriber
-                       PRIVATE
-                       ${ICEORYX_WARNINGS}
-                       ${ICEORYX_SANITIZER_FLAGS}
-)
-
-## additional properties
-set_target_properties(iox-cpp-user-header-publisher
-                      iox-cpp-user-header-subscriber
-                      iox-cpp-user-header-untyped-publisher
-                      iox-cpp-user-header-untyped-subscriber
-                      PROPERTIES
-                      CXX_STANDARD_REQUIRED ON
-                      CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-                      POSITION_INDEPENDENT_CODE ON
-)
-
-install(TARGETS
-        iox-cpp-user-header-publisher
-        iox-cpp-user-header-subscriber
-        iox-cpp-user-header-untyped-publisher
-        iox-cpp-user-header-untyped-subscriber
-        RUNTIME DESTINATION bin
+iox_add_executable(
+    TARGET  iox-cpp-user-header-untyped-subscriber
+    FILES   ./subscriber_untyped_cxx_api.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
 find_package(iceoryx_binding_c QUIET)
 if(iceoryx_binding_c_FOUND)
-
-    set_source_files_properties(
-        publisher_c_api.c
-        subscriber_c_api.c
-        PROPERTIES
-        LANGUAGE C
-        C_STANDARD_REQUIRED ON
-        C_STANDARD 11
+    iox_add_executable(
+        USE_C_LANGUAGE
+        TARGET  iox-c-user-header-publisher
+        FILES   ./publisher_c_api.c
+        LIBS    iceoryx_binding_c::iceoryx_binding_c
     )
 
-    if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
-        list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
-    endif()
-
-    ## C API publisher
-    add_executable(iox-c-user-header-publisher
-                publisher_c_api.c
-    )
-    target_link_libraries(iox-c-user-header-publisher
-                        PRIVATE
-                        iceoryx_binding_c::iceoryx_binding_c
-    )
-    target_compile_options(iox-c-user-header-publisher
-                        PRIVATE
-                        ${ICEORYX_WARNINGS}
-                        ${ICEORYX_SANITIZER_FLAGS}
-    )
-
-    ## C API subscriber
-    add_executable(iox-c-user-header-subscriber
-                subscriber_c_api.c
-    )
-    target_link_libraries(iox-c-user-header-subscriber
-                        PRIVATE
-                        iceoryx_binding_c::iceoryx_binding_c
-    )
-    target_compile_options(iox-c-user-header-subscriber
-                        PRIVATE
-                        ${ICEORYX_WARNINGS}
-                        ${ICEORYX_SANITIZER_FLAGS}
-    )
-
-    set_target_properties(iox-c-user-header-publisher
-                        iox-c-user-header-subscriber
-                        PROPERTIES
-                        POSITION_INDEPENDENT_CODE ON
-    )
-
-    install(TARGETS
-            iox-c-user-header-publisher
-            iox-c-user-header-subscriber
-            RUNTIME DESTINATION bin
+    iox_add_executable(
+        USE_C_LANGUAGE
+        TARGET  iox-c-user-header-subscriber
+        FILES   ./subscriber_c_api.c
+        LIBS    iceoryx_binding_c::iceoryx_binding_c
     )
 endif()

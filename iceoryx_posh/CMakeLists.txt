@@ -44,359 +44,211 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-option(MAKE_UNIQUE_INCLUDEDIR
-  "When ON headers are installed to a path ending with folders called \
-  iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
-  overriding this package from a merged catkin, ament, or colcon workspace."
-  ON)
-
-if(MAKE_UNIQUE_INCLUDEDIR)
-  set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
-  if(PREFIX STREQUAL "")
-    set(PREFIX "${_unique_dir}")
-  else()
-    set(PREFIX "${PREFIX}/${_unique_dir}")
-  endif()
-endif()
+iox_make_unique_includedir()
 
 include(cmake/iceoryxversions.cmake)
 
-if(CLANG_TIDY)
-    find_program(
-        CLANG_TIDY_EXE
-        NAMES "clang-tidy"
-    )
-
-    if(CLANG_TIDY_EXE)
-        set(PERFORM_CLANG_TIDY "${CLANG_TIDY_EXE}")
-    else(CLANG_TIDY_EXE)
-        message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
-    endif()
-endif()
-
 #
-########## set variables for library export ##########
+########## posh core lib ##########
 #
+# TODO: iox-#1287 cleanup this, it sets DESTINATION_INCLUDEDIR and
+# DESTINATION_CONFIGDIR which are used later in this scope
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
     NAMESPACE iceoryx_posh
     PROJECT_PREFIX ${PREFIX}
 )
 
-#
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
-    FORCE
+iox_add_library(
+    NO_EXPORT
+    TARGET                  iceoryx_posh    # @todo iox-#590 Rename this to iceoryx_posh_core
+    NAMESPACE               iceoryx_posh    # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
+                                            # and include both iceoryx_posh_core and iceoryx_posh_runtime
+    PROJECT_PREFIX          ${PREFIX}
+    BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+    INSTALL_INTERFACE       include/${PREFIX}
+    PRIVATE_INCLUDES        source/capro
+                            source/log
+                            source/mepoo
+                            source/popo
+                            source/version
+                            source/runtime
+    PUBLIC_LIBS             iceoryx_hoofs::iceoryx_hoofs
+    PRIVATE_LIBS            ${CMAKE_THREAD_LIBS_INIT}
+    PRIVATE_LIBS_LINUX      rt
+    FILES
+        source/log/posh_logging.cpp
+        source/capro/capro_message.cpp
+        source/capro/service_description.cpp
+        source/error_handling/error_handling.cpp
+        source/mepoo/chunk_header.cpp
+        source/mepoo/chunk_management.cpp
+        source/mepoo/chunk_settings.cpp
+        source/mepoo/mepoo_config.cpp
+        source/mepoo/segment_config.cpp
+        source/mepoo/memory_manager.cpp
+        source/mepoo/mem_pool.cpp
+        source/mepoo/shared_chunk.cpp
+        source/mepoo/shm_safe_unmanaged_chunk.cpp
+        source/mepoo/segment_manager.cpp
+        source/mepoo/mepoo_segment.cpp
+        source/mepoo/memory_info.cpp
+        source/popo/ports/interface_port.cpp
+        source/popo/ports/interface_port_data.cpp
+        source/popo/ports/base_port_data.cpp
+        source/popo/ports/base_port.cpp
+        source/popo/ports/publisher_port_data.cpp
+        source/popo/ports/publisher_port_user.cpp
+        source/popo/ports/publisher_port_roudi.cpp
+        source/popo/ports/subscriber_port_user.cpp
+        source/popo/ports/subscriber_port_roudi.cpp
+        source/popo/ports/subscriber_port_single_producer.cpp
+        source/popo/ports/subscriber_port_multi_producer.cpp
+        source/popo/ports/subscriber_port_data.cpp
+        source/popo/ports/client_port_data.cpp
+        source/popo/ports/client_port_roudi.cpp
+        source/popo/ports/client_port_user.cpp
+        source/popo/ports/server_port_data.cpp
+        source/popo/ports/server_port_roudi.cpp
+        source/popo/ports/server_port_user.cpp
+        source/popo/building_blocks/condition_listener.cpp
+        source/popo/building_blocks/condition_notifier.cpp
+        source/popo/building_blocks/condition_variable_data.cpp
+        source/popo/building_blocks/locking_policy.cpp
+        source/popo/building_blocks/unique_port_id.cpp
+        source/popo/client_options.cpp
+        source/popo/listener.cpp
+        source/popo/notification_info.cpp
+        source/popo/rpc_header.cpp
+        source/popo/publisher_options.cpp
+        source/popo/server_options.cpp
+        source/popo/subscriber_options.cpp
+        source/popo/trigger.cpp
+        source/popo/trigger_handle.cpp
+        source/popo/user_trigger.cpp
+        source/version/version_info.cpp
+        source/runtime/ipc_interface_base.cpp
+        source/runtime/ipc_interface_user.cpp
+        source/runtime/ipc_interface_creator.cpp
+        source/runtime/ipc_runtime_interface.cpp
+        source/runtime/ipc_message.cpp
+        source/runtime/port_config_info.cpp
+        source/runtime/posh_runtime.cpp                #
+        source/runtime/posh_runtime_impl.cpp           # @todo iox-#590 These files should go into a separate library iceoryx_posh_runtime
+        source/runtime/posh_runtime_single_process.cpp #
+        source/runtime/service_discovery.cpp           #
+        source/runtime/node.cpp
+        source/runtime/node_data.cpp
+        source/runtime/node_property.cpp
+        source/runtime/shared_memory_user.cpp
+        source/roudi/service_registry.cpp              # @todo iox-#415 Move the service registry into runtime namespace?
 )
-
-#
-########## posh core lib ##########
-#
-add_library(iceoryx_posh # @todo iox-#590 Rename this to iceoryx_posh_core
-    source/log/posh_logging.cpp
-    source/capro/capro_message.cpp
-    source/capro/service_description.cpp
-    source/error_handling/error_handling.cpp
-    source/mepoo/chunk_header.cpp
-    source/mepoo/chunk_management.cpp
-    source/mepoo/chunk_settings.cpp
-    source/mepoo/mepoo_config.cpp
-    source/mepoo/segment_config.cpp
-    source/mepoo/memory_manager.cpp
-    source/mepoo/mem_pool.cpp
-    source/mepoo/shared_chunk.cpp
-    source/mepoo/shm_safe_unmanaged_chunk.cpp
-    source/mepoo/segment_manager.cpp
-    source/mepoo/mepoo_segment.cpp
-    source/mepoo/memory_info.cpp
-    source/popo/ports/interface_port.cpp
-    source/popo/ports/interface_port_data.cpp
-    source/popo/ports/base_port_data.cpp
-    source/popo/ports/base_port.cpp
-    source/popo/ports/publisher_port_data.cpp
-    source/popo/ports/publisher_port_user.cpp
-    source/popo/ports/publisher_port_roudi.cpp
-    source/popo/ports/subscriber_port_user.cpp
-    source/popo/ports/subscriber_port_roudi.cpp
-    source/popo/ports/subscriber_port_single_producer.cpp
-    source/popo/ports/subscriber_port_multi_producer.cpp
-    source/popo/ports/subscriber_port_data.cpp
-    source/popo/ports/client_port_data.cpp
-    source/popo/ports/client_port_roudi.cpp
-    source/popo/ports/client_port_user.cpp
-    source/popo/ports/server_port_data.cpp
-    source/popo/ports/server_port_roudi.cpp
-    source/popo/ports/server_port_user.cpp
-    source/popo/building_blocks/condition_listener.cpp
-    source/popo/building_blocks/condition_notifier.cpp
-    source/popo/building_blocks/condition_variable_data.cpp
-    source/popo/building_blocks/locking_policy.cpp
-    source/popo/building_blocks/unique_port_id.cpp
-    source/popo/client_options.cpp
-    source/popo/listener.cpp
-    source/popo/notification_info.cpp
-    source/popo/rpc_header.cpp
-    source/popo/publisher_options.cpp
-    source/popo/server_options.cpp
-    source/popo/subscriber_options.cpp
-    source/popo/trigger.cpp
-    source/popo/trigger_handle.cpp
-    source/popo/user_trigger.cpp
-    source/version/version_info.cpp
-    source/runtime/ipc_interface_base.cpp
-    source/runtime/ipc_interface_user.cpp
-    source/runtime/ipc_interface_creator.cpp
-    source/runtime/ipc_runtime_interface.cpp
-    source/runtime/ipc_message.cpp
-    source/runtime/port_config_info.cpp
-    source/runtime/posh_runtime.cpp                #
-    source/runtime/posh_runtime_impl.cpp           # @todo iox-#590 These files should go into a separate library iceoryx_posh_runtime
-    source/runtime/posh_runtime_single_process.cpp #
-    source/runtime/service_discovery.cpp           #
-    source/runtime/node.cpp
-    source/runtime/node_data.cpp
-    source/runtime/node_property.cpp
-    source/runtime/shared_memory_user.cpp
-    source/roudi/service_registry.cpp              # @todo iox-#415 Move the service registry into runtime namespace?
-)
-
-add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh) # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
-                                                                   # and include both iceoryx_posh_core and iceoryx_posh_runtime
-
-set_target_properties(iceoryx_posh PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_posh PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
-
-target_include_directories(iceoryx_posh
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-    PRIVATE
-    source/capro
-    source/log
-    source/mepoo
-    source/popo
-    source/version
-    source/runtime
-)
-target_link_libraries(iceoryx_posh
-    PUBLIC
-    iceoryx_hoofs::iceoryx_hoofs
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}
-    ${CMAKE_THREAD_LIBS_INIT}
-)
-
-target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-if(LINUX)
-    target_link_libraries(iceoryx_posh PRIVATE rt )
-elseif(QNX)
-elseif(APPLE)
-elseif(WIN32)
-elseif(UNIX)
-else()
-    message(WARNING "Could not detect supported platform, but I'm feeling lucky today. Maybe its Unix." )
-endif()
-
-install(
-  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-  DESTINATION share/doc/iceoryx_posh
-  COMPONENT dev)
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses
-  DESTINATION share/doc/iceoryx_posh
-  COMPONENT dev)
-
 
 #
 ########## posh lib for gateway support ##########
 #
-add_library(iceoryx_posh_gateway
-    source/gateway/gateway_base.cpp
+iox_add_library(
+    NO_EXPORT
+    NO_PACKAGE_SETUP
+    NO_FIND_PACKAGE_SUPPORT
+    TARGET              iceoryx_posh_gateway
+    NAMESPACE           iceoryx_posh
+    BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
+                        ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                        ${CMAKE_BINARY_DIR}/dependencies/install/include
+    INSTALL_INTERFACE   include/${PREFIX}
+    PUBLIC_LIBS         iceoryx_hoofs::iceoryx_hoofs
+                        iceoryx_posh::iceoryx_posh
+    FILES
+        source/gateway/gateway_base.cpp
 )
-add_library(${PROJECT_NAMESPACE}::iceoryx_posh_gateway ALIAS iceoryx_posh_gateway)
-
-set_target_properties(iceoryx_posh_gateway PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-target_include_directories(iceoryx_posh_gateway
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-
-target_link_libraries(iceoryx_posh_gateway
-    PUBLIC
-    iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_posh::iceoryx_posh
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}
-)
-
-target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
 
 #
 ########## posh roudi lib ##########
 #
-add_library(iceoryx_posh_roudi
-    source/roudi/application/iceoryx_roudi_app.cpp
-    source/roudi/application/roudi_app.cpp
-    source/roudi/memory/memory_block.cpp
-    source/roudi/memory/memory_provider.cpp
-    source/roudi/memory/mempool_collection_memory_block.cpp
-    source/roudi/memory/mempool_segment_manager_memory_block.cpp
-    source/roudi/memory/port_pool_memory_block.cpp
-    source/roudi/memory/posix_shm_memory_provider.cpp
-    source/roudi/memory/default_roudi_memory.cpp
-    source/roudi/memory/roudi_memory_manager.cpp
-    source/roudi/memory/iceoryx_roudi_memory_manager.cpp
-    source/roudi/port_manager.cpp
-    source/roudi/port_pool.cpp
-    source/roudi/roudi.cpp
-    source/roudi/process.cpp
-    source/roudi/process_manager.cpp
-    source/roudi/iceoryx_roudi_components.cpp
-    source/roudi/roudi_cmd_line_parser.cpp
-    source/roudi/roudi_cmd_line_parser_config_file_option.cpp
-    source/roudi/roudi_config.cpp
-    )
-
-add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
-
-set_target_properties(iceoryx_posh_roudi PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+iox_add_library(
+    NO_EXPORT
+    NO_PACKAGE_SETUP
+    NO_FIND_PACKAGE_SUPPORT
+    TARGET              iceoryx_posh_roudi
+    NAMESPACE           iceoryx_posh
+    PUBLIC_LIBS         iceoryx_posh::iceoryx_posh
+    PRIVATE_LIBS        iceoryx_hoofs::iceoryx_hoofs
+    PRIVATE_INCLUDES    source/runtime
+                        source/version
+                        source/popo
+                        source/capro
+                        source/roudi
+    PRIVATE_LIBS_QNX    socket
+    FILES
+        source/roudi/application/iceoryx_roudi_app.cpp
+        source/roudi/application/roudi_app.cpp
+        source/roudi/memory/memory_block.cpp
+        source/roudi/memory/memory_provider.cpp
+        source/roudi/memory/mempool_collection_memory_block.cpp
+        source/roudi/memory/mempool_segment_manager_memory_block.cpp
+        source/roudi/memory/port_pool_memory_block.cpp
+        source/roudi/memory/posix_shm_memory_provider.cpp
+        source/roudi/memory/default_roudi_memory.cpp
+        source/roudi/memory/roudi_memory_manager.cpp
+        source/roudi/memory/iceoryx_roudi_memory_manager.cpp
+        source/roudi/port_manager.cpp
+        source/roudi/port_pool.cpp
+        source/roudi/roudi.cpp
+        source/roudi/process.cpp
+        source/roudi/process_manager.cpp
+        source/roudi/iceoryx_roudi_components.cpp
+        source/roudi/roudi_cmd_line_parser.cpp
+        source/roudi/roudi_cmd_line_parser_config_file_option.cpp
+        source/roudi/roudi_config.cpp
 )
-
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_posh_roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif()
-
-target_include_directories(iceoryx_posh_roudi PRIVATE
-    source/runtime
-    source/version
-    source/popo
-    source/capro
-    source/roudi
-)
-
-target_link_libraries(iceoryx_posh_roudi
-    PUBLIC
-    ${PROJECT_NAMESPACE}::iceoryx_posh     # @todo iox-#590 Only link against iceoryx_posh_core
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}
-    iceoryx_hoofs::iceoryx_hoofs
-)
-
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
-
-target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
 
 if(TOML_CONFIG)
     #
     ######### posh config lib ##########
     #
-    add_library(iceoryx_posh_config
-        source/log/posh_config_logging.cpp
-        source/gateway/gateway_config.cpp
-        source/gateway/toml_gateway_config_parser.cpp
-        source/roudi/roudi_config_toml_file_provider.cpp
+    iox_add_library(
+        NO_EXPORT
+        NO_PACKAGE_SETUP
+        NO_FIND_PACKAGE_SUPPORT
+        TARGET              iceoryx_posh_config
+        NAMESPACE           iceoryx_posh
+        PRIVATE_LIBS        iceoryx_posh::iceoryx_posh
+                            iceoryx_hoofs::iceoryx_hoofs
+                            iceoryx_posh::iceoryx_posh_roudi
+                            cpptoml
+        BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                            ${CMAKE_BINARY_DIR}/dependencies/install/include
+        INSTALL_INTERFACE   include/${PREFIX}
+        FILES
+            source/log/posh_config_logging.cpp
+            source/gateway/gateway_config.cpp
+            source/gateway/toml_gateway_config_parser.cpp
+            source/roudi/roudi_config_toml_file_provider.cpp
     )
-    add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
-
-    set_target_properties(iceoryx_posh_config PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    )
-
-    target_include_directories(iceoryx_posh_config PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-        $<INSTALL_INTERFACE:include/${PREFIX}>
-    )
-
-    target_link_libraries(iceoryx_posh_config PRIVATE
-        iceoryx_posh::iceoryx_posh
-        iceoryx_hoofs::iceoryx_hoofs
-        iceoryx_posh::iceoryx_posh_roudi
-        cpptoml
-        ${ICEORYX_SANITIZER_FLAGS}
-    )
-
-    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
     install(
         FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
         DESTINATION etc/
         COMPONENT dev)
-#
-######### posh roudi daemon ##########
-#
 
-    add_executable(iox-roudi
-        source/roudi/application/roudi_main.cpp
-    )
-
-    set_target_properties(iox-roudi PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    )
-
-    target_link_libraries(iox-roudi
-        PRIVATE
-        iceoryx_hoofs::iceoryx_hoofs
-        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
-        ${PROJECT_NAMESPACE}::iceoryx_posh_config
-    )
-
-    target_include_directories(iox-roudi PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-        $<INSTALL_INTERFACE:include/${PREFIX}>
-    )
-
-    target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
-
-    if(PERFORM_CLANG_TIDY)
-        set_target_properties(
-            iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+    #
+    ######### posh roudi daemon ##########
+    #
+    iox_add_executable(
+        PLACE_IN_BUILD_ROOT
+        TARGET              iox-roudi
+        LIBS                iceoryx_hoofs::iceoryx_hoofs
+                            iceoryx_posh::iceoryx_posh_roudi
+                            iceoryx_posh::iceoryx_posh_config
+        BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_BINARY_DIR}/dependencies/install/include
+        INSTALL_INTERFACE   include/${PREFIX}
+        FILES
+            source/roudi/application/roudi_main.cpp
         )
-    endif()
-
 endif()
 
 #
@@ -421,8 +273,9 @@ install(
 )
 
 # install deployment file to make posh config accessible by other packages
+
 install(
-    FILES
+    FILES 
         cmake/IceoryxPoshDeployment.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
@@ -431,53 +284,19 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
     ######### posh roudi environment ##########
     #
-    setup_package_name_and_create_files(
-        NAME ${PROJECT_NAME}_testing
-        NAMESPACE iceoryx_posh_testing
-        PROJECT_PREFIX ${PREFIX}
-    )
-
-    add_library(iceoryx_posh_testing
+    iox_add_library(
         STATIC
-        testing/roudi_environment/runtime_test_interface.cpp
-        testing/roudi_environment/roudi_environment.cpp
-    )
-
-    add_library(iceoryx_posh_testing::iceoryx_posh_testing ALIAS iceoryx_posh_testing)
-    set_target_properties(iceoryx_posh_testing PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-    )
-
-    target_include_directories(iceoryx_posh_testing
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/testing/include>
-        $<INSTALL_INTERFACE:include/${PREFIX}>
-    )
-
-    target_link_libraries(iceoryx_posh_testing
-        PRIVATE
-        iceoryx_posh::iceoryx_posh
-        iceoryx_hoofs::iceoryx_hoofs
-        iceoryx_posh::iceoryx_posh_roudi
-        iceoryx_hoofs_testing::iceoryx_hoofs_testing
-    )
-
-    target_compile_options(iceoryx_posh_testing PRIVATE ${ICEORYX_WARNINGS})
-
-    setup_install_directories_and_export_package(
-        TARGETS iceoryx_posh_testing
-        INCLUDE_DIRECTORY testing/include/
-    )
-
-    #
-    ########## find_package in source tree ##########
-    #
-    set(${PROJECT_NAME}_testing_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}_testingConfig.cmake to make find_package(${PROJECT_NAME}_testing) work in source tree!"
-    FORCE
+        TARGET                  iceoryx_posh_testing
+        NAMESPACE               iceoryx_posh_testing
+        BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/testing/include
+        INSTALL_INTERFACE       include/${PREFIX}
+        PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
+                                iceoryx_hoofs::iceoryx_hoofs
+                                iceoryx_posh::iceoryx_posh_roudi
+                                iceoryx_hoofs_testing::iceoryx_hoofs_testing
+        FILES
+            testing/roudi_environment/runtime_test_interface.cpp
+            testing/roudi_environment/roudi_environment.cpp
     )
 endif()
 

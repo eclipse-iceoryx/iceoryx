@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,6 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameIsNullptr)
     constexpr char EXPECTED_RUNTIME_NAME[iox::MAX_RUNTIME_NAME_LENGTH + 1] = "chucky";
     iox_runtime_init(EXPECTED_RUNTIME_NAME);
 
-    char actualRuntimeName[iox::MAX_RUNTIME_NAME_LENGTH + 1];
     auto nameLength = iox_runtime_get_instance_name(nullptr, iox::MAX_RUNTIME_NAME_LENGTH + 1);
 
     ASSERT_THAT(nameLength, Eq(0U));

@@ -28,129 +28,64 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-option(MAKE_UNIQUE_INCLUDEDIR
-  "When ON headers are installed to a path ending with folders called \
-  iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
-  overriding this package from a merged catkin, ament, or colcon workspace."
-  ON)
-
-if(MAKE_UNIQUE_INCLUDEDIR)
-  set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
-  if(PREFIX STREQUAL "")
-    set(PREFIX "${_unique_dir}")
-  else()
-    set(PREFIX "${PREFIX}/${_unique_dir}")
-  endif()
-endif()
-
-if(CLANG_TIDY)
-    find_program(
-        CLANG_TIDY_EXE
-        NAMES "clang-tidy"
-    )
-
-    if(CLANG_TIDY_EXE)
-        set(PERFORM_CLANG_TIDY "${CLANG_TIDY_EXE}")
-    else(CLANG_TIDY_EXE)
-        message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
-    endif(CLANG_TIDY_EXE)
-endif(CLANG_TIDY)
-
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
-    FORCE
-)
-
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_hoofs
-    PROJECT_PREFIX ${PREFIX}
-)
-
+iox_make_unique_includedir()
 add_subdirectory(platform)
 
 #
 ########## build iceoryx hoofs lib ##########
 #
 
-add_library(iceoryx_hoofs
-    source/concurrent/active_object.cpp
-    source/concurrent/loffli.cpp
-    source/cxx/adaptive_wait.cpp
-    source/cxx/deadline_timer.cpp
-    source/cxx/filesystem.cpp
-    source/cxx/generic_raii.cpp
-    source/cxx/helplets.cpp
-    source/cxx/requires.cpp
-    source/cxx/unique_id.cpp
-    source/error_handling/error_handler.cpp
-    source/error_handling/error_handling.cpp
-    source/file_reader/file_reader.cpp
-    source/log/hoofs_logging.cpp
-    source/log/logcommon.cpp
-    source/log/logger.cpp
-    source/log/logging_internal.cpp
-    source/log/logging.cpp
-    source/log/logmanager.cpp
-    source/log/logstream.cpp
-    source/posix_wrapper/access_control.cpp
-    source/posix_wrapper/file_lock.cpp
-    source/posix_wrapper/message_queue.cpp
-    source/posix_wrapper/mutex.cpp
-    source/posix_wrapper/named_pipe.cpp
-    source/posix_wrapper/posix_access_rights.cpp
-    source/posix_wrapper/semaphore.cpp
-    source/posix_wrapper/semaphore_interface.cpp
-    source/posix_wrapper/shared_memory_object.cpp
-    source/posix_wrapper/shared_memory_object/allocator.cpp
-    source/posix_wrapper/shared_memory_object/memory_map.cpp
-    source/posix_wrapper/shared_memory_object/shared_memory.cpp
-    source/posix_wrapper/signal_handler.cpp
-    source/posix_wrapper/signal_watcher.cpp
-    source/posix_wrapper/system_configuration.cpp
-    source/posix_wrapper/thread.cpp
-    source/posix_wrapper/unnamed_semaphore.cpp
-    source/posix_wrapper/unix_domain_socket.cpp
-    source/relocatable_pointer/base_relative_pointer.cpp
-    source/relocatable_pointer/relative_pointer_data.cpp
-    source/units/duration.cpp
-)
-
-add_library(iceoryx_hoofs::iceoryx_hoofs ALIAS iceoryx_hoofs)
-set_target_properties(iceoryx_hoofs PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_hoofs PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
-
-target_link_libraries(iceoryx_hoofs
-    PUBLIC
-    iceoryx_hoofs::iceoryx_platform
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}
-)
-
-if(LINUX)
-    target_link_libraries(iceoryx_hoofs PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
-endif()
-
-target_compile_options(iceoryx_hoofs PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-# TODO: Make ICEORYX::UTILS private???
-target_include_directories(iceoryx_hoofs
-    PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
+iox_add_library(
+    TARGET                      iceoryx_hoofs
+    NAMESPACE                   iceoryx_hoofs
+    ADDITIONAL_EXPORT_TARGETS   iceoryx_platform
+    PROJECT_PREFIX              ${PREFIX}
+    PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_platform
+    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
+    PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+    INSTALL_INTERFACE           include/${PREFIX}
+    FILES
+        source/concurrent/active_object.cpp
+        source/concurrent/loffli.cpp
+        source/cxx/adaptive_wait.cpp
+        source/cxx/deadline_timer.cpp
+        source/cxx/filesystem.cpp
+        source/cxx/generic_raii.cpp
+        source/cxx/helplets.cpp
+        source/cxx/requires.cpp
+        source/cxx/unique_id.cpp
+        source/error_handling/error_handler.cpp
+        source/error_handling/error_handling.cpp
+        source/file_reader/file_reader.cpp
+        source/log/hoofs_logging.cpp
+        source/log/logcommon.cpp
+        source/log/logger.cpp
+        source/log/logging_internal.cpp
+        source/log/logging.cpp
+        source/log/logmanager.cpp
+        source/log/logstream.cpp
+        source/posix_wrapper/access_control.cpp
+        source/posix_wrapper/file_lock.cpp
+        source/posix_wrapper/message_queue.cpp
+        source/posix_wrapper/mutex.cpp
+        source/posix_wrapper/named_pipe.cpp
+        source/posix_wrapper/posix_access_rights.cpp
+        source/posix_wrapper/semaphore.cpp
+        source/posix_wrapper/semaphore_interface.cpp
+        source/posix_wrapper/shared_memory_object.cpp
+        source/posix_wrapper/shared_memory_object/allocator.cpp
+        source/posix_wrapper/shared_memory_object/memory_map.cpp
+        source/posix_wrapper/shared_memory_object/shared_memory.cpp
+        source/posix_wrapper/signal_handler.cpp
+        source/posix_wrapper/signal_watcher.cpp
+        source/posix_wrapper/system_configuration.cpp
+        source/posix_wrapper/thread.cpp
+        source/posix_wrapper/unix_domain_socket.cpp
+        source/posix_wrapper/unnamed_semaphore.cpp
+        source/relocatable_pointer/base_relative_pointer.cpp
+        source/relocatable_pointer/relative_pointer_data.cpp
+        source/units/duration.cpp
 )
 
 #
@@ -171,23 +106,6 @@ if(GTest_FOUND)
     endif()
 endif()
 
-#
-########## exporting library ##########
-#
-
-#TODO add support for multiple include directories to setup_install_directories_and_export_package
-install(
-    DIRECTORY ${ICEORYX_PLATFORM}/include/
-    DESTINATION include/${PREFIX}
-    COMPONENT dev
-)
-
-setup_install_directories_and_export_package(
-    TARGETS iceoryx_hoofs iceoryx_platform
-    INCLUDE_DIRECTORY include/
-)
-
-# header
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
@@ -195,8 +113,3 @@ install(
         cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
-
-install(
-  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-  DESTINATION share/doc/iceoryx_hoofs
-  COMPONENT dev)

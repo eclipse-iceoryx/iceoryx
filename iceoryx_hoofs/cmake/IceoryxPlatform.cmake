@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,16 +25,22 @@ endif()
 
 if(LINUX)
     set(ICEORYX_CXX_STANDARD 14)
+    set(ICEORYX_PLATFORM_STRING "Linux")
 elseif(QNX)
     set(ICEORYX_CXX_STANDARD 14)
+    set(ICEORYX_PLATFORM_STRING "QNX")
 elseif(WIN32)
     set(ICEORYX_CXX_STANDARD 17)
+    set(ICEORYX_PLATFORM_STRING "Windows")
 elseif(APPLE)
     set(ICEORYX_CXX_STANDARD 17)
+    set(ICEORYX_PLATFORM_STRING "MacOS")
 elseif(UNIX)
-   set(ICEORYX_CXX_STANDARD 17)
+    set(ICEORYX_CXX_STANDARD 17)
+    set(ICEORYX_PLATFORM_STRING "Unix")
 else()
-   set(ICEORYX_CXX_STANDARD 17)
+    set(ICEORYX_CXX_STANDARD 17)
+    set(ICEORYX_PLATFORM_STRING "Unknown")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")

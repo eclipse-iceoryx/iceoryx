@@ -1,4 +1,4 @@
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,29 +24,18 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-add_executable(iox-cpp-publisher-with-options ./iox_publisher_with_options.cpp)
-target_link_libraries(iox-cpp-publisher-with-options
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-publisher-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-subscriber-with-options ./iox_subscriber_with_options.cpp)
-target_link_libraries(iox-cpp-subscriber-with-options
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-subscriber-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-
-set_target_properties(iox-cpp-publisher-with-options iox-cpp-subscriber-with-options
-                      PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET  iox-cpp-publisher-with-options
+    FILES   ./iox_publisher_with_options.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-# ========================================================== //
-
-install(TARGETS iox-cpp-publisher-with-options iox-cpp-subscriber-with-options
-        RUNTIME DESTINATION bin)
+iox_add_executable(
+    TARGET  iox-cpp-subscriber-with-options
+    FILES   ./iox_subscriber_with_options.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)
