@@ -72,7 +72,10 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
     /// BEGIN: try to open existing semaphore
     if (m_openMode == OpenMode::OPEN_OR_CREATE || m_openMode == OpenMode::OPEN_EXISTING)
     {
-        auto result = posixCall(iox_sem_open)(m_name.c_str(), convertToOflags(m_openMode))
+        auto result = posixCall(iox_sem_open_ext)(m_name.c_str(),
+                                                  convertToOflags(m_openMode),
+                                                  static_cast<mode_t>(m_permissions),
+                                                  static_cast<unsigned int>(m_initialValue))
                           .failureReturnValue(SEM_FAILED)
                           .ignoreErrnos(ENOENT, EINVAL)
                           .evaluate();
@@ -96,7 +99,9 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
                 LogError() << "Insufficient memory to open the semaphore \"" << m_name << "\".";
                 return cxx::error<SemaphoreError>(SemaphoreError::OUT_OF_MEMORY);
             default:
-                break;
+                LogError() << "This should never happen. An unknown error occurred while opening the semaphore \""
+                           << m_name << "\".";
+                return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
             }
         }
         else

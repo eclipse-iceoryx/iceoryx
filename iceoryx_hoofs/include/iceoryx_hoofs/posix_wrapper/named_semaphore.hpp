@@ -63,7 +63,7 @@ class NamedSemaphoreBuilder
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
     /// @brief Defines the access permissions of the semaphore
-    IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::owner_all)
 
     /// @brief Set the initial value of the unnamed posix semaphore. This value is only used when a new semaphore is
     ///        created.

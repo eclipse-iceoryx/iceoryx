@@ -187,12 +187,12 @@ TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
                      .create(sut2)
                      .has_error());
 
+    // the newly created semaphore should have the INITIAL_VALUE
+    EXPECT_THAT(sut2->getValue().expect("Unable to access semaphore"), Eq(INITIAL_VALUE));
+
     // the original semaphore cannot be opened anymore but the current open handle should
     // still be valid
     EXPECT_THAT(sut->getValue().expect("Unable to access semaphore"), Eq(0U));
-
-    // the newly created semaphore should have the INITIAL_VALUE
-    EXPECT_THAT(sut2->getValue().expect("Unable to access semaphore"), Eq(INITIAL_VALUE));
 }
 
 TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingItInTheDtor)
@@ -235,6 +235,28 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
 
     // verify that the original semaphore which has the ownership still works
     EXPECT_THAT(sut->getValue().expect("Failed to access semaphore"), Eq(INITIAL_VALUE));
+}
+
+TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "06252f80-42ee-4d81-b25a-5f3b196b9d7c");
+
+    ASSERT_FALSE(NamedSemaphoreBuilder()
+                     .name(sutName)
+                     .openMode(OpenMode::OPEN_OR_CREATE)
+                     .permissions(sutPermission)
+                     .create(sut)
+                     .has_error());
+
+    sut.reset();
+
+    // should fail since the previous sut was deleted and had the ownership
+    ASSERT_TRUE(NamedSemaphoreBuilder()
+                    .name(sutName)
+                    .initialValue(0U)
+                    .openMode(OpenMode::OPEN_EXISTING)
+                    .create(sut)
+                    .has_error());
 }
 
 
