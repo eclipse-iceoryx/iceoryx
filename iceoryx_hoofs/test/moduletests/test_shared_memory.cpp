@@ -191,6 +191,9 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
+// Windows does not support this since the named semaphore is automatically deleted
+// as soon as the last handle was closed with CloseHandle
+#if !defined(_WIN32)
 TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21d620f0-af45-46ad-a5b7-1c18026fb9a8");
@@ -202,6 +205,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
+#endif
 
 TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
 {
