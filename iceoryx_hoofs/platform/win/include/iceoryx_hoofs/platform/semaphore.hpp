@@ -42,8 +42,6 @@ struct iox_sem_t
     bool isInterprocessSemaphore{false};
     UniqueSystemId uniqueId;
 };
-static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
-static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
 int iox_sem_post(iox_sem_t* sem);

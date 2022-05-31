@@ -82,14 +82,18 @@ int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 
 int iox_sem_post(iox_sem_t* sem)
 {
-    int retVal = Win32Call(ReleaseSemaphore, acquireSemaphoreHandle(sem), 1, nullptr).value;
-    return (retVal != 0) ? 0 : -1;
+    auto retVal = Win32Call(ReleaseSemaphore, acquireSemaphoreHandle(sem), 1, nullptr);
+    if (retVal.error == ERROR_TOO_MANY_POSTS)
+    {
+        errno = EOVERFLOW;
+    }
+    return (retVal.value != 0) ? 0 : -1;
 }
 
 int iox_sem_wait(iox_sem_t* sem)
 {
-    int retVal = Win32Call(WaitForSingleObject, acquireSemaphoreHandle(sem), INFINITE).value;
-    return (retVal == WAIT_OBJECT_0) ? 0 : -1;
+    auto retVal = Win32Call(WaitForSingleObject, acquireSemaphoreHandle(sem), INFINITE);
+    return (retVal.value == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int iox_sem_trywait(iox_sem_t* sem)
@@ -171,7 +175,7 @@ static HANDLE sem_create_win32_semaphore(LONG value, LPCSTR name)
     securityAttribute.lpSecurityDescriptor = &securityDescriptor;
     securityAttribute.bInheritHandle = FALSE;
 
-    HANDLE returnValue = Win32Call(CreateSemaphoreA, &securityAttribute, value, MAX_SEMAPHORE_VALUE, name).value;
+    HANDLE returnValue = Win32Call(CreateSemaphoreA, &securityAttribute, value, IOX_SEM_VALUE_MAX, name).value;
     return returnValue;
 }
 
@@ -220,6 +224,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         sem->handle = sem_create_win32_semaphore(value, name);
         if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
         {
+            errno = EEXIST;
             iox_sem_close(sem);
             return IOX_SEM_FAILED;
         }
@@ -234,6 +239,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         sem->handle = Win32Call(OpenSemaphoreA, SEMAPHORE_ALL_ACCESS, false, name).value;
         if (sem->handle == nullptr)
         {
+            errno = ENOENT;
             delete sem;
             return IOX_SEM_FAILED;
         }

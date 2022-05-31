@@ -165,36 +165,6 @@ TEST_F(NamedSemaphoreTest, SemaphoreWithInvalidNameFails)
     EXPECT_THAT(result.get_error(), Eq(SemaphoreError::INVALID_NAME));
 }
 
-TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "07ef3fdf-0e22-45f8-bb6b-68647f1211b6");
-
-    ASSERT_FALSE(NamedSemaphoreBuilder()
-                     .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
-                     .permissions(sutPermission)
-                     .initialValue(0U)
-                     .create(sut)
-                     .has_error());
-
-    iox::cxx::optional<NamedSemaphore> sut2;
-    constexpr uint32_t INITIAL_VALUE = 1872897U;
-    ASSERT_FALSE(NamedSemaphoreBuilder()
-                     .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
-                     .permissions(sutPermission)
-                     .initialValue(INITIAL_VALUE)
-                     .create(sut2)
-                     .has_error());
-
-    // the newly created semaphore should have the INITIAL_VALUE
-    EXPECT_THAT(sut2->getValue().expect("Unable to access semaphore"), Eq(INITIAL_VALUE));
-
-    // the original semaphore cannot be opened anymore but the current open handle should
-    // still be valid
-    EXPECT_THAT(sut->getValue().expect("Unable to access semaphore"), Eq(0U));
-}
-
 TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingItInTheDtor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8686f905-d4c3-4432-ad6d-e31572907897");

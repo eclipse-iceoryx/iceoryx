@@ -173,6 +173,11 @@ NamedSemaphore::NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool
 
 NamedSemaphore::~NamedSemaphore() noexcept
 {
+    if (posixCall(iox_sem_close)(m_handle).failureReturnValue(-1).evaluate().has_error())
+    {
+        LogError() << "This should never happen. Unable to close named semaphore \"" << m_name << "\"";
+    }
+
     if (m_hasOwnership)
     {
         IOX_DISCARD_RESULT(unlink(m_name));
