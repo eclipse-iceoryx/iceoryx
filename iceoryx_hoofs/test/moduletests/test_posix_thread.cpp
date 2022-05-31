@@ -110,7 +110,9 @@ TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
 {
     optional<thread> sut1;
     iox::cxx::function<void()> callable;
-    ASSERT_TRUE(ThreadBuilder().create(sut1, callable).has_error());
+    auto result = ThreadBuilder().create(sut1, callable);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
 
     optional<thread> sut2;
     callable = []() {};
