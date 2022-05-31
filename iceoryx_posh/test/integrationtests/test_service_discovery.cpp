@@ -908,24 +908,6 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingServiceAmongMultiple
     this->testFindService({"a"}, {"b"}, {"c"});
 }
 
-TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSameInstanceWithDifferentServiceAndEventExists)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "");
-    this->add({"a", "b", "c"});
-    this->add({"x", "b", "y"});
-
-    this->testFindService({"a"}, {"b"}, {"c"});
-}
-
-TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSameEventWithDifferentServiceAndEventExists)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "");
-    this->add({"a", "b", "c"});
-    this->add({"x", "b", "y"});
-
-    this->testFindService({"a"}, {"b"}, {"c"});
-}
-
 // Limit test of one kind (MessagingPattern) of service:
 // Fill the registry to the maximum (limit) and search for specific services.
 TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
