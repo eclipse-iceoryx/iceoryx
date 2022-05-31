@@ -28,6 +28,9 @@ class UnixDomainSocket;
 
 namespace platform
 {
+/// defined in the man sem_overview
+constexpr uint64_t IOX_MAX_SEMAPHORE_NAME_LENGTH = NAME_MAX - 4;
+
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 255U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 1023U;
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = true;

@@ -27,6 +27,9 @@ class NamedPipe;
 
 namespace platform
 {
+/// defined so that it is consistent to linux
+constexpr uint64_t IOX_MAX_SEMAPHORE_NAME_LENGTH = 251U;
+
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
 constexpr uint64_t IOX_MAX_SHM_NAME_LENGTH = 255U;
 // yes, windows has two possible path separators!

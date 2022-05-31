@@ -33,7 +33,7 @@ namespace posix
 class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
 {
   public:
-    using Name_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+    using Name_t = cxx::string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH>;
 
     NamedSemaphore(const NamedSemaphore&) noexcept = delete;
     NamedSemaphore(NamedSemaphore&&) noexcept = delete;
@@ -46,11 +46,12 @@ class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
     friend class iox::cxx::optional<NamedSemaphore>;
     friend class internal::SemaphoreInterface<NamedSemaphore>;
 
-    NamedSemaphore(iox_sem_t* handle, const Name_t& name) noexcept;
+    NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool hasOwnership) noexcept;
     iox_sem_t* getHandle() noexcept;
 
     iox_sem_t* m_handle = nullptr;
     Name_t m_name;
+    bool m_hasOwnership = true;
 };
 
 class NamedSemaphoreBuilder
@@ -64,7 +65,8 @@ class NamedSemaphoreBuilder
     /// @brief Defines the access permissions of the semaphore
     IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
 
-    /// @brief Set the initial value of the unnamed posix semaphore
+    /// @brief Set the initial value of the unnamed posix semaphore. This value is only used when a new semaphore is
+    ///        created.
     IOX_BUILDER_PARAMETER(uint32_t, initialValue, 0U)
 
   public:

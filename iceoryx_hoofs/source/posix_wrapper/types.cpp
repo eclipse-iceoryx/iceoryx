@@ -58,4 +58,3 @@ int convertToOflags(const AccessMode accessMode, const OpenMode openMode) noexce
 }
 } // namespace posix
 } // namespace iox
-
