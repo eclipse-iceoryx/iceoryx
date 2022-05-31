@@ -21,6 +21,9 @@
 #include <dispatch/dispatch.h>
 #include <semaphore.h>
 
+#define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
+#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
+
 struct iox_sem_t
 {
     iox_sem_t() noexcept;

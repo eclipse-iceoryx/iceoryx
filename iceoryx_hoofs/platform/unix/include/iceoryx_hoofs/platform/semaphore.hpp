@@ -21,6 +21,9 @@
 
 using iox_sem_t = sem_t;
 
+#define IOX_SEM_FAILED SEM_FAILED
+#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
+
 inline int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     return sem_getvalue(sem, sval);

@@ -306,7 +306,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
 {
     if (strlen(name) == 0 || name[0] == 0)
     {
-        return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
+        return IOX_SEM_FAILED;
     }
 
     // sem_open creates a named semaphore which is corresponding to a file.
@@ -339,7 +339,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
     if (sem->m_handle.posix == SEM_FAILED)
     {
         delete sem;
-        return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
+        return IOX_SEM_FAILED;
     }
 
     return sem;

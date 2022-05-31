@@ -51,10 +51,10 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
         return cxx::error<SemaphoreError>(SemaphoreError::INVALID_NAME);
     }
 
-    if (m_initialValue > SEM_VALUE_MAX)
+    if (m_initialValue > IOX_SEM_VALUE_MAX)
     {
         LogError() << "The semaphores \"" << m_name << "\" initial value of " << m_initialValue
-                   << " exceeds the maximum semaphore value " << SEM_VALUE_MAX;
+                   << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
         return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
@@ -76,7 +76,7 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
                                                   convertToOflags(m_openMode),
                                                   static_cast<mode_t>(m_permissions),
                                                   static_cast<unsigned int>(m_initialValue))
-                          .failureReturnValue(SEM_FAILED)
+                          .failureReturnValue(IOX_SEM_FAILED)
                           .ignoreErrnos(ENOENT, EINVAL)
                           .evaluate();
 
@@ -126,7 +126,7 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
                                               convertToOflags(m_openMode),
                                               static_cast<mode_t>(m_permissions),
                                               static_cast<unsigned int>(m_initialValue))
-                      .failureReturnValue(SEM_FAILED)
+                      .failureReturnValue(IOX_SEM_FAILED)
                       .evaluate();
 
     if (result.has_error())

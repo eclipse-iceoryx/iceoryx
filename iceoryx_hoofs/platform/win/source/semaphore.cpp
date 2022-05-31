@@ -205,7 +205,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
 {
     if (strlen(name) == 0)
     {
-        return SEM_FAILED;
+        return IOX_SEM_FAILED;
     }
 
     iox_sem_t* sem = new iox_sem_t;
@@ -221,12 +221,12 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
         {
             iox_sem_close(sem);
-            return SEM_FAILED;
+            return IOX_SEM_FAILED;
         }
         else if (sem->handle == nullptr)
         {
             delete sem;
-            return SEM_FAILED;
+            return IOX_SEM_FAILED;
         }
     }
     else
@@ -235,7 +235,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         if (sem->handle == nullptr)
         {
             delete sem;
-            return SEM_FAILED;
+            return IOX_SEM_FAILED;
         }
     }
     return sem;
