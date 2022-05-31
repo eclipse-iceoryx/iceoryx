@@ -36,7 +36,7 @@ using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;
 void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept;
 ThreadName_t getThreadName(pthread_t thread) noexcept;
 
-// add possible error codes
+/// @todo add possible error codes
 enum class ThreadError
 {
     UNKNOWN_ERROR
@@ -74,7 +74,7 @@ class thread
         {
             if (m_isJoinable)
             {
-                // replace nullptr?, check errors
+                /// @todo replace nullptr?, check errors
                 posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
                 m_isJoinable = false;
             }
@@ -89,7 +89,7 @@ class thread
 
     static void* cbk(void* callable)
     {
-        // Necessary because the callback signature for pthread_create is void*(void*)
+        // necessary because the callback signature for pthread_create is void*(void*)
         callable_t f = *static_cast<callable_t*>(callable);
         f();
         return nullptr;
@@ -103,6 +103,9 @@ class thread
 
 class ThreadBuilder
 {
+    /// @todo set m_isJoinable directly?
+    IOX_BUILDER_PARAMETER(bool, detached, false)
+
   public:
     template <typename Signature, typename... CallableArgs>
     cxx::expected<ThreadError> create(cxx::optional<thread>& uninitializedThread,
@@ -117,15 +120,39 @@ class ThreadBuilder
         uninitializedThread.emplace();
         uninitializedThread.value().m_callable = [=] { callable(std::forward<CallableArgs>(args)...); };
 
+        // set attributes
+        pthread_attr_t attr;
+        auto initResult = posixCall(pthread_attr_init)(&attr).successReturnValue(0).evaluate();
+        if (initResult.has_error())
+        {
+            uninitializedThread.value().m_destroy = false; /// @todo replace with m_isJoinable?
+            uninitializedThread.reset();
+            return cxx::error<ThreadError>();
+        }
+
+        auto detachState = posixCall(pthread_attr_setdetachstate)(
+                               &attr, m_detached ? PTHREAD_CREATE_DETACHED : PTHREAD_CREATE_JOINABLE)
+                               .successReturnValue(0)
+                               .evaluate();
+        /// @todo Will only fail when invalid value was passed which is not the case. Remove error check?
+        if (detachState.has_error())
+        {
+            uninitializedThread.value().m_destroy = false; /// @todo replace with m_isJoinable?
+            uninitializedThread.reset();
+            return cxx::error<ThreadError>();
+        }
+        uninitializedThread->m_isJoinable = !m_detached;
+
         auto result = posixCall(pthread_create)(&uninitializedThread.value().m_threadHandle,
-                                                nullptr,
+                                                &attr,
                                                 thread::cbk,
                                                 &uninitializedThread.value().m_callable)
                           .successReturnValue(0)
                           .evaluate();
+        posixCall(pthread_attr_destroy)(&attr); /// @todo could fail but should we care?
         if (result.has_error())
         {
-            uninitializedThread.value().m_destroy = false; // replace with m_isJoinable?
+            uninitializedThread.value().m_destroy = false; /// @todo replace with m_isJoinable?
             uninitializedThread.reset();
             return cxx::error<ThreadError>();
         }

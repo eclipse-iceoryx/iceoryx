@@ -117,5 +117,13 @@ TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
     ASSERT_FALSE(ThreadBuilder().create(sut2, callable).has_error());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 }
+
+TEST(pthreadWrapper_test, CreateDetachedThread)
+{
+    optional<thread> sut;
+    iox::cxx::function<void()> callable = []() { std::cout << "fffff" << std::endl; };
+    ASSERT_FALSE(ThreadBuilder().detached(true).create(sut, callable).has_error());
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
 #endif
 } // namespace
