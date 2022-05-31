@@ -22,13 +22,13 @@
 #include <functional>
 #include <string>
 
-/// @brief This headers provides TIMING_TEST unit test infrastructure. The idea
-///         is that a timing test is running multiple times and if in one of the
-///         repetitions all results of the test are successful then the timing
-///         test itself is successful.
+/// @brief This header provides TIMING_TEST unit test infrastructure. The idea
+///        is that a timing test is running multiple times and if in one of the
+///        repetitions all results of the test are successful then the timing
+///        test itself is successful.
 ///
-///        You can get to know them in praxis in the test_posix_timer.cpp unit test
-///        for instance.
+///        You can get to know them in praxis in the test_cxx_deadline_timer.cpp
+///        unit test for instance.
 ///
 /// @code
 /// class MyClass_test : public Test {};

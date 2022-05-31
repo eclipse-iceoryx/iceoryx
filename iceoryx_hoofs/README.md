@@ -155,7 +155,6 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 |`SharedMemoryObject` | i |   | Creates and maps existing shared memory into the application. |
 |`system_configuration` | i |   | Collection of free functions which acquire system information like the page-size. |
 |`thread`             |   |   | Wrapper for pthread functions like `pthread_setname_np`. |
-|`Timer`              |   | X | Interface for the posix timer, see [ManPage timer_create](https://www.man7.org/linux/man-pages/man2/timer_create.2.html). |
 |`UnixDomainSocket`   | i |   | Interface for unix domain sockets. |
 
 ### Units
@@ -163,11 +162,13 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 Never use physical properties like speed or time directly as integer or float in your code.
 Otherwise you encounter problems like this function `void setTimeout(int timeout)`. What is the unit of the argument, seconds? minutes? If you use `Duration` you see it directly in the code.
 
-```
+```cpp
+
 void setTimeout(const Duration & timeout);
 
 setTimeout(11_s); // 11 seconds
 setTimeout(5_ms); // 5 milliseconds
+
 ```
 
 | class               | internal | maybe obsolete | description |

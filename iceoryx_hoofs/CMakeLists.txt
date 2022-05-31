@@ -112,7 +112,6 @@ add_library(iceoryx_hoofs
     source/posix_wrapper/signal_watcher.cpp
     source/posix_wrapper/system_configuration.cpp
     source/posix_wrapper/thread.cpp
-    source/posix_wrapper/timer.cpp
     source/posix_wrapper/unnamed_semaphore.cpp
     source/posix_wrapper/unix_domain_socket.cpp
     source/relocatable_pointer/base_relative_pointer.cpp
