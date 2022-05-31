@@ -119,7 +119,7 @@ storable_function<S, signature<ReturnType, Args...>>::~storable_function() noexc
 }
 
 template <typename S, typename ReturnType, typename... Args>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args)
+ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args) const
 {
     cxx::Expects(!empty());
     return m_invoker(m_callable, std::forward<Args>(args)...);
@@ -127,7 +127,7 @@ ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args
 
 
 template <typename S, typename ReturnType, typename... Args>
-storable_function<S, signature<ReturnType, Args...>>::operator bool() noexcept
+storable_function<S, signature<ReturnType, Args...>>::operator bool() const noexcept
 {
     return !empty();
 }

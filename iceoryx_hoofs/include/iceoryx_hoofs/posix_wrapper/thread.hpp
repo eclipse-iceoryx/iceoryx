@@ -47,6 +47,8 @@ class ThreadBuilder;
 class thread
 {
   public:
+    using callable_t = cxx::function<void(), sizeof(cxx::function<void()>) + alignof(cxx::function<void()>)>;
+
     thread(const thread&) = delete;
     thread& operator=(const thread&) = delete;
 
@@ -68,56 +70,67 @@ class thread
 
     ~thread() noexcept
     {
-        if (m_isJoinable)
+        if (m_destroy)
         {
-            // replace nullptr?, check errors
-            posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
+            if (m_isJoinable)
+            {
+                // replace nullptr?, check errors
+                posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
+                m_isJoinable = false;
+            }
         }
     }
 
     friend class ThreadBuilder;
+    friend class cxx::optional<thread>;
 
   private:
-    thread(const pthread_t handle) noexcept
-        : m_threadHandle(handle)
+    thread() noexcept = default;
+
+    static void* cbk(void* callable)
     {
+        // Necessary because the callback signature for pthread_create is void*(void*)
+        callable_t f = *static_cast<callable_t*>(callable);
+        f();
+        return nullptr;
     }
 
     pthread_t m_threadHandle;
-    bool m_isJoinable = true;
+    callable_t m_callable;
+    bool m_isJoinable{true};
+    bool m_destroy{true};
 };
-
-inline void* cbk(void* callable)
-{
-    // Necessary because the callback signature for pthread_create is void*(void*)
-    cxx::function<void()> f = *static_cast<cxx::function<void()>*>(callable);
-    f();
-    return nullptr;
-}
 
 class ThreadBuilder
 {
   public:
-    template <typename Callable, typename... CallableArgs>
-    cxx::expected<thread, ThreadError> create(const Callable& callable, CallableArgs&&... args) noexcept
+    template <typename Signature, typename... CallableArgs>
+    cxx::expected<ThreadError> create(cxx::optional<thread>& uninitializedThread,
+                                      const cxx::function<Signature>& callable,
+                                      CallableArgs&&... args) noexcept
     {
-        pthread_t handle;
-        std::atomic_bool callableHasStarted{false};
-        cxx::function<void()> f([=, &callableHasStarted] {
-            callableHasStarted.store(true);
-            callable(std::forward<CallableArgs>(args)...);
-        });
-        auto result = posixCall(pthread_create)(&handle, nullptr, cbk, &f).successReturnValue(0).evaluate();
-        if (result)
+        if (!callable)
         {
-            // Needed, otherwise thread might be created without executing the callback yet when we return. Then the
-            // callable and its arguments are not known anymore.
-            while (callableHasStarted.load() == false)
-            {
-            }
-            return cxx::success<thread>(thread(handle));
+            return cxx::error<ThreadError>();
         }
-        return cxx::error<ThreadError>();
+
+        uninitializedThread.emplace();
+        uninitializedThread.value().m_callable = [=] { callable(std::forward<CallableArgs>(args)...); };
+
+        auto result = posixCall(pthread_create)(&uninitializedThread.value().m_threadHandle,
+                                                nullptr,
+                                                thread::cbk,
+                                                &uninitializedThread.value().m_callable)
+                          .successReturnValue(0)
+                          .evaluate();
+        if (result.has_error())
+        {
+            uninitializedThread.value().m_destroy = false; // replace with m_isJoinable?
+            uninitializedThread.reset();
+            return cxx::error<ThreadError>();
+        }
+
+        return cxx::success<>();
     }
 };
 

@@ -100,7 +100,21 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 /////////////////
 TEST(pthreadWrapper_test, CreateThread)
 {
-    auto t = ThreadBuilder().create([]() { std::cout << "fffff" << std::endl; }).expect("");
+    optional<thread> sut;
+    iox::cxx::function<void()> callable = []() { std::cout << "fffff" << std::endl; };
+    ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
+{
+    optional<thread> sut1;
+    iox::cxx::function<void()> callable;
+    ASSERT_TRUE(ThreadBuilder().create(sut1, callable).has_error());
+
+    optional<thread> sut2;
+    callable = []() {};
+    ASSERT_FALSE(ThreadBuilder().create(sut2, callable).has_error());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 #endif
