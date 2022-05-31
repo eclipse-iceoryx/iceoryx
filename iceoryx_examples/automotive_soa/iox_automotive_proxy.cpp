@@ -39,7 +39,7 @@ int main()
     iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
     //! [wrap proxy]
 
-    optional<kom::FindServiceHandle> maybeHandle;
+    optional<kom::FindServiceCallbackHandle> maybeHandle;
 
     //! [synchronous discovery]
     kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "Example");
@@ -62,15 +62,16 @@ int main()
     }
     else
     {
-        std::cout << "  Found no service(s), setting up asynchronous search with 'StartFindService'!" << std::endl;
+        std::cout << "  Found no service(s), setting up asynchronous search with 'EnableFindServiceCallback'!"
+                  << std::endl;
         auto callback = [&](kom::ServiceHandleContainer<owl::kom::ProxyHandleType> container,
-                            kom::FindServiceHandle) -> void {
+                            kom::FindServiceCallbackHandle) -> void {
             //! [destroy proxy asynchronously]
             if (container.empty())
             {
                 std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
                           << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
-                maybeProxy->value().m_event.UnsetReceiveHandler();
+                maybeProxy->value().m_event.UnsetReceiveCallback();
                 maybeProxy->reset();
                 return;
             }
@@ -91,7 +92,7 @@ int main()
         };
 
         //! [set up asynchronous search]
-        auto handle = MinimalProxy::StartFindService(callback, exampleInstanceSearchQuery);
+        auto handle = MinimalProxy::EnableFindServiceCallback(callback, exampleInstanceSearchQuery);
         //! [set up asynchronous search]
         maybeHandle.emplace(handle);
         std::cout << "  Waiting for instance called '" << exampleInstanceSearchQuery.c_str()
@@ -112,9 +113,9 @@ int main()
                 auto& proxy = proxyGuard->value();
                 //! [gain exclusive access to proxy]
 
-                //! [Event: receiveHandler callback]
+                //! [Event: receiveCallback]
                 auto onReceive = [&]() -> void {
-                    proxy.m_event.GetNewSamples([](const auto& topic) {
+                    proxy.m_event.TakeNewSamples([](const auto& topic) {
                         auto finish = std::chrono::steady_clock::now();
                         std::cout << "Event: value is " << topic->counter << std::endl;
                         auto duration =
@@ -122,17 +123,17 @@ int main()
                         std::cout << "Event: latency (ns) is " << duration.count() << std::endl;
                     });
                 };
-                //! [Event: receiveHandler callback]
+                //! [Event: receiveCallback]
 
-                //! [Event: set receiveHandler]
-                if (!proxy.m_event.HasReceiveHandler())
+                //! [Event: set receiveCallback]
+                if (!proxy.m_event.HasReceiveCallback())
                 {
                     proxy.m_event.Subscribe(10U);
-                    proxy.m_event.SetReceiveHandler(onReceive);
+                    proxy.m_event.SetReceiveCallback(onReceive);
                 }
-                //! [Event: set receiveHandler]
+                //! [Event: set receiveCallback]
 
-                //! [Field: get data]
+                //! [Field: get and set data]
                 auto fieldFuture = proxy.m_field.Get();
                 try
                 {
@@ -151,7 +152,7 @@ int main()
                     std::cout << "Empty future from field received, please start the 'iox-cpp-automotive-skeleton'."
                               << std::endl;
                 }
-                //! [Field: get data]
+                //! [Field: get and set data]
 
                 //! [Method: call computeSum remotely]
                 auto methodFuture = proxy.computeSum(addend1, addend2);
@@ -180,7 +181,7 @@ int main()
     //! [stop find service]
     if (maybeHandle.has_value())
     {
-        MinimalProxy::StopFindService(maybeHandle.value());
+        MinimalProxy::DisableFindServiceCallback(maybeHandle.value());
     }
     //! [stop find service]
     return (EXIT_SUCCESS);

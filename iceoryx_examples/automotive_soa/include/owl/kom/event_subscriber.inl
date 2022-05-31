@@ -34,9 +34,9 @@ inline EventSubscriber<T>::EventSubscriber(const ServiceIdentifier& service,
 template <typename T>
 inline void EventSubscriber<T>::Subscribe(std::size_t queueCapacity) noexcept
 {
-    if (HasReceiveHandler())
+    if (HasReceiveCallback())
     {
-        UnsetReceiveHandler();
+        UnsetReceiveCallback();
     }
 
     m_subscriber.emplace(
@@ -53,9 +53,9 @@ inline void EventSubscriber<T>::Unsubscribe() noexcept
         return;
     }
 
-    if (HasReceiveHandler())
+    if (HasReceiveCallback())
     {
-        UnsetReceiveHandler();
+        UnsetReceiveCallback();
     }
 
     m_subscriber.value().unsubscribe();
@@ -64,7 +64,7 @@ inline void EventSubscriber<T>::Unsubscribe() noexcept
 
 template <typename T>
 template <typename Callable>
-inline core::Result<size_t> EventSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
+inline core::Result<size_t> EventSubscriber<T>::TakeNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
     core::Result<size_t> numberOfSamples{0};
 
@@ -95,16 +95,16 @@ inline core::Result<size_t> EventSubscriber<T>::GetNewSamples(Callable&& callabl
 
 //! [EventSubscriber setReceiveHandler]
 template <typename T>
-inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) noexcept
+inline void EventSubscriber<T>::SetReceiveCallback(EventReceiveCallback handler) noexcept
 {
     if (!handler)
     {
-        std::cerr << "Can't attach empty receive handler!" << std::endl;
+        std::cerr << "Can't attach empty receive callback!" << std::endl;
         return;
     }
     if (!m_subscriber.has_value())
     {
-        std::cerr << "Call Subscribe() before setting a receive handler!" << std::endl;
+        std::cerr << "Call Subscribe() before setting a receive callback!" << std::endl;
         return;
     }
 
@@ -113,12 +113,12 @@ inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) n
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
                      iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
         .expect("Unable to attach subscriber!");
-    m_receiveHandler->emplace(handler);
+    m_receiveCallback->emplace(handler);
 }
 //! [EventSubscriber setReceiveHandler]
 
 template <typename T>
-inline void EventSubscriber<T>::UnsetReceiveHandler() noexcept
+inline void EventSubscriber<T>::UnsetReceiveCallback() noexcept
 {
     if (!m_subscriber.has_value())
     {
@@ -126,13 +126,13 @@ inline void EventSubscriber<T>::UnsetReceiveHandler() noexcept
     }
 
     m_listener.detachEvent(m_subscriber.value(), iox::popo::SubscriberEvent::DATA_RECEIVED);
-    m_receiveHandler->reset();
+    m_receiveCallback->reset();
 }
 
 template <typename T>
-inline bool EventSubscriber<T>::HasReceiveHandler() const noexcept
+inline bool EventSubscriber<T>::HasReceiveCallback() const noexcept
 {
-    auto receiveHandlerGuard = m_receiveHandler.getScopeGuard();
+    auto receiveHandlerGuard = m_receiveCallback.getScopeGuard();
     return receiveHandlerGuard->has_value() && receiveHandlerGuard->value();
 }
 
@@ -146,10 +146,10 @@ inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T
         return;
     }
 
-    self->m_receiveHandler->and_then([](iox::cxx::function<void()>& userCallable) {
+    self->m_receiveCallback->and_then([](iox::cxx::function<void()>& userCallable) {
         if (!userCallable)
         {
-            std::cerr << "Tried to call an empty receive handler!" << std::endl;
+            std::cerr << "Tried to call an empty receive callback!" << std::endl;
             return;
         }
         userCallable();

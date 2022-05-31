@@ -49,13 +49,13 @@ inline bool EventPublisher<T>::Send(const SampleType& userSample) noexcept
 }
 
 template <typename T>
-inline void EventPublisher<T>::Send(SampleAllocateePtr<T> userSamplePtr) noexcept
+inline void EventPublisher<T>::Send(SamplePointer<T> userSamplePtr) noexcept
 {
     userSamplePtr.value().publish();
 }
 
 template <typename T>
-inline SampleAllocateePtr<T> EventPublisher<T>::Allocate() noexcept
+inline SamplePointer<T> EventPublisher<T>::Loan() noexcept
 {
     auto maybeSample = m_publisher.loan();
 
@@ -64,7 +64,7 @@ inline SampleAllocateePtr<T> EventPublisher<T>::Allocate() noexcept
         return iox::cxx::nullopt;
     }
 
-    return SampleAllocateePtr<T>(std::move(maybeSample.value()));
+    return SamplePointer<T>(std::move(maybeSample.value()));
 }
 
 template <typename T>

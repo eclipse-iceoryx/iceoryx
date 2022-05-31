@@ -25,15 +25,15 @@ MinimalSkeleton::MinimalSkeleton(const owl::kom::InstanceIdentifier& instanceIde
 
 MinimalSkeleton::~MinimalSkeleton() noexcept
 {
-    StopOfferService();
+    StopOffer();
 }
 
-void MinimalSkeleton::OfferService() noexcept
+void MinimalSkeleton::Offer() noexcept
 {
     m_event.Offer();
 }
 
-void MinimalSkeleton::StopOfferService() noexcept
+void MinimalSkeleton::StopOffer() noexcept
 {
     m_event.StopOffer();
 }

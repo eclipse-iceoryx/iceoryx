@@ -47,7 +47,7 @@ inline FieldSubscriber<T>::~FieldSubscriber() noexcept
 
 template <typename T>
 template <typename Callable>
-inline core::Result<size_t> FieldSubscriber<T>::GetNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
+inline core::Result<size_t> FieldSubscriber<T>::TakeNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
 {
     core::Result<size_t> numberOfSamples{0};
 

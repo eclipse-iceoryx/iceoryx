@@ -14,17 +14,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_INL
-#define IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_INL
+#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_POINTER_INL
+#define IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_POINTER_INL
 
-#include "owl/kom/sample_allocatee_ptr.hpp"
+#include "owl/kom/sample_pointer.hpp"
 
 namespace owl
 {
 namespace kom
 {
 template <typename SampleType>
-inline SampleType* SampleAllocateePtr<SampleType>::operator->() noexcept
+inline SampleType* SamplePointer<SampleType>::operator->() noexcept
 {
     if (!this->has_value())
     {
@@ -36,14 +36,14 @@ inline SampleType* SampleAllocateePtr<SampleType>::operator->() noexcept
 }
 
 template <typename SampleType>
-inline const SampleType* SampleAllocateePtr<SampleType>::operator->() const noexcept
+inline const SampleType* SamplePointer<SampleType>::operator->() const noexcept
 {
-    const_cast<const SampleType*>(const_cast<SampleAllocateePtr<SampleType>*>(this)->operator->());
+    const_cast<const SampleType*>(const_cast<SamplePointer<SampleType>*>(this)->operator->());
 }
 
-//! [SampleAllocateePtr dereferencing]
+//! [SamplePointer dereferencing]
 template <typename SampleType>
-inline SampleType& SampleAllocateePtr<SampleType>::operator*() noexcept
+inline SampleType& SamplePointer<SampleType>::operator*() noexcept
 {
     if (!this->has_value())
     {
@@ -53,19 +53,19 @@ inline SampleType& SampleAllocateePtr<SampleType>::operator*() noexcept
     }
     return *(this->value().get());
 }
-//! [SampleAllocateePtr dereferencing]
+//! [SamplePointer dereferencing]
 
 template <typename SampleType>
-inline const SampleType& SampleAllocateePtr<SampleType>::operator*() const noexcept
+inline const SampleType& SamplePointer<SampleType>::operator*() const noexcept
 {
-    const_cast<const SampleType*>(const_cast<SampleAllocateePtr<SampleType>*>(this)->operator->());
+    const_cast<const SampleType*>(const_cast<SamplePointer<SampleType>*>(this)->operator->());
 }
 
 template <typename SampleType>
-inline SampleAllocateePtr<SampleType>::operator bool() const noexcept
+inline SamplePointer<SampleType>::operator bool() const noexcept
 {
     return this->has_value();
 }
 } // namespace kom
 } // namespace owl
-#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP
+#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_POINTER_HPP

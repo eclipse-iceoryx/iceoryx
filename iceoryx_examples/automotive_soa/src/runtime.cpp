@@ -67,15 +67,16 @@ Runtime::FindService(kom::ServiceIdentifier& serviceIdentifier, kom::InstanceIde
     //! [verify iceoryx mapping]
 }
 
-kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::ProxyHandleType> handler,
-                                                 kom::ServiceIdentifier& serviceIdentifier,
-                                                 kom::InstanceIdentifier& instanceIdentifier) noexcept
+kom::FindServiceCallbackHandle
+Runtime::EnableFindServiceCallback(kom::FindServiceCallback<kom::ProxyHandleType> handler,
+                                   kom::ServiceIdentifier& serviceIdentifier,
+                                   kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     // Duplicate entries for the same service are allowed
     if (!m_callbacks.push_back(CallbackEntryType(
             handler, {serviceIdentifier, instanceIdentifier}, NumberOfAvailableServicesOnLastSearch())))
     {
-        std::cerr << "Callback vector capacity exceeded, did not StartFindService!" << std::endl;
+        std::cerr << "Callback vector capacity exceeded, did not EnableFindServiceCallback!" << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -88,10 +89,10 @@ kom::FindServiceHandle Runtime::StartFindService(kom::FindServiceHandler<kom::Pr
     }
     //! [attach discovery to listener]
 
-    return kom::FindServiceHandle({serviceIdentifier, instanceIdentifier});
+    return kom::FindServiceCallbackHandle({serviceIdentifier, instanceIdentifier});
 }
 
-void Runtime::StopFindService(kom::FindServiceHandle handle) noexcept
+void Runtime::DisableFindServiceCallback(kom::FindServiceCallbackHandle handle) noexcept
 {
     auto iter = m_callbacks.begin();
     for (; iter != m_callbacks.end(); iter++)
@@ -149,8 +150,8 @@ void Runtime::invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noe
 
         auto executeCallback = [&]() {
             (std::get<0>(callback))(container,
-                                    kom::FindServiceHandle({std::get<1>(callback).m_serviceIdentifier,
-                                                            std::get<1>(callback).m_instanceIdentifier}));
+                                    kom::FindServiceCallbackHandle({std::get<1>(callback).m_serviceIdentifier,
+                                                                    std::get<1>(callback).m_instanceIdentifier}));
             numberOfAvailableServicesOnLastSearch.emplace(numberOfAvailableServicesOnCurrentSearch);
         };
 

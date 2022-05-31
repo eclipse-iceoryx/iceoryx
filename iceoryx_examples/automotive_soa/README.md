@@ -60,14 +60,14 @@ and `MinimalSkeleton` are created on the stack. The skeleton is offered
 kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
 MinimalSkeleton skeleton{instanceIdentifier};
 
-skeleton.OfferService();
+skeleton.Offer();
 ```
 
 Every second an event with a counter and timestamp is send to the proxy application
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send event] -->
 ```cpp
-auto sample = skeleton.m_event.Allocate();
+auto sample = skeleton.m_event.Loan();
 if (!sample)
 {
     std::exit(EXIT_FAILURE);
@@ -77,7 +77,7 @@ sample->sendTimestamp = std::chrono::steady_clock::now();
 skeleton.m_event.Send(std::move(sample));
 ```
 
-If `Allocate` fails to acquire new memory, the application is stopped.
+If `Loan` fails to acquire new memory, the application is stopped.
 
 The counter is incremented with every iteration of the loop.
 After 30 iterations the skeleton starts to `Update` the value of the field
@@ -153,7 +153,7 @@ find service call is set up.
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [set up asynchronous search] -->
 ```cpp
-auto handle = MinimalProxy::StartFindService(callback, exampleInstanceSearchQuery);
+auto handle = MinimalProxy::EnableFindServiceCallback(callback, exampleInstanceSearchQuery);
 ```
 
 Once the `MinimalSkeleton` instance becomes available, the callback will be executed, which will create the
@@ -181,7 +181,7 @@ if (container.empty())
 {
     std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
               << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
-    maybeProxy->value().m_event.UnsetReceiveHandler();
+    maybeProxy->value().m_event.UnsetReceiveCallback();
     maybeProxy->reset();
     return;
 }
@@ -209,22 +209,22 @@ if (proxyGuard->has_value())
 
 For the event communication an `onReceive` callback is set up
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Event: set receiveHandler] -->
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Event: set receiveCallback] -->
 ```cpp
-if (!proxy.m_event.HasReceiveHandler())
+if (!proxy.m_event.HasReceiveCallback())
 {
     proxy.m_event.Subscribe(10U);
-    proxy.m_event.SetReceiveHandler(onReceive);
+    proxy.m_event.SetReceiveCallback(onReceive);
 }
 ```
 
 which, receives the data and prints out both the `counter` and the latency with which the topic
 was received. The call happens instantly after data was sent on the event by `MinimalSkeleton`.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Event: receiveHandler callback] -->
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Event: receiveCallback] -->
 ```cpp
 auto onReceive = [&]() -> void {
-    proxy.m_event.GetNewSamples([](const auto& topic) {
+    proxy.m_event.TakeNewSamples([](const auto& topic) {
         auto finish = std::chrono::steady_clock::now();
         std::cout << "Event: value is " << topic->counter << std::endl;
         auto duration =
@@ -239,7 +239,7 @@ a `try`-`catch` block is used to handle potential errors. Initially, the value o
 is `4242` and during the first thirty iterations the incremented value is `Set()` from the
 `MinimalProxy` side. Afterwards the value is updated from the `MinimalSkeleton` side.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Field: get data] -->
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Field: get and set data] -->
 ```cpp
 auto fieldFuture = proxy.m_field.Get();
 try
@@ -284,13 +284,13 @@ catch (const std::future_error&)
 Again, the application runs until `Ctrl-C` is pressed.
 
 If an asynchronous find service call was set up, the call is stopped with the return value of
-`StartFindService` before termination.
+`EnableFindServiceCallback` before termination.
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [stop find service] -->
 ```cpp
 if (maybeHandle.has_value())
 {
-    MinimalProxy::StopFindService(maybeHandle.value());
+    MinimalProxy::DisableFindServiceCallback(maybeHandle.value());
 }
 ```
 
@@ -355,11 +355,11 @@ return autosarServiceContainer;
 
 #### Asynchronous search for instances
 
-The `Runtime::StartFindService` works asynchronously using `popo::Listener` to wakeup if the
+The `Runtime::EnableFindServiceCallback` works asynchronously using `popo::Listener` to wakeup if the
 `ServiceRegistry` changed and execute a user-defined callback if the availability of one of the
 registered services has changed.
 
-When calling `Runtime::StartFindService` for the first time the `ServiceDiscovery` object is
+When calling `Runtime::EnableFindServiceCallback` for the first time the `ServiceDiscovery` object is
 attached to the `popo::Listener` and will notify on any change of the `ServiceRegistry`.
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [attach discovery to listener] -->
@@ -428,24 +428,24 @@ iox::popo::Publisher<T> m_publisher;
 ```
 
 Its API provides a `Send()` method which performs a copy and a zero-copy one where the user needs
-to call `Allocate()` before and acquire a piece of memory in the shared memory.
+to call `Loan()` before and acquire a piece of memory in the shared memory.
 
-The ownership to the piece of memory is represented by a `SampleAllocateePtr`. It behaves like a
+The ownership to the piece of memory is represented by a `SamplePointer`. It behaves like a
 `std::unique_ptr`.
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher allocate] -->
 ```cpp
-SampleAllocateePtr<SampleType> Allocate() noexcept;
+SamplePointer<SampleType> Loan() noexcept;
 ```
 
-Afterwards data can be written directly to shared memory by dereferencing the `SampleAllocateePtr`
+Afterwards data can be written directly to shared memory by dereferencing the `SamplePointer`
 object. It is implemented using `cxx::optional` and `popo::Sample` and, in line with the iceoryx
 philosophy for defined behaviour, terminates if an empty object is dereferenced.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/sample_allocatee_ptr.inl] [SampleAllocateePtr dereferencing] -->
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/sample_pointer.inl] [SamplePointer dereferencing] -->
 ```cpp
 template <typename SampleType>
-inline SampleType& SampleAllocateePtr<SampleType>::operator*() noexcept
+inline SampleType& SamplePointer<SampleType>::operator*() noexcept
 {
     if (!this->has_value())
     {
@@ -461,7 +461,7 @@ Finally, the memory can be send to subscribers by calling
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher zero-copy send] -->
 ```cpp
-void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
+void Send(SamplePointer<SampleType> userSamplePtr) noexcept;
 ```
 
 #### `FieldPublisher`
@@ -577,7 +577,7 @@ The `EventSubscriber` class is implemented with the following members
 ```cpp
 iox::capro::ServiceDescription m_serviceDescription;
 iox::cxx::optional<iox::popo::Subscriber<T>> m_subscriber;
-iox::concurrent::smart_lock<iox::cxx::optional<iox::cxx::function<void()>>> m_receiveHandler;
+iox::concurrent::smart_lock<iox::cxx::optional<iox::cxx::function<void()>>> m_receiveCallback;
 iox::popo::Listener m_listener;
 ```
 
@@ -587,16 +587,16 @@ This time, the `Listener` executes the callback which was stored with
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber setReceiveHandler] -->
 ```cpp
 template <typename T>
-inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) noexcept
+inline void EventSubscriber<T>::SetReceiveCallback(EventReceiveCallback handler) noexcept
 {
     if (!handler)
     {
-        std::cerr << "Can't attach empty receive handler!" << std::endl;
+        std::cerr << "Can't attach empty receive callback!" << std::endl;
         return;
     }
     if (!m_subscriber.has_value())
     {
-        std::cerr << "Call Subscribe() before setting a receive handler!" << std::endl;
+        std::cerr << "Call Subscribe() before setting a receive callback!" << std::endl;
         return;
     }
 
@@ -605,7 +605,7 @@ inline void EventSubscriber<T>::SetReceiveHandler(EventReceiveHandler handler) n
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
                      iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
         .expect("Unable to attach subscriber!");
-    m_receiveHandler->emplace(handler);
+    m_receiveCallback->emplace(handler);
 }
 ```
 
@@ -622,10 +622,10 @@ inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T
         return;
     }
 
-    self->m_receiveHandler->and_then([](iox::cxx::function<void()>& userCallable) {
+    self->m_receiveCallback->and_then([](iox::cxx::function<void()>& userCallable) {
         if (!userCallable)
         {
-            std::cerr << "Tried to call an empty receive handler!" << std::endl;
+            std::cerr << "Tried to call an empty receive callback!" << std::endl;
             return;
         }
         userCallable();
@@ -633,10 +633,10 @@ inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T
 }
 ```
 
-The mutex is used to provide thread-safety and protect `m_receiveHandler` because it is accessed
+The mutex is used to provide thread-safety and protect `m_receiveCallback` because it is accessed
 concurrently.
 
-If a receive handler is not needed, `GetNewSamples()` can be used in a polling manner.
+If a receive handler is not needed, `TakeNewSamples()` can be used in a polling manner.
 
 #### `FieldSubscriber`
 
@@ -731,7 +731,7 @@ m_threadsRunning--;
 Here, the expected sequence identifier is compared with the received one. In the end, the response
 is copied into the `std::promise`.
 
-Alternatively, the value can also be received in a polling manner with `GetNewSamples()`.
+Alternatively, the value can also be received in a polling manner with `TakeNewSamples()`.
 
 #### `MethodClient`
 

@@ -38,7 +38,7 @@ int main()
     kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
     MinimalSkeleton skeleton{instanceIdentifier};
 
-    skeleton.OfferService();
+    skeleton.Offer();
     //! [create skeleton]
 
     uint32_t counter = 0;
@@ -47,7 +47,7 @@ int main()
         ++counter;
 
         //! [send event]
-        auto sample = skeleton.m_event.Allocate();
+        auto sample = skeleton.m_event.Loan();
         if (!sample)
         {
             std::exit(EXIT_FAILURE);
@@ -73,7 +73,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    skeleton.StopOfferService();
+    skeleton.StopOffer();
 
     return 0;
 }

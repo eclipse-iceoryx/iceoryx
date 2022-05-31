@@ -23,7 +23,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 
-#include "kom/sample_allocatee_ptr.hpp"
+#include "kom/sample_pointer.hpp"
 
 #include <future>
 #include <memory>
@@ -51,7 +51,7 @@ using EventIdentifier = core::String;
 using FieldIdentifier = core::String;
 using MethodIdentifier = core::String;
 
-struct FindServiceHandle
+struct FindServiceCallbackHandle
 {
     // Only the Runtime shall be able to create handles, not the user
     friend class owl::Runtime;
@@ -67,7 +67,7 @@ struct FindServiceHandle
     }
 
   private:
-    FindServiceHandle(ServiceIdentifier serviceIdentifier, InstanceIdentifier instanceIdentifier) noexcept
+    FindServiceCallbackHandle(ServiceIdentifier serviceIdentifier, InstanceIdentifier instanceIdentifier) noexcept
         : m_serviceIdentifier(serviceIdentifier)
         , m_instanceIdentifier(instanceIdentifier)
     {
@@ -109,9 +109,9 @@ template <typename T>
 using ServiceHandleContainer = iox::cxx::vector<T, 50U>;
 
 template <typename T>
-using FindServiceHandler = iox::cxx::function<void(ServiceHandleContainer<T>, FindServiceHandle)>;
+using FindServiceCallback = iox::cxx::function<void(ServiceHandleContainer<T>, FindServiceCallbackHandle)>;
 
-using EventReceiveHandler = iox::cxx::function<void()>;
+using EventReceiveCallback = iox::cxx::function<void()>;
 
 // We use the STL version as future is not available in hoofs
 template <typename T>

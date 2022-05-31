@@ -25,7 +25,7 @@
 #include "owl/runtime.hpp"
 #include "owl/types.hpp"
 
-/// @note Once a handler has been set with 'StartFindService', calling 'FindService' is not thread-safe!
+/// @note Once a handler has been set with 'EnableFindServiceCallback', calling 'FindService' is not thread-safe!
 class MinimalProxy
 {
   public:
@@ -39,10 +39,11 @@ class MinimalProxy
     MinimalProxy& operator=(const MinimalProxy&) = delete;
     MinimalProxy& operator=(MinimalProxy&&) = delete;
 
-    static owl::kom::FindServiceHandle StartFindService(owl::kom::FindServiceHandler<owl::kom::ProxyHandleType> handler,
-                                                        owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
+    static owl::kom::FindServiceCallbackHandle
+    EnableFindServiceCallback(owl::kom::FindServiceCallback<owl::kom::ProxyHandleType> handler,
+                              owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
-    static void StopFindService(owl::kom::FindServiceHandle handle) noexcept;
+    static void DisableFindServiceCallback(owl::kom::FindServiceCallbackHandle handle) noexcept;
 
     static owl::kom::ServiceHandleContainer<owl::kom::ProxyHandleType>
     FindService(owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;

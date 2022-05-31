@@ -27,10 +27,10 @@ namespace owl
 {
 namespace kom
 {
-/// @note Once a receive handler has been set, calling the following methods is not thread-safe:
+/// @note Once a receive callback has been set, calling the following methods is not thread-safe:
 ///           - Subscribe()
 ///           - Unsubscribe()
-///           - GetNewSamples()
+///           - TakeNewSamples()
 template <typename T>
 class EventSubscriber
 {
@@ -44,18 +44,18 @@ class EventSubscriber
                     const InstanceIdentifier& instance,
                     const EventIdentifier& event) noexcept;
 
-    /// @note Will disable the receive handler if active
+    /// @note Will disable the receive callback if active
     void Subscribe(std::size_t queueCapacity) noexcept;
-    /// @note Will disable the receive handler if active
+    /// @note Will disable the receive callback if active
     void Unsubscribe() noexcept;
 
     template <typename Callable>
-    core::Result<size_t> GetNewSamples(Callable&& callable,
-                                       size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
+    core::Result<size_t> TakeNewSamples(Callable&& callable,
+                                        size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
 
-    void SetReceiveHandler(EventReceiveHandler handler) noexcept;
-    void UnsetReceiveHandler() noexcept;
-    bool HasReceiveHandler() const noexcept;
+    void SetReceiveCallback(EventReceiveCallback handler) noexcept;
+    void UnsetReceiveCallback() noexcept;
+    bool HasReceiveCallback() const noexcept;
 
 
   private:
@@ -64,7 +64,7 @@ class EventSubscriber
     //! [EventSubscriber members]
     iox::capro::ServiceDescription m_serviceDescription;
     iox::cxx::optional<iox::popo::Subscriber<T>> m_subscriber;
-    iox::concurrent::smart_lock<iox::cxx::optional<iox::cxx::function<void()>>> m_receiveHandler;
+    iox::concurrent::smart_lock<iox::cxx::optional<iox::cxx::function<void()>>> m_receiveCallback;
     iox::popo::Listener m_listener;
     //! [EventSubscriber members]
 };

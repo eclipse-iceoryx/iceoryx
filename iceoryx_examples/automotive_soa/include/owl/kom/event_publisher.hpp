@@ -35,7 +35,7 @@ class EventPublisher
                    const InstanceIdentifier& instance,
                    const EventIdentifier& event) noexcept;
 
-    // Deleted because of SampleAllocateePtr implementation capturing 'this' in Allocate()
+    // Deleted because of SamplePointer implementation capturing 'this' in Loan()
     EventPublisher(const EventPublisher&) = delete;
     EventPublisher(EventPublisher&&) = delete;
     EventPublisher& operator=(const EventPublisher&) = delete;
@@ -49,11 +49,11 @@ class EventPublisher
 
     bool Send(const SampleType& userSample) noexcept;
     //! [EventPublisher zero-copy send]
-    void Send(SampleAllocateePtr<SampleType> userSamplePtr) noexcept;
+    void Send(SamplePointer<SampleType> userSamplePtr) noexcept;
     //! [EventPublisher zero-copy send]
 
     //! [EventPublisher allocate]
-    SampleAllocateePtr<SampleType> Allocate() noexcept;
+    SamplePointer<SampleType> Loan() noexcept;
     //! [EventPublisher allocate]
 
   private:

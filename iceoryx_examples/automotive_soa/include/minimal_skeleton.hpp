@@ -37,8 +37,8 @@ class MinimalSkeleton
     MinimalSkeleton& operator=(const MinimalSkeleton&) = delete;
     MinimalSkeleton& operator=(MinimalSkeleton&&) = delete;
 
-    void OfferService() noexcept;
-    void StopOfferService() noexcept;
+    void Offer() noexcept;
+    void StopOffer() noexcept;
 
     const owl::kom::InstanceIdentifier m_instanceIdentifier;
     owl::kom::EventPublisher<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};

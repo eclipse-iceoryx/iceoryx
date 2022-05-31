@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP
-#define IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP
+#ifndef IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_POINTER_HPP
+#define IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_POINTER_HPP
 
 #include "iceoryx_posh/popo/sample.hpp"
 #include "owl/types.hpp"
@@ -26,7 +26,7 @@ namespace kom
 {
 /// @brief This class mimics a std::unique_ptr
 template <typename SampleType>
-class SampleAllocateePtr : private iox::cxx::optional<iox::popo::Sample<SampleType>>
+class SamplePointer : private iox::cxx::optional<iox::popo::Sample<SampleType>>
 {
   public:
     using ParentType = iox::cxx::optional<iox::popo::Sample<SampleType>>;
@@ -48,6 +48,6 @@ class SampleAllocateePtr : private iox::cxx::optional<iox::popo::Sample<SampleTy
 } // namespace kom
 } // namespace owl
 
-#include "owl/kom/sample_allocatee_ptr.inl"
+#include "owl/kom/sample_pointer.inl"
 
-#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_ALLOCATEE_PTR_HPP
+#endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_SAMPLE_POINTER_HPP

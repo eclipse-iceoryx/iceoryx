@@ -29,17 +29,17 @@ MinimalProxy::MinimalProxy(owl::kom::ProxyHandleType& handle) noexcept
     }
 }
 
-owl::kom::FindServiceHandle
-MinimalProxy::StartFindService(owl::kom::FindServiceHandler<owl::kom::ProxyHandleType> handler,
-                               owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
+owl::kom::FindServiceCallbackHandle
+MinimalProxy::EnableFindServiceCallback(owl::kom::FindServiceCallback<owl::kom::ProxyHandleType> handler,
+                                        owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     owl::kom::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
-    return owl::Runtime::GetInstance().StartFindService(handler, serviceIdentifier, instanceIdentifier);
+    return owl::Runtime::GetInstance().EnableFindServiceCallback(handler, serviceIdentifier, instanceIdentifier);
 }
 
-void MinimalProxy::StopFindService(owl::kom::FindServiceHandle handle) noexcept
+void MinimalProxy::DisableFindServiceCallback(owl::kom::FindServiceCallbackHandle handle) noexcept
 {
-    owl::Runtime::GetInstance().StopFindService(handle);
+    owl::Runtime::GetInstance().DisableFindServiceCallback(handle);
 }
 
 owl::kom::ServiceHandleContainer<owl::kom::ProxyHandleType>

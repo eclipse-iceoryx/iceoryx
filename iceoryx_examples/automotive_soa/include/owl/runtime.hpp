@@ -29,13 +29,13 @@
 
 namespace owl
 {
-/// @note Once a handler has been set with 'StartFindService', calling 'FindService' is not thread-safe!
+/// @note Once a handler has been set with 'EnableFindServiceCallback', calling 'FindService' is not thread-safe!
 class Runtime
 {
   private:
     using NumberOfAvailableServicesOnLastSearch = iox::cxx::optional<uint64_t>;
-    using CallbackEntryType = std::tuple<kom::FindServiceHandler<kom::ProxyHandleType>,
-                                         kom::FindServiceHandle,
+    using CallbackEntryType = std::tuple<kom::FindServiceCallback<kom::ProxyHandleType>,
+                                         kom::FindServiceCallbackHandle,
                                          NumberOfAvailableServicesOnLastSearch>;
 
   public:
@@ -61,13 +61,13 @@ class Runtime
     /// @param[in] instanceIdentifier string of instance to search for
     /// @return Handle which can be used to stop an ongoing search
     /// @note ABA problem might occur: Available service which becomes unavailable during search and hence is not found
-    kom::FindServiceHandle StartFindService(kom::FindServiceHandler<kom::ProxyHandleType> handler,
-                                            kom::ServiceIdentifier& serviceIdentifier,
-                                            kom::InstanceIdentifier& instanceIdentifier) noexcept;
+    kom::FindServiceCallbackHandle EnableFindServiceCallback(kom::FindServiceCallback<kom::ProxyHandleType> handler,
+                                                             kom::ServiceIdentifier& serviceIdentifier,
+                                                             kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
     /// @brief Stops an asychronous search for specific instance of a service
     /// @param[in] handle instance of service which shall be stopped
-    void StopFindService(kom::FindServiceHandle handle) noexcept;
+    void DisableFindServiceCallback(kom::FindServiceCallbackHandle handle) noexcept;
 
   private:
     explicit Runtime() noexcept = default;
