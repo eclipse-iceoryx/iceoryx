@@ -30,7 +30,7 @@ inline SampleType* SamplePointer<SampleType>::operator->() noexcept
     {
         // We don't allow undefined behaviour
         std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     }
     return this->value().get();
 }
@@ -45,13 +45,7 @@ inline const SampleType* SamplePointer<SampleType>::operator->() const noexcept
 template <typename SampleType>
 inline SampleType& SamplePointer<SampleType>::operator*() noexcept
 {
-    if (!this->has_value())
-    {
-        // We don't allow undefined behaviour
-        std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
-        std::terminate();
-    }
-    return *(this->value().get());
+    return *this->operator->();
 }
 //! [SamplePointer dereferencing]
 

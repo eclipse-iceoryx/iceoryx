@@ -42,12 +42,12 @@ class MethodServer
     MethodServer& operator=(const MethodServer&) = delete;
     MethodServer& operator=(MethodServer&&) = delete;
 
-    Future<AddResponse> computeSum(uint64_t addend1, uint64_t addend2);
+    Future<AddResponse> computeSum(const uint64_t addend1, const uint64_t addend2);
 
   private:
     static void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept;
 
-    uint64_t computeSumInternal(uint64_t addend1, uint64_t addend2) noexcept;
+    uint64_t computeSumInternal(const uint64_t addend1, const uint64_t addend2) noexcept;
 
     //! [MethodServer members]
     iox::popo::Server<AddRequest, AddResponse> m_server;

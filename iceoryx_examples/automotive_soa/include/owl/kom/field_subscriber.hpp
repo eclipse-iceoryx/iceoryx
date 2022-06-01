@@ -48,7 +48,7 @@ class FieldSubscriber
 
     template <typename Callable>
     core::Result<uint32_t> TakeNewSamples(Callable&& callable,
-                                        uint32_t maxNumberOfSamples = std::numeric_limits<uint32_t>::max()) noexcept;
+                                          uint32_t maxNumberOfSamples = std::numeric_limits<uint32_t>::max()) noexcept;
 
     Future<FieldType> Get();
     Future<FieldType> Set(const FieldType& value);

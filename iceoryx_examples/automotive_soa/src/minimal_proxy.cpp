@@ -18,32 +18,32 @@
 
 constexpr char MinimalProxy::m_serviceIdentifier[];
 
-MinimalProxy::MinimalProxy(owl::kom::ProxyHandleType& handle) noexcept
+MinimalProxy::MinimalProxy(const owl::kom::ProxyHandleType& handle) noexcept
     : m_instanceIdentifier(handle.GetInstanceId())
 {
     if (handle.GetServiceId() != owl::kom::ServiceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier})
     {
         std::cerr << "Handle does not match MinimalProxy class. Can't construct MinimalProxy, terminating!"
                   << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     }
 }
 
 owl::kom::FindServiceCallbackHandle
-MinimalProxy::EnableFindServiceCallback(owl::kom::FindServiceCallback<owl::kom::ProxyHandleType> handler,
-                                        owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
+MinimalProxy::EnableFindServiceCallback(const owl::kom::FindServiceCallback<owl::kom::ProxyHandleType> handler,
+                                        const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     owl::kom::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
     return owl::Runtime::GetInstance().EnableFindServiceCallback(handler, serviceIdentifier, instanceIdentifier);
 }
 
-void MinimalProxy::DisableFindServiceCallback(owl::kom::FindServiceCallbackHandle handle) noexcept
+void MinimalProxy::DisableFindServiceCallback(const owl::kom::FindServiceCallbackHandle handle) noexcept
 {
     owl::Runtime::GetInstance().DisableFindServiceCallback(handle);
 }
 
 owl::kom::ServiceHandleContainer<owl::kom::ProxyHandleType>
-MinimalProxy::FindService(owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
+MinimalProxy::FindService(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     owl::kom::ServiceIdentifier serviceIdentifier{iox::cxx::TruncateToCapacity, m_serviceIdentifier};
     return owl::Runtime::GetInstance().FindService(serviceIdentifier, instanceIdentifier);

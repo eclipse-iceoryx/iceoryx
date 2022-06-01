@@ -41,7 +41,7 @@ class MethodClient
     MethodClient& operator=(const MethodClient&) = delete;
     MethodClient& operator=(MethodClient&&) = delete;
 
-    Future<AddResponse> operator()(uint64_t addend1, uint64_t addend2);
+    Future<AddResponse> operator()(const uint64_t addend1, const uint64_t addend2);
 
   private:
     //! [MethodClient members]

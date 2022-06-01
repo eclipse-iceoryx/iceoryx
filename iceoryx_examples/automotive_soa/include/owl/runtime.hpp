@@ -51,8 +51,9 @@ class Runtime
     /// @param[in] serviceIdentifier string of service to search for
     /// @param[in] instanceIdentifier string of instance to search for
     /// @return Container with an entry for each found instance
-    kom::ServiceHandleContainer<kom::ProxyHandleType> FindService(kom::ServiceIdentifier& serviceIdentifier,
-                                                                  kom::InstanceIdentifier& instanceIdentifier) noexcept;
+    kom::ServiceHandleContainer<kom::ProxyHandleType>
+    FindService(const kom::ServiceIdentifier& serviceIdentifier,
+                const kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
     /// @brief Sets up an asychronous search for specific instance of a service
     /// @param[in] handler callback which shall be executed when the availabilty of the specific instance of a service
@@ -61,13 +62,14 @@ class Runtime
     /// @param[in] instanceIdentifier string of instance to search for
     /// @return Handle which can be used to stop an ongoing search
     /// @note ABA problem might occur: Available service which becomes unavailable during search and hence is not found
-    kom::FindServiceCallbackHandle EnableFindServiceCallback(kom::FindServiceCallback<kom::ProxyHandleType> handler,
-                                                             kom::ServiceIdentifier& serviceIdentifier,
-                                                             kom::InstanceIdentifier& instanceIdentifier) noexcept;
+    kom::FindServiceCallbackHandle
+    EnableFindServiceCallback(const kom::FindServiceCallback<kom::ProxyHandleType> handler,
+                              const kom::ServiceIdentifier& serviceIdentifier,
+                              const kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
     /// @brief Stops an asychronous search for specific instance of a service
     /// @param[in] handle instance of service which shall be stopped
-    void DisableFindServiceCallback(kom::FindServiceCallbackHandle handle) noexcept;
+    void DisableFindServiceCallback(const kom::FindServiceCallbackHandle handle) noexcept;
 
   private:
     explicit Runtime() noexcept = default;

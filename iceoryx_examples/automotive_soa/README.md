@@ -451,7 +451,7 @@ inline SampleType& SamplePointer<SampleType>::operator*() noexcept
     {
         // We don't allow undefined behaviour
         std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     }
     return *(this->value().get());
 }
@@ -718,7 +718,7 @@ for (auto& notification : notificationVector)
             {
                 std::cerr << "Got Response with outdated sequence ID! Expected = " << m_sequenceId
                           << "; Actual = " << receivedSequenceId << "!" << std::endl;
-                std::terminate();
+                std::exit(EXIT_FAILURE);
             }
         }))
         {

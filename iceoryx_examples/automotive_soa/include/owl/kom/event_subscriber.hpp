@@ -51,8 +51,7 @@ class EventSubscriber
     void Unsubscribe() noexcept;
 
     template <typename Callable>
-    core::Result<uint32_t> TakeNewSamples(Callable&& callable,
-                                          uint32_t maxNumberOfSamples = TAKE_ALL_SAMPLES) noexcept;
+    core::Result<uint32_t> TakeNewSamples(Callable&& callable, uint32_t maxNumberOfSamples = TAKE_ALL_SAMPLES) noexcept;
 
     void SetReceiveCallback(EventReceiveCallback handler) noexcept;
     void UnsetReceiveCallback() noexcept;

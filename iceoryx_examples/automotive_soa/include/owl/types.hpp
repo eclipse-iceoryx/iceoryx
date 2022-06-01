@@ -105,8 +105,10 @@ struct ProxyHandleType
     InstanceIdentifier m_instanceIdentifier;
 };
 
+constexpr uint64_t MAXIMUM_SEARCH_RESULTS{50};
+
 template <typename T>
-using ServiceHandleContainer = iox::cxx::vector<T, 50U>;
+using ServiceHandleContainer = iox::cxx::vector<T, MAXIMUM_SEARCH_RESULTS>;
 
 template <typename T>
 using FindServiceCallback = iox::cxx::function<void(ServiceHandleContainer<T>, FindServiceCallbackHandle)>;

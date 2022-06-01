@@ -64,7 +64,8 @@ inline void EventSubscriber<T>::Unsubscribe() noexcept
 
 template <typename T>
 template <typename Callable>
-inline core::Result<uint32_t> EventSubscriber<T>::TakeNewSamples(Callable&& callable, uint32_t maxNumberOfSamples) noexcept
+inline core::Result<uint32_t> EventSubscriber<T>::TakeNewSamples(Callable&& callable,
+                                                                 uint32_t maxNumberOfSamples) noexcept
 {
     core::Result<uint32_t> numberOfSamples{0};
 

@@ -31,7 +31,7 @@ class MinimalProxy
   public:
     static constexpr char m_serviceIdentifier[] = "ExampleSkeleton";
 
-    MinimalProxy(owl::kom::ProxyHandleType& handle) noexcept;
+    MinimalProxy(const owl::kom::ProxyHandleType& handle) noexcept;
     ~MinimalProxy() noexcept = default;
 
     MinimalProxy(const MinimalProxy&) = delete;
@@ -40,13 +40,13 @@ class MinimalProxy
     MinimalProxy& operator=(MinimalProxy&&) = delete;
 
     static owl::kom::FindServiceCallbackHandle
-    EnableFindServiceCallback(owl::kom::FindServiceCallback<owl::kom::ProxyHandleType> handler,
-                              owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
+    EnableFindServiceCallback(const owl::kom::FindServiceCallback<owl::kom::ProxyHandleType> handler,
+                              const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
-    static void DisableFindServiceCallback(owl::kom::FindServiceCallbackHandle handle) noexcept;
+    static void DisableFindServiceCallback(const owl::kom::FindServiceCallbackHandle handle) noexcept;
 
     static owl::kom::ServiceHandleContainer<owl::kom::ProxyHandleType>
-    FindService(owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
+    FindService(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
     const owl::kom::InstanceIdentifier m_instanceIdentifier;
     owl::kom::EventSubscriber<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};

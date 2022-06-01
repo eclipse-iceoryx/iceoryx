@@ -31,7 +31,8 @@ Runtime& Runtime::GetInstance() noexcept
 }
 
 kom::ServiceHandleContainer<kom::ProxyHandleType>
-Runtime::FindService(kom::ServiceIdentifier& serviceIdentifier, kom::InstanceIdentifier& instanceIdentifier) noexcept
+Runtime::FindService(const kom::ServiceIdentifier& serviceIdentifier,
+                     const kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     //! [searching for iceoryx services]
     kom::ServiceHandleContainer<kom::ProxyHandleType> iceoryxServiceContainer;
@@ -68,9 +69,9 @@ Runtime::FindService(kom::ServiceIdentifier& serviceIdentifier, kom::InstanceIde
 }
 
 kom::FindServiceCallbackHandle
-Runtime::EnableFindServiceCallback(kom::FindServiceCallback<kom::ProxyHandleType> handler,
-                                   kom::ServiceIdentifier& serviceIdentifier,
-                                   kom::InstanceIdentifier& instanceIdentifier) noexcept
+Runtime::EnableFindServiceCallback(const kom::FindServiceCallback<kom::ProxyHandleType> handler,
+                                   const kom::ServiceIdentifier& serviceIdentifier,
+                                   const kom::InstanceIdentifier& instanceIdentifier) noexcept
 {
     // Duplicate entries for the same service are allowed
     if (!m_callbacks.push_back(CallbackEntryType(
@@ -92,7 +93,7 @@ Runtime::EnableFindServiceCallback(kom::FindServiceCallback<kom::ProxyHandleType
     return kom::FindServiceCallbackHandle({serviceIdentifier, instanceIdentifier});
 }
 
-void Runtime::DisableFindServiceCallback(kom::FindServiceCallbackHandle handle) noexcept
+void Runtime::DisableFindServiceCallback(const kom::FindServiceCallbackHandle handle) noexcept
 {
     auto iter = m_callbacks.begin();
     for (; iter != m_callbacks.end(); iter++)
