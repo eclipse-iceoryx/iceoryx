@@ -31,6 +31,7 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <type_traits>
 
 namespace
 {
@@ -134,8 +135,8 @@ TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "02e478ba-9197-4007-b19b-2f570a836707");
 
-    if (std::is_same_v<typename TestFixture::SutFactory,
-                       NamedSemaphoreTest> && !iox::platform::IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION)
+    if (std::is_same<typename TestFixture::SutFactory, NamedSemaphoreTest>::value
+        && !iox::platform::IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION)
     {
         return;
     }

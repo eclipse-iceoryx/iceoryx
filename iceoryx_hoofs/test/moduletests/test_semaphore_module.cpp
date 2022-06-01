@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "test_posix_semaphore_common.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -163,9 +164,7 @@ TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
         ASSERT_FALSE(sut->post().has_error());
     }
 
-    auto result = sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(12));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 12));
 }
 
 TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
@@ -180,9 +179,7 @@ TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
         ASSERT_FALSE(sut->wait().has_error());
     }
 
-    auto result = sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(11));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 11));
 }
 
 TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
@@ -199,9 +196,7 @@ TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
         ASSERT_THAT(*call, Eq(true));
     }
 
-    auto result = sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(6));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 6));
 }
 
 TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
@@ -235,9 +230,7 @@ TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
 
-    auto result = sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(7));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 7));
 }
 
 TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)

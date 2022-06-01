@@ -72,10 +72,7 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
     /// BEGIN: try to open existing semaphore
     if (m_openMode == OpenMode::OPEN_OR_CREATE || m_openMode == OpenMode::OPEN_EXISTING)
     {
-        auto result = posixCall(iox_sem_open_ext)(m_name.c_str(),
-                                                  convertToOflags(m_openMode),
-                                                  static_cast<mode_t>(m_permissions),
-                                                  static_cast<unsigned int>(m_initialValue))
+        auto result = posixCall(iox_sem_open)(m_name.c_str(), 0)
                           .failureReturnValue(IOX_SEM_FAILED)
                           .ignoreErrnos(ENOENT, EINVAL)
                           .evaluate();
