@@ -35,7 +35,7 @@ int main()
     //! [create runtime]
 
     //! [create skeleton]
-    kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
+    kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "ExampleInstance"};
     MinimalSkeleton skeleton{instanceIdentifier};
 
     skeleton.Offer();

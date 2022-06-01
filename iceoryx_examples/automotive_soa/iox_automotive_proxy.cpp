@@ -42,7 +42,7 @@ int main()
     optional<kom::FindServiceCallbackHandle> maybeHandle;
 
     //! [synchronous discovery]
-    kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "Example");
+    kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "ExampleInstance");
     std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
               << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
     auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);

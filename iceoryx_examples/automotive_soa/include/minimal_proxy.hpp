@@ -29,7 +29,7 @@
 class MinimalProxy
 {
   public:
-    static constexpr char m_serviceIdentifier[] = "MinimalSkeleton";
+    static constexpr char m_serviceIdentifier[] = "ExampleSkeleton";
 
     MinimalProxy(owl::kom::ProxyHandleType& handle) noexcept;
     ~MinimalProxy() noexcept = default;

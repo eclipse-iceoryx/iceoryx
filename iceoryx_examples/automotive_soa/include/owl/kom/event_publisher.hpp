@@ -52,9 +52,9 @@ class EventPublisher
     void Send(SamplePointer<SampleType> userSamplePtr) noexcept;
     //! [EventPublisher zero-copy send]
 
-    //! [EventPublisher allocate]
+    //! [EventPublisher loan]
     SamplePointer<SampleType> Loan() noexcept;
-    //! [EventPublisher allocate]
+    //! [EventPublisher loan]
 
   private:
     //! [EventPublisher members]

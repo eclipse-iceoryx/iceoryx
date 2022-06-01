@@ -57,7 +57,7 @@ and `MinimalSkeleton` are created on the stack. The skeleton is offered
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [create skeleton] -->
 ```cpp
-kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "Example"};
+kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "ExampleInstance"};
 MinimalSkeleton skeleton{instanceIdentifier};
 
 skeleton.Offer();
@@ -129,7 +129,7 @@ performed.
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [synchronous discovery] -->
 ```cpp
-kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "Example");
+kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "ExampleInstance");
 std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
           << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
 auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
@@ -433,7 +433,7 @@ to call `Loan()` before and acquire a piece of memory in the shared memory.
 The ownership to the piece of memory is represented by a `SamplePointer`. It behaves like a
 `std::unique_ptr`.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher allocate] -->
+<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher loan] -->
 ```cpp
 SamplePointer<SampleType> Loan() noexcept;
 ```

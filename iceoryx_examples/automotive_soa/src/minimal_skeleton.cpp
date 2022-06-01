@@ -17,6 +17,7 @@
 #include "minimal_skeleton.hpp"
 
 constexpr char MinimalSkeleton::m_serviceIdentifier[];
+constexpr Topic MinimalSkeleton::initalFieldValue;
 
 MinimalSkeleton::MinimalSkeleton(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept
     : m_instanceIdentifier(instanceIdentifier)
