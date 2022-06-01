@@ -24,39 +24,24 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-add_executable(iox-cpp-automotive-skeleton  ./iox_automotive_skeleton.cpp
-                                            ./src/minimal_skeleton.cpp
-                                            ./src/runtime.cpp
-                                            ./src/owl/kom/method_server.cpp
-)
-target_link_libraries(iox-cpp-automotive-skeleton
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-automotive-skeleton PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-target_include_directories(iox-cpp-automotive-skeleton PRIVATE include)
-
-add_executable(iox-cpp-automotive-proxy ./iox_automotive_proxy.cpp
-                                        ./src/minimal_proxy.cpp
-                                        ./src/runtime.cpp
-                                        ./src/owl/kom/method_client.cpp
-)
-target_link_libraries(iox-cpp-automotive-proxy
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-automotive-proxy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-target_include_directories(iox-cpp-automotive-proxy PRIVATE include)
-
-set_target_properties(iox-cpp-automotive-proxy
-                      iox-cpp-automotive-skeleton
-                      PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET              iox-cpp-automotive-skeleton
+    FILES               ./iox_automotive_skeleton.cpp
+                        ./src/minimal_skeleton.cpp
+                        ./src/runtime.cpp
+                        ./src/owl/kom/method_server.cpp
+    LIBS                iceoryx_posh::iceoryx_posh
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-install(TARGETS iox-cpp-automotive-skeleton
-                iox-cpp-automotive-proxy
-        RUNTIME DESTINATION bin)
+iox_add_executable(
+    TARGET              iox-cpp-automotive-proxy
+    FILES               ./iox_automotive_proxy.cpp
+                        ./src/minimal_proxy.cpp
+                        ./src/runtime.cpp
+                        ./src/owl/kom/method_client.cpp
+    LIBS                iceoryx_posh::iceoryx_posh
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
