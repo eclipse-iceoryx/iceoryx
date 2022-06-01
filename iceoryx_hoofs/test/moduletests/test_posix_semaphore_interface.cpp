@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/platform/time.hpp"
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
@@ -105,7 +106,6 @@ struct NamedSemaphoreTest
     }
 };
 
-
 using Implementations = Types<UnnamedSemaphoreTest, NamedSemaphoreTest>;
 TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations);
 
@@ -133,12 +133,18 @@ TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
 TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "02e478ba-9197-4007-b19b-2f570a836707");
+
+    if (std::is_same_v<typename TestFixture::SutFactory,
+                       NamedSemaphoreTest> && !iox::platform::IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION)
+    {
+        return;
+    }
+
     uint32_t INITIAL_VALUE = static_cast<uint32_t>(IOX_SEM_VALUE_MAX);
 
     ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
 
     auto result = this->sut->post();
-    result = this->sut->post();
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
 }

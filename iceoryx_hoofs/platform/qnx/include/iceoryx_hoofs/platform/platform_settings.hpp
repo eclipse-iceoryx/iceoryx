@@ -29,6 +29,7 @@ namespace platform
 {
 /// defined so that it is consistent to linux
 constexpr uint64_t IOX_MAX_SEMAPHORE_NAME_LENGTH = 251U;
+constexpr bool IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION = true;
 
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 255U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 1023U;

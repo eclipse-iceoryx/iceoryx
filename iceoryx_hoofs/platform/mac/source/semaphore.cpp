@@ -52,11 +52,14 @@ iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
-    if ( sem->m_hasPosixHandle ) {
-        std::cerr << "\"sem_getvalue\" is not supported for named semaphores on MacOS and always returns 0, do not use it!" << std::endl;
+    if (sem->m_hasPosixHandle)
+    {
+        std::cerr
+            << "\"sem_getvalue\" is not supported for named semaphores on MacOS and always returns 0, do not use it!"
+            << std::endl;
         return 0;
     }
-    *sval = sem->m_value.load(std::memory_order_relaxed);
+    *sval = static_cast<int>(sem->m_value.load(std::memory_order_relaxed));
     return 0;
 }
 
@@ -66,15 +69,19 @@ int iox_sem_post(iox_sem_t* sem)
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_post(sem->m_handle.posix);
-        if (retVal == 0)
-        {
-            sem->m_value.fetch_add(1, std::memory_order_relaxed);
-        }
     }
     else
     {
         pthread_mutex_lock(&sem->m_handle.condition.mtx);
-        sem->m_value.fetch_add(1, std::memory_order_relaxed);
+        if (sem->m_value.load() + 1 > IOX_SEM_VALUE_MAX)
+        {
+            errno = EOVERFLOW;
+            retVal = -1;
+        }
+        else
+        {
+            sem->m_value.fetch_add(1, std::memory_order_relaxed);
+        }
         pthread_mutex_unlock(&sem->m_handle.condition.mtx);
 
         pthread_cond_signal(&sem->m_handle.condition.variable);
@@ -88,10 +95,6 @@ int iox_sem_wait(iox_sem_t* sem)
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_wait(sem->m_handle.posix);
-        if (retVal == 0)
-        {
-            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
-        }
     }
     else
     {
@@ -114,10 +117,6 @@ int iox_sem_trywait(iox_sem_t* sem)
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_trywait(sem->m_handle.posix);
-        if (retVal == 0)
-        {
-            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
-        }
     }
     else
     {
@@ -168,7 +167,6 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
 
@@ -191,7 +189,6 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
     }
@@ -296,7 +293,7 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
     pthread_mutexattr_destroy(&mutexAttr);
 
     sem->m_hasPosixHandle = false;
-    sem->m_value.store(static_cast<int>(value), std::memory_order_relaxed);
+    sem->m_value.store(static_cast<uint32_t>(value), std::memory_order_relaxed);
 
     return 0;
 }
@@ -333,7 +330,6 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         va_end(va);
 
         sem->m_handle.posix = sem_open(name, oflag, mode, value);
-        sem->m_value.store(static_cast<int>(value), std::memory_order_relaxed);
     }
     else
     {

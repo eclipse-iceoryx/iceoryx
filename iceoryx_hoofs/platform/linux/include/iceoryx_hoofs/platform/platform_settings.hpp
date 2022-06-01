@@ -30,6 +30,7 @@ namespace platform
 {
 /// defined in the man sem_overview
 constexpr uint64_t IOX_MAX_SEMAPHORE_NAME_LENGTH = NAME_MAX - 4;
+constexpr bool IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION = true;
 
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 255U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 1023U;

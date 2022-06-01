@@ -22,7 +22,7 @@
 #include <semaphore.h>
 
 #define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
-#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX - 1
+#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
 
 struct iox_sem_t
 {
@@ -46,7 +46,7 @@ struct iox_sem_t
     } m_handle;
 
     bool m_hasPosixHandle{true};
-    std::atomic<int> m_value{0};
+    std::atomic<uint32_t> m_value{0U};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
