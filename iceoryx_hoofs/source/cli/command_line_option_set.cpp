@@ -70,14 +70,14 @@ CommandLineOptionSet& CommandLineOptionSet::addOption(const Value& option) noexc
     for (const auto& registeredOption : m_availableOptions)
     {
         bool isLongOrShortOptionRegistered = false;
-        if (registeredOption.longOption == option.longOption)
+        if (!registeredOption.longOption.empty() && registeredOption.longOption == option.longOption)
         {
             std::cout << "The longOption \"--" << registeredOption.longOption << "\" is already registered for option "
                       << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
             isLongOrShortOptionRegistered = true;
         }
 
-        if (registeredOption.shortOption == option.shortOption)
+        if (registeredOption.shortOption != NO_SHORT_OPTION && registeredOption.shortOption == option.shortOption)
         {
             std::cout << "The shortOption \"-" << registeredOption.shortOption << "\" is already registered for option "
                       << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;

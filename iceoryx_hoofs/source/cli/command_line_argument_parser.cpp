@@ -69,18 +69,18 @@ bool CommandLineArgumentParser::doesOptionStartWithDash(const char* option) cons
     return doesOptionStartWithDash;
 }
 
-bool CommandLineArgumentParser::hasOptionName(const char* option) const noexcept
+bool CommandLineArgumentParser::hasNonEmptyOptionName(const char* option) const noexcept
 {
     const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH);
-    const bool hasOptionName = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
+    const bool hasNonEmptyOptionName = !(argIdentifierLength == 1 || (argIdentifierLength == 2 && option[1] == '-'));
 
-    if (!hasOptionName)
+    if (!hasNonEmptyOptionName)
     {
         std::cout << "Empty option names are forbidden" << std::endl;
         printHelpAndExit();
     }
 
-    return hasOptionName;
+    return hasNonEmptyOptionName;
 }
 
 bool CommandLineArgumentParser::hasValidShortOptionDashCount(const char* option) const noexcept
@@ -111,10 +111,14 @@ bool CommandLineArgumentParser::hasValidOptionDashCount(const char* option) cons
     return hasValidOptionDashCount;
 }
 
+bool CommandLineArgumentParser::doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept
+{
+    return (strnlen(value, maxLength + 1) <= maxLength);
+}
+
 bool CommandLineArgumentParser::doesOptionNameFitIntoString(const char* option) const noexcept
 {
-    const uint64_t argIdentifierLength = strnlen(option, MAX_OPTION_NAME_LENGTH + 1);
-    const bool doesOptionNameFitIntoString = (argIdentifierLength <= MAX_OPTION_NAME_LENGTH);
+    const bool doesOptionNameFitIntoString = doesFitIntoString(option, MAX_OPTION_NAME_LENGTH);
 
     if (!doesOptionNameFitIntoString)
     {
@@ -155,8 +159,7 @@ bool CommandLineArgumentParser::isOptionSet(const CommandLineOptionSet::Value& v
 
 bool CommandLineArgumentParser::doesOptionValueFitIntoString(const char* value) const noexcept
 {
-    const bool doesOptionValueFitIntoString =
-        strnlen(value, MAX_OPTION_ARGUMENT_LENGTH + 1) <= MAX_OPTION_ARGUMENT_LENGTH;
+    const bool doesOptionValueFitIntoString = doesFitIntoString(value, MAX_OPTION_ARGUMENT_LENGTH);
 
     if (!doesOptionValueFitIntoString)
     {
@@ -166,6 +169,12 @@ bool CommandLineArgumentParser::doesOptionValueFitIntoString(const char* value) 
     }
 
     return doesOptionValueFitIntoString;
+}
+
+bool CommandLineArgumentParser::hasLexicallyValidOption(const char* value) const noexcept
+{
+    return doesOptionStartWithDash(value) && hasNonEmptyOptionName(value) && hasValidShortOptionDashCount(value)
+           && hasValidOptionDashCount(value) && doesOptionNameFitIntoString(value);
 }
 
 void CommandLineOptionSet::sortAvailableOptions() noexcept
@@ -211,8 +220,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 
-        if (!doesOptionStartWithDash(m_argv[i]) || !hasOptionName(m_argv[i]) || !hasValidShortOptionDashCount(m_argv[i])
-            || !hasValidOptionDashCount(m_argv[i]) || !doesOptionNameFitIntoString(m_argv[i]))
+        if (!hasLexicallyValidOption(m_argv[i]))
         {
             return m_optionValue;
         }
@@ -309,7 +317,12 @@ void CommandLineArgumentParser::setDefaultValuesToUnsetOptions() noexcept
         bool isOptionAlreadySet = false;
         for (auto& option : m_optionValue.m_arguments)
         {
-            if (option.shortId == r.shortOption)
+            if (option.shortId != internal::CommandLineOptionSet::NO_SHORT_OPTION && option.shortId == r.shortOption)
+            {
+                isOptionAlreadySet = true;
+                break;
+            }
+            else if (!option.id.empty() && option.id == r.longOption)
             {
                 isOptionAlreadySet = true;
                 break;
@@ -336,7 +349,8 @@ bool CommandLineArgumentParser::areAllRequiredValuesPresent() const noexcept
             bool isValuePresent = false;
             for (const auto& o : m_optionValue.m_arguments)
             {
-                if (o.id == r.longOption || (o.id.size() == 1 && o.id.c_str()[0] == r.shortOption))
+                if ((!r.longOption.empty() && o.id == r.longOption)
+                    || (r.shortOption != CommandLineOptionSet::NO_SHORT_OPTION && o.shortId == r.shortOption))
                 {
                     isValuePresent = true;
                     break;

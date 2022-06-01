@@ -64,11 +64,12 @@ class CommandLineArgumentParser
     /// to improve the readability of the code. None of those functions verify
     /// the pre conditions they require, this has to be done by calling them
     /// in the correct order.
+    bool doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept;
     bool areAllRequiredValuesPresent() const noexcept;
     bool hasArguments(const uint64_t argc) const noexcept;
     bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithDash(const char* option) const noexcept;
-    bool hasOptionName(const char* option) const noexcept;
+    bool hasNonEmptyOptionName(const char* option) const noexcept;
     bool hasValidShortOptionDashCount(const char* option) const noexcept;
     bool hasValidOptionDashCount(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
@@ -76,6 +77,7 @@ class CommandLineArgumentParser
     bool isOptionSet(const CommandLineOptionSet::Value& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
     bool doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& entry, const uint64_t position) const noexcept;
+    bool hasLexicallyValidOption(const char* value) const noexcept;
     /// END only used in parse to improve readability
 
     void setDefaultValuesToUnsetOptions() noexcept;

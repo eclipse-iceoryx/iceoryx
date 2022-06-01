@@ -39,15 +39,15 @@ class CommandLineArgumentParser_test : public Test
     {
         // if we do not capture stdout then the console is filled with garbage
         // since the command line parser prints the help on failure
-        ::testing::internal::CaptureStdout();
+        //    ::testing::internal::CaptureStdout();
     }
     void TearDown() override
     {
-        std::string output = ::testing::internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
+        //   std::string output = ::testing::internal::GetCapturedStdout();
+        //   if (Test::HasFailure())
+        //   {
+        //       std::cout << output << std::endl;
+        //   }
     }
 
     uint64_t numberOfErrorCallbackCalls = 0U;
@@ -862,6 +862,82 @@ TEST_F(CommandLineArgumentParser_test, IgnoreWhenSwitchIsNotRegistered_MixedArgu
                 UnknownOption::IGNORE);
 }
 /// END required, optional option and switch failure mix
+
+TEST_F(CommandLineArgumentParser_test, DefaultValuesAreLoadedForShortOptionsOnly)
+{
+    constexpr int32_t DEFAULT_VALUE_1 = 4712;
+    constexpr int32_t DEFAULT_VALUE_2 = 19230;
+
+    CommandLineOptionSet optionSet("");
+    optionSet.addOptional('a', "", "", "int", Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_1).c_str()));
+    optionSet.addOptional('b', "", "", "int", Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_2).c_str()));
+
+    CmdArgs args({"binaryName"});
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+
+    auto result1 = retVal.get<int32_t>("a");
+    ASSERT_FALSE(result1.has_error());
+    EXPECT_THAT(*result1, Eq(DEFAULT_VALUE_1));
+
+    auto result2 = retVal.get<int32_t>("b");
+    ASSERT_FALSE(result2.has_error());
+    EXPECT_THAT(*result2, Eq(DEFAULT_VALUE_2));
+}
+
+TEST_F(CommandLineArgumentParser_test, DefaultValuesAreLoadedForLongOptionsOnly)
+{
+    constexpr int32_t DEFAULT_VALUE_1 = 187293;
+    constexpr int32_t DEFAULT_VALUE_2 = 5512341;
+
+    CommandLineOptionSet optionSet("");
+    optionSet.addOptional(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION,
+                          "bla",
+                          "",
+                          "int",
+                          Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_1).c_str()));
+    optionSet.addOptional(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION,
+                          "fuu",
+                          "",
+                          "int",
+                          Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_2).c_str()));
+
+    CmdArgs args({"binaryName"});
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+
+    auto result1 = retVal.get<int32_t>("bla");
+    ASSERT_FALSE(result1.has_error());
+    EXPECT_THAT(*result1, Eq(DEFAULT_VALUE_1));
+
+    auto result2 = retVal.get<int32_t>("fuu");
+    ASSERT_FALSE(result2.has_error());
+    EXPECT_THAT(*result2, Eq(DEFAULT_VALUE_2));
+}
+
+TEST_F(CommandLineArgumentParser_test, DetectMissingRequiredOptionsWithShortOptionsOnly)
+{
+    bool wasErrorHandlerCalled;
+    CommandLineOptionSet optionSet("", [&] { wasErrorHandlerCalled = true; });
+    optionSet.addRequired('a', "", "", "int");
+    optionSet.addRequired('b', "", "", "int");
+
+    CmdArgs args({"binaryName"});
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+
+    EXPECT_THAT(wasErrorHandlerCalled, Eq(true));
+}
+
+TEST_F(CommandLineArgumentParser_test, DetectMissingRequiredOptionsWithLongOptionsOnly)
+{
+    bool wasErrorHandlerCalled;
+    CommandLineOptionSet optionSet("", [&] { wasErrorHandlerCalled = true; });
+    optionSet.addRequired(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION, "alpha", "", "int");
+    optionSet.addRequired(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION, "beta", "", "int");
+
+    CmdArgs args({"binaryName"});
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+
+    EXPECT_THAT(wasErrorHandlerCalled, Eq(true));
+}
 
 CommandLineOptionValue SuccessTest(const std::vector<std::string>& options,
                                    const std::vector<std::string>& optionsToRegister = {},
