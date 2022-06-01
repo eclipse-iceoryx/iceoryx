@@ -43,10 +43,6 @@ class SemaphoreInterface
     ///         semaphore was removed from outside the process
     cxx::expected<SemaphoreError> post() noexcept;
 
-    /// @brief Returns the value of the semaphore
-    /// @return Fails when semaphore was removed from outside the process
-    cxx::expected<uint32_t, SemaphoreError> getValue() noexcept;
-
     /// @brief Decrements the semaphore by one. When the semaphore value is zero
     ///        it blocks until the semaphore value is greater zero
     /// @return Fails when semaphore was removed from outside the process

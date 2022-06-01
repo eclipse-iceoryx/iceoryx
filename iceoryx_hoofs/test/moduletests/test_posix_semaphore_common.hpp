@@ -22,7 +22,6 @@
 template <typename SemaphoreType>
 inline bool isSemaphoreValueEqualTo(SemaphoreType& semaphore, const uint32_t expectedValue)
 {
-#ifdef __APPLE__
     bool hasSuccess = true;
     uint32_t count = 0U;
     for (;; ++count)
@@ -47,13 +46,5 @@ inline bool isSemaphoreValueEqualTo(SemaphoreType& semaphore, const uint32_t exp
         }
     }
     return hasSuccess;
-#else
-    auto result = semaphore.getValue();
-    if (result.has_error())
-    {
-        return false;
-    }
-    return *result == expectedValue;
-#endif
 }
 #endif
