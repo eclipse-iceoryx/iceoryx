@@ -20,7 +20,6 @@
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/platform/pthread.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -34,10 +33,6 @@ constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 
 using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;
 
-// make those methods of thread class
-void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept;
-ThreadName_t getThreadName(pthread_t thread) noexcept;
-
 enum class ThreadError
 {
     EMPTY_CALLABLE,
@@ -48,7 +43,8 @@ enum class ThreadError
     UNDEFINED
 };
 
-class ThreadBuilder;
+void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept;
+ThreadName_t getThreadName(pthread_t thread) noexcept;
 
 class thread
 {
@@ -60,30 +56,11 @@ class thread
     thread(thread&& other) = delete;
     thread& operator=(thread&& rhs) = delete;
 
-    ~thread() noexcept
-    {
-        if (m_destroy)
-        {
-            if (m_isJoinable)
-            {
-                /// @todo replace nullptr?
-                auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
-                if (joinResult.has_error())
-                {
-                    switch (joinResult.get_error().errnum)
-                    {
-                    case EDEADLK:
-                        LogError() << "A deadlock was detected when attempting to join the thread.";
-                        break;
-                    default:
-                        LogError() << "This should never happen. An unknown error occurred.";
-                        break;
-                    }
-                }
-                m_isJoinable = false;
-            }
-        }
-    }
+    ~thread() noexcept;
+
+    void setThreadName(const ThreadName_t& name) noexcept;
+
+    ThreadName_t getThreadName() noexcept;
 
     friend class ThreadBuilder;
     friend class cxx::optional<thread>;
@@ -91,36 +68,9 @@ class thread
   private:
     thread() noexcept = default;
 
-    static ThreadError errnoToEnum(const int errnoValue) noexcept
-    {
-        switch (errnoValue)
-        {
-        case EAGAIN:
-            LogError() << "insufficient resources to create another thread";
-            return ThreadError::INSUFFICIENT_RESOURCES;
-        case EINVAL:
-            LogError() << "invalid attribute settings";
-            return ThreadError::INVALID_ATTRIBUTES;
-        case ENOMEM:
-            LogError() << "not enough memory to initialize the thread attributes object";
-            return ThreadError::INSUFFICIENT_MEMORY;
-        case EPERM:
-            LogError() << "no appropriate permission to set required scheduling policy or parameters";
-            return ThreadError::INSUFFICIENT_PERMISSIONS;
-        default:
-            LogError() << "an unexpected error occurred in thread - this should never happen! errno: "
-                       << strerror(errnoValue);
-            return ThreadError::UNDEFINED;
-        }
-    }
+    static ThreadError errnoToEnum(const int errnoValue) noexcept;
 
-    static void* cbk(void* callable)
-    {
-        // necessary because the callback signature for pthread_create is void*(void*)
-        callable_t f = *static_cast<callable_t*>(callable);
-        f();
-        return nullptr;
-    }
+    static void* cbk(void* callable);
 
     pthread_t m_threadHandle;
     callable_t m_callable;
@@ -137,61 +87,12 @@ class ThreadBuilder
     template <typename Signature, typename... CallableArgs>
     cxx::expected<ThreadError> create(cxx::optional<thread>& uninitializedThread,
                                       const cxx::function<Signature>& callable,
-                                      CallableArgs&&... args) noexcept
-    {
-        if (!callable)
-        {
-            LogError() << "The thread cannot be created with an empty callable.";
-            return cxx::error<ThreadError>(ThreadError::EMPTY_CALLABLE);
-        }
-
-        uninitializedThread.emplace();
-        uninitializedThread->m_callable = [=] { callable(std::forward<CallableArgs>(args)...); };
-
-        // set attributes
-        pthread_attr_t attr;
-        auto initResult = posixCall(pthread_attr_init)(&attr).successReturnValue(0).evaluate();
-        if (initResult.has_error())
-        {
-            uninitializedThread->m_destroy = false; /// @todo replace with m_isJoinable?
-            uninitializedThread.reset();
-            return cxx::error<ThreadError>(thread::errnoToEnum(initResult.get_error().errnum));
-        }
-
-        auto setDetachStateResult = posixCall(pthread_attr_setdetachstate)(
-                                        &attr, m_detached ? PTHREAD_CREATE_DETACHED : PTHREAD_CREATE_JOINABLE)
-                                        .successReturnValue(0)
-                                        .evaluate();
-        if (setDetachStateResult.has_error())
-        {
-            uninitializedThread->m_destroy = false; /// @todo replace with m_isJoinable?
-            uninitializedThread.reset();
-            LogError() << "Something went wrong when setting the detach state. This should never happen!";
-            return cxx::error<ThreadError>(thread::errnoToEnum(setDetachStateResult.get_error().errnum));
-        }
-        uninitializedThread->m_isJoinable = !m_detached;
-
-        // create thread
-        auto createResult =
-            posixCall(pthread_create)(
-                &uninitializedThread->m_threadHandle, &attr, thread::cbk, &uninitializedThread->m_callable)
-                .successReturnValue(0)
-                .evaluate();
-        posixCall(pthread_attr_destroy)(&attr).successReturnValue(0).evaluate().or_else([](auto&) {
-            LogError() << "Something went wrong when destroying the thread attributes object.";
-        }); /// @todo not clear if pthread_attr_destroy can fail, specifications differ. Do we have to care if it fails?
-        if (createResult.has_error())
-        {
-            uninitializedThread->m_destroy = false; /// @todo replace with m_isJoinable?
-            uninitializedThread.reset();
-            return cxx::error<ThreadError>(thread::errnoToEnum(createResult.get_error().errnum));
-        }
-
-        return cxx::success<>();
-    }
+                                      CallableArgs&&... args) noexcept;
 };
 
 } // namespace posix
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/posix_wrapper/thread.inl"
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP

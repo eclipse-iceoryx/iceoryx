@@ -101,7 +101,7 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 TEST(pthreadWrapper_test, CreateThread)
 {
     optional<thread> sut;
-    iox::cxx::function<void()> callable = []() { std::cout << "fffff" << std::endl; };
+    function<void()> callable = []() { std::cout << "fffff" << std::endl; };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 }
@@ -109,7 +109,7 @@ TEST(pthreadWrapper_test, CreateThread)
 TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
 {
     optional<thread> sut1;
-    iox::cxx::function<void()> callable;
+    function<void()> callable;
     auto result = ThreadBuilder().create(sut1, callable);
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
@@ -123,9 +123,49 @@ TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
 TEST(pthreadWrapper_test, CreateDetachedThread)
 {
     optional<thread> sut;
-    iox::cxx::function<void()> callable = []() { std::cout << "fffff" << std::endl; };
+    function<void()> callable = []() { std::cout << "fffff" << std::endl; };
     ASSERT_FALSE(ThreadBuilder().detached(true).create(sut, callable).has_error());
     std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+TEST(pthreadWrapper_test, SetAndGetWithEmptyThreadNameIsWorking)
+{
+    optional<thread> sut;
+    function<void()> callable = []() {};
+    ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+    ThreadName_t emptyString = "";
+
+    sut->setThreadName(emptyString);
+    auto getResult = sut->getThreadName();
+
+    EXPECT_THAT(getResult, StrEq(emptyString));
+}
+
+TEST(pthreadWrapper_test, SetAndGetWithThreadNameCapacityIsWorking)
+{
+    optional<thread> sut;
+    function<void()> callable = []() {};
+    ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+    ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
+    EXPECT_THAT(stringEqualToThreadNameCapacitiy.capacity(), Eq(stringEqualToThreadNameCapacitiy.size()));
+
+    sut->setThreadName(stringEqualToThreadNameCapacitiy);
+    auto getResult = sut->getThreadName();
+
+    EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
+}
+
+TEST(pthreadWrapper_test, SetAndGetSmallStringIsWorking)
+{
+    optional<thread> sut;
+    function<void()> callable = []() {};
+    ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+    char stringShorterThanThreadNameCapacitiy[] = "I'm short";
+
+    sut->setThreadName(stringShorterThanThreadNameCapacitiy);
+    auto getResult = sut->getThreadName();
+
+    EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
 #endif
 } // namespace

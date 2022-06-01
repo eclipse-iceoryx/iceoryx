@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -49,5 +50,94 @@ ThreadName_t getThreadName(pthread_t thread) noexcept
     return ThreadName_t(cxx::TruncateToCapacity, tempName);
 }
 
+thread::~thread() noexcept
+{
+    if (m_destroy)
+    {
+        if (m_isJoinable)
+        {
+            /// @todo replace nullptr?
+            auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
+            if (joinResult.has_error())
+            {
+                switch (joinResult.get_error().errnum)
+                {
+                case EDEADLK:
+                    LogError() << "A deadlock was detected when attempting to join the thread.";
+                    break;
+                default:
+                    LogError() << "This should never happen. An unknown error occurred.";
+                    break;
+                }
+            }
+            m_isJoinable = false;
+        }
+    }
+}
+
+void thread::setThreadName(const ThreadName_t& name) noexcept
+{
+    posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
+        .successReturnValue(0)
+        .evaluate()
+        .or_else([](auto& r) {
+            // String length limit is ensured through cxx::string
+            // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
+            LogError() << "This should never happen! " << r.getHumanReadableErrnum();
+            cxx::Ensures(false && "internal logic error");
+            /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+            /// and errors possible for open(2) can be retrieved. Handle them here?
+        });
+}
+
+ThreadName_t thread::getThreadName() noexcept
+{
+    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
+
+    posixCall(pthread_getname_np)(m_threadHandle, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+        .successReturnValue(0)
+        .evaluate()
+        .or_else([](auto& r) {
+            // String length limit is ensured through MAX_THREAD_NAME_LENGTH
+            // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
+            LogError() << "This should never happen! " << r.getHumanReadableErrnum();
+            cxx::Ensures(false && "internal logic error");
+            /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+            /// and errors possible for open(2) can be retrieved. Handle them here?
+        });
+
+    return ThreadName_t(cxx::TruncateToCapacity, tempName);
+}
+
+ThreadError thread::errnoToEnum(const int errnoValue) noexcept
+{
+    switch (errnoValue)
+    {
+    case EAGAIN:
+        LogError() << "insufficient resources to create another thread";
+        return ThreadError::INSUFFICIENT_RESOURCES;
+    case EINVAL:
+        LogError() << "invalid attribute settings";
+        return ThreadError::INVALID_ATTRIBUTES;
+    case ENOMEM:
+        LogError() << "not enough memory to initialize the thread attributes object";
+        return ThreadError::INSUFFICIENT_MEMORY;
+    case EPERM:
+        LogError() << "no appropriate permission to set required scheduling policy or parameters";
+        return ThreadError::INSUFFICIENT_PERMISSIONS;
+    default:
+        LogError() << "an unexpected error occurred in thread - this should never happen! errno: "
+                   << strerror(errnoValue);
+        return ThreadError::UNDEFINED;
+    }
+}
+
+void* thread::cbk(void* callable)
+{
+    // necessary because the callback signature for pthread_create is void*(void*)
+    callable_t f = *static_cast<callable_t*>(callable);
+    f();
+    return nullptr;
+}
 } // namespace posix
 } // namespace iox
