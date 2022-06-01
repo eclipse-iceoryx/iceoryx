@@ -51,49 +51,57 @@ template <typename T, typename ReturnType>
 using IsCxxStringOrCharArray =
     typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
-/// @brief concatenates two fixed strings/string literals
+template <typename T1, typename T2, typename ReturnType>
+using IsCxxStringOrCharArrayOrChar =
+    typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
+                                && (is_char_array<T2>::value || is_cxx_string<T2>::value
+                                    || std::is_same<T2, char>::value),
+                            ReturnType>::type;
+
+template <typename T1, typename T2, typename ReturnType>
+using IsCxxStringAndCxxStringOrCharArrayOrChar =
+    typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
+                                || (is_cxx_string<T1>::value
+                                    && (is_char_array<T2>::value || std::is_same<T2, char>::value))
+                                || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
+                            ReturnType>::type;
+
+/// @brief concatenates two iox::cxx::strings/string literals/chars
 ///
-/// @param [in] fixed strings/string literals to concatenate
+/// @param [in] iox::cxx::strings/string literals/chars to concatenate
 ///
-/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+/// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 ///
 /// @code
 ///     string<5> fuu("cdefg");
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
-                            && (is_char_array<T2>::value || is_cxx_string<T2>::value),
-                        string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
-concatenate(const T1& t1, const T2& t2) noexcept;
+IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
+                                                                                           const T2& t2) noexcept;
 
-/// @brief concatenates an arbitrary number of fixed strings or string literals
+/// @brief concatenates an arbitrary number of iox::cxx::strings, string literals or chars
 ///
-/// @param [in] fixed strings/string literals to concatenate
+/// @param [in] iox::cxx::strings/string literals/chars to concatenate
 ///
-/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+/// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 ///
 /// @code
 ///     string<4> fuu("cdef");
 ///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
-typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
-                            && (is_char_array<T2>::value || is_cxx_string<T2>::value),
-                        string<internal::SumCapa<T1, T2, Targs...>::value>>::type
+IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 
-/// @brief concatenates two fixed strings or one fixed fixed string and one string literal; concatenation of two string
-/// literals is not possible
+/// @brief concatenates two iox::cxx::strings or one iox::cxx::string and one string literal/char; concatenation of two
+/// string literals/chars is not possible
 ///
-/// @param [in] fixed strings/string literal to concatenate
+/// @param [in] iox::cxx::strings/string literal/char to concatenate
 ///
-/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+/// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 template <typename T1, typename T2>
-typename std::enable_if<(is_char_array<T1>::value && is_cxx_string<T2>::value)
-                            || (is_cxx_string<T1>::value && is_char_array<T2>::value)
-                            || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
-                        string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& t1, const T2& t2) noexcept;
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
@@ -425,12 +433,12 @@ class string
     template <typename T>
     string& operator+=(const T&) noexcept;
 
-    /// @brief appends a fixed string or string literal to the end of this. If this' capacity is too small for appending
-    /// the whole string (literal) the remainder of the characters are truncated.
+    /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too
+    /// small for appending the whole string (literal), the remainder of the characters are truncated.
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] t is the fixed string/string literal to append
+    /// @param [in] t is the iox::cxx::string/string literal/std::string to append
     ///
     /// @return reference to self
     ///
@@ -439,16 +447,23 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    IsCxxStringOrCharArray<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
+    IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
 
-    /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
-    /// is greater than this' capacity.
+    /// @brief appends a char to the end of this if this' capacity is large enough.
     ///
-    /// @param [in] fixed string/string literal to append
+    /// @param [in] c is the char to append
+    ///
+    /// @return reference to self
+    string& append(TruncateToCapacity_t, char c) noexcept;
+
+    /// @brief appends a iox::cxx::string/string literal/char/std::string to the end of this. The appending fails if the
+    /// sum of both sizes is greater than this' capacity.
+    ///
+    /// @param [in] iox::cxx::string/string literal/char/std::string to append
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    IsCxxStringOrCharArray<T, bool> unsafe_append(const T& t) noexcept;
+    IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& t) noexcept;
 
     /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
     /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
@@ -544,9 +559,7 @@ class string
     friend class string;
 
     template <typename T1, typename T2>
-    friend typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value)
-                                       && (is_char_array<T2>::value || is_cxx_string<T2>::value),
-                                   string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+    friend IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
     concatenate(const T1& t1, const T2& t2) noexcept;
 
   private:

@@ -19,7 +19,7 @@
 [commit-guidelines]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [eca]: http://www.eclipse.org/legal/ECA.php
 [contributing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/CONTRIBUTING.md#coding-style
-[testing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/best-practice-for-testing.md
+[testing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/concepts/best-practice-for-testing.md
 [changelog]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/release-notes/iceoryx-unreleased.md
 
 ## Notes for Reviewer

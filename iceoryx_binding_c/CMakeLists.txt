@@ -18,13 +18,10 @@ cmake_minimum_required(VERSION 3.16)
 
 set(IOX_VERSION_STRING "2.90.0")
 
-
-
 project(iceoryx_binding_c VERSION ${IOX_VERSION_STRING})
 
 find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
-
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
@@ -34,99 +31,46 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-option(MAKE_UNIQUE_INCLUDEDIR
-  "When ON headers are installed to a path ending with folders called \
-  iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
-  overriding this package from a merged catkin, ament, or colcon workspace."
-  ON)
-
-if(MAKE_UNIQUE_INCLUDEDIR)
-  set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
-  if(PREFIX STREQUAL "")
-    set(PREFIX "${_unique_dir}")
-  else()
-    set(PREFIX "${PREFIX}/${_unique_dir}")
-  endif()
-endif()
-
-#
-########## set variables for export ##########
-#
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_binding_c
-    PROJECT_PREFIX ${PREFIX}
-)
-
-#
-########## find_package in source tree ##########
-#
-set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
-    CACHE FILEPATH
-    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
-    FORCE
-)
+iox_make_unique_includedir()
 
 #
 ########## build building-block library ##########
 #
-add_library(${PROJECT_NAME}
-    source/c_client.cpp
-    source/c_config.cpp
-    source/c_notification_info.cpp
-    source/c_listener.cpp
-    source/c_node.cpp
-    source/c_publisher.cpp
-    source/c_request_header.cpp
-    source/c_response_header.cpp
-    source/c_runtime.cpp
-    source/c_server.cpp
-    source/c_subscriber.cpp
-    source/c_user_trigger.cpp
-    source/c_wait_set.cpp
-    source/c_chunk.cpp
-    source/c2cpp_enum_translation.cpp
-    source/c_log.cpp
-    source/cpp2c_enum_translation.cpp
-    source/cpp2c_publisher.cpp
-    source/cpp2c_subscriber.cpp
-    source/cpp2c_service_description_translation.cpp
-    source/c_service_discovery.cpp
-    source/error_handling.cpp
+iox_add_library(
+    TARGET              ${PROJECT_NAME}
+    NAMESPACE           ${PROJECT_NAME}
+    PROJECT_PREFIX      ${PREFIX}
+    BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
+                        ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+    INSTALL_INTERFACE   include/${PREFIX}
+    PUBLIC_LIBS_LINUX   stdc++ pthread
+    PUBLIC_LIBS_UNIX    stdc++ pthread
+    PUBLIC_LIBS_APPLE   stdc++ pthread
+    PRIVATE_LIBS        iceoryx_posh::iceoryx_posh
+    FILES
+        source/c_client.cpp
+        source/c_config.cpp
+        source/c_notification_info.cpp
+        source/c_listener.cpp
+        source/c_node.cpp
+        source/c_publisher.cpp
+        source/c_request_header.cpp
+        source/c_response_header.cpp
+        source/c_runtime.cpp
+        source/c_server.cpp
+        source/c_subscriber.cpp
+        source/c_user_trigger.cpp
+        source/c_wait_set.cpp
+        source/c_chunk.cpp
+        source/c2cpp_enum_translation.cpp
+        source/c_log.cpp
+        source/cpp2c_enum_translation.cpp
+        source/cpp2c_publisher.cpp
+        source/cpp2c_subscriber.cpp
+        source/cpp2c_service_description_translation.cpp
+        source/c_service_discovery.cpp
+        source/error_handling.cpp
 )
-add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-
-if(NOT (WIN32 OR QNX))
-    target_link_libraries(${PROJECT_NAME}
-      PUBLIC
-        stdc++
-        pthread
-      PRIVATE
-        iceoryx_posh::iceoryx_posh
-        iceoryx_hoofs::iceoryx_hoofs
-    )
-else()
-    target_link_libraries(${PROJECT_NAME}
-      PRIVATE
-        iceoryx_posh::iceoryx_posh
-        iceoryx_hoofs::iceoryx_hoofs
-    )
-endif()
-
-target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## build test executables ##########
@@ -134,16 +78,3 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SAN
 if(BUILD_TEST)
     add_subdirectory(test)
 endif()
-
-#
-########## export library ##########
-#
-setup_install_directories_and_export_package(
-    TARGETS ${PROJECT_NAME}
-    INCLUDE_DIRECTORY include/
-)
-
-install(
-  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-  DESTINATION share/doc/iceoryx_binding_c
-  COMPONENT dev)

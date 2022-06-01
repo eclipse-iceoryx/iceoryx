@@ -19,7 +19,10 @@
 $ErrorActionPreference = "Stop"
 
 if ($?) { Write-Host "building sources" }
-if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" }
+
+# We require the Windows SDK Version 10.0.18362.0 since a previous version had a bug which caused a fatal compilation error within iceoryx and was
+# fixed with this version, see: https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.
+if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION=10.0.18362.0 }
 
 if ($?) { cmake --build build }
 

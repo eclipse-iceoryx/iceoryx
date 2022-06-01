@@ -102,7 +102,7 @@ fb913bf0de288ba84fe98f7a23d35edfdb22381
 - Cleanup MemoryProvider and MemoryBlock [\#842](https://github.com/eclipse-iceoryx/iceoryx/issues/842)
 - Remove #define private public from all tests [\#529](https://github.com/eclipse-iceoryx/iceoryx/issues/529)
 - Write example on how to use iceoryx in a docker environment [\#924](https://github.com/eclipse-iceoryx/iceoryx/issues/924)
-- Allow cpptoml to be provided externally and not vendored by CMake [\#950](https://github.com/eclipse-iceoryx/iceoryx/issue/950) thanks to @photex
+- Allow cpptoml to be provided externally and not vendored by CMake [\#950](https://github.com/eclipse-iceoryx/iceoryx/issues/950) thanks to @photex
 - Reworked iceoryx examples [\#482](https://github.com/eclipse-iceoryx/iceoryx/issues/482)
 - Handle nullptr callbacks in waitset and listener [\#932](https://github.com/eclipse-iceoryx/iceoryx/issues/932)
 - Add CI job that checks formatting with clang-format [\#887](https://github.com/eclipse-iceoryx/iceoryx/pull/887)

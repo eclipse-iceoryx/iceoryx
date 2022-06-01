@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,33 +26,11 @@ find_package(iceoryx_posh REQUIRED)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
-option(MAKE_UNIQUE_INCLUDEDIR
-  "When ON headers are installed to a path ending with folders called \
-  iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
-  overriding this package from a merged catkin, ament, or colcon workspace."
-  ON)
-
-if(MAKE_UNIQUE_INCLUDEDIR)
-  set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
-  if(PREFIX STREQUAL "")
-    set(PREFIX "${_unique_dir}")
-  else()
-    set(PREFIX "${PREFIX}/${_unique_dir}")
-  endif()
-endif()
+iox_make_unique_includedir()
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
-
-#
-########## set variables for export ##########
-#
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_dds
-    PROJECT_PREFIX ${PREFIX}
-)
 
 #
 ########## feature flags ##########
@@ -68,30 +46,20 @@ endif()
 #
 ########## build building-block library ##########
 #
-add_library(iceoryx_dds
-    source/iceoryx_dds/log/logging.cpp
-)
-add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
-
-set_target_properties(iceoryx_hoofs PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-target_include_directories(iceoryx_dds
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-target_link_libraries(iceoryx_dds
-    PRIVATE
-    iceoryx_posh::iceoryx_posh
-    iceoryx_posh::iceoryx_posh_config
-    iceoryx_posh::iceoryx_posh_gateway
-    iceoryx_hoofs::iceoryx_hoofs
-)
+iox_add_library(
+    NO_FIND_PACKAGE_SUPPORT
+    TARGET                  iceoryx_dds
+    NAMESPACE               iceoryx_dds
+    BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_BINARY_DIR}/dependencies/install/include
+    INSTALL_INTERFACE       include/${PREFIX}
+    PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
+                            iceoryx_posh::iceoryx_posh_config
+                            iceoryx_posh::iceoryx_posh_gateway
+                            iceoryx_hoofs::iceoryx_hoofs
+    FILES
+        source/iceoryx_dds/log/logging.cpp
+    )
 
 if(USE_CYCLONE_DDS)
     target_sources(iceoryx_dds
@@ -118,6 +86,8 @@ if(USE_CYCLONE_DDS)
 
     add_custom_target(mempool_header ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Mempool.hpp)
 
+    add_dependencies(iceoryx_dds mempool_header)
+
     target_include_directories(iceoryx_dds PUBLIC
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
         $<INSTALL_INTERFACE:include/${PREFIX}>
@@ -130,28 +100,20 @@ if(USE_CYCLONE_DDS)
     )
 endif()
 
-target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
 #
 ########## build gateway app ##########
 #
-add_executable(iox-dds-gateway
-    source/gateway/main.cpp
-)
-target_link_libraries(iox-dds-gateway
-    iceoryx_posh::iceoryx_posh
-    iceoryx_posh::iceoryx_posh_gateway
-    iceoryx_posh::iceoryx_posh_config
-    ${PROJECT_NAMESPACE}::iceoryx_dds
-)
-
-target_compile_options(iox-dds-gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-dds-gateway iceoryx_dds
-  PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-)
+iox_add_executable(
+    NO_PACKAGE_SETUP
+    NO_FIND_PACKAGE_SUPPORT
+    TARGET              iox-dds-gateway
+    LIBS                iceoryx_posh::iceoryx_posh
+                        iceoryx_posh::iceoryx_posh_gateway
+                        iceoryx_posh::iceoryx_posh_config
+                        iceoryx_dds::iceoryx_dds
+    FILES
+        source/gateway/main.cpp
+    )
 
 #
 ########## build test executables ##########
@@ -159,12 +121,3 @@ set_target_properties(iox-dds-gateway iceoryx_dds
 if(BUILD_TEST)
     add_subdirectory(test)
 endif()
-
-#
-########## export library ##########
-#
-setup_install_directories_and_export_package(
-    TARGETS iceoryx_dds iox-dds-gateway
-    INCLUDE_DIRECTORY include/
-)
-

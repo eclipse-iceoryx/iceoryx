@@ -24,35 +24,17 @@ include(IceoryxPlatform)
 #
 ########## lib ##########
 #
-add_library(iceoryx_component
-    source/example_module/example_base_class.cpp
+iox_add_library(
+    TARGET              iceoryx_component
+    NAMESPACE           iceoryx_component
+    PRIVATE_INCLUDES    source/example_module
+    BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
+                        ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+    INSTALL_INTERFACE   include/${PREFIX}
+    PRIVATE_LIBS        ${CMAKE_THREAD_LIBS_INIT}
+    FILES
+        source/example_module/example_base_class.cpp
 )
-
-add_library(iceoryx_component::iceoryx_component ALIAS iceoryx_component)
-
-set_target_properties(iceoryx_component PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-target_include_directories(iceoryx_component
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-    PRIVATE
-    source/example_module
-)
-target_link_libraries(iceoryx_component
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}
-    ${CMAKE_THREAD_LIBS_INIT}
-)
-
-target_compile_options(iceoryx_component PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
 
 #
 ########## test ##########
@@ -66,27 +48,17 @@ set(PROJECT_PREFIX "iceoryx_component")
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/test/moduletests/*.cpp")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
-
 set(TEST_LINK_LIBS
     GTest::gtest
     GTest::gmock
     iceoryx_component::iceoryx_component
 )
 
-if(LINUX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
-endif()
-
-# unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . source/example_module)
-# TODO: fix conversion warnings
-target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
-target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES 
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET                  ${PROJECT_PREFIX}_moduletests
+    INCLUDE_DIRECTORIES     .
+                            source/example_module
+    FILES                   ${MODULETESTS_SRC}
+    LIBS                    ${TEST_LINK_LIBS}
+    LIBS_LINUX              dl
 )
-

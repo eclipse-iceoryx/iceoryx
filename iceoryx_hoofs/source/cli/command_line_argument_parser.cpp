@@ -35,7 +35,7 @@ CommandLineOptionValue parseCommandLineArguments(const CommandLineOptionSet& opt
     return CommandLineArgumentParser().parse(optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
 }
 
-bool CommandLineArgumentParser::hasArguments(const int argc) const noexcept
+bool CommandLineArgumentParser::hasArguments(const uint64_t argc) const noexcept
 {
     const bool hasArguments = (argc > 0);
     if (!hasArguments)
@@ -57,16 +57,16 @@ bool CommandLineArgumentParser::assignBinaryName(const char* name) noexcept
     return binaryNameFitsIntoString;
 }
 
-bool CommandLineArgumentParser::doesOptionStartWithMinus(const char* option) const noexcept
+bool CommandLineArgumentParser::doesOptionStartWithDash(const char* option) const noexcept
 {
-    const bool doesOptionStartWithMinus = (strnlen(option, MAX_OPTION_NAME_LENGTH) > 0 && option[0] == '-');
+    const bool doesOptionStartWithDash = (strnlen(option, MAX_OPTION_NAME_LENGTH) > 0 && option[0] == '-');
 
-    if (!doesOptionStartWithMinus)
+    if (!doesOptionStartWithDash)
     {
         std::cout << "Every option has to start with \"-\" but \"" << option << "\" does not." << std::endl;
         printHelpAndExit();
     }
-    return doesOptionStartWithMinus;
+    return doesOptionStartWithDash;
 }
 
 bool CommandLineArgumentParser::hasOptionName(const char* option) const noexcept
@@ -211,9 +211,8 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 
-        if (!doesOptionStartWithMinus(m_argv[i]) || !hasOptionName(m_argv[i])
-            || !hasValidShortOptionDashCount(m_argv[i]) || !hasValidOptionDashCount(m_argv[i])
-            || !doesOptionNameFitIntoString(m_argv[i]))
+        if (!doesOptionStartWithDash(m_argv[i]) || !hasOptionName(m_argv[i]) || !hasValidShortOptionDashCount(m_argv[i])
+            || !hasValidOptionDashCount(m_argv[i]) || !doesOptionNameFitIntoString(m_argv[i]))
         {
             return m_optionValue;
         }

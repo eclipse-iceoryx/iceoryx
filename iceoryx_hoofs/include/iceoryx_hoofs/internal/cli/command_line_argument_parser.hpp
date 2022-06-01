@@ -65,9 +65,9 @@ class CommandLineArgumentParser
     /// the pre conditions they require, this has to be done by calling them
     /// in the correct order.
     bool areAllRequiredValuesPresent() const noexcept;
-    bool hasArguments(const int argc) const noexcept;
+    bool hasArguments(const uint64_t argc) const noexcept;
     bool assignBinaryName(const char* name) noexcept;
-    bool doesOptionStartWithMinus(const char* option) const noexcept;
+    bool doesOptionStartWithDash(const char* option) const noexcept;
     bool hasOptionName(const char* option) const noexcept;
     bool hasValidShortOptionDashCount(const char* option) const noexcept;
     bool hasValidOptionDashCount(const char* option) const noexcept;

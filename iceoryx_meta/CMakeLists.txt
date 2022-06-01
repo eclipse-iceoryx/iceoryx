@@ -24,6 +24,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_hoofs/cmake/IceoryxPlatform.cmake)
 
 if(BUILD_SHARED_LIBS)
     # set rpath for finding shared libraries outside of the build-tree
@@ -90,6 +91,7 @@ show_config_options()
 
 message("")
 message("       Build Properties")
+message("          platform..................: " ${ICEORYX_PLATFORM_STRING})
 message("          project name..............: " ${CMAKE_PROJECT_NAME})
 message("          c compiler................: " ${CMAKE_C_COMPILER})
 message("          c++ compiler..............: " ${CMAKE_CXX_COMPILER})

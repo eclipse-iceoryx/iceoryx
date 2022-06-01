@@ -1,4 +1,4 @@
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,43 +24,30 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-add_executable(iox-cpp-publisher-vector ./iox_publisher_vector.cpp)
-target_link_libraries(iox-cpp-publisher-vector
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-publisher-vector PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-subscriber-vector ./iox_subscriber_vector.cpp)
-target_link_libraries(iox-cpp-subscriber-vector
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-subscriber-vector PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-publisher-complexdata ./iox_publisher_complexdata.cpp)
-target_link_libraries(iox-cpp-publisher-complexdata
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-publisher-complexdata PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-subscriber-complexdata ./iox_subscriber_complexdata.cpp)
-target_link_libraries(iox-cpp-subscriber-complexdata
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-subscriber-complexdata PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-cpp-subscriber-complexdata iox-cpp-subscriber-vector
-                      iox-cpp-publisher-complexdata iox-cpp-publisher-vector
-                      PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET  iox-cpp-publisher-vector
+    FILES   ./iox_publisher_vector.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-# ========================================================== //
+iox_add_executable(
+    TARGET  iox-cpp-subscriber-vector
+    FILES   ./iox_subscriber_vector.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)
 
-install(TARGETS iox-cpp-publisher-complexdata iox-cpp-publisher-vector
-        iox-cpp-subscriber-complexdata iox-cpp-subscriber-vector
-        RUNTIME DESTINATION bin)
+iox_add_executable(
+    TARGET  iox-cpp-publisher-complexdata
+    FILES   ./iox_publisher_complexdata.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)
 
+iox_add_executable(
+    TARGET  iox-cpp-subscriber-complexdata
+    FILES   ./iox_subscriber_complexdata.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)

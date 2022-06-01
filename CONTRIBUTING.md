@@ -273,15 +273,12 @@ If you want to report a vulnerability, please use the [Eclipse process](https://
 
 #### Static code analysis
 
-The iceoryx maintainers have a partnership with [Axivion](https://www.axivion.com/en/) and use their
-[Axivion Suite](https://www.axivion.com/en/products/static-code-analysis/) to run a static code analysis.
-
 Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label | Priority |
 |---|---|---|
 | [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
-| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682)<!--NOLINT website temporarily unavailable--> 2016 Coding Standard | CERT | :star::star: |
+| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT | :star::star: |
 | [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA | :star: |
 
 If one of the rules is not followed, a rationale is added in the following manner:
@@ -298,12 +295,6 @@ Or with a comment one line above (the number after the warning number indicates 
 // PRQA S 4242 1 # Short description why
 *mynullptr = foo;
 ```
-
-Scan results of the `master` branch are available on a [Axivion dashboard](https://iceoryx-axivion.apex.ai/)<!--NOLINT see issue: #1298-->. Please
-contact one of the maintainers, if you're interested in getting access.
-
-Don't be afraid if you don't have Axivion available. As we want to make it easy for developers to contribute,
-please raise a pull request and one of the maintainers will provided you access to the [dashboard](https://iceoryx-axivion.apex.ai/)<!--NOLINT see issue: #1298-->.
 
 ### Header
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,28 +24,18 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-add_executable(iox-cpp-publisher-helloworld ./iox_publisher_helloworld.cpp)
-target_link_libraries(iox-cpp-publisher-helloworld
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-publisher-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-add_executable(iox-cpp-subscriber-helloworld ./iox_subscriber_helloworld.cpp)
-target_link_libraries(iox-cpp-subscriber-helloworld
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-cpp-subscriber-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-cpp-subscriber-helloworld iox-cpp-publisher-helloworld
-                      PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
+iox_add_executable(
+    TARGET  iox-cpp-publisher-helloworld
+    FILES   ./iox_publisher_helloworld.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
 )
 
-# ========================================================== //
-
-install(TARGETS iox-cpp-publisher-helloworld iox-cpp-subscriber-helloworld
-        RUNTIME DESTINATION bin)
+iox_add_executable(
+    TARGET  iox-cpp-subscriber-helloworld
+    FILES   ./iox_subscriber_helloworld.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)

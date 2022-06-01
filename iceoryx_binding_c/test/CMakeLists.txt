@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,25 +39,24 @@ set(TEST_LINK_LIBS
     iceoryx_posh_testing::iceoryx_posh_testing
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-unused -Wno-pedantic)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-unused -Wno-pedantic)
-endif()
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
+                    INCLUDE_DIRECTORIES     .
+                    FILES                   ${MODULETESTS_SRC}
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_APPLE              dl
+                    LIBS_LINUX              acl dl pthread rt
+)
 
+## TODO: iox-#1287 remove those compiler warning exceptions
 if(LINUX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
 elseif(QNX)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 elseif(APPLE)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 elseif(WIN32)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
 endif()
 
-# unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
-set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD ${ICEORYX_CXX_STANDARD})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
-target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
+## TODO: END iox-#1287 remove those compiler warning exceptions

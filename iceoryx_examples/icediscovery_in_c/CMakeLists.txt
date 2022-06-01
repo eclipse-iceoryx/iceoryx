@@ -25,30 +25,20 @@ find_package(iceoryx_hoofs CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
 include(IceoryxPlatform)
+include(IceoryxPackageHelper)
 
-add_executable(iox-c-offer-service ./iox_c_offer_service.c)
-set_source_files_properties(./ice_c_offer_service.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-offer-service
-    iceoryx_binding_c::iceoryx_binding_c
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-offer-service
+    FILES   ./iox_c_offer_service.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-c-offer-service PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
-target_compile_options(iox-c-offer-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-c-find-service ./iox_c_find_service.c)
-set_source_files_properties(./ice_c_find_service.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-find-service
-    iceoryx_binding_c::iceoryx_binding_c
+iox_add_executable(
+    USE_C_LANGUAGE
+    TARGET  iox-c-find-service
+    FILES   ./iox_c_find_service.c
+    LIBS    iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-c-offer-service PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
-target_compile_options(iox-c-find-service PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-# ========================================================== //
-
-install(TARGETS iox-c-offer-service
-                iox-c-find-service
-        RUNTIME DESTINATION bin)
