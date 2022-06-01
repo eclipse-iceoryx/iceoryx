@@ -32,7 +32,7 @@ inline EventSubscriber<T>::EventSubscriber(const ServiceIdentifier& service,
 }
 
 template <typename T>
-inline void EventSubscriber<T>::Subscribe(std::size_t queueCapacity) noexcept
+inline void EventSubscriber<T>::Subscribe(const uint32_t queueCapacity) noexcept
 {
     if (HasReceiveCallback())
     {
@@ -64,9 +64,9 @@ inline void EventSubscriber<T>::Unsubscribe() noexcept
 
 template <typename T>
 template <typename Callable>
-inline core::Result<size_t> EventSubscriber<T>::TakeNewSamples(Callable&& callable, size_t maxNumberOfSamples) noexcept
+inline core::Result<uint32_t> EventSubscriber<T>::TakeNewSamples(Callable&& callable, uint32_t maxNumberOfSamples) noexcept
 {
-    core::Result<size_t> numberOfSamples{0};
+    core::Result<uint32_t> numberOfSamples{0};
 
     if (!m_subscriber.has_value())
     {

@@ -47,8 +47,8 @@ class FieldSubscriber
     FieldSubscriber& operator=(FieldSubscriber&&) = delete;
 
     template <typename Callable>
-    core::Result<size_t> TakeNewSamples(Callable&& callable,
-                                        size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
+    core::Result<uint32_t> TakeNewSamples(Callable&& callable,
+                                        uint32_t maxNumberOfSamples = std::numeric_limits<uint32_t>::max()) noexcept;
 
     Future<FieldType> Get();
     Future<FieldType> Set(const FieldType& value);

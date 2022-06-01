@@ -39,19 +39,20 @@ class EventSubscriber
 
     static constexpr uint64_t HISTORY_REQUEST{1U};
     static constexpr bool NOT_OFFERED_ON_CREATE{false};
+    static constexpr uint32_t TAKE_ALL_SAMPLES{std::numeric_limits<uint32_t>::max()};
 
     EventSubscriber(const ServiceIdentifier& service,
                     const InstanceIdentifier& instance,
                     const EventIdentifier& event) noexcept;
 
     /// @note Will disable the receive callback if active
-    void Subscribe(std::size_t queueCapacity) noexcept;
+    void Subscribe(const uint32_t queueCapacity) noexcept;
     /// @note Will disable the receive callback if active
     void Unsubscribe() noexcept;
 
     template <typename Callable>
-    core::Result<size_t> TakeNewSamples(Callable&& callable,
-                                        size_t maxNumberOfSamples = std::numeric_limits<size_t>::max()) noexcept;
+    core::Result<uint32_t> TakeNewSamples(Callable&& callable,
+                                          uint32_t maxNumberOfSamples = TAKE_ALL_SAMPLES) noexcept;
 
     void SetReceiveCallback(EventReceiveCallback handler) noexcept;
     void UnsetReceiveCallback() noexcept;
