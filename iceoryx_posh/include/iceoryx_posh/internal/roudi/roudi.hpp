@@ -152,8 +152,10 @@ class RouDi
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 
   private:
-    std::thread m_monitoringAndDiscoveryThread;
-    std::thread m_handleRuntimeMessageThread;
+    // std::thread m_monitoringAndDiscoveryThread;
+    //  std::thread m_handleRuntimeMessageThread;
+    cxx::optional<posix::thread> m_monitoringAndDiscoveryThread;
+    cxx::optional<posix::thread> m_handleRuntimeMessageThread;
 
   protected:
     ProcessIntrospectionType m_processIntrospection;

@@ -33,22 +33,22 @@ void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept
     });
 }
 
-ThreadName_t getThreadName(pthread_t thread) noexcept
-{
-    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
+// ThreadName_t getThreadName(pthread_t thread) noexcept
+//{
+// char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
-    posixCall(pthread_getname_np)(thread, tempName, MAX_THREAD_NAME_LENGTH + 1U)
-        .successReturnValue(0)
-        .evaluate()
-        .or_else([](auto& r) {
-            // String length limit is ensured through MAX_THREAD_NAME_LENGTH
-            // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-            std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
-            cxx::Ensures(false && "internal logic error");
-        });
+// posixCall(pthread_getname_np)(thread, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+//.successReturnValue(0)
+//.evaluate()
+//.or_else([](auto& r) {
+//// String length limit is ensured through MAX_THREAD_NAME_LENGTH
+//// ERANGE (string too small) intentionally not handled to avoid untestable and dead code
+// std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
+// cxx::Ensures(false && "internal logic error");
+//});
 
-    return ThreadName_t(cxx::TruncateToCapacity, tempName);
-}
+// return ThreadName_t(cxx::TruncateToCapacity, tempName);
+//}
 
 thread::~thread() noexcept
 {
@@ -107,6 +107,12 @@ ThreadName_t thread::getThreadName() noexcept
         });
 
     return ThreadName_t(cxx::TruncateToCapacity, tempName);
+}
+
+/// @todo write tests
+bool thread::joinable() const noexcept
+{
+    return m_isJoinable;
 }
 
 ThreadError thread::errnoToEnum(const int errnoValue) noexcept

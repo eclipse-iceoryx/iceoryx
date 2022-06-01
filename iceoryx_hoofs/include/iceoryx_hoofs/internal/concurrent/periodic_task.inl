@@ -57,24 +57,27 @@ inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
 {
     stop();
     m_interval = interval;
-    m_taskExecutor = std::thread(&PeriodicTask::run, this);
-    posix::setThreadName(m_taskExecutor.native_handle(), m_taskName);
+    // m_taskExecutor = std::thread(&PeriodicTask::run, this);
+    // posix::setThreadName(m_taskExecutor.native_handle(), m_taskName);
+    cxx::function<void()> callable(*this, &PeriodicTask::run);
+    cxx::Expects(!posix::ThreadBuilder().create(m_taskExecutor, callable).has_error());
+    m_taskExecutor->setThreadName(m_taskName);
 }
 
 template <typename T>
 inline void PeriodicTask<T>::stop() noexcept
 {
-    if (m_taskExecutor.joinable())
+    if (m_taskExecutor && m_taskExecutor->joinable())
     {
         cxx::Expects(!m_stop->post().has_error());
-        m_taskExecutor.join();
+        m_taskExecutor.reset();
     }
 }
 
 template <typename T>
 inline bool PeriodicTask<T>::isActive() const noexcept
 {
-    return m_taskExecutor.joinable();
+    return m_taskExecutor && m_taskExecutor->joinable();
 }
 
 template <typename T>

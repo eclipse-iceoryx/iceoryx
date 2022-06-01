@@ -44,7 +44,7 @@ enum class ThreadError
 };
 
 void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept;
-ThreadName_t getThreadName(pthread_t thread) noexcept;
+// ThreadName_t getThreadName(pthread_t thread) noexcept;
 
 class thread
 {
@@ -61,6 +61,8 @@ class thread
     void setThreadName(const ThreadName_t& name) noexcept;
 
     ThreadName_t getThreadName() noexcept;
+
+    bool joinable() const noexcept;
 
     friend class ThreadBuilder;
     friend class cxx::optional<thread>;
