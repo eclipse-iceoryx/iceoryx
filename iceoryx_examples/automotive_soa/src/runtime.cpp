@@ -122,11 +122,7 @@ bool Runtime::verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::Proxy
     // 2. b) FieldPublisher: MinimalSkeleton, Instance, Field  (iox::popo::Server)
     // 3.    MethodServer:   MinimalSkeleton, Instance, Method (iox::popo::Server)
 
-    if (container.size() == 4U)
-    {
-        return true;
-    }
-    return false;
+    return (container.size() == NUMBER_OF_ALL_SERVICES);
 }
 
 void Runtime::invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noexcept

@@ -38,6 +38,8 @@ class Runtime
                                          kom::FindServiceCallbackHandle,
                                          NumberOfAvailableServicesOnLastSearch>;
 
+    static constexpr uint64_t NUMBER_OF_ALL_SERVICES{4U};
+
   public:
     static Runtime& GetInstance(const core::String& name) noexcept;
     static Runtime& GetInstance() noexcept;
