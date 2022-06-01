@@ -24,6 +24,9 @@
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 
+#include "test.hpp"
+#include "test_posix_semaphore_common.hpp"
+
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -113,9 +116,7 @@ TYPED_TEST(SemaphoreInterfaceTest, InitialValueIsSetCorrect)
 
     ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(INITIAL_VALUE));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, INITIAL_VALUE));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
@@ -137,6 +138,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
     ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
 
     auto result = this->sut->post();
+    result = this->sut->post();
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
 }
@@ -151,9 +153,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)
         ASSERT_FALSE(this->sut->post().has_error());
     }
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
@@ -171,9 +171,7 @@ TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
         ASSERT_FALSE(this->sut->wait().has_error());
     }
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
@@ -193,9 +191,7 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
         ASSERT_THAT(*call, Eq(true));
     }
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
@@ -210,9 +206,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
         ASSERT_THAT(*call, Eq(false));
     }
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(0U));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, 0U));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
@@ -234,9 +228,7 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
@@ -252,11 +244,8 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
     }
 
-    auto result = this->sut->getValue();
-    ASSERT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(*result, Eq(0U));
+    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, 0U));
 }
-
 
 TYPED_TEST(SemaphoreInterfaceTest, TryWaitAfterPostIsSuccessful)
 {

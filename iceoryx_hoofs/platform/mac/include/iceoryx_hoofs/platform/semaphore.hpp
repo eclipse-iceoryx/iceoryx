@@ -22,7 +22,7 @@
 #include <semaphore.h>
 
 #define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
-#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
+#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX - 1
 
 struct iox_sem_t
 {

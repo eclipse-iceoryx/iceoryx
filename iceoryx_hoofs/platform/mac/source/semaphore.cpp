@@ -52,6 +52,10 @@ iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
+    if ( sem->m_hasPosixHandle ) {
+        std::cerr << "\"sem_getvalue\" is not supported for named semaphores on MacOS and always returns 0, do not use it!" << std::endl;
+        return 0;
+    }
     *sval = sem->m_value.load(std::memory_order_relaxed);
     return 0;
 }
