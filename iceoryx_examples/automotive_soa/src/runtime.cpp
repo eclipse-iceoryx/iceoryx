@@ -95,15 +95,13 @@ Runtime::EnableFindServiceCallback(const kom::FindServiceCallback<kom::ProxyHand
 
 void Runtime::DisableFindServiceCallback(const kom::FindServiceCallbackHandle handle) noexcept
 {
-    auto iter = m_callbacks.begin();
-    for (; iter != m_callbacks.end(); iter++)
+    auto iter = std::find_if(m_callbacks.begin(), m_callbacks.end(), [&](auto& element) {
+        return std::get<1>(element).GetServiceId() == handle.GetServiceId()
+               && std::get<1>(element).GetInstanceId() == handle.GetInstanceId();
+    });
+    if (iter != m_callbacks.end())
     {
-        if (std::get<1>(*iter).GetServiceId() == handle.GetServiceId()
-            && std::get<1>(*iter).GetInstanceId() == handle.GetInstanceId())
-        {
-            m_callbacks.erase(iter);
-            break;
-        }
+        m_callbacks.erase(iter);
     }
 
     if (m_callbacks.empty())
