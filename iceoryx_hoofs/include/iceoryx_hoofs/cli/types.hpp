@@ -47,11 +47,44 @@ enum class UnknownOption
 static constexpr uint64_t MAX_OPTION_NAME_LENGTH = 32;
 static constexpr uint64_t MAX_OPTION_ARGUMENT_LENGTH = 128;
 static constexpr uint64_t MAX_OPTION_DESCRIPTION_LENGTH = 1024;
+static constexpr uint64_t MAX_TYPE_NAME_LENGTH = 16;
+static constexpr char NO_SHORT_OPTION = '\0';
 
 using OptionName_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
 using OptionDescription_t = cxx::string<MAX_OPTION_DESCRIPTION_LENGTH>;
 using Argument_t = cxx::string<MAX_OPTION_ARGUMENT_LENGTH>;
 using BinaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+using TypeName_t = cxx::string<MAX_TYPE_NAME_LENGTH>;
+
+struct Option
+{
+    bool isSwitch() const noexcept;
+    bool hasOptionName(const OptionName_t& name) const noexcept;
+    bool isSameOption(const Option& rhs) const noexcept;
+    bool operator<(const Option& rhs) const noexcept;
+    bool isEmpty() const noexcept;
+    bool longOptionNameDoesStartWithDash() const noexcept;
+    bool shortOptionNameIsEqualDash() const noexcept;
+    bool hasLongOptionName(const OptionName_t& value) const noexcept;
+    bool hasShortOptionName(const char value) const noexcept;
+    bool hasShortOption() const noexcept;
+    bool hasLongOption() const noexcept;
+
+    char shortOption = NO_SHORT_OPTION;
+    OptionName_t longOption;
+    Argument_t value;
+};
+
+struct OptionDetails
+{
+    bool operator<(const OptionDetails& rhs) const noexcept;
+
+    Option option;
+    OptionDescription_t description;
+    OptionType type = OptionType::SWITCH;
+    TypeName_t typeName;
+};
+
 } // namespace cli
 } // namespace iox
 #endif

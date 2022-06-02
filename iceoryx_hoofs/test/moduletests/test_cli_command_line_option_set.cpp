@@ -164,7 +164,7 @@ TEST_F(CommandLineOptionSet_test, AddingSwitchWithEmptyShortAndLongOptionLeadsTo
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1aa3314-0355-43d8-85b3-b2e7d604440e");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addSwitch(CommandLineOptionSet::NO_SHORT_OPTION, "", "");
+    optionSet.addSwitch(NO_SHORT_OPTION, "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -173,7 +173,7 @@ TEST_F(CommandLineOptionSet_test, AddingOptionalWithEmptyShortAndLongOptionLeads
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee6866b7-a4f8-4406-ab50-ba0d1b798696");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional(CommandLineOptionSet::NO_SHORT_OPTION, "", "", "", "");
+    optionSet.addOptional(NO_SHORT_OPTION, "", "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
@@ -182,10 +182,8 @@ TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithEmptyShortAndLongOption
 {
     ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addRequired(CommandLineOptionSet::NO_SHORT_OPTION, "", "", "");
+    optionSet.addRequired(NO_SHORT_OPTION, "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
-
-
 } // namespace

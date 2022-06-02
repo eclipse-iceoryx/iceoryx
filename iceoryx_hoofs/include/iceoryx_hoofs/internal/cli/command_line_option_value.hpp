@@ -66,13 +66,6 @@ class CommandLineOptionValue
 
 
   private:
-    struct Option
-    {
-        char shortId;
-        OptionName_t id;
-        Argument_t value;
-    };
-
     BinaryName_t m_binaryName;
     cxx::vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };

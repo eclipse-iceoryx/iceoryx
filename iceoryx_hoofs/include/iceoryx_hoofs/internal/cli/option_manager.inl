@@ -30,7 +30,7 @@ inline T OptionManager::extractOptionArgumentValue(const CommandLineOptionValue&
                                                    const char shortName,
                                                    const OptionName_t& name)
 {
-    if (shortName != CommandLineOptionSet::NO_SHORT_OPTION)
+    if (shortName != NO_SHORT_OPTION)
     {
         return options.get<T>(OptionName_t{cxx::TruncateToCapacity, &shortName, 1})
             .or_else([this](auto&) { m_parser.printHelpAndExit(); })
@@ -50,13 +50,11 @@ inline T OptionManager::defineOption(T& referenceToMember,
                                      const OptionType optionType,
                                      T defaultArgumentValue)
 {
-    m_optionSet.addOption(
-        CommandLineOptionSet::Value{shortName,
-                                    name,
-                                    description,
-                                    optionType,
-                                    {cxx::TypeInfo<T>::NAME},
-                                    Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))});
+    m_optionSet.addOption(OptionDetails{
+        {shortName, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
+        description,
+        optionType,
+        {cxx::TypeInfo<T>::NAME}});
 
     m_assignments.emplace_back([this, &referenceToMember, shortName, name](CommandLineOptionValue& options) {
         referenceToMember = extractOptionArgumentValue<T>(options, shortName, name);
@@ -73,19 +71,17 @@ inline bool OptionManager::defineOption(bool& referenceToMember,
                                         const OptionType optionType,
                                         bool defaultArgumentValue)
 {
-    m_optionSet.addOption(
-        CommandLineOptionSet::Value{shortName,
-                                    name,
-                                    description,
-                                    optionType,
-                                    {cxx::TypeInfo<bool>::NAME},
-                                    Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))});
+    m_optionSet.addOption(OptionDetails{
+        {shortName, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
+        description,
+        optionType,
+        {cxx::TypeInfo<bool>::NAME}});
 
     m_assignments.emplace_back(
         [this, &referenceToMember, optionType, shortName, name](CommandLineOptionValue& options) {
             if (optionType == OptionType::SWITCH)
             {
-                if (shortName != CommandLineOptionSet::NO_SHORT_OPTION)
+                if (shortName != NO_SHORT_OPTION)
                 {
                     referenceToMember = options.has(OptionName_t{cxx::TruncateToCapacity, &shortName, 1});
                 }

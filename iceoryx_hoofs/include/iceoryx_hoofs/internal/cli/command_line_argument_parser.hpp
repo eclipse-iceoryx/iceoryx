@@ -74,9 +74,9 @@ class CommandLineArgumentParser
     bool hasValidOptionDashCount(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
-    bool isOptionSet(const CommandLineOptionSet::Value& entry) const noexcept;
+    bool isOptionSet(const OptionDetails& entry) const noexcept;
     bool doesOptionValueFitIntoString(const char* value) const noexcept;
-    bool doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& entry, const uint64_t position) const noexcept;
+    bool doesOptionHasSucceedingValue(const OptionDetails& entry, const uint64_t position) const noexcept;
     bool hasLexicallyValidOption(const char* value) const noexcept;
     /// END only used in parse to improve readability
 

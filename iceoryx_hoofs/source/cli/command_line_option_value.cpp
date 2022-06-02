@@ -31,7 +31,7 @@ bool CommandLineOptionValue::has(const OptionName_t& switchName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
-        if (a.value.empty() && (a.id == switchName || (switchName.size() == 1 && a.shortId == switchName.c_str()[0])))
+        if (a.isSwitch() && a.hasOptionName(switchName))
         {
             return true;
         }

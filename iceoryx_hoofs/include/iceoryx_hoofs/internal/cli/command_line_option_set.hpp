@@ -36,11 +36,6 @@ namespace internal
 class CommandLineOptionSet
 {
   public:
-    static constexpr uint64_t MAX_TYPE_NAME_LENGTH = 16;
-    static constexpr char NO_SHORT_OPTION = '\0';
-
-    using TypeName_t = cxx::string<MAX_TYPE_NAME_LENGTH>;
-
     /// @brief The constructor.
     /// @param[in] programDescription The description to the program. Will be printed in the help.
     /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is
@@ -53,7 +48,7 @@ class CommandLineOptionSet
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
     ///        empty.
     /// @param[in] shortOption a single letter as short option
-    /// @param[in] longOption a multi letter word which does not start with minus as long option name
+    /// @param[in] longOption a multi letter word which does not start with dash as long option name
     /// @param[in] description the description to the argument
     CommandLineOptionSet&
     addSwitch(const char shortOption, const OptionName_t& longOption, const OptionDescription_t& description) noexcept;
@@ -62,7 +57,7 @@ class CommandLineOptionSet
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
     ///        empty.
     /// @param[in] shortOption a single letter as short option
-    /// @param[in] longOption a multi letter word which does not start with minus as long option name
+    /// @param[in] longOption a multi letter word which does not start with dash as long option name
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
     /// @param[in] defaultValue the value which will be set to the option when it is not set by the user
@@ -76,7 +71,7 @@ class CommandLineOptionSet
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
     ///        empty.
     /// @param[in] shortOption a single letter as short option
-    /// @param[in] longOption a multi letter word which does not start with minus as long option name
+    /// @param[in] longOption a multi letter word which does not start with dash as long option name
     /// @param[in] description the description to the argument
     /// @param[in] typeName the name of the value type
     CommandLineOptionSet& addRequired(const char shortOption,
@@ -85,31 +80,21 @@ class CommandLineOptionSet
                                       const TypeName_t& typeName) noexcept;
 
   private:
-    struct Value
-    {
-        char shortOption = NO_SHORT_OPTION;
-        OptionName_t longOption;
-        OptionDescription_t description;
-        OptionType type = OptionType::SWITCH;
-        TypeName_t typeName;
-        Argument_t defaultValue;
-    };
-
     friend class OptionManager;
     friend class CommandLineArgumentParser;
-    friend std::ostream& operator<<(std::ostream&, const CommandLineOptionSet::Value&) noexcept;
+    friend std::ostream& operator<<(std::ostream&, const OptionDetails&) noexcept;
 
     void sortAvailableOptions() noexcept;
-    CommandLineOptionSet& addOption(const Value& option) noexcept;
-    cxx::optional<Value> getOption(const OptionName_t& name) const noexcept;
+    CommandLineOptionSet& addOption(const OptionDetails& option) noexcept;
+    cxx::optional<OptionDetails> getOption(const OptionName_t& name) const noexcept;
 
   private:
     OptionDescription_t m_programDescription;
-    cxx::vector<Value, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    cxx::vector<OptionDetails, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
     cxx::function<void()> m_onFailureCallback;
 };
 
-std::ostream& operator<<(std::ostream& stream, const CommandLineOptionSet::Value& value) noexcept;
+std::ostream& operator<<(std::ostream& stream, const OptionDetails& value) noexcept;
 } // namespace internal
 } // namespace cli
 } // namespace iox

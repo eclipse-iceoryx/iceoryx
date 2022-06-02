@@ -135,13 +135,12 @@ bool CommandLineArgumentParser::isNextArgumentAValue(const uint64_t position) co
             && (strnlen(m_argv[position + 1], MAX_OPTION_NAME_LENGTH) > 0 && m_argv[position + 1][0] != '-'));
 }
 
-bool CommandLineArgumentParser::isOptionSet(const CommandLineOptionSet::Value& value) const noexcept
+bool CommandLineArgumentParser::isOptionSet(const OptionDetails& value) const noexcept
 {
     bool isOptionSet = false;
     for (const auto& option : m_optionValue.m_arguments)
     {
-        if ((option.shortId != CommandLineOptionSet::NO_SHORT_OPTION && option.shortId == value.shortOption)
-            || option.id == value.longOption)
+        if (option.isSameOption(value.option))
         {
             isOptionSet = true;
             break;
@@ -179,22 +178,7 @@ bool CommandLineArgumentParser::hasLexicallyValidOption(const char* value) const
 
 void CommandLineOptionSet::sortAvailableOptions() noexcept
 {
-    std::sort(m_availableOptions.begin(), m_availableOptions.end(), [](const Value& lhs, const Value& rhs) {
-        if (lhs.shortOption != NO_SHORT_OPTION && rhs.shortOption != NO_SHORT_OPTION)
-        {
-            return lhs.shortOption < rhs.shortOption;
-        }
-        else if (!lhs.longOption.empty() && rhs.shortOption != NO_SHORT_OPTION)
-        {
-            return lhs.longOption.c_str()[0] < rhs.shortOption;
-        }
-        else if (lhs.shortOption != NO_SHORT_OPTION && !rhs.longOption.empty())
-        {
-            return lhs.shortOption < rhs.longOption.c_str()[0];
-        }
-
-        return lhs.longOption < rhs.longOption;
-    });
+    std::sort(m_availableOptions.begin(), m_availableOptions.end());
 }
 
 CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionSet& optionSet,
@@ -257,9 +241,8 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
 
         if (optionEntry->type == OptionType::SWITCH)
         {
-            m_optionValue.m_arguments.emplace_back();
-            m_optionValue.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
-            m_optionValue.m_arguments.back().shortId = optionEntry->shortOption;
+            m_optionValue.m_arguments.emplace_back(optionEntry->option);
+            m_optionValue.m_arguments.back().value.clear();
         }
         else
         {
@@ -273,9 +256,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
                 return m_optionValue;
             }
 
-            m_optionValue.m_arguments.emplace_back();
-            m_optionValue.m_arguments.back().id.unsafe_assign(optionEntry->longOption);
-            m_optionValue.m_arguments.back().shortId = optionEntry->shortOption;
+            m_optionValue.m_arguments.emplace_back(optionEntry->option);
             m_optionValue.m_arguments.back().value.unsafe_assign(m_argv[i + 1]);
             skipCommandLineArgument();
         }
@@ -292,7 +273,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     return m_optionValue;
 }
 
-bool CommandLineArgumentParser::doesOptionHasSucceedingValue(const CommandLineOptionSet::Value& value,
+bool CommandLineArgumentParser::doesOptionHasSucceedingValue(const OptionDetails& value,
                                                              const uint64_t position) const noexcept
 {
     bool doesOptionHasSucceedingValue = (position + 1 < m_argc);
@@ -317,12 +298,7 @@ void CommandLineArgumentParser::setDefaultValuesToUnsetOptions() noexcept
         bool isOptionAlreadySet = false;
         for (auto& option : m_optionValue.m_arguments)
         {
-            if (option.shortId != internal::CommandLineOptionSet::NO_SHORT_OPTION && option.shortId == r.shortOption)
-            {
-                isOptionAlreadySet = true;
-                break;
-            }
-            else if (!option.id.empty() && option.id == r.longOption)
+            if (option.isSameOption(r.option))
             {
                 isOptionAlreadySet = true;
                 break;
@@ -331,10 +307,7 @@ void CommandLineArgumentParser::setDefaultValuesToUnsetOptions() noexcept
 
         if (!isOptionAlreadySet)
         {
-            m_optionValue.m_arguments.emplace_back();
-            m_optionValue.m_arguments.back().id.unsafe_assign(r.longOption);
-            m_optionValue.m_arguments.back().shortId = r.shortOption;
-            m_optionValue.m_arguments.back().value = r.defaultValue;
+            m_optionValue.m_arguments.emplace_back(r.option);
         }
     }
 }
@@ -349,8 +322,7 @@ bool CommandLineArgumentParser::areAllRequiredValuesPresent() const noexcept
             bool isValuePresent = false;
             for (const auto& o : m_optionValue.m_arguments)
             {
-                if ((!r.longOption.empty() && o.id == r.longOption)
-                    || (r.shortOption != CommandLineOptionSet::NO_SHORT_OPTION && o.shortId == r.shortOption))
+                if (o.isSameOption(r.option))
                 {
                     isValuePresent = true;
                     break;
@@ -383,22 +355,22 @@ void CommandLineArgumentParser::printHelpAndExit() const noexcept
     {
         uint64_t outLength = 4U;
         std::cout << "    ";
-        if (a.shortOption != CommandLineOptionSet::NO_SHORT_OPTION)
+        if (a.option.shortOption != NO_SHORT_OPTION)
         {
-            std::cout << "-" << a.shortOption;
+            std::cout << "-" << a.option.shortOption;
             outLength += 2;
         }
 
-        if (a.shortOption != CommandLineOptionSet::NO_SHORT_OPTION && !a.longOption.empty())
+        if (a.option.shortOption != NO_SHORT_OPTION && !a.option.longOption.empty())
         {
             std::cout << ", ";
             outLength += 2;
         }
 
-        if (!a.longOption.empty())
+        if (!a.option.longOption.empty())
         {
-            std::cout << "--" << a.longOption.c_str();
-            outLength += 2 + a.longOption.size();
+            std::cout << "--" << a.option.longOption.c_str();
+            outLength += 2 + a.option.longOption.size();
         }
 
         if (a.type == OptionType::REQUIRED)
@@ -426,7 +398,7 @@ void CommandLineArgumentParser::printHelpAndExit() const noexcept
             {
                 std::cout << " ";
             }
-            std::cout << "default value = \'" << a.defaultValue << "\'" << std::endl;
+            std::cout << "default value = \'" << a.option.value << "\'" << std::endl;
         }
     }
     std::cout << std::endl;

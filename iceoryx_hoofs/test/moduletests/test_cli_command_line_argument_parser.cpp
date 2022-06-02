@@ -890,12 +890,12 @@ TEST_F(CommandLineArgumentParser_test, DefaultValuesAreLoadedForLongOptionsOnly)
     constexpr int32_t DEFAULT_VALUE_2 = 5512341;
 
     CommandLineOptionSet optionSet("");
-    optionSet.addOptional(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION,
+    optionSet.addOptional(iox::cli::NO_SHORT_OPTION,
                           "bla",
                           "",
                           "int",
                           Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_1).c_str()));
-    optionSet.addOptional(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION,
+    optionSet.addOptional(iox::cli::NO_SHORT_OPTION,
                           "fuu",
                           "",
                           "int",
@@ -930,8 +930,8 @@ TEST_F(CommandLineArgumentParser_test, DetectMissingRequiredOptionsWithLongOptio
 {
     bool wasErrorHandlerCalled;
     CommandLineOptionSet optionSet("", [&] { wasErrorHandlerCalled = true; });
-    optionSet.addRequired(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION, "alpha", "", "int");
-    optionSet.addRequired(iox::cli::internal::CommandLineOptionSet::NO_SHORT_OPTION, "beta", "", "int");
+    optionSet.addRequired(iox::cli::NO_SHORT_OPTION, "alpha", "", "int");
+    optionSet.addRequired(iox::cli::NO_SHORT_OPTION, "beta", "", "int");
 
     CmdArgs args({"binaryName"});
     auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);

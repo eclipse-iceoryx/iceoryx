@@ -56,7 +56,7 @@ CommandLineOptionValue::get(const OptionName_t& optionName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
-        if (a.id == optionName || (optionName.size() == 1 && a.shortId == optionName.c_str()[0]))
+        if (a.hasOptionName(optionName))
         {
             return convertFromString<T>(a.value);
         }

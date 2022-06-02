@@ -49,6 +49,7 @@ iox_add_library(
         source/cli/command_line_option_set.cpp
         source/cli/command_line_option_value.cpp
         source/cli/option_manager.cpp
+        source/cli/types.cpp
         source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp

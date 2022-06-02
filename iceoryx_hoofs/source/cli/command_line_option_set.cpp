@@ -27,15 +27,14 @@ CommandLineOptionSet::CommandLineOptionSet(const OptionDescription_t& programDes
     : m_programDescription{programDescription}
     , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
 {
-    std::move(*this).addOption({'h', {"help"}, {"Display help."}, OptionType::SWITCH, {""}, {""}});
+    std::move(*this).addOption({{'h', {"help"}, ""}, {"Display help."}, OptionType::SWITCH, {""}});
 }
 
-cxx::optional<CommandLineOptionSet::Value> CommandLineOptionSet::getOption(const OptionName_t& name) const noexcept
+cxx::optional<OptionDetails> CommandLineOptionSet::getOption(const OptionName_t& name) const noexcept
 {
-    const auto nameSize = name.size();
     for (const auto& r : m_availableOptions)
     {
-        if (name == r.longOption || (nameSize == 1 && name.c_str()[0] == r.shortOption))
+        if (r.option.hasOptionName(name))
         {
             return r;
         }
@@ -43,24 +42,24 @@ cxx::optional<CommandLineOptionSet::Value> CommandLineOptionSet::getOption(const
     return cxx::nullopt;
 }
 
-CommandLineOptionSet& CommandLineOptionSet::addOption(const Value& option) noexcept
+CommandLineOptionSet& CommandLineOptionSet::addOption(const OptionDetails& option) noexcept
 {
-    if (option.longOption.empty() && option.shortOption == NO_SHORT_OPTION)
+    if (option.option.isEmpty())
     {
         std::cout << "Unable to add option with empty short and long option." << std::endl;
         m_onFailureCallback();
         return *this;
     }
 
-    if (!option.longOption.empty() && option.longOption.c_str()[0] == '-')
+    if (option.option.longOptionNameDoesStartWithDash())
     {
         std::cout << "The first character of a long option cannot start with minus \"-\" but the option \""
-                  << option.longOption << "\" starts with minus." << std::endl;
+                  << option.option.longOption << "\" starts with minus." << std::endl;
         m_onFailureCallback();
         return *this;
     }
 
-    if (option.shortOption == '-')
+    if (option.option.shortOptionNameIsEqualDash())
     {
         std::cout << "Minus \"-\" is not a valid character for a short option." << std::endl;
         m_onFailureCallback();
@@ -70,17 +69,19 @@ CommandLineOptionSet& CommandLineOptionSet::addOption(const Value& option) noexc
     for (const auto& registeredOption : m_availableOptions)
     {
         bool isLongOrShortOptionRegistered = false;
-        if (!registeredOption.longOption.empty() && registeredOption.longOption == option.longOption)
+        if (registeredOption.option.hasLongOptionName(option.option.longOption))
         {
-            std::cout << "The longOption \"--" << registeredOption.longOption << "\" is already registered for option "
-                      << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
+            std::cout << "The longOption \"--" << registeredOption.option.longOption
+                      << "\" is already registered for option " << registeredOption << ". Cannot add option \""
+                      << option << "\"." << std::endl;
             isLongOrShortOptionRegistered = true;
         }
 
-        if (registeredOption.shortOption != NO_SHORT_OPTION && registeredOption.shortOption == option.shortOption)
+        if (registeredOption.option.hasShortOptionName(option.option.shortOption))
         {
-            std::cout << "The shortOption \"-" << registeredOption.shortOption << "\" is already registered for option "
-                      << registeredOption << ". Cannot add option \"" << option << "\"." << std::endl;
+            std::cout << "The shortOption \"-" << registeredOption.option.shortOption
+                      << "\" is already registered for option " << registeredOption << ". Cannot add option \""
+                      << option << "\"." << std::endl;
             isLongOrShortOptionRegistered = true;
         }
 
@@ -103,7 +104,7 @@ CommandLineOptionSet& CommandLineOptionSet::addSwitch(const char shortOption,
                                                       const OptionName_t& longOption,
                                                       const OptionDescription_t& description) noexcept
 {
-    return addOption({shortOption, longOption, description, OptionType::SWITCH, {""}, {""}});
+    return addOption({{shortOption, longOption, {""}}, description, OptionType::SWITCH, {""}});
 }
 
 CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
@@ -112,29 +113,29 @@ CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
                                                         const TypeName_t& typeName,
                                                         const Argument_t& defaultValue) noexcept
 {
-    return addOption({shortOption, longOption, description, OptionType::OPTIONAL, typeName, defaultValue});
+    return addOption({{shortOption, longOption, defaultValue}, description, OptionType::OPTIONAL, typeName});
 }
 CommandLineOptionSet& CommandLineOptionSet::addRequired(const char shortOption,
                                                         const OptionName_t& longOption,
                                                         const OptionDescription_t& description,
                                                         const TypeName_t& typeName) noexcept
 {
-    return addOption({shortOption, longOption, description, OptionType::REQUIRED, typeName, {""}});
+    return addOption({{shortOption, longOption, {""}}, description, OptionType::REQUIRED, typeName});
 }
 
-std::ostream& operator<<(std::ostream& stream, const CommandLineOptionSet::Value& value) noexcept
+std::ostream& operator<<(std::ostream& stream, const OptionDetails& value) noexcept
 {
-    if (value.shortOption != CommandLineOptionSet::NO_SHORT_OPTION)
+    if (value.option.hasShortOption())
     {
-        stream << "-" << value.shortOption;
+        stream << "-" << value.option.shortOption;
     }
-    if (value.shortOption != CommandLineOptionSet::NO_SHORT_OPTION && !value.longOption.empty())
+    if (value.option.hasShortOption() && value.option.hasLongOption())
     {
         stream << ", ";
     }
-    if (!value.longOption.empty())
+    if (value.option.hasLongOption())
     {
-        stream << "--" << value.longOption;
+        stream << "--" << value.option.longOption;
     }
 
     return stream;
