@@ -47,9 +47,9 @@ Future<AddResponse> MethodServer::computeSum(const uint64_t addend1, const uint6
 
 void MethodServer::onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server, MethodServer* self) noexcept
 {
-    if (self == nullptr)
+    if (server == nullptr || self == nullptr)
     {
-        std::cerr << "Callback was invoked with MethodServer* being a nullptr!" << std::endl;
+        std::cerr << "Callback was invoked with server or self being a nullptr!" << std::endl;
         return;
     }
 

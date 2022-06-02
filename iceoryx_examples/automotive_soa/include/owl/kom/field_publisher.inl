@@ -86,9 +86,9 @@ template <typename T>
 inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
                                                  FieldPublisher<FieldType>* self) noexcept
 {
-    if (self == nullptr)
+    if (server == nullptr || self == nullptr)
     {
-        std::cerr << "Callback was invoked with FieldPublisher* being a nullptr!" << std::endl;
+        std::cerr << "Callback was invoked with server or self being a nullptr!" << std::endl;
         return;
     }
 
