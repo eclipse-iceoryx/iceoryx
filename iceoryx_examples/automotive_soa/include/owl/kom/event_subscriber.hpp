@@ -65,6 +65,8 @@ class EventSubscriber
     iox::capro::ServiceDescription m_serviceDescription;
     iox::cxx::optional<iox::popo::Subscriber<T>> m_subscriber;
     iox::concurrent::smart_lock<iox::cxx::optional<iox::cxx::function<void()>>> m_receiveCallback;
+    /// @note For simplicity a Listener is added to each subscriber, a performance version would re-use the Listener in
+    /// the Runtime
     iox::popo::Listener m_listener;
     //! [EventSubscriber members]
 };
