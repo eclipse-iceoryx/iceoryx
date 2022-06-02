@@ -23,7 +23,8 @@
 #include <chrono>
 #include <cstdint>
 
-constexpr uint32_t ONE_KILOBYTE = 1000U;
+constexpr uint32_t ONE_KILOBYTE = 1024U;
+constexpr uint32_t ONE_MEGABYTE = 1024U * 1024U;
 
 struct AddRequest
 {
@@ -59,8 +60,8 @@ using TimestampTopic4Kb = TimestampTopic<4 * ONE_KILOBYTE>;
 using TimestampTopic16Kb = TimestampTopic<16 * ONE_KILOBYTE>;
 using TimestampTopic64Kb = TimestampTopic<64 * ONE_KILOBYTE>;
 using TimestampTopic256Kb = TimestampTopic<256 * ONE_KILOBYTE>;
-using TimestampTopic1Mb = TimestampTopic<1024 * ONE_KILOBYTE>;
-using TimestampTopic4Mb = TimestampTopic<4096 * ONE_KILOBYTE>;
+using TimestampTopic1Mb = TimestampTopic<ONE_MEGABYTE>;
+using TimestampTopic3Mb = TimestampTopic<3 * ONE_MEGABYTE>;
 
 template <typename T, typename = void, typename = void, typename = void, typename = void, typename = void>
 struct is_supported_topic : std::false_type

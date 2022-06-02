@@ -80,7 +80,7 @@ inline core::Result<uint32_t> EventSubscriber<T>::TakeNewSamples(Callable&& call
                .take()
                .and_then([&](const auto& sample) {
                    callable(sample.get());
-                   numberOfSamples++;
+                   ++numberOfSamples;
                })
                .or_else([](auto& result) {
                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)

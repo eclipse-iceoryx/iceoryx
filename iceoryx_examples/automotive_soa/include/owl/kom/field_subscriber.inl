@@ -58,7 +58,7 @@ inline core::Result<uint32_t> FieldSubscriber<T>::TakeNewSamples(Callable&& call
     while (m_subscriber.take()
                .and_then([&](const auto& sample) {
                    callable(sample.get());
-                   numberOfSamples++;
+                   ++numberOfSamples;
                })
                .or_else([](auto& result) {
                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
